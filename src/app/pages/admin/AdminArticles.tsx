@@ -14,20 +14,28 @@ export default function AdminArticles() {
   const [editing, setEditing] = useState<Draft | null>(null);
 
   return (
-    <div>
+    // 👈 قمنا بإزالة المغلف واستبداله بـ div عادي لأن التغليف يتم ديناميكياً الآن عبر الـ Outlet!
+    <div dir={dir} className="w-full">
+      {/* ── 🔝 الهيدر العلوي للصفحة ── */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("admin_articles")}</h1>
-        <button onClick={() => setEditing({ status: "draft", commentsEnabled: true, content: "", tags: [] })}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90"
-          style={{ fontFamily: sansFont(lang) }}>
-          <Plus size={16} />{t("admin_add")}
+        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>
+          {t("admin_articles")}
+        </h1>
+        <button 
+          onClick={() => setEditing({ status: "draft", commentsEnabled: true, content: "", tags: [] })}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+          style={{ fontFamily: sansFont(lang) }}
+        >
+          <Plus size={16} />
+          {t("admin_add")}
         </button>
       </div>
 
-      <div className="bg-card border border-border rounded-2xl overflow-x-auto">
+      {/* ── 📊 جدول البيانات المطور ── */}
+      <div className="bg-card border border-border rounded-2xl overflow-x-auto shadow-sm">
         <table className="w-full text-sm" style={{ fontFamily: sansFont(lang) }}>
           <thead>
-            <tr className="text-xs text-muted-foreground uppercase border-b border-border">
+            <tr className="text-xs text-muted-foreground uppercase border-b border-border bg-muted/20">
               <th className="p-4 text-start">Title</th>
               <th className="p-4 text-start">{t("admin_status")}</th>
               <th className="p-4 text-start">Comments</th>
@@ -37,26 +45,36 @@ export default function AdminArticles() {
           </thead>
           <tbody>
             {cms.articles.map(a => (
-              <tr key={a.id} className="border-b border-border last:border-0 hover:bg-muted/50">
+              <tr key={a.id} className="border-b border-border last:border-0 hover:bg-muted/50 transition-colors">
                 <td className="p-4">
                   <div className="font-semibold text-foreground">{a.title}</div>
                   <div className="text-xs text-muted-foreground">/{a.slug} · {a.category}</div>
                 </td>
                 <td className="p-4">
-                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${a.status === "published" ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600"}`}>
+                  <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${a.status === "published" ? "bg-green-50 text-green-600 dark:bg-green-950/30 dark:text-green-400" : "bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"}`}>
                     {a.status === "published" ? t("admin_published") : t("admin_draft")}
                   </span>
                 </td>
                 <td className="p-4">
                   {a.commentsEnabled !== false
-                    ? <MessageSquare size={15} className="text-green-600" />
+                    ? <MessageSquare size={15} className="text-green-600 dark:text-green-400" />
                     : <MessageSquareOff size={15} className="text-muted-foreground" />}
                 </td>
                 <td className="p-4 text-muted-foreground">{a.views.toLocaleString()}</td>
                 <td className="p-4">
                   <div className="flex items-center justify-end gap-2">
-                    <button onClick={() => setEditing(a)} className="p-2 rounded-lg text-primary hover:bg-accent"><Pencil size={15} /></button>
-                    <button onClick={() => { if (confirm(t("admin_confirm_delete"))) deleteArticle(a.id); }} className="p-2 rounded-lg text-red-600 hover:bg-red-50"><Trash2 size={15} /></button>
+                    <button 
+                      onClick={() => setEditing(a)} 
+                      className="p-2 rounded-lg text-primary hover:bg-accent transition-colors"
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button 
+                      onClick={() => { if (confirm(t("admin_confirm_delete"))) deleteArticle(a.id); }} 
+                      className="p-2 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                    >
+                      <Trash2 size={15} />
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -65,11 +83,21 @@ export default function AdminArticles() {
         </table>
       </div>
 
-      {editing && <ArticleEditor draft={editing} onClose={() => setEditing(null)} dir={dir} lang={lang} t={t} />}
+      {/* ── 📝 محرر المقالات المنبثق ── */}
+      {editing && (
+        <ArticleEditor 
+          draft={editing} 
+          onClose={() => setEditing(null)} 
+          dir={dir} 
+          lang={lang} 
+          t={t} 
+        />
+      )}
     </div>
   );
 }
 
+// ── 📝 كود دالة الـ ArticleEditor والـ Field والـ CSS يبقى كما هو بدون تغيير ──
 function ArticleEditor({ draft, onClose, dir, lang, t }: {
   draft: Draft; onClose: () => void; dir: "rtl" | "ltr";
   lang: ReturnType<typeof useI18n>["lang"]; t: (k: string) => string;
@@ -104,21 +132,20 @@ function ArticleEditor({ draft, onClose, dir, lang, t }: {
     onClose();
   };
 
-  const gradeColor = report.grade === "A" ? "text-green-600 bg-green-50" : report.grade === "B" ? "text-blue-600 bg-blue-50" : report.grade === "C" ? "text-amber-600 bg-amber-50" : "text-red-600 bg-red-50";
+  const gradeColor = report.grade === "A" ? "text-green-600 bg-green-50 dark:bg-green-950/30 dark:text-green-400" : report.grade === "B" ? "text-blue-600 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-400" : report.grade === "C" ? "text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400" : "text-red-600 bg-red-50 dark:bg-red-950/30 dark:text-red-400";
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center p-4 overflow-y-auto" onClick={onClose}>
-      <div className="bg-muted rounded-2xl w-full max-w-5xl my-6" onClick={e => e.stopPropagation()} dir={dir}>
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto" onClick={onClose}>
+      <div className="bg-muted rounded-2xl w-full max-w-5xl my-6 border border-border shadow-2xl" onClick={e => e.stopPropagation()} dir={dir}>
         <div className="flex items-center justify-between p-5 border-b border-border bg-card rounded-t-2xl sticky top-0 z-10">
           <h2 className="font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{d.id ? t("admin_edit") : t("admin_add")}</h2>
           <div className="flex items-center gap-2">
-            <button onClick={save} className="px-5 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90">{t("admin_save")}</button>
-            <button onClick={onClose} className="p-2 text-muted-foreground hover:text-foreground"><X size={18} /></button>
+            <button onClick={save} className="px-5 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">{t("admin_save")}</button>
+            <button onClick={onClose} className="p-2 text-muted-foreground hover:text-foreground transition-colors"><X size={18} /></button>
           </div>
         </div>
 
         <div className="grid lg:grid-cols-[1fr_300px] gap-5 p-5" style={{ fontFamily: sansFont(lang) }}>
-          {/* Main column */}
           <div className="space-y-4">
             <Field label="Title" value={d.title || ""} onChange={v => setD({ ...d, title: v })} dir={dir} />
             <div className="grid grid-cols-2 gap-3">
@@ -133,27 +160,25 @@ function ArticleEditor({ draft, onClose, dir, lang, t }: {
             </div>
           </div>
 
-          {/* Sidebar: settings + SEO score */}
           <div className="space-y-4">
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <div>
                 <label className="text-xs text-muted-foreground">{t("admin_status")}</label>
                 <select value={d.status || "draft"} onChange={e => setD({ ...d, status: e.target.value as AdminArticle["status"] })}
-                  className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card outline-none focus:border-primary">
+                  className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary">
                   <option value="draft">{t("admin_draft")}</option>
                   <option value="published">{t("admin_published")}</option>
                 </select>
               </div>
               <Field label="Author" value={d.author || ""} onChange={v => setD({ ...d, author: v })} dir={dir} />
               <Field label="Tags (comma separated)" value={tagInput} onChange={setTagInput} dir={dir} />
-              <label className="flex items-center justify-between text-sm text-foreground cursor-pointer">
+              <label className="flex items-center justify-between text-sm text-foreground cursor-pointer pt-2">
                 <span className="flex items-center gap-1.5"><MessageSquare size={14} />Comments</span>
                 <input type="checkbox" checked={d.commentsEnabled !== false}
-                  onChange={e => setD({ ...d, commentsEnabled: e.target.checked })} className="w-4 h-4 accent-[var(--primary)]" />
+                  onChange={e => setD({ ...d, commentsEnabled: e.target.checked })} className="w-4 h-4 accent-primary" />
               </label>
             </div>
 
-            {/* SEO */}
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">SEO</h3>
               <Field label="Focus keyword" value={d.keyword || ""} onChange={v => setD({ ...d, keyword: v })} dir={dir} />
@@ -161,18 +186,17 @@ function ArticleEditor({ draft, onClose, dir, lang, t }: {
               <div>
                 <label className="text-xs text-muted-foreground">Meta description</label>
                 <textarea value={d.metaDescription || ""} onChange={e => setD({ ...d, metaDescription: e.target.value })} rows={3} maxLength={180}
-                  className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card outline-none focus:border-primary resize-none ${dir === "rtl" ? "text-right" : "text-left"}`} />
+                  className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary resize-none ${dir === "rtl" ? "text-right" : "text-left"}`} />
               </div>
             </div>
 
-            {/* SEO score */}
             <div className="bg-card border border-border rounded-xl p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="flex items-center gap-1.5 text-xs font-bold text-foreground uppercase tracking-wide"><Gauge size={14} />SEO Score</h3>
                 <span className={`text-sm font-bold px-2.5 py-1 rounded-lg ${gradeColor}`}>{report.score} · {report.grade}</span>
               </div>
               <div className="h-2 rounded-full bg-muted overflow-hidden mb-3">
-                <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${report.score}%` }} />
+                <div className="h-full rounded-full bg-primary transition-all duration-500" style={{ width: `${report.score}%` }} />
               </div>
               <ul className="space-y-1.5">
                 {report.checks.map(c => (
@@ -195,7 +219,7 @@ function Field({ label, value, onChange, dir }: { label: string; value: string; 
     <div>
       <label className="text-xs text-muted-foreground">{label}</label>
       <input value={value} onChange={e => onChange(e.target.value)} maxLength={200}
-        className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card outline-none focus:border-primary ${dir === "rtl" ? "text-right" : "text-left"}`} />
+        className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary ${dir === "rtl" ? "text-right" : "text-left"}`} />
     </div>
   );
 }
