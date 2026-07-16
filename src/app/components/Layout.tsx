@@ -1,0 +1,585 @@
+import { useState, useEffect } from "react";
+import { Outlet, Link, useLocation, useNavigate } from "react-router";
+import {
+  Menu, X, ChevronDown, ChevronRight, Search, Scale, BookOpen,
+  GraduationCap, Gavel, Users, Twitter, Youtube, Globe, Mail,
+  Moon, Sun,
+} from "lucide-react";
+import { trackPageView, initGA } from "../lib/analytics";
+import { useI18n, LANGS, serifFont, sansFont, type Lang } from "../lib/i18n";
+import { setOrganizationSchema } from "../lib/jsonld";
+import { useReferralTracking } from "../lib/referral";
+
+// Multilingual string helper
+type L = Record<Lang, string>;
+const t4 = (ar: string, fr: string, en: string, es: string): L => ({ ar, fr, en, es });
+
+function UtilityBar() {
+  const { lang, setLang, theme, setTheme, t } = useI18n();
+  return (
+    <div className="bg-primary text-primary-foreground text-xs">
+      <div className="max-w-7xl mx-auto px-6 h-9 flex items-center justify-between">
+        <span className="font-semibold tracking-wide" style={{ fontFamily: serifFont(lang) }}>
+          {t("motto")}
+        </span>
+        <div className="flex items-center gap-1">
+          {LANGS.map(l => (
+            <button key={l.code} onClick={() => setLang(l.code)}
+              className={`px-2 py-0.5 rounded transition-colors ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}>
+              {l.label}
+            </button>
+          ))}
+          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/10 transition-colors ms-2">
+            {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileControls() {
+  const { lang, setLang, theme, setTheme } = useI18n();
+  return (
+    <div className="bg-primary text-primary-foreground rounded-xl p-3 flex items-center justify-between gap-2">
+      <div className="flex items-center gap-1">
+        {LANGS.map(l => (
+          <button key={l.code} onClick={() => setLang(l.code)}
+            className={`px-2.5 py-1 text-xs rounded-lg transition-colors ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}>
+            {l.label}
+          </button>
+        ))}
+      </div>
+      <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
+        {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+      </button>
+    </div>
+  );
+}
+
+// ── Navigation data (multilingual) ──────────────────────────────────────────────
+
+interface MegaItem {
+  label: L; icon: React.ReactNode; href: string;
+  cols: { heading: L; links: { label: L; href: string }[] }[];
+}
+
+const megaMenuData: MegaItem[] = [
+  {
+    label: t4("المكتبة القانونية", "Bibliothèque", "Library", "Biblioteca"),
+    icon: <BookOpen size={15} />, href: "/library",
+    cols: [
+      {
+        heading: t4("فروع القانون", "Branches du droit", "Fields of Law", "Ramas del derecho"),
+        links: [
+          { label: t4("قانون الأسرة", "Droit de la famille", "Family Law", "Derecho de familia"), href: "/library/family-law" },
+          { label: t4("القانون الجنائي", "Droit pénal", "Criminal Law", "Derecho penal"), href: "/library/criminal-law" },
+          { label: t4("القانون التجاري", "Droit commercial", "Commercial Law", "Derecho mercantil"), href: "/library/commercial-law" },
+          { label: t4("القانون الإداري", "Droit administratif", "Administrative Law", "Derecho administrativo"), href: "/library/administrative-law" },
+          { label: t4("القانون الدستوري", "Droit constitutionnel", "Constitutional Law", "Derecho constitucional"), href: "/library/constitutional-law" },
+        ],
+      },
+      {
+        heading: t4("الوثائق", "Documents", "Documents", "Documentos"),
+        links: [
+          { label: t4("نصوص قانونية", "Textes de loi", "Legal Texts", "Textos legales"), href: "/library/texts" },
+          { label: t4("مراسيم وزارية", "Décrets ministériels", "Ministerial Decrees", "Decretos ministeriales"), href: "/library/decrees" },
+          { label: t4("قرارات محكمة النقض", "Arrêts de cassation", "Cassation Rulings", "Sentencias de casación"), href: "/library/court-decisions" },
+          { label: t4("الدوريات الرسمية", "Journaux officiels", "Official Journals", "Boletines oficiales"), href: "/library/journals" },
+        ],
+      },
+    ],
+  },
+  {
+    label: t4("الأرشيف الجامعي", "Archives", "Archive", "Archivo"),
+    icon: <GraduationCap size={15} />, href: "/archive",
+    cols: [
+      {
+        heading: t4("الفصول الدراسية", "Semestres", "Semesters", "Semestres"),
+        links: [
+          { label: t4("الفصل الأول S1", "Semestre S1", "Semester S1", "Semestre S1"), href: "/archive?semester=s1" },
+          { label: t4("الفصل الثاني S2", "Semestre S2", "Semester S2", "Semestre S2"), href: "/archive?semester=s2" },
+          { label: t4("الفصل الثالث S3", "Semestre S3", "Semester S3", "Semestre S3"), href: "/archive?semester=s3" },
+          { label: t4("الفصل السادس S6", "Semestre S6", "Semester S6", "Semestre S6"), href: "/archive?semester=s6" },
+        ],
+      },
+      {
+        heading: t4("كليات الحقوق", "Facultés de droit", "Law Schools", "Facultades de derecho"),
+        links: [
+          { label: t4("دليل الكليات", "Annuaire", "Full Directory", "Directorio completo"), href: "/schools" },
+          { label: t4("محمد الخامس — الرباط", "Mohammed V — Rabat", "Mohammed V — Rabat", "Mohammed V — Rabat"), href: "/schools/um5-rabat-agdal" },
+          { label: t4("الحسن الثاني — الدار البيضاء", "Hassan II — Casablanca", "Hassan II — Casablanca", "Hassan II — Casablanca"), href: "/schools/uh2-casablanca-ain-chock" },
+          { label: t4("القاضي عياض — مراكش", "Cadi Ayyad — Marrakech", "Cadi Ayyad — Marrakech", "Cadi Ayyad — Marrakech"), href: "/schools/uqa-marrakech" },
+          { label: t4("محمد الأول — وجدة", "Mohammed I — Oujda", "Mohammed I — Oujda", "Mohammed I — Oujda"), href: "/schools/umo-oujda" },
+        ],
+      },
+    ],
+  },
+  {
+    label: t4("الاجتهاد والقضاء", "Jurisprudence", "Jurisprudence", "Jurisprudencia"),
+    icon: <Gavel size={15} />, href: "/library/jurisprudence",
+    cols: [
+      {
+        heading: t4("أحكام قضائية", "Décisions de justice", "Court Rulings", "Sentencias judiciales"),
+        links: [
+          { label: t4("محكمة النقض", "Cour de cassation", "Court of Cassation", "Tribunal de casación"), href: "/library/cassation" },
+          { label: t4("محاكم الاستئناف", "Cours d'appel", "Courts of Appeal", "Tribunales de apelación"), href: "/library/appeals" },
+          { label: t4("المحاكم الإدارية", "Tribunaux administratifs", "Administrative Courts", "Tribunales administrativos"), href: "/library/administrative-courts" },
+        ],
+      },
+      {
+        heading: t4("الفقه والشرح", "Doctrine", "Doctrine", "Doctrina"),
+        links: [
+          { label: t4("مقالات أكاديمية", "Articles académiques", "Academic Articles", "Artículos académicos"), href: "/library/academic" },
+          { label: t4("تعليقات على الأحكام", "Commentaires d'arrêts", "Case Commentaries", "Comentarios de sentencias"), href: "/library/commentary" },
+          { label: t4("دراسات مقارنة", "Études comparées", "Comparative Studies", "Estudios comparados"), href: "/library/comparative" },
+        ],
+      },
+    ],
+  },
+  {
+    label: t4("عن المنصة", "À propos", "About", "Acerca de"),
+    icon: <Users size={15} />, href: "/about",
+    cols: [
+      {
+        heading: t4("ميزان", "Mizan", "Mizan", "Mizan"),
+        links: [
+          { label: t4("من نحن", "Qui sommes-nous", "About Us", "Quiénes somos"), href: "/about" },
+          { label: t4("هيئة التحرير", "Comité éditorial", "Editorial Board", "Consejo editorial"), href: "/about#team" },
+          { label: t4("شركاء أكاديميون", "Partenaires académiques", "Academic Partners", "Socios académicos"), href: "/about#partners" },
+          { label: t4("اتصل بنا", "Contact", "Contact", "Contacto"), href: "/contact" },
+        ],
+      },
+    ],
+  },
+];
+
+const footerCols: { heading: L; links: { label: L; href: string }[] }[] = [
+  {
+    heading: t4("المكتبة", "Bibliothèque", "Library", "Biblioteca"),
+    links: [
+      { label: t4("القانون الخاص", "Droit privé", "Private Law", "Derecho privado"), href: "/library/private-law" },
+      { label: t4("القانون العام", "Droit public", "Public Law", "Derecho público"), href: "/library/public-law" },
+      { label: t4("القانون الجنائي", "Droit pénal", "Criminal Law", "Derecho penal"), href: "/library/criminal-law" },
+      { label: t4("القانون الدولي", "Droit international", "International Law", "Derecho internacional"), href: "/library/international-law" },
+    ],
+  },
+  {
+    heading: t4("الأرشيف", "Archives", "Archive", "Archivo"),
+    links: [
+      { label: t4("نماذج الامتحانات", "Sujets d'examen", "Exam Papers", "Exámenes"), href: "/archive" },
+      { label: t4("كليات الحقوق", "Facultés de droit", "Law Schools", "Facultades de derecho"), href: "/schools" },
+      { label: t4("ملخصات الدروس", "Résumés de cours", "Course Summaries", "Resúmenes de curso"), href: "/archive?type=summaries" },
+      { label: t4("أطروحات الدكتوراه", "Thèses de doctorat", "Doctoral Theses", "Tesis doctorales"), href: "/archive?type=phd" },
+    ],
+  },
+  {
+    heading: t4("الموارد", "Ressources", "Resources", "Recursos"),
+    links: [
+      { label: t4("النصوص التشريعية", "Textes législatifs", "Legislative Texts", "Textos legislativos"), href: "/library/texts" },
+      { label: t4("الجريدة الرسمية", "Bulletin officiel", "Official Gazette", "Boletín oficial"), href: "/library/official" },
+      { label: t4("قرارات النقض", "Arrêts de cassation", "Cassation Rulings", "Sentencias de casación"), href: "/library/cassation" },
+      { label: t4("الفقه المقارن", "Doctrine comparée", "Comparative Doctrine", "Doctrina comparada"), href: "/library/comparative" },
+    ],
+  },
+  {
+    heading: t4("المنصة", "Plateforme", "Platform", "Plataforma"),
+    links: [
+      { label: t4("من نحن", "Qui sommes-nous", "About Us", "Quiénes somos"), href: "/about" },
+      { label: t4("هيئة التحرير", "Comité éditorial", "Editorial Board", "Consejo editorial"), href: "/about#team" },
+      { label: t4("الشراكات", "Partenariats", "Partnerships", "Alianzas"), href: "/about#partners" },
+      { label: t4("اتصل بنا", "Contact", "Contact", "Contacto"), href: "/contact" },
+    ],
+  },
+];
+
+const legalLinks: { label: L; href: string }[] = [
+  { label: t4("سياسة الخصوصية", "Confidentialité", "Privacy Policy", "Privacidad"), href: "/legal/privacy" },
+  { label: t4("شروط الاستخدام", "Conditions d'utilisation", "Terms of Use", "Términos de uso"), href: "/legal/terms" },
+  { label: t4("إخلاء المسؤولية", "Non-Responsabilité", "Legal Disclaimer", "Exención"), href: "/legal/disclaimer" },
+];
+
+// ── Navbars ───────────────────────────────────────────────────────────────────
+
+function NavDesktop() {
+  const { lang, dir, t } = useI18n();
+  const [open, setOpen] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+  const align = dir === "rtl" ? "text-right" : "text-left";
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (q.trim()) navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+  };
+
+  return (
+    <nav className="hidden lg:block sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3 shrink-0">
+          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+            <Scale size={16} className="text-primary-foreground" />
+          </div>
+          <div>
+            <span className="block text-base font-bold text-foreground leading-none" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+            <span className="block text-[10px] text-muted-foreground tracking-widest font-mono">MIZAN LEGAL ARCHIVE</span>
+          </div>
+        </Link>
+
+        <div className="flex items-center gap-1">
+          {megaMenuData.map((item, i) => (
+            <div key={i} className="relative" onMouseEnter={() => setOpen(i)} onMouseLeave={() => setOpen(null)}>
+              <Link to={item.href}
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors ${open === i ? "bg-accent text-primary" : "text-foreground/80 hover:bg-muted"}`}
+                style={{ fontFamily: sansFont(lang) }}
+              >
+                {item.icon}{item.label[lang]}
+                <ChevronDown size={12} className={`transition-transform ${open === i ? "rotate-180" : ""}`} />
+              </Link>
+              {open === i && (
+                <div className={`absolute top-full mt-1 bg-popover border border-border rounded-xl shadow-xl p-5 z-50 min-w-max ${dir === "rtl" ? "right-0" : "left-0"}`} dir={dir}>
+                  <div className="flex gap-8">
+                    {item.cols.map((col, ci) => (
+                      <div key={ci} className="min-w-[160px]">
+                        <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mb-3 pb-2 border-b border-border">{col.heading[lang]}</p>
+                        <ul className="space-y-2">
+                          {col.links.map((lnk) => (
+                            <li key={lnk.href}>
+                              <Link to={lnk.href} className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-1.5 group" style={{ fontFamily: sansFont(lang) }}>
+                                <ChevronRight size={11} className={`opacity-0 group-hover:opacity-100 text-primary ${dir === "rtl" ? "" : "rotate-180"}`} />{lnk.label[lang]}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <form onSubmit={handleSearch} className="relative">
+            <Search size={14} className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${dir === "rtl" ? "right-3" : "left-3"}`} />
+            <input
+              value={q} onChange={e => setQ(e.target.value)}
+              placeholder={t("search_placeholder")}
+              className={`w-40 py-1.5 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary transition-colors ${align} ${dir === "rtl" ? "pr-8 pl-3" : "pl-8 pr-3"}`}
+              style={{ fontFamily: sansFont(lang) }}
+            />
+          </form>
+          <Link to="/login" className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium" style={{ fontFamily: sansFont(lang) }}>
+            {t("login")}
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function NavTablet() {
+  const { lang, dir, t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+  const align = dir === "rtl" ? "text-right" : "text-left";
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (q.trim()) { navigate(`/search?q=${encodeURIComponent(q.trim())}`); setOpen(false); }
+  };
+
+  return (
+    <nav className="hidden md:block lg:hidden sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+      <div className="px-5 h-14 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={14} className="text-primary-foreground" /></div>
+          <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+        </Link>
+        <button onClick={() => setOpen(!open)} className="p-2 text-muted-foreground rounded-md">
+          {open ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
+      {open && (
+        <div className="border-t border-border bg-card px-5 py-4 space-y-3" dir={dir}>
+          <MobileControls />
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder={t("search_placeholder_long")}
+              className={`flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary ${align}`}
+              style={{ fontFamily: sansFont(lang) }} />
+            <button type="submit" className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm"><Search size={14} /></button>
+          </form>
+          <div className="grid grid-cols-2 gap-2">
+            {megaMenuData.map((item, i) => (
+              <Link key={i} to={item.href} onClick={() => setOpen(false)}
+                className="flex items-center gap-2 p-3 rounded-lg border border-border hover:bg-accent hover:border-primary/30 transition-colors text-sm text-foreground/80"
+                style={{ fontFamily: sansFont(lang) }}>
+                <span className="text-primary">{item.icon}</span>{item.label[lang]}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+function NavPhone() {
+  const { lang, dir, t } = useI18n();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+  const align = dir === "rtl" ? "text-right" : "text-left";
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (q.trim()) { navigate(`/search?q=${encodeURIComponent(q.trim())}`); setMenuOpen(false); }
+  };
+
+  return (
+    <nav className="md:hidden sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+      <div className="px-4 h-14 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={14} className="text-primary-foreground" /></div>
+          <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+        </Link>
+        <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-foreground rounded-md">
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+      {menuOpen && (
+        <div className="border-t border-border bg-card max-h-[75vh] overflow-y-auto" dir={dir}>
+          <form onSubmit={handleSearch} className="flex gap-2 p-4 border-b border-border">
+            <input value={q} onChange={e => setQ(e.target.value)} placeholder={t("search_placeholder")}
+              className={`flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary ${align}`}
+              style={{ fontFamily: sansFont(lang) }} />
+            <button type="submit" className="px-3 bg-primary text-primary-foreground rounded-lg"><Search size={14} /></button>
+          </form>
+          {megaMenuData.map((item, i) => (
+            <div key={i} className="border-b border-border last:border-0">
+              <button onClick={() => setExpanded(expanded === i ? null : i)}
+                className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-semibold text-foreground hover:bg-muted"
+                style={{ fontFamily: sansFont(lang) }}>
+                <div className="flex items-center gap-2"><span className="text-primary">{item.icon}</span>{item.label[lang]}</div>
+                <ChevronDown size={14} className={`text-muted-foreground transition-transform ${expanded === i ? "rotate-180" : ""}`} />
+              </button>
+              {expanded === i && (
+                <div className="bg-muted px-5 pb-3">
+                  {item.cols.map((col, ci) => (
+                    <div key={ci} className="mt-3">
+                      <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mb-2">{col.heading[lang]}</p>
+                      <div className="space-y-1">
+                        {col.links.map((lnk) => (
+                          <Link key={lnk.href} to={lnk.href} onClick={() => setMenuOpen(false)}
+                            className="block text-sm text-foreground/70 hover:text-primary py-1"
+                            style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+          <div className="p-4 space-y-3">
+            <MobileControls />
+            <Link to="/login" onClick={() => setMenuOpen(false)}
+              className="block w-full py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg text-center"
+              style={{ fontFamily: sansFont(lang) }}>{t("login")}</Link>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// ── Sponsor Ribbon ──────────────────────────────────────────────────────────────
+
+const sponsors: { name: string; full: L; tier: L; icon: React.ReactNode }[] = [
+  { name: "AMILS", full: t4("الجمعية المغربية للدراسات القانونية", "Association Marocaine des Études Juridiques", "Moroccan Association for Legal Studies", "Asociación Marroquí de Estudios Jurídicos"), tier: t4("شريك مؤسّس", "Partenaire fondateur", "Founding Partner", "Socio fundador"), icon: <Scale size={20} /> },
+  { name: "MLKF", full: t4("مؤسسة المعرفة القانونية المغربية", "Fondation Marocaine du Savoir Juridique", "Moroccan Legal Knowledge Foundation", "Fundación Marroquí del Saber Jurídico"), tier: t4("مؤسسة داعمة", "Fondation partenaire", "Supporting Foundation", "Fundación colaboradora"), icon: <BookOpen size={20} /> },
+  { name: "Cloudflare", full: t4("برنامج منح Cloudflare", "Programme Cloudflare Grant", "Cloudflare Grant Program", "Programa Cloudflare Grant"), tier: t4("شريك البنية التحتية", "Partenaire d'infrastructure", "Infrastructure Partner", "Socio de infraestructura"), icon: <Globe size={20} /> },
+];
+
+function SponsorRibbon() {
+  const { lang, dir, t } = useI18n();
+  return (
+    <section className="border-t border-border bg-card/50" dir={dir}>
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <p className="text-center text-[11px] font-bold text-muted-foreground tracking-widest uppercase mb-5">
+          {t("sponsors_heading")}
+        </p>
+        <div className="flex gap-4 overflow-x-auto pb-2 md:justify-center md:overflow-visible">
+          {sponsors.map(s => (
+            <div key={s.name}
+              className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-xl border border-border bg-background hover:border-primary/40 transition-colors min-w-[220px]">
+              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-primary shrink-0">{s.icon}</div>
+              <div>
+                <div className="text-sm font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{s.name}</div>
+                <div className="text-[10px] text-muted-foreground" style={{ fontFamily: sansFont(lang) }}>{s.full[lang]}</div>
+                <div className="text-[10px] text-primary font-semibold mt-0.5">{s.tier[lang]}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+function FooterDesktop() {
+  const { lang, dir, t } = useI18n();
+  return (
+    <footer className="hidden lg:block border-t border-border bg-muted mt-16">
+      <div className="max-w-7xl mx-auto px-6 py-12" dir={dir}>
+        <div className="grid grid-cols-5 gap-8 mb-10">
+          <div>
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center"><Scale size={15} className="text-primary-foreground" /></div>
+              <span className="font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+            </Link>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-4" style={{ fontFamily: sansFont(lang) }}>
+              {t("footer_tagline")}
+            </p>
+            <div className="flex gap-2">
+              {[Twitter, Youtube, Globe].map((Icon, i) => (
+                <a key={i} href="#" className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"><Icon size={14} /></a>
+              ))}
+            </div>
+          </div>
+          {footerCols.map((col, i) => (
+            <div key={i}>
+              <h4 className="text-xs font-bold text-foreground tracking-wide uppercase mb-3 pb-2 border-b border-border">{col.heading[lang]}</h4>
+              <ul className="space-y-2">
+                {col.links.map((lnk) => (
+                  <li key={lnk.href}><Link to={lnk.href} className="text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center justify-between pt-6 border-t border-border">
+          <p className="text-xs text-muted-foreground font-mono">© 2026 Mizan Legal · {t("brand_full")}</p>
+          <div className="flex items-center gap-4">
+            {legalLinks.map((lnk) => (
+              <Link key={lnk.href} to={lnk.href} className="text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FooterTablet() {
+  const { lang, dir, t } = useI18n();
+  return (
+    <footer className="hidden md:block lg:hidden border-t border-border bg-muted mt-10">
+      <div className="px-5 py-10" dir={dir}>
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={13} className="text-primary-foreground" /></div>
+            <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+          </Link>
+          <div className="flex gap-2">
+            {[Twitter, Youtube, Globe, Mail].map((Icon, i) => (
+              <a key={i} href="#" className="w-7 h-7 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary"><Icon size={13} /></a>
+            ))}
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-6 mb-8">
+          {footerCols.map((col, i) => (
+            <div key={i}>
+              <h4 className="text-xs font-bold text-foreground uppercase tracking-wide mb-3">{col.heading[lang]}</h4>
+              <ul className="space-y-1.5">
+                {col.links.map((lnk) => (
+                  <li key={lnk.href}><Link to={lnk.href} className="text-xs text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-xs text-muted-foreground font-mono border-t border-border pt-5">© 2026 Mizan Legal · {t("brand_full")}</p>
+      </div>
+    </footer>
+  );
+}
+
+function FooterPhone() {
+  const { lang, dir, t } = useI18n();
+  const [openCol, setOpenCol] = useState<number | null>(null);
+  return (
+    <footer className="md:hidden border-t border-border bg-muted mt-8">
+      <div className="px-4 pt-8 pb-6" dir={dir}>
+        <Link to="/" className="flex items-center gap-2 mb-3">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={13} className="text-primary-foreground" /></div>
+          <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+        </Link>
+        <p className="text-xs text-muted-foreground mb-4 leading-relaxed" style={{ fontFamily: sansFont(lang) }}>{t("footer_tagline")}</p>
+        <div className="flex gap-2 mb-6">
+          {[Twitter, Youtube, Globe, Mail].map((Icon, i) => (
+            <a key={i} href="#" className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground"><Icon size={14} /></a>
+          ))}
+        </div>
+        <div className="border-t border-border">
+          {footerCols.map((col, i) => (
+            <div key={i} className="border-b border-border">
+              <button onClick={() => setOpenCol(openCol === i ? null : i)}
+                className="w-full flex items-center justify-between py-3 text-sm font-semibold text-foreground"
+                style={{ fontFamily: sansFont(lang) }}>
+                {col.heading[lang]}
+                <ChevronDown size={13} className={`text-muted-foreground transition-transform ${openCol === i ? "rotate-180" : ""}`} />
+              </button>
+              {openCol === i && (
+                <div className="pb-3 space-y-2">
+                  {col.links.map((lnk) => (
+                    <Link key={lnk.href} to={lnk.href} className="block text-xs text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3 mt-5">
+          {legalLinks.map((lnk) => (
+            <Link key={lnk.href} to={lnk.href} className="text-[11px] text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+          ))}
+        </div>
+        <p className="text-center text-xs text-muted-foreground font-mono mt-6">© 2026 Mizan Legal</p>
+      </div>
+    </footer>
+  );
+}
+
+// ── Root Layout ───────────────────────────────────────────────────────────────
+
+export default function Layout() {
+  const location = useLocation();
+  useReferralTracking();
+
+  useEffect(() => { initGA(); setOrganizationSchema(); }, []);
+  useEffect(() => { trackPageView(location.pathname + location.search); }, [location]);
+
+  return (
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <div className="hidden lg:block"><UtilityBar /></div>
+      <NavDesktop />
+      <NavTablet />
+      <NavPhone />
+      <main className="flex-1">
+        <Outlet />
+      </main>
+      <SponsorRibbon />
+      <FooterDesktop />
+      <FooterTablet />
+      <FooterPhone />
+    </div>
+  );
+}
