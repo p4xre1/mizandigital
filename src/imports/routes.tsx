@@ -1,8 +1,11 @@
 import { createBrowserRouter } from "react-router";
 
+// ── 🌐 استيراد نظام الترجمة ──
+import { I18nProvider } from "../app/lib/i18n"; // 👈 استيراد الموفر لحل المشكلة فوراً
+
 // ── 📦 استيراد المغلفات الرئيسية (Layouts) ──
 import Layout from "../app/components/Layout";
-import AdminLayout from "../app/components/AdminLayout"; // 👈 استيراد الهيكل المطور الخاص بك
+import AdminLayout from "../app/components/AdminLayout"; 
 
 // ── 🌐 استيراد صفحات الموقع العام ──
 import Home from "../app/pages/Home";
@@ -29,7 +32,7 @@ import AdminLogin from "../app/pages/admin/AdminLogin";
 
 export const router = createBrowserRouter([
   
-  // ── 1️⃣ مسارات الموقع العام (تستخدم Layout العام) ──
+  // ── 1️⃣ مسارات الموقع العام ──
   {
     path: "/:lang?",
     element: <Layout />,
@@ -48,24 +51,32 @@ export const router = createBrowserRouter([
     ]
   },
 
-  // ── 2️⃣ صفحة تسجيل دخول الإدارة (منفصلة تماماً بدون أي قوائم جانبية) ──
+  // ── 2️⃣ صفحة تسجيل دخول الإدارة (مغلفة بنظام الترجمة) ──
   {
     path: "/admin/login",
-    element: <AdminLogin />,
+    element: (
+      <I18nProvider>
+        <AdminLogin />
+      </I18nProvider>
+    ),
   },
 
-  // ── 3️⃣ مسارات الإدارة المتداخلة (تستخدم AdminLayout والـ Outlet تلقائياً) ──
+  // ── 3️⃣ مسارات الإدارة المتداخلة (مغلفة بالكامل بنظام الترجمة) ──
   {
     path: "/admin",
-    element: <AdminLayout />, // 👈 الأب المشترك
+    element: (
+      <I18nProvider>
+        <AdminLayout />
+      </I18nProvider>
+    ),
     children: [
-      { index: true, element: <Dashboard /> },                // يعرض في مسار /admin
-      { path: "users", element: <AdminUsers /> },             // يعرض في مسار /admin/users
-      { path: "articles", element: <AdminArticles /> },       // يعرض في مسار /admin/articles
-      { path: "pages", element: <AdminPages /> },             // يعرض في مسار /admin/pages
-      { path: "traffic", element: <AdminTraffic /> },         // يعرض في مسار /admin/traffic
-      { path: "seo", element: <AdminSeo /> },                 // يعرض في مسار /admin/seo
-      { path: "security", element: <AdminSecurity /> },       // يعرض في مسار /admin/security
+      { index: true, element: <Dashboard /> },               
+      { path: "users", element: <AdminUsers /> },            
+      { path: "articles", element: <AdminArticles /> },      
+      { path: "pages", element: <AdminPages /> },            
+      { path: "traffic", element: <AdminTraffic /> },        
+      { path: "seo", element: <AdminSeo /> },                
+      { path: "security", element: <AdminSecurity /> },      
     ]
   }
 ]);
