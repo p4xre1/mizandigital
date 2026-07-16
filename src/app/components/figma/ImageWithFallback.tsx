@@ -1,27 +1,61 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
-const ERROR_IMG_SRC =
-  'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODgiIGhlaWdodD0iODgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBvcGFjaXR5PSIuMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIzLjciPjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjU2IiBoZWlnaHQ9IjU2IiByeD0iNiIvPjxwYXRoIGQ9Im0xNiA1OCAxNi0xOCAzMiAzMiIvPjxjaXJjbGUgY3g9IjUzIiBjeT0iMzUiIHI9IjciLz48L3N2Zz4KCg=='
+// تحويل الـ SVG إلى مكوّن داخلي مرن يقبل التخصيص بالألوان والأحجام
+function FallbackIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 88 88"
+      className={className}
+      stroke="currentColor"
+      strokeLinejoin="round"
+      fill="none"
+      strokeWidth="3.7"
+      aria-hidden="true"
+    >
+      <rect x="16" y="16" width="56" height="56" rx="6" />
+      <path d="m16 58 16-18 32 32" />
+      <circle cx="53" cy="35" r="7" />
+    </svg>
+  )
+}
 
 export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElement>) {
+  const { src, alt, style, className, onError, ...rest } = props
   const [didError, setDidError] = useState(false)
 
-  const handleError = () => {
+  // تأثير جانبي لإعادة تفعيل محاولة التحميل فور تغير رابط الصورة
+  useEffect(() => {
+    setDidError(false)
+  }, [src])
+
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setDidError(true)
+    if (onError) {
+      onError(e) // الحفاظ على إمكانية تتبع الخطأ خارجياً من المكون الأب
+    }
   }
 
-  const { src, alt, style, className, ...rest } = props
-
-  return didError ? (
-    <div
-      className={`inline-block bg-gray-100 text-center align-middle ${className ?? ''}`}
-      style={style}
-    >
-      <div className="flex items-center justify-center w-full h-full">
-        <img src={ERROR_IMG_SRC} alt="Error loading image" {...rest} data-original-url={src} />
+  if (didError) {
+    return (
+      <div
+        className={`inline-flex items-center justify-center bg-muted/40 text-muted-foreground/50 dark:bg-zinc-800/50 dark:text-zinc-500 transition-colors ${className ?? ''}`}
+        style={style}
+        role="img"
+        aria-label={alt || 'Failed to load image'}
+      >
+        <FallbackIcon className="w-1/2 h-1/2 max-w-[48px] max-h-[48px] animate-pulse" />
       </div>
-    </div>
-  ) : (
-    <img src={src} alt={alt} className={className} style={style} {...rest} onError={handleError} />
+    )
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      style={style}
+      onError={handleError}
+      {...rest}
+    />
   )
 }
