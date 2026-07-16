@@ -8,38 +8,35 @@ import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { trackEvent } from "../lib/analytics";
 import { sanitizeText, looksLikeSpam } from "../lib/security";
 
-const likedArticles = [
-  { id: "1", title: "أسئلة قانون الأسرة S1 2026", cat: "قانون الأسرة" },
-  { id: "2", title: "القانون التجاري S3 — النقض", cat: "القانون التجاري" },
-  { id: "3", title: "مبدأ المشروعية الإداري", cat: "القانون الإداري" },
-];
-const savedNews = [
-  { id: "1", title: "إصلاح مدوّنة الأسرة 2024", date: "2026-06-01" },
-  { id: "2", title: "تعديلات المسطرة الجنائية", date: "2026-05-18" },
-];
-const resumes = [
-  { id: "1", name: "CV_Mohamed_2026.pdf", size: "240 KB" },
-  { id: "2", name: "Motivation_Master.pdf", size: "88 KB" },
-];
-
-const metrics = [
-  { icon: <Heart size={18} />, value: 24, key: "liked_articles" },
-  { icon: <Bookmark size={18} />, value: 12, key: "saved_news" },
-  { icon: <FileText size={18} />, value: 3, key: "uploaded_resumes" },
-];
-
 export default function Profile() {
   const { t, dir } = useI18n();
-  const [bio, setBio] = useState("طالب في الماستر — تخصص القانون الخاص، جامعة محمد الخامس.");
+  const [bio, setBio] = useState("");
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [bioError, setBioError] = useState("");
   
-  // Real-time dynamic subscription states
+  // Real-time dynamic profile and subscription states
   const [userId, setUserId] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
   const [tier, setTier] = useState<'free' | 'premium' | 'enterprise'>('free');
   const [updatingTier, setUpdatingTier] = useState(false);
   const isAdmin = false;
+
+  // Real-time user content states (Initialized to empty)
+  const [likedArticles, setLikedArticles] = useState<any[]>([]);
+  const [savedNews, setSavedNews] = useState<any[]>([]);
+  const [resumes, setResumes] = useState<any[]>([]);
+
+  // Dynamically calculate metrics from actual states
+  const metrics = [
+    { icon: <Heart size={18} />, value: likedArticles.length, key: "liked_articles" },
+    { icon: <Bookmark size={18} />, value: savedNews.length, key: "saved_news" },
+    { icon: <FileText size={18} />, value: resumes.length, key: "uploaded_resumes" },
+  ];
 
   // 1. Initialize Profile details and Subscription Tier from Supabase
   useEffect(() => {
@@ -49,17 +46,20 @@ export default function Profile() {
           const { data: { user } } = await supabase.auth.getUser();
           if (user) {
             setUserId(user.id);
+            setEmail(user.email || "");
             
-            // Query current subscriber metadata tier
+            // Query current subscriber metadata tier, bio, and profile options
             const { data, error } = await supabase
               .from("profiles")
-              .select("tier, bio")
+              .select("tier, bio, full_name, avatar_url")
               .eq("id", user.id)
               .single();
 
             if (!error && data) {
               if (data.tier) setTier(data.tier as 'free' | 'premium' | 'enterprise');
               if (data.bio) setBio(data.bio);
+              if (data.full_name) setDisplayName(data.full_name);
+              if (data.avatar_url) setAvatarUrl(data.avatar_url);
             }
           }
         } catch (err) {
@@ -70,7 +70,81 @@ export default function Profile() {
     loadUserProfile();
   }, []);
 
-  // 2. Simulate direct Stripe / B2B Webhook updates locally
+  // 2. Handle profile picture selection with size validation
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Strict 2MB image size limit
+    const LIMIT_MB = 2;
+    const MAX_SIZE_BYTES = LIMIT_MB * 1024 * 1024;
+
+    if (file.size > MAX_SIZE_BYTES) {
+      setAvatarError(`حجم الصورة كبير جداً. الحد الأقصى المسموح به هو ${LIMIT_MB} ميغابايت.`);
+      return;
+    }
+
+    setAvatarError("");
+    setUploadingAvatar(true);
+
+    if (isSupabaseConfigured && userId) {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${userId}/avatar-${Math.random()}.${fileExt}`;
+
+        // A. Attempt to upload file to Supabase Storage Bucket ('avatars')
+        const { error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(filePath, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // B. Retrieve public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(filePath);
+
+        // C. Update profiles table with new URL
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', userId);
+
+        if (updateError) throw updateError;
+
+        setAvatarUrl(publicUrl);
+        trackEvent("avatar_uploaded_storage");
+      } catch (err) {
+        console.warn("Storage bucket upload failed, trying Base64 fallback...", err);
+        
+        // Dynamic Fallback: Convert image directly to Base64 data-URL and save in DB column
+        try {
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            const base64data = reader.result as string;
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update({ avatar_url: base64data })
+              .eq('id', userId);
+
+            if (!updateError) {
+              setAvatarUrl(base64data);
+              trackEvent("avatar_uploaded_base64");
+            } else {
+              setAvatarError("فشل تحديث قاعدة البيانات. يرجى مراجعة إعدادات الجدول.");
+            }
+          };
+          reader.readAsDataURL(file);
+        } catch (fallbackErr) {
+          setAvatarError("تعذّر حفظ الصورة. حاول مرة أخرى.");
+        }
+      } finally {
+        setUploadingAvatar(false);
+      }
+    }
+  };
+
+  // 3. Simulate direct Stripe / B2B Webhook updates locally
   const handleTierSwitch = async (targetTier: 'free' | 'premium' | 'enterprise') => {
     if (!userId || !isSupabaseConfigured) {
       alert("يرجى إعداد الاتصال بقاعدة البيانات أولاً لمحاكاة التغييرات.");
@@ -158,6 +232,7 @@ export default function Profile() {
   };
 
   const activeTierProps = getTierMetadata();
+  const initial = displayName ? displayName.charAt(0).toUpperCase() : (email ? email.charAt(0).toUpperCase() : "U");
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10" dir={dir}>
@@ -204,49 +279,61 @@ export default function Profile() {
           <div className="grid md:grid-cols-2 gap-4">
             <section className="bg-card border border-border rounded-xl p-5">
               <div className="flex items-center gap-2 mb-3"><Heart size={15} className="text-primary" /><h3 className="font-bold text-sm text-foreground">{t("liked_articles")}</h3></div>
-              <ul className="space-y-2">
-                {likedArticles.map(a => (
-                  <li key={a.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent transition-colors">
-                    <span className="text-sm text-foreground line-clamp-1">{a.title}</span>
-                    <span className="text-[10px] text-muted-foreground shrink-0">{a.cat}</span>
-                  </li>
-                ))}
-              </ul>
+              {likedArticles.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-4 text-center">لا توجد مقالات معجب بها حالياً.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {likedArticles.map(a => (
+                    <li key={a.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent transition-colors">
+                      <span className="text-sm text-foreground line-clamp-1">{a.title}</span>
+                      <span className="text-[10px] text-muted-foreground shrink-0">{a.cat}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
 
             <section className="bg-card border border-border rounded-xl p-5">
               <div className="flex items-center gap-2 mb-3"><Bookmark size={15} className="text-primary" /><h3 className="font-bold text-sm text-foreground">{t("saved_news")}</h3></div>
-              <ul className="space-y-2">
-                {savedNews.map(n => (
-                  <li key={n.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent transition-colors">
-                    <span className="text-sm text-foreground line-clamp-1">{n.title}</span>
-                    <span className="text-[10px] text-muted-foreground font-mono shrink-0">{n.date}</span>
-                  </li>
-                ))}
-              </ul>
+              {savedNews.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-4 text-center">لا توجد نصوص أو أخبار محفوظة.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {savedNews.map(n => (
+                    <li key={n.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-accent transition-colors">
+                      <span className="text-sm text-foreground line-clamp-1">{n.title}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono shrink-0">{n.date}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </section>
 
             <section className="bg-card border border-border rounded-xl p-5 md:col-span-2">
               <div className="flex items-center gap-2 mb-3"><FileText size={15} className="text-primary" /><h3 className="font-bold text-sm text-foreground">{t("uploaded_resumes")}</h3></div>
-              <div className="grid sm:grid-cols-2 gap-2">
-                {resumes.map(r => (
-                  <div key={r.id} className="flex items-center gap-3 p-3 rounded-lg border border-border">
-                    <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-primary shrink-0"><FileText size={15} /></div>
-                    <div className="min-w-0">
-                      <div className="text-sm text-foreground truncate">{r.name}</div>
-                      <div className="text-[10px] text-muted-foreground font-mono">{r.size} · AES-256 🔒</div>
+              {resumes.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-4 text-center">لم تقم برفع سير ذاتية بعد.</p>
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {resumes.map(r => (
+                    <div key={r.id} className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                      <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center text-primary shrink-0"><FileText size={15} /></div>
+                      <div className="min-w-0">
+                        <div className="text-sm text-foreground truncate">{r.name}</div>
+                        <div className="text-[10px] text-muted-foreground font-mono">{r.size} · AES-256 🔒</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
 
-          {/* 🛠️ MONETIZATION DEVELOPER SANDBOX PANEL (Beautiful native integration) */}
+          {/* 🛠️ MONETIZATION DEVELOPER SANDBOX PANEL */}
           <section className="bg-card border border-border rounded-xl p-6 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center gap-2.5 mb-4">
-              <Settings size={18} className="text-primary animate-spin-slow" />
+              <Settings size={18} className="text-primary" />
               <h2 className="font-bold text-base text-foreground">بيئة اختبار بوابة الدفع والدراسة (Dev Sandbox)</h2>
             </div>
             
@@ -291,13 +378,44 @@ export default function Profile() {
           {/* Avatar + membership */}
           <div className="bg-card border border-border rounded-xl p-5 text-center">
             <div className="relative w-24 h-24 mx-auto mb-3">
-              <div className="w-24 h-24 rounded-full bg-accent flex items-center justify-center text-primary text-3xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>M</div>
-              <button className="absolute bottom-0 end-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card hover:opacity-90 transition-opacity">
+              {avatarUrl ? (
+                <img 
+                  src={avatarUrl} 
+                  alt="Avatar" 
+                  className="w-24 h-24 rounded-full object-cover border border-border"
+                />
+              ) : (
+                <div 
+                  className="w-24 h-24 rounded-full bg-accent flex items-center justify-center text-primary text-3xl font-bold" 
+                  style={{ fontFamily: "'Playfair Display', serif" }}
+                >
+                  {initial}
+                </div>
+              )}
+              
+              <label className="absolute bottom-0 end-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center border-2 border-card hover:opacity-90 transition-opacity cursor-pointer">
                 <Camera size={14} />
-              </button>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleAvatarChange} 
+                  className="hidden" 
+                  disabled={uploadingAvatar}
+                />
+              </label>
             </div>
-            <h3 className="font-bold text-foreground" style={{ fontFamily: "'Playfair Display', 'Noto Serif Arabic', serif" }}>محمد أمين</h3>
-            <p className="text-xs text-muted-foreground mb-3">mohamed@mizan.ma</p>
+
+            {uploadingAvatar && (
+              <p className="text-[10px] text-primary animate-pulse mb-2">جاري الرفع...</p>
+            )}
+            {avatarError && (
+              <p className="text-[10px] text-destructive mb-2 max-w-[200px] mx-auto leading-tight">{avatarError}</p>
+            )}
+
+            <h3 className="font-bold text-foreground" style={{ fontFamily: "'Playfair Display', 'Noto Serif Arabic', serif" }}>
+              {displayName || "مستعمل جديد"}
+            </h3>
+            <p className="text-xs text-muted-foreground mb-3">{email || "no-email@mizan.ma"}</p>
             
             {/* Real-time Dynamic Tier Badge */}
             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all duration-300 ${activeTierProps.colorClass}`}>
@@ -310,6 +428,7 @@ export default function Profile() {
           <div className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center gap-2 mb-3"><GraduationCap size={15} className="text-primary" /><h4 className="font-bold text-sm text-foreground">{t("short_bio")}</h4></div>
             <textarea value={bio} onChange={e => setBio(e.target.value)} rows={4} maxLength={500}
+              placeholder="اكتب نبذة شخصية هنا..."
               className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-input-background focus:outline-none focus:border-primary transition-colors resize-none"
               style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }} />
             {bioError && <p className="text-xs text-destructive mt-1">{bioError}</p>}
