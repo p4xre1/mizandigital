@@ -1,5 +1,5 @@
 import { RouterProvider } from "react-router";
-import { router } from "./routes";
+import { router } from "../imports/routes";
 import { I18nProvider } from "./lib/i18n";
 
 export default function App() {
