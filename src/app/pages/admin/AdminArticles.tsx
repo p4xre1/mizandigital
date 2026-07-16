@@ -14,7 +14,6 @@ export default function AdminArticles() {
   const [editing, setEditing] = useState<Draft | null>(null);
 
   return (
-    // 👈 قمنا بإزالة المغلف واستبداله بـ div عادي لأن التغليف يتم ديناميكياً الآن عبر الـ Outlet!
     <div dir={dir} className="w-full">
       {/* ── 🔝 الهيدر العلوي للصفحة ── */}
       <div className="flex items-center justify-between mb-6">
@@ -97,7 +96,6 @@ export default function AdminArticles() {
   );
 }
 
-// ── 📝 كود دالة الـ ArticleEditor والـ Field والـ CSS يبقى كما هو بدون تغيير ──
 function ArticleEditor({ draft, onClose, dir, lang, t }: {
   draft: Draft; onClose: () => void; dir: "rtl" | "ltr";
   lang: ReturnType<typeof useI18n>["lang"]; t: (k: string) => string;
@@ -163,19 +161,30 @@ function ArticleEditor({ draft, onClose, dir, lang, t }: {
           <div className="space-y-4">
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <div>
-                <label className="text-xs text-muted-foreground">{t("admin_status")}</label>
-                <select value={d.status || "draft"} onChange={e => setD({ ...d, status: e.target.value as AdminArticle["status"] })}
-                  className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary">
+                <label htmlFor="article-status" className="text-xs text-muted-foreground">{t("admin_status")}</label>
+                <select 
+                  id="article-status"
+                  name="status"
+                  value={d.status || "draft"} 
+                  onChange={e => setD({ ...d, status: e.target.value as AdminArticle["status"] })}
+                  className="w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary"
+                >
                   <option value="draft">{t("admin_draft")}</option>
                   <option value="published">{t("admin_published")}</option>
                 </select>
               </div>
               <Field label="Author" value={d.author || ""} onChange={v => setD({ ...d, author: v })} dir={dir} />
               <Field label="Tags (comma separated)" value={tagInput} onChange={setTagInput} dir={dir} />
-              <label className="flex items-center justify-between text-sm text-foreground cursor-pointer pt-2">
+              <label htmlFor="comments-enabled" className="flex items-center justify-between text-sm text-foreground cursor-pointer pt-2">
                 <span className="flex items-center gap-1.5"><MessageSquare size={14} />Comments</span>
-                <input type="checkbox" checked={d.commentsEnabled !== false}
-                  onChange={e => setD({ ...d, commentsEnabled: e.target.checked })} className="w-4 h-4 accent-primary" />
+                <input 
+                  type="checkbox" 
+                  id="comments-enabled"
+                  name="commentsEnabled"
+                  checked={d.commentsEnabled !== false}
+                  onChange={e => setD({ ...d, commentsEnabled: e.target.checked })} 
+                  className="w-4 h-4 accent-primary" 
+                />
               </label>
             </div>
 
@@ -184,9 +193,16 @@ function ArticleEditor({ draft, onClose, dir, lang, t }: {
               <Field label="Focus keyword" value={d.keyword || ""} onChange={v => setD({ ...d, keyword: v })} dir={dir} />
               <Field label="Meta title" value={d.metaTitle || ""} onChange={v => setD({ ...d, metaTitle: v })} dir={dir} />
               <div>
-                <label className="text-xs text-muted-foreground">Meta description</label>
-                <textarea value={d.metaDescription || ""} onChange={e => setD({ ...d, metaDescription: e.target.value })} rows={3} maxLength={180}
-                  className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary resize-none ${dir === "rtl" ? "text-right" : "text-left"}`} />
+                <label htmlFor="meta-description" className="text-xs text-muted-foreground">Meta description</label>
+                <textarea 
+                  id="meta-description"
+                  name="metaDescription"
+                  value={d.metaDescription || ""} 
+                  onChange={e => setD({ ...d, metaDescription: e.target.value })} 
+                  rows={3} 
+                  maxLength={180}
+                  className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary resize-none ${dir === "rtl" ? "text-right" : "text-left"}`} 
+                />
               </div>
             </div>
 
@@ -215,11 +231,20 @@ function ArticleEditor({ draft, onClose, dir, lang, t }: {
 }
 
 function Field({ label, value, onChange, dir }: { label: string; value: string; onChange: (v: string) => void; dir: "rtl" | "ltr" }) {
+  // توليد معرف فريد يعتمد على العنوان (Slugified field ID)
+  const fieldId = useMemo(() => "field-" + label.toLowerCase().replace(/[^a-z0-9]+/g, "-"), [label]);
+
   return (
     <div>
-      <label className="text-xs text-muted-foreground">{label}</label>
-      <input value={value} onChange={e => onChange(e.target.value)} maxLength={200}
-        className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary ${dir === "rtl" ? "text-right" : "text-left"}`} />
+      <label htmlFor={fieldId} className="text-xs text-muted-foreground">{label}</label>
+      <input 
+        id={fieldId}
+        name={fieldId}
+        value={value} 
+        onChange={e => onChange(e.target.value)} 
+        maxLength={200}
+        className={`w-full mt-1 px-3 py-2 text-sm border border-border rounded-lg bg-card text-foreground outline-none focus:border-primary ${dir === "rtl" ? "text-right" : "text-left"}`} 
+      />
     </div>
   );
 }
