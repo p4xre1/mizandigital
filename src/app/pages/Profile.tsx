@@ -14,6 +14,7 @@ export default function Profile() {
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [bioError, setBioError] = useState("");
+  const [bioSuccess, setBioSuccess] = useState(false);
   
   // Real-time dynamic profile and subscription states
   const [userId, setUserId] = useState<string | null>(null);
@@ -25,6 +26,11 @@ export default function Profile() {
   const [tier, setTier] = useState<'free' | 'premium' | 'enterprise'>('free');
   const [updatingTier, setUpdatingTier] = useState(false);
   const isAdmin = false;
+
+  // S1 - S6 Dynamic Progress state (starts cleanly at 0%)
+  const [progress, setProgress] = useState<Record<string, number>>({
+    S1: 0, S2: 0, S3: 0, S4: 0, S5: 0, S6: 0
+  });
 
   // Real-time user content states (Initialized to empty)
   const [likedArticles, setLikedArticles] = useState<any[]>([]);
@@ -51,7 +57,7 @@ export default function Profile() {
             // Query current subscriber metadata tier, bio, and profile options
             const { data, error } = await supabase
               .from("profiles")
-              .select("tier, bio, full_name, avatar_url")
+              .select("tier, bio, full_name, avatar_url, progress")
               .eq("id", user.id)
               .single();
 
@@ -60,17 +66,47 @@ export default function Profile() {
               if (data.bio) setBio(data.bio);
               if (data.full_name) setDisplayName(data.full_name);
               if (data.avatar_url) setAvatarUrl(data.avatar_url);
+              if (data.progress) {
+                setProgress(data.progress as Record<string, number>);
+              }
             }
           }
         } catch (err) {
-          console.error("Failed to fetch user profile billing tier:", err);
+          console.error("Failed to fetch user profile:", err);
         }
       }
     }
     loadUserProfile();
   }, []);
 
-  // 2. Handle profile picture selection with size validation
+  // 2. Handle interactive progress bar changes
+  const handleProgressClick = async (semester: string, e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const width = rect.width;
+    // Calculate percentage rounded to nearest 5%
+    let percentage = Math.round((clickX / width) * 100);
+    percentage = Math.max(0, Math.min(100, Math.round(percentage / 5) * 5));
+
+    const updatedProgress = { ...progress, [semester]: percentage };
+    setProgress(updatedProgress);
+
+    if (isSupabaseConfigured && userId) {
+      try {
+        const { error } = await supabase
+          .from("profiles")
+          .update({ progress: updatedProgress })
+          .eq("id", userId);
+        
+        if (error) throw error;
+        trackEvent("progress_updated");
+      } catch (err) {
+        console.error("Failed to save dynamic progress to DB:", err);
+      }
+    }
+  };
+
+  // 3. Handle profile picture selection with size validation
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -90,7 +126,7 @@ export default function Profile() {
     if (isSupabaseConfigured && userId) {
       try {
         const fileExt = file.name.split('.').pop();
-        const filePath = `${userId}/avatar-${Math.random()}.${fileExt}`;
+        const filePath = `${userId}/avatar-${Date.now()}.${fileExt}`;
 
         // A. Attempt to upload file to Supabase Storage Bucket ('avatars')
         const { error: uploadError } = await supabase.storage
@@ -114,7 +150,7 @@ export default function Profile() {
 
         setAvatarUrl(publicUrl);
         trackEvent("avatar_uploaded_storage");
-      } catch (err) {
+      } catch (err: any) {
         console.warn("Storage bucket upload failed, trying Base64 fallback...", err);
         
         // Dynamic Fallback: Convert image directly to Base64 data-URL and save in DB column
@@ -131,12 +167,12 @@ export default function Profile() {
               setAvatarUrl(base64data);
               trackEvent("avatar_uploaded_base64");
             } else {
-              setAvatarError("فشل تحديث قاعدة البيانات. يرجى مراجعة إعدادات الجدول.");
+              setAvatarError(`خطأ تحديث قاعدة البيانات: ${updateError.message}`);
             }
           };
           reader.readAsDataURL(file);
-        } catch (fallbackErr) {
-          setAvatarError("تعذّر حفظ الصورة. حاول مرة أخرى.");
+        } catch (fallbackErr: any) {
+          setAvatarError(`تعذّر حفظ الصورة: ${fallbackErr.message || fallbackErr}`);
         }
       } finally {
         setUploadingAvatar(false);
@@ -144,7 +180,7 @@ export default function Profile() {
     }
   };
 
-  // 3. Simulate direct Stripe / B2B Webhook updates locally
+  // 4. Simulate direct Stripe / B2B Webhook updates locally
   const handleTierSwitch = async (targetTier: 'free' | 'premium' | 'enterprise') => {
     if (!userId || !isSupabaseConfigured) {
       alert("يرجى إعداد الاتصال بقاعدة البيانات أولاً لمحاكاة التغييرات.");
@@ -172,18 +208,30 @@ export default function Profile() {
 
   const handleSaveBio = async () => {
     setBioError("");
+    setBioSuccess(false);
     const clean = sanitizeText(bio, 500);
-    if (looksLikeSpam(clean)) { setBioError("النبذة تحتوي على محتوى غير مسموح."); return; }
+    if (looksLikeSpam(clean)) { 
+      setBioError("النبذة تحتوي على محتوى غير مسموح."); 
+      return; 
+    }
     setBio(clean);
     try {
       if (isSupabaseConfigured) {
         const { data: { user } } = await supabase.auth.getUser();
-        if (user) await supabase.from("profiles").update({ bio: clean }).eq("id", user.id);
+        if (user) {
+          const { error } = await supabase
+            .from("profiles")
+            .update({ bio: clean })
+            .eq("id", user.id);
+            
+          if (error) throw error;
+          setBioSuccess(true);
+        }
       }
       trackEvent("bio_updated");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Bio update failed:", err);
-      setBioError("تعذّر الحفظ. حاول لاحقاً.");
+      setBioError(`تعذّر الحفظ: ${err.message || "تأكد من إعدادات الجدول والاتصال"}`);
     }
   };
 
@@ -256,19 +304,24 @@ export default function Profile() {
 
           {/* Academic progress */}
           <section className="bg-card border border-border rounded-xl p-5">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <TrendingUp size={16} className="text-primary" />
               <h2 className="font-bold text-foreground" style={{ fontFamily: "'Playfair Display', 'Noto Serif Arabic', serif" }}>{t("academic_progress")}</h2>
             </div>
-            <div className="space-y-3">
-              {[["S1", 100], ["S2", 100], ["S3", 80], ["S4", 45], ["S5", 20], ["S6", 0]].map(([s, p]) => (
-                <div key={s as string}>
+            <p className="text-xs text-muted-foreground mb-4">انقر على أي شريط لتعديل نسبة تقدّمك الأكاديمي وحفظها تلقائياً.</p>
+            
+            <div className="space-y-4">
+              {Object.entries(progress).map(([sem, val]) => (
+                <div key={sem}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span className="font-medium text-foreground">{s}</span>
-                    <span className="text-muted-foreground font-mono">{p}%</span>
+                    <span className="font-medium text-foreground">{sem}</span>
+                    <span className="text-muted-foreground font-mono">{val}%</span>
                   </div>
-                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${p}%` }} />
+                  <div 
+                    onClick={(e) => handleProgressClick(sem, e)}
+                    className="h-3 rounded-full bg-muted overflow-hidden cursor-pointer hover:ring-1 hover:ring-primary/40 transition-all relative"
+                  >
+                    <div className="h-full bg-primary rounded-full transition-all duration-350" style={{ width: `${val}%` }} />
                   </div>
                 </div>
               ))}
@@ -431,7 +484,10 @@ export default function Profile() {
               placeholder="اكتب نبذة شخصية هنا..."
               className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-input-background focus:outline-none focus:border-primary transition-colors resize-none"
               style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }} />
-            {bioError && <p className="text-xs text-destructive mt-1">{bioError}</p>}
+            
+            {bioError && <p className="text-xs text-destructive mt-1 leading-tight">{bioError}</p>}
+            {bioSuccess && <p className="text-xs text-emerald-600 mt-1 leading-tight">✓ تم حفظ النبذة بنجاح في قاعدة البيانات!</p>}
+            
             <button onClick={handleSaveBio} className="mt-2 w-full py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 hover:opacity-90 transition-opacity">
               <Save size={13} /> {t("short_bio")}
             </button>
