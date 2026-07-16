@@ -1,8 +1,5 @@
 import { createBrowserRouter } from "react-router";
 
-// ── 🌐 استيراد نظام الترجمة ──
-import { I18nProvider } from "../app/lib/i18n"; // 👈 استيراد الموفر لحل المشكلة فوراً
-
 // ── 📦 استيراد المغلفات الرئيسية (Layouts) ──
 import Layout from "../app/components/Layout";
 import AdminLayout from "../app/components/AdminLayout"; 
@@ -51,24 +48,16 @@ export const router = createBrowserRouter([
     ]
   },
 
-  // ── 2️⃣ صفحة تسجيل دخول الإدارة (مغلفة بنظام الترجمة) ──
+  // ── 2️⃣ صفحة تسجيل دخول الإدارة ──
   {
     path: "/admin/login",
-    element: (
-      <I18nProvider>
-        <AdminLogin />
-      </I18nProvider>
-    ),
+    element: <AdminLogin />, // 👈 أصبحت نظيفة ومحمية تلقائياً بالـ Provider العالمي
   },
 
-  // ── 3️⃣ مسارات الإدارة المتداخلة (مغلفة بالكامل بنظام الترجمة) ──
+  // ── 3️⃣ مسارات الإدارة المتداخلة ──
   {
     path: "/admin",
-    element: (
-      <I18nProvider>
-        <AdminLayout />
-      </I18nProvider>
-    ),
+    element: <AdminLayout />, // 👈 أصبحت نظيفة ومحمية تلقائياً بالـ Provider العالمي
     children: [
       { index: true, element: <Dashboard /> },               
       { path: "users", element: <AdminUsers /> },            
