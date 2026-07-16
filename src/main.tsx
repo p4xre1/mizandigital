@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider } from "react-router"; // أو react-router-dom حسب النسخة لديك
 import { router } from "./imports/routes";
 import { I18nProvider } from "./app/lib/i18n"; // 👈 استيراد موفر اللغة هنا
-import "./index.css"; // أو ملف الـ CSS الرئيسي الخاص بك
+import "./styles/index.css"; // أو ملف الـ CSS الرئيسي الخاص بك
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
