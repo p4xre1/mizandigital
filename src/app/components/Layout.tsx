@@ -3,12 +3,13 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import {
   Menu, X, ChevronDown, ChevronRight, Search, Scale, BookOpen,
   GraduationCap, Gavel, Users, Twitter, Youtube, Globe, Mail,
-  Moon, Sun,
+  Moon, Sun, Sparkles, User
 } from "lucide-react";
 import { trackPageView, initGA } from "../lib/analytics";
 import { useI18n, LANGS, serifFont, sansFont, type Lang } from "../lib/i18n";
 import { setOrganizationSchema } from "../lib/jsonld";
 import { useReferralTracking } from "../lib/referral";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 // Multilingual string helper
 type L = Record<Lang, string>;
@@ -30,7 +31,7 @@ function UtilityBar() {
               aria-label={`Change language to ${l.label}`}
               className={`px-2 py-0.5 rounded transition-colors focus:outline-none focus:ring-1 focus:ring-white/50 ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}
             >
-              {l.label}
+              {l.code.toUpperCase()}
             </button>
           ))}
           <button 
@@ -161,6 +162,7 @@ const megaMenuData: MegaItem[] = [
         heading: t4("ميزان", "Mizan", "Mizan", "Mizan"),
         links: [
           { label: t4("من نحن", "Qui sommes-nous", "About Us", "Quiénes somos"), href: "/about" },
+          { label: t4("خطط الأسعار ✨", "Tarifs ✨", "Subscription Plans ✨", "Precios ✨"), href: "/pricing" },
           { label: t4("هيئة التحرير", "Comité éditorial", "Editorial Board", "Consejo editorial"), href: "/about#team" },
           { label: t4("شركاء أكاديميون", "Partenaires académiques", "Academic Partners", "Socios académicos"), href: "/about#partners" },
           { label: t4("اتصل بنا", "Contact", "Contact", "Contacto"), href: "/contact" },
@@ -215,9 +217,66 @@ const legalLinks: { label: L; href: string }[] = [
   { label: t4("إخلاء المسؤولية", "Non-Responsabilité", "Legal Disclaimer", "Exención"), href: "/legal/disclaimer" },
 ];
 
+// ── Shared Nav Buttons Component (Premium Context aware) ─────────────────────
+
+interface NavActionsProps {
+  tier: "free" | "premium" | "enterprise";
+  isAuthenticated: boolean;
+}
+
+function NavActions({ tier, isAuthenticated }: NavActionsProps) {
+  const { lang, t } = useI18n();
+
+  return (
+    <div className="flex items-center gap-3">
+      {/* 1. Go Premium upgrade tag (free tier only) */}
+      {tier === "free" ? (
+        <Link 
+          to="/pricing" 
+          className="text-xs px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:opacity-95 font-bold transition-all flex items-center gap-1.5 shadow-sm"
+          style={{ fontFamily: sansFont(lang) }}
+        >
+          <Sparkles size={11} className="fill-current animate-pulse" />
+          <span className="hidden sm:inline">{t4("ترقية الاشتراك ✨", "Premium ✨", "Go Premium ✨", "Premium ✨")[lang]}</span>
+          <span className="sm:hidden">✨</span>
+        </Link>
+      ) : (
+        <div className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold rounded-full flex items-center gap-1">
+          <Sparkles size={10} className="fill-current animate-pulse" />
+          <span>{tier === "enterprise" ? t4("شراكة جامعية", "Univ Access", "Univ", "Univ")[lang] : t4("بريميوم", "Premium", "Premium", "Premium")[lang]}</span>
+        </div>
+      )}
+
+      {/* 2. Login/Profile Switcher */}
+      {isAuthenticated ? (
+        <Link 
+          to="/profile" 
+          aria-label="Profile Panel"
+          className="p-2 border border-border rounded-lg bg-card hover:bg-accent text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center"
+        >
+          <User size={15} />
+        </Link>
+      ) : (
+        <Link 
+          to="/login" 
+          className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" 
+          style={{ fontFamily: sansFont(lang) }}
+        >
+          {t("login")}
+        </Link>
+      )}
+    </div>
+  );
+}
+
 // ── Navbars ───────────────────────────────────────────────────────────────────
 
-function NavDesktop() {
+interface NavbarProps {
+  tier: "free" | "premium" | "enterprise";
+  isAuthenticated: boolean;
+}
+
+function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
   const { lang, dir, t } = useI18n();
   const [open, setOpen] = useState<number | null>(null);
   const navigate = useNavigate();
@@ -238,11 +297,11 @@ function NavDesktop() {
           </div>
           <div>
             <span className="block text-base font-bold text-foreground leading-none" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
-            <span className="block text-[10px] text-muted-foreground tracking-widest font-mono">MIZAN LEGAL ARCHIVE</span>
+            <span className="block text-[10px] text-muted-foreground tracking-widest font-mono mt-0.5">MIZAN LEGAL ARCHIVE</span>
           </div>
         </Link>
 
-        {/* Dynamic accessibility role */}
+        {/* Dynamic navigation links */}
         <div className="flex items-center gap-1" role="menubar" aria-label="Main Navigation">
           {megaMenuData.map((item, i) => (
             <div 
@@ -252,7 +311,6 @@ function NavDesktop() {
               onMouseLeave={() => setOpen(null)}
               onFocus={() => setOpen(i)}
               onBlur={(e) => {
-                // UX: Only close if focus leaves the entire dropdown structure
                 if (!e.currentTarget.contains(e.relatedTarget as Node)) {
                   setOpen(null);
                 }
@@ -304,7 +362,8 @@ function NavDesktop() {
           ))}
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Global Toolbar and Search Input */}
+        <div className="flex items-center gap-4 shrink-0">
           <form onSubmit={handleSearch} className="relative" role="search" aria-label="Site-wide search">
             <Search size={14} className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${dir === "rtl" ? "right-3" : "left-3"}`} aria-hidden="true" />
             <input
@@ -317,20 +376,15 @@ function NavDesktop() {
               style={{ fontFamily: sansFont(lang) }}
             />
           </form>
-          <Link 
-            to="/login" 
-            className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" 
-            style={{ fontFamily: sansFont(lang) }}
-          >
-            {t("login")}
-          </Link>
+
+          <NavActions tier={tier} isAuthenticated={isAuthenticated} />
         </div>
       </div>
     </nav>
   );
 }
 
-function NavTablet() {
+function NavTablet({ tier, isAuthenticated }: NavbarProps) {
   const { lang, dir, t } = useI18n();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -351,14 +405,18 @@ function NavTablet() {
           </div>
           <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
-        <button 
-          onClick={() => setOpen(!open)} 
-          className="p-2 text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-expanded={open}
-          aria-label="Toggle navigation drawer"
-        >
-          {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <NavActions tier={tier} isAuthenticated={isAuthenticated} />
+          <button 
+            onClick={() => setOpen(!open)} 
+            className="p-2 text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-expanded={open}
+            aria-label="Toggle navigation drawer"
+          >
+            {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+          </button>
+        </div>
       </div>
       {open && (
         <div className="border-t border-border bg-card px-5 py-4 space-y-3" dir={dir}>
@@ -402,7 +460,7 @@ function NavTablet() {
   );
 }
 
-function NavPhone() {
+function NavPhone({ tier, isAuthenticated }: NavbarProps) {
   const { lang, dir, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
@@ -424,14 +482,18 @@ function NavPhone() {
           </div>
           <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
-        <button 
-          onClick={() => setMenuOpen(!menuOpen)} 
-          className="p-2 text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          aria-expanded={menuOpen}
-          aria-label="Toggle navigation menu"
-        >
-          {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
-        </button>
+
+        <div className="flex items-center gap-2">
+          <NavActions tier={tier} isAuthenticated={isAuthenticated} />
+          <button 
+            onClick={() => setMenuOpen(!menuOpen)} 
+            className="p-2 text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            aria-expanded={menuOpen}
+            aria-label="Toggle navigation menu"
+          >
+            {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+          </button>
+        </div>
       </div>
       {menuOpen && (
         <div className="border-t border-border bg-card max-h-[75vh] overflow-y-auto" dir={dir}>
@@ -448,7 +510,7 @@ function NavPhone() {
             <button 
               type="submit" 
               aria-label="Submit mobile search"
-              className="px-4 bg-primary text-primary-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              className="px-4 bg-primary text-primary-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary flex items-center justify-center"
             >
               <Search size={14} aria-hidden="true" />
             </button>
@@ -497,14 +559,6 @@ function NavPhone() {
           </div>
           <div className="p-4 space-y-3">
             <MobileControls />
-            <Link 
-              to="/login" 
-              onClick={() => setMenuOpen(false)}
-              className="block w-full py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              style={{ fontFamily: sansFont(lang) }}
-            >
-              {t("login")}
-            </Link>
           </div>
         </div>
       )}
@@ -528,7 +582,6 @@ function SponsorRibbon() {
         <h3 id="sponsors-heading" className="text-center text-[11px] font-bold text-muted-foreground tracking-widest uppercase mb-5">
           {t("sponsors_heading")}
         </h3>
-        {/* Horizontal scroll support for touch devices */}
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin md:justify-center md:overflow-visible">
           {sponsors.map(s => (
             <div 
@@ -551,16 +604,18 @@ function SponsorRibbon() {
   );
 }
 
-// ── Footer ────────────────────────────────────────────────────────────────────
+// ── Footer System (Completed & Desktop/Mobile fallback combined) ─────────────────
 
-function FooterDesktop() {
+function Footer() {
   const { lang, dir, t } = useI18n();
   return (
-    <footer className="hidden lg:block border-t border-border bg-muted mt-16" aria-label="Desktop footer">
+    <footer className="border-t border-border bg-muted mt-16" aria-label="Platform footer">
       <div className="max-w-7xl mx-auto px-6 py-12" dir={dir}>
-        <div className="grid grid-cols-5 gap-8 mb-10">
-          <div>
-            <Link to="/" className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
+        
+        {/* Top footer grid links */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
+          <div className="col-span-2 lg:col-span-1">
+            <Link to="/" className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1 w-fit">
               <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
                 <Scale size={15} className="text-primary-foreground" />
               </div>
@@ -582,6 +637,7 @@ function FooterDesktop() {
               ))}
             </div>
           </div>
+          
           {footerCols.map((col, i) => (
             <div key={i}>
               <h4 className="text-xs font-bold text-foreground tracking-wide uppercase mb-3 pb-2 border-b border-border">{col.heading[lang]}</h4>
@@ -593,7 +649,7 @@ function FooterDesktop() {
                       className="text-xs text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:underline" 
                       style={{ fontFamily: sansFont(lang) }}
                     >
-                      {lnk.label[lang]}
+                      {lnk.label[lnk.href === "/pricing" ? lang : lang]}
                     </Link>
                   </li>
                 ))}
@@ -601,7 +657,9 @@ function FooterDesktop() {
             </div>
           ))}
         </div>
-        <div className="flex items-center justify-between pt-6 border-t border-border">
+
+        {/* Legal links and copyright row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-border gap-4">
           <p className="text-xs text-muted-foreground font-mono">© 2026 Mizan Legal · {t("brand_full")}</p>
           <div className="flex items-center gap-4" aria-label="Legal terms">
             {legalLinks.map((lnk) => (
@@ -616,168 +674,94 @@ function FooterDesktop() {
             ))}
           </div>
         </div>
+
       </div>
     </footer>
   );
 }
 
-function FooterTablet() {
-  const { lang, dir, t } = useI18n();
-  return (
-    <footer className="hidden md:block lg:hidden border-t border-border bg-muted mt-10" aria-label="Tablet footer">
-      <div className="px-5 py-10" dir={dir}>
-        <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
-          <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
-            <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
-              <Scale size={13} className="text-primary-foreground" />
-            </div>
-            <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
-          </Link>
-          <div className="flex gap-2" aria-label="Social media connections">
-            {[Twitter, Youtube, Globe, Mail].map((Icon, i) => (
-              <a 
-                key={i} 
-                href="#" 
-                aria-label={`Visit our external platform account`}
-                className="w-7 h-7 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                <Icon size={13} aria-hidden="true" />
-              </a>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-6 mb-8">
-          {footerCols.map((col, i) => (
-            <div key={i}>
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wide mb-3">{col.heading[lang]}</h4>
-              <ul className="space-y-1.5">
-                {col.links.map((lnk) => (
-                  <li key={lnk.href}>
-                    <Link 
-                      to={lnk.href} 
-                      className="text-xs text-muted-foreground hover:text-primary focus:outline-none focus:underline" 
-                      style={{ fontFamily: sansFont(lang) }}
-                    >
-                      {lnk.label[lang]}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <p className="text-center text-xs text-muted-foreground font-mono border-t border-border pt-5">© 2026 Mizan Legal · {t("brand_full")}</p>
-      </div>
-    </footer>
-  );
-}
-
-function FooterPhone() {
-  const { lang, dir, t } = useI18n();
-  const [openCol, setOpenCol] = useState<number | null>(null);
-  return (
-    <footer className="md:hidden border-t border-border bg-muted mt-8" aria-label="Mobile footer">
-      <div className="px-4 pt-8 pb-6" dir={dir}>
-        <Link to="/" className="flex items-center gap-2 mb-3 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
-          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
-            <Scale size={13} className="text-primary-foreground" />
-          </div>
-          <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
-        </Link>
-        <p className="text-xs text-muted-foreground mb-4 leading-relaxed" style={{ fontFamily: sansFont(lang) }}>{t("footer_tagline")}</p>
-        <div className="flex gap-2 mb-6" aria-label="Social media connections">
-          {[Twitter, Youtube, Globe, Mail].map((Icon, i) => (
-            <a 
-              key={i} 
-              href="#" 
-              aria-label={`Visit our external platform account`}
-              className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              <Icon size={14} aria-hidden="true" />
-            </a>
-          ))}
-        </div>
-        <div className="border-t border-border" role="tablist" aria-label="Mobile Footer Navigation">
-          {footerCols.map((col, i) => (
-            <div key={i} className="border-b border-border">
-              <button 
-                onClick={() => setOpenCol(openCol === i ? null : i)}
-                className="w-full flex items-center justify-between py-3 text-sm font-semibold text-foreground focus:outline-none focus:bg-muted"
-                style={{ fontFamily: sansFont(lang) }}
-                aria-expanded={openCol === i}
-              >
-                {col.heading[lang]}
-                <ChevronDown size={13} className={`text-muted-foreground transition-transform duration-200 ${openCol === i ? "rotate-180" : ""}`} aria-hidden="true" />
-              </button>
-              {openCol === i && (
-                <div className="pb-3 space-y-2 animate-in fade-in duration-100">
-                  {col.links.map((lnk) => (
-                    <Link 
-                      key={lnk.href} 
-                      to={lnk.href} 
-                      className="block text-xs text-muted-foreground hover:text-primary focus:outline-none focus:text-primary" 
-                      style={{ fontFamily: sansFont(lang) }}
-                    >
-                      {lnk.label[lang]}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-3 mt-5">
-          {legalLinks.map((lnk) => (
-            <Link 
-              key={lnk.href} 
-              to={lnk.href} 
-              className="text-[11px] text-muted-foreground hover:text-primary focus:outline-none focus:underline" 
-              style={{ fontFamily: sansFont(lang) }}
-            >
-              {lnk.label[lang]}
-            </Link>
-          ))}
-        </div>
-        <p className="text-center text-xs text-muted-foreground font-mono mt-6">© 2026 Mizan Legal</p>
-      </div>
-    </footer>
-  );
-}
-
-// ── Root Layout ───────────────────────────────────────────────────────────────
+// ── Global Root Layout Shell ──────────────────────────────────────────────────
 
 export default function Layout() {
+  const { lang, dir } = useI18n();
   const location = useLocation();
+  const [tier, setTier] = useState<"free" | "premium" | "enterprise">("free");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Initialize referral engines & JSONLD parameters on layout mount
   useReferralTracking();
 
-  useEffect(() => { 
-    initGA(); 
-    setOrganizationSchema(); 
+  useEffect(() => {
+    setOrganizationSchema();
+    initGA();
   }, []);
 
-  useEffect(() => { 
-    trackPageView(location.pathname + location.search); 
+  // Track Google Analytics page transitions
+  useEffect(() => {
+    trackPageView(location.pathname + location.search);
   }, [location]);
 
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
-      <header className="w-full">
-        <div className="hidden lg:block">
-          <UtilityBar />
-        </div>
-        <NavDesktop />
-        <NavTablet />
-        <NavPhone />
-      </header>
+  // Synchronize dynamic Supabase user authentication & active license tiers
+  useEffect(() => {
+    async function getUserDetails() {
+      if (!isSupabaseConfigured) return;
       
-      <main className="flex-1" id="main-content">
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setIsAuthenticated(true);
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("tier")
+            .eq("id", user.id)
+            .single();
+
+          if (!error && data?.tier) {
+            setTier(data.tier as "free" | "premium" | "enterprise");
+          }
+        } else {
+          setIsAuthenticated(false);
+          setTier("free");
+        }
+      } catch {
+        setTier("free");
+      }
+    }
+    getUserDetails();
+
+    // Dynamically listen for auth mutations (login, logout, token refreshes)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+      if (!session) {
+        setTier("free");
+      } else {
+        getUserDetails();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-200" dir={dir}>
+      {/* 1. Global localization utility banner */}
+      <UtilityBar />
+
+      {/* 2. Responsive Header Navigation triggers */}
+      <NavDesktop tier={tier} isAuthenticated={isAuthenticated} />
+      <NavTablet tier={tier} isAuthenticated={isAuthenticated} />
+      <NavPhone tier={tier} isAuthenticated={isAuthenticated} />
+
+      {/* 3. Core dynamic page contents viewport */}
+      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6" id="main-content">
         <Outlet />
       </main>
-      
+
+      {/* 4. Strategic sponsors & academic partners */}
       <SponsorRibbon />
-      <FooterDesktop />
-      <FooterTablet />
-      <FooterPhone />
+
+      {/* 5. Monolithic multilingual platform footer */}
+      <Footer />
     </div>
   );
 }
