@@ -1,15 +1,9 @@
-"use client";
-
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "./utils";
 
-/**
- * 🎨 محددات التنسيق الصارمة (Strict Variant Configuration)
- * تم توثيق جميع الحالات التفاعلية للروابط والأزرار بشكل منفصل تماماً
- */
 export const badgeVariants = cva(
   "inline-flex items-center justify-center rounded-md border px-2.5 py-0.5 text-xs font-semibold w-fit max-w-full whitespace-nowrap shrink-0 transition-[color,box-shadow,background-color,border-color] duration-200 ease-in-out select-none overflow-hidden text-ellipsis gap-1.5 [&>svg]:size-3.5 [&>svg]:pointer-events-none [&>svg]:shrink-0 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
@@ -23,8 +17,6 @@ export const badgeVariants = cva(
           "border-transparent bg-destructive text-destructive-foreground [a&]:hover:bg-destructive/90 [button&]:hover:bg-destructive/90 [a&]:focus-visible:bg-destructive/90 [button&]:focus-visible:bg-destructive/90",
         outline:
           "text-foreground border-border bg-background [a&]:hover:bg-accent [a&]:hover:text-accent-foreground [button&]:hover:bg-accent [button&]:hover:text-accent-foreground",
-        
-        // 🌟 حالات مخصصة ومحددة بدقة للهوية البصرية والأرشفة القانونية لـ "ميزان"
         success:
           "border-transparent bg-emerald-500/15 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 [a&]:hover:bg-emerald-500/25 [button&]:hover:bg-emerald-500/25",
         warning:
@@ -39,38 +31,19 @@ export const badgeVariants = cva(
   }
 );
 
-/**
- * 📑 واجهة الخصائص الصريحة (Explicit Props Interface)
- */
 export interface BadgeProps
   extends React.ComponentPropsWithoutRef<"span">,
     VariantProps<typeof badgeVariants> {
-  /**
-   * عند التفعيل، يقوم المكون بدمج خصائصه مع العنصر الابن المباشر بدلاً من إنشاء عنصر span جديد.
-   * @default false
-   */
   asChild?: boolean;
 }
 
-/**
- * 🎯 تعريف نوع المرجع الصريح (Explicit Reference Type Definition)
- */
 export type BadgeElement = React.ElementRef<"span">;
 
-/**
- * 🧱 مكوّن الشارة المطور (Enterprise Badge Component)
- */
 const Badge = React.forwardRef<BadgeElement, BadgeProps>((
-  { 
-    className, 
-    variant = "default", 
-    asChild = false, 
-    ...props 
-  }, 
-  ref
-) => {
-  // تحديد العنصر المستهدف بدقة بناءً على حالة الـ Polymorphism
-  const Comp: React.ComponentType<any> | string = asChild ? Slot : "span";
+  { className, variant = "default", asChild = false, ...props },
+  ref: React.ForwardedRef<BadgeElement>
+): React.JSX.Element => {
+  const Comp: React.ElementType = asChild ? Slot : "span";
 
   return (
     <Comp
@@ -82,7 +55,6 @@ const Badge = React.forwardRef<BadgeElement, BadgeProps>((
   );
 });
 
-// تعيين الاسم المعرف للمكون بشكل صريح لمنع تشوه شجرة المكونات أثناء الـ Production Compilation
 Badge.displayName = "Badge";
 
 export { Badge };

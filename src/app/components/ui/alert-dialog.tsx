@@ -11,7 +11,7 @@ import { buttonVariants } from "./button";
    ========================================================================== */
 
 export interface AlertDialogProps 
-  extends React.ComponentProps<typeof AlertDialogPrimitive.Root> {}
+  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Root> {}
 
 const AlertDialog = ({ ...props }: AlertDialogProps): React.JSX.Element => (
   <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />
@@ -20,7 +20,7 @@ AlertDialog.displayName = "AlertDialog";
 
 
 export interface AlertDialogPortalProps 
-  extends React.ComponentProps<typeof AlertDialogPrimitive.Portal> {}
+  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Portal> {}
 
 const AlertDialogPortal = ({ ...props }: AlertDialogPortalProps): React.JSX.Element => (
   <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props} />
@@ -45,7 +45,7 @@ const AlertDialogTrigger = React.forwardRef<AlertDialogTriggerElement, AlertDial
 AlertDialogTrigger.displayName = AlertDialogPrimitive.Trigger.displayName ?? "AlertDialogTrigger";
 
 /* ==========================================================================
-   2. ALERT DIALOG OVERLAY (مكوّن غطاء الخلفية الضبابي)
+   2. ALERT DIALOG OVERLAY (مكوّن غطاء الخلفية الضبابي المحمي)
    ========================================================================== */
 
 export type AlertDialogOverlayElement = React.ElementRef<typeof AlertDialogPrimitive.Overlay>;
@@ -59,8 +59,9 @@ const AlertDialogOverlay = React.forwardRef<AlertDialogOverlayElement, AlertDial
   <AlertDialogPrimitive.Overlay
     ref={ref}
     data-slot="alert-dialog-overlay"
+    // pointer-events-none تمنع النقرات العشوائية أثناء حركات التلاشي
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 transition-all duration-200 will-change-auto",
       className
     )}
     {...props}
@@ -69,7 +70,7 @@ const AlertDialogOverlay = React.forwardRef<AlertDialogOverlayElement, AlertDial
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName ?? "AlertDialogOverlay";
 
 /* ==========================================================================
-   3. ALERT DIALOG CONTENT (مكوّن حاوية المحتوى الرئيسي)
+   3. ALERT DIALOG CONTENT (حاوية المحتوى المحسنة بكرت الشاشة)
    ========================================================================== */
 
 export type AlertDialogContentElement = React.ElementRef<typeof AlertDialogPrimitive.Content>;
@@ -85,8 +86,9 @@ const AlertDialogContent = React.forwardRef<AlertDialogContentElement, AlertDial
     <AlertDialogPrimitive.Content
       ref={ref}
       data-slot="alert-dialog-content"
+      // transform-gpu تضمن معالجة الأبعاد بدقة هندسية تمنع ضبابية النصوص على جميع الشاشات
       className={cn(
-        "bg-background fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border border-border p-6 shadow-xl duration-200 sm:max-w-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 focus:outline-none",
+        "bg-background fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] transform-gpu gap-4 rounded-xl border border-border p-6 shadow-xl duration-200 sm:max-w-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 focus:outline-none print:hidden",
         className
       )}
       {...props}
@@ -96,7 +98,7 @@ const AlertDialogContent = React.forwardRef<AlertDialogContentElement, AlertDial
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName ?? "AlertDialogContent";
 
 /* ==========================================================================
-   4. ALERT DIALOG HEADER & FOOTER (مكونات الترويسة والتذييل للهيكل)
+   4. ALERT DIALOG HEADER & FOOTER (مكونات ترويسة وتذييل مرنة)
    ========================================================================== */
 
 export type AlertDialogHeaderElement = React.ElementRef<"div">;
@@ -136,7 +138,7 @@ const AlertDialogFooter = React.forwardRef<AlertDialogFooterElement, AlertDialog
 AlertDialogFooter.displayName = "AlertDialogFooter";
 
 /* ==========================================================================
-   5. ALERT DIALOG TITLE & DESCRIPTION (مكونات العناوين والنصوص الشارحة)
+   5. ALERT DIALOG TITLE & DESCRIPTION (عناوين وشروح واضحة ومقروءة)
    ========================================================================== */
 
 export type AlertDialogTitleElement = React.ElementRef<typeof AlertDialogPrimitive.Title>;
@@ -175,7 +177,7 @@ const AlertDialogDescription = React.forwardRef<AlertDialogDescriptionElement, A
 AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName ?? "AlertDialogDescription";
 
 /* ==========================================================================
-   6. ALERT DIALOG ACTIONS (مكونات أزرار الأحداث والطعن والتأكيد)
+   6. ALERT DIALOG ACTIONS (أزرار التأكيد والإلغاء مع المراجع الكاملة)
    ========================================================================== */
 
 export type AlertDialogActionElement = React.ElementRef<typeof AlertDialogPrimitive.Action>;
@@ -192,7 +194,7 @@ const AlertDialogAction = React.forwardRef<AlertDialogActionElement, AlertDialog
     {...props}
   />
 ));
-AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName ?? "AlertDialogAction";
+AlertDialogAction.displayName = "AlertDialogAction";
 
 
 export type AlertDialogCancelElement = React.ElementRef<typeof AlertDialogPrimitive.Cancel>;
@@ -209,7 +211,7 @@ const AlertDialogCancel = React.forwardRef<AlertDialogCancelElement, AlertDialog
     {...props}
   />
 ));
-AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName ?? "AlertDialogCancel";
+AlertDialogCancel.displayName = "AlertDialogCancel";
 
 export {
   AlertDialog,

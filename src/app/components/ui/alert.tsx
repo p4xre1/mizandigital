@@ -1,14 +1,8 @@
-"use client";
-
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "./utils";
 
-/**
- * 🎨 محددات التنسيق الصارمة (Strict Variant Configuration)
- * معززة لتتوافق تلقائياً مع اتجاهات واجهات منصة "ميزان" (RTL/LTR)
- */
 export const alertVariants = cva(
   "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current text-start transition-colors duration-200",
   {
@@ -25,18 +19,7 @@ export const alertVariants = cva(
   }
 );
 
-/* ==========================================================================
-   1. ALERT ROOT COMPONENT (المكوّن الجذري للتنبيه)
-   ========================================================================== */
-
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي للجذر
- */
 export type AlertElement = React.ElementRef<"div">;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص مكوّن التنبيه الرئيسي
- */
 export interface AlertProps
   extends React.ComponentPropsWithoutRef<"div">,
     VariantProps<typeof alertVariants> {}
@@ -50,25 +33,12 @@ const Alert = React.forwardRef<AlertElement, AlertProps>((
     data-slot="alert"
     role="alert"
     className={cn(alertVariants({ variant }), className)}
-    ...props
+    {...props}
   />
 ));
-
 Alert.displayName = "Alert";
 
-
-/* ==========================================================================
-   2. ALERT TITLE COMPONENT (مكوّن عنوان التنبيه)
-   ========================================================================== */
-
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي لعنوان التنبيه
- */
 export type AlertTitleElement = React.ElementRef<"div">;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص عنوان التنبيه
- */
 export interface AlertTitleProps extends React.ComponentPropsWithoutRef<"div"> {}
 
 const AlertTitle = React.forwardRef<AlertTitleElement, AlertTitleProps>((
@@ -82,25 +52,12 @@ const AlertTitle = React.forwardRef<AlertTitleElement, AlertTitleProps>((
       "col-start-2 line-clamp-1 min-h-4 font-semibold tracking-tight select-none",
       className
     )}
-    ...props
+    {...props}
   />
 ));
-
 AlertTitle.displayName = "AlertTitle";
 
-
-/* ==========================================================================
-   3. ALERT DESCRIPTION COMPONENT (مكوّن وصف التنبيه)
-   ========================================================================== */
-
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي لوصف التنبيه
- */
 export type AlertDescriptionElement = React.ElementRef<"div">;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص وصف التنبيه
- */
 export interface AlertDescriptionProps extends React.ComponentPropsWithoutRef<"div"> {}
 
 const AlertDescription = React.forwardRef<AlertDescriptionElement, AlertDescriptionProps>((
@@ -114,10 +71,9 @@ const AlertDescription = React.forwardRef<AlertDescriptionElement, AlertDescript
       "text-muted-foreground col-start-2 grid gap-1 text-sm [&_p]:leading-relaxed",
       className
     )}
-    ...props
+    {...props}
   />
 ));
-
 AlertDescription.displayName = "AlertDescription";
 
 export { Alert, AlertTitle, AlertDescription };

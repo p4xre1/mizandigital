@@ -7,17 +7,10 @@ import { ChevronDownIcon } from "lucide-react";
 import { cn } from "./utils";
 
 /* ==========================================================================
-   1. ACCORDION ROOT COMPONENT (المكوّن الجذري للأكورديون)
+   1. ACCORDION ROOT (المكوّن الجذري للأكورديون)
    ========================================================================== */
 
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي للجذر
- */
 export type AccordionElement = React.ElementRef<typeof AccordionPrimitive.Root>;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص مكوّن الأكورديون الرئيسي
- */
 export interface AccordionProps
   extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root> {}
 
@@ -27,22 +20,13 @@ const Accordion = React.forwardRef<AccordionElement, AccordionProps>((
 ): React.JSX.Element => (
   <AccordionPrimitive.Root ref={ref} data-slot="accordion" {...props} />
 ));
-
 Accordion.displayName = "Accordion";
 
-
 /* ==========================================================================
-   2. ACCORDION ITEM COMPONENT (مكوّن العنصر الفرعي)
+   2. ACCORDION ITEM (مكوّن العنصر الفردي)
    ========================================================================== */
 
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي للعنصر الفرعي
- */
 export type AccordionItemElement = React.ElementRef<typeof AccordionPrimitive.Item>;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص العنصر الفرعي
- */
 export interface AccordionItemProps
   extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item> {}
 
@@ -57,22 +41,13 @@ const AccordionItem = React.forwardRef<AccordionItemElement, AccordionItemProps>
     {...props}
   />
 ));
-
-AccordionItem.displayName = AccordionPrimitive.Item.displayName ?? "AccordionItem";
-
+AccordionItem.displayName = "AccordionItem";
 
 /* ==========================================================================
-   3. ACCORDION TRIGGER COMPONENT (مكوّن مفتاح الفتح والإغلاق)
+   3. ACCORDION TRIGGER (مفتاح الفتح والإغلاق)
    ========================================================================== */
 
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي لمفتاح الفتح
- */
 export type AccordionTriggerElement = React.ElementRef<typeof AccordionPrimitive.Trigger>;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص مفتاح التحكم
- */
 export interface AccordionTriggerProps
   extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {}
 
@@ -95,22 +70,13 @@ const AccordionTrigger = React.forwardRef<AccordionTriggerElement, AccordionTrig
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));
-
-AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName ?? "AccordionTrigger";
-
+AccordionTrigger.displayName = "AccordionTrigger";
 
 /* ==========================================================================
-   4. ACCORDION CONTENT COMPONENT (مكوّن حاوية المحتوى الداخلي)
+   4. ACCORDION CONTENT (مكوّن حاوية المحتوى الداخلي الانسيابية)
    ========================================================================== */
 
-/**
- * التحديد الصريح لنوع عنصر الـ DOM المرجعي لحاوية المحتوى
- */
 export type AccordionContentElement = React.ElementRef<typeof AccordionPrimitive.Content>;
-
-/**
- * الواجهة البرمجية الصريحة لخصائص حاوية المحتوى الداخلي
- */
 export interface AccordionContentProps
   extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> {}
 
@@ -121,7 +87,8 @@ const AccordionContent = React.forwardRef<AccordionContentElement, AccordionCont
   <AccordionPrimitive.Content
     ref={ref}
     data-slot="accordion-content"
-    className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all"
+    // will-change-transform تضمن تشغيل تسريع الـ GPU على الحركة لمنع أي رجفة أو بطء في الحركات الطويلة
+    className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm transition-all will-change-[max-height]"
     {...props}
   >
     {/* تم عزل الحشوة الداخلية (Padding) في حاوية div منفصلة برمجياً لضمان سلامة حسابات الارتفاع الديناميكي للمكتبة أثناء الحركة */}
@@ -130,7 +97,6 @@ const AccordionContent = React.forwardRef<AccordionContentElement, AccordionCont
     </div>
   </AccordionPrimitive.Content>
 ));
-
-AccordionContent.displayName = AccordionPrimitive.Content.displayName ?? "AccordionContent";
+AccordionContent.displayName = "AccordionContent";
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
