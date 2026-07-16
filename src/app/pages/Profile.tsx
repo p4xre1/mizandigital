@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Heart, Bookmark, FileText, TrendingUp, Camera, ShieldCheck,
-  AlertTriangle, X, Award, GraduationCap, Save, Trash2,
+  AlertTriangle, X, Award, GraduationCap, Save, Trash2, Zap, Settings, Loader2
 } from "lucide-react";
 import { useI18n } from "../lib/i18n";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
@@ -34,7 +34,67 @@ export default function Profile() {
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [bioError, setBioError] = useState("");
+  
+  // Real-time dynamic subscription states
+  const [userId, setUserId] = useState<string | null>(null);
+  const [tier, setTier] = useState<'free' | 'premium' | 'enterprise'>('free');
+  const [updatingTier, setUpdatingTier] = useState(false);
   const isAdmin = false;
+
+  // 1. Initialize Profile details and Subscription Tier from Supabase
+  useEffect(() => {
+    async function loadUserProfile() {
+      if (isSupabaseConfigured) {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+            setUserId(user.id);
+            
+            // Query current subscriber metadata tier
+            const { data, error } = await supabase
+              .from("profiles")
+              .select("tier, bio")
+              .eq("id", user.id)
+              .single();
+
+            if (!error && data) {
+              if (data.tier) setTier(data.tier as 'free' | 'premium' | 'enterprise');
+              if (data.bio) setBio(data.bio);
+            }
+          }
+        } catch (err) {
+          console.error("Failed to fetch user profile billing tier:", err);
+        }
+      }
+    }
+    loadUserProfile();
+  }, []);
+
+  // 2. Simulate direct Stripe / B2B Webhook updates locally
+  const handleTierSwitch = async (targetTier: 'free' | 'premium' | 'enterprise') => {
+    if (!userId || !isSupabaseConfigured) {
+      alert("يرجى إعداد الاتصال بقاعدة البيانات أولاً لمحاكاة التغييرات.");
+      return;
+    }
+    setUpdatingTier(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ tier: targetTier })
+        .eq('id', userId);
+
+      if (!error) {
+        setTier(targetTier);
+        trackEvent(`tier_simulated_${targetTier}`);
+      } else {
+        alert(`Database update failed: ${error.message}`);
+      }
+    } catch (err) {
+      console.error("Simulation trigger failed:", err);
+    } finally {
+      setUpdatingTier(false);
+    }
+  };
 
   const handleSaveBio = async () => {
     setBioError("");
@@ -58,7 +118,6 @@ export default function Profile() {
     trackEvent("account_delete_confirmed");
     try {
       if (isSupabaseConfigured) {
-        // Cascade handled by edge function `deleteUserAccount Cascade`
         await supabase.functions.invoke("deleteUserAccount", {});
         await supabase.auth.signOut();
       }
@@ -66,6 +125,39 @@ export default function Profile() {
     setDeleting(false);
     setShowDelete(false);
   };
+
+  // Determine user-friendly visual styles for current active tier
+  const getTierMetadata = () => {
+    if (isAdmin) {
+      return { 
+        label: t("membership_admin"), 
+        colorClass: "bg-destructive/10 text-destructive border-destructive/30", 
+        icon: <ShieldCheck size={12} /> 
+      };
+    }
+    switch (tier) {
+      case 'premium':
+        return { 
+          label: "ميزان بريميوم • Premium", 
+          colorClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20", 
+          icon: <Zap size={12} className="fill-emerald-500/10" /> 
+        };
+      case 'enterprise':
+        return { 
+          label: "اشتراك مؤسساتي • University", 
+          colorClass: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20", 
+          icon: <GraduationCap size={12} /> 
+        };
+      default:
+        return { 
+          label: "عضوية مجانية • Free", 
+          colorClass: "bg-slate-100 dark:bg-slate-800 text-muted-foreground border-border", 
+          icon: <Award size={12} /> 
+        };
+    }
+  };
+
+  const activeTierProps = getTierMetadata();
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10" dir={dir}>
@@ -149,6 +241,49 @@ export default function Profile() {
               </div>
             </section>
           </div>
+
+          {/* 🛠️ MONETIZATION DEVELOPER SANDBOX PANEL (Beautiful native integration) */}
+          <section className="bg-card border border-border rounded-xl p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none" />
+            <div className="flex items-center gap-2.5 mb-4">
+              <Settings size={18} className="text-primary animate-spin-slow" />
+              <h2 className="font-bold text-base text-foreground">بيئة اختبار بوابة الدفع والدراسة (Dev Sandbox)</h2>
+            </div>
+            
+            <p className="text-xs text-muted-foreground mb-5 leading-relaxed">
+              استخدم أدوات المحاكاة هذه لتغيير تصنيف العضوية الخاص بحسابك على الفور. ستتمكن من اختبار ظهور الإعلانات أو إخفائها مباشرة على صفحات المقالات والميزات الإضافية.
+            </p>
+
+            <div className="grid sm:grid-cols-3 gap-3">
+              <button 
+                disabled={updatingTier || tier === 'free'}
+                onClick={() => handleTierSwitch('free')}
+                className="flex items-center justify-center gap-2 py-3 px-4 border border-border rounded-xl text-xs font-semibold hover:bg-accent transition-all disabled:opacity-50"
+              >
+                {updatingTier && tier === 'free' ? <Loader2 size={13} className="animate-spin" /> : "📉"}
+                التحويل إلى باقة مجانية (تفعيل الإعلانات)
+              </button>
+
+              <button 
+                disabled={updatingTier || tier === 'premium'}
+                onClick={() => handleTierSwitch('premium')}
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+              >
+                {updatingTier && tier === 'premium' ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}
+                محاكاة نجاح الدفع (تفعيل بريميوم)
+              </button>
+
+              <button 
+                disabled={updatingTier || tier === 'enterprise'}
+                onClick={() => handleTierSwitch('enterprise')}
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+              >
+                {updatingTier && tier === 'enterprise' ? <Loader2 size={13} className="animate-spin" /> : <GraduationCap size={13} />}
+                محاكاة ولوج جامعي (B2B Enterprise)
+              </button>
+            </div>
+          </section>
+
         </div>
 
         {/* ── RIGHT 30% — Fixed sidebar ── */}
@@ -163,9 +298,11 @@ export default function Profile() {
             </div>
             <h3 className="font-bold text-foreground" style={{ fontFamily: "'Playfair Display', 'Noto Serif Arabic', serif" }}>محمد أمين</h3>
             <p className="text-xs text-muted-foreground mb-3">mohamed@mizan.ma</p>
-            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${isAdmin ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-accent text-accent-foreground border-border"}`}>
-              {isAdmin ? <ShieldCheck size={12} /> : <Award size={12} />}
-              {isAdmin ? t("membership_admin") : t("membership_active")}
+            
+            {/* Real-time Dynamic Tier Badge */}
+            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border transition-all duration-300 ${activeTierProps.colorClass}`}>
+              {activeTierProps.icon}
+              {activeTierProps.label}
             </span>
           </div>
 
