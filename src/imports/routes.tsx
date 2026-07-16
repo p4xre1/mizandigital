@@ -13,6 +13,7 @@ import Legal from "../app/pages/Legal";
 import Library from "../app/pages/Library";
 import Login from "../app/pages/Login";
 import Profile from "../app/pages/Profile";
+import Pricing from "../app/pages/Pricing"; // Added Pricing view import
 import NotFound from "../app/pages/NotFound";
 
 /**
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
       { path: "library", element: <Library /> },
       { path: "login", element: <Login /> },
       { path: "profile", element: <Profile /> },
+      { path: "pricing", element: <Pricing /> }, // Added the dynamic pricing route
       { path: "*", element: <NotFound /> }
     ]
   }
