@@ -17,21 +17,28 @@ const t4 = (ar: string, fr: string, en: string, es: string): L => ({ ar, fr, en,
 function UtilityBar() {
   const { lang, setLang, theme, setTheme, t } = useI18n();
   return (
-    <div className="bg-primary text-primary-foreground text-xs">
+    <div className="bg-primary text-primary-foreground text-xs" role="status">
       <div className="max-w-7xl mx-auto px-6 h-9 flex items-center justify-between">
         <span className="font-semibold tracking-wide" style={{ fontFamily: serifFont(lang) }}>
           {t("motto")}
         </span>
         <div className="flex items-center gap-1">
           {LANGS.map(l => (
-            <button key={l.code} onClick={() => setLang(l.code)}
-              className={`px-2 py-0.5 rounded transition-colors ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}>
+            <button 
+              key={l.code} 
+              onClick={() => setLang(l.code)}
+              aria-label={`Change language to ${l.label}`}
+              className={`px-2 py-0.5 rounded transition-colors focus:outline-none focus:ring-1 focus:ring-white/50 ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}
+            >
               {l.label}
             </button>
           ))}
-          <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/10 transition-colors ms-2">
-            {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+          <button 
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/10 transition-colors ms-2 focus:outline-none focus:ring-1 focus:ring-white/50"
+          >
+            {theme === "dark" ? <Sun size={13} aria-hidden="true" /> : <Moon size={13} aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -42,18 +49,25 @@ function UtilityBar() {
 function MobileControls() {
   const { lang, setLang, theme, setTheme } = useI18n();
   return (
-    <div className="bg-primary text-primary-foreground rounded-xl p-3 flex items-center justify-between gap-2">
+    <div className="bg-primary text-primary-foreground rounded-xl p-3 flex items-center justify-between gap-2" role="toolbar" aria-label="Mobile site controls">
       <div className="flex items-center gap-1">
         {LANGS.map(l => (
-          <button key={l.code} onClick={() => setLang(l.code)}
-            className={`px-2.5 py-1 text-xs rounded-lg transition-colors ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}>
+          <button 
+            key={l.code} 
+            onClick={() => setLang(l.code)}
+            aria-label={`Change language to ${l.label}`}
+            className={`px-2.5 py-1 text-xs rounded-lg transition-colors focus:outline-none focus:ring-1 focus:ring-white/50 ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}
+          >
             {l.label}
           </button>
         ))}
       </div>
-      <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 transition-colors">
-        {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+      <button 
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+        className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-white/10 hover:bg-white/20 transition-colors focus:outline-none focus:ring-1 focus:ring-white/50"
+      >
+        {theme === "dark" ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />}
       </button>
     </div>
   );
@@ -216,10 +230,10 @@ function NavDesktop() {
   };
 
   return (
-    <nav className="hidden lg:block sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+    <nav className="hidden lg:block bg-card/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 shrink-0">
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+        <Link to="/" className="flex items-center gap-3 shrink-0 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
             <Scale size={16} className="text-primary-foreground" />
           </div>
           <div>
@@ -228,27 +242,55 @@ function NavDesktop() {
           </div>
         </Link>
 
-        <div className="flex items-center gap-1">
+        {/* Dynamic accessibility role */}
+        <div className="flex items-center gap-1" role="menubar" aria-label="Main Navigation">
           {megaMenuData.map((item, i) => (
-            <div key={i} className="relative" onMouseEnter={() => setOpen(i)} onMouseLeave={() => setOpen(null)}>
-              <Link to={item.href}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors ${open === i ? "bg-accent text-primary" : "text-foreground/80 hover:bg-muted"}`}
+            <div 
+              key={i} 
+              className="relative" 
+              onMouseEnter={() => setOpen(i)} 
+              onMouseLeave={() => setOpen(null)}
+              onFocus={() => setOpen(i)}
+              onBlur={(e) => {
+                // UX: Only close if focus leaves the entire dropdown structure
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                  setOpen(null);
+                }
+              }}
+            >
+              <Link 
+                to={item.href}
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:bg-accent focus:text-primary ${open === i ? "bg-accent text-primary" : "text-foreground/80 hover:bg-muted"}`}
                 style={{ fontFamily: sansFont(lang) }}
+                role="menuitem"
+                aria-haspopup="true"
+                aria-expanded={open === i}
               >
-                {item.icon}{item.label[lang]}
-                <ChevronDown size={12} className={`transition-transform ${open === i ? "rotate-180" : ""}`} />
+                <span className="text-primary/95" aria-hidden="true">{item.icon}</span>
+                {item.label[lang]}
+                <ChevronDown size={12} className={`transition-transform duration-200 ${open === i ? "rotate-180" : ""}`} aria-hidden="true" />
               </Link>
               {open === i && (
-                <div className={`absolute top-full mt-1 bg-popover border border-border rounded-xl shadow-xl p-5 z-50 min-w-max ${dir === "rtl" ? "right-0" : "left-0"}`} dir={dir}>
+                <div 
+                  className={`absolute top-full mt-1 bg-popover border border-border rounded-xl shadow-xl p-5 z-50 min-w-max animate-in fade-in slide-in-from-top-1 duration-150 ${dir === "rtl" ? "right-0" : "left-0"}`} 
+                  dir={dir}
+                  role="menu"
+                >
                   <div className="flex gap-8">
                     {item.cols.map((col, ci) => (
                       <div key={ci} className="min-w-[160px]">
                         <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mb-3 pb-2 border-b border-border">{col.heading[lang]}</p>
                         <ul className="space-y-2">
                           {col.links.map((lnk) => (
-                            <li key={lnk.href}>
-                              <Link to={lnk.href} className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-1.5 group" style={{ fontFamily: sansFont(lang) }}>
-                                <ChevronRight size={11} className={`opacity-0 group-hover:opacity-100 text-primary ${dir === "rtl" ? "" : "rotate-180"}`} />{lnk.label[lang]}
+                            <li key={lnk.href} role="none">
+                              <Link 
+                                to={lnk.href} 
+                                className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-1.5 group focus:outline-none focus:text-primary focus:underline rounded-sm p-0.5" 
+                                style={{ fontFamily: sansFont(lang) }}
+                                role="menuitem"
+                              >
+                                <ChevronRight size={11} className={`opacity-0 group-hover:opacity-100 text-primary transition-all ${dir === "rtl" ? "rotate-180" : ""}`} aria-hidden="true" />
+                                {lnk.label[lang]}
                               </Link>
                             </li>
                           ))}
@@ -263,16 +305,23 @@ function NavDesktop() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <form onSubmit={handleSearch} className="relative">
-            <Search size={14} className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${dir === "rtl" ? "right-3" : "left-3"}`} />
+          <form onSubmit={handleSearch} className="relative" role="search" aria-label="Site-wide search">
+            <Search size={14} className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${dir === "rtl" ? "right-3" : "left-3"}`} aria-hidden="true" />
             <input
-              value={q} onChange={e => setQ(e.target.value)}
+              value={q} 
+              onChange={e => setQ(e.target.value)}
               placeholder={t("search_placeholder")}
-              className={`w-40 py-1.5 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary transition-colors ${align} ${dir === "rtl" ? "pr-8 pl-3" : "pl-8 pr-3"}`}
+              aria-label={t("search_placeholder")}
+              type="search"
+              className={`w-40 py-1.5 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all ${align} ${dir === "rtl" ? "pr-8 pl-3" : "pl-8 pr-3"}`}
               style={{ fontFamily: sansFont(lang) }}
             />
           </form>
-          <Link to="/login" className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium" style={{ fontFamily: sansFont(lang) }}>
+          <Link 
+            to="/login" 
+            className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" 
+            style={{ fontFamily: sansFont(lang) }}
+          >
             {t("login")}
           </Link>
         </div>
@@ -294,31 +343,56 @@ function NavTablet() {
   };
 
   return (
-    <nav className="hidden md:block lg:hidden sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+    <nav className="hidden md:block lg:hidden bg-card/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="px-5 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={14} className="text-primary-foreground" /></div>
+        <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
+            <Scale size={14} className="text-primary-foreground" />
+          </div>
           <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
-        <button onClick={() => setOpen(!open)} className="p-2 text-muted-foreground rounded-md">
-          {open ? <X size={18} /> : <Menu size={18} />}
+        <button 
+          onClick={() => setOpen(!open)} 
+          className="p-2 text-muted-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-expanded={open}
+          aria-label="Toggle navigation drawer"
+        >
+          {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
         </button>
       </div>
       {open && (
         <div className="border-t border-border bg-card px-5 py-4 space-y-3" dir={dir}>
           <MobileControls />
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder={t("search_placeholder_long")}
-              className={`flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary ${align}`}
-              style={{ fontFamily: sansFont(lang) }} />
-            <button type="submit" className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm"><Search size={14} /></button>
+          <form onSubmit={handleSearch} className="flex gap-2" role="search" aria-label="Tablet search">
+            <input 
+              value={q} 
+              onChange={e => setQ(e.target.value)} 
+              placeholder={t("search_placeholder_long")}
+              aria-label={t("search_placeholder_long")}
+              type="search"
+              className={`flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary ${align}`}
+              style={{ fontFamily: sansFont(lang) }} 
+            />
+            <button 
+              type="submit" 
+              aria-label="Submit search"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <Search size={14} aria-hidden="true" />
+            </button>
           </form>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" role="menu">
             {megaMenuData.map((item, i) => (
-              <Link key={i} to={item.href} onClick={() => setOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg border border-border hover:bg-accent hover:border-primary/30 transition-colors text-sm text-foreground/80"
-                style={{ fontFamily: sansFont(lang) }}>
-                <span className="text-primary">{item.icon}</span>{item.label[lang]}
+              <Link 
+                key={i} 
+                to={item.href} 
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 p-3 rounded-lg border border-border hover:bg-accent hover:border-primary/30 focus:bg-accent focus:border-primary/30 focus:outline-none transition-colors text-sm text-foreground/80 font-medium"
+                style={{ fontFamily: sansFont(lang) }}
+                role="menuitem"
+              >
+                <span className="text-primary" aria-hidden="true">{item.icon}</span>
+                {item.label[lang]}
               </Link>
             ))}
           </div>
@@ -342,55 +416,95 @@ function NavPhone() {
   };
 
   return (
-    <nav className="md:hidden sticky top-0 z-50 bg-card border-b border-border shadow-sm">
+    <nav className="md:hidden bg-card/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="px-4 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={14} className="text-primary-foreground" /></div>
+        <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
+            <Scale size={14} className="text-primary-foreground" />
+          </div>
           <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
-        <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-foreground rounded-md">
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        <button 
+          onClick={() => setMenuOpen(!menuOpen)} 
+          className="p-2 text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+          aria-expanded={menuOpen}
+          aria-label="Toggle navigation menu"
+        >
+          {menuOpen ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
         </button>
       </div>
       {menuOpen && (
         <div className="border-t border-border bg-card max-h-[75vh] overflow-y-auto" dir={dir}>
-          <form onSubmit={handleSearch} className="flex gap-2 p-4 border-b border-border">
-            <input value={q} onChange={e => setQ(e.target.value)} placeholder={t("search_placeholder")}
-              className={`flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary ${align}`}
-              style={{ fontFamily: sansFont(lang) }} />
-            <button type="submit" className="px-3 bg-primary text-primary-foreground rounded-lg"><Search size={14} /></button>
+          <form onSubmit={handleSearch} className="flex gap-2 p-4 border-b border-border" role="search" aria-label="Mobile search">
+            <input 
+              value={q} 
+              onChange={e => setQ(e.target.value)} 
+              placeholder={t("search_placeholder")}
+              aria-label={t("search_placeholder")}
+              type="search"
+              className={`flex-1 px-3 py-2 text-sm border border-border rounded-lg bg-input-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary ${align}`}
+              style={{ fontFamily: sansFont(lang) }} 
+            />
+            <button 
+              type="submit" 
+              aria-label="Submit mobile search"
+              className="px-4 bg-primary text-primary-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <Search size={14} aria-hidden="true" />
+            </button>
           </form>
-          {megaMenuData.map((item, i) => (
-            <div key={i} className="border-b border-border last:border-0">
-              <button onClick={() => setExpanded(expanded === i ? null : i)}
-                className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-semibold text-foreground hover:bg-muted"
-                style={{ fontFamily: sansFont(lang) }}>
-                <div className="flex items-center gap-2"><span className="text-primary">{item.icon}</span>{item.label[lang]}</div>
-                <ChevronDown size={14} className={`text-muted-foreground transition-transform ${expanded === i ? "rotate-180" : ""}`} />
-              </button>
-              {expanded === i && (
-                <div className="bg-muted px-5 pb-3">
-                  {item.cols.map((col, ci) => (
-                    <div key={ci} className="mt-3">
-                      <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mb-2">{col.heading[lang]}</p>
-                      <div className="space-y-1">
-                        {col.links.map((lnk) => (
-                          <Link key={lnk.href} to={lnk.href} onClick={() => setMenuOpen(false)}
-                            className="block text-sm text-foreground/70 hover:text-primary py-1"
-                            style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
-                        ))}
+          <div role="menu" aria-label="Mobile Directory">
+            {megaMenuData.map((item, i) => (
+              <div key={i} className="border-b border-border last:border-0">
+                <button 
+                  onClick={() => setExpanded(expanded === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-semibold text-foreground hover:bg-muted focus:outline-none focus:bg-muted"
+                  style={{ fontFamily: sansFont(lang) }}
+                  aria-expanded={expanded === i}
+                  role="menuitem"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary" aria-hidden="true">{item.icon}</span>
+                    {item.label[lang]}
+                  </div>
+                  <ChevronDown size={14} className={`text-muted-foreground transition-transform duration-200 ${expanded === i ? "rotate-180" : ""}`} aria-hidden="true" />
+                </button>
+                {expanded === i && (
+                  <div className="bg-muted px-5 pb-3">
+                    {item.cols.map((col, ci) => (
+                      <div key={ci} className="mt-3">
+                        <p className="text-[10px] font-bold text-muted-foreground tracking-widest uppercase mb-2">{col.heading[lang]}</p>
+                        <div className="space-y-1">
+                          {col.links.map((lnk) => (
+                            <Link 
+                              key={lnk.href} 
+                              to={lnk.href} 
+                              onClick={() => setMenuOpen(false)}
+                              className="block text-sm text-foreground/70 hover:text-primary py-1 focus:outline-none focus:text-primary"
+                              style={{ fontFamily: sansFont(lang) }}
+                              role="menuitem"
+                            >
+                              {lnk.label[lang]}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
           <div className="p-4 space-y-3">
             <MobileControls />
-            <Link to="/login" onClick={() => setMenuOpen(false)}
-              className="block w-full py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg text-center"
-              style={{ fontFamily: sansFont(lang) }}>{t("login")}</Link>
+            <Link 
+              to="/login" 
+              onClick={() => setMenuOpen(false)}
+              className="block w-full py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              style={{ fontFamily: sansFont(lang) }}
+            >
+              {t("login")}
+            </Link>
           </div>
         </div>
       )}
@@ -409,16 +523,21 @@ const sponsors: { name: string; full: L; tier: L; icon: React.ReactNode }[] = [
 function SponsorRibbon() {
   const { lang, dir, t } = useI18n();
   return (
-    <section className="border-t border-border bg-card/50" dir={dir}>
+    <section className="border-t border-border bg-card/50" dir={dir} aria-labelledby="sponsors-heading">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <p className="text-center text-[11px] font-bold text-muted-foreground tracking-widest uppercase mb-5">
+        <h3 id="sponsors-heading" className="text-center text-[11px] font-bold text-muted-foreground tracking-widest uppercase mb-5">
           {t("sponsors_heading")}
-        </p>
-        <div className="flex gap-4 overflow-x-auto pb-2 md:justify-center md:overflow-visible">
+        </h3>
+        {/* Horizontal scroll support for touch devices */}
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin md:justify-center md:overflow-visible">
           {sponsors.map(s => (
-            <div key={s.name}
-              className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-xl border border-border bg-background hover:border-primary/40 transition-colors min-w-[220px]">
-              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-primary shrink-0">{s.icon}</div>
+            <div 
+              key={s.name}
+              className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-xl border border-border bg-background hover:border-primary/40 transition-colors min-w-[240px]"
+            >
+              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-primary shrink-0" aria-hidden="true">
+                {s.icon}
+              </div>
               <div>
                 <div className="text-sm font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{s.name}</div>
                 <div className="text-[10px] text-muted-foreground" style={{ fontFamily: sansFont(lang) }}>{s.full[lang]}</div>
@@ -437,20 +556,29 @@ function SponsorRibbon() {
 function FooterDesktop() {
   const { lang, dir, t } = useI18n();
   return (
-    <footer className="hidden lg:block border-t border-border bg-muted mt-16">
+    <footer className="hidden lg:block border-t border-border bg-muted mt-16" aria-label="Desktop footer">
       <div className="max-w-7xl mx-auto px-6 py-12" dir={dir}>
         <div className="grid grid-cols-5 gap-8 mb-10">
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center"><Scale size={15} className="text-primary-foreground" /></div>
+            <Link to="/" className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
+              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
+                <Scale size={15} className="text-primary-foreground" />
+              </div>
               <span className="font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
             </Link>
             <p className="text-xs text-muted-foreground leading-relaxed mb-4" style={{ fontFamily: sansFont(lang) }}>
               {t("footer_tagline")}
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2" aria-label="Social media connections">
               {[Twitter, Youtube, Globe].map((Icon, i) => (
-                <a key={i} href="#" className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"><Icon size={14} /></a>
+                <a 
+                  key={i} 
+                  href="#" 
+                  aria-label={`Visit our external platform account`}
+                  className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  <Icon size={14} aria-hidden="true" />
+                </a>
               ))}
             </div>
           </div>
@@ -459,7 +587,15 @@ function FooterDesktop() {
               <h4 className="text-xs font-bold text-foreground tracking-wide uppercase mb-3 pb-2 border-b border-border">{col.heading[lang]}</h4>
               <ul className="space-y-2">
                 {col.links.map((lnk) => (
-                  <li key={lnk.href}><Link to={lnk.href} className="text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link></li>
+                  <li key={lnk.href}>
+                    <Link 
+                      to={lnk.href} 
+                      className="text-xs text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:underline" 
+                      style={{ fontFamily: sansFont(lang) }}
+                    >
+                      {lnk.label[lang]}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -467,9 +603,16 @@ function FooterDesktop() {
         </div>
         <div className="flex items-center justify-between pt-6 border-t border-border">
           <p className="text-xs text-muted-foreground font-mono">© 2026 Mizan Legal · {t("brand_full")}</p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4" aria-label="Legal terms">
             {legalLinks.map((lnk) => (
-              <Link key={lnk.href} to={lnk.href} className="text-xs text-muted-foreground hover:text-primary transition-colors" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+              <Link 
+                key={lnk.href} 
+                to={lnk.href} 
+                className="text-xs text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:underline" 
+                style={{ fontFamily: sansFont(lang) }}
+              >
+                {lnk.label[lang]}
+              </Link>
             ))}
           </div>
         </div>
@@ -481,16 +624,25 @@ function FooterDesktop() {
 function FooterTablet() {
   const { lang, dir, t } = useI18n();
   return (
-    <footer className="hidden md:block lg:hidden border-t border-border bg-muted mt-10">
+    <footer className="hidden md:block lg:hidden border-t border-border bg-muted mt-10" aria-label="Tablet footer">
       <div className="px-5 py-10" dir={dir}>
         <div className="flex items-center justify-between mb-8 pb-6 border-b border-border">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={13} className="text-primary-foreground" /></div>
+          <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
+            <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
+              <Scale size={13} className="text-primary-foreground" />
+            </div>
             <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
           </Link>
-          <div className="flex gap-2">
+          <div className="flex gap-2" aria-label="Social media connections">
             {[Twitter, Youtube, Globe, Mail].map((Icon, i) => (
-              <a key={i} href="#" className="w-7 h-7 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary"><Icon size={13} /></a>
+              <a 
+                key={i} 
+                href="#" 
+                aria-label={`Visit our external platform account`}
+                className="w-7 h-7 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <Icon size={13} aria-hidden="true" />
+              </a>
             ))}
           </div>
         </div>
@@ -500,7 +652,15 @@ function FooterTablet() {
               <h4 className="text-xs font-bold text-foreground uppercase tracking-wide mb-3">{col.heading[lang]}</h4>
               <ul className="space-y-1.5">
                 {col.links.map((lnk) => (
-                  <li key={lnk.href}><Link to={lnk.href} className="text-xs text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link></li>
+                  <li key={lnk.href}>
+                    <Link 
+                      to={lnk.href} 
+                      className="text-xs text-muted-foreground hover:text-primary focus:outline-none focus:underline" 
+                      style={{ fontFamily: sansFont(lang) }}
+                    >
+                      {lnk.label[lang]}
+                    </Link>
+                  </li>
                 ))}
               </ul>
             </div>
@@ -516,31 +676,50 @@ function FooterPhone() {
   const { lang, dir, t } = useI18n();
   const [openCol, setOpenCol] = useState<number | null>(null);
   return (
-    <footer className="md:hidden border-t border-border bg-muted mt-8">
+    <footer className="md:hidden border-t border-border bg-muted mt-8" aria-label="Mobile footer">
       <div className="px-4 pt-8 pb-6" dir={dir}>
-        <Link to="/" className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={13} className="text-primary-foreground" /></div>
+        <Link to="/" className="flex items-center gap-2 mb-3 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1">
+          <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
+            <Scale size={13} className="text-primary-foreground" />
+          </div>
           <span className="font-bold text-sm text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
         <p className="text-xs text-muted-foreground mb-4 leading-relaxed" style={{ fontFamily: sansFont(lang) }}>{t("footer_tagline")}</p>
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6" aria-label="Social media connections">
           {[Twitter, Youtube, Globe, Mail].map((Icon, i) => (
-            <a key={i} href="#" className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground"><Icon size={14} /></a>
+            <a 
+              key={i} 
+              href="#" 
+              aria-label={`Visit our external platform account`}
+              className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <Icon size={14} aria-hidden="true" />
+            </a>
           ))}
         </div>
-        <div className="border-t border-border">
+        <div className="border-t border-border" role="tablist" aria-label="Mobile Footer Navigation">
           {footerCols.map((col, i) => (
             <div key={i} className="border-b border-border">
-              <button onClick={() => setOpenCol(openCol === i ? null : i)}
-                className="w-full flex items-center justify-between py-3 text-sm font-semibold text-foreground"
-                style={{ fontFamily: sansFont(lang) }}>
+              <button 
+                onClick={() => setOpenCol(openCol === i ? null : i)}
+                className="w-full flex items-center justify-between py-3 text-sm font-semibold text-foreground focus:outline-none focus:bg-muted"
+                style={{ fontFamily: sansFont(lang) }}
+                aria-expanded={openCol === i}
+              >
                 {col.heading[lang]}
-                <ChevronDown size={13} className={`text-muted-foreground transition-transform ${openCol === i ? "rotate-180" : ""}`} />
+                <ChevronDown size={13} className={`text-muted-foreground transition-transform duration-200 ${openCol === i ? "rotate-180" : ""}`} aria-hidden="true" />
               </button>
               {openCol === i && (
-                <div className="pb-3 space-y-2">
+                <div className="pb-3 space-y-2 animate-in fade-in duration-100">
                   {col.links.map((lnk) => (
-                    <Link key={lnk.href} to={lnk.href} className="block text-xs text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+                    <Link 
+                      key={lnk.href} 
+                      to={lnk.href} 
+                      className="block text-xs text-muted-foreground hover:text-primary focus:outline-none focus:text-primary" 
+                      style={{ fontFamily: sansFont(lang) }}
+                    >
+                      {lnk.label[lang]}
+                    </Link>
                   ))}
                 </div>
               )}
@@ -549,7 +728,14 @@ function FooterPhone() {
         </div>
         <div className="flex flex-wrap gap-3 mt-5">
           {legalLinks.map((lnk) => (
-            <Link key={lnk.href} to={lnk.href} className="text-[11px] text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>{lnk.label[lang]}</Link>
+            <Link 
+              key={lnk.href} 
+              to={lnk.href} 
+              className="text-[11px] text-muted-foreground hover:text-primary focus:outline-none focus:underline" 
+              style={{ fontFamily: sansFont(lang) }}
+            >
+              {lnk.label[lang]}
+            </Link>
           ))}
         </div>
         <p className="text-center text-xs text-muted-foreground font-mono mt-6">© 2026 Mizan Legal</p>
@@ -564,18 +750,30 @@ export default function Layout() {
   const location = useLocation();
   useReferralTracking();
 
-  useEffect(() => { initGA(); setOrganizationSchema(); }, []);
-  useEffect(() => { trackPageView(location.pathname + location.search); }, [location]);
+  useEffect(() => { 
+    initGA(); 
+    setOrganizationSchema(); 
+  }, []);
+
+  useEffect(() => { 
+    trackPageView(location.pathname + location.search); 
+  }, [location]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <div className="hidden lg:block"><UtilityBar /></div>
-      <NavDesktop />
-      <NavTablet />
-      <NavPhone />
-      <main className="flex-1">
+    <div className="min-h-screen bg-background text-foreground flex flex-col antialiased">
+      <header className="w-full">
+        <div className="hidden lg:block">
+          <UtilityBar />
+        </div>
+        <NavDesktop />
+        <NavTablet />
+        <NavPhone />
+      </header>
+      
+      <main className="flex-1" id="main-content">
         <Outlet />
       </main>
+      
       <SponsorRibbon />
       <FooterDesktop />
       <FooterTablet />

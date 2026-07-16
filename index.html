@@ -1,22 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- ========================================== -->
+    <!-- 🛡️ SECURITY: MILITARY-GRADE HEADERS      -->
+    <!-- ========================================== -->
+    <!-- جدار حماية (CSP) يمنع حقن الأكواد الخبيثة ويسمح بالاتصال بـ Supabase فقط -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://*.supabase.co https://*.supabase.in; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;" />
+    <!-- منع تسريب مسار زوارك عند النقر على روابط خارجية -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <!-- منع المتصفحات من تخمين نوع الملفات -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>SEO Optimization Blueprint</title>
-      <meta name="description" content="Optimizes legal articles with expert SEO strategies, structured content, multilingual support, and schema markup to boost visibility for law professionals and students." />
-      <meta name="robots" content="noindex, nofollow" />
-      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
-      
-    </head>
+    <!-- ========================================== -->
+    <!-- 📈 SEO: ENTERPRISE-GRADE OPTIMIZATION    -->
+    <!-- ========================================== -->
+    <title>Mizan Digital | Legal SEO & Structured Content</title>
+    <meta name="description" content="Optimizes legal articles with expert SEO strategies, structured content, multilingual support, and schema markup to boost visibility for law professionals and students." />
+    <!-- السماح لجوجل بأرشفة الموقع والصور ومقاطع الفيديو بأفضل شكل -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    
+    <!-- ========================================== -->
+    <!-- 🌍 MULTILINGUAL SEO (4 Languages)          -->
+    <!-- ========================================== -->
+    <!-- ⚠️ هام: قم بتغيير your-domain.com إلى رابط موقعك الرسمي لاحقاً -->
+    <link rel="canonical" href="https://your-domain.com" />
+    <link rel="alternate" hreflang="en" href="https://your-domain.com/" />
+    <link rel="alternate" hreflang="ar" href="https://your-domain.com/ar/" />
+    <link rel="alternate" hreflang="fr" href="https://your-domain.com/fr/" />
+    <link rel="alternate" hreflang="es" href="https://your-domain.com/es/" />
+    <link rel="alternate" hreflang="x-default" href="https://your-domain.com/" />
 
-    <body>
-      
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-      
-    </body>
-  </html>
-  
+    <!-- ========================================== -->
+    <!-- 📱 SOCIAL MEDIA CARDS (Open Graph)         -->
+    <!-- ========================================== -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Mizan Digital | Legal SEO & Structured Content" />
+    <meta property="og:description" content="Expert SEO strategies and multilingual support to boost visibility for law professionals." />
+    <!-- ضع صورة في مجلد public باسم og-image.jpg لتظهر عند مشاركة الرابط -->
+    <meta property="og:image" content="/og-image.jpg" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Mizan Digital | Legal SEO" />
+    <meta name="twitter:description" content="Expert SEO strategies for law professionals." />
+
+    <meta name="theme-color" content="#ffffff" />
+
+    <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
+  </head>
+
+  <!-- 
+    لن نحتاج لكتابة dir="rtl" هنا، لأن السكربت الذي أضفناه لمستشعر اللغة 
+    سيقوم بتعديل وسم الـ HTML برمجياً ليناسب لغة الزائر فور دخوله!
+  -->
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

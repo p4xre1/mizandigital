@@ -13,6 +13,7 @@ const FONTS = [
   { label: "Inter", value: "'Inter', sans-serif" },
   { label: "JetBrains Mono", value: "'JetBrains Mono', monospace" },
 ];
+
 const SIZES = [
   { label: "12", value: "2" }, { label: "14", value: "3" }, { label: "16", value: "4" },
   { label: "18", value: "5" }, { label: "24", value: "6" }, { label: "32", value: "7" },
@@ -46,12 +47,15 @@ export default function RichTextEditor({ value, onChange, dir }: Props) {
 
   const addLink = () => {
     const url = window.prompt("URL (https://...)");
-    if (url) exec("createLink", url);
+    // Ensure the URL is basic-sanitized before insertion to prevent javascript: payloads
+    if (url && (url.startsWith('https://') || url.startsWith('http://'))) exec("createLink", url);
   };
+  
   const addImage = () => {
     const url = window.prompt("Image URL (https://... or upload elsewhere)");
-    if (url) exec("insertImage", url);
+    if (url && (url.startsWith('https://') || url.startsWith('http://'))) exec("insertImage", url);
   };
+  
   const addVideo = () => {
     const url = window.prompt("YouTube / Vimeo / Dailymotion URL");
     if (!url) return;
@@ -63,25 +67,27 @@ export default function RichTextEditor({ value, onChange, dir }: Props) {
     emit();
   };
 
+  // Enterprise UI: Added aria-label and focus states for Web Accessibility (WCAG compliant)
   const Btn = ({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) => (
-    <button type="button" onMouseDown={e => e.preventDefault()} onClick={onClick} title={title}
-      className="p-2 rounded-md text-foreground/70 hover:bg-muted hover:text-primary transition-colors">
+    <button type="button" onMouseDown={e => e.preventDefault()} onClick={onClick} title={title} aria-label={title}
+      className="p-2 rounded-md text-foreground/70 hover:bg-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary">
       {children}
     </button>
   );
+  
   const Sep = () => <span className="w-px h-6 bg-border mx-0.5" />;
 
   return (
-    <div className="border border-border rounded-xl overflow-hidden bg-card">
+    <div className="border border-border rounded-xl overflow-hidden bg-card focus-within:ring-2 focus-within:ring-primary focus-within:border-transparent transition-all">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 p-2 border-b border-border bg-muted/40" dir="ltr">
-        <select onChange={e => exec("fontName", e.target.value)} title="Font"
-          className="text-xs border border-border rounded-md px-1.5 py-1.5 bg-card outline-none max-w-[130px]">
+        <select onChange={e => exec("fontName", e.target.value)} title="Font" aria-label="Select Font"
+          className="text-xs border border-border rounded-md px-1.5 py-1.5 bg-card outline-none max-w-[130px] focus:ring-2 focus:ring-primary">
           <option value="">Font</option>
           {FONTS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
         </select>
-        <select onChange={e => exec("fontSize", e.target.value)} title="Size"
-          className="text-xs border border-border rounded-md px-1.5 py-1.5 bg-card outline-none">
+        <select onChange={e => exec("fontSize", e.target.value)} title="Size" aria-label="Select Font Size"
+          className="text-xs border border-border rounded-md px-1.5 py-1.5 bg-card outline-none focus:ring-2 focus:ring-primary">
           <option value="">Size</option>
           {SIZES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
@@ -92,10 +98,12 @@ export default function RichTextEditor({ value, onChange, dir }: Props) {
         <Btn onClick={() => exec("strikeThrough")} title="Strikethrough"><Strikethrough size={15} /></Btn>
         <Btn onClick={() => exec("hiliteColor", "#fde68a")} title="Highlight"><Highlighter size={15} /></Btn>
         <div className="relative">
-          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setShowColor(v => !v)} title="Text color"
-            className="p-2 rounded-md text-foreground/70 hover:bg-muted"><span className="w-4 h-4 rounded-sm bg-gradient-to-br from-red-500 via-green-500 to-blue-500 block" /></button>
+          <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => setShowColor(v => !v)} title="Text color" aria-label="Text color picker"
+            className="p-2 rounded-md text-foreground/70 hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary">
+            <span className="w-4 h-4 rounded-sm bg-gradient-to-br from-red-500 via-green-500 to-blue-500 block" />
+          </button>
           {showColor && (
-            <input type="color" className="absolute top-9 left-0 z-10" onChange={e => { exec("foreColor", e.target.value); setShowColor(false); }} />
+            <input type="color" aria-label="Choose color" className="absolute top-9 left-0 z-10 cursor-pointer" onChange={e => { exec("foreColor", e.target.value); setShowColor(false); }} />
           )}
         </div>
         <Sep />
@@ -126,6 +134,7 @@ export default function RichTextEditor({ value, onChange, dir }: Props) {
         onInput={emit}
         onBlur={emit}
         dir={dir}
+        aria-label="Rich Text Editor Content"
         className="rte-content min-h-[320px] max-h-[520px] overflow-y-auto p-4 text-sm leading-relaxed text-foreground outline-none"
         style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
       />

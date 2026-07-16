@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, Outlet, Link } from "react-router";
 import {
   LayoutDashboard, Users, FileText, Files, ShieldCheck, Search as SearchIcon,
@@ -23,20 +23,38 @@ export default function AdminLayout() {
   const { lang, dir, t } = useI18n();
   const [open, setOpen] = useState(false);
   const authed = useAdminAuth();
+  
+  // SEO 🛡️: noindex is crucial here to hide the admin panel from search engines!
   useSeo({ title: t("admin_panel"), noindex: true, path: "/admin" }, [lang]);
+
+  // Security UX 🛡️: Close mobile drawer on Escape key press
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
 
   if (!authed) return <AdminLogin />;
 
   const SideLinks = () => (
-    <nav className="space-y-1">
+    <nav aria-label="Admin Navigation" className="space-y-1">
       {NAV.map(item => (
-        <NavLink key={item.to} to={item.to} end={item.end} onClick={() => setOpen(false)}
+        <NavLink 
+          key={item.to} 
+          to={item.to} 
+          end={item.end} 
+          onClick={() => setOpen(false)}
           className={({ isActive }) =>
-            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+            `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
               isActive ? "bg-primary text-primary-foreground font-semibold" : "text-foreground/70 hover:bg-muted"
-            }`}
-          style={{ fontFamily: sansFont(lang) }}>
-          <item.icon size={17} />{t(item.key)}
+            }`
+          }
+          style={{ fontFamily: sansFont(lang) }}
+        >
+          <item.icon size={17} aria-hidden="true" />
+          {t(item.key)}
         </NavLink>
       ))}
     </nav>
@@ -48,20 +66,39 @@ export default function AdminLayout() {
       <header className="bg-card border-b border-border sticky top-0 z-40">
         <div className="px-4 md:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button className="lg:hidden p-2 text-foreground" onClick={() => setOpen(!open)}>
-              {open ? <X size={18} /> : <Menu size={18} />}
+            <button 
+              className="lg:hidden p-2 text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-primary" 
+              onClick={() => setOpen(!open)}
+              aria-expanded={open}
+              aria-controls="admin-sidebar"
+              aria-label="Toggle navigation menu"
+            >
+              {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
             </button>
-            <Link to="/admin" className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center"><Scale size={14} className="text-primary-foreground" /></div>
+            <Link to="/admin" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+              <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
+                <Scale size={14} className="text-primary-foreground" />
+              </div>
               <span className="font-bold text-foreground text-sm" style={{ fontFamily: serifFont(lang) }}>{t("admin_panel")}</span>
             </Link>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary" style={{ fontFamily: sansFont(lang) }}>
-              <ArrowLeft size={15} className={dir === "rtl" ? "rotate-180" : ""} />{t("admin_back_site")}
+            <Link 
+              to="/" 
+              className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary rounded-md px-2 py-1" 
+              style={{ fontFamily: sansFont(lang) }}
+            >
+              <ArrowLeft size={15} className={dir === "rtl" ? "rotate-180" : ""} aria-hidden="true" />
+              {t("admin_back_site")}
             </Link>
-            <button onClick={adminLogout} className="flex items-center gap-1.5 text-sm text-destructive hover:opacity-80" style={{ fontFamily: sansFont(lang) }}>
-              <LogOut size={15} />{t("logout")}
+            <button 
+              onClick={adminLogout} 
+              className="flex items-center gap-1.5 text-sm text-destructive hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-destructive rounded-md px-2 py-1 transition-opacity" 
+              style={{ fontFamily: sansFont(lang) }}
+              aria-label="Secure Logout"
+            >
+              <LogOut size={15} aria-hidden="true" />
+              {t("logout")}
             </button>
           </div>
         </div>
@@ -75,14 +112,19 @@ export default function AdminLayout() {
 
         {/* Mobile drawer */}
         {open && (
-          <div className="lg:hidden fixed inset-0 z-30 bg-black/40" onClick={() => setOpen(false)}>
-            <aside className="absolute top-14 bottom-0 w-64 bg-card p-4 border-e border-border" onClick={e => e.stopPropagation()} dir={dir}>
+          <div className="lg:hidden fixed inset-0 z-30 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setOpen(false)} aria-hidden="true">
+            <aside 
+              id="admin-sidebar"
+              className="absolute top-14 bottom-0 w-64 bg-card p-4 border-e border-border shadow-2xl transition-transform" 
+              onClick={e => e.stopPropagation()} 
+              dir={dir}
+            >
               <SideLinks />
             </aside>
           </div>
         )}
 
-        <main className="flex-1 p-4 md:p-8 min-w-0">
+        <main className="flex-1 p-4 md:p-8 min-w-0" role="main">
           <Outlet />
         </main>
       </div>
