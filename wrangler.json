@@ -1,0 +1,9 @@
+{
+  "name": "mizandigital",
+  "compatibility_date": "2026-07-16",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  }
+}
