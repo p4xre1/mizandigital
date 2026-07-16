@@ -25,7 +25,9 @@ export default function Profile() {
   const [avatarError, setAvatarError] = useState("");
   const [tier, setTier] = useState<'free' | 'premium' | 'enterprise'>('free');
   const [updatingTier, setUpdatingTier] = useState(false);
-  const isAdmin = false;
+  
+  // صلاحية المدير (Admin) لتحديد من يمكنه تعديل الاشتراكات يدوياً
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // S1 - S6 Dynamic Progress state (starts cleanly at 0%)
   const [progress, setProgress] = useState<Record<string, number>>({
@@ -57,7 +59,7 @@ export default function Profile() {
             // Query current subscriber metadata tier, bio, and profile options
             const { data, error } = await supabase
               .from("profiles")
-              .select("tier, bio, full_name, avatar_url, progress")
+              .select("tier, bio, full_name, avatar_url, progress, role")
               .eq("id", user.id)
               .single();
 
@@ -66,6 +68,7 @@ export default function Profile() {
               if (data.bio) setBio(data.bio);
               if (data.full_name) setDisplayName(data.full_name);
               if (data.avatar_url) setAvatarUrl(data.avatar_url);
+              if (data.role === 'admin') setIsAdmin(true);
               if (data.progress) {
                 setProgress(data.progress as Record<string, number>);
               }
@@ -252,8 +255,8 @@ export default function Profile() {
   const getTierMetadata = () => {
     if (isAdmin) {
       return { 
-        label: t("membership_admin"), 
-        colorClass: "bg-destructive/10 text-destructive border-destructive/30", 
+        label: t("membership_admin") || "مسؤول النظام • Admin", 
+        colorClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20", 
         icon: <ShieldCheck size={12} /> 
       };
     }
@@ -383,46 +386,49 @@ export default function Profile() {
           </div>
 
           {/* 🛠️ MONETIZATION DEVELOPER SANDBOX PANEL */}
-          <section className="bg-card border border-border rounded-xl p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none" />
-            <div className="flex items-center gap-2.5 mb-4">
-              <Settings size={18} className="text-primary" />
-              <h2 className="font-bold text-base text-foreground">بيئة اختبار بوابة الدفع والدراسة (Dev Sandbox)</h2>
-            </div>
-            
-            <p className="text-xs text-muted-foreground mb-5 leading-relaxed">
-              استخدم أدوات المحاكاة هذه لتغيير تصنيف العضوية الخاص بحسابك على الفور. ستتمكن من اختبار ظهور الإعلانات أو إخفائها مباشرة على صفحات المقالات والميزات الإضافية.
-            </p>
+          {/* هذا الجزء لن يظهر للمستخدم العادي في الموقع المرفوع أبداً! يظهر فقط عند التطوير محلياً أو للمدير */}
+          {(isAdmin || import.meta.env.DEV) && (
+            <section className="bg-card border border-border rounded-xl p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none" />
+              <div className="flex items-center gap-2.5 mb-4">
+                <Settings size={18} className="text-primary" />
+                <h2 className="font-bold text-base text-foreground">بيئة اختبار بوابة الدفع والدراسة (Dev Sandbox)</h2>
+              </div>
+              
+              <p className="text-xs text-muted-foreground mb-5 leading-relaxed">
+                هذه اللوحة تظهر لك فقط لأنك في وضع التطوير المحلي (`localhost`). تتيح لك التنقل السريع واختبار تفعيل الباقات مجاناً.
+              </p>
 
-            <div className="grid sm:grid-cols-3 gap-3">
-              <button 
-                disabled={updatingTier || tier === 'free'}
-                onClick={() => handleTierSwitch('free')}
-                className="flex items-center justify-center gap-2 py-3 px-4 border border-border rounded-xl text-xs font-semibold hover:bg-accent transition-all disabled:opacity-50"
-              >
-                {updatingTier && tier === 'free' ? <Loader2 size={13} className="animate-spin" /> : "📉"}
-                التحويل إلى باقة مجانية (تفعيل الإعلانات)
-              </button>
+              <div className="grid sm:grid-cols-3 gap-3">
+                <button 
+                  disabled={updatingTier || tier === 'free'}
+                  onClick={() => handleTierSwitch('free')}
+                  className="flex items-center justify-center gap-2 py-3 px-4 border border-border rounded-xl text-xs font-semibold hover:bg-accent transition-all disabled:opacity-50"
+                >
+                  {updatingTier && tier === 'free' ? <Loader2 size={13} className="animate-spin" /> : "📉"}
+                  التحويل إلى باقة مجانية (تفعيل الإعلانات)
+                </button>
 
-              <button 
-                disabled={updatingTier || tier === 'premium'}
-                onClick={() => handleTierSwitch('premium')}
-                className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-              >
-                {updatingTier && tier === 'premium' ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}
-                محاكاة نجاح الدفع (تفعيل بريميوم)
-              </button>
+                <button 
+                  disabled={updatingTier || tier === 'premium'}
+                  onClick={() => handleTierSwitch('premium')}
+                  className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {updatingTier && tier === 'premium' ? <Loader2 size={13} className="animate-spin" /> : <Zap size={13} />}
+                  محاكاة نجاح الدفع (تفعيل بريميوم)
+                </button>
 
-              <button 
-                disabled={updatingTier || tier === 'enterprise'}
-                onClick={() => handleTierSwitch('enterprise')}
-                className="flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
-              >
-                {updatingTier && tier === 'enterprise' ? <Loader2 size={13} className="animate-spin" /> : <GraduationCap size={13} />}
-                محاكاة ولوج جامعي (B2B Enterprise)
-              </button>
-            </div>
-          </section>
+                <button 
+                  disabled={updatingTier || tier === 'enterprise'}
+                  onClick={() => handleTierSwitch('enterprise')}
+                  className="flex items-center justify-center gap-2 py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm disabled:opacity-50"
+                >
+                  {updatingTier && tier === 'enterprise' ? <Loader2 size={13} className="animate-spin" /> : <GraduationCap size={13} />}
+                  محاكاة ولوج جامعي (B2B Enterprise)
+                </button>
+              </div>
+            </section>
+          )}
 
         </div>
 
