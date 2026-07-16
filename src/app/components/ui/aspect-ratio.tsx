@@ -5,25 +5,52 @@ import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
 
 import { cn } from "./utils";
 
-interface AspectRatioProps
+/* ==========================================================================
+   TYPE DEFINITIONS & INTERFACES (التحديد الصريح للأنواع والواجهات)
+   ========================================================================== */
+
+/**
+ * 🎯 التحديد الصريح لنوع عنصر الـ DOM المرجعي للمكون الجذري
+ */
+export type AspectRatioElement = React.ElementRef<typeof AspectRatioPrimitive.Root>;
+
+/**
+ * 📑 الواجهة البرمجية الصريحة والشاملة لخصائص مكوّن نسبة الارتفاع
+ */
+export interface AspectRatioProps
   extends React.ComponentPropsWithoutRef<typeof AspectRatioPrimitive.Root> {
   /**
    * تفعيل حالة التحميل لعرض هيكل عظمي متحرك (Skeleton) خلف المحتوى
+   * @default false
    */
   isLoading?: boolean;
   /**
-   * لون مخصص للهيكل العظمي عند التحميل
+   * تنسيق كلاسات مخصص للهيكل العظمي عند التحميل
    */
   fallbackClassName?: string;
 }
 
-const AspectRatio = React.forwardRef<
-  React.ElementRef<typeof AspectRatioPrimitive.Root>,
-  AspectRatioProps
->(({ className, isLoading = false, fallbackClassName, children, ...props }, ref) => {
-  const [isLoaded, setIsLoaded] = React.useState(!isLoading);
+/* ==========================================================================
+   MAIN COMPONENT BLOCK (كتلة بناء المكوّن الأساسي)
+   ========================================================================== */
 
-  // إذا تم تغيير حالة التحميل ديناميكياً من الأعلى
+/**
+ * مكوّن نسبة الارتفاع المحصن والموجه للأنظمة الضخمة (Strict Enterprise AspectRatio)
+ */
+const AspectRatio = React.forwardRef<AspectRatioElement, AspectRatioProps>((
+  { 
+    className, 
+    isLoading = false, 
+    fallbackClassName, 
+    children, 
+    ...props 
+  }: AspectRatioProps,
+  ref: React.ForwardedRef<AspectRatioElement>
+): React.JSX.Element => {
+  // التحديد الصارم لنوع الـ State لمنع التخمين الضمني
+  const [isLoaded, setIsLoaded] = React.useState<boolean>(!isLoading);
+
+  // تحديث ومزامنة الحالة البرمجية عند تغير الخصائص العلوية بشكل صارم ومباشر
   React.useEffect(() => {
     if (!isLoading) {
       setIsLoaded(true);
@@ -40,12 +67,11 @@ const AspectRatio = React.forwardRef<
       )}
       {...props}
     >
-      {/* 1. هيكل التحميل الذكي (Skeleton Shimmer) */}
+      {/* 1. هيكل التحميل الذكي الصارم (Strict Skeleton Shimmer) */}
       {!isLoaded && (
         <div 
           className={cn(
             "absolute inset-0 z-10 flex items-center justify-center bg-muted-foreground/10 animate-pulse",
-            // تأثير لمعان (Shimmer Effect) متحرك بالخلفية لجمالية بصرية فائقة
             "before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 dark:before:via-black/5 before:to-transparent",
             fallbackClassName
           )}
@@ -53,33 +79,38 @@ const AspectRatio = React.forwardRef<
         />
       )}
 
-      {/* 2. المحتوى الفعلي مع تتبع اكتمال التحميل */}
+      {/* 2. حاوية المحتوى الفعلي مع معالجة الشفافية التدريجية */}
       <div
         className={cn(
           "w-full h-full transition-opacity duration-500",
           isLoaded ? "opacity-100" : "opacity-0"
         )}
       >
-        {/* فحص دفاعي للتأكد من وجود محتوى لتجنب الأخطاء البرمجية */}
         {children ? (
-          // نقوم بحقن حدث التتبع للتأكد من اختفاء الـ Skeleton فور تحميل الصورة فعلياً
-          React.Children.map(children, (child) => {
+          React.Children.map(children, (child: React.ReactNode): React.ReactNode => {
             if (React.isValidElement(child)) {
-              // إذا كان العنصر صورة، نقوم بربط حدث onLoad الخاص بها ذكياً
-              if (child.type === "img" || (child.props as any).src) {
+              // استخراج الخصائص بشكل كائن معرف المفاتيح بدلاً من Casting الأعمى بـ any
+              const childProps = child.props as Record<string, unknown>;
+              
+              // الفحص الدقيق ما إذا كان العنصر هو صورة أساسية أو مكوّن يحمل مسار صورة
+              if (child.type === "img" || typeof childProps.src === "string") {
                 return React.cloneElement(child, {
-                  onLoad: (e: any) => {
+                  onLoad: (event: React.SyntheticEvent<HTMLImageElement, Event>): void => {
                     setIsLoaded(true);
-                    if (child.props.onLoad) child.props.onLoad(e);
+                    
+                    // استدعاء الحدث الأصلي الممرر من المطور بأعلى درجات الأمان النوعي
+                    if (typeof childProps.onLoad === "function") {
+                      (childProps.onLoad as (e: React.SyntheticEvent<HTMLImageElement, Event>) => void)(event);
+                    }
                   },
-                } as any);
+                } as React.Attributes);
               }
             }
             return child;
           })
         ) : (
-          // حماية بصرية في حال عدم تمرير أي عنصر
-          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground/40 italic">
+          /* حماية بصرية صارمة لمنع انهيار الهيكل عند غياب الأبناء */
+          <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground/40 italic select-none">
             No Preview
           </div>
         )}
@@ -88,6 +119,7 @@ const AspectRatio = React.forwardRef<
   );
 });
 
-AspectRatio.displayName = AspectRatioPrimitive.Root.displayName;
+// إشهار الاسم البرمجي بشكل صارم ومحصن لبيئة الإنتاج والتصحيح (Production DevTools)
+AspectRatio.displayName = AspectRatioPrimitive.Root.displayName ?? "AspectRatio";
 
 export { AspectRatio };
