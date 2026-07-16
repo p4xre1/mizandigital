@@ -1,4 +1,13 @@
 {
+  // 🦕 إعدادات Deno الخاصة بـ Supabase Edge Functions
   "deno.enable": true,
-  "deno.enablePaths": ["supabase/functions"]
+  "deno.enablePaths": [
+    "supabase/functions"
+  ],
+
+  // 🎨 إعدادات Tailwind CSS v4 لتلوين الكود ومنع التحذيرات المزعجة
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "css.lint.unknownAtRules": "ignore"
 }
