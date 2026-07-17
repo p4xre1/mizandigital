@@ -1,7 +1,8 @@
 -- ============================================================
--- Mizan Platform — site_legal_documents seed: disclaimer node
+-- Mizan Platform — site_legal_documents seed (Secured)
 -- ============================================================
 
+-- ملاحظة: يُفضل مستقبلاً نقل الـ CREATE TABLE إلى ملف schema.sql الأساسي
 create table if not exists site_legal_documents (
   node text primary key,
   ar_title text, fr_title text, en_title text, es_title text,
@@ -10,8 +11,16 @@ create table if not exists site_legal_documents (
 );
 
 alter table site_legal_documents enable row level security;
+
+-- 1. سياسة القراءة العامة للجميع
+drop policy if exists "Public read legal docs" on site_legal_documents;
 create policy "Public read legal docs" on site_legal_documents for select using (true);
 
+-- 2. 🔥 التحديث الجديد: السماح للأدمن بالتحكم الكامل (إضافة، تعديل، حذف) عبر لوحة التحكم
+drop policy if exists "Admins full access to legal docs" on site_legal_documents;
+create policy "Admins full access to legal docs" on site_legal_documents for all using (public.is_admin());
+
+-- 3. إدخال أو تحديث البيانات (Seed Data)
 insert into site_legal_documents (node, ar_title, fr_title, en_title, es_title, ar_content_html, fr_content_html, en_content_html, es_content_html) values
 (
   'disclaimer',

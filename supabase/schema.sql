@@ -1,26 +1,13 @@
 -- ============================================================
--- Mizan Platform — Supabase Schema
+-- Mizan Platform — Supabase Schema (Updated & Secured)
 -- Run this in Supabase SQL Editor: https://supabase.com/dashboard
 -- ============================================================
 
--- Articles
-create table if not exists articles (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  title_fr text,
-  slug text unique not null,
-  content text,
-  excerpt text,
-  category text not null,
-  tags text[],
-  author text,
-  university text,
-  semester text,
-  year integer,
-  pdf_url text,
-  views integer default 0,
-  is_featured boolean default false,
-  created_at timestamptz default now(),
+-- 1. Profiles Table (إدارة المستخدمين والرتب)
+create table if not exists public.profiles (
+  id uuid references auth.users on delete cascade primary key,
+  role text default 'user' check (role in ('user', 'admin')),
+  tier text default 'free',
   updated_at timestamptz default now()
 );
 
@@ -43,6 +30,27 @@ create table if not exists universities (
   slug text unique not null
 );
 
+-- Articles
+create table if not exists articles (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  title_fr text,
+  slug text unique not null,
+  content text,
+  excerpt text,
+  category text not null, -- يمكن ربطها لاحقاً بـ references categories(slug)
+  tags text[],
+  author text,
+  university text,
+  semester text,
+  year integer,
+  pdf_url text,
+  views integer default 0,
+  is_featured boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 -- Contact messages
 create table if not exists contacts (
   id uuid primary key default gen_random_uuid(),
@@ -53,20 +61,58 @@ create table if not exists contacts (
   created_at timestamptz default now()
 );
 
--- ── RLS Policies ──────────────────────────────────────────────
+-- ── RLS Security & Policies ──────────────────────────────────
 
+alter table public.profiles enable row level security;
 alter table articles enable row level security;
 alter table categories enable row level security;
 alter table universities enable row level security;
 alter table contacts enable row level security;
 
--- Public read access for articles, categories, universities
+-- دالة مساعدة للتحقق هل المستخدم الحالي هو أدمن أم لا
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$ language sql security definer;
+
+-- سياسات جدول الـ Profiles
+create policy "Public read profiles" on public.profiles for select using (true);
+create policy "Admins can update profiles" on public.profiles for update using (public.is_admin());
+
+-- سياسات القراءة العامة (للجميع)
 create policy "Public read articles" on articles for select using (true);
 create policy "Public read categories" on categories for select using (true);
 create policy "Public read universities" on universities for select using (true);
 
--- Anyone can insert a contact message
+-- سياسات التحكم الكامل للأدمن (إضافة، تعديل، حذف)
+create policy "Admins full access to articles" on articles for all using (public.is_admin());
+create policy "Admins full access to categories" on categories for all using (public.is_admin());
+create policy "Admins full access to universities" on universities for all using (public.is_admin());
+
+-- سياسة الرسائل (أي شخص يرسل، والأدمن فقط يقرأ ويحذف)
 create policy "Public insert contacts" on contacts for insert with check (true);
+create policy "Admins full access to contacts" on contacts for all using (public.is_admin());
+
+-- ── Automated Triggers ────────────────────────────────────────
+
+-- دالة لإنشاء بروفايل تلقائياً لأي مستخدم جديد يسجل بالموقع
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, role, tier)
+  values (new.id, 'user', 'free');
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- تشغيل التريجر عند التسجيل
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
 
 -- ── Functions ────────────────────────────────────────────────
 
