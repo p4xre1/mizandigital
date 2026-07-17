@@ -10,7 +10,7 @@ import { isValidEmail, sanitizeText, throttle } from "../lib/security";
 type AuthTab = "login" | "signup" | "forgot" | "reset";
 
 // قراءة مفتاح الموقع من متغيرات البيئة لـ Vite (أو وضع المفتاح العام هنا مباشرة كبديل)
-const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string) || "YOUR_SITE_KEY_HERE";
+const TURNSTILE_SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string) || "0x4AAAAAAD3-pbXQ2_GzbNGJ";
 
 export default function Login() {
   const [tab, setTab] = useState<AuthTab>("login");
