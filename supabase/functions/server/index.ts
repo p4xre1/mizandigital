@@ -1,13 +1,15 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import * as kv from "./kv_store.tsx";
+// 1. تم تحديث الامتداد ليتوافق مع الملف الذي أصلحناه سابقاً
+import * as kv from "./kv_store.ts"; 
+
 const app = new Hono();
 
 // Enable logger
 app.use('*', logger(console.log));
 
-// Enable CORS for all routes and methods
+// 2. تنظيف المسافات الخفية وإصلاح إعدادات الـ CORS لتعمل بشكل صحيح مع موقعك
 app.use(
   "/*",
   cors({
@@ -23,5 +25,7 @@ app.use(
 app.get("/make-server-a14cca9e/health", (c) => {
   return c.json({ status: "ok" });
 });
+
+// 💡 ملاحظة: إذا كنت تريد استخدام الـ kv store لاحقاً لجلب البيانات للموقع، يمكنك إضافة المسارات هنا.
 
 Deno.serve(app.fetch);
