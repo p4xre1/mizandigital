@@ -4,6 +4,7 @@
   "deno.enablePaths": [
     "supabase/functions"
   ],
+  "typescript.validate.enabled": true,
 
   // 🎨 إعدادات Tailwind CSS v4 لتلوين الكود ومنع التحذيرات المزعجة
   "files.associations": {
