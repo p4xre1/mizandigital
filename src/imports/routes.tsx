@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { createBrowserRouter, Navigate, useLocation } from "react-router";
+import { createBrowserRouter, Navigate, useLocation, useParams } from "react-router";
 import { buildLocalizedPath, getPreferredBrowserLanguage } from "../app/lib/i18n";
 
 // ── 📦 استيراد المغلفات الرئيسية (Layouts) ──
@@ -29,8 +29,6 @@ import AdminSeo from "../app/pages/admin/AdminSeo";
 import AdminSecurity from "../app/pages/admin/AdminSecurity";
 import AdminLogin from "../app/pages/admin/AdminLogin";
 
-const DEFAULT_LANG = "ar";
-
 function RedirectToPreferredLang() {
   const location = useLocation();
   const targetLang = getPreferredBrowserLanguage();
@@ -39,9 +37,23 @@ function RedirectToPreferredLang() {
   return <Navigate to={redirectPath} replace />;
 }
 
+// ── 🛡️ حارس اللغة (Language Guard) ──
+// بديل ذكي ومتوافق مع إصدارات React Router الحديثة لتعويض غياب الـ Regex في المسارات
+function LanguageGuard() {
+  const { lang } = useParams();
+  const allowedLangs = ["ar", "fr", "en", "es"];
+
+  // إذا كان الجزء الأول من الرابط ليس لغة مدعومة (مثل /about مباشرة)، نرسله للتوجيه الذكي
+  if (!allowedLangs.includes(lang || "")) {
+    return <RedirectToPreferredLang />;
+  }
+
+  return <Layout />;
+}
+
 function Suspended({ Component }: { Component: React.LazyExoticComponent<React.ComponentType<any>> }) {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جارٍ تحميل الصفحة...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Custom loading...</div>}>
       <Component />
     </Suspense>
   );
@@ -70,8 +82,8 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/:lang(ar|fr|en|es)",
-    element: <Layout />,
+    path: "/:lang",
+    element: <LanguageGuard />,
     children: [
       { index: true, element: <Suspended Component={Home} /> },
       { path: "about", element: <About /> },
@@ -85,10 +97,6 @@ export const router = createBrowserRouter([
       { path: "pricing", element: <Pricing /> },
       { path: "*", element: <NotFound /> },
     ],
-  },
-  {
-    path: "/:lang(/*)",
-    element: <RedirectToPreferredLang />,
   },
   {
     path: "/*",
