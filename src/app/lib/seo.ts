@@ -1,12 +1,8 @@
 import { useEffect } from "react";
 
 // ── Master SEO helper ───────────────────────────────────────────────────────────
-// Sets <title>, meta description/keywords, canonical URL, and Open Graph /
-// Twitter card tags on the document head. Reverts to a sensible default on
-// unmount so every route controls its own metadata.
-
-// التعديل هنا: يقرأ رابط النطاق الحالي للمتصفح ديناميكياً، ويعود للموقع الرسمي كاحتياط
-const SITE = typeof window !== 'undefined' ? window.location.origin : "https://mizan.ma";
+// نطاقك الرسمي والوحيد الآن هو mizandigital.pages.dev
+const SITE = typeof window !== 'undefined' ? window.location.origin : "https://mizandigital.pages.dev";
 const DEFAULT_TITLE = "منصة ميزان · Mizan Platform";
 const SITE_NAME = "Mizan Platform";
 
