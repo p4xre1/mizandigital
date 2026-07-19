@@ -1,0 +1,18 @@
+User-agent: *
+
+# 🚫 منع أرشفة صفحات لوحة التحكم والإدارة
+Disallow: /admin
+Disallow: /admin/
+Disallow: /*/admin    # لمنع أي روابط إدارة قد تظهر باللغات الأخرى مثل /ar/admin
+
+# 🚫 منع أرشفة صفحات الحسابات الشخصية وتسجيل الدخول العامة
+Disallow: /login
+Disallow: /profile
+Disallow: /*/login
+Disallow: /*/profile
+
+# ✅ السماح لجميع محركات البحث بزحف باقي صفحات الموقع العام
+Allow: /
+
+# 🗺️ الرابط الرسمي لخريطة الموقع
+Sitemap: https://mizandigital.pages.dev/sitemap.xml
