@@ -197,10 +197,10 @@ const footerCols: { heading: L; links: { label: L; href: string }[] }[] = [
   {
     heading: t4("المكتبة", "Bibliothèque", "Library", "Biblioteca"),
     links: [
-      { label: t4("القانون الخاص", "Droit privé", "Private Law", "Derecho privado"), href: "/library/private-law" },
-      { label: t4("القانون العام", "Droit public", "Public Law", "Derecho público"), href: "/library/public-law" },
+      { label: t4("القانون الخاص", "Droit privé", "Private Law", "Derecho privado"), href: "/library/family-law" },
+      { label: t4("القانون العام", "Droit public", "Public Law", "Derecho público"), href: "/library/constitutional-law" },
       { label: t4("القانون الجنائي", "Droit pénal", "Criminal Law", "Derecho penal"), href: "/library/criminal-law" },
-      { label: t4("القانون الدولي", "Droit international", "International Law", "Derecho internacional"), href: "/library/international-law" },
+      { label: t4("القانون الدولي", "Droit international", "International Law", "Derecho internacional"), href: "/library/texts" },
     ],
   },
   {
@@ -215,9 +215,9 @@ const footerCols: { heading: L; links: { label: L; href: string }[] }[] = [
   {
     heading: t4("الموارد", "Ressources", "Resources", "Recursos"),
     links: [
-      { label: t4("النصوص التشريعية", "Textes législatifs", "Legislative Texts", "Textos legislativos"), href: "/library/texts" },
-      { label: t4("الجريدة الرسمية", "Bulletin officiel", "Official Gazette", "Boletín oficial"), href: "/library/official" },
-      { label: t4("قرارات النقض", "Arrêts de cassation", "Cassation Rulings", "Sentencias de casación"), href: "/library/cassation" },
+      { label: t4("النصوص التشريعية", "Textes législatifs", "Legal Texts", "Textos legislativos"), href: "/library/texts" },
+      { label: t4("الجريدة الرسمية", "Bulletin officiel", "Official Gazette", "Boletín oficial"), href: "/library/journals" },
+      { label: t4("قرارات النقض", "Arrêts de cassation", "Cassation Rulings", "Sentencias de casación"), href: "/library/court-decisions" },
       { label: t4("الفقه المقارن", "Doctrine comparée", "Comparative Doctrine", "Doctrina comparada"), href: "/library/comparative" },
     ],
   },
@@ -251,7 +251,6 @@ function NavActions({ tier, isAuthenticated }: NavActionsProps) {
 
   return (
     <div className="flex items-center gap-3">
-      {/* 1. Go Premium upgrade tag (free tier only) */}
       {tier === "free" ? (
         <Link 
           to={localizedPath("/pricing")} 
@@ -269,7 +268,6 @@ function NavActions({ tier, isAuthenticated }: NavActionsProps) {
         </div>
       )}
 
-      {/* 2. Login/Profile Switcher */}
       {isAuthenticated ? (
         <Link 
           to={localizedPath("/profile")} 
@@ -324,7 +322,6 @@ function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
           </div>
         </Link>
 
-        {/* Dynamic navigation links */}
         <div className="flex items-center gap-1" role="menubar" aria-label="Main Navigation">
           {megaMenuData.map((item, i) => (
             <div 
@@ -385,7 +382,6 @@ function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
           ))}
         </div>
 
-        {/* Global Toolbar and Search Input */}
         <div className="flex items-center gap-4 shrink-0">
           <form onSubmit={handleSearch} className="relative" role="search" aria-label="Site-wide search">
             <Search size={14} className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${dir === "rtl" ? "right-3" : "left-3"}`} aria-hidden="true" />
@@ -618,8 +614,7 @@ function SponsorRibbon() {
               </div>
               <div>
                 <div className="text-sm font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{s.name}</div>
-                <div className="text-[10px] text-muted-foreground" style={{ fontFamily: sansFont(lang) }}>{s.full[lang]}</div>
-                <div className="text-[10px] text-primary font-semibold mt-0.5">{s.tier[lang]}</div>
+                <div className="text-[10px] text-muted-foreground mt-0.5">{s.tier[lang]}</div>
               </div>
             </div>
           ))}
@@ -629,53 +624,59 @@ function SponsorRibbon() {
   );
 }
 
-// ── Footer System (Completed & Desktop/Mobile fallback combined) ─────────────────
+// ── Global Layout Component Shell (Fixed & Completed) ─────────────────────────
 
-function Footer() {
-  const { lang, dir, t } = useI18n();
+export default function Layout() {
+  const { lang, dir } = useI18n();
   const localizedPath = useLocalizedPath();
+  const location = useLocation();
+  const { tier, isAuthenticated } = useRole();
+
+  // Initialize page-view tracking and Schema injection
+  useEffect(() => {
+    initGA();
+    trackPageView(location.pathname + location.search);
+    setOrganizationSchema();
+  }, [location]);
+
+  // Track referral parameters automatically
+  useReferralTracking();
+
   return (
-    <footer className="border-t border-border bg-muted mt-16" aria-label="Platform footer">
-      <div className="max-w-7xl mx-auto px-6 py-12" dir={dir}>
-        
-        {/* Top footer grid links */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
-          <div className="col-span-2 lg:col-span-1">
-            <Link to={localizedPath("/")} className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1 w-fit">
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
-                <Scale size={15} className="text-primary-foreground" />
-              </div>
-              <span className="font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
-            </Link>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-4" style={{ fontFamily: sansFont(lang) }}>
-              {t("footer_tagline")}
-            </p>
-            <div className="flex gap-2" aria-label="Social media connections">
-              {[Twitter, Youtube, Globe].map((Icon, i) => (
-                <a 
-                  key={i} 
-                  href="#" 
-                  aria-label={`Visit our external platform account`}
-                  className="w-8 h-8 border border-border rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <Icon size={14} aria-hidden="true" />
-                </a>
-              ))}
-            </div>
-          </div>
-          
-          {footerCols.map((col, i) => (
-            <div key={i}>
-              <h4 className="text-xs font-bold text-foreground tracking-wide uppercase mb-3 pb-2 border-b border-border">{col.heading[lang]}</h4>
-              <ul className="space-y-2">
-                {col.links.map((lnk) => (
-                  <li key={lnk.href}>
+    <div className="min-h-screen flex flex-col bg-background text-foreground" dir={dir}>
+      {/* Upper context utility bar */}
+      <UtilityBar />
+
+      {/* Adaptive Layout Responsive Navbars */}
+      <NavDesktop tier={tier} isAuthenticated={isAuthenticated} />
+      <NavTablet tier={tier} isAuthenticated={isAuthenticated} />
+      <NavPhone tier={tier} isAuthenticated={isAuthenticated} />
+
+      {/* Main Content Router Surface */}
+      <main className="flex-1 flex flex-col animate-fade-in">
+        <Outlet />
+      </main>
+
+      {/* Trusted Partners and Ecosystem Grid */}
+      <SponsorRibbon />
+
+      {/* Unified Production Footer Component */}
+      <footer className="bg-card border-t border-border mt-auto" dir={dir} aria-label="Global Site Footer">
+        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {footerCols.map((col, idx) => (
+            <div key={idx}>
+              <h4 className="text-xs font-bold text-foreground tracking-widest uppercase mb-4 pb-1 border-b border-border/40">
+                {col.heading[lang]}
+              </h4>
+              <ul className="space-y-2.5">
+                {col.links.map((lnk, lidx) => (
+                  <li key={lidx}>
                     <Link 
-                      to={lnk.href} 
-                      className="text-xs text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:underline" 
+                      to={localizedPath(lnk.href)}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors block py-0.5"
                       style={{ fontFamily: sansFont(lang) }}
                     >
-                      {lnk.label[lnk.href === "/pricing" ? lang : lang]}
+                      {lnk.label[lang]}
                     </Link>
                   </li>
                 ))}
@@ -684,208 +685,27 @@ function Footer() {
           ))}
         </div>
 
-        {/* Legal links and copyright row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-border gap-4">
-          <p className="text-xs text-muted-foreground font-mono">© 2026 Mizan Legal · {t("brand_full")}</p>
-          <div className="flex items-center gap-4" aria-label="Legal terms">
-            {legalLinks.map((lnk) => (
-              <Link 
-                key={lnk.href} 
-                to={localizedPath(lnk.href)} 
-                className="text-xs text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:underline" 
-                style={{ fontFamily: sansFont(lang) }}
-              >
-                {lnk.label[lang]}
-              </Link>
-            ))}
+        {/* Bottom Legal Sub-Footer Row */}
+        <div className="border-t border-border/60 bg-muted/30 py-6 px-6">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-muted-foreground">
+              &copy; {new Date().getFullYear()} {lang === 'ar' ? 'منصة ميزان الرقمية. جميع الحقوق محفوظة.' : 'Mizan Digital Platform. All rights reserved.'}
+            </p>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center">
+              {legalLinks.map((ll, lidx) => (
+                <Link 
+                  key={lidx}
+                  to={localizedPath(ll.href)}
+                  className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-colors"
+                  style={{ fontFamily: sansFont(lang) }}
+                >
+                  {ll.label[lang]}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
-
-      </div>
-    </footer>
-  );
-}
-
-// ── Global Root Layout Shell ──────────────────────────────────────────────────
-
-export default function Layout() {
-  const { lang, dir, setLang } = useI18n();
-  const { lang: routeLang } = useParams<{ lang: string }>();
-  const location = useLocation();
-
-  useEffect(() => {
-    const normalized = normalizeLang(routeLang);
-    if (normalized !== lang) {
-      setLang(normalized);
-    }
-  }, [routeLang, lang, setLang]);
-  const [tier, setTier] = useState<"free" | "premium" | "enterprise">("free");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const { isGuest, isLoading: roleLoading } = useRole();
-  const [piracyDialogOpen, setPiracyDialogOpen] = useState(false);
-  const [piracyDialogReason, setPiracyDialogReason] = useState<string | null>(null);
-
-  // Initialize referral engines & JSONLD parameters on layout mount
-  useReferralTracking();
-
-  useEffect(() => {
-    setOrganizationSchema();
-    initGA();
-  }, []);
-
-  // Track Google Analytics page transitions
-  useEffect(() => {
-    trackPageView(location.pathname + location.search);
-  }, [location]);
-
-  // Persist a referral code from the URL for later signup conversion.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(location.search);
-    const referralCode = params.get("ref") || params.get("referral_code");
-    if (referralCode) {
-      storeReferralCode(referralCode);
-    }
-  }, [location.search]);
-
-  // Prevent simple guest piracy actions like copy / screenshot hotkeys.
-  useEffect(() => {
-    const isBot = isSearchEngineBot();
-    if (isAuthenticated || isBot) return;
-
-    const handleContextMenu = (event: MouseEvent) => {
-      event.preventDefault();
-      setPiracyDialogReason("right-click");
-      setPiracyDialogOpen(true);
-    };
-
-    const handleCopy = (event: ClipboardEvent) => {
-      if (event.defaultPrevented) return;
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      setPiracyDialogReason("copy");
-      setPiracyDialogOpen(true);
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (isGuestPiracyKey(event)) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        const reason = event.key.toLowerCase() === "printscreen" || event.key.toLowerCase() === "print" ? "screenshot" : "copy";
-        setPiracyDialogReason(reason);
-        setPiracyDialogOpen(true);
-      }
-    };
-
-    window.addEventListener("contextmenu", handleContextMenu, true);
-    window.addEventListener("copy", handleCopy, true);
-    window.addEventListener("keydown", handleKeyDown, true);
-
-    return () => {
-      window.removeEventListener("contextmenu", handleContextMenu, true);
-      window.removeEventListener("copy", handleCopy, true);
-      window.removeEventListener("keydown", handleKeyDown, true);
-    };
-  }, [isAuthenticated]);
-
-  // Synchronize dynamic Supabase user authentication & active license tiers
-  useEffect(() => {
-    async function getUserDetails() {
-      if (!isSupabaseConfigured) return;
-      
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          setIsAuthenticated(true);
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("tier")
-            .eq("id", user.id)
-            .single();
-
-          if (!error && data?.tier) {
-            setTier(data.tier as "free" | "premium" | "enterprise");
-          }
-
-          try {
-            await applyStoredReferralCode(user.id);
-          } catch {
-            // defer referral application until network is available
-          }
-        } else {
-          setIsAuthenticated(false);
-          setTier("free");
-        }
-      } catch {
-        setTier("free");
-      }
-    }
-    getUserDetails();
-
-    // Dynamically listen for auth mutations (login, logout, token refreshes)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
-      if (!session) {
-        setTier("free");
-      } else {
-        getUserDetails();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const piracyDialogTitle = piracyDialogReason === "right-click"
-    ? "Right-click blocked"
-    : piracyDialogReason === "screenshot"
-      ? "Screenshot protection enabled"
-      : "Copy disabled";
-
-  const piracyDialogMessage = piracyDialogReason === "right-click"
-    ? "Right-click is disabled for guest browsing. Please sign in or upgrade to unlock premium protections and copy access."
-    : piracyDialogReason === "screenshot"
-      ? "Screenshot shortcuts are disabled while browsing as a guest. Log in or upgrade for a more seamless experience."
-      : "Copying text is disabled for guest visitors. Create an account to capture content safely and avoid piracy.";
-
-  return (
-    <Dialog open={piracyDialogOpen} onOpenChange={setPiracyDialogOpen}>
-      <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-200" dir={dir} style={{ userSelect: isGuest && !isSearchEngineBot() ? "none" : undefined }}>
-        {/* 1. Global localization utility banner */}
-        <UtilityBar />
-
-        {/* 2. Responsive Header Navigation triggers */}
-        <NavDesktop tier={tier} isAuthenticated={isAuthenticated} />
-        <NavTablet tier={tier} isAuthenticated={isAuthenticated} />
-        <NavPhone tier={tier} isAuthenticated={isAuthenticated} />
-
-        {/* 3. Core dynamic page contents viewport */}
-        <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6" id="main-content">
-          <Outlet />
-        </main>
-
-        {/* 4. Strategic sponsors & academic partners */}
-        <SponsorRibbon />
-
-        {/* 5. Monolithic multilingual platform footer */}
-        <Footer />
-      </div>
-
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{piracyDialogTitle}</DialogTitle>
-          <DialogDescription>{piracyDialogMessage}</DialogDescription>
-        </DialogHeader>
-        <div className="pt-3 text-sm text-muted-foreground">
-          {isGuest
-            ? "Guest browsing is restricted to protect content quality. Sign in or subscribe to lift these limits."
-            : "If this prompt is unexpected, refresh the page or contact support."}
-        </div>
-        <DialogFooter>
-          <DialogClose className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary">
-            Close
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </footer>
+    </div>
   );
 }
