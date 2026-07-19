@@ -8,14 +8,16 @@ export function TurnstileCaptcha({ onVerify }: TurnstileProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // تم استخدام (window as any) لتفادي أي تعارض في أوزان وأنواع البيانات بين المكتبات
     const { turnstile } = window as any;
 
-    if (turnstile && containerRef.current) {
+    // قراءة المفتاح بأمان من ملف الـ .env التابع لـ Vite
+    const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
+
+    if (turnstile && containerRef.current && siteKey) {
       turnstile.render(containerRef.current, {
-        sitekey: "YOUR_CLOUDFLARE_TURNSTILE_SITE_KEY", // 👈 ضع هنا الـ Site Key الخاص بك
+        sitekey: siteKey, // 🚀 يتم تمريره هنا تلقائياً
         callback: (token: string) => {
-          onVerify(token);
+          onVerify(token); // تمرير التوكن عند نجاح المستخدم في التحدي
         },
       });
     }
