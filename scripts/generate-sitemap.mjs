@@ -4,13 +4,17 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, '../public/sitemap.xml');
-const BASE = 'https://mizan.ma';
+
+// 🚀 تم التحديث: نطاقك الرسمي والوحيد الآن
+const BASE = 'https://mizandigital.pages.dev'; 
 const LANGS = ['ar', 'fr', 'en', 'es'];
 const PATHS = ['/', '/library', '/archive', '/library/jurisprudence', '/pricing'];
 
 function buildAlternateLinks(path) {
   return LANGS.map((lang) => {
-    const href = lang === 'ar' ? `${BASE}${path}` : `${BASE}/${lang}${path}`;
+    // حل مشكلة السلاش الزائد في الصفحة الرئيسية للمسارات الفرعية
+    const cleanPath = path === '/' ? '' : path;
+    const href = lang === 'ar' ? `${BASE}${path}` : `${BASE}/${lang}${cleanPath}/`;
     return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`;
   }).join('\n');
 }
