@@ -5,7 +5,8 @@ import { useEffect } from "react";
 // Twitter card tags on the document head. Reverts to a sensible default on
 // unmount so every route controls its own metadata.
 
-const SITE = "https://mizan.ma";
+// التعديل هنا: يقرأ رابط النطاق الحالي للمتصفح ديناميكياً، ويعود للموقع الرسمي كاحتياط
+const SITE = typeof window !== 'undefined' ? window.location.origin : "https://mizan.ma";
 const DEFAULT_TITLE = "منصة ميزان · Mizan Platform";
 const SITE_NAME = "Mizan Platform";
 
