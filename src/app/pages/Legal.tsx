@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { useParams } from "react-router";
 import { Shield, FileText, AlertTriangle, ScrollText } from "lucide-react";
 import { useI18n, type Lang } from "../lib/i18n";
+import { useSeo } from "../lib/seo";
+import { setLegalArticleSchema, clearSchema } from "../lib/jsonld";
 
 type Section = { h: Record<Lang, string>; p: Record<Lang, string> };
 type Doc = {
@@ -77,6 +80,24 @@ export default function Legal() {
   const { doc } = useParams();
   const { lang, dir, t } = useI18n();
   const data = DOCS[doc || "privacy"] || DOCS.privacy;
+
+  useSeo({
+    title: t(data.titleKey),
+    description: data.intro[lang],
+    path: "/legal",
+    lang,
+  }, [lang, data, t]);
+
+  useEffect(() => {
+    setLegalArticleSchema({
+      headline: t(data.titleKey),
+      description: data.intro[lang],
+      slug: "/legal",
+      lang,
+      datePublished: data.updated,
+    });
+    return () => clearSchema("ld-legal");
+  }, [data, lang, t]);
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12" dir={dir}>

@@ -1,15 +1,18 @@
 import { useState, useEffect } from "react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router";
+import { Outlet, Link, useLocation, useNavigate, useParams } from "react-router";
 import {
   Menu, X, ChevronDown, ChevronRight, Search, Scale, BookOpen,
   GraduationCap, Gavel, Users, Twitter, Youtube, Globe, Mail,
   Moon, Sun, Sparkles, User
 } from "lucide-react";
 import { trackPageView, initGA } from "../lib/analytics";
-import { useI18n, LANGS, serifFont, sansFont, type Lang } from "../lib/i18n";
+import { normalizeLang, useI18n, buildLocalizedPath, useLocalizedPath, LANGS, serifFont, sansFont, type Lang } from "../lib/i18n";
 import { setOrganizationSchema } from "../lib/jsonld";
-import { useReferralTracking } from "../lib/referral";
+import { useReferralTracking, applyStoredReferralCode, storeReferralCode } from "../lib/referral";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { isSearchEngineBot, isGuestPiracyKey } from "../lib/security";
+import { useRole } from "../hooks/useRole";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
 
 // Multilingual string helper
 type L = Record<Lang, string>;
@@ -17,6 +20,15 @@ const t4 = (ar: string, fr: string, en: string, es: string): L => ({ ar, fr, en,
 
 function UtilityBar() {
   const { lang, setLang, theme, setTheme, t } = useI18n();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLanguageChange = (targetLang: Lang) => {
+    if (targetLang === lang) return;
+    setLang(targetLang);
+    navigate(buildLocalizedPath(location.pathname, targetLang), { replace: false });
+  };
+
   return (
     <div className="bg-primary text-primary-foreground text-xs" role="status">
       <div className="max-w-7xl mx-auto px-6 h-9 flex items-center justify-between">
@@ -27,7 +39,7 @@ function UtilityBar() {
           {LANGS.map(l => (
             <button 
               key={l.code} 
-              onClick={() => setLang(l.code)}
+              onClick={() => handleLanguageChange(l.code)}
               aria-label={`Change language to ${l.label}`}
               className={`px-2 py-0.5 rounded transition-colors focus:outline-none focus:ring-1 focus:ring-white/50 ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}
             >
@@ -49,13 +61,22 @@ function UtilityBar() {
 
 function MobileControls() {
   const { lang, setLang, theme, setTheme } = useI18n();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLanguageChange = (targetLang: Lang) => {
+    if (targetLang === lang) return;
+    setLang(targetLang);
+    navigate(buildLocalizedPath(location.pathname, targetLang), { replace: false });
+  };
+
   return (
     <div className="bg-primary text-primary-foreground rounded-xl p-3 flex items-center justify-between gap-2" role="toolbar" aria-label="Mobile site controls">
       <div className="flex items-center gap-1">
         {LANGS.map(l => (
           <button 
             key={l.code} 
-            onClick={() => setLang(l.code)}
+            onClick={() => handleLanguageChange(l.code)}
             aria-label={`Change language to ${l.label}`}
             className={`px-2.5 py-1 text-xs rounded-lg transition-colors focus:outline-none focus:ring-1 focus:ring-white/50 ${lang === l.code ? "bg-white/25 font-semibold" : "hover:bg-white/10"}`}
           >
@@ -226,13 +247,14 @@ interface NavActionsProps {
 
 function NavActions({ tier, isAuthenticated }: NavActionsProps) {
   const { lang, t } = useI18n();
+  const localizedPath = useLocalizedPath();
 
   return (
     <div className="flex items-center gap-3">
       {/* 1. Go Premium upgrade tag (free tier only) */}
       {tier === "free" ? (
         <Link 
-          to="/pricing" 
+          to={localizedPath("/pricing")} 
           className="text-xs px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg hover:opacity-95 font-bold transition-all flex items-center gap-1.5 shadow-sm"
           style={{ fontFamily: sansFont(lang) }}
         >
@@ -250,7 +272,7 @@ function NavActions({ tier, isAuthenticated }: NavActionsProps) {
       {/* 2. Login/Profile Switcher */}
       {isAuthenticated ? (
         <Link 
-          to="/profile" 
+          to={localizedPath("/profile")} 
           aria-label="Profile Panel"
           className="p-2 border border-border rounded-lg bg-card hover:bg-accent text-muted-foreground hover:text-foreground transition-colors flex items-center justify-center"
         >
@@ -258,7 +280,7 @@ function NavActions({ tier, isAuthenticated }: NavActionsProps) {
         </Link>
       ) : (
         <Link 
-          to="/login" 
+          to={localizedPath("/login")} 
           className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-opacity font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary" 
           style={{ fontFamily: sansFont(lang) }}
         >
@@ -278,6 +300,7 @@ interface NavbarProps {
 
 function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
   const { lang, dir, t } = useI18n();
+  const localizedPath = useLocalizedPath();
   const [open, setOpen] = useState<number | null>(null);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -285,13 +308,13 @@ function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) navigate(`/search?q=${encodeURIComponent(q.trim())}`);
+    if (q.trim()) navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`));
   };
 
   return (
     <nav className="hidden lg:block bg-card/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 shrink-0 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+        <Link to={localizedPath("/")} className="flex items-center gap-3 shrink-0 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
           <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
             <Scale size={16} className="text-primary-foreground" />
           </div>
@@ -317,7 +340,7 @@ function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
               }}
             >
               <Link 
-                to={item.href}
+                to={localizedPath(item.href)}
                 className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:bg-accent focus:text-primary ${open === i ? "bg-accent text-primary" : "text-foreground/80 hover:bg-muted"}`}
                 style={{ fontFamily: sansFont(lang) }}
                 role="menuitem"
@@ -342,7 +365,7 @@ function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
                           {col.links.map((lnk) => (
                             <li key={lnk.href} role="none">
                               <Link 
-                                to={lnk.href} 
+                                to={localizedPath(lnk.href)} 
                                 className="text-sm text-foreground/80 hover:text-primary transition-colors flex items-center gap-1.5 group focus:outline-none focus:text-primary focus:underline rounded-sm p-0.5" 
                                 style={{ fontFamily: sansFont(lang) }}
                                 role="menuitem"
@@ -386,6 +409,7 @@ function NavDesktop({ tier, isAuthenticated }: NavbarProps) {
 
 function NavTablet({ tier, isAuthenticated }: NavbarProps) {
   const { lang, dir, t } = useI18n();
+  const localizedPath = useLocalizedPath();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
@@ -393,13 +417,13 @@ function NavTablet({ tier, isAuthenticated }: NavbarProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) { navigate(`/search?q=${encodeURIComponent(q.trim())}`); setOpen(false); }
+    if (q.trim()) { navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); setOpen(false); }
   };
 
   return (
     <nav className="hidden md:block lg:hidden bg-card/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="px-5 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+        <Link to={localizedPath("/")} className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
           <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
             <Scale size={14} className="text-primary-foreground" />
           </div>
@@ -443,7 +467,7 @@ function NavTablet({ tier, isAuthenticated }: NavbarProps) {
             {megaMenuData.map((item, i) => (
               <Link 
                 key={i} 
-                to={item.href} 
+                to={localizedPath(item.href)} 
                 onClick={() => setOpen(false)}
                 className="flex items-center gap-2 p-3 rounded-lg border border-border hover:bg-accent hover:border-primary/30 focus:bg-accent focus:border-primary/30 focus:outline-none transition-colors text-sm text-foreground/80 font-medium"
                 style={{ fontFamily: sansFont(lang) }}
@@ -462,6 +486,7 @@ function NavTablet({ tier, isAuthenticated }: NavbarProps) {
 
 function NavPhone({ tier, isAuthenticated }: NavbarProps) {
   const { lang, dir, t } = useI18n();
+  const localizedPath = useLocalizedPath();
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
   const navigate = useNavigate();
@@ -470,13 +495,13 @@ function NavPhone({ tier, isAuthenticated }: NavbarProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) { navigate(`/search?q=${encodeURIComponent(q.trim())}`); setMenuOpen(false); }
+    if (q.trim()) { navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); setMenuOpen(false); }
   };
 
   return (
     <nav className="md:hidden bg-card/95 backdrop-blur-md sticky top-0 z-50 border-b border-border shadow-sm">
       <div className="px-4 h-14 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
+        <Link to={localizedPath("/")} className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-md p-1">
           <div className="w-7 h-7 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
             <Scale size={14} className="text-primary-foreground" />
           </div>
@@ -540,7 +565,7 @@ function NavPhone({ tier, isAuthenticated }: NavbarProps) {
                           {col.links.map((lnk) => (
                             <Link 
                               key={lnk.href} 
-                              to={lnk.href} 
+                              to={localizedPath(lnk.href)} 
                               onClick={() => setMenuOpen(false)}
                               className="block text-sm text-foreground/70 hover:text-primary py-1 focus:outline-none focus:text-primary"
                               style={{ fontFamily: sansFont(lang) }}
@@ -608,6 +633,7 @@ function SponsorRibbon() {
 
 function Footer() {
   const { lang, dir, t } = useI18n();
+  const localizedPath = useLocalizedPath();
   return (
     <footer className="border-t border-border bg-muted mt-16" aria-label="Platform footer">
       <div className="max-w-7xl mx-auto px-6 py-12" dir={dir}>
@@ -615,7 +641,7 @@ function Footer() {
         {/* Top footer grid links */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
           <div className="col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1 w-fit">
+            <Link to={localizedPath("/")} className="flex items-center gap-2 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded p-1 w-fit">
               <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center" aria-hidden="true">
                 <Scale size={15} className="text-primary-foreground" />
               </div>
@@ -665,7 +691,7 @@ function Footer() {
             {legalLinks.map((lnk) => (
               <Link 
                 key={lnk.href} 
-                to={lnk.href} 
+                to={localizedPath(lnk.href)} 
                 className="text-xs text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:underline" 
                 style={{ fontFamily: sansFont(lang) }}
               >
@@ -683,10 +709,21 @@ function Footer() {
 // ── Global Root Layout Shell ──────────────────────────────────────────────────
 
 export default function Layout() {
-  const { lang, dir } = useI18n();
+  const { lang, dir, setLang } = useI18n();
+  const { lang: routeLang } = useParams<{ lang: string }>();
   const location = useLocation();
+
+  useEffect(() => {
+    const normalized = normalizeLang(routeLang);
+    if (normalized !== lang) {
+      setLang(normalized);
+    }
+  }, [routeLang, lang, setLang]);
   const [tier, setTier] = useState<"free" | "premium" | "enterprise">("free");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isGuest, isLoading: roleLoading } = useRole();
+  const [piracyDialogOpen, setPiracyDialogOpen] = useState(false);
+  const [piracyDialogReason, setPiracyDialogReason] = useState<string | null>(null);
 
   // Initialize referral engines & JSONLD parameters on layout mount
   useReferralTracking();
@@ -700,6 +737,56 @@ export default function Layout() {
   useEffect(() => {
     trackPageView(location.pathname + location.search);
   }, [location]);
+
+  // Persist a referral code from the URL for later signup conversion.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(location.search);
+    const referralCode = params.get("ref") || params.get("referral_code");
+    if (referralCode) {
+      storeReferralCode(referralCode);
+    }
+  }, [location.search]);
+
+  // Prevent simple guest piracy actions like copy / screenshot hotkeys.
+  useEffect(() => {
+    const isBot = isSearchEngineBot();
+    if (isAuthenticated || isBot) return;
+
+    const handleContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+      setPiracyDialogReason("right-click");
+      setPiracyDialogOpen(true);
+    };
+
+    const handleCopy = (event: ClipboardEvent) => {
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setPiracyDialogReason("copy");
+      setPiracyDialogOpen(true);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isGuestPiracyKey(event)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const reason = event.key.toLowerCase() === "printscreen" || event.key.toLowerCase() === "print" ? "screenshot" : "copy";
+        setPiracyDialogReason(reason);
+        setPiracyDialogOpen(true);
+      }
+    };
+
+    window.addEventListener("contextmenu", handleContextMenu, true);
+    window.addEventListener("copy", handleCopy, true);
+    window.addEventListener("keydown", handleKeyDown, true);
+
+    return () => {
+      window.removeEventListener("contextmenu", handleContextMenu, true);
+      window.removeEventListener("copy", handleCopy, true);
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+  }, [isAuthenticated]);
 
   // Synchronize dynamic Supabase user authentication & active license tiers
   useEffect(() => {
@@ -718,6 +805,12 @@ export default function Layout() {
 
           if (!error && data?.tier) {
             setTier(data.tier as "free" | "premium" | "enterprise");
+          }
+
+          try {
+            await applyStoredReferralCode(user.id);
+          } catch {
+            // defer referral application until network is available
           }
         } else {
           setIsAuthenticated(false);
@@ -742,26 +835,57 @@ export default function Layout() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const piracyDialogTitle = piracyDialogReason === "right-click"
+    ? "Right-click blocked"
+    : piracyDialogReason === "screenshot"
+      ? "Screenshot protection enabled"
+      : "Copy disabled";
+
+  const piracyDialogMessage = piracyDialogReason === "right-click"
+    ? "Right-click is disabled for guest browsing. Please sign in or upgrade to unlock premium protections and copy access."
+    : piracyDialogReason === "screenshot"
+      ? "Screenshot shortcuts are disabled while browsing as a guest. Log in or upgrade for a more seamless experience."
+      : "Copying text is disabled for guest visitors. Create an account to capture content safely and avoid piracy.";
+
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-200" dir={dir}>
-      {/* 1. Global localization utility banner */}
-      <UtilityBar />
+    <Dialog open={piracyDialogOpen} onOpenChange={setPiracyDialogOpen}>
+      <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-200" dir={dir} style={{ userSelect: isGuest && !isSearchEngineBot() ? "none" : undefined }}>
+        {/* 1. Global localization utility banner */}
+        <UtilityBar />
 
-      {/* 2. Responsive Header Navigation triggers */}
-      <NavDesktop tier={tier} isAuthenticated={isAuthenticated} />
-      <NavTablet tier={tier} isAuthenticated={isAuthenticated} />
-      <NavPhone tier={tier} isAuthenticated={isAuthenticated} />
+        {/* 2. Responsive Header Navigation triggers */}
+        <NavDesktop tier={tier} isAuthenticated={isAuthenticated} />
+        <NavTablet tier={tier} isAuthenticated={isAuthenticated} />
+        <NavPhone tier={tier} isAuthenticated={isAuthenticated} />
 
-      {/* 3. Core dynamic page contents viewport */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6" id="main-content">
-        <Outlet />
-      </main>
+        {/* 3. Core dynamic page contents viewport */}
+        <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6" id="main-content">
+          <Outlet />
+        </main>
 
-      {/* 4. Strategic sponsors & academic partners */}
-      <SponsorRibbon />
+        {/* 4. Strategic sponsors & academic partners */}
+        <SponsorRibbon />
 
-      {/* 5. Monolithic multilingual platform footer */}
-      <Footer />
-    </div>
+        {/* 5. Monolithic multilingual platform footer */}
+        <Footer />
+      </div>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{piracyDialogTitle}</DialogTitle>
+          <DialogDescription>{piracyDialogMessage}</DialogDescription>
+        </DialogHeader>
+        <div className="pt-3 text-sm text-muted-foreground">
+          {isGuest
+            ? "Guest browsing is restricted to protect content quality. Sign in or subscribe to lift these limits."
+            : "If this prompt is unexpected, refresh the page or contact support."}
+        </div>
+        <DialogFooter>
+          <DialogClose className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-primary">
+            Close
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Users, FileText, Files, ShieldCheck, Search as SearchIcon,
   ArrowLeft, Scale, Menu, X, LogOut, Activity,
 } from "lucide-react";
-import { useI18n, serifFont, sansFont } from "../lib/i18n";
+import { useI18n, useLocalizedPath, serifFont, sansFont } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
 import { useAdminAuth, adminLogout } from "../lib/adminAuth";
 import AdminLogin from "../pages/admin/AdminLogin";
@@ -21,6 +21,7 @@ const NAV = [
 
 export default function AdminLayout() {
   const { lang, dir, t } = useI18n();
+  const localizedPath = useLocalizedPath();
   const [open, setOpen] = useState(false);
   const authed = useAdminAuth();
   
@@ -84,7 +85,7 @@ export default function AdminLayout() {
           </div>
           <div className="flex items-center gap-3">
             <Link 
-              to="/" 
+              to={localizedPath("/")} 
               className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary rounded-md px-2 py-1" 
               style={{ fontFamily: sansFont(lang) }}
             >

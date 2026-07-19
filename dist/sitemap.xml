@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://mizan.ma/</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizan.ma/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizan.ma/fr/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizan.ma/en/" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizan.ma/es/" />
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://mizan.ma/library</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizan.ma/library" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizan.ma/fr/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizan.ma/en/library" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizan.ma/es/library" />
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://mizan.ma/archive</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizan.ma/archive" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizan.ma/fr/archive" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizan.ma/en/archive" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizan.ma/es/archive" />
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://mizan.ma/library/jurisprudence</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizan.ma/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizan.ma/fr/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizan.ma/en/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizan.ma/es/library/jurisprudence" />
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://mizan.ma/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizan.ma/pricing" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizan.ma/fr/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizan.ma/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizan.ma/es/pricing" />
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+</urlset>
