@@ -1,11 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router";
+import { useLocalizedPath } from "../lib/i18n";
 import { ArrowRight, Download, Clock, Eye, Tag, BookOpen, GraduationCap, Heart, Bookmark } from "lucide-react";
 import { getArticleBySlug, type Article } from "../lib/supabase";
 import { trackArticleRead, trackPDFDownload, trackEvent } from "../lib/analytics";
 import { setArticleSchema, setBreadcrumbSchema, clearSchema } from "../lib/jsonld";
-import { sanitizeHtml } from "../lib/security";
+import { sanitizeHtml, isSearchEngineBot } from "../lib/security";
 import { useCms } from "../lib/adminStore";
+import { useRole } from "../hooks/useRole";
 import ShareBar from "../components/ShareBar";
 import ArticleComments from "../components/ArticleComments";
 
@@ -92,9 +94,43 @@ function renderContent(md: string) {
   });
 }
 
+function serializeNode(node: ChildNode) {
+  if (node instanceof Element) return node.outerHTML;
+  return node.textContent || "";
+}
+
+function splitMarkdownContent(md: string) {
+  const paragraphs = md.split(/\n\s*\n/).filter(Boolean);
+  const previewCount = Math.max(3, Math.ceil(paragraphs.length * 0.3));
+  return {
+    preview: paragraphs.slice(0, previewCount).join("\n\n"),
+    locked: paragraphs.slice(previewCount).join("\n\n"),
+  };
+}
+
+function splitHtmlContent(html: string) {
+  if (typeof document === "undefined") {
+    return { preview: html, locked: "" };
+  }
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = html;
+  const nodes = Array.from(wrapper.childNodes);
+  const previewCount = Math.max(3, Math.ceil(nodes.length * 0.3));
+  return {
+    preview: nodes.slice(0, previewCount).map(serializeNode).join(""),
+    locked: nodes.slice(previewCount).map(serializeNode).join(""),
+  };
+}
+
+function renderHtmlSnippet(html: string) {
+  return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />;
+}
+
 export default function ArticleDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const localizedPath = useLocalizedPath();
   const cms = useCms();
+  const { isPremium } = useRole();
   const [article, setArticle] = useState<Article>(MOCK);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
@@ -140,6 +176,18 @@ export default function ArticleDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, cmsArticle?.id]);
 
+  const isBot = isSearchEngineBot();
+  const isLocked = !isPremium && !isBot;
+
+  const contentFragments = useMemo(() => {
+    const raw = article.content || article.excerpt || "";
+    if (!raw) return { preview: "", locked: "", isHtml: false };
+    if (isHtml(raw)) {
+      return { ...splitHtmlContent(raw), isHtml: true };
+    }
+    return { ...splitMarkdownContent(raw), isHtml: false };
+  }, [article.content, article.excerpt]);
+
   // SEO structured data (Schema.org) — refreshed per article, cleared on unmount.
   useEffect(() => {
     setArticleSchema({
@@ -149,6 +197,9 @@ export default function ArticleDetail() {
       author: article.author,
       datePublished: article.created_at,
       category: article.category,
+      schemaType: "LegalArticle",
+      lang: "ar",
+      path: `/article/${article.slug}`,
     });
     setBreadcrumbSchema([
       { name: "الرئيسية", url: "/" },
@@ -175,9 +226,9 @@ export default function ArticleDetail() {
         <article>
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1 text-xs text-muted-foreground mb-6" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-            <Link to="/" className="hover:text-primary">الرئيسية</Link>
+            <Link to={localizedPath("/")} className="hover:text-primary">الرئيسية</Link>
             <ArrowRight size={11} className="rotate-180" />
-            <Link to="/library" className="hover:text-primary">المكتبة</Link>
+            <Link to={localizedPath("/library")} className="hover:text-primary">المكتبة</Link>
             <ArrowRight size={11} className="rotate-180" />
             <span className="text-foreground line-clamp-1">{article.title}</span>
           </nav>
@@ -202,11 +253,37 @@ export default function ArticleDetail() {
 
           {/* Content — CMS articles store sanitised HTML; mock uses markdown. */}
           <div className="prose-container rte-content leading-loose text-base">
-            {article.content
-              ? (isHtml(article.content)
-                  ? <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content) }} />
-                  : renderContent(article.content))
-              : <p className="text-muted-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{article.excerpt}</p>}
+            {contentFragments.preview ? (
+              contentFragments.isHtml ? renderHtmlSnippet(contentFragments.preview) : renderContent(contentFragments.preview)
+            ) : (
+              <p className="text-muted-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{article.excerpt}</p>
+            )}
+
+            {contentFragments.locked ? (
+              <div className="premium-content-section relative mt-6">
+                {isLocked ? (
+                  <>
+                    <div className="pointer-events-none select-none blur-sm">
+                      {contentFragments.isHtml ? renderHtmlSnippet(contentFragments.locked) : renderContent(contentFragments.locked)}
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center p-6 bg-gradient-to-t from-white/95 to-transparent">
+                      <div className="max-w-md rounded-3xl border border-border bg-white/95 p-6 shadow-xl text-center">
+                        <p className="text-sm font-semibold text-foreground mb-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+                          المحتوى الكامل مقفول لحماية حقوق المنصة. سجّل الدخول أو اشترك للوصول إليه.
+                        </p>
+                        <Link to={localizedPath("/login")}
+                          className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-primary text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
+                          style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+                          تسجيل الدخول للوصول الكامل
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  contentFragments.isHtml ? renderHtmlSnippet(contentFragments.locked) : renderContent(contentFragments.locked)
+                )}
+              </div>
+            ) : null}
           </div>
 
           {/* Tags */}

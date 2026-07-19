@@ -10,6 +10,49 @@ export const LANGS: { code: Lang; label: string; dir: "rtl" | "ltr" }[] = [
   { code: "es", label: "ES", dir: "ltr" },
 ];
 
+export const SUPPORTED_LANGS = LANGS.map((item) => item.code) as Lang[];
+
+export function normalizeLang(value: string | null | undefined): Lang {
+  const code = String(value || "").trim().toLowerCase().split(/[-_]/)[0];
+  return SUPPORTED_LANGS.includes(code as Lang) ? (code as Lang) : "ar";
+}
+
+export function getPreferredBrowserLanguage(): Lang {
+  if (typeof navigator === "undefined") return "ar";
+
+  const candidates = [navigator.language, ...(navigator.languages || [])]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+
+  for (const candidate of candidates) {
+    const normalized = candidate.split(/[-_]/)[0];
+    if (SUPPORTED_LANGS.includes(normalized as Lang)) return normalized as Lang;
+  }
+
+  return "ar";
+}
+
+export function buildLocalizedPath(path: string, lang: Lang): string {
+  const target = new URL(path, "http://localhost");
+  const segments = target.pathname.replace(/^\/+/, "").split("/").filter(Boolean);
+
+  if (segments.length === 0) {
+    target.pathname = `/${lang}`;
+  } else if (SUPPORTED_LANGS.includes(segments[0] as Lang)) {
+    segments[0] = lang;
+    target.pathname = `/${segments.join("/")}`;
+  } else {
+    target.pathname = `/${lang}/${segments.join("/")}`;
+  }
+
+  return `${target.pathname}${target.search}${target.hash}`;
+}
+
+export function useLocalizedPath() {
+  const { lang } = useI18n();
+  return (path: string) => buildLocalizedPath(path, lang);
+}
+
 // ── Translation dictionary ────────────────────────────────────────────────────
 type Dict = Record<string, Record<Lang, string>>;
 

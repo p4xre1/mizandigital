@@ -1,7 +1,10 @@
 import { Link } from "react-router";
 import { Scale, ArrowRight, Search, Home } from "lucide-react";
+import { useLocalizedPath } from "../lib/i18n";
 
 export default function NotFound() {
+  const localizedPath = useLocalizedPath();
+
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-6 py-16" dir="rtl">
       <div className="text-center max-w-md">
@@ -16,12 +19,12 @@ export default function NotFound() {
           عذراً، الصفحة التي تبحث عنها غير متوفرة أو تم نقلها. تحقق من الرابط أو ابحث في المكتبة.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link to="/"
+          <Link to={localizedPath("/")}
             className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm"
             style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
             <Home size={15} /> العودة للرئيسية
           </Link>
-          <Link to="/search"
+          <Link to={localizedPath("/search")}
             className="flex items-center justify-center gap-2 px-5 py-2.5 border border-border text-gray-700 rounded-xl hover:border-primary hover:text-primary transition-colors text-sm"
             style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
             <Search size={15} /> البحث في ميزان

@@ -1,20 +1,22 @@
-import { createBrowserRouter } from "react-router";
+import React, { lazy, Suspense } from "react";
+import { createBrowserRouter, Navigate, useLocation } from "react-router";
+import { buildLocalizedPath, getPreferredBrowserLanguage } from "../app/lib/i18n";
 
 // ── 📦 استيراد المغلفات الرئيسية (Layouts) ──
 import Layout from "../app/components/Layout";
-import AdminLayout from "../app/components/AdminLayout"; 
+import AdminLayout from "../app/components/AdminLayout";
 
 // ── 🌐 استيراد صفحات الموقع العام ──
-import Home from "../app/pages/Home";
+const Home = lazy(() => import("../app/pages/Home"));
 import About from "../app/pages/About";
-import Archive from "../app/pages/Archive";
-import ArticleDetail from "../app/pages/ArticleDetail";
+const Archive = lazy(() => import("../app/pages/Archive"));
+const ArticleDetail = lazy(() => import("../app/pages/ArticleDetail"));
 import Contact from "../app/pages/Contact";
 import Legal from "../app/pages/Legal";
-import Library from "../app/pages/Library";
-import Login from "../app/pages/Login";
-import Profile from "../app/pages/Profile";
-import Pricing from "../app/pages/Pricing"; 
+const Library = lazy(() => import("../app/pages/Library"));
+const Login = lazy(() => import("../app/pages/Login"));
+const Profile = lazy(() => import("../app/pages/Profile"));
+import Pricing from "../app/pages/Pricing";
 import NotFound from "../app/pages/NotFound";
 
 // ── 🛡️ استيراد صفحات لوحة التحكم ──
@@ -27,45 +29,69 @@ import AdminSeo from "../app/pages/admin/AdminSeo";
 import AdminSecurity from "../app/pages/admin/AdminSecurity";
 import AdminLogin from "../app/pages/admin/AdminLogin";
 
-export const router = createBrowserRouter([
-  
-  // ── 1️⃣ مسارات الموقع العام ──
-  {
-    path: "/:lang?",
-    element: <Layout />,
-    children: [
-      { index: true, element: <Home /> },
-      { path: "about", element: <About /> },
-      { path: "archive", element: <Archive /> },
-      { path: "archive/:articleId", element: <ArticleDetail /> },
-      { path: "contact", element: <Contact /> },
-      { path: "legal", element: <Legal /> },
-      { path: "library", element: <Library /> },
-      { path: "login", element: <Login /> },
-      { path: "profile", element: <Profile /> },
-      { path: "pricing", element: <Pricing /> }, 
-      { path: "*", element: <NotFound /> }
-    ]
-  },
+const DEFAULT_LANG = "ar";
 
-  // ── 2️⃣ صفحة تسجيل دخول الإدارة ──
+function RedirectToPreferredLang() {
+  const location = useLocation();
+  const targetLang = getPreferredBrowserLanguage();
+  const redirectPath = buildLocalizedPath(location.pathname + location.search + location.hash, targetLang);
+
+  return <Navigate to={redirectPath} replace />;
+}
+
+function Suspended({ Component }: { Component: React.LazyExoticComponent<React.ComponentType<any>> }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">جارٍ تحميل الصفحة...</div>}>
+      <Component />
+    </Suspense>
+  );
+}
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RedirectToPreferredLang />,
+  },
   {
     path: "/admin/login",
-    element: <AdminLogin />, // 👈 أصبحت نظيفة ومحمية تلقائياً بالـ Provider العالمي
+    element: <AdminLogin />,
   },
-
-  // ── 3️⃣ مسارات الإدارة المتداخلة ──
   {
     path: "/admin",
-    element: <AdminLayout />, // 👈 أصبحت نظيفة ومحمية تلقائياً بالـ Provider العالمي
+    element: <AdminLayout />,
     children: [
-      { index: true, element: <Dashboard /> },               
-      { path: "users", element: <AdminUsers /> },            
-      { path: "articles", element: <AdminArticles /> },      
-      { path: "pages", element: <AdminPages /> },            
-      { path: "traffic", element: <AdminTraffic /> },        
-      { path: "seo", element: <AdminSeo /> },                
-      { path: "security", element: <AdminSecurity /> },      
-    ]
-  }
+      { index: true, element: <Dashboard /> },
+      { path: "users", element: <AdminUsers /> },
+      { path: "articles", element: <AdminArticles /> },
+      { path: "pages", element: <AdminPages /> },
+      { path: "traffic", element: <AdminTraffic /> },
+      { path: "seo", element: <AdminSeo /> },
+      { path: "security", element: <AdminSecurity /> },
+    ],
+  },
+  {
+    path: "/:lang(ar|fr|en|es)",
+    element: <Layout />,
+    children: [
+      { index: true, element: <Suspended Component={Home} /> },
+      { path: "about", element: <About /> },
+      { path: "archive", element: <Suspended Component={Archive} /> },
+      { path: "article/:slug", element: <Suspended Component={ArticleDetail} /> },
+      { path: "contact", element: <Contact /> },
+      { path: "legal", element: <Legal /> },
+      { path: "library", element: <Suspended Component={Library} /> },
+      { path: "login", element: <Suspended Component={Login} /> },
+      { path: "profile", element: <Suspended Component={Profile} /> },
+      { path: "pricing", element: <Pricing /> },
+      { path: "*", element: <NotFound /> },
+    ],
+  },
+  {
+    path: "/:lang(/*)",
+    element: <RedirectToPreferredLang />,
+  },
+  {
+    path: "/*",
+    element: <RedirectToPreferredLang />,
+  },
 ]);

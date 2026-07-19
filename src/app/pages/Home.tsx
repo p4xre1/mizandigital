@@ -3,10 +3,11 @@ import { Link } from "react-router";
 import { ArrowRight, TrendingUp, Clock, Star, FileText, GraduationCap, Gavel, Users } from "lucide-react";
 import { getArticles, type Article } from "../lib/supabase";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
-import { useI18n, serifFont, sansFont, type Lang } from "../lib/i18n";
+import { useI18n, useLocalizedPath, serifFont, sansFont, type Lang } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
+import { setWebSiteSchema, clearSchema } from "../lib/jsonld";
 
-const HERO_IMG = "https://images.unsplash.com/photo-1759732419233-5b84c4cb5a9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920";
+const HERO_IMG = "https://images.unsplash.com/photo-1759732419233-5b84c4cb5a9c?crop=entropy&cs=tinysrgb&fit=max&fm=webp&q=70&w=1440";
 
 type L = Record<Lang, string>;
 const t4 = (ar: string, fr: string, en: string, es: string): L => ({ ar, fr, en, es });
@@ -111,6 +112,7 @@ function ArticleCard({ article, featured = false }: { article: LocalArticle; fea
 
 export default function Home() {
   const { lang, dir, theme, t } = useI18n();
+  const localizedPath = useLocalizedPath();
   const [articles, setArticles] = useState<LocalArticle[]>(MOCK_ARTICLES);
   const [loading, setLoading] = useState(false);
 
@@ -120,6 +122,11 @@ export default function Home() {
     path: "/",
     keywords: ["القانون المغربي", "Moroccan law", "droit marocain", "أرشيف قانوني", "legal archive", "jurisprudence", "مدونة الأسرة"],
     lang,
+  }, [lang]);
+
+  useEffect(() => {
+    setWebSiteSchema();
+    return () => clearSchema("ld-webpage");
   }, [lang]);
 
   useEffect(() => {
@@ -160,10 +167,10 @@ export default function Home() {
               {t("hero_subtitle")}
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link to="/library" className="px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-blue-50 transition-colors text-sm shadow-lg" style={{ fontFamily: sansFont(lang) }}>
+              <Link to={localizedPath("/library")} className="px-6 py-3 bg-white text-primary font-bold rounded-xl hover:bg-blue-50 transition-colors text-sm shadow-lg" style={{ fontFamily: sansFont(lang) }}>
                 {t("hero_cta_library")}
               </Link>
-              <Link to="/archive" className="px-6 py-3 border border-white/50 text-white font-medium rounded-xl hover:bg-white/10 backdrop-blur-sm transition-colors text-sm" style={{ fontFamily: sansFont(lang) }}>
+              <Link to={localizedPath("/archive")} className="px-6 py-3 border border-white/50 text-white font-medium rounded-xl hover:bg-white/10 backdrop-blur-sm transition-colors text-sm" style={{ fontFamily: sansFont(lang) }}>
                 {t("hero_cta_archive")}
               </Link>
             </div>
@@ -192,7 +199,7 @@ export default function Home() {
           <div>
             <div className="flex items-center justify-between mb-6" dir={dir}>
               <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>{t("latest_articles")}</h2>
-              <Link to="/library" className="text-sm text-primary flex items-center gap-1 hover:underline" style={{ fontFamily: sansFont(lang) }}>
+              <Link to={localizedPath("/library")} className="text-sm text-primary flex items-center gap-1 hover:underline" style={{ fontFamily: sansFont(lang) }}>
                 {t("view_all")} <ArrowRight size={13} className={arrowFlip} />
               </Link>
             </div>
@@ -211,7 +218,7 @@ export default function Home() {
               <h3 className="text-sm font-bold mb-4 pb-3 border-b border-border" style={{ fontFamily: serifFont(lang) }}>{t("trending_topics")}</h3>
               <div className="flex flex-wrap gap-2">
                 {trendingTopics.map((topic) => (
-                  <Link key={topic.en} to={`/search?q=${encodeURIComponent(topic[lang])}`}
+                  <Link key={topic.en} to={localizedPath(`/search?q=${encodeURIComponent(topic[lang])}`)}
                     className="text-xs px-2.5 py-1 rounded-full border border-border text-muted-foreground hover:bg-accent hover:text-primary hover:border-primary/30 transition-colors"
                     style={{ fontFamily: sansFont(lang) }}>{topic[lang]}</Link>
                 ))}

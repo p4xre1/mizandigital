@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router";
 import { logTraffic } from "./adminStore";
 import { trackEvent } from "./analytics";
+import { supabase, isSupabaseConfigured } from "./supabase";
 
 // ── Referral / traffic-source attribution ───────────────────────────────────────
 // Captures WHERE a visitor came from: UTM params on the URL (from our own
@@ -79,6 +80,47 @@ export function withUtm(url: string, source: string, campaign: string): string {
   u.searchParams.set("utm_medium", "share");
   if (campaign) u.searchParams.set("utm_campaign", campaign);
   return u.toString();
+}
+
+const REFERRAL_STORAGE_KEY = "mizan_referral_code";
+
+export function storeReferralCode(code: string | null | undefined) {
+  if (!code) return;
+  const cleaned = code.trim().replace(/[^A-Za-z0-9_-]/g, "").slice(0, 24);
+  if (!cleaned) return;
+  try {
+    localStorage.setItem(REFERRAL_STORAGE_KEY, cleaned);
+  } catch {
+    // ignore localStorage failures
+  }
+}
+
+export async function applyStoredReferralCode(userId: string) {
+  if (!isSupabaseConfigured) return;
+  if (typeof window === "undefined") return;
+
+  let code: string | null = null;
+  try {
+    code = localStorage.getItem(REFERRAL_STORAGE_KEY);
+  } catch {
+    return;
+  }
+  if (!code) return;
+
+  const { data, error } = await supabase.rpc("apply_referral_code", {
+    referred_user: userId,
+    referral_code: code,
+  });
+
+  if (error || data?.success === false) {
+    return;
+  }
+
+  try {
+    localStorage.removeItem(REFERRAL_STORAGE_KEY);
+  } catch {
+    // ignore
+  }
 }
 
 export const SHARE_TARGETS: ShareTarget[] = [

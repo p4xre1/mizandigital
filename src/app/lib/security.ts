@@ -37,6 +37,84 @@ export function isValidEmail(email: string): boolean {
  * otherwise inject extra filter conditions (e.g. `,is_admin.eq.true`).
  * We drop the structural characters and the SQL LIKE wildcards.
  */
+export function isGuestRole(role: string | null | undefined): boolean {
+  return role === "guest";
+}
+
+export function isCopyShortcut(event: KeyboardEvent): boolean {
+  return (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "c";
+}
+
+export function isPrintScreenShortcut(event: KeyboardEvent): boolean {
+  const key = event.key.toLowerCase();
+  return key === "printscreen" || key === "print" || ((event.ctrlKey || event.metaKey) && event.shiftKey && ["4", "5", "s"].includes(key));
+}
+
+export function isGuestPiracyKey(event: KeyboardEvent): boolean {
+  return isCopyShortcut(event) || isPrintScreenShortcut(event);
+}
+
+const BOT_PATTERNS = [
+  /googlebot/i,
+  /bingbot/i,
+  /bravechromium/i,
+  /chatgpt-user/i,
+  /claudebot/i,
+  /applebot/i,
+  /slurp/i,
+  /duckduckbot/i,
+  /baiduspider/i,
+  /yandexbot/i,
+  /facebookexternalhit/i,
+  /twitterbot/i,
+  /linkedinbot/i,
+  /pinterest/i,
+  /archive\.org_bot/i,
+  /semrushbot/i,
+  /ahrefsbot/i,
+  /mj12bot/i,
+  /sogou/i,
+  /petalbot/i,
+  /chatgpt/i,
+  /openai/i,
+  /gptbot/i,
+  /huggingface/i,
+];
+
+export function isAllowedSeoCrawler(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""): boolean {
+  if (!userAgent) return false;
+  const ua = userAgent.toLowerCase();
+  return BOT_PATTERNS.some((re) => re.test(ua));
+}
+
+export function isSearchEngineBot(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""): boolean {
+  if (!userAgent) return false;
+  const ua = userAgent.toLowerCase();
+  if (typeof navigator !== "undefined") {
+    if ((navigator as any).webdriver) return true;
+    const brands = (navigator as any).userAgentData?.brands;
+    if (Array.isArray(brands) && brands.some((entry: any) => /bot|crawler|spider/i.test(String(entry.brand)))) {
+      return true;
+    }
+  }
+  return isAllowedSeoCrawler(ua) || /\b(bot|crawl|spider|archiver|scanner|fetcher|preview)\b/i.test(ua);
+}
+
+export function findProtectedToolElement(target: EventTarget | null): HTMLElement | null {
+  let element = target instanceof HTMLElement ? target : null;
+  while (element) {
+    if (element.dataset?.protectedTool === "true") return element;
+    element = element.parentElement;
+  }
+  return null;
+}
+
+/**
+ * Neutralise a value used inside a PostgREST `.or()` / `.ilike()` filter.
+ * PostgREST treats , ( ) . * and " as structural — a raw user string could
+ * otherwise inject extra filter conditions (e.g. `,is_admin.eq.true`).
+ * We drop the structural characters and the SQL LIKE wildcards.
+ */
 export function sanitizePgFilter(input: string, maxLen = 100): string {
   return sanitizeText(input, maxLen)
     .replace(/[,()".*%\\]/g, " ")
