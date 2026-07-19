@@ -111,6 +111,7 @@ export function SignupForm({ onSwitchTab, setGlobalError, setGlobalSuccess }: Si
         <input
           required
           maxLength={120}
+          autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="محمد أمين"
@@ -128,6 +129,7 @@ export function SignupForm({ onSwitchTab, setGlobalError, setGlobalSuccess }: Si
           <input
             required
             type="email"
+            autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@email.com"
@@ -148,6 +150,7 @@ export function SignupForm({ onSwitchTab, setGlobalError, setGlobalSuccess }: Si
             minLength={8}
             maxLength={128}
             type={showPass ? "text" : "password"}
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"

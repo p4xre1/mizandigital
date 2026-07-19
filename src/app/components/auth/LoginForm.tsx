@@ -90,6 +90,7 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
           <input
             required
             type="email"
+            autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@email.com"
@@ -119,6 +120,7 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
             required
             maxLength={128}
             type={showPass ? "text" : "password"}
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
