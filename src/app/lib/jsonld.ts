@@ -1,7 +1,7 @@
 // ── Schema.org JSON-LD injection helper ─────────────────────────────────────────
 // Injects structured data into <head> for SEO. Removes prior tags on route change.
 
-const SITE = "https://mizan.ma";
+const SITE = typeof window !== 'undefined' ? window.location.origin : "https://mizandigital.pages.dev";
 
 function inject(id: string, data: object) {
   let el = document.getElementById(id) as HTMLScriptElement | null;
@@ -21,11 +21,11 @@ export function setOrganizationSchema() {
     name: "Mizan Platform — منصة ميزان",
     url: SITE,
     description: "Digital legal journal and academic archive for Moroccan law.",
-    logo: "https://mizan.ma/logo.svg",
+    logo: `${SITE}/logo.svg`,
     sameAs: [
-      "https://www.facebook.com/mizan.ma",
-      "https://www.twitter.com/mizan_ma",
-      "https://www.linkedin.com/company/mizan-ma"
+      "https://www.facebook.com/mizandigital",
+      "https://www.twitter.com/mizandigital",
+      "https://www.linkedin.com/company/mizandigital"
     ],
   });
 }
