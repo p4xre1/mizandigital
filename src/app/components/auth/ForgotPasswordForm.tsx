@@ -76,6 +76,7 @@ export function ForgotPasswordForm({ onSwitchTab, setGlobalError, setGlobalSucce
           <input
             required
             type="email"
+            autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="example@email.com"
