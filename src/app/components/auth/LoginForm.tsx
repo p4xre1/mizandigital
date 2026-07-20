@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { trackEvent } from "../../lib/analytics";
@@ -141,7 +141,7 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
         {renderTurnstile(() => setError("فشل التحقق الأمني. الرجاء المحاولة مجدداً."))}
       </div>
 
-      {(error || null) && <p className="text-xs text-red-500 text-center">{error}</p>}
+      {error && <p className="text-xs text-red-500 text-center">{error}</p>}
 
       <button
         type="submit"
@@ -154,7 +154,9 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
 
       <p className="text-center text-xs text-muted-foreground mt-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
         ليس لديك حساب؟{' '}
-        <button type="button" className="text-primary hover:underline" onClick={() => onSwitchTab("signup")}>إنشاء حساب جديد</button>
+        <button type="button" className="text-primary hover:underline font-semibold" onClick={() => onSwitchTab("signup")}>
+          إنشاء حساب جديد
+        </button>
       </p>
     </form>
   );

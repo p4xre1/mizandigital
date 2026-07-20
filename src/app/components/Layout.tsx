@@ -624,13 +624,35 @@ function SponsorRibbon() {
   );
 }
 
-// ── Global Layout Component Shell (Fixed & Completed) ─────────────────────────
+/// ── Global Layout Component Shell (Fixed & Completed) ─────────────────────────
 
 export default function Layout() {
   const { lang, dir } = useI18n();
   const localizedPath = useLocalizedPath();
   const location = useLocation();
-  const { tier, isAuthenticated } = useRole();
+  
+  // 1. Remove isAuthenticated from useRole destructuring
+  const { tier } = useRole(); 
+  
+  // 2. Manage isAuthenticated state locally
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // 3. Listen to Supabase auth state changes
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    // Get initial session state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    // Subscribe to future auth changes (login/logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Initialize page-view tracking and Schema injection
   useEffect(() => {

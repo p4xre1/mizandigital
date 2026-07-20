@@ -11,6 +11,7 @@ interface ResetPasswordFormProps {
 
 export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuccess }: ResetPasswordFormProps) {
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,6 +32,11 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
       return;
     }
 
+    if (password !== confirmPassword) {
+      setError("كلمتا المرور غير متطابقتين.");
+      return;
+    }
+
     const wait = throttle("reset_password", 5_000);
     if (wait > 0) {
       setError(`الرجاء الانتظار ${wait} ثانية قبل المحاولة مجدداً.`);
@@ -43,6 +49,7 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
       if (err) throw err;
       setGlobalSuccess("تم تحديث كلمة المرور بنجاح! يمكنك الآن تسجيل الدخول.");
       setPassword("");
+      setConfirmPassword("");
       onSuccessReset();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "فشل تحديث كلمة المرور.";
@@ -55,6 +62,7 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
 
   return (
     <form onSubmit={handleResetPassword} className="space-y-4" dir="rtl">
+      {/* كلمة المرور الجديدة */}
       <div>
         <div className="flex justify-between items-center mb-1.5">
           <label className="block text-xs font-semibold text-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
@@ -72,7 +80,7 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full pr-10 pl-4 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            className="w-full pr-10 pl-10 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
             dir="ltr"
           />
           <button
@@ -82,6 +90,30 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
           >
             {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
           </button>
+        </div>
+      </div>
+
+      {/* تأكيد كلمة المرور */}
+      <div>
+        <div className="flex justify-between items-center mb-1.5">
+          <label className="block text-xs font-semibold text-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+            تأكيد كلمة المرور
+          </label>
+        </div>
+        <div className="relative">
+          <Lock size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            required
+            minLength={8}
+            maxLength={128}
+            type={showPass ? "text" : "password"}
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            className="w-full pr-10 pl-10 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            dir="ltr"
+          />
         </div>
       </div>
 
