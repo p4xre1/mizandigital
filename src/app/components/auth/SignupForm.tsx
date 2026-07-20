@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { trackEvent } from "../../lib/analytics";
 import { isValidEmail, sanitizeText, throttle } from "../../lib/security";
@@ -104,47 +104,52 @@ export function SignupForm({ onSwitchTab, setGlobalError, setGlobalSuccess }: Si
 
   return (
     <form onSubmit={handleSignup} className="space-y-4" dir="rtl">
+      {/* Full Name */}
       <div>
-        <label className="block text-xs font-semibold text-foreground mb-1.5" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           الاسم الكامل
         </label>
-        <input
-          required
-          maxLength={120}
-          autoComplete="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="محمد أمين"
-          className="w-full px-4 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors text-right"
-          style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
-        />
+        <div className="relative">
+          <User size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            required
+            maxLength={120}
+            autoComplete="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="الاسم الكامل"
+            className="w-full pr-10 pl-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
+          />
+        </div>
       </div>
 
+      {/* Email */}
       <div>
-        <label className="block text-xs font-semibold text-foreground mb-1.5" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           البريد الإلكتروني
         </label>
         <div className="relative">
-          <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             required
             type="email"
             autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
-            className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            placeholder="name@example.com"
+            className="w-full pl-10 pr-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
             dir="ltr"
           />
         </div>
       </div>
 
+      {/* Password */}
       <div>
-        <label className="block text-xs font-semibold text-foreground mb-1.5" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           كلمة المرور
         </label>
         <div className="relative">
-          <Lock size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Lock size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             required
             minLength={8}
@@ -154,50 +159,57 @@ export function SignupForm({ onSwitchTab, setGlobalError, setGlobalSuccess }: Si
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full pr-10 pl-4 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            className="w-full pr-10 pl-10 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
             dir="ltr"
           />
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
           >
-            {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+            {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
       </div>
 
-      <div className="flex items-start gap-2">
+      {/* Terms & Privacy */}
+      <div className="flex items-start gap-2 pt-1">
         <input
           id="terms-checkbox"
           type="checkbox"
           checked={acceptedTerms}
           onChange={(e) => setAcceptedTerms(e.target.checked)}
-          className="mt-1 rounded border-border text-primary focus:ring-primary"
+          className="mt-0.5 w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer"
         />
-        <label htmlFor="terms-checkbox" className="text-xs text-muted-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-          أوافق على <a href={localizedPath("/about")} className="text-primary hover:underline">شروط الخدمة</a> و <a href={localizedPath("/about")} className="text-primary hover:underline">سياسة الخصوصية</a>.
+        <label htmlFor="terms-checkbox" className="text-xs text-slate-600 cursor-pointer">
+          أوافق على <a href={localizedPath("/about")} className="text-blue-600 hover:underline font-semibold">شروط الخدمة</a> و <a href={localizedPath("/about")} className="text-blue-600 hover:underline font-semibold">سياسة الخصوصية</a>.
         </label>
       </div>
 
-      <div className="flex justify-center my-4" dir="ltr">
+      {/* Cloudflare Turnstile */}
+      <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
         {renderTurnstile(() => setError("فشل التحقق الأمني. الرجاء المحاولة مجدداً."))}
       </div>
 
-      {(error || null) && <p className="text-xs text-red-500 text-center">{error}</p>}
+      {error && <p className="text-xs text-red-500 text-center font-medium">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60"
-        style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
+        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60 shadow-sm active:scale-[0.99]"
       >
         {loading ? "جاري التحميل..." : "إنشاء الحساب"}
       </button>
 
-      <p className="text-center text-xs text-muted-foreground mt-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-        لديك حساب بالفعل؟{' '}
-        <button type="button" className="text-primary hover:underline" onClick={() => onSwitchTab("login")}>تسجيل الدخول</button>
+      <p className="text-center text-xs text-slate-500 mt-4">
+        لديك حساب بالفعل؟{" "}
+        <button
+          type="button"
+          className="text-blue-600 hover:underline font-bold"
+          onClick={() => onSwitchTab("login")}
+        >
+          تسجيل الدخول
+        </button>
       </p>
     </form>
   );

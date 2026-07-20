@@ -68,35 +68,35 @@ export function ForgotPasswordForm({ onSwitchTab, setGlobalError, setGlobalSucce
   return (
     <form onSubmit={handleForgotPassword} className="space-y-4" dir="rtl">
       <div>
-        <label className="block text-xs font-semibold text-foreground mb-1.5" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
           البريد الإلكتروني
         </label>
         <div className="relative">
-          <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             required
             type="email"
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
-            className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            placeholder="name@example.com"
+            className="w-full pl-10 pr-3.5 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
             dir="ltr"
           />
         </div>
       </div>
 
-      <div className="flex justify-center my-4" dir="ltr">
+      {/* Cloudflare Turnstile */}
+      <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
         {renderTurnstile(() => setError("فشل التحقق الأمني. الرجاء المحاولة مجدداً."))}
       </div>
 
-      {(error || null) && <p className="text-xs text-red-500 text-center">{error}</p>}
+      {error && <p className="text-xs text-red-500 text-center font-medium">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60"
-        style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
+        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60 shadow-sm active:scale-[0.99]"
       >
         {loading ? "جاري التحميل..." : "إرسال رابط الاستعادة"}
       </button>
@@ -104,8 +104,7 @@ export function ForgotPasswordForm({ onSwitchTab, setGlobalError, setGlobalSucce
       <button
         type="button"
         onClick={() => onSwitchTab("login")}
-        className="w-full text-center text-xs text-muted-foreground hover:text-foreground mt-2 block"
-        style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
+        className="w-full text-center text-xs text-slate-500 hover:text-slate-800 transition-colors mt-2 block font-medium"
       >
         إلغاء والعودة لتسجيل الدخول
       </button>

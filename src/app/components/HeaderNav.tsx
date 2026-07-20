@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Search,
   Globe,
   Moon,
   Sun,
@@ -10,7 +9,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { AuthModal } from "./AuthModal"; // 🌟 استدعاء مكون Modal
+import { AuthModal } from "./AuthModal";
 
 type Locale = "ar" | "fr" | "en" | "es";
 
@@ -38,7 +37,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   userName,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // 🌟 حالة فتح/إغلاق نافذة الدخول
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const dir = currentLang === "ar" ? "rtl" : "ltr";
 
@@ -197,27 +196,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             </div>
           </a>
 
-          {/* Global Search Input */}
-          <div className="relative flex-1 max-w-md hidden md:block">
-            <Search
-              size={15}
-              className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${
-                dir === "rtl" ? "right-3.5" : "left-3.5"
-              }`}
-            />
-            <input
-              type="search"
-              placeholder={
-                currentLang === "ar"
-                  ? "ابحث في المقالات، الأحكام والتشريعات..."
-                  : "Search legal statutes, rulings & archives..."
-              }
-              className={`w-full bg-slate-100 dark:bg-slate-800/60 text-xs rounded-xl py-2.5 border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:bg-background transition-all ${
-                dir === "rtl" ? "pr-10 pl-4" : "pl-10 pr-4"
-              }`}
-            />
-          </div>
-
           {/* Desktop Navigation Links & User Profile */}
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex items-center gap-5 text-xs font-semibold text-muted-foreground">
@@ -236,7 +214,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     )}
                   </a>
 
-                  {/* 🌟 قائمة صلبة 100% بدون شفافية خفية */}
                   {item.dropdown && (
                     <div
                       className={`absolute top-full ${
@@ -295,22 +272,6 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         {/* ── Mobile Navigation Drawer ──────────────────────────────────────── */}
         {mobileMenuOpen && (
           <div className="lg:hidden border-t border-border bg-white dark:bg-slate-900 px-6 py-4 space-y-4 shadow-xl">
-            <div className="relative">
-              <Search
-                size={15}
-                className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${
-                  dir === "rtl" ? "right-3.5" : "left-3.5"
-                }`}
-              />
-              <input
-                type="search"
-                placeholder={currentLang === "ar" ? "بحث..." : "Search..."}
-                className={`w-full bg-slate-100 dark:bg-slate-800 text-xs rounded-xl py-2.5 border border-border ${
-                  dir === "rtl" ? "pr-10 pl-4" : "pl-10 pr-4"
-                }`}
-              />
-            </div>
-
             <nav className="space-y-3">
               {currentNavItems.map((item, idx) => (
                 <div key={idx} className="space-y-1">
@@ -362,7 +323,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         )}
       </header>
 
-      {/* 🌟 استدعاء AuthModal هنا خارج الهيدر لتجنب مشاكل Overlap والشفافية */}
+      {/* Auth Modal Trigger */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

@@ -73,7 +73,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, lang, dir
   const inputPaddingClass = dir === "rtl" ? "pr-9 pl-3" : "pl-9 pr-3";
   const iconPositionClass = dir === "rtl" ? "right-3" : "left-3";
 
-  // 🌟 createPortal mounts the modal directly to document.body, escaping NavigationMenu / Menubar wrappers
   return createPortal(
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200"
@@ -153,7 +152,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, lang, dir
                   required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder={lang === "ar" ? "د. أحمد المنصوري" : "Dr. Ahmed Al-Mansouri"}
+                  placeholder={lang === "ar" ? "الاسم الكامل" : "Full Name"}
                   className={`w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl py-2.5 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none ${inputPaddingClass}`}
                 />
               </div>
@@ -174,7 +173,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, lang, dir
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="researcher@university.edu"
+                placeholder="name@example.com"
                 className={`w-full bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl py-2.5 text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none ${inputPaddingClass}`}
               />
             </div>

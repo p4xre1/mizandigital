@@ -62,15 +62,13 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
 
   return (
     <form onSubmit={handleResetPassword} className="space-y-4" dir="rtl">
-      {/* كلمة المرور الجديدة */}
+      {/* New Password */}
       <div>
-        <div className="flex justify-between items-center mb-1.5">
-          <label className="block text-xs font-semibold text-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-            كلمة المرور الجديدة
-          </label>
-        </div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          كلمة المرور الجديدة
+        </label>
         <div className="relative">
-          <Lock size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Lock size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             required
             minLength={8}
@@ -80,28 +78,26 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full pr-10 pl-10 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            className="w-full pr-10 pl-10 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
             dir="ltr"
           />
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
           >
-            {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+            {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
       </div>
 
-      {/* تأكيد كلمة المرور */}
+      {/* Confirm Password */}
       <div>
-        <div className="flex justify-between items-center mb-1.5">
-          <label className="block text-xs font-semibold text-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-            تأكيد كلمة المرور
-          </label>
-        </div>
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          تأكيد كلمة المرور
+        </label>
         <div className="relative">
-          <Lock size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Lock size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             required
             minLength={8}
@@ -111,19 +107,18 @@ export function ResetPasswordForm({ onSuccessReset, setGlobalError, setGlobalSuc
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full pr-10 pl-10 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            className="w-full pr-10 pl-10 py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors"
             dir="ltr"
           />
         </div>
       </div>
 
-      {(error || null) && <p className="text-xs text-red-500 text-center">{error}</p>}
+      {error && <p className="text-xs text-red-500 text-center font-medium">{error}</p>}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60"
-        style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
+        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60 shadow-sm active:scale-[0.99]"
       >
         {loading ? "جاري التحميل..." : "تحديث كلمة المرور"}
       </button>
