@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 
-// تحويل الـ SVG إلى مكوّن داخلي مرن يقبل التخصيص بالألوان والأحجام
+// Fallback placeholder SVG icon
 function FallbackIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -16,46 +16,48 @@ function FallbackIcon({ className }: { className?: string }) {
       <path d="m16 58 16-18 32 32" />
       <circle cx="53" cy="35" r="7" />
     </svg>
-  )
+  );
 }
 
 export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElement>) {
-  const { src, alt, style, className, onError, ...rest } = props
-  const [didError, setDidError] = useState(false)
+  const { src, alt, style, className, onError, loading = 'lazy', ...rest } = props;
+  const [didError, setDidError] = useState(false);
 
-  // تأثير جانبي لإعادة تفعيل محاولة التحميل فور تغير رابط الصورة
+  // Reset error state whenever the source image URL changes
   useEffect(() => {
-    setDidError(false)
-  }, [src])
+    setDidError(false);
+  }, [src]);
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    setDidError(true)
+    setDidError(true);
     if (onError) {
-      onError(e) // الحفاظ على إمكانية تتبع الخطأ خارجياً من المكون الأب
+      onError(e); // Preserve external error tracking from parent
     }
-  }
+  };
 
-  if (didError) {
+  // Render fallback if image failed or if src is missing
+  if (didError || !src) {
     return (
       <div
         className={`inline-flex items-center justify-center bg-muted/40 text-muted-foreground/50 dark:bg-zinc-800/50 dark:text-zinc-500 transition-colors ${className ?? ''}`}
         style={style}
         role="img"
-        aria-label={alt || 'Failed to load image'}
+        aria-label={alt || 'Image unavailable'}
       >
-        <FallbackIcon className="w-1/2 h-1/2 max-w-[48px] max-h-[48px] animate-pulse" />
+        <FallbackIcon className="w-1/2 h-1/2 max-w-[48px] max-h-[48px]" />
       </div>
-    )
+    );
   }
 
   return (
     <img
       src={src}
-      alt={alt}
+      alt={alt ?? ''}
       className={className}
       style={style}
+      loading={loading}
       onError={handleError}
       {...rest}
     />
-  )
+  );
 }
