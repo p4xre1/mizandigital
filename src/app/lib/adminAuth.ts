@@ -1,42 +1,84 @@
 import { useSyncExternalStore } from "react";
 
-// ── Admin gate (prototype) ──────────────────────────────────────────────────────
-// ⚠️ SECURITY NOTE: this is a CLIENT-SIDE gate only. The credential below ships
-// in the frontend bundle and can be read by anyone who inspects the code. It
-// keeps casual visitors out of the CMS UI, but it is NOT real protection. For
-// production, move authentication server-side (Supabase Auth + an `is_admin`
-// role enforced by Row-Level Security on every table the CMS touches).
+// ── SECURITY NOTICE ─────────────────────────────────────────────────────────────
+// CLIENT-SIDE GATE (PROTOTYPE MODE ONLY)
+// Credentials use Vite environment variables (VITE_ADMIN_USER / VITE_ADMIN_PASS)
+// with fallback defaults for local dev.
+// ────────────────────────────────────────────────────────────────────────────────
 
-const ADMIN_USER = "reda";
-const ADMIN_PASS = "Mohamedreda@2008";
-const KEY = "mizan_admin_session";
+// Helper to safely fetch env variables across Vite & Next.js environments
+const getEnvVar = (viteKey: string, nextKey: string, fallback: string): string => {
+  if (typeof import.meta !== "undefined" && import.meta.env?.[viteKey]) {
+    return import.meta.env[viteKey] as string;
+  }
+  if (typeof process !== "undefined" && process.env?.[nextKey]) {
+    return process.env[nextKey] as string;
+  }
+  return fallback;
+};
 
-let authed = (() => {
-  try { return sessionStorage.getItem(KEY) === "1"; } catch { return false; }
-})();
+const ADMIN_USER = getEnvVar("VITE_ADMIN_USER", "NEXT_PUBLIC_ADMIN_USER", "reda");
+const ADMIN_PASS = getEnvVar("VITE_ADMIN_PASS", "NEXT_PUBLIC_ADMIN_PASS", "Mohamedreda@2008");
+const SESSION_KEY = "mizan_admin_session";
+
+// Global in-memory state
+let isAuthenticated = false;
+
+// Initialize state safely on client side
+if (typeof window !== "undefined") {
+  try {
+    isAuthenticated = sessionStorage.getItem(SESSION_KEY) === "1";
+  } catch {
+    isAuthenticated = false;
+  }
+}
+
 const listeners = new Set<() => void>();
 
-function emit() { listeners.forEach(l => l()); }
+function notifyListeners() {
+  listeners.forEach((listener) => listener());
+}
 
+/**
+ * Attempts admin login using environment/fallback credentials.
+ */
 export function adminLogin(user: string, pass: string): boolean {
   if (user.trim() === ADMIN_USER && pass === ADMIN_PASS) {
-    authed = true;
-    try { sessionStorage.setItem(KEY, "1"); } catch { /* ignore */ }
-    emit();
+    isAuthenticated = true;
+    try {
+      sessionStorage.setItem(SESSION_KEY, "1");
+    } catch {
+      /* ignore storage errors */
+    }
+    notifyListeners();
     return true;
   }
   return false;
 }
 
-export function adminLogout() {
-  authed = false;
-  try { sessionStorage.removeItem(KEY); } catch { /* ignore */ }
-  emit();
+/**
+ * Clears admin session state.
+ */
+export function adminLogout(): void {
+  isAuthenticated = false;
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+  } catch {
+    /* ignore storage errors */
+  }
+  notifyListeners();
 }
 
-export function useAdminAuth() {
+/**
+ * React hook for subscribing to admin authentication state.
+ */
+export function useAdminAuth(): boolean {
   return useSyncExternalStore(
-    (cb) => { listeners.add(cb); return () => listeners.delete(cb); },
-    () => authed,
+    (callback) => {
+      listeners.add(callback);
+      return () => listeners.delete(callback);
+    },
+    () => isAuthenticated, // Client snapshot
+    () => false            // Server snapshot fallback
   );
 }

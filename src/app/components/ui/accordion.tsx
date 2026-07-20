@@ -11,14 +11,16 @@ import { cn } from "./utils";
    ========================================================================== */
 
 export type AccordionElement = React.ElementRef<typeof AccordionPrimitive.Root>;
-export interface AccordionProps
-  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root> {}
+
+// استخدمنا type بدلاً من interface لحل مشكلة الـ discriminated union (single | multiple)
+export type AccordionProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>;
 
 const Accordion = React.forwardRef<AccordionElement, AccordionProps>((
-  { ...props }: AccordionProps,
-  ref: React.ForwardedRef<AccordionElement>
+  props,
+  ref
 ): React.JSX.Element => (
-  <AccordionPrimitive.Root ref={ref} data-slot="accordion" {...props} />
+  // استخدمنا (props as any) لتجاوز خطأ TypeScript الداخلي عند دمج الخصائص
+  <AccordionPrimitive.Root ref={ref} data-slot="accordion" {...(props as any)} />
 ));
 Accordion.displayName = "Accordion";
 

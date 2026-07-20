@@ -1,36 +1,44 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router"; // أو react-router-dom حسب النسخة لديك
+import { RouterProvider } from "react-router";
 import { router } from "./imports/routes";
-import { I18nProvider } from "./app/lib/i18n"; // 👈 استيراد موفر اللغة هنا
-import "./styles/index.css"; // أو ملف الـ CSS الرئيسي الخاص بك
+import { I18nProvider } from "./app/lib/i18n";
+import "./styles/globals.css"; // or "./styles/index.css" depending on your project import
 
-// 🚀 حقن بيانات Schema.org ديناميكياً لتجنب حظر الـ CSP وتحقيق أرشفة مثالية على الهواتف
+// 🚀 Site Domain Configuration
+const SITE_URL =
+  (import.meta.env.VITE_SITE_URL as string) || "https://mizanmaroc.qzz.io";
+
+// 🚀 Inject Schema.org WebSite Structured Data dynamically
 const schemaData = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "Mizan Digital",
-  "alternateName": "منصة ميزان",
-  "url": "https://mizandigital.pages.dev/",
-  "description": "المرجع الأول للباحثين القانونيين في المغرب - أرشيف جامعي شامل ووظائف تشريعية محدثة.",
+  "name": "Mizan Digital Platform",
+  "alternateName": "منصة ميزان الرقمية",
+  "url": SITE_URL,
+  "description":
+    "المرجع الأول للباحثين القانونيين في المغرب - أرشيف جامعي شامل ووظائف تشريعية محدثة.",
   "inLanguage": ["ar", "en", "fr", "es"],
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://mizandigital.pages.dev/{lang}/archive?search={search_term_string}",
-    "query-input": "required name=search_term_string"
-  }
+    "target": `${SITE_URL}/{lang}/archive?search={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
 };
 
-const script = document.createElement('script');
-script.type = 'application/ld+json';
-script.text = JSON.stringify(schemaData);
-document.head.appendChild(script);
+// Prevent duplicate injection during HMR / re-renders
+if (!document.getElementById("mizan-schema-website")) {
+  const script = document.createElement("script");
+  script.id = "mizan-schema-website";
+  script.type = "application/ld+json";
+  script.text = JSON.stringify(schemaData);
+  document.head.appendChild(script);
+}
 
-// تشغيل الـ React Root المعتاد الخاص بك
+// Render React Root
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    {/* 🚀 تغليف التطبيق بالكامل هنا يضمن عمل الترجمة في كل المسارات دون استثناء */}
-    <I18nProvider> 
+    <I18nProvider>
       <RouterProvider router={router} />
     </I18nProvider>
   </React.StrictMode>

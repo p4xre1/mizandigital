@@ -1,61 +1,67 @@
-**Add your own guidelines here**
-<!--
+# ⚖️ Mizan Digital System & Development Guidelines
 
-System Guidelines
+This document serves as the single source of truth for architectural standards, code quality, UI/UX consistency, and design tokens across the **Mizan Digital Platform**.
 
-Use this file to provide the AI with rules and guidelines you want it to follow.
-This template outlines a few examples of things you can add. You can add your own sections and format it to suit your needs
+---
 
-TIP: More context isn't always better. It can confuse the LLM. Try and add the most important rules you need
+## 🌐 1. Internationalization & Bi-Directional (RTL/LTR) Rules
 
-# General guidelines
+* **Native Bilingual First:** Every new UI component or page **must** support both Arabic (`ar`) and English (`en`) via `useI18n()`.
+* **Directional Layouts:** Use CSS logical properties or conditional direction helpers. Avoid hardcoding `left-*` or `right-*` when positioning elements unless necessary.
+  * **Correct:** `ms-auto`, `me-2`, or conditional rotation `dir === 'rtl' ? 'rotate-180' : ''`.
+* **Typography Pairing:**
+  * **Arabic Headings:** `'Noto Serif Arabic', serif`
+  * **English Headings:** `'Playfair Display', serif`
+  * **Body Text:** Standard responsive sans-serif font stack configured via CSS variables.
 
-Any general rules you want the AI to follow.
-For example:
+---
 
-* Only use absolute positioning when necessary. Opt for responsive and well structured layouts that use flexbox and grid by default
-* Refactor code as you go to keep code clean
-* Keep file sizes small and put helper functions and components in their own files.
+## 🎨 2. Design Tokens & Styling (Tailwind CSS)
 
---------------
+* **Design Tokens over Arbitrary Colors:** Always use Tailwind semantic color tokens:
+  * Backgrounds: `bg-background`, `bg-card`, `bg-muted`
+  * Foregrounds: `text-foreground`, `text-muted-foreground`, `text-primary`
+  * Borders: `border-border`
+* **Layouts:**
+  * Default to `flex` and `grid` for all responsive layouts.
+  * Minimize absolute positioning (`absolute`) to prevent overlap issues in bilingual text wrapping.
+* **Component Roundness:** Use `rounded-xl` for standard cards and buttons, and `rounded-2xl` for large feature containers or modal dialogs.
 
-# Design system guidelines
-Rules for how the AI should make generations look like your company's design system
+---
 
-Additionally, if you select a design system to use in the prompt box, you can reference
-your design system's components, tokens, variables and components.
-For example:
+## 🔐 3. Authentication & Role-Based Access Control (RBAC)
 
-* Use a base font-size of 14px
-* Date formats should always be in the format “Jun 10”
-* The bottom toolbar should only ever have a maximum of 4 items
-* Never use the floating action button with the bottom toolbar
-* Chips should always come in sets of 3 or more
-* Don't use a dropdown if there are 2 or fewer options
+* **Auth Hooks:** Use `useRole()` for tier checks (`isPremium`, `tier`) and local Supabase session listeners for real-time auth sync.
+* **Type Narrowing:** Always verify `userId` is non-null before invoking API calls or state updates (e.g., passing explicit `activeUserId: string` to async callbacks).
+* **Feature Gating:**
+  * Wrap subscription-only tools or downloads inside `<MonetizationWrapper lockFeature={true}>`.
+  * Display a blurred preview wall with a clear call-to-action (CTA) to upgrade to Premium.
 
-You can also create sub sections and add more specific details
-For example:
+---
 
+## 💰 4. Monetization & Ad Standards
 
-## Button
-The Button component is a fundamental interactive element in our design system, designed to trigger actions or navigate
-users through the application. It provides visual feedback and clear affordances to enhance user experience.
+* **Fraud Protection & Ad Hydration:**
+  * Only load AdSense scripts dynamically on client-side (`typeof window !== 'undefined'`) using `requestIdleCallback` to protect performance.
+  * Automatically hide display ad slots for Premium users (`isPremium === true`).
+* **Credit Rewards System:**
+  * Ensure rewarded actions (e.g., watching video ads for bonus credits) update credit state gracefully with clear UI progress feedback.
 
-### Usage
-Buttons should be used for important actions that users need to take, such as form submissions, confirming choices,
-or initiating processes. They communicate interactivity and should have clear, action-oriented labels.
+---
 
-### Variants
-* Primary Button
-  * Purpose : Used for the main action in a section or page
-  * Visual Style : Bold, filled with the primary brand color
-  * Usage : One primary button per section to guide users toward the most important action
-* Secondary Button
-  * Purpose : Used for alternative or supporting actions
-  * Visual Style : Outlined with the primary color, transparent background
-  * Usage : Can appear alongside a primary button for less important actions
-* Tertiary Button
-  * Purpose : Used for the least important actions
-  * Visual Style : Text-only with no border, using primary color
-  * Usage : For actions that should be available but not emphasized
--->
+## ⚙️ 5. Component & Code Architecture
+
+* **TypeScript Strictness:**
+  * Avoid using loose `any` types except when bypassing complex third-party discriminated union spread issues (e.g., Radix primitives wrappers).
+  * Always define explicit React prop interfaces (`interface Props`) for UI components.
+* **Radix UI Primitives:** Wrap low-level components (Accordion, Dialog, Tooltip) with `React.forwardRef` and ensure accessible ARIA attributes are retained.
+* **Clean Code & Refactoring:**
+  * Keep file sizes small. Extract helper functions into `lib/` and reusable UI components into `components/ui/`.
+  * Remove redundant declarations or duplicated variables before committing code.
+
+---
+
+## 🚀 6. Cloudflare & SPA Edge Rules
+
+* **Single Page App Routing:** All routing logic must gracefully resolve via `./dist/index.html` as defined in `wrangler.json` (`not_found_handling: "single-page-application"`).
+* **Environment Variables:** Access client-side env variables exclusively via `import.meta.env.VITE_*`.
