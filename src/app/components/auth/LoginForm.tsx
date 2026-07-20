@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { useState } from "react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
-import { trackEvent } from "../../lib/analytics";
-import { isValidEmail, throttle } from "../../lib/security";
+import { isValidEmail } from "../../lib/security";
 import { useTurnstile } from "../../hooks/useTurnstile";
+import { useI18n, sansFont } from "../../lib/i18n";
 
 const TURNSTILE_SITE_KEY = "0x4AAAAAAD3-pbXQ2_GzbNGJ";
 
@@ -15,21 +14,21 @@ interface LoginFormProps {
   setGlobalSuccess: (message: string) => void;
 }
 
-export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuccess }: LoginFormProps) {
+export function LoginForm({
+  onSwitchTab,
+  onSuccess,
+  setGlobalError,
+  setGlobalSuccess,
+}: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const navigate = useNavigate();
-  const { captchaToken, resetCaptcha, renderTurnstile } = useTurnstile(TURNSTILE_SITE_KEY);
-
-  useEffect(() => {
-    setError("");
-    setGlobalError("");
-    setGlobalSuccess("");
-  }, [setGlobalError, setGlobalSuccess]);
+  const { lang, dir } = useI18n();
+  const { captchaToken, resetCaptcha, renderTurnstile } =
+    useTurnstile(TURNSTILE_SITE_KEY);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,24 +36,39 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
     setGlobalError("");
 
     if (!isValidEmail(email)) {
-      setError("عنوان البريد الإلكتروني غير صالح.");
-      return;
-    }
-
-    const wait = throttle("login", 3_000);
-    if (wait > 0) {
-      setError(`الرجاء الانتظار ${wait} ثانية قبل المحاولة مجدداً.`);
+      const msg =
+        lang === "ar"
+          ? "عنوان البريد الإلكتروني غير صالح."
+          : lang === "fr"
+          ? "Adresse email invalide."
+          : lang === "es"
+          ? "Correo electrónico no válido."
+          : "Invalid email address.";
+      setError(msg);
       return;
     }
 
     if (!captchaToken) {
-      setError("الرجاء إكمال التحقق الأمني أولاً.");
+      const msg =
+        lang === "ar"
+          ? "الرجاء إكمال التحقق الأمني أولاً."
+          : lang === "fr"
+          ? "Veuillez effectuer la vérification de sécurité."
+          : lang === "es"
+          ? "Por favor complete la verificación de seguridad."
+          : "Please complete security verification first.";
+      setError(msg);
       return;
     }
 
     setLoading(true);
+
     if (!isSupabaseConfigured) {
-      setError("Supabase غير مُهيّأ — أضف مفاتيح البيئة لتفعيل تسجيل الدخول.");
+      const msg =
+        lang === "ar"
+          ? "Supabase غير مُهيّأ — أضف مفاتيح البيئة لتفعيل تسجيل الدخول."
+          : "Supabase configuration is missing environment keys.";
+      setError(msg);
       setLoading(false);
       return;
     }
@@ -65,12 +79,30 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
         password,
         options: { captchaToken },
       });
+
       if (err) throw err;
-      trackEvent("login", { method: "email" });
+
+      setGlobalSuccess(
+        lang === "ar"
+          ? "تم تسجيل الدخول بنجاح!"
+          : lang === "fr"
+          ? "Connexion réussie !"
+          : lang === "es"
+          ? "¡Inicio de sesión exitoso!"
+          : "Signed in successfully!"
+      );
       onSuccess();
-      navigate("/");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "حدث خطأ. تحقق من بيانات الدخول.";
+      const fallbackMsg =
+        lang === "ar"
+          ? "فشل تسجيل الدخول. تحقق من بياناتك وحاول مجدداً."
+          : lang === "fr"
+          ? "Échec de la connexion. Vérifiez vos identifiants."
+          : lang === "es"
+          ? "Error al iniciar sesión. Verifique sus credenciales."
+          : "Failed to sign in. Check your credentials.";
+
+      const message = err instanceof Error ? err.message : fallbackMsg;
       setError(message);
       setGlobalError(message);
       resetCaptcha();
@@ -80,83 +112,174 @@ export function LoginForm({ onSwitchTab, onSuccess, setGlobalError, setGlobalSuc
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-4" dir="rtl">
+    <form
+      onSubmit={handleLogin}
+      className="space-y-4"
+      dir={dir}
+      style={{ fontFamily: sansFont(lang) }}
+    >
       <div>
-        <label className="block text-xs font-semibold text-foreground mb-1.5" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-          البريد الإلكتروني
+        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+          {lang === "ar" && "البريد الإلكتروني"}
+          {lang === "fr" && "Adresse e-mail"}
+          {lang === "en" && "Email address"}
+          {lang === "es" && "Correo electrónico"}
         </label>
         <div className="relative">
-          <Mail size={15} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Mail
+            size={16}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
+              dir === "rtl" ? "right-3.5" : "left-3.5"
+            }`}
+          />
           <input
             required
             type="email"
-            autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
-            className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            placeholder="name@example.com"
+            className={`w-full py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors ${
+              dir === "rtl" ? "pr-10 pl-3.5" : "pl-10 pr-3.5"
+            }`}
             dir="ltr"
           />
         </div>
       </div>
 
       <div>
-        <div className="flex justify-between items-center mb-1.5">
-          <label className="block text-xs font-semibold text-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-            كلمة المرور
+        <div className="flex items-center justify-between mb-1.5">
+          <label className="block text-xs font-semibold text-slate-700">
+            {lang === "ar" && "كلمة المرور"}
+            {lang === "fr" && "Mot de passe"}
+            {lang === "en" && "Password"}
+            {lang === "es" && "Contraseña"}
           </label>
           <button
             type="button"
             onClick={() => onSwitchTab("forgot")}
-            className="text-[11px] text-primary hover:underline"
-            style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
+            className="text-[11px] text-primary hover:underline font-medium"
           >
-            نسيت كلمة المرور؟
+            {lang === "ar" && "نسيت كلمة المرور؟"}
+            {lang === "fr" && "Mot de passe oublié ?"}
+            {lang === "en" && "Forgot password?"}
+            {lang === "es" && "¿Olvidaste tu contraseña?"}
           </button>
         </div>
         <div className="relative">
-          <Lock size={15} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Lock
+            size={16}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
+              dir === "rtl" ? "right-3.5" : "left-3.5"
+            }`}
+          />
           <input
             required
-            maxLength={128}
             type={showPass ? "text" : "password"}
-            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full pr-10 pl-10 py-2.5 text-sm border border-border rounded-xl bg-gray-50 focus:outline-none focus:border-primary transition-colors"
+            className={`w-full py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors ${
+              dir === "rtl" ? "pr-10 pl-10" : "pl-10 pr-10"
+            }`}
             dir="ltr"
           />
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 ${
+              dir === "rtl" ? "left-3.5" : "right-3.5"
+            }`}
           >
-            {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
+            {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
       </div>
 
-      <div className="flex justify-center my-4" dir="ltr">
-        {renderTurnstile(() => setError("فشل التحقق الأمني. الرجاء المحاولة مجدداً."))}
+      <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
+        {renderTurnstile(() =>
+          setError(
+            lang === "ar"
+              ? "فشل التحقق الأمني. الرجاء المحاولة مجدداً."
+              : "Security verification failed. Please try again."
+          )
+        )}
       </div>
 
-      {error && <p className="text-xs text-red-500 text-center">{error}</p>}
+      {error && (
+        <p className="text-xs text-red-500 text-center font-medium">{error}</p>
+      )}
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60"
-        style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}
+        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60 shadow-sm active:scale-[0.99]"
       >
-        {loading ? "جاري التحميل..." : "دخول"}
+        {loading
+          ? lang === "ar"
+            ? "جاري تسجيل الدخول..."
+            : lang === "fr"
+            ? "Connexion en cours..."
+            : lang === "es"
+            ? "Iniciando sesión..."
+            : "Signing in..."
+          : lang === "ar"
+          ? "تسجيل الدخول"
+          : lang === "fr"
+          ? "Se connecter"
+          : lang === "es"
+          ? "Iniciar sesión"
+          : "Sign In"}
       </button>
 
-      <p className="text-center text-xs text-muted-foreground mt-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-        ليس لديك حساب؟{' '}
-        <button type="button" className="text-primary hover:underline font-semibold" onClick={() => onSwitchTab("signup")}>
-          إنشاء حساب جديد
-        </button>
+      <p className="text-center text-xs text-slate-500 mt-4">
+        {lang === "ar" && (
+          <>
+            ليس لديك حساب؟{" "}
+            <button
+              type="button"
+              className="text-blue-600 hover:underline font-bold"
+              onClick={() => onSwitchTab("signup")}
+            >
+              إنشاء حساب جديد
+            </button>
+          </>
+        )}
+        {lang === "fr" && (
+          <>
+            Vous n'avez pas de compte ?{" "}
+            <button
+              type="button"
+              className="text-blue-600 hover:underline font-bold"
+              onClick={() => onSwitchTab("signup")}
+            >
+              S'inscrire
+            </button>
+          </>
+        )}
+        {lang === "en" && (
+          <>
+            Don't have an account?{" "}
+            <button
+              type="button"
+              className="text-blue-600 hover:underline font-bold"
+              onClick={() => onSwitchTab("signup")}
+            >
+              Create account
+            </button>
+          </>
+        )}
+        {lang === "es" && (
+          <>
+            ¿No tienes una cuenta?{" "}
+            <button
+              type="button"
+              className="text-blue-600 hover:underline font-bold"
+              onClick={() => onSwitchTab("signup")}
+            >
+              Crear cuenta
+            </button>
+          </>
+        )}
       </p>
     </form>
   );

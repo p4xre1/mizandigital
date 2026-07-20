@@ -87,7 +87,7 @@ export function Navbar() {
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="القائمة الرئيسية"
-          className="md:hidden min-h-[48px] min-w-[48px] flex items-center justify-center rounded-lg bg-slate-100 text-slate-700 active:bg-slate-200 transition-colors"
+          className="md:hidden min-h-[48px] min-w-[48px] flex items-center justify-center rounded-lg bg-slate-100 text-slate-700 active:bg-slate-200 transition-colors cursor-pointer"
         >
           {isMobileMenuOpen ? (
             <span className="text-2xl font-bold">✕</span>
