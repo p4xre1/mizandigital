@@ -53,7 +53,7 @@ export function useLocalizedPath() {
   return (path: string) => buildLocalizedPath(path, lang);
 }
 
-// ── Translation dictionary ────────────────────────────────────────────────────
+// ── Translation Dictionary ────────────────────────────────────────────────────
 type Dict = Record<string, Record<Lang, string>>;
 
 export const T: Dict = {
@@ -72,6 +72,7 @@ export const T: Dict = {
   brand_full: { ar: "منصة ميزان", fr: "Plateforme Mizan", en: "Mizan Platform", es: "Plataforma Mizan" },
   footer_tagline: { ar: "المجلة القانونية الرقمية الأولى في المغرب. أرشيف جامعي، وثائق تشريعية، وأحكام قضائية.", fr: "Le premier journal juridique numérique du Maroc. Archives universitaires, textes législatifs et jurisprudence.", en: "Morocco's leading digital legal journal. University archives, legislative texts, and case law.", es: "La principal revista jurídica digital de Marruecos. Archivos universitarios, textos legislativos y jurisprudencia." },
   sponsors_heading: { ar: "بدعم من شركائنا المؤسساتيين", fr: "Avec le soutien de nos partenaires institutionnels", en: "Supported by our institutional partners", es: "Con el apoyo de nuestros socios institucionales" },
+  
   // Hero
   hero_badge: { ar: "المجلة القانونية الرقمية · 2026", fr: "Journal Juridique Numérique · 2026", en: "Digital Legal Journal · 2026", es: "Revista Jurídica Digital · 2026" },
   hero_title: { ar: "المرجع الأول للباحثين القانونيين في المغرب", fr: "La référence des chercheurs en droit au Maroc", en: "The leading reference for legal researchers in Morocco", es: "La referencia de los investigadores jurídicos en Marruecos" },
@@ -81,6 +82,7 @@ export const T: Dict = {
   profile: { ar: "الملف الشخصي", fr: "Profil", en: "Profile", es: "Perfil" },
   logout: { ar: "تسجيل الخروج", fr: "Déconnexion", en: "Sign Out", es: "Cerrar sesión" },
   semesters: { ar: "الفصول الدراسية", fr: "Semestres", en: "Semesters", es: "Semestres" },
+  
   // Profile
   dashboard: { ar: "لوحة التحكم", fr: "Tableau de bord", en: "Dashboard", es: "Panel" },
   liked_articles: { ar: "المقالات المُعجب بها", fr: "Articles aimés", en: "Liked Articles", es: "Artículos gustados" },
@@ -92,6 +94,7 @@ export const T: Dict = {
   short_bio: { ar: "نبذة شخصية", fr: "Biographie", en: "Short Bio", es: "Biografía" },
   danger_zone: { ar: "منطقة الخطر", fr: "Zone de danger", en: "Danger Zone", es: "Zona de peligro" },
   delete_account: { ar: "حذف الحساب نهائياً", fr: "Supprimer le compte", en: "Delete Account Permanently", es: "Eliminar cuenta" },
+  
   // Footer / legal
   privacy: { ar: "سياسة الخصوصية", fr: "Confidentialité", en: "Privacy Policy", es: "Privacidad" },
   terms: { ar: "شروط الاستخدام", fr: "Conditions d'utilisation", en: "Terms of Use", es: "Términos de uso" },
@@ -99,11 +102,13 @@ export const T: Dict = {
   sitemap: { ar: "خريطة الموقع", fr: "Plan du site", en: "Site Map", es: "Mapa del sitio" },
   partners: { ar: "الشركاء", fr: "Partenaires", en: "Partners", es: "Socios" },
   toggle_theme: { ar: "الوضع الليلي", fr: "Thème", en: "Theme", es: "Tema" },
+  
   // Home stats
   stat_documents: { ar: "وثيقة قانونية", fr: "documents juridiques", en: "legal documents", es: "documentos jurídicos" },
   stat_universities: { ar: "جامعة مغربية", fr: "universités marocaines", en: "Moroccan universities", es: "universidades marroquíes" },
   stat_rulings: { ar: "حكم قضائي", fr: "décisions de justice", en: "court rulings", es: "sentencias judiciales" },
   stat_researchers: { ar: "باحث مسجّل", fr: "chercheurs inscrits", en: "registered researchers", es: "investigadores registrados" },
+  
   // Home sections
   latest_articles: { ar: "أحدث المقالات", fr: "Derniers articles", en: "Latest Articles", es: "Últimos artículos" },
   view_all: { ar: "عرض الكل", fr: "Voir tout", en: "View All", es: "Ver todo" },
@@ -119,6 +124,7 @@ export const T: Dict = {
   reads: { ar: "قراءة", fr: "lectures", en: "reads", es: "lecturas" },
   time_hours_ago: { ar: "منذ {n} ساعة", fr: "il y a {n} h", en: "{n}h ago", es: "hace {n} h" },
   time_days_ago: { ar: "منذ {n} يوم", fr: "il y a {n} j", en: "{n}d ago", es: "hace {n} d" },
+  
   // Law schools directory
   nav_schools: { ar: "كليات الحقوق", fr: "Facultés de droit", en: "Law Schools", es: "Facultades de derecho" },
   schools_title: { ar: "دليل كليات الحقوق بالمغرب", fr: "Annuaire des facultés de droit au Maroc", en: "Directory of Moroccan Law Schools", es: "Directorio de facultades de derecho de Marruecos" },
@@ -131,6 +137,7 @@ export const T: Dict = {
   school_articles: { ar: "المواد المرتبطة", fr: "Documents liés", en: "Related Documents", es: "Documentos relacionados" },
   back_to_schools: { ar: "العودة إلى الدليل", fr: "Retour à l'annuaire", en: "Back to Directory", es: "Volver al directorio" },
   search_schools: { ar: "ابحث عن كلية أو مدينة...", fr: "Rechercher une faculté ou ville...", en: "Search a school or city...", es: "Buscar una facultad o ciudad..." },
+  
   // Admin CMS
   admin_panel: { ar: "لوحة تحكم الإدارة", fr: "Panneau d'administration", en: "Admin Dashboard", es: "Panel de administración" },
   admin_overview: { ar: "نظرة عامة", fr: "Vue d'ensemble", en: "Overview", es: "Resumen" },
@@ -158,45 +165,93 @@ export const T: Dict = {
   admin_confirm_delete: { ar: "هل أنت متأكد من الحذف؟ لا يمكن التراجع.", fr: "Confirmer la suppression ? Action irréversible.", en: "Confirm deletion? This cannot be undone.", es: "¿Confirmar la eliminación? No se puede deshacer." },
 };
 
-// ── Font helpers (Arabic uses Noto; Latin scripts use Playfair/Inter) ───────────
+// ── Font Helpers ─────────────────────────────────────────────────────────────
 export const serifFont = (lang: Lang) =>
   lang === "ar" ? "'Noto Serif Arabic', serif" : "'Playfair Display', 'Noto Serif Arabic', serif";
 export const sansFont = (lang: Lang) =>
   lang === "ar" ? "'Noto Sans Arabic', sans-serif" : "'Inter', 'Noto Sans Arabic', sans-serif";
 
-// ── Context ───────────────────────────────────────────────────────────────────
+// ── Context & Provider ─────────────────────────────────────────────────────────
 interface I18nCtx {
   lang: Lang;
   dir: "rtl" | "ltr";
   theme: Theme;
   setLang: (l: Lang) => void;
   setTheme: (t: Theme) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const Ctx = createContext<I18nCtx | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => (localStorage.getItem("mizan_lang") as Lang) || "ar");
-  const [theme, setThemeState] = useState<Theme>(() => (localStorage.getItem("mizan_theme") as Theme) || "light");
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("mizan_lang") as Lang;
+        if (SUPPORTED_LANGS.includes(saved)) return saved;
+        return getPreferredBrowserLanguage();
+      } catch {
+        /* ignore storage error */
+      }
+    }
+    return "ar";
+  });
 
-  const dir = LANGS.find(l => l.code === lang)?.dir || "rtl";
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("mizan_theme") as Theme;
+        if (saved === "light" || saved === "dark") return saved;
+      } catch {
+        /* ignore storage error */
+      }
+    }
+    return "light";
+  });
+
+  const dir = LANGS.find((l) => l.code === lang)?.dir || "rtl";
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = dir;
-    localStorage.setItem("mizan_lang", lang);
+    try {
+      localStorage.setItem("mizan_lang", lang);
+    } catch {
+      /* ignore */
+    }
   }, [lang, dir]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("mizan_theme", theme);
+    try {
+      localStorage.setItem("mizan_theme", theme);
+    } catch {
+      /* ignore */
+    }
   }, [theme]);
 
-  const t = (key: string) => T[key]?.[lang] ?? key;
+  // Helper with parameter replacement support (e.g. {n})
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    let text = T[key]?.[lang] ?? key;
+    if (params) {
+      Object.entries(params).forEach(([paramKey, value]) => {
+        text = text.replace(new RegExp(`\\{${paramKey}\\}`, "g"), String(value));
+      });
+    }
+    return text;
+  };
 
   return (
-    <Ctx.Provider value={{ lang, dir, theme, setLang: setLangState, setTheme: setThemeState, t }}>
+    <Ctx.Provider
+      value={{
+        lang,
+        dir,
+        theme,
+        setLang: setLangState,
+        setTheme: setThemeState,
+        t,
+      }}
+    >
       {children}
     </Ctx.Provider>
   );
