@@ -174,7 +174,7 @@ export default function Library() {
           {t("library")}
         </h1>
         <p
-          className="text-muted-foreground text-sm"
+          className="text-slate-600 dark:text-slate-300 text-sm"
           style={{ fontFamily: sansFont(lang) }}
         >
           {lang === "ar" && `تصفّح ${activeCategoryObj.count}+ وثيقة قانونية مصنّفة حسب الفرع`}
@@ -187,53 +187,64 @@ export default function Library() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar filters */}
         <aside className="lg:w-56 shrink-0">
-          <div className="bg-white border border-border rounded-xl p-4 sticky top-24">
+          <div className="bg-white dark:bg-slate-900 border border-border rounded-xl p-4 sticky top-24 shadow-sm">
             <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border">
-              <Filter size={14} className="text-primary" />
-              <span
+              <Filter size={16} className="text-primary" aria-hidden="true" />
+              <h2
                 className="text-sm font-bold text-foreground"
                 style={{ fontFamily: serifFont(lang) }}
               >
                 {t("categories")}
-              </span>
+              </h2>
             </div>
-            <nav className="space-y-1">
-              {CATEGORIES.map((cat) => (
-                <Link
-                  key={cat.slug}
-                  to={cat.slug === "all" ? "/library" : `/library/${cat.slug}`}
-                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                    activeCategory === cat.slug
-                      ? "bg-accent text-primary font-semibold"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                  style={{ fontFamily: sansFont(lang) }}
-                >
-                  <span>{cat.label[lang] || cat.label.ar}</span>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    {cat.count}
-                  </span>
-                </Link>
-              ))}
+            <nav aria-label={t("categories")} className="space-y-1">
+              {CATEGORIES.map((cat) => {
+                const isActive = activeCategory === cat.slug;
+                return (
+                  <Link
+                    key={cat.slug}
+                    to={cat.slug === "all" ? "/library" : `/library/${cat.slug}`}
+                    aria-current={isActive ? "page" : undefined}
+                    className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                      isActive
+                        ? "bg-blue-50 dark:bg-blue-950/50 text-blue-900 dark:text-blue-200 font-semibold border border-blue-200 dark:border-blue-800"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    }`}
+                    style={{ fontFamily: sansFont(lang) }}
+                  >
+                    <span>{cat.label[lang] || cat.label.ar}</span>
+                    <span className="text-xs text-slate-500 font-mono font-medium">
+                      {cat.count}
+                    </span>
+                  </Link>
+                );
+              })}
             </nav>
           </div>
         </aside>
 
-        {/* Content */}
+        {/* Main Content */}
         <div className="flex-1">
-          {/* Search bar */}
+          {/* Search Bar with Accessibility Label */}
           <div className="relative mb-6">
+            <label htmlFor="library-search-input" className="sr-only">
+              {t("searchPlaceholder")}
+            </label>
             <Search
-              size={16}
-              className={`absolute top-1/2 -translate-y-1/2 text-muted-foreground ${
+              size={18}
+              className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
                 dir === "rtl" ? "right-4" : "left-4"
               }`}
+              aria-hidden="true"
             />
             <input
+              id="library-search-input"
+              type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t("searchPlaceholder")}
-              className={`w-full py-3 border border-border rounded-xl bg-white text-sm focus:outline-none focus:border-primary transition-colors ${
+              aria-label={t("searchPlaceholder")}
+              className={`w-full py-3 border border-border rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary transition-colors ${
                 dir === "rtl" ? "pr-11 pl-4" : "pl-11 pr-4"
               }`}
               style={{ fontFamily: sansFont(lang) }}
@@ -245,13 +256,13 @@ export default function Library() {
               {[...Array(4)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-32 rounded-xl bg-gray-100 animate-pulse"
+                  className="h-32 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse"
                 />
               ))}
             </div>
           ) : filtered.length === 0 ? (
             <div
-              className="text-center py-20 text-muted-foreground"
+              className="text-center py-20 text-slate-500 dark:text-slate-400 text-sm"
               style={{ fontFamily: sansFont(lang) }}
             >
               {t("noResults")}
@@ -261,66 +272,68 @@ export default function Library() {
               {filtered.map((article) => (
                 <article
                   key={article.id}
-                  className="bg-white border border-border rounded-xl p-5 hover:shadow-sm hover:border-blue-200 transition-all"
+                  className="bg-white dark:bg-slate-900 border border-border rounded-xl p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all"
                 >
-                  <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-accent text-primary border border-blue-100">
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                           {article.category}
                         </span>
                         {article.pdf_url && (
-                          <span className="text-[11px] text-green-600 flex items-center gap-1 font-medium">
-                            <FileText size={10} /> PDF
+                          <span className="text-xs text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+                            <FileText size={12} aria-hidden="true" /> PDF
                           </span>
                         )}
                       </div>
                       <Link to={`/article/${article.slug}`}>
                         <h3
-                          className="text-base font-bold text-foreground hover:text-primary transition-colors mb-1"
+                          className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 hover:text-primary transition-colors mb-2"
                           style={{ fontFamily: serifFont(lang) }}
                         >
                           {article.title}
                         </h3>
                       </Link>
                       <p
-                        className="text-sm text-muted-foreground line-clamp-2 mb-3"
+                        className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 mb-3"
                         style={{ fontFamily: sansFont(lang) }}
                       >
                         {article.excerpt}
                       </p>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
-                          <Clock size={11} />
+                          <Clock size={12} aria-hidden="true" />
                           {new Date(article.created_at).toLocaleDateString(
                             lang === "ar" ? "ar-MA" : lang
                           )}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Eye size={11} />
+                          <Eye size={12} aria-hidden="true" />
                           {article.views.toLocaleString()}
                         </span>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2 shrink-0">
+
+                    <div className="flex sm:flex-col gap-2 shrink-0 pt-2 sm:pt-0">
                       <Link
                         to={`/article/${article.slug}`}
-                        className="px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
+                        className="px-4 py-2.5 bg-blue-900 dark:bg-blue-600 hover:bg-blue-950 dark:hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1 min-h-[40px]"
                         style={{ fontFamily: sansFont(lang) }}
                       >
                         {t("read")}
                         <ArrowRight
-                          size={11}
+                          size={12}
                           className={dir === "rtl" ? "rotate-180" : ""}
+                          aria-hidden="true"
                         />
                       </Link>
                       {article.pdf_url && (
                         <a
                           href={article.pdf_url}
-                          className="px-3 py-1.5 border border-border text-xs text-muted-foreground rounded-lg hover:border-primary hover:text-primary transition-colors flex items-center gap-1"
+                          className="px-4 py-2.5 border border-border text-xs text-slate-700 dark:text-slate-200 hover:border-primary hover:text-primary rounded-lg transition-colors flex items-center justify-center gap-1 font-medium min-h-[40px]"
                           style={{ fontFamily: sansFont(lang) }}
                         >
-                          <Download size={11} /> PDF
+                          <Download size={12} aria-hidden="true" /> PDF
                         </a>
                       )}
                     </div>

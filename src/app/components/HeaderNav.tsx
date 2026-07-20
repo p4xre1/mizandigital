@@ -134,13 +134,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   return (
     <>
       <header
-        className="w-full border-b border-border bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 shadow-xs"
+        className="w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 shadow-xs"
         dir={dir}
       >
-        {/* ── Top Institutional Utility Bar ───────────────────────────────── */}
-        <div className="border-b border-border/60 bg-slate-50 dark:bg-slate-800/50 text-xs py-1.5 px-4 md:px-8 flex justify-between items-center">
-          <div className="font-bold text-muted-foreground flex items-center gap-2 text-[11px]">
-            <ShieldCheck size={14} className="text-amber-600 dark:text-amber-500" />
+        {/* Top Institutional Utility Bar */}
+        <div className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/80 text-xs py-1.5 px-4 md:px-8 flex justify-between items-center">
+          <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 text-xs">
+            <ShieldCheck size={16} className="text-amber-700 dark:text-amber-400" />
             <span style={{ fontFamily: currentLang === "ar" ? "var(--font-serif-ar)" : "inherit" }}>
               {currentLang === "ar" ? "الحق · العدل · الميزان" : "Veritas · Justitia · Libra"}
             </span>
@@ -148,17 +148,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
           <div className="flex items-center gap-3">
             {/* Language Selector */}
-            <div className="flex items-center gap-1 bg-background border border-border rounded-lg p-0.5 shadow-xs">
-              <Globe size={12} className="mx-1 text-muted-foreground" />
+            <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-0.5 shadow-xs">
+              <Globe size={14} className="mx-1 text-slate-600 dark:text-slate-400" aria-hidden="true" />
               {(["ar", "fr", "en", "es"] as Locale[]).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => onLanguageChange(lang)}
-                  className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold transition-all cursor-pointer ${
+                  className={`px-2 py-0.5 rounded text-xs uppercase font-bold transition-all cursor-pointer ${
                     currentLang === lang
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-blue-900 text-white dark:bg-blue-600 shadow-xs"
+                      : "text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
                   }`}
+                  aria-label={`Switch to ${lang}`}
                 >
                   {lang === "ar" ? "العربية" : lang === "fr" ? "FR" : lang === "en" ? "EN" : "ES"}
                 </button>
@@ -168,29 +169,29 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {/* Theme Toggle Button */}
             <button
               onClick={onToggleTheme}
-              className="p-1.5 rounded-lg border border-border bg-background text-muted-foreground hover:text-foreground transition shadow-xs cursor-pointer"
-              aria-label="Toggle Theme"
+              className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 transition shadow-xs cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {isDarkMode ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
+              {isDarkMode ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} />}
             </button>
           </div>
         </div>
 
-        {/* ── Main Navigation Header ────────────────────────────────────────── */}
+        {/* Main Navigation Header */}
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
           {/* Brand Logo */}
           <a href={getPath("/")} className="flex items-center gap-3 group shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-blue-900 dark:bg-blue-700 text-white flex items-center justify-center font-black text-xl shadow-md group-hover:scale-105 transition-transform">
               ⚖️
             </div>
             <div className="flex flex-col">
               <span
-                className="text-lg font-black tracking-tight text-foreground leading-tight"
+                className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-tight"
                 style={{ fontFamily: currentLang === "ar" ? "var(--font-serif-ar)" : "var(--font-serif-en)" }}
               >
                 {currentLang === "ar" ? "منصة ميزان" : "MIZAN PLATFORM"}
               </span>
-              <span className="text-[9px] tracking-widest text-muted-foreground uppercase font-bold">
+              <span className="text-xs tracking-wider text-slate-600 dark:text-slate-400 uppercase font-semibold">
                 Digital Legal Archive
               </span>
             </div>
@@ -198,18 +199,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
           {/* Desktop Navigation Links & User Profile */}
           <div className="hidden lg:flex items-center gap-6">
-            <nav className="flex items-center gap-5 text-xs font-semibold text-muted-foreground">
+            <nav aria-label="Main Navigation" className="flex items-center gap-6 text-sm font-semibold text-slate-800 dark:text-slate-200">
               {currentNavItems.map((item, idx) => (
                 <div key={idx} className="relative group py-2">
                   <a
                     href={getPath(item.href)}
-                    className="flex items-center gap-1 hover:text-primary transition-colors py-1"
+                    className="flex items-center gap-1 hover:text-blue-900 dark:hover:text-blue-400 transition-colors py-1"
                   >
                     <span>{item.label}</span>
                     {item.dropdown && (
                       <ChevronDown
-                        size={12}
-                        className="opacity-70 group-hover:rotate-180 transition-transform"
+                        size={14}
+                        className="opacity-80 group-hover:rotate-180 transition-transform"
                       />
                     )}
                   </a>
@@ -218,16 +219,16 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     <div
                       className={`absolute top-full ${
                         dir === "rtl" ? "right-0" : "left-0"
-                      } hidden group-hover:block w-56 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-1`}
+                      } hidden group-hover:block w-60 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-1`}
                     >
-                      <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-3 py-1 border-b border-border/50 mb-1">
+                      <div className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 px-3 py-1 border-b border-slate-200 dark:border-slate-800 mb-1">
                         {item.label}
                       </div>
                       {item.dropdown.map((subItem, subIdx) => (
                         <a
                           key={subIdx}
                           href={getPath(subItem.href)}
-                          className="block px-3 py-2 rounded-lg text-xs text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary font-medium transition-colors"
+                          className="block px-3 py-2 rounded-lg text-xs text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-900 dark:hover:text-blue-400 font-medium transition-colors"
                         >
                           {subItem.label}
                         </a>
@@ -238,22 +239,22 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               ))}
             </nav>
 
-            {/* User Sign-In Button Trigger */}
+            {/* User Sign-In Button */}
             {isAuthenticated ? (
               <a
                 href={getPath("/profile")}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-95 transition shadow-xs"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold hover:opacity-95 transition shadow-xs min-h-[44px]"
               >
-                <User size={14} />
+                <User size={16} />
                 <span>{userName || (currentLang === "ar" ? "حسابي" : "My Profile")}</span>
               </a>
             ) : (
               <button
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-95 transition shadow-xs cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold hover:opacity-95 transition shadow-xs cursor-pointer min-h-[44px]"
               >
-                <User size={14} />
+                <User size={16} />
                 <span>{currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
               </button>
             )}
@@ -262,22 +263,28 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl border border-border text-muted-foreground hover:text-foreground cursor-pointer"
-            aria-label="Toggle Menu"
+            className="lg:hidden p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-h-[48px] min-w-[48px] flex items-center justify-center"
+            aria-label={mobileMenuOpen ? "Close Menu" : "Open Menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-header-nav"
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
 
-        {/* ── Mobile Navigation Drawer ──────────────────────────────────────── */}
+        {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-border bg-white dark:bg-slate-900 px-6 py-4 space-y-4 shadow-xl">
+          <div
+            id="mobile-header-nav"
+            className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4 space-y-4 shadow-xl"
+          >
             <nav className="space-y-3">
               {currentNavItems.map((item, idx) => (
                 <div key={idx} className="space-y-1">
                   <a
                     href={getPath(item.href)}
-                    className="block font-bold text-sm text-foreground hover:text-primary"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block font-bold text-sm text-slate-900 dark:text-white hover:text-blue-900 py-1"
                   >
                     {item.label}
                   </a>
@@ -287,7 +294,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                         <a
                           key={sIdx}
                           href={getPath(sub.href)}
-                          className="block text-xs text-muted-foreground hover:text-foreground py-1"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block text-xs text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white py-1.5"
                         >
                           • {sub.label}
                         </a>
@@ -301,9 +309,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {isAuthenticated ? (
               <a
                 href={getPath("/profile")}
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold min-h-[48px]"
               >
-                <User size={14} />
+                <User size={16} />
                 <span>{userName || (currentLang === "ar" ? "حسابي" : "My Profile")}</span>
               </a>
             ) : (
@@ -313,9 +322,9 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                   setMobileMenuOpen(false);
                   setIsAuthModalOpen(true);
                 }}
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold cursor-pointer"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold cursor-pointer min-h-[48px]"
               >
-                <User size={14} />
+                <User size={16} />
                 <span>{currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
               </button>
             )}
@@ -323,7 +332,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         )}
       </header>
 
-      {/* Auth Modal Trigger */}
+      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

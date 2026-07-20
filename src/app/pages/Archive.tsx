@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
-import { GraduationCap, Filter, ArrowRight, FileText, Download } from "lucide-react";
+import { GraduationCap, Filter, ArrowRight, Download, BookOpen } from "lucide-react";
 import { getArticles, type Article } from "../lib/supabase";
+import { useLocalizedPath, useI18n, serifFont, sansFont } from "../lib/i18n";
 
 const UNIVERSITIES = [
-  { slug: "all", label: "كل الجامعات" },
-  { slug: "um5", label: "محمد الخامس — الرباط" },
-  { slug: "uh2", label: "الحسن الثاني — الدار البيضاء" },
-  { slug: "uqa", label: "القاضي عياض — مراكش" },
-  { slug: "umo", label: "محمد الأول — وجدة" },
-  { slug: "usa", label: "ابن طفيل — القنيطرة" },
-  { slug: "uab", label: "عبد المالك السعدي — تطوان" },
+  { slug: "all", labelAr: "كل الجامعات", labelEn: "All Universities" },
+  { slug: "um5", labelAr: "محمد الخامس — الرباط", labelEn: "Mohammed V — Rabat" },
+  { slug: "uh2", labelAr: "الحسن الثاني — الدار البيضاء", labelEn: "Hassan II — Casablanca" },
+  { slug: "uqa", labelAr: "القاضي عياض — مراكش", labelEn: "Cadi Ayyad — Marrakech" },
+  { slug: "umo", labelAr: "محمد الأول — وجدة", labelEn: "Mohammed I — Oujda" },
+  { slug: "usa", labelAr: "ابن طفيل — القنيطرة", labelEn: "Ibn Tofail — Kenitra" },
+  { slug: "uab", labelAr: "عبد المالك السعدي — تطوان", labelEn: "Abdelmalek Essaâdi — Tetouan" },
 ];
 
 const SEMESTERS = [
-  { slug: "all", label: "كل الفصول" },
-  { slug: "s1", label: "الفصل الأول S1" },
-  { slug: "s2", label: "الفصل الثاني S2" },
-  { slug: "s3", label: "الفصل الثالث S3" },
-  { slug: "s4", label: "الفصل الرابع S4" },
-  { slug: "s5", label: "الفصل الخامس S5" },
-  { slug: "s6", label: "الفصل السادس S6" },
+  { slug: "all", labelAr: "كل الفصول", labelEn: "All Semesters" },
+  { slug: "s1", labelAr: "الفصل الأول S1", labelEn: "Semester 1 (S1)" },
+  { slug: "s2", labelAr: "الفصل الثاني S2", labelEn: "Semester 2 (S2)" },
+  { slug: "s3", labelAr: "الفصل الثالث S3", labelEn: "Semester 3 (S3)" },
+  { slug: "s4", labelAr: "الفصل الرابع S4", labelEn: "Semester 4 (S4)" },
+  { slug: "s5", labelAr: "الفصل الخامس S5", labelEn: "Semester 5 (S5)" },
+  { slug: "s6", labelAr: "الفصل السادس S6", labelEn: "Semester 6 (S6)" },
 ];
 
 const MOCK: Article[] = [
@@ -32,6 +33,8 @@ const MOCK: Article[] = [
 
 export default function Archive() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const localizedPath = useLocalizedPath();
+  const { lang, dir, t } = useI18n();
   const [articles, setArticles] = useState<Article[]>(MOCK);
   const [loading, setLoading] = useState(false);
 
@@ -56,90 +59,179 @@ export default function Archive() {
       .finally(() => setLoading(false));
   }, [university, semester]);
 
-  const filtered = articles.filter(a =>
-    (university === "all" || a.university?.includes(UNIVERSITIES.find(u => u.slug === university)?.label?.split("—")[0].trim() || "")) &&
-    (semester === "all" || a.semester === semester)
-  );
+  const filtered = articles.filter(a => {
+    const univObj = UNIVERSITIES.find(u => u.slug === university);
+    const univKeyword = univObj ? univObj.labelAr.split("—")[0].trim() : "";
+    
+    return (
+      (university === "all" || (a.university && a.university.includes(univKeyword))) &&
+      (semester === "all" || a.semester === semester)
+    );
+  });
+
+  const arrowFlip = dir === "rtl" ? "rotate-180" : "";
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
+    <div className="max-w-7xl mx-auto px-6 py-10" dir={dir}>
       {/* Header */}
-      <div className="mb-8 flex items-center gap-3" dir="rtl">
-        <div className="w-10 h-10 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center">
-          <GraduationCap size={20} className="text-primary" />
+      <div className="mb-8 flex items-center gap-3">
+        <div className="w-10 h-10 bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-900 rounded-xl flex items-center justify-center shrink-0">
+          <GraduationCap size={20} className="text-primary" aria-hidden="true" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>الأرشيف الجامعي</h1>
-          <p className="text-sm text-muted-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>نماذج امتحانات، ملخصات، وأطروحات من جامعات مغربية</p>
+          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: serifFont(lang) }}>
+            {lang === "ar" ? "الأرشيف الجامعي" : "Academic Archive"}
+          </h1>
+          <p className="text-sm text-slate-600 dark:text-slate-300" style={{ fontFamily: sansFont(lang) }}>
+            {lang === "ar" ? "نماذج امتحانات، ملخصات، وأطروحات من جامعات مغربية" : "Exams, summaries, and legal theses from Moroccan universities"}
+          </p>
         </div>
       </div>
 
       {/* Filter bar */}
-      <div className="bg-white border border-border rounded-xl p-4 mb-8 flex flex-col md:flex-row gap-4" dir="rtl">
+      <div className="bg-card border border-border rounded-xl p-4 mb-8 flex flex-col md:flex-row gap-4 shadow-sm">
         <div className="flex items-center gap-2 shrink-0">
-          <Filter size={14} className="text-primary" />
-          <span className="text-sm font-semibold text-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>تصفية:</span>
+          <Filter size={16} className="text-primary" aria-hidden="true" />
+          <span className="text-sm font-semibold text-foreground" style={{ fontFamily: sansFont(lang) }}>
+            {lang === "ar" ? "تصفية:" : "Filter:"}
+          </span>
         </div>
         <div className="flex flex-col md:flex-row gap-3 flex-1">
           <div className="flex-1">
-            <label className="text-xs text-muted-foreground mb-1 block" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>الجامعة</label>
-            <select value={university} onChange={e => setFilter("university", e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-gray-50 focus:outline-none focus:border-primary"
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-              {UNIVERSITIES.map(u => <option key={u.slug} value={u.slug}>{u.label}</option>)}
+            <label htmlFor="university-filter" className="text-xs text-slate-500 dark:text-slate-400 mb-1 block" style={{ fontFamily: sansFont(lang) }}>
+              {lang === "ar" ? "الجامعة" : "University"}
+            </label>
+            <select
+              id="university-filter"
+              value={university}
+              onChange={e => setFilter("university", e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary min-h-[40px]"
+              style={{ fontFamily: sansFont(lang) }}
+              aria-label={lang === "ar" ? "اختر الجامعة" : "Select University"}
+            >
+              {UNIVERSITIES.map(u => (
+                <option key={u.slug} value={u.slug}>
+                  {lang === "ar" ? u.labelAr : u.labelEn}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex-1">
-            <label className="text-xs text-muted-foreground mb-1 block" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>الفصل الدراسي</label>
-            <select value={semester} onChange={e => setFilter("semester", e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-gray-50 focus:outline-none focus:border-primary"
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-              {SEMESTERS.map(s => <option key={s.slug} value={s.slug}>{s.label}</option>)}
+            <label htmlFor="semester-filter" className="text-xs text-slate-500 dark:text-slate-400 mb-1 block" style={{ fontFamily: sansFont(lang) }}>
+              {lang === "ar" ? "الفصل الدراسي" : "Semester"}
+            </label>
+            <select
+              id="semester-filter"
+              value={semester}
+              onChange={e => setFilter("semester", e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary min-h-[40px]"
+              style={{ fontFamily: sansFont(lang) }}
+              aria-label={lang === "ar" ? "اختر الفصل الدراسي" : "Select Semester"}
+            >
+              {SEMESTERS.map(s => (
+                <option key={s.slug} value={s.slug}>
+                  {lang === "ar" ? s.labelAr : s.labelEn}
+                </option>
+              ))}
             </select>
           </div>
         </div>
       </div>
 
       {/* Semester quick-tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-2 mb-6" dir="rtl">
+      <nav aria-label={lang === "ar" ? "تصفية السداسيات" : "Semester Filters"} className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none">
         {SEMESTERS.map(s => (
-          <button key={s.slug} onClick={() => setFilter("semester", s.slug)}
-            className={`px-4 py-1.5 text-sm rounded-full border whitespace-nowrap transition-colors ${semester === s.slug ? "bg-primary text-white border-primary" : "border-border text-gray-600 hover:border-primary/40 hover:text-primary"}`}
-            style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{s.label}</button>
+          <button
+            key={s.slug}
+            onClick={() => setFilter("semester", s.slug)}
+            className={`px-4 py-2 text-xs md:text-sm rounded-full border whitespace-nowrap transition-colors min-h-[38px] ${
+              semester === s.slug
+                ? "bg-primary text-primary-foreground border-primary font-semibold"
+                : "border-border text-slate-600 dark:text-slate-300 hover:border-primary/50 hover:text-primary"
+            }`}
+            style={{ fontFamily: sansFont(lang) }}
+          >
+            {lang === "ar" ? s.labelAr : s.labelEn}
+          </button>
         ))}
-      </div>
+      </nav>
 
       {/* Results */}
       {loading ? (
-        <div className="grid md:grid-cols-2 gap-4">{[...Array(4)].map((_, i) => <div key={i} className="h-40 rounded-xl bg-gray-100 animate-pulse" />)}</div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="h-44 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse border border-border" />
+          ))}
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-          لا توجد نتائج لهذه الفلترة
+        <div className="text-center py-20 bg-card border border-border rounded-2xl p-8" style={{ fontFamily: sansFont(lang) }}>
+          <BookOpen className="mx-auto h-10 w-10 text-slate-400 mb-3" aria-hidden="true" />
+          <p className="text-base font-semibold text-foreground mb-1">
+            {lang === "ar" ? "لا توجد نتائج لهذه الفلترة" : "No results found for this filter"}
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            {lang === "ar" ? "جرّب تغيير معايير البحث أو تصفح الأرشيف الكامل." : "Try changing your search criteria or browse all documents."}
+          </p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
           {filtered.map(a => (
-            <article key={a.id} className="bg-white border border-border rounded-xl p-5 hover:shadow-sm hover:border-blue-200 transition-all" dir="rtl">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-accent text-primary border border-blue-100">{a.category}</span>
-                {a.semester && <span className="text-[11px] font-mono text-muted-foreground border border-border px-2 py-0.5 rounded-full">{a.semester?.toUpperCase()}</span>}
-                {a.year && <span className="text-[11px] font-mono text-muted-foreground">{a.year}</span>}
+            <article
+              key={a.id}
+              className="bg-card border border-border rounded-xl p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-800 transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+                    {a.category}
+                  </span>
+                  {a.semester && (
+                    <span className="text-[11px] font-mono text-slate-600 dark:text-slate-300 border border-border px-2 py-0.5 rounded-full">
+                      {a.semester?.toUpperCase()}
+                    </span>
+                  )}
+                  {a.year && (
+                    <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                      {a.year}
+                    </span>
+                  )}
+                </div>
+
+                <Link to={localizedPath(`/article/${a.slug}`)}>
+                  <h2 className="text-base font-bold text-foreground hover:text-primary transition-colors mb-1.5" style={{ fontFamily: serifFont(lang) }}>
+                    {a.title}
+                  </h2>
+                </Link>
+
+                {a.university && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5" style={{ fontFamily: sansFont(lang) }}>
+                    <GraduationCap size={13} className="shrink-0" aria-hidden="true" />
+                    <span>{a.university}</span>
+                  </p>
+                )}
+
+                <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 mb-4 leading-relaxed" style={{ fontFamily: sansFont(lang) }}>
+                  {a.excerpt}
+                </p>
               </div>
-              <Link to={`/article/${a.slug}`}>
-                <h3 className="text-base font-bold hover:text-primary transition-colors mb-1" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>{a.title}</h3>
-              </Link>
-              {a.university && <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1"><GraduationCap size={11} />{a.university}</p>}
-              <p className="text-sm text-muted-foreground line-clamp-2 mb-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{a.excerpt}</p>
-              <div className="flex gap-2">
-                <Link to={`/article/${a.slug}`}
-                  className="px-3 py-1.5 bg-primary text-white text-xs rounded-lg hover:bg-blue-700 flex items-center gap-1"
-                  style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-                  اقرأ <ArrowRight size={11} />
+
+              <div className="flex items-center gap-2 pt-2 border-t border-border/60">
+                <Link
+                  to={localizedPath(`/article/${a.slug}`)}
+                  className="px-3.5 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-1.5 min-h-[36px]"
+                  style={{ fontFamily: sansFont(lang) }}
+                >
+                  <span>{lang === "ar" ? "اقرأ" : "Read"}</span>
+                  <ArrowRight size={12} className={arrowFlip} aria-hidden="true" />
                 </Link>
                 {a.pdf_url && (
-                  <a href={a.pdf_url} className="px-3 py-1.5 border border-border text-xs text-gray-600 rounded-lg hover:border-primary hover:text-primary flex items-center gap-1"
-                    style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-                    <Download size={11} /> تحميل PDF
+                  <a
+                    href={a.pdf_url}
+                    className="px-3.5 py-2 border border-border text-xs text-slate-700 dark:text-slate-200 rounded-lg hover:border-primary hover:text-primary transition-colors flex items-center gap-1.5 min-h-[36px]"
+                    style={{ fontFamily: sansFont(lang) }}
+                  >
+                    <Download size={12} aria-hidden="true" />
+                    <span>{lang === "ar" ? "تحميل PDF" : "Download PDF"}</span>
                   </a>
                 )}
               </div>

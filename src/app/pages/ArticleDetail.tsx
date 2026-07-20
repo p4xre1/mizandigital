@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, Link } from "react-router";
-import { useLocalizedPath } from "../lib/i18n";
+import { useLocalizedPath, useI18n, serifFont, sansFont } from "../lib/i18n";
 import { ArrowRight, Download, Clock, Eye, Tag, BookOpen, GraduationCap, Heart, Bookmark } from "lucide-react";
 import { getArticleBySlug, type Article } from "../lib/supabase";
 import { trackArticleRead, trackPDFDownload, trackEvent } from "../lib/analytics";
@@ -82,15 +82,15 @@ const MOCK: Article = {
   updated_at: "2026-07-13T10:00:00Z",
 };
 
-function renderContent(md: string) {
+function renderContent(md: string, lang: string) {
   return md.split("\n").map((line, i) => {
-    if (line.startsWith("## ")) return <h2 key={i} className="text-xl font-bold text-foreground mt-8 mb-4" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>{line.slice(3)}</h2>;
-    if (line.startsWith("### ")) return <h3 key={i} className="text-base font-bold text-foreground mt-6 mb-3" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>{line.slice(4)}</h3>;
-    if (line.startsWith("**") && line.endsWith("**")) return <p key={i} className="font-bold text-foreground mt-4 mb-1" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{line.slice(2, -2)}</p>;
-    if (line.startsWith("- ")) return <li key={i} className="text-gray-700 mb-1 mr-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{line.slice(2)}</li>;
-    if (line.match(/^\d+\./)) return <li key={i} className="text-gray-700 mb-1 mr-4 list-decimal" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{line.replace(/^\d+\.\s/, "")}</li>;
+    if (line.startsWith("## ")) return <h2 key={i} className="text-xl font-bold text-foreground mt-8 mb-4" style={{ fontFamily: serifFont(lang as any) }}>{line.slice(3)}</h2>;
+    if (line.startsWith("### ")) return <h3 key={i} className="text-base font-bold text-foreground mt-6 mb-3" style={{ fontFamily: serifFont(lang as any) }}>{line.slice(4)}</h3>;
+    if (line.startsWith("**") && line.endsWith("**")) return <p key={i} className="font-bold text-foreground mt-4 mb-1" style={{ fontFamily: sansFont(lang as any) }}>{line.slice(2, -2)}</p>;
+    if (line.startsWith("- ")) return <li key={i} className="text-slate-700 dark:text-slate-300 mb-1 mr-4" style={{ fontFamily: sansFont(lang as any) }}>{line.slice(2)}</li>;
+    if (line.match(/^\d+\./)) return <li key={i} className="text-slate-700 dark:text-slate-300 mb-1 mr-4 list-decimal" style={{ fontFamily: sansFont(lang as any) }}>{line.replace(/^\d+\.\s/, "")}</li>;
     if (line.trim() === "") return <div key={i} className="h-2" />;
-    return <p key={i} className="text-gray-700 leading-relaxed mb-2" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{line}</p>;
+    return <p key={i} className="text-slate-700 dark:text-slate-300 leading-relaxed mb-2" style={{ fontFamily: sansFont(lang as any) }}>{line}</p>;
   });
 }
 
@@ -129,6 +129,7 @@ function renderHtmlSnippet(html: string) {
 export default function ArticleDetail() {
   const { slug } = useParams<{ slug: string }>();
   const localizedPath = useLocalizedPath();
+  const { lang, dir, t } = useI18n();
   const cms = useCms();
   const { isPremium } = useRole();
   const [article, setArticle] = useState<Article>(MOCK);
@@ -198,65 +199,81 @@ export default function ArticleDetail() {
       datePublished: article.created_at,
       category: article.category,
       schemaType: "LegalArticle",
-      lang: "ar",
+      lang,
       path: `/article/${article.slug}`,
     });
     setBreadcrumbSchema([
-      { name: "الرئيسية", url: "/" },
-      { name: "المكتبة", url: "/library" },
+      { name: lang === "ar" ? "الرئيسية" : "Home", url: "/" },
+      { name: lang === "ar" ? "المكتبة" : "Library", url: "/library" },
       { name: article.title, url: `/article/${article.slug}` },
     ]);
     return () => { clearSchema("ld-article"); clearSchema("ld-breadcrumb"); };
-  }, [article]);
+  }, [article, lang]);
 
   const handlePDF = () => {
     if (article.pdf_url) trackPDFDownload(article.id, article.title);
   };
 
+  const arrowFlip = dir === "rtl" ? "rotate-180" : "";
+
   if (loading) return (
     <div className="max-w-4xl mx-auto px-6 py-10 space-y-4">
-      {[...Array(6)].map((_, i) => <div key={i} className={`h-6 rounded bg-gray-100 animate-pulse ${i === 0 ? "w-3/4" : i === 1 ? "w-1/2" : "w-full"}`} />)}
+      {[...Array(6)].map((_, i) => <div key={i} className={`h-6 rounded bg-slate-100 dark:bg-slate-800 animate-pulse ${i === 0 ? "w-3/4" : i === 1 ? "w-1/2" : "w-full"}`} />)}
     </div>
   );
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
-      <div className="grid lg:grid-cols-[1fr_260px] gap-10" dir="rtl">
+      <div className="grid lg:grid-cols-[1fr_260px] gap-10" dir={dir}>
         {/* Article */}
         <article>
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-1 text-xs text-muted-foreground mb-6" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-            <Link to={localizedPath("/")} className="hover:text-primary">الرئيسية</Link>
-            <ArrowRight size={11} className="rotate-180" />
-            <Link to={localizedPath("/library")} className="hover:text-primary">المكتبة</Link>
-            <ArrowRight size={11} className="rotate-180" />
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-6" style={{ fontFamily: sansFont(lang) }}>
+            <Link to={localizedPath("/")} className="hover:text-primary transition-colors">
+              {lang === "ar" ? "الرئيسية" : "Home"}
+            </Link>
+            <ArrowRight size={11} className={arrowFlip} aria-hidden="true" />
+            <Link to={localizedPath("/library")} className="hover:text-primary transition-colors">
+              {lang === "ar" ? "المكتبة" : "Library"}
+            </Link>
+            <ArrowRight size={11} className={arrowFlip} aria-hidden="true" />
             <span className="text-foreground line-clamp-1">{article.title}</span>
           </nav>
 
-          {/* Meta */}
+          {/* Meta Badges */}
           <div className="flex flex-wrap items-center gap-2 mb-4">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-accent text-primary border border-blue-100">{article.category}</span>
-            {article.semester && <span className="text-xs font-mono border border-border px-2 py-0.5 rounded-full text-muted-foreground">{article.semester.toUpperCase()}</span>}
-            {article.year && <span className="text-xs font-mono text-muted-foreground">{article.year}</span>}
+            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+              {article.category}
+            </span>
+            {article.semester && (
+              <span className="text-xs font-mono border border-border px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-300">
+                {article.semester.toUpperCase()}
+              </span>
+            )}
+            {article.year && (
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                {article.year}
+              </span>
+            )}
           </div>
 
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight mb-4" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight mb-4" style={{ fontFamily: serifFont(lang) }}>
             {article.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mb-6 pb-6 border-b border-border">
-            {article.author && <span className="flex items-center gap-1"><BookOpen size={12} />{article.author}</span>}
-            {article.university && <span className="flex items-center gap-1"><GraduationCap size={12} />{article.university}</span>}
-            <span className="flex items-center gap-1"><Clock size={12} />{new Date(article.created_at).toLocaleDateString("ar-MA")}</span>
-            <span className="flex items-center gap-1"><Eye size={12} />{article.views.toLocaleString()} قراءة</span>
+          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-6 pb-6 border-b border-border">
+            {article.author && <span className="flex items-center gap-1"><BookOpen size={12} aria-hidden="true" />{article.author}</span>}
+            {article.university && <span className="flex items-center gap-1"><GraduationCap size={12} aria-hidden="true" />{article.university}</span>}
+            <span className="flex items-center gap-1"><Clock size={12} aria-hidden="true" />{new Date(article.created_at).toLocaleDateString(lang === "ar" ? "ar-MA" : "en-US")}</span>
+            <span className="flex items-center gap-1"><Eye size={12} aria-hidden="true" />{article.views.toLocaleString()} {t("reads")}</span>
           </div>
 
-          {/* Content — CMS articles store sanitised HTML; mock uses markdown. */}
+          {/* Content */}
           <div className="prose-container rte-content leading-loose text-base">
             {contentFragments.preview ? (
-              contentFragments.isHtml ? renderHtmlSnippet(contentFragments.preview) : renderContent(contentFragments.preview)
+              contentFragments.isHtml ? renderHtmlSnippet(contentFragments.preview) : renderContent(contentFragments.preview, lang)
             ) : (
-              <p className="text-muted-foreground" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{article.excerpt}</p>
+              <p className="text-slate-600 dark:text-slate-300" style={{ fontFamily: sansFont(lang) }}>{article.excerpt}</p>
             )}
 
             {contentFragments.locked ? (
@@ -264,86 +281,127 @@ export default function ArticleDetail() {
                 {isLocked ? (
                   <>
                     <div className="pointer-events-none select-none blur-sm">
-                      {contentFragments.isHtml ? renderHtmlSnippet(contentFragments.locked) : renderContent(contentFragments.locked)}
+                      {contentFragments.isHtml ? renderHtmlSnippet(contentFragments.locked) : renderContent(contentFragments.locked, lang)}
                     </div>
-                    <div className="absolute inset-0 flex items-center justify-center p-6 bg-gradient-to-t from-white/95 to-transparent">
-                      <div className="max-w-md rounded-3xl border border-border bg-white/95 p-6 shadow-xl text-center">
-                        <p className="text-sm font-semibold text-foreground mb-4" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-                          المحتوى الكامل مقفول لحماية حقوق المنصة. سجّل الدخول أو اشترك للوصول إليه.
+                    <div className="absolute inset-0 flex items-center justify-center p-6 bg-gradient-to-t from-background/95 via-background/80 to-transparent">
+                      <div className="max-w-md rounded-3xl border border-border bg-card/95 p-6 shadow-xl text-center backdrop-blur-sm">
+                        <p className="text-sm font-semibold text-foreground mb-4" style={{ fontFamily: sansFont(lang) }}>
+                          {lang === "ar" 
+                            ? "المحتوى الكامل مقفول لحماية حقوق المنصة. سجّل الدخول أو اشترك للوصول إليه." 
+                            : "Full content is locked. Please sign in or subscribe to gain access."}
                         </p>
                         <Link to={localizedPath("/login")}
-                          className="inline-flex items-center justify-center gap-2 px-4 py-3 rounded-full bg-primary text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
-                          style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-                          تسجيل الدخول للوصول الكامل
+                          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors min-h-[44px]"
+                          style={{ fontFamily: sansFont(lang) }}>
+                          {lang === "ar" ? "تسجيل الدخول للوصول الكامل" : "Sign In for Full Access"}
                         </Link>
                       </div>
                     </div>
                   </>
                 ) : (
-                  contentFragments.isHtml ? renderHtmlSnippet(contentFragments.locked) : renderContent(contentFragments.locked)
+                  contentFragments.isHtml ? renderHtmlSnippet(contentFragments.locked) : renderContent(contentFragments.locked, lang)
                 )}
               </div>
             ) : null}
           </div>
 
           {/* Tags */}
-          {article.tags?.length && (
+          {article.tags?.length ? (
             <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
-              <Tag size={13} className="text-muted-foreground" />
-              {article.tags.map(t => (
-                <Link key={t} to={`/search?q=${encodeURIComponent(t)}`}
-                  className="text-xs px-2.5 py-1 rounded-full border border-border text-gray-600 hover:bg-accent hover:text-primary hover:border-primary/30 transition-colors"
-                  style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>{t}</Link>
+              <Tag size={13} className="text-slate-500 dark:text-slate-400" aria-hidden="true" />
+              {article.tags.map(tag => (
+                <Link key={tag} to={localizedPath(`/search?q=${encodeURIComponent(tag)}`)}
+                  className="text-xs px-2.5 py-1 rounded-full border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-colors"
+                  style={{ fontFamily: sansFont(lang) }}>{tag}</Link>
               ))}
             </div>
-          )}
+          ) : null}
 
           {/* Comments */}
           <ArticleComments articleId={article.id} enabled={commentsEnabled} />
         </article>
 
-        {/* Sticky sidebar */}
+        {/* Sticky Sidebar */}
         <aside className="space-y-4 lg:sticky lg:top-24 self-start">
           {article.pdf_url && (
             <a href={article.pdf_url} onClick={handlePDF}
-              className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm"
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-              <Download size={16} /> تحميل PDF
+              className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-colors text-sm shadow-sm min-h-[44px]"
+              style={{ fontFamily: sansFont(lang) }}>
+              <Download size={16} aria-hidden="true" /> {lang === "ar" ? "تحميل PDF" : "Download PDF"}
             </a>
           )}
           <div className="grid grid-cols-2 gap-2">
             <button onClick={toggleLike} aria-pressed={liked}
-              className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors ${liked ? "bg-red-50 border-red-200 text-red-600" : "border-border text-gray-700 hover:border-primary hover:text-primary"}`}
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-              <Heart size={15} className={liked ? "fill-red-500 text-red-500" : ""} />{likes.toLocaleString()}
+              className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] ${
+                liked 
+                  ? "bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300" 
+                  : "border-border text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary"
+              }`}
+              style={{ fontFamily: sansFont(lang) }}>
+              <Heart size={15} className={liked ? "fill-red-500 text-red-500" : ""} aria-hidden="true" />
+              <span>{likes.toLocaleString()}</span>
             </button>
             <button onClick={toggleSave} aria-pressed={saved}
-              className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors ${saved ? "bg-accent border-primary/30 text-primary" : "border-border text-gray-700 hover:border-primary hover:text-primary"}`}
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-              <Bookmark size={15} className={saved ? "fill-current" : ""} />{saved ? "محفوظ" : "حفظ"}
+              className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] ${
+                saved 
+                  ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200" 
+                  : "border-border text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary"
+              }`}
+              style={{ fontFamily: sansFont(lang) }}>
+              <Bookmark size={15} className={saved ? "fill-current" : ""} aria-hidden="true" />
+              <span>{saved ? (lang === "ar" ? "محفوظ" : "Saved") : (lang === "ar" ? "حفظ" : "Save")}</span>
             </button>
           </div>
-          <ShareBar url={`${window.location.origin}/article/${article.slug}`} title={article.title} campaign={article.slug} />
 
-          <div className="bg-white border border-border rounded-xl p-4">
-            <h4 className="text-xs font-bold text-foreground mb-3 pb-2 border-b border-border" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>تفاصيل الوثيقة</h4>
-            <dl className="space-y-2 text-xs" style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>
-              {[["الفئة", article.category], ["الجامعة", article.university], ["الفصل", article.semester?.toUpperCase()], ["السنة", article.year?.toString()]].filter(([, v]) => v).map(([k, v]) => (
-                <div key={k} className="flex justify-between">
-                  <dt className="text-muted-foreground">{k}</dt>
+          <ShareBar url={`${typeof window !== "undefined" ? window.location.origin : ""}/article/${article.slug}`} title={article.title} campaign={article.slug} />
+
+          {/* Document Meta Box */}
+          <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
+            <h2 className="text-xs font-bold text-foreground mb-3 pb-2 border-b border-border" style={{ fontFamily: serifFont(lang) }}>
+              {lang === "ar" ? "تفاصيل الوثيقة" : "Document Details"}
+            </h2>
+            <dl className="space-y-2 text-xs" style={{ fontFamily: sansFont(lang) }}>
+              {[
+                [lang === "ar" ? "الفئة" : "Category", article.category],
+                [lang === "ar" ? "الجامعة" : "University", article.university],
+                [lang === "ar" ? "الفصل" : "Semester", article.semester?.toUpperCase()],
+                [lang === "ar" ? "السنة" : "Year", article.year?.toString()]
+              ].filter(([, v]) => v).map(([k, v]) => (
+                <div key={k} className="flex justify-between items-center">
+                  <dt className="text-slate-500 dark:text-slate-400">{k}</dt>
                   <dd className="font-medium text-foreground">{v}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
-          <div className="bg-accent border border-blue-100 rounded-xl p-4">
-            <p className="text-xs text-blue-700 mb-2 font-semibold" style={{ fontFamily: "'Noto Serif Arabic', serif" }}>اشترك في النشرة القانونية</p>
-            <input type="email" placeholder="بريدك الإلكتروني"
-              className="w-full text-xs px-3 py-2 rounded-lg border border-border bg-white mb-2 text-right outline-none focus:border-primary"
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }} />
-            <button className="w-full py-2 bg-primary text-white text-xs font-semibold rounded-lg"
-              style={{ fontFamily: "'Noto Sans Arabic', sans-serif" }}>اشترك</button>
+          {/* Sidebar Newsletter */}
+          <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 shadow-sm">
+            <h3 className="text-xs font-bold text-blue-900 dark:text-blue-200 mb-2" style={{ fontFamily: serifFont(lang) }}>
+              {t("newsletter_title")}
+            </h3>
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
+              <label htmlFor="sidebar-newsletter-email" className="sr-only">
+                {t("newsletter_email")}
+              </label>
+              <input 
+                id="sidebar-newsletter-email"
+                type="email" 
+                placeholder={t("newsletter_email")}
+                aria-label={t("newsletter_email")}
+                className={`w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground outline-none focus:ring-2 focus:ring-primary ${
+                  dir === "rtl" ? "text-right" : "text-left"
+                }`}
+                style={{ fontFamily: sansFont(lang) }} 
+              />
+              <button 
+                type="submit"
+                className="w-full py-2 bg-blue-900 dark:bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-950 dark:hover:bg-blue-700 transition-colors min-h-[36px]"
+                style={{ fontFamily: sansFont(lang) }}
+              >
+                {t("newsletter_cta")}
+              </button>
+            </form>
           </div>
         </aside>
       </div>
