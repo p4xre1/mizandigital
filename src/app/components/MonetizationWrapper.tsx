@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Lock, Sparkles, ArrowRight, Loader2 } from "lucide-react";
-import { isSupabaseConfigured, supabase } from "../lib/supabase";
+import { isSupabaseConfigured } from "../lib/supabase";
 import { useI18n, useLocalizedPath } from "../lib/i18n";
 import { useRole } from "../hooks/useRole";
 
@@ -20,7 +20,7 @@ export default function MonetizationWrapper({
   lockFeature = false,
   featureTitle
 }: MonetizationWrapperProps) {
-  const { t, dir } = useI18n();
+  const { dir } = useI18n();
   const localizedPath = useLocalizedPath();
   const { isPremium, isLoading: roleLoading } = useRole();
   const [adClicks, setAdClicks] = useState<number>(0);
@@ -95,8 +95,6 @@ export default function MonetizationWrapper({
       </div>
     );
   }
-
-  const shouldShowAds = !hideAds && !isPremium;
 
   // --- CASE A: Gated Feature Protection (e.g. PDF Downloads, Case Commentaries) ---
   if (lockFeature && !isPremium) {

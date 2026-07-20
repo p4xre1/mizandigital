@@ -44,7 +44,8 @@ export default function WatchAdForCredit({ onCreditAdded }: WatchAdForCreditProp
   useEffect(() => {
     if (!completed || !userId) return;
 
-    async function handleAdCompletion() {
+    // تمرير id كـ string مخصصة ومحددة النوع بشكل صريح
+    async function handleAdCompletion(activeUserId: string) {
       setCompleted(false);
       setProgress(0);
 
@@ -57,7 +58,7 @@ export default function WatchAdForCredit({ onCreditAdded }: WatchAdForCreditProp
       setWatchedAdsCount(0);
       setLoading(true);
       try {
-        const updated = await addBonusCredits(userId, 1);
+        const updated = await addBonusCredits(activeUserId, 1);
         onCreditAdded?.(updated);
         setMessage("Success! You have earned 1 Tool Credit.");
       } catch (err: unknown) {
@@ -67,7 +68,7 @@ export default function WatchAdForCredit({ onCreditAdded }: WatchAdForCreditProp
       }
     }
 
-    void handleAdCompletion();
+    void handleAdCompletion(userId);
   }, [completed, onCreditAdded, userId, watchedAdsCount]);
 
   const handleStart = () => {
