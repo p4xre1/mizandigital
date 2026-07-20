@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useParams } from "react-router";
+import { useParams, Link } from "react-router";
 import { Shield, FileText, AlertTriangle, ScrollText } from "lucide-react";
-import { useI18n, serifFont, sansFont, type Lang } from "../lib/i18n";
+import { useI18n, useLocalizedPath, serifFont, sansFont, type Lang } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
 import { setLegalArticleSchema, clearSchema } from "../lib/jsonld";
 
@@ -18,7 +18,7 @@ const s = (ar: string, fr: string, en: string, es: string) => ({ ar, fr, en, es 
 
 const DOCS: Record<string, Doc> = {
   privacy: {
-    icon: <Shield size={22} />,
+    icon: <Shield size={22} aria-hidden="true" />,
     titleKey: "privacy",
     updated: "2026-07-01",
     intro: s(
@@ -58,7 +58,7 @@ const DOCS: Record<string, Doc> = {
     ],
   },
   terms: {
-    icon: <FileText size={22} />,
+    icon: <FileText size={22} aria-hidden="true" />,
     titleKey: "terms",
     updated: "2026-07-01",
     intro: s(
@@ -98,7 +98,7 @@ const DOCS: Record<string, Doc> = {
     ],
   },
   disclaimer: {
-    icon: <AlertTriangle size={22} />,
+    icon: <AlertTriangle size={22} aria-hidden="true" />,
     titleKey: "disclaimer",
     updated: "2026-07-01",
     intro: s(
@@ -142,6 +142,8 @@ const DOCS: Record<string, Doc> = {
 export default function Legal() {
   const { doc } = useParams();
   const { lang, dir, t } = useI18n();
+  const localizedPath = useLocalizedPath();
+
   const activeDocKey = doc && DOCS[doc] ? doc : "privacy";
   const data = DOCS[activeDocKey];
 
@@ -168,48 +170,81 @@ export default function Legal() {
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12" dir={dir}>
-      <div className="flex items-center gap-3 mb-2 text-primary">
-        {data.icon}
-        <h1
-          className="text-3xl font-bold text-foreground"
-          style={{ fontFamily: serifFont(lang) }}
-        >
-          {t(data.titleKey)}
-        </h1>
-      </div>
-
-      <p className="text-xs text-muted-foreground font-mono mb-8 flex items-center gap-1.5">
-        <ScrollText size={12} /> {lang === "ar" ? "آخر تحديث" : "Updated"}: {data.updated}
-      </p>
-
-      <p
-        className="text-base leading-relaxed text-foreground mb-10 pb-6 border-b border-border"
-        style={{ fontFamily: sansFont(lang) }}
+      {/* Navigation Tabs for Legal Documents */}
+      <nav
+        aria-label="Legal Documents Navigation"
+        className="flex items-center gap-2 mb-8 border-b border-border pb-3 overflow-x-auto"
       >
-        {data.intro[lang]}
-      </p>
-
-      <div className="space-y-8">
-        {data.sections.map((sec, i) => (
-          <section key={i}>
-            <h2
-              className="text-lg font-bold text-foreground mb-2 flex items-center gap-2"
-              style={{ fontFamily: serifFont(lang) }}
-            >
-              <span className="text-primary font-mono text-sm">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              {sec.h[lang]}
-            </h2>
-            <p
-              className="text-sm leading-relaxed text-muted-foreground"
+        {Object.keys(DOCS).map((key) => {
+          const isActive = key === activeDocKey;
+          return (
+            <Link
+              key={key}
+              to={localizedPath(`/legal/${key}`)}
+              role="tab"
+              aria-selected={isActive}
+              className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 whitespace-nowrap min-h-[40px] ${
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-muted/50 text-slate-700 dark:text-slate-300 hover:bg-muted hover:text-foreground"
+              }`}
               style={{ fontFamily: sansFont(lang) }}
             >
-              {sec.p[lang]}
-            </p>
-          </section>
-        ))}
-      </div>
+              {DOCS[key].icon}
+              {t(DOCS[key].titleKey)}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <article>
+        <header className="mb-8">
+          <div className="flex items-center gap-3 mb-2 text-primary">
+            {data.icon}
+            <h1
+              className="text-3xl font-bold text-foreground"
+              style={{ fontFamily: serifFont(lang) }}
+            >
+              {t(data.titleKey)}
+            </h1>
+          </div>
+
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 mt-2">
+            <ScrollText size={14} aria-hidden="true" />
+            <span>{lang === "ar" ? "آخر تحديث:" : "Updated:"}</span>
+            <time dateTime={data.updated}>{data.updated}</time>
+          </p>
+        </header>
+
+        <p
+          className="text-base leading-relaxed text-slate-800 dark:text-slate-200 mb-10 pb-6 border-b border-border"
+          style={{ fontFamily: sansFont(lang) }}
+        >
+          {data.intro[lang]}
+        </p>
+
+        <div className="space-y-8">
+          {data.sections.map((sec, i) => (
+            <section key={i}>
+              <h2
+                className="text-lg font-bold text-foreground mb-2 flex items-center gap-2"
+                style={{ fontFamily: serifFont(lang) }}
+              >
+                <span className="text-primary font-mono text-sm" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}.
+                </span>
+                {sec.h[lang]}
+              </h2>
+              <p
+                className="text-sm leading-relaxed text-slate-600 dark:text-slate-300"
+                style={{ fontFamily: sansFont(lang) }}
+              >
+                {sec.p[lang]}
+              </p>
+            </section>
+          ))}
+        </div>
+      </article>
     </div>
   );
 }

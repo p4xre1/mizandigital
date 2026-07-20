@@ -174,9 +174,11 @@ export const sansFont = (lang: Lang) =>
 // ── Context & Provider ─────────────────────────────────────────────────────────
 interface I18nCtx {
   lang: Lang;
+  language: Lang; // Alias for backward compatibility
   dir: "rtl" | "ltr";
   theme: Theme;
   setLang: (l: Lang) => void;
+  setLanguage: (l: Lang) => void; // Alias for backward compatibility
   setTheme: (t: Theme) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
@@ -217,7 +219,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem("mizan_lang", lang);
     } catch {
-      /* ignore */
+      /* ignore storage error */
     }
   }, [lang, dir]);
 
@@ -226,11 +228,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem("mizan_theme", theme);
     } catch {
-      /* ignore */
+      /* ignore storage error */
     }
   }, [theme]);
 
-  // Helper with parameter replacement support (e.g. {n})
+  // Helper with parameter replacement support (e.g., {n})
   const t = (key: string, params?: Record<string, string | number>): string => {
     let text = T[key]?.[lang] ?? key;
     if (params) {
@@ -245,9 +247,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     <Ctx.Provider
       value={{
         lang,
+        language: lang,
         dir,
         theme,
         setLang: setLangState,
+        setLanguage: setLangState,
         setTheme: setThemeState,
         t,
       }}

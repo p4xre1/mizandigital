@@ -5,7 +5,7 @@ import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { useI18n, useLocalizedPath, serifFont, sansFont } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
 
-// ✅ Named imports (curly braces) match the component exports
+// ✅ Named imports match the component exports
 import { LoginForm } from "../components/auth/LoginForm";
 import { SignupForm } from "../components/auth/SignupForm";
 import { ForgotPasswordForm } from "../components/auth/ForgotPasswordForm";
@@ -68,17 +68,19 @@ export default function Login() {
 
   return (
     <div
-      className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-gray-50"
+      className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-background transition-colors duration-200"
       dir={dir}
     >
       <div className="w-full max-w-md">
+        {/* Header Branding */}
         <div className="text-center mb-8">
           <Link
             to={localizedPath("/")}
-            className="inline-flex items-center gap-3 mb-4"
+            className="inline-flex items-center gap-3 mb-4 focus:outline-none focus:ring-2 focus:ring-primary rounded-xl"
+            aria-label="Mizan Digital - Home"
           >
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mx-auto">
-              <Scale size={20} className="text-white" />
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center mx-auto shadow-sm">
+              <Scale size={20} className="text-primary-foreground" aria-hidden="true" />
             </div>
           </Link>
           <h1
@@ -119,7 +121,7 @@ export default function Login() {
                 : "Set New Password")}
           </h1>
           <p
-            className="text-sm text-muted-foreground mt-1"
+            className="text-sm text-slate-500 dark:text-slate-400 mt-1"
             style={{ fontFamily: sansFont(lang) }}
           >
             {lang === "ar" && "منصة ميزان — المجلة القانونية الرقمية"}
@@ -129,47 +131,57 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="bg-white border border-border rounded-2xl p-7 shadow-sm">
+        {/* Form Card Container */}
+        <div className="bg-card border border-border rounded-2xl p-6 sm:p-7 shadow-sm transition-colors duration-200">
           {(tab === "login" || tab === "signup") && (
-            <div className="flex border border-border rounded-xl overflow-hidden mb-6">
-              {(["login", "signup"] as const).map((tTab) => (
-                <button
-                  key={tTab}
-                  onClick={() => setTab(tTab)}
-                  className={`flex-1 py-2.5 text-sm font-semibold transition-colors ${
-                    tab === tTab
-                      ? "bg-primary text-white"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  style={{ fontFamily: sansFont(lang) }}
-                >
-                  {tTab === "login"
-                    ? lang === "ar"
-                      ? "تسجيل الدخول"
+            <div
+              className="flex border border-border rounded-xl overflow-hidden mb-6 bg-muted/30"
+              role="tablist"
+              aria-label="Auth tabs"
+            >
+              {(["login", "signup"] as const).map((tTab) => {
+                const isActive = tab === tTab;
+                return (
+                  <button
+                    key={tTab}
+                    role="tab"
+                    aria-selected={isActive}
+                    onClick={() => setTab(tTab)}
+                    className={`flex-1 py-2.5 text-sm font-semibold transition-all min-h-[42px] ${
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-slate-600 dark:text-slate-400 hover:text-foreground"
+                    }`}
+                    style={{ fontFamily: sansFont(lang) }}
+                  >
+                    {tTab === "login"
+                      ? lang === "ar"
+                        ? "تسجيل الدخول"
+                        : lang === "fr"
+                        ? "Connexion"
+                        : lang === "es"
+                        ? "Iniciar sesión"
+                        : "Sign In"
+                      : lang === "ar"
+                      ? "حساب جديد"
                       : lang === "fr"
-                      ? "Connexion"
+                      ? "Nouveau compte"
                       : lang === "es"
-                      ? "Iniciar sesión"
-                      : "Sign In"
-                    : lang === "ar"
-                    ? "حساب جديد"
-                    : lang === "fr"
-                    ? "Nouveau compte"
-                    : lang === "es"
-                    ? "Nueva cuenta"
-                    : "New Account"}
-                </button>
-              ))}
+                      ? "Nueva cuenta"
+                      : "New Account"}
+                  </button>
+                );
+              })}
             </div>
           )}
 
           {success ? (
             <div className="text-center py-8">
-              <div className="w-12 h-12 bg-green-50 border border-green-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Mail size={20} className="text-green-600" />
+              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Mail size={20} className="text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
               </div>
               <p
-                className="text-sm text-green-700 font-medium"
+                className="text-sm text-emerald-700 dark:text-emerald-300 font-medium leading-relaxed"
                 style={{ fontFamily: sansFont(lang) }}
               >
                 {success}
@@ -180,7 +192,7 @@ export default function Login() {
                     setSuccess("");
                     setTab("login");
                   }}
-                  className="text-xs text-primary mt-4 hover:underline block mx-auto"
+                  className="text-xs text-primary font-semibold mt-4 hover:underline block mx-auto focus:outline-none"
                 >
                   {lang === "ar"
                     ? "العودة للدخول"
@@ -228,14 +240,17 @@ export default function Login() {
               )}
 
               {error && (
-                <p className="text-xs text-red-500 text-center mt-4">{error}</p>
+                <p className="text-xs text-red-600 dark:text-red-400 text-center font-medium mt-4 bg-red-50 dark:bg-red-950/50 p-2.5 rounded-lg border border-red-200 dark:border-red-900/50">
+                  {error}
+                </p>
               )}
             </div>
           )}
         </div>
 
+        {/* Footer Legal Links */}
         <p
-          className="text-center text-xs text-muted-foreground mt-4"
+          className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4 leading-relaxed"
           style={{ fontFamily: sansFont(lang) }}
         >
           {lang === "ar" && (
@@ -243,14 +258,14 @@ export default function Login() {
               بالمتابعة، توافق على{" "}
               <Link
                 to={localizedPath("/legal/terms")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 شروط الاستخدام
               </Link>{" "}
               و{" "}
               <Link
                 to={localizedPath("/legal/privacy")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 سياسة الخصوصية
               </Link>
@@ -261,14 +276,14 @@ export default function Login() {
               En continuant, vous acceptez nos{" "}
               <Link
                 to={localizedPath("/legal/terms")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Conditions d'utilisation
               </Link>{" "}
               et notre{" "}
               <Link
                 to={localizedPath("/legal/privacy")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Politique de confidentialité
               </Link>
@@ -279,14 +294,14 @@ export default function Login() {
               By continuing, you agree to our{" "}
               <Link
                 to={localizedPath("/legal/terms")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Terms of Use
               </Link>{" "}
               and{" "}
               <Link
                 to={localizedPath("/legal/privacy")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Privacy Policy
               </Link>
@@ -297,14 +312,14 @@ export default function Login() {
               Al continuar, acepta nuestros{" "}
               <Link
                 to={localizedPath("/legal/terms")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Términos de uso
               </Link>{" "}
               y nuestra{" "}
               <Link
                 to={localizedPath("/legal/privacy")}
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 Política de privacidad
               </Link>
@@ -314,4 +329,4 @@ export default function Login() {
       </div>
     </div>
   );
-} 
+}
