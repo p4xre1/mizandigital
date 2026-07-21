@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
 
 interface HeroSectionProps {
   lang: "ar" | "fr" | "en" | "es";
@@ -8,11 +11,11 @@ interface HeroSectionProps {
 export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
   const content = {
     ar: {
-      badge: "منصة ميزان - الأرشيف الأكاديمي المستقل",
+      badge: "منصة ميزان - الأرشيف الأكاديمي",
       title: "الأرشيف القانوني والفقهي الموحد",
       subtitle:
         "منظومة رقمية شاملة لدراسة المذكرات القضائية، التشريعات الوطنية، والاجتهادات الدستورية بأسلوب أكاديمي موثق.",
-      ctaPrimary: "استكشاف الأرشيف الجامعي",
+      ctaPrimary: "استكشاف الأرشيف",
       ctaSecondary: "المكتبة القانونية",
     },
     fr: {
@@ -24,16 +27,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
       ctaSecondary: "Bibliothèque Juridique",
     },
     en: {
-      badge: "Mizan Platform - Independent Academic Archive",
+      badge: "Mizan Platform - Academic Archive",
       title: "Unified Legal & Judicial Repository",
       subtitle:
         "A comprehensive institutional engine for legal research, constitutional precedents, and academic case commentary.",
-      ctaPrimary: "Explore Legal Archive",
+      ctaPrimary: "Explore Archive",
       ctaSecondary: "Academic Library",
     },
     es: {
-      badge: "Plataforma Mizan - Archivo Académico Independiente",
-      title: "Repositorio Jurídico y Jurisprudencial Unificado",
+      badge: "Plataforma Mizan - Archivo Académico",
+      title: "Repositorio Jurídico y Jurisprudencial",
       subtitle:
         "Un sistema digital exhaustivo para la investigación legal, precedentes constitucionales y doctrinas académicas.",
       ctaPrimary: "Explorar Archivo",
@@ -42,40 +45,37 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
   };
 
   const t = content[lang];
+  const getPath = (href: string) => `/${lang}${href}`;
 
   return (
     <section
       aria-label={t.title}
-      className="relative w-full min-h-[580px] flex items-center justify-center overflow-hidden border-b border-border"
+      className="relative w-full min-h-[440px] sm:min-h-[540px] flex items-center justify-center overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-slate-900 text-white select-none"
       dir={dir}
     >
-      {/* Background Image */}
+      {/* Ultra-Fast Modern Gradient Background (Zero network requests) */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transform scale-105 transition-transform duration-1000 pointer-events-none"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=2000&q=85')`,
-        }}
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/60 via-slate-900 to-slate-950 pointer-events-none"
         aria-hidden="true"
       />
 
-      {/* High-Contrast Dynamic Gradients */}
-      <div className="absolute inset-0 bg-black/40 dark:bg-black/60 pointer-events-none" aria-hidden="true" />
+      {/* Subtle Grid Pattern Overlay */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/80 to-background dark:from-background/95 dark:via-background/85 dark:to-background pointer-events-none"
+        className="absolute inset-0 bg-[linear-gradient(to_right,#33415515_1px,transparent_1px),linear-gradient(to_bottom,#33415515_1px,transparent_1px)] bg-[size:1.75rem_1.75rem] pointer-events-none"
         aria-hidden="true"
       />
 
       {/* Hero Body Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center space-y-6">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16 text-center space-y-4 sm:space-y-6">
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-amber-600/40 bg-amber-500/15 text-amber-900 dark:text-amber-200 text-xs sm:text-sm font-bold tracking-wide uppercase shadow-sm backdrop-blur-md">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-300 text-[11px] sm:text-xs font-bold tracking-wide uppercase shadow-xs">
           <span aria-hidden="true">🏛️</span>
-          <span>{t.badge}</span>
+          <span className="truncate max-w-[260px] sm:max-w-none">{t.badge}</span>
         </div>
 
         {/* Title */}
         <h1
-          className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight"
+          className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight sm:leading-tight"
           style={{
             fontFamily: lang === "ar" ? "var(--font-serif-ar)" : "var(--font-serif-en)",
           }}
@@ -84,24 +84,24 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
         </h1>
 
         {/* Subtitle */}
-        <p className="max-w-3xl mx-auto text-base md:text-lg text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+        <p className="max-w-2xl mx-auto text-xs sm:text-base md:text-lg text-slate-300 leading-relaxed font-normal px-2">
           {t.subtitle}
         </p>
 
-        {/* Action Buttons (Strict 48px touch targets) */}
-        <div className="pt-6 flex flex-wrap justify-center gap-4">
-          <a
-            href="#archive"
-            className="inline-flex items-center justify-center min-h-[48px] px-8 py-3.5 rounded-xl bg-blue-900 dark:bg-blue-600 text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-lg hover:bg-blue-950 dark:hover:bg-blue-700 transition transform active:scale-95"
+        {/* Action Buttons */}
+        <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-xs sm:max-w-none mx-auto">
+          <Link
+            href={getPath("/archive")}
+            className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md active:scale-95 transition-transform touch-manipulation"
           >
             {t.ctaPrimary}
-          </a>
-          <a
-            href="#library"
-            className="inline-flex items-center justify-center min-h-[48px] px-8 py-3.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/90 text-slate-900 dark:text-white font-bold text-xs sm:text-sm uppercase tracking-wider hover:bg-slate-100 dark:hover:bg-slate-800 transition shadow-sm"
+          </Link>
+          <Link
+            href={getPath("/library")}
+            className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm uppercase tracking-wider active:scale-95 transition-transform touch-manipulation"
           >
             {t.ctaSecondary}
-          </a>
+          </Link>
         </div>
       </div>
     </section>

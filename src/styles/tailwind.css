@@ -1,4 +1,10 @@
-@import 'tailwindcss' source(none);
-@source '../**/*.{js,ts,jsx,tsx}';
+/* ── 🚀 Tailwind CSS v4 Core & Source Configuration ── */
 
-@import 'tw-animate-css';
+/* Import Tailwind CSS v4 core engine while disabling default root directory scanning */
+@import "tailwindcss" source(none);
+
+/* Explicitly scan source components for utility class generation */
+@source "../**/*.{js,ts,jsx,tsx}";
+
+/* Import CSS animation utilities for smooth UI transitions */
+@import "tw-animate-css";

@@ -1,104 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-
-  <!-- =================================================== -->
-  <!-- 1. PRIMARY DOMAIN: mizanmaroc.qzz.io              -->
-  <!-- =================================================== -->
-
-  <!-- Root Domain / Default -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://mizanmaroc.qzz.io/</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/ar"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://mizanmaroc.qzz.io/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es" />
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- Arabic Version -->
   <url>
-    <loc>https://mizanmaroc.qzz.io/ar</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/ar"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es"/>
-    <changefreq>daily</changefreq>
+    <loc>https://mizanmaroc.qzz.io/library</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/library" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/library" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/library" />
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-  <!-- English Version -->
   <url>
-    <loc>https://mizanmaroc.qzz.io/en</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/ar"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es"/>
-    <changefreq>daily</changefreq>
+    <loc>https://mizanmaroc.qzz.io/archive</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/archive" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/archive" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/archive" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/archive" />
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-  <!-- French Version -->
   <url>
-    <loc>https://mizanmaroc.qzz.io/fr</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/ar"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es"/>
-    <changefreq>daily</changefreq>
+    <loc>https://mizanmaroc.qzz.io/library/jurisprudence</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/library/jurisprudence" />
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-  <!-- Spanish Version -->
   <url>
-    <loc>https://mizanmaroc.qzz.io/es</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/ar"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es"/>
-    <changefreq>daily</changefreq>
+    <loc>https://mizanmaroc.qzz.io/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/pricing" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/pricing" />
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
-
-
-  <!-- =================================================== -->
-  <!-- 2. CLOUDFLARE PAGES DOMAIN: mizandigital.pages.dev  -->
-  <!-- =================================================== -->
-
   <url>
     <loc>https://mizandigital.pages.dev/</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/ar"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en"/>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es" />
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-
   <url>
-    <loc>https://mizandigital.pages.dev/ar</loc>
-    <changefreq>daily</changefreq>
+    <loc>https://mizandigital.pages.dev/library</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/library" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/library" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/library" />
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://mizandigital.pages.dev/en</loc>
-    <changefreq>daily</changefreq>
+    <loc>https://mizandigital.pages.dev/archive</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/archive" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/archive" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/archive" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/archive" />
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://mizandigital.pages.dev/fr</loc>
-    <changefreq>daily</changefreq>
+    <loc>https://mizandigital.pages.dev/library/jurisprudence</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/library/jurisprudence" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/library/jurisprudence" />
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
   <url>
-    <loc>https://mizandigital.pages.dev/es</loc>
-    <changefreq>daily</changefreq>
+    <loc>https://mizandigital.pages.dev/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/pricing" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/pricing" />
+    <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
 </urlset>

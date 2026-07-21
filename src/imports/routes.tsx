@@ -1,25 +1,28 @@
 import React, { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, useLocation, useParams } from "react-router";
+import { Loader2 } from "lucide-react";
 import { buildLocalizedPath, getPreferredBrowserLanguage } from "../app/lib/i18n";
 
-// ── 📦 استيراد المغلفات الرئيسية (Layouts) ──
+// ── 📦 Layout Imports ──
 import Layout from "../app/components/Layout";
 import AdminLayout from "../app/components/AdminLayout";
 
-// ── 🌐 استيراد صفحات الموقع العام ──
+// ── 🌐 Public Site Pages (Lazy Loaded for Chunk Optimization) ──
 const Home = lazy(() => import("../app/pages/Home"));
-import About from "../app/pages/About";
 const Archive = lazy(() => import("../app/pages/Archive"));
 const ArticleDetail = lazy(() => import("../app/pages/ArticleDetail"));
-import Contact from "../app/pages/Contact";
-import Legal from "../app/pages/Legal";
 const Library = lazy(() => import("../app/pages/Library"));
 const Login = lazy(() => import("../app/pages/Login"));
 const Profile = lazy(() => import("../app/pages/Profile"));
+
+// ── 🌐 Static / Fast-Loading Public Pages ──
+import About from "../app/pages/About";
+import Contact from "../app/pages/Contact";
+import Legal from "../app/pages/Legal";
 import Pricing from "../app/pages/Pricing";
 import NotFound from "../app/pages/NotFound";
 
-// ── 🛡️ استيراد صفحات لوحة التحكم ──
+// ── 🛡️ Admin Dashboard Pages ──
 import Dashboard from "../app/pages/admin/Dashboard";
 import AdminUsers from "../app/pages/admin/AdminUsers";
 import AdminArticles from "../app/pages/admin/AdminArticles";
@@ -29,36 +32,64 @@ import AdminSeo from "../app/pages/admin/AdminSeo";
 import AdminSecurity from "../app/pages/admin/AdminSecurity";
 import AdminLogin from "../app/pages/admin/AdminLogin";
 
+// Supported 4-language matrix
+const ALLOWED_LANGS = ["ar", "fr", "en", "es"] as const;
+
+/**
+ * Universal Dark-Mode & Mobile Compatible Fallback Loader
+ */
+function PageLoader() {
+  return (
+    <div 
+      className="min-h-[60vh] w-full flex flex-col items-center justify-center p-6 bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 transition-colors"
+      aria-label="Loading page content"
+    >
+      <Loader2 className="w-8 h-8 animate-spin text-blue-600 dark:text-blue-400 mb-3" />
+      <span className="text-xs font-medium tracking-wide animate-pulse">
+        Loading...
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Redirects unlocalized paths (e.g., `/about`) to the browser's preferred language path (e.g., `/ar/about`).
+ */
 function RedirectToPreferredLang() {
   const location = useLocation();
   const targetLang = getPreferredBrowserLanguage();
-  const redirectPath = buildLocalizedPath(location.pathname + location.search + location.hash, targetLang);
+  const fullPath = location.pathname + location.search + location.hash;
+  const redirectPath = buildLocalizedPath(fullPath, targetLang);
 
   return <Navigate to={redirectPath} replace />;
 }
 
-// ── 🛡️ حارس اللغة (Language Guard) ──
-// بديل ذكي ومتوافق مع إصدارات React Router الحديثة لتعويض غياب الـ Regex في المسارات
+/**
+ * Language Guard: Ensures `:lang` parameter is valid.
+ * Redirects invalid language prefixes to auto-detected preferred locale.
+ */
 function LanguageGuard() {
-  const { lang } = useParams();
-  const allowedLangs = ["ar", "fr", "en", "es"];
+  const { lang } = useParams<{ lang: string }>();
 
-  // إذا كان الجزء الأول من الرابط ليس لغة مدعومة (مثل /about مباشرة)، نرسله للتوجيه الذكي
-  if (!allowedLangs.includes(lang || "")) {
+  if (!lang || !(ALLOWED_LANGS as readonly string[]).includes(lang)) {
     return <RedirectToPreferredLang />;
   }
 
   return <Layout />;
 }
 
-function Suspended({ Component }: { Component: React.LazyExoticComponent<React.ComponentType<any>> }) {
+/**
+ * React Suspense HOC Wrapper for lazy-loaded route components
+ */
+function Suspended({ Component }: { Component: React.ComponentType<any> }) {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Custom loading...</div>}>
+    <Suspense fallback={<PageLoader />}>
       <Component />
     </Suspense>
   );
 }
 
+// ── 🚀 App Router Configuration ──
 export const router = createBrowserRouter([
   {
     path: "/",

@@ -9,6 +9,10 @@ interface AuthModalProps {
   onClose: () => void;
   lang: Lang;
   dir: "rtl" | "ltr";
+  /** Optional callback triggered on success (e.g., set user state in App) */
+  onSuccess?: () => void;
+  /** Optional URL to redirect to after success (Defaults to home "/") */
+  redirectUrl?: string;
 }
 
 const LABELS = {
@@ -102,7 +106,14 @@ function getLabel(key: keyof typeof LABELS, lang: Lang): string {
   return LABELS[key][lang] || LABELS[key].en;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, lang, dir }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({
+  isOpen,
+  onClose,
+  lang,
+  dir,
+  onSuccess,
+  redirectUrl = "/",
+}) => {
   const [mounted, setMounted] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState("");
@@ -149,12 +160,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, lang, dir
 
     timerRef.current = setTimeout(() => {
       setLoading(false);
+
       if (password.length < 6) {
         setErrorMessage(getLabel("errPasswordShort", lang));
       } else {
         setSuccessMessage(getLabel("successAuth", lang));
+
+        // 1. Save session to localStorage so application knows user is logged in
+        try {
+          const userObj = {
+            email,
+            name: username || email.split("@")[0],
+            role: "academic",
+            isLoggedIn: true,
+          };
+          localStorage.setItem("mizan_user", JSON.stringify(userObj));
+        } catch {
+          // Ignore localStorage errors in restricted environments
+        }
+
+        // 2. Wait 1.2s to show success feedback, then close & redirect
         timerRef.current = setTimeout(() => {
           onClose();
+
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            // Redirect to home or target page
+            window.location.href = redirectUrl;
+          }
         }, 1200);
       }
     }, 1200);
@@ -174,7 +208,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, lang, dir
         className="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 md:p-8 shadow-2xl space-y-6"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close (X) Button (Using native `end-4` for direction awareness) */}
+        {/* Close (X) Button */}
         <button
           onClick={onClose}
           type="button"

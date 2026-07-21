@@ -1,7 +1,15 @@
-@custom-variant dark (&:is(.dark *));
+/* ── 🎨 Mizan Digital Platform - Theme Definitions & Token Mapping ── */
+
+/* Register custom dark variant selector for Tailwind CSS v4 */
+@custom-variant dark (&:is(.dark, .dark *));
 
 :root {
   --font-size: 16px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --radius: 0.5rem;
+
+  /* 🏛️ Institutional Light Palette */
   --background: #ffffff;
   --foreground: #111827;
   --card: #f9fafb;
@@ -22,15 +30,16 @@
   --input: #ffffff;
   --input-background: #f9fafb;
   --switch-background: #d1d5db;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
   --ring: #1d4ed8;
+
+  /* Data Visualization & Analytics */
   --chart-1: #1d4ed8;
   --chart-2: #059669;
   --chart-3: #d97706;
   --chart-4: #7c3aed;
   --chart-5: #db2777;
-  --radius: 0.5rem;
+
+  /* Sidebar Tokens */
   --sidebar: #f9fafb;
   --sidebar-foreground: #111827;
   --sidebar-primary: #1d4ed8;
@@ -41,7 +50,7 @@
   --sidebar-ring: #1d4ed8;
 }
 
-/* Dark mode — Obsidian charcoal / deep velvet navy + academic gold accent */
+/* 🌙 Obsidian Charcoal / Deep Velvet Navy + Academic Gold Accent */
 .dark {
   --background: #0a0f1a;
   --foreground: #e6eaf2;
@@ -63,14 +72,16 @@
   --input: #16203a;
   --input-background: #16203a;
   --switch-background: #2a3552;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
   --ring: #c9a227;
+
+  /* Data Visualization & Analytics */
   --chart-1: #c9a227;
   --chart-2: #4f7bd6;
   --chart-3: #6fae8f;
   --chart-4: #b07bd6;
   --chart-5: #d6706f;
+
+  /* Sidebar Tokens */
   --sidebar: #0a0f1a;
   --sidebar-foreground: #e6eaf2;
   --sidebar-primary: #c9a227;
@@ -81,6 +92,7 @@
   --sidebar-ring: #c9a227;
 }
 
+/* 🚀 Inline Theme Registration for Tailwind CSS v4 */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -103,15 +115,18 @@
   --color-input-background: var(--input-background);
   --color-switch-background: var(--switch-background);
   --color-ring: var(--ring);
+
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -122,62 +137,48 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* 🌐 Base Global Resets & Typography Defaults */
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
+    outline-color: var(--ring);
   }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
 
   html {
     font-size: var(--font-size);
   }
 
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
   h1 {
-    font-size: var(--text-2xl);
+    font-size: 1.5rem;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   h2 {
-    font-size: var(--text-xl);
+    font-size: 1.25rem;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   h3 {
-    font-size: var(--text-lg);
+    font-size: 1.125rem;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
-  h4 {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  label {
-    font-size: var(--text-base);
-    font-weight: var(--font-weight-medium);
-    line-height: 1.5;
-  }
-
-  button {
-    font-size: var(--text-base);
+  h4, label, button {
+    font-size: 1rem;
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
   }
 
   input {
-    font-size: var(--text-base);
+    font-size: 1rem;
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }

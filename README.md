@@ -1,48 +1,60 @@
 # ⚖️ Mizan Digital Platform | منصة ميزان الرقمية
 
-**Mizan Digital** is a modern, high-performance, bilingual (Arabic & English) legal technology platform. Built with React, TypeScript, Tailwind CSS, and Supabase, it features role-based subscription tiers, dynamic monetization tools, credit rewards, and Cloudflare Edge hosting.
+[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3FCF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages%20%26%20Workers-F38020?style=flat&logo=cloudflare&logoColor=white)](https://pages.cloudflare.com/)
+
+**Mizan Digital** (ميزان الرقمية) is an institutional-grade, high-performance legal technology and digital archive platform designed for researchers, lawyers, and legal scholars in Morocco and across the MENA region. Built with React 19, TypeScript, Tailwind CSS v4, and Supabase, it delivers localized legal database queries, dynamic monetization models, and credit rewards over Cloudflare's global edge network.
 
 ---
 
 ## 🌟 Key Features
 
-* 🌐 **Bilingual & RTL/LTR Native:** Full support for Arabic and English with automated localized routing, dynamic font switching, and RTL direction handling.
-* 🔐 **Role-Based Access Control (RBAC):** Tier-based access management (Free, Premium) powered by Supabase Auth and hooks.
-* 💳 **Dynamic Monetization & Gated Content:** Feature locking for free users, dynamic preview blur walls, and premium conversion triggers.
-* 📺 **Smart AdSense & Reward Systems:** Integrated Google AdSense injection, click-fraud detection, and rewarded ad watching for tool credits.
-* ⚡ **Ultra-Fast Edge Deployment:** Optimized SPA configuration for Cloudflare Pages/Workers with pre-configured `wrangler.json`.
-* 🎨 **Accessible UI Components:** Accessible, high-performance components built using Radix UI primitives and Tailwind CSS.
+* 🌐 **Multilingual & RTL/LTR Native Architecture:** Native support for Arabic (`ar`), English (`en`), French (`fr`), and Spanish (`es`) with dynamic text direction handling, font loading (`Noto Serif Arabic`, `Playfair Display`, `Inter`), and localized SEO tags.
+* 🔐 **Role-Based Access Control (RBAC):** Multi-tier user authorization (`guest`, `member`, `premium_member`, `writer`, `security_admin`, `root`) powered by Supabase Auth and React hooks.
+* 💳 **Dynamic Monetization & Gated Content:** Paywall preview overlays, blurred legal documents for unpaid tiers, and seamless subscription upgrades (`free`, `premium`, `enterprise`).
+* 📺 **Ad Rewards & Monetization:** Integrated Google AdSense injection, click-fraud mitigation, and rewarded ad viewing mechanisms for extra research credits.
+* 📱 **Mobile & OLED Optimized:** Responsive touch-first UI, high-contrast Obsidian dark mode (`#0a0f1a`), and 16px iOS auto-zoom prevention.
+* ⚡ **Ultra-Fast Edge Deployment:** Zero-latency Single Page Application (SPA) delivery optimized for Cloudflare Pages and Workers (`wrangler`).
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
+| Category | Technologies Used |
 | :--- | :--- |
-| **Frontend** | React 18+, TypeScript, Vite |
-| **Styling** | Tailwind CSS, Lucide Icons |
-| **UI Primitives** | Radix UI (Accordion, Modals, Triggers) |
-| **Backend & Auth** | Supabase (Database, Auth, Credits System) |
-| **Hosting & Edge** | Cloudflare Pages / Workers (`wrangler`) |
-| **Analytics & Ads** | Google Analytics (GA4), Google AdSense |
+| **Frontend Framework** | React 19, Vite, React Router |
+| **Language & Types** | TypeScript 5 (Strict Mode enabled) |
+| **Styling & Design System** | Tailwind CSS v4, Lucide React, Shadcn UI / Radix UI Primitives |
+| **Backend & Authentication** | Supabase (PostgreSQL, Row-Level Security, Auth Client) |
+| **Edge Hosting & Infrastructure** | Cloudflare Pages / Workers (`wrangler.json`) |
+| **Analytics & Monetization** | Google Analytics (GA4), Cloudflare Insights, Google AdSense |
 
 ---
 
-## 🚀 Getting Started
+## 📂 Project Structure
 
-### 1. Prerequisites
-
-Ensure you have **Node.js** (v18 or higher) and `npm` installed on your development machine.
-
-### 2. Environment Variables Setup
-
-Create a `.env` file in the root directory and configure the required environment keys:
-
-```env
-# Supabase Configuration
-VITE_SUPABASE_URL=[https://your-supabase-instance.supabase.co](https://your-supabase-instance.supabase.co)
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-
-# Google Analytics & AdSense (Optional)
-VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-VITE_GOOGLE_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXX
+```text
+mizandigital/
+├── public/                 # Static assets & OpenGraph images
+├── src/
+│   ├── app/                # Feature modules & route wrappers
+│   ├── components/         # Reusable UI & Shadcn components
+│   ├── hooks/              # Custom React hooks (Auth, RBAC, Credits)
+│   ├── lib/                # Supabase client & third-party integrations
+│   ├── styles/             # Tailwind CSS v4, CSS variables & typography
+│   │   ├── fonts.css       # Font imports (Arabic/English serif & sans)
+│   │   ├── globals.css     # Global CSS resets & root variables
+│   │   ├── tailwind.css    # Tailwind v4 engine directive & sources
+│   │   ├── theme.css       # Institutional Ivy League theme tokens
+│   │   └── index.css       # Master stylesheet import cascade
+│   ├── types/              # Database models (`database.ts`) & UI interfaces
+│   ├── main.tsx            # Application entry point
+│   └── vite-env.d.ts       # Strictly-typed Vite environment declarations
+├── .env.local              # Local environment variables (Git-ignored)
+├── index.html              # HTML shell with mobile preconnects & CSP
+├── package.json            # Scripts & project dependencies
+└── wrangler.json           # Cloudflare Pages deployment configuration
