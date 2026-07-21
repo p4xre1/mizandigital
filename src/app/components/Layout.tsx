@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, Link, useLocation, useNavigate } from "react-router";
 import {
   Menu, X, ChevronDown, ChevronRight, Search, Scale, BookOpen,
@@ -30,18 +30,19 @@ function UtilityBar() {
   };
 
   return (
-    <div className="bg-blue-600 text-white text-xs border-b border-blue-700" role="status">
-      <div className="max-w-7xl mx-auto px-6 h-9 flex items-center justify-between">
-        <span className="font-semibold tracking-wide text-white" style={{ fontFamily: serifFont(lang) }}>
+    <div className="bg-blue-600 dark:bg-blue-950 text-white text-xs border-b border-blue-700 dark:border-blue-900 transition-colors" role="status">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-9 flex items-center justify-between">
+        <span className="font-semibold tracking-wide text-white truncate" style={{ fontFamily: serifFont(lang) }}>
           {t("motto")}
         </span>
-        <div className="flex items-center gap-1">
-          {LANGS.map(l => (
+        <div className="flex items-center gap-1 shrink-0">
+          {LANGS.map((l) => (
             <button 
               key={l.code} 
+              type="button"
               onClick={() => handleLanguageChange(l.code)}
               aria-label={`Change language to ${l.label}`}
-              className={`px-2 py-0.5 rounded transition-colors focus:outline-none cursor-pointer ${
+              className={`px-2 py-1 rounded text-[11px] transition-colors focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer touch-manipulation ${
                 lang === l.code ? "bg-white/20 text-white font-bold" : "hover:bg-white/10 text-blue-100"
               }`}
             >
@@ -49,11 +50,12 @@ function UtilityBar() {
             </button>
           ))}
           <button 
+            type="button"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            className="flex items-center gap-1.5 px-2 py-0.5 rounded hover:bg-white/10 text-blue-100 transition-colors ms-2 cursor-pointer"
+            className="flex items-center justify-center p-1 rounded hover:bg-white/10 text-blue-100 transition-colors ms-1.5 cursor-pointer touch-manipulation"
           >
-            {theme === "dark" ? <Sun size={13} aria-hidden="true" /> : <Moon size={13} aria-hidden="true" />}
+            {theme === "dark" ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -73,15 +75,16 @@ function MobileControls() {
   };
 
   return (
-    <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 rounded-xl p-3 flex items-center justify-between gap-2" role="toolbar" aria-label="Mobile site controls">
+    <div className="bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-200 rounded-xl p-3 flex items-center justify-between gap-2 select-none" role="toolbar" aria-label="Mobile site controls">
       <div className="flex items-center gap-1">
-        {LANGS.map(l => (
+        {LANGS.map((l) => (
           <button 
             key={l.code} 
+            type="button"
             onClick={() => handleLanguageChange(l.code)}
             aria-label={`Change language to ${l.label}`}
-            className={`px-2.5 py-1 text-xs rounded-lg transition-colors focus:outline-none cursor-pointer ${
-              lang === l.code ? "bg-blue-600 text-white font-bold shadow-xs" : "hover:bg-slate-200 text-slate-700 dark:text-slate-300"
+            className={`min-h-[36px] px-3 py-1.5 text-xs rounded-lg font-medium transition-colors focus:outline-none cursor-pointer touch-manipulation ${
+              lang === l.code ? "bg-blue-600 text-white font-bold shadow-xs" : "hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
             }`}
           >
             {l.label}
@@ -89,9 +92,10 @@ function MobileControls() {
         ))}
       </div>
       <button 
+        type="button"
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-200 text-slate-700 dark:text-slate-200 transition-colors focus:outline-none cursor-pointer border border-slate-200 dark:border-slate-700"
+        className="min-h-[36px] px-3 py-1.5 flex items-center gap-1.5 text-xs font-semibold rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors focus:outline-none cursor-pointer border border-slate-200 dark:border-slate-700 touch-manipulation"
       >
         {theme === "dark" ? <Sun size={14} aria-hidden="true" /> : <Moon size={14} aria-hidden="true" />}
       </button>
@@ -254,20 +258,20 @@ function NavActions({ tier, isAuthenticated, onOpenAuth }: NavActionsProps) {
   const localizedPath = useLocalizedPath();
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2.5">
       {tier === "free" ? (
         <Link 
           to={localizedPath("/pricing")} 
-          className="text-xs sm:text-sm px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold transition-all flex items-center gap-1.5 shadow-xs"
+          className="text-xs sm:text-sm px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold transition-all flex items-center gap-1.5 shadow-xs touch-manipulation min-h-[38px]"
           style={{ fontFamily: sansFont(lang) }}
         >
-          <Sparkles size={13} className="fill-current animate-pulse" />
+          <Sparkles size={13} className="fill-current animate-pulse shrink-0" aria-hidden="true" />
           <span className="hidden sm:inline">{t4("ترقية الاشتراك ✨", "Premium ✨", "Go Premium ✨", "Premium ✨")[lang]}</span>
           <span className="sm:hidden">✨</span>
         </Link>
       ) : (
-        <div className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold rounded-full flex items-center gap-1">
-          <Sparkles size={10} className="fill-current animate-pulse" />
+        <div className="px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold rounded-full flex items-center gap-1 select-none">
+          <Sparkles size={11} className="fill-current animate-pulse shrink-0" aria-hidden="true" />
           <span>{tier === "enterprise" ? t4("شراكة جامعية", "Univ Access", "Univ", "Univ")[lang] : t4("بريميوم", "Premium", "Premium", "Premium")[lang]}</span>
         </div>
       )}
@@ -276,15 +280,15 @@ function NavActions({ tier, isAuthenticated, onOpenAuth }: NavActionsProps) {
         <Link 
           to={localizedPath("/profile")} 
           aria-label="Profile Panel"
-          className="p-2 border border-slate-200 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors flex items-center justify-center"
+          className="p-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center min-h-[38px] min-w-[38px] touch-manipulation"
         >
-          <User size={16} />
+          <User size={16} aria-hidden="true" />
         </Link>
       ) : (
         <button 
           type="button"
           onClick={onOpenAuth} 
-          className="text-xs sm:text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all font-bold focus:outline-none cursor-pointer shadow-xs" 
+          className="text-xs sm:text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl transition-all font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-xs touch-manipulation min-h-[38px]" 
           style={{ fontFamily: sansFont(lang) }}
         >
           {t("login")}
@@ -316,19 +320,19 @@ function NavDesktop({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
   };
 
   return (
-    <nav className="hidden lg:block bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <nav className="hidden lg:block bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-xs transition-colors">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <Link to={localizedPath("/")} className="flex items-center gap-3 shrink-0 focus:outline-none rounded-md p-1">
           <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center" aria-hidden="true">
             <Scale size={18} className="text-white" />
           </div>
           <div>
-            <span className="block text-base font-bold text-slate-900 leading-none" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
-            <span className="block text-[10px] text-slate-500 tracking-widest font-mono mt-0.5">MIZAN LEGAL ARCHIVE</span>
+            <span className="block text-base font-bold text-slate-900 dark:text-slate-100 leading-none" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+            <span className="block text-[10px] text-slate-500 dark:text-slate-400 tracking-widest font-mono mt-0.5">MIZAN LEGAL ARCHIVE</span>
           </div>
         </Link>
 
-        <div className="flex items-center gap-1" role="menubar" aria-label="Main Navigation">
+        <div className="flex items-center gap-1" role="navigation" aria-label="Main Navigation">
           {megaMenuData.map((item, i) => (
             <div 
               key={i} 
@@ -344,44 +348,43 @@ function NavDesktop({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
             >
               <Link 
                 to={localizedPath(item.href)}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
-                  open === i ? "bg-slate-100 text-blue-600" : "text-slate-800 hover:text-blue-600 hover:bg-slate-50"
+                className={`flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                  open === i 
+                    ? "bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400" 
+                    : "text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 }`}
                 style={{ fontFamily: sansFont(lang) }}
-                role="menuitem"
                 aria-haspopup="true"
                 aria-expanded={open === i}
               >
-                <span className="text-slate-500" aria-hidden="true">{item.icon}</span>
-                {item.label[lang]}
+                <span className="text-slate-500 dark:text-slate-400" aria-hidden="true">{item.icon}</span>
+                <span>{item.label[lang]}</span>
                 <ChevronDown size={12} className={`transition-transform duration-200 ${open === i ? "rotate-180" : ""}`} aria-hidden="true" />
               </Link>
 
               {/* Mega Dropdown */}
               {open === i && (
                 <div 
-                  className={`absolute top-full mt-1 bg-white text-slate-900 border border-slate-200 rounded-xl shadow-xl p-6 z-50 min-w-max animate-in fade-in duration-150 ${
+                  className={`absolute top-full mt-1 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-6 z-50 min-w-max animate-in fade-in duration-150 ${
                     dir === "rtl" ? "right-0" : "left-0"
                   }`} 
                   dir={dir}
-                  role="menu"
                 >
                   <div className="flex gap-8">
                     {item.cols.map((col, ci) => (
                       <div key={ci} className="min-w-[180px]">
-                        <p className="text-xs font-bold text-slate-900 tracking-wider uppercase mb-3 pb-2 border-b border-slate-200">
+                        <p className="text-xs font-bold text-slate-900 dark:text-slate-200 tracking-wider uppercase mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
                           {col.heading[lang]}
                         </p>
                         <ul className="space-y-1">
                           {col.links.map((lnk) => (
-                            <li key={lnk.href} role="none">
+                            <li key={lnk.href}>
                               <Link 
                                 to={localizedPath(lnk.href)} 
-                                className="text-sm font-medium text-slate-700 hover:text-blue-600 hover:bg-blue-50/60 px-3 py-2 rounded-lg transition-all flex items-center gap-2 group" 
+                                className="text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50/60 dark:hover:bg-blue-950/40 px-3 py-2 rounded-lg transition-all flex items-center gap-2 group" 
                                 style={{ fontFamily: sansFont(lang) }}
-                                role="menuitem"
                               >
-                                <ChevronRight size={12} className={`opacity-0 group-hover:opacity-100 text-blue-600 transition-all shrink-0 ${dir === "rtl" ? "rotate-180" : ""}`} aria-hidden="true" />
+                                <ChevronRight size={12} className={`opacity-0 group-hover:opacity-100 text-blue-600 dark:text-blue-400 transition-all shrink-0 ${dir === "rtl" ? "rotate-180" : ""}`} aria-hidden="true" />
                                 <span>{lnk.label[lang]}</span>
                               </Link>
                             </li>
@@ -405,7 +408,7 @@ function NavDesktop({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
               placeholder={t("search_placeholder")}
               aria-label={t("search_placeholder")}
               type="search"
-              className={`w-40 py-1.5 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all ${align} ${dir === "rtl" ? "pr-8 pl-3" : "pl-8 pr-3"}`}
+              className={`w-40 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all ${align} ${dir === "rtl" ? "pr-8 pl-3" : "pl-8 pr-3"}`}
               style={{ fontFamily: sansFont(lang) }}
             />
           </form>
@@ -420,40 +423,50 @@ function NavDesktop({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
 function NavTablet({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
   const { lang, dir, t } = useI18n();
   const localizedPath = useLocalizedPath();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const align = dir === "rtl" ? "text-right" : "text-left";
 
+  // Auto-close menu on location change
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) { navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); setOpen(false); }
+    if (q.trim()) { 
+      navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); 
+      setOpen(false); 
+    }
   };
 
   return (
-    <nav className="hidden md:block lg:hidden bg-white sticky top-0 z-40 border-b border-slate-200 shadow-xs">
+    <nav className="hidden md:block lg:hidden bg-white dark:bg-slate-900 sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
       <div className="px-5 h-14 flex items-center justify-between">
         <Link to={localizedPath("/")} className="flex items-center gap-2 rounded-md p-1">
           <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center" aria-hidden="true">
             <Scale size={15} className="text-white" />
           </div>
-          <span className="font-bold text-sm text-slate-900" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+          <span className="font-bold text-sm text-slate-900 dark:text-slate-100" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
         
         <div className="flex items-center gap-3">
           <NavActions tier={tier} isAuthenticated={isAuthenticated} onOpenAuth={onOpenAuth} />
           <button 
+            type="button"
             onClick={() => setOpen(!open)} 
-            className="p-2 text-slate-700 rounded-md cursor-pointer"
+            className="p-2 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-expanded={open}
             aria-label="Toggle navigation drawer"
           >
-            {open ? <X size={18} aria-hidden="true" /> : <Menu size={18} aria-hidden="true" />}
+            {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
           </button>
         </div>
       </div>
       {open && (
-        <div className="border-t border-slate-200 bg-white px-5 py-4 space-y-3" dir={dir}>
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-4 space-y-3" dir={dir}>
           <MobileControls />
           <form onSubmit={handleSearch} className="flex gap-2" role="search" aria-label="Tablet search">
             <input 
@@ -462,13 +475,13 @@ function NavTablet({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
               placeholder={t("search_placeholder_long")}
               aria-label={t("search_placeholder_long")}
               type="search"
-              className={`flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500 ${align}`}
+              className={`flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 ${align}`}
               style={{ fontFamily: sansFont(lang) }} 
             />
             <button 
               type="submit" 
               aria-label="Submit search"
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm cursor-pointer"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm cursor-pointer font-bold touch-manipulation"
             >
               <Search size={14} aria-hidden="true" />
             </button>
@@ -479,12 +492,12 @@ function NavTablet({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
                 key={i} 
                 to={localizedPath(item.href)} 
                 onClick={() => setOpen(false)}
-                className="flex items-center gap-2 p-3 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-sm text-slate-800 font-medium"
+                className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 font-medium touch-manipulation min-h-[44px]"
                 style={{ fontFamily: sansFont(lang) }}
                 role="menuitem"
               >
-                <span className="text-blue-600" aria-hidden="true">{item.icon}</span>
-                {item.label[lang]}
+                <span className="text-blue-600 dark:text-blue-400" aria-hidden="true">{item.icon}</span>
+                <span>{item.label[lang]}</span>
               </Link>
             ))}
           </div>
@@ -497,28 +510,37 @@ function NavTablet({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
 function NavPhone({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
   const { lang, dir, t } = useI18n();
   const localizedPath = useLocalizedPath();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const align = dir === "rtl" ? "text-right" : "text-left";
 
+  // Auto-close menu on location change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) { navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); setMenuOpen(false); }
+    if (q.trim()) { 
+      navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); 
+      setMenuOpen(false); 
+    }
   };
 
   return (
-    <nav className="md:hidden bg-white sticky top-0 z-40 border-b border-slate-200 shadow-xs">
+    <nav className="md:hidden bg-white dark:bg-slate-900 sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
       <div className="px-4 h-14 flex items-center justify-between">
         <Link to={localizedPath("/")} className="flex items-center gap-2 rounded-md p-1">
           <div className="w-7 h-7 bg-blue-600 rounded-md flex items-center justify-center" aria-hidden="true">
             <Scale size={15} className="text-white" />
           </div>
-          <span className="font-bold text-sm text-slate-900" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
+          <span className="font-bold text-sm text-slate-900 dark:text-slate-100" style={{ fontFamily: serifFont(lang) }}>{t("brand_full")}</span>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <NavActions 
             tier={tier} 
             isAuthenticated={isAuthenticated} 
@@ -528,8 +550,9 @@ function NavPhone({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
             }} 
           />
           <button 
+            type="button"
             onClick={() => setMenuOpen(!menuOpen)} 
-            className="p-2 text-slate-800 rounded-md cursor-pointer"
+            className="p-2 text-slate-800 dark:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-expanded={menuOpen}
             aria-label="Toggle navigation menu"
           >
@@ -538,53 +561,54 @@ function NavPhone({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
         </div>
       </div>
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white max-h-[75vh] overflow-y-auto" dir={dir}>
-          <form onSubmit={handleSearch} className="flex gap-2 p-4 border-b border-slate-200" role="search" aria-label="Mobile search">
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 max-h-[75vh] overflow-y-auto" dir={dir}>
+          <form onSubmit={handleSearch} className="flex gap-2 p-4 border-b border-slate-200 dark:border-slate-800" role="search" aria-label="Mobile search">
             <input 
               value={q} 
               onChange={e => setQ(e.target.value)} 
               placeholder={t("search_placeholder")}
               aria-label={t("search_placeholder")}
               type="search"
-              className={`flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-500 ${align}`}
+              className={`flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 ${align}`}
               style={{ fontFamily: sansFont(lang) }} 
             />
             <button 
               type="submit" 
               aria-label="Submit mobile search"
-              className="px-4 bg-blue-600 text-white rounded-lg flex items-center justify-center cursor-pointer"
+              className="px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center cursor-pointer touch-manipulation min-h-[44px]"
             >
-              <Search size={14} aria-hidden="true" />
+              <Search size={16} aria-hidden="true" />
             </button>
           </form>
           <div role="menu" aria-label="Mobile Directory">
             {megaMenuData.map((item, i) => (
-              <div key={i} className="border-b border-slate-200 last:border-0">
+              <div key={i} className="border-b border-slate-200 dark:border-slate-800 last:border-0">
                 <button 
+                  type="button"
                   onClick={() => setExpanded(expanded === i ? null : i)}
-                  className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-bold text-slate-900 hover:bg-slate-50 cursor-pointer"
+                  className="w-full flex items-center justify-between px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer touch-manipulation min-h-[48px]"
                   style={{ fontFamily: sansFont(lang) }}
                   aria-expanded={expanded === i}
                   role="menuitem"
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-blue-600" aria-hidden="true">{item.icon}</span>
-                    {item.label[lang]}
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-blue-600 dark:text-blue-400" aria-hidden="true">{item.icon}</span>
+                    <span>{item.label[lang]}</span>
                   </div>
                   <ChevronDown size={14} className={`text-slate-400 transition-transform duration-200 ${expanded === i ? "rotate-180" : ""}`} aria-hidden="true" />
                 </button>
                 {expanded === i && (
-                  <div className="bg-slate-50 px-5 pb-3">
+                  <div className="bg-slate-50 dark:bg-slate-800/40 px-5 pb-3">
                     {item.cols.map((col, ci) => (
                       <div key={ci} className="mt-3">
-                        <p className="text-xs font-bold text-slate-900 tracking-wider uppercase mb-2">{col.heading[lang]}</p>
+                        <p className="text-xs font-bold text-slate-900 dark:text-slate-200 tracking-wider uppercase mb-2">{col.heading[lang]}</p>
                         <div className="space-y-1">
                           {col.links.map((lnk) => (
                             <Link 
                               key={lnk.href} 
                               to={localizedPath(lnk.href)} 
                               onClick={() => setMenuOpen(false)}
-                              className="block text-sm font-medium text-slate-700 hover:text-blue-600 py-1"
+                              className="block text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 py-1.5 touch-manipulation"
                               style={{ fontFamily: sansFont(lang) }}
                               role="menuitem"
                             >
@@ -599,7 +623,7 @@ function NavPhone({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
               </div>
             ))}
           </div>
-          <div className="p-4 space-y-3">
+          <div className="p-4">
             <MobileControls />
           </div>
         </div>
@@ -619,23 +643,23 @@ const sponsors: { name: string; full: L; tier: L; icon: React.ReactNode }[] = [
 function SponsorRibbon() {
   const { lang, dir, t } = useI18n();
   return (
-    <section className="border-t border-slate-200 bg-slate-50" dir={dir} aria-labelledby="sponsors-heading">
+    <section className="border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40 transition-colors" dir={dir} aria-labelledby="sponsors-heading">
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <h3 id="sponsors-heading" className="text-center text-[11px] font-bold text-slate-500 tracking-widest uppercase mb-5">
+        <h3 id="sponsors-heading" className="text-center text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-5 select-none">
           {t("sponsors_heading")}
         </h3>
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin md:justify-center md:overflow-visible">
-          {sponsors.map(s => (
+          {sponsors.map((s) => (
             <div 
               key={s.name}
-              className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors min-w-[240px]"
+              className="shrink-0 flex items-center gap-3 px-5 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700 transition-colors min-w-[240px]"
             >
-              <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 shrink-0" aria-hidden="true">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0" aria-hidden="true">
                 {s.icon}
               </div>
               <div>
-                <div className="text-sm font-bold text-slate-900" style={{ fontFamily: serifFont(lang) }}>{s.name}</div>
-                <div className="text-[10px] text-slate-500 mt-0.5">{s.tier[lang]}</div>
+                <div className="text-sm font-bold text-slate-900 dark:text-slate-100" style={{ fontFamily: serifFont(lang) }}>{s.name}</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{s.tier[lang]}</div>
               </div>
             </div>
           ))}
@@ -684,7 +708,7 @@ export default function Layout() {
   const handleOpenAuth = () => setIsAuthModalOpen(true);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-slate-900" dir={dir}>
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors" dir={dir}>
       <UtilityBar />
 
       <NavDesktop tier={tier} isAuthenticated={isAuthenticated} onOpenAuth={handleOpenAuth} />
@@ -697,11 +721,11 @@ export default function Layout() {
 
       <SponsorRibbon />
 
-      <footer className="bg-slate-50 border-t border-slate-200 mt-auto" dir={dir} aria-label="Global Site Footer">
+      <footer className="bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 mt-auto transition-colors" dir={dir} aria-label="Global Site Footer">
         <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
           {footerCols.map((col, idx) => (
             <div key={idx}>
-              <h4 className="text-xs font-bold text-slate-900 tracking-widest uppercase mb-4 pb-1 border-b border-slate-200">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 tracking-widest uppercase mb-4 pb-1 border-b border-slate-200 dark:border-slate-800">
                 {col.heading[lang]}
               </h4>
               <ul className="space-y-2.5">
@@ -709,7 +733,7 @@ export default function Layout() {
                   <li key={lidx}>
                     <Link 
                       to={localizedPath(lnk.href)}
-                      className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors block py-0.5"
+                      className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block py-0.5"
                       style={{ fontFamily: sansFont(lang) }}
                     >
                       {lnk.label[lang]}
@@ -721,9 +745,9 @@ export default function Layout() {
           ))}
         </div>
 
-        <div className="border-t border-slate-200 bg-white py-6 px-6">
+        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 px-6">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               &copy; {new Date().getFullYear()} {lang === 'ar' ? 'منصة ميزان الرقمية. جميع الحقوق محفوظة.' : 'Mizan Digital Platform. All rights reserved.'}
             </p>
             <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center">
@@ -731,7 +755,7 @@ export default function Layout() {
                 <Link 
                   key={lidx}
                   to={localizedPath(ll.href)}
-                  className="text-xs text-slate-500 hover:text-blue-600 hover:underline transition-colors"
+                  className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
                   style={{ fontFamily: sansFont(lang) }}
                 >
                   {ll.label[lang]}

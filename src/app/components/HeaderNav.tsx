@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Globe,
   Moon,
@@ -20,6 +23,7 @@ interface HeaderNavProps {
   onToggleTheme: () => void;
   isAuthenticated: boolean;
   userName?: string;
+  onAuthSuccess?: () => void;
 }
 
 interface NavItem {
@@ -35,16 +39,27 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onToggleTheme,
   isAuthenticated,
   userName,
+  onAuthSuccess,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [expandedMobileMenu, setExpandedMobileMenu] = useState<number | null>(null);
 
   const dir = currentLang === "ar" ? "rtl" : "ltr";
-
-  // Dynamic route helper
   const getPath = (href: string) => `/${currentLang}${href}`;
 
-  // Multi-lingual navigation configuration
+  // Lock background scrolling when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mobileMenuOpen]);
+
   const navStructure: Record<Locale, NavItem[]> = {
     ar: [
       {
@@ -131,37 +146,44 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
   const currentNavItems = navStructure[currentLang] || navStructure.ar;
 
+  const handleAuthSuccess = () => {
+    if (onAuthSuccess) {
+      onAuthSuccess();
+    } else {
+      window.location.reload();
+    }
+  };
+
   return (
     <>
       <header
-        className="w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 shadow-xs"
+        className="w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 shadow-xs select-none"
         dir={dir}
       >
         {/* Top Institutional Utility Bar */}
-        <div className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/80 text-xs py-1.5 px-4 md:px-8 flex justify-between items-center">
-          <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 text-xs">
-            <ShieldCheck size={16} className="text-amber-700 dark:text-amber-400" />
-            <span style={{ fontFamily: currentLang === "ar" ? "var(--font-serif-ar)" : "inherit" }}>
+        <div className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/80 text-[11px] py-1 px-3 sm:px-8 flex justify-between items-center gap-2">
+          <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 truncate">
+            <ShieldCheck size={14} className="text-amber-600 dark:text-amber-400 shrink-0" />
+            <span className="truncate" style={{ fontFamily: currentLang === "ar" ? "var(--font-serif-ar)" : "inherit" }}>
               {currentLang === "ar" ? "الحق · العدل · الميزان" : "Veritas · Justitia · Libra"}
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             {/* Language Selector */}
-            <div className="flex items-center gap-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-0.5 shadow-xs">
-              <Globe size={14} className="mx-1 text-slate-600 dark:text-slate-400" aria-hidden="true" />
+            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md p-0.5">
+              <Globe size={12} className="mx-1 text-slate-500 shrink-0 hidden sm:block" />
               {(["ar", "fr", "en", "es"] as Locale[]).map((lang) => (
                 <button
                   key={lang}
                   onClick={() => onLanguageChange(lang)}
-                  className={`px-2 py-0.5 rounded text-xs uppercase font-bold transition-all cursor-pointer ${
+                  className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-extrabold transition-all touch-manipulation active:scale-95 cursor-pointer ${
                     currentLang === lang
-                      ? "bg-blue-900 text-white dark:bg-blue-600 shadow-xs"
-                      : "text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white"
+                      ? "bg-blue-900 text-white dark:bg-blue-600"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
-                  aria-label={`Switch to ${lang}`}
                 >
-                  {lang === "ar" ? "العربية" : lang === "fr" ? "FR" : lang === "en" ? "EN" : "ES"}
+                  {lang === "ar" ? "ع" : lang.toUpperCase()}
                 </button>
               ))}
             </div>
@@ -169,69 +191,61 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {/* Theme Toggle Button */}
             <button
               onClick={onToggleTheme}
-              className="p-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:text-slate-900 transition shadow-xs cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center"
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              className="p-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 active:scale-95 transition touch-manipulation cursor-pointer flex items-center justify-center min-w-[28px] min-h-[28px]"
+              aria-label="Toggle theme"
             >
-              {isDarkMode ? <Sun size={14} className="text-amber-400" /> : <Moon size={14} />}
+              {isDarkMode ? <Sun size={13} className="text-amber-400" /> : <Moon size={13} />}
             </button>
           </div>
         </div>
 
-        {/* Main Navigation Header */}
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-4">
+        {/* Main Header Container */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
           {/* Brand Logo */}
-          <a href={getPath("/")} className="flex items-center gap-3 group shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-blue-900 dark:bg-blue-700 text-white flex items-center justify-center font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+          <Link href={getPath("/")} className="flex items-center gap-2.5 group shrink-0 active:scale-95 transition-transform">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-blue-900 dark:bg-blue-700 text-white flex items-center justify-center font-black text-lg shadow-sm">
               ⚖️
             </div>
             <div className="flex flex-col">
               <span
-                className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-tight"
+                className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none"
                 style={{ fontFamily: currentLang === "ar" ? "var(--font-serif-ar)" : "var(--font-serif-en)" }}
               >
-                {currentLang === "ar" ? "منصة ميزان" : "MIZAN PLATFORM"}
+                {currentLang === "ar" ? "منصة ميزان" : "MIZAN"}
               </span>
-              <span className="text-xs tracking-wider text-slate-600 dark:text-slate-400 uppercase font-semibold">
-                Digital Legal Archive
+              <span className="text-[10px] tracking-wider text-slate-500 dark:text-slate-400 uppercase font-semibold">
+                Legal Archive
               </span>
             </div>
-          </a>
+          </Link>
 
-          {/* Desktop Navigation Links & User Profile */}
+          {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-6">
-            <nav aria-label="Main Navigation" className="flex items-center gap-6 text-sm font-semibold text-slate-800 dark:text-slate-200">
+            <nav className="flex items-center gap-5 text-sm font-semibold text-slate-800 dark:text-slate-200">
               {currentNavItems.map((item, idx) => (
                 <div key={idx} className="relative group py-2">
-                  <a
+                  <Link
                     href={getPath(item.href)}
-                    className="flex items-center gap-1 hover:text-blue-900 dark:hover:text-blue-400 transition-colors py-1"
+                    className="flex items-center gap-1 hover:text-blue-900 dark:hover:text-blue-400 transition-colors"
                   >
                     <span>{item.label}</span>
-                    {item.dropdown && (
-                      <ChevronDown
-                        size={14}
-                        className="opacity-80 group-hover:rotate-180 transition-transform"
-                      />
-                    )}
-                  </a>
+                    {item.dropdown && <ChevronDown size={14} className="opacity-70 group-hover:rotate-180 transition-transform" />}
+                  </Link>
 
                   {item.dropdown && (
                     <div
                       className={`absolute top-full ${
                         dir === "rtl" ? "right-0" : "left-0"
-                      } hidden group-hover:block w-60 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-1`}
+                      } hidden group-hover:block w-56 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50`}
                     >
-                      <div className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 px-3 py-1 border-b border-slate-200 dark:border-slate-800 mb-1">
-                        {item.label}
-                      </div>
-                      {item.dropdown.map((subItem, subIdx) => (
-                        <a
-                          key={subIdx}
-                          href={getPath(subItem.href)}
-                          className="block px-3 py-2 rounded-lg text-xs text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-blue-900 dark:hover:text-blue-400 font-medium transition-colors"
+                      {item.dropdown.map((sub, sIdx) => (
+                        <Link
+                          key={sIdx}
+                          href={getPath(sub.href)}
+                          className="block px-3 py-2 rounded-lg text-xs text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition-colors"
                         >
-                          {subItem.label}
-                        </a>
+                          {sub.label}
+                        </Link>
                       ))}
                     </div>
                   )}
@@ -239,22 +253,22 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               ))}
             </nav>
 
-            {/* User Sign-In Button */}
+            {/* Desktop Auth Button */}
             {isAuthenticated ? (
-              <a
+              <Link
                 href={getPath("/profile")}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold hover:opacity-95 transition shadow-xs min-h-[44px]"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold hover:opacity-95 transition shadow-xs"
               >
-                <User size={16} />
-                <span>{userName || (currentLang === "ar" ? "حسابي" : "My Profile")}</span>
-              </a>
+                <User size={15} />
+                <span>{userName || (currentLang === "ar" ? "حسابي" : "Profile")}</span>
+              </Link>
             ) : (
               <button
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold hover:opacity-95 transition shadow-xs cursor-pointer min-h-[44px]"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold hover:opacity-95 transition shadow-xs cursor-pointer"
               >
-                <User size={16} />
+                <User size={15} />
                 <span>{currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
               </button>
             )}
@@ -262,75 +276,127 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
           {/* Mobile Hamburger Button */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer min-h-[48px] min-w-[48px] flex items-center justify-center"
-            aria-label={mobileMenuOpen ? "Close Menu" : "Open Menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-header-nav"
+            type="button"
+            onClick={() => setMobileMenuOpen(true)}
+            className="lg:hidden p-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-800 active:scale-90 transition-transform touch-manipulation cursor-pointer flex items-center justify-center min-w-[42px] min-h-[42px]"
+            aria-label="Open Mobile Menu"
           >
-            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            <Menu size={22} />
           </button>
         </div>
+      </header>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
+      {/* MOBILE OFF-CANVAS SLIDE DRAWER & BACKDROP */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" dir={dir}>
+          {/* Semi-transparent Backdrop */}
           <div
-            id="mobile-header-nav"
-            className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-6 py-4 space-y-4 shadow-xl"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          {/* Drawer Sidebar */}
+          <aside
+            className={`fixed top-0 bottom-0 ${
+              dir === "rtl" ? "right-0" : "left-0"
+            } w-[82%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-${
+              dir === "rtl" ? "right" : "left"
+            } duration-200`}
           >
-            <nav className="space-y-3">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-900 text-white flex items-center justify-center text-base">
+                  ⚖️
+                </div>
+                <span className="font-bold text-sm text-slate-900 dark:text-white">
+                  {currentLang === "ar" ? "القائمة الرئيسية" : "Menu"}
+                </span>
+              </div>
+              <button
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 touch-manipulation cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Nav Items Accordion */}
+            <div className="p-4 space-y-2 flex-1">
               {currentNavItems.map((item, idx) => (
-                <div key={idx} className="space-y-1">
-                  <a
-                    href={getPath(item.href)}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block font-bold text-sm text-slate-900 dark:text-white hover:text-blue-900 py-1"
-                  >
-                    {item.label}
-                  </a>
-                  {item.dropdown && (
-                    <div className={`space-y-1 ${dir === "rtl" ? "pr-4" : "pl-4"}`}>
+                <div key={idx} className="border-b border-slate-100 dark:border-slate-800/60 pb-2">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href={getPath(item.href)}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="font-bold text-sm text-slate-800 dark:text-slate-200 py-1.5 block hover:text-blue-600"
+                    >
+                      {item.label}
+                    </Link>
+                    {item.dropdown && (
+                      <button
+                        onClick={() =>
+                          setExpandedMobileMenu(expandedMobileMenu === idx ? null : idx)
+                        }
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white touch-manipulation"
+                      >
+                        <ChevronDown
+                          size={16}
+                          className={`transition-transform duration-200 ${
+                            expandedMobileMenu === idx ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Submenu Dropdown */}
+                  {item.dropdown && expandedMobileMenu === idx && (
+                    <div className="mt-1 space-y-1 ltr:pl-3 rtl:pr-3 border-l-2 rtl:border-r-2 rtl:border-l-0 border-blue-600/30">
                       {item.dropdown.map((sub, sIdx) => (
-                        <a
+                        <Link
                           key={sIdx}
                           href={getPath(sub.href)}
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block text-xs text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white py-1.5"
+                          className="block text-xs font-medium text-slate-600 dark:text-slate-400 py-1.5 hover:text-blue-600"
                         >
-                          • {sub.label}
-                        </a>
+                          {sub.label}
+                        </Link>
                       ))}
                     </div>
                   )}
                 </div>
               ))}
-            </nav>
+            </div>
 
-            {isAuthenticated ? (
-              <a
-                href={getPath("/profile")}
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold min-h-[48px]"
-              >
-                <User size={16} />
-                <span>{userName || (currentLang === "ar" ? "حسابي" : "My Profile")}</span>
-              </a>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setIsAuthModalOpen(true);
-                }}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold cursor-pointer min-h-[48px]"
-              >
-                <User size={16} />
-                <span>{currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
-              </button>
-            )}
-          </div>
-        )}
-      </header>
+            {/* Drawer Bottom Actions */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-3">
+              {isAuthenticated ? (
+                <Link
+                  href={getPath("/profile")}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold shadow-sm touch-manipulation"
+                >
+                  <User size={16} />
+                  <span>{userName || (currentLang === "ar" ? "الملف الشخصي" : "Profile")}</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setIsAuthModalOpen(true);
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-900 dark:bg-blue-700 text-white text-xs font-bold shadow-sm touch-manipulation cursor-pointer active:scale-95 transition-transform"
+                >
+                  <User size={16} />
+                  <span>{currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
+                </button>
+              )}
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* Auth Modal */}
       <AuthModal
@@ -338,6 +404,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         onClose={() => setIsAuthModalOpen(false)}
         lang={currentLang}
         dir={dir}
+        onSuccess={handleAuthSuccess}
       />
     </>
   );

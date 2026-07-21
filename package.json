@@ -4,10 +4,12 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "build": "vite build",
     "postbuild": "node scripts/generate-sitemap.mjs",
     "generate-sitemap": "node scripts/generate-sitemap.mjs",
-    "dev": "vite"
+    "typecheck": "tsc --noEmit",
+    "check-site": "./scripts/prepush.sh"
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -80,7 +82,8 @@
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "typescript": "^7.0.2",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "wrangler": "^4.112.0"
   },
   "pnpm": {
     "overrides": {

@@ -1,16 +1,31 @@
-import React from "react";
+import React, { memo } from "react";
 
-export default function Logo({ className = "h-8 w-auto" }: { className?: string }) {
+interface LogoProps {
+  className?: string;
+  size?: number;
+}
+
+const Logo: React.FC<LogoProps> = ({ className = "h-8 w-auto" }) => {
   return (
     <svg
-      className={className}
+      className={`shrink-0 select-none ${className}`}
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      shapeRendering="geometricPrecision"
+      aria-hidden="true"
+      focusable="false"
     >
       {/* Outer elegant ring representing unity and protection */}
-      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="2.5" className="text-primary/20" />
-      
+      <circle
+        cx="50"
+        cy="50"
+        r="45"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        className="text-primary/20"
+      />
+
       {/* Central pillar of justice */}
       <path
         d="M50 22V72"
@@ -19,7 +34,7 @@ export default function Logo({ className = "h-8 w-auto" }: { className?: string 
         strokeLinecap="round"
         className="text-primary"
       />
-      
+
       {/* Base of the scale */}
       <path
         d="M35 72H65"
@@ -83,4 +98,6 @@ export default function Logo({ className = "h-8 w-auto" }: { className?: string 
       <circle cx="50" cy="32" r="4" className="fill-primary" />
     </svg>
   );
-}
+};
+
+export default memo(Logo);
