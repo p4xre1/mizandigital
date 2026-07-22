@@ -1,7 +1,14 @@
 @import "tailwindcss";
 
-:root {
-  /* 🏛️ Institutional Ivy League Light Palette */
+/* ☀️ Force Tailwind v4 to recognize the .light class toggle */
+@variant light (&:where(.light, .light *));
+
+/* 🌙 Force Tailwind v4 to toggle dark mode via the .dark class instead of OS system preferences */
+@variant dark (&:where(.dark, .dark *));
+
+/* 🏛️ Institutional Ivy League Light Palette (Default & Explicit .light) */
+:root,
+.light {
   --background: 40 20% 98%;          /* Parchment Ivory #FAF9F6 */
   --foreground: 220 40% 12%;         /* Deep Institutional Navy Black #101623 */
   --card: 0 0% 100%;                 /* Pure Academic White #FFFFFF */
@@ -23,23 +30,23 @@
   --ring: 218 68% 18%;
   --radius: 0.5rem;
 
-  /* Typography Variables */
-  --font-serif-ar: 'Noto Serif Arabic', 'Amiri', serif;
-  --font-serif-en: 'Playfair Display', 'Georgia', serif;
-  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /* Modern Multilingual Typography Stack */
+  --font-arabic: 'Readex Pro', system-ui, sans-serif;
+  --font-latin: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Readex Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .dark {
   /* 🏛️ Institutional Ivy League Dark Palette */
   --background: 224 71% 4%;           /* Midnight Velvet Black #030712 */
   --foreground: 210 20% 98%;          /* Soft Ivory White */
-  --card: 222 47% 7%;                /* Deep Chamber Blue-Black #0A0F1D */
+  --card: 222 47% 7%;                 /* Deep Chamber Blue-Black #0A0F1D */
   --card-foreground: 210 20% 98%;
   --popover: 222 47% 7%;
   --popover-foreground: 210 20% 98%;
-  --primary: 214 95% 36%;            /* Royal Institutional Blue #0550E6 */
+  --primary: 214 95% 36%;             /* Royal Institutional Blue #0550E6 */
   --primary-foreground: 0 0% 100%;
-  --accent-gold: 43 74% 55%;         /* Amber Academic Gold */
+  --accent-gold: 43 74% 55%;          /* Amber Academic Gold */
   --accent-gold-muted: 43 30% 18%;
   --secondary: 217 33% 15%;
   --secondary-foreground: 210 20% 98%;
@@ -79,8 +86,8 @@
   --radius-lg: calc(var(--radius) + 2px);
 
   --font-sans: var(--font-sans);
-  --font-serif-ar: var(--font-serif-ar);
-  --font-serif-en: var(--font-serif-en);
+  --font-arabic: var(--font-arabic);
+  --font-latin: var(--font-latin);
 }
 
 /* 🌐 Global Base Layer Resets */
@@ -98,5 +105,16 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Automatic font enforcement based on document language */
+  [lang="ar"] {
+    font-family: var(--font-arabic);
+  }
+
+  [lang="en"],
+  [lang="fr"],
+  [lang="es"] {
+    font-family: var(--font-latin);
   }
 }

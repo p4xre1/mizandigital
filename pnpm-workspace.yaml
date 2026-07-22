@@ -1,24 +1,25 @@
 # pnpm-workspace.yaml
 
-# 1. Register workspace packages so PNPM tracks apps/ and packages/
+# 1. Register workspace packages so PNPM tracks packages/ and root app
 packages:
   - 'apps/*'
   - 'packages/*'
   - '.'
 
+# 2. Allow post-install build scripts for native performance tools
 allowBuilds:
-  '@tailwindcss/oxide': set this to true or false
-  esbuild: set this to true or false
+  '@tailwindcss/oxide': true
+  esbuild: true
 
-# 2. Configure cross-platform compilation & binary target overrides
+# 3. Configure cross-platform compilation & binary target overrides
 supportedArchitectures:
   os:
     - linux
-    - current # Allows local development on macOS/Windows laptops
+    - current
   cpu:
     - x64
     - arm64
-    - current # Ensures local dev environments pull native binaries
+    - current
   libc:
     - glibc
-    - current # Automatically matches your local system's C library (e.g., musl or macOS Libc)
+    - current

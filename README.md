@@ -1,60 +1,23 @@
-# ⚖️ Mizan Digital Platform | منصة ميزان الرقمية
-
-[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![React](https://img.shields.io/badge/React-19.x-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3FCF8E?style=flat&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages%20%26%20Workers-F38020?style=flat&logo=cloudflare&logoColor=white)](https://pages.cloudflare.com/)
-
-**Mizan Digital** (ميزان الرقمية) is an institutional-grade, high-performance legal technology and digital archive platform designed for researchers, lawyers, and legal scholars in Morocco and across the MENA region. Built with React 19, TypeScript, Tailwind CSS v4, and Supabase, it delivers localized legal database queries, dynamic monetization models, and credit rewards over Cloudflare's global edge network.
-
----
-
-## 🌟 Key Features
-
-* 🌐 **Multilingual & RTL/LTR Native Architecture:** Native support for Arabic (`ar`), English (`en`), French (`fr`), and Spanish (`es`) with dynamic text direction handling, font loading (`Noto Serif Arabic`, `Playfair Display`, `Inter`), and localized SEO tags.
-* 🔐 **Role-Based Access Control (RBAC):** Multi-tier user authorization (`guest`, `member`, `premium_member`, `writer`, `security_admin`, `root`) powered by Supabase Auth and React hooks.
-* 💳 **Dynamic Monetization & Gated Content:** Paywall preview overlays, blurred legal documents for unpaid tiers, and seamless subscription upgrades (`free`, `premium`, `enterprise`).
-* 📺 **Ad Rewards & Monetization:** Integrated Google AdSense injection, click-fraud mitigation, and rewarded ad viewing mechanisms for extra research credits.
-* 📱 **Mobile & OLED Optimized:** Responsive touch-first UI, high-contrast Obsidian dark mode (`#0a0f1a`), and 16px iOS auto-zoom prevention.
-* ⚡ **Ultra-Fast Edge Deployment:** Zero-latency Single Page Application (SPA) delivery optimized for Cloudflare Pages and Workers (`wrangler`).
-
----
-
-## 🛠️ Tech Stack
-
-| Category | Technologies Used |
-| :--- | :--- |
-| **Frontend Framework** | React 19, Vite, React Router |
-| **Language & Types** | TypeScript 5 (Strict Mode enabled) |
-| **Styling & Design System** | Tailwind CSS v4, Lucide React, Shadcn UI / Radix UI Primitives |
-| **Backend & Authentication** | Supabase (PostgreSQL, Row-Level Security, Auth Client) |
-| **Edge Hosting & Infrastructure** | Cloudflare Pages / Workers (`wrangler.json`) |
-| **Analytics & Monetization** | Google Analytics (GA4), Cloudflare Insights, Google AdSense |
-
----
-
-## 📂 Project Structure
-
-```text
-mizandigital/
+⚖️ Mizan Digital Platform | منصة ميزان الرقميةMizan Digital (ميزان الرقمية - www.mizan.page) is an institutional-grade, high-performance legal technology and digital archive platform designed for researchers, lawyers, and legal scholars in Morocco and across the MENA region. Built with React 19, TypeScript, Tailwind CSS v4, and Supabase, it delivers localized legal database queries, dynamic monetization models, university archives, and credit rewards over Cloudflare's global edge network.🌟 Key Features🌐 Multilingual & RTL/LTR Native Architecture: Native support for Arabic (ar), English (en), French (fr), and Spanish (es) with dynamic text direction handling, localized SEO tags, and custom typography (Readex Pro, Plus Jakarta Sans).🎓 Moroccan FSJES University Archives: Dedicated archives filtered by law faculties (Rabat Agdal, Casablanca Ain Chock, Oujda, Marrakech Cadi Ayyad) and university semesters (S1 through S6).📝 Custom Admin CMS: Complete CRUD interface for creating, editing, categorizing, and assigning legal documents, jurisprudence, and decrees directly to faculties and semesters.🔐 Role-Based Access Control (RBAC): Multi-tier authorization (guest, member, premium_member, writer, security_admin, root) powered by Supabase Auth, Row-Level Security (RLS), and custom React hooks.💳 Dynamic Monetization & Gated Content: Paywall preview overlays, blurred legal documents for unpaid tiers, and seamless subscription tiering (free, premium, enterprise).📺 AdSense & Monetization: Integrated Google AdSense injection, CSP-secured ad containers, and rewarded ad viewing mechanisms for extra research credits.📱 Mobile & OLED Optimized: Responsive touch-first UI, high-contrast dark mode, mobile drawer navigation, and 16px iOS auto-zoom prevention.⚡ Ultra-Fast Edge Deployment: Zero-latency Single Page Application (SPA) delivery optimized for Cloudflare Pages and Workers (wrangler.json).🛠️ Tech StackCategoryTechnologies UsedOfficial Domainhttps://www.mizan.pageFrontend FrameworkReact 19, Vite, React Router v6Language & TypesTypeScript 5 (Strict Mode enabled)Styling & IconsTailwind CSS v4, Lucide React IconsBackend & AuthenticationSupabase (PostgreSQL, Row-Level Security, Realtime, Auth Client)Edge InfrastructureCloudflare Pages / Workers (wrangler.json)Analytics & MonetizationGoogle Analytics (GA4), Cloudflare Insights, Google AdSense📂 Project StructurePlaintextmizandigital/
 ├── public/                 # Static assets & OpenGraph images
 ├── src/
 │   ├── app/                # Feature modules & route wrappers
-│   ├── components/         # Reusable UI & Shadcn components
-│   ├── hooks/              # Custom React hooks (Auth, RBAC, Credits)
-│   ├── lib/                # Supabase client & third-party integrations
-│   ├── styles/             # Tailwind CSS v4, CSS variables & typography
-│   │   ├── fonts.css       # Font imports (Arabic/English serif & sans)
-│   │   ├── globals.css     # Global CSS resets & root variables
-│   │   ├── tailwind.css    # Tailwind v4 engine directive & sources
-│   │   ├── theme.css       # Institutional Ivy League theme tokens
-│   │   └── index.css       # Master stylesheet import cascade
-│   ├── types/              # Database models (`database.ts`) & UI interfaces
+│   ├── components/         # Reusable UI components
+│   │   ├── ads/            # Google AdSense wrappers & ad containers
+│   │   ├── auth/           # Authentication modals & forms
+│   │   └── layout/         # Header, Footer, UtilityBar, MegaMenu (Layout.tsx)
+│   ├── hooks/              # Custom React hooks (useRole, useI18n, useLocalizedPath)
+│   ├── lib/                # Supabase client, analytics, navigation & i18n helpers
+│   ├── pages/              # Application pages
+│   │   ├── admin/          # CMS Admin Dashboard (CmsAdmin.tsx)
+│   │   ├── archive/        # University archives & semester filters
+│   │   ├── jurisprudence/  # Court decisions & rulings
+│   │   └── library/        # Legal texts, decrees & codes
+│   ├── styles/             # Tailwind CSS v4, font declarations & theme tokens
+│   ├── types/              # Database models & UI interfaces
 │   ├── main.tsx            # Application entry point
-│   └── vite-env.d.ts       # Strictly-typed Vite environment declarations
+│   └── vite-env.d.ts       # Vite environment declarations
 ├── .env.local              # Local environment variables (Git-ignored)
-├── index.html              # HTML shell with mobile preconnects & CSP
-├── package.json            # Scripts & project dependencies
+├── index.html              # HTML shell with AdSense scripts, preconnects & CSP
+├── package.json            # Dependencies & build scripts
 └── wrangler.json           # Cloudflare Pages deployment configuration

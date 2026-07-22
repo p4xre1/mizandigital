@@ -10,6 +10,10 @@ build/
 out/
 *.tsbuildinfo
 
+# ── ☁️ Cloudflare & Deployment ──
+.wrangler/
+.dev.vars
+
 # ── 🔐 Environment & Secret Files ──
 .env
 .env.local

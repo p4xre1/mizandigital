@@ -1,0 +1,9 @@
+# Mizan Legal Digital Platform
+
+> Comprehensive academic and legal archive for law students and researchers in Morocco.
+
+## Core Navigation
+- [Academic Archive](https://www.mizan.page/archive): Semester 1 to Semester 6 study materials.
+- [Legal Library](https://www.mizan.page/library): Legal texts, books, and reference material.
+- [Jurisprudence](https://www.mizan.page/jurisprudence): Moroccan case law and court rulings.
+- [Law Schools](https://www.mizan.page/schools): Directory of legal faculties across Morocco.

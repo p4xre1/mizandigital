@@ -1,17 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { RouterProvider } from "react-router";
-import { router } from "./imports/routes";
-import { I18nProvider } from "./app/lib/i18n";
+import App from "./App";
 import "./styles/globals.css";
 
 // 🚀 Site Domain Configuration
 const SITE_URL =
-  (import.meta.env.VITE_SITE_URL as string) || "https://mizanmaroc.qzz.io";
+  (import.meta.env.VITE_SITE_URL as string) || "https://www.mizan.page";
 
 /**
- * Dynamically injects Schema.org WebSite JSON-LD for rich search results.
- * Supports multi-language search endpoints across Arabic, French, English, and Spanish.
+ * Dynamically injects Schema.org WebSite JSON-LD for Google Morocco search results.
  */
 function injectWebSiteSchema() {
   if (typeof document === "undefined") return;
@@ -22,20 +19,20 @@ function injectWebSiteSchema() {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Mizan Digital Platform",
+    "name": "منصة ميزان الرقمية - Mizan Digital",
     "alternateName": [
-      "منصة ميزان الرقمية",
-      "Plateforme Numérique Mizan",
-      "Plataforma Digital Mizan"
+      "منصة ميزان القانونية المغربية",
+      "Mizan Law Morocco",
+      "Plateforme Numérique Mizan Maroc"
     ],
     "url": SITE_URL,
-    "description": "المرجع الأول للباحثين القانونيين والمحامين - أرشيف قانوني شامل ونصوص تشريعية محدثة.",
-    "inLanguage": ["ar", "fr", "en", "es"],
+    "description": "المرجع الأول للباحثين القانونيين والمحامين في المغرب - أرشيف قانوني شامل، النصوص التشريعية المحدثة، ومدونة الأسرة والشغل.",
+    "inLanguage": ["ar-MA", "fr-MA", "ar", "fr"],
     "potentialAction": {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": `${SITE_URL}/{lang}/archive?search={search_term_string}`
+        "urlTemplate": `${SITE_URL}/archive?search={search_term_string}`
       },
       "query-input": "required name=search_term_string"
     }
@@ -48,8 +45,29 @@ function injectWebSiteSchema() {
   document.head.appendChild(script);
 }
 
-// Inject structured SEO metadata
+/**
+ * Registers PWA Service Worker for zero-lag mobile loading and offline legal access.
+ */
+function registerServiceWorker() {
+  if ("serviceWorker" in navigator && import.meta.env.PROD) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          console.log("⚡ [Mizan PWA] Service Worker registered:", reg.scope);
+        })
+        .catch((err) => {
+          console.error("❌ [Mizan PWA] Service Worker registration failed:", err);
+        });
+    });
+  }
+}
+
+// Inject structured SEO metadata for Google Morocco
 injectWebSiteSchema();
+
+// Enable offline PWA capabilities for smartphones
+registerServiceWorker();
 
 // Mount React Root securely
 const rootElement = document.getElementById("root");
@@ -60,10 +78,5 @@ if (!rootElement) {
   );
 }
 
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <I18nProvider>
-      <RouterProvider router={router} />
-    </I18nProvider>
-  </React.StrictMode>
-);
+// ⚡ Simply render <App /> here!
+ReactDOM.createRoot(rootElement).render(<App />);

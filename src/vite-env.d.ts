@@ -7,7 +7,7 @@
 interface ImportMetaEnv {
   /**
    * Primary canonical site URL
-   * @example "https://mizanmaroc.qzz.io"
+   * @example "https://www.mizan.page"
    */
   readonly VITE_SITE_URL?: string;
 
