@@ -1,93 +1,761 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- ==================================================================== -->
+  <!-- 🌐 1. CORE PORTALS & MAIN SECTIONS (الرئيسية والأقسام الكبرى)          -->
+  <!-- ==================================================================== -->
+
+  <!-- 🏠 Home Portal -->
   <url>
-    <loc>https://mizanmaroc.qzz.io/</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es" />
+    <loc>https://www.mizan.page/ar</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar" />
+    <lastmod>2026-07-22</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- ⚖️ Main Legal Database Index -->
   <url>
-    <loc>https://mizanmaroc.qzz.io/library</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/library" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/library" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/library" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/library" />
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://mizanmaroc.qzz.io/archive</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/archive" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/archive" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/archive" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/archive" />
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://mizanmaroc.qzz.io/library/jurisprudence</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/library/jurisprudence" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/library/jurisprudence" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/library/jurisprudence" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/library/jurisprudence" />
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://mizanmaroc.qzz.io/pricing</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizanmaroc.qzz.io/pricing" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizanmaroc.qzz.io/fr/pricing" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizanmaroc.qzz.io/en/pricing" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizanmaroc.qzz.io/es/pricing" />
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://mizandigital.pages.dev/</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es" />
+    <loc>https://www.mizan.page/ar/laws</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws" />
+    <lastmod>2026-07-22</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>0.95</priority>
   </url>
+
+  <!-- 🎓 Law Faculties Directory Index -->
   <url>
-    <loc>https://mizandigital.pages.dev/library</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/library" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/library" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/library" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/library" />
+    <loc>https://www.mizan.page/ar/law-schools</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools" />
+    <lastmod>2026-07-22</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.90</priority>
   </url>
+
+  <!-- 📚 Legal Library & Jurisprudence Archive -->
   <url>
-    <loc>https://mizandigital.pages.dev/archive</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/archive" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/archive" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/archive" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/archive" />
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <loc>https://www.mizan.page/ar/library</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/library" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/library" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/library" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/library" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/library" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
   </url>
+
+  <!-- ==================================================================== -->
+  <!-- 🇲🇦 2. MOROCCAN STATUTORY CODES (أمهات القوانين والمدونات المغربية)      -->
+  <!-- ==================================================================== -->
+
+  <!-- Code des Obligations et Contrats (قانون الالتزامات والعقود) -->
   <url>
-    <loc>https://mizandigital.pages.dev/library/jurisprudence</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/library/jurisprudence" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/library/jurisprudence" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/library/jurisprudence" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/library/jurisprudence" />
+    <loc>https://www.mizan.page/ar/laws/doc-obligations-contrats</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/doc-obligations-contrats" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/doc-obligations-contrats" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/doc-obligations-contrats" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/doc-obligations-contrats" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/doc-obligations-contrats" />
+    <lastmod>2026-07-22</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.88</priority>
   </url>
+
+  <!-- Code de la Famille / Moudawana (مدونة الأسرة) -->
   <url>
-    <loc>https://mizandigital.pages.dev/pricing</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://mizandigital.pages.dev/pricing" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://mizandigital.pages.dev/fr/pricing" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://mizandigital.pages.dev/en/pricing" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://mizandigital.pages.dev/es/pricing" />
+    <loc>https://www.mizan.page/ar/laws/code-de-la-famille</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/code-de-la-famille" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/code-de-la-famille" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/code-de-la-famille" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/code-de-la-famille" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/code-de-la-famille" />
+    <lastmod>2026-07-22</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.88</priority>
   </url>
+
+  <!-- Code de Commerce (مدونة التجارة) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/code-de-commerce</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/code-de-commerce" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/code-de-commerce" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/code-de-commerce" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/code-de-commerce" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/code-de-commerce" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Code du Travail (مدونة الشغل) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/code-du-travail</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/code-du-travail" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/code-du-travail" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/code-du-travail" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/code-du-travail" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/code-du-travail" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Code Pénal (القانون الجنائي المغربي) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/code-penal</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/code-penal" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/code-penal" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/code-penal" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/code-penal" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/code-penal" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Code de Procédure Civile (قانون المسطرة المدنية) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/procedure-civile</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/procedure-civile" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/procedure-civile" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/procedure-civile" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/procedure-civile" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/procedure-civile" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Code de Procédure Pénale (قانون المسطرة الجنائية) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/procedure-penale</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/procedure-penale" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/procedure-penale" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/procedure-penale" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/procedure-penale" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/procedure-penale" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.88</priority>
+  </url>
+
+  <!-- Organisation Judiciaire (التنظيم القضائي للمملكة) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/organisation-judiciaire</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/organisation-judiciaire" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/organisation-judiciaire" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/organisation-judiciaire" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/organisation-judiciaire" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/organisation-judiciaire" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Droit Administratif & Finances Publiques (القانون الإداري والمالية العامة) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/droit-administratif</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/droit-administratif" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/droit-administratif" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/droit-administratif" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/droit-administratif" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/droit-administratif" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Droits Réels et Foncier (مدونة الحقوق العينية والعقار) -->
+  <url>
+    <loc>https://www.mizan.page/ar/laws/droits-reels-foncier</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/laws/droits-reels-foncier" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/laws/droits-reels-foncier" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/laws/droits-reels-foncier" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/laws/droits-reels-foncier" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/laws/droits-reels-foncier" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ==================================================================== -->
+  <!-- ⚖️ 3. LEGAL CONCOURS & EXAMS (مباريات واختبارات المهن القانونية)        -->
+  <!-- ==================================================================== -->
+
+  <!-- Bar Exam Practice & Prep (مباراة المحاماة) -->
+  <url>
+    <loc>https://www.mizan.page/ar/exams/bar-exam</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/exams/bar-exam" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/exams/bar-exam" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/exams/bar-exam" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/exams/bar-exam" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/exams/bar-exam" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.92</priority>
+  </url>
+
+  <!-- Judicial Attaches Concours (مباراة الملحقين القضائيين) -->
+  <url>
+    <loc>https://www.mizan.page/ar/exams/judicial-attache</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/exams/judicial-attache" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/exams/judicial-attache" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/exams/judicial-attache" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/exams/judicial-attache" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/exams/judicial-attache" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.92</priority>
+  </url>
+
+  <!-- Judicial Clerks Concours (مباراة المنتدبين القضائيين) -->
+  <url>
+    <loc>https://www.mizan.page/ar/exams/judicial-clerks</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/exams/judicial-clerks" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/exams/judicial-clerks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/exams/judicial-clerks" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/exams/judicial-clerks" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/exams/judicial-clerks" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- Legal QCM Practice Tests (نماذج أسئلة QCM) -->
+  <url>
+    <loc>https://www.mizan.page/ar/exams/qcm-practice</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/exams/qcm-practice" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/exams/qcm-practice" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/exams/qcm-practice" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/exams/qcm-practice" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/exams/qcm-practice" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+  </url>
+
+  <!-- ==================================================================== -->
+  <!-- 🏛️ 4. MOROCCAN LAW FACULTIES (شبكة كليات العلوم القانونية FSJES)       -->
+  <!-- ==================================================================== -->
+
+  <!-- FSJES Agdal - Rabat -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/um5-rabat-agdal</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/um5-rabat-agdal" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/um5-rabat-agdal" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/um5-rabat-agdal" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/um5-rabat-agdal" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/um5-rabat-agdal" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- FSJES Aïn Chock - Casablanca -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/uh2-casablanca-ain-chock</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/uh2-casablanca-ain-chock" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/uh2-casablanca-ain-chock" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/uh2-casablanca-ain-chock" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/uh2-casablanca-ain-chock" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/uh2-casablanca-ain-chock" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- FSJES Marrakech -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/uqa-marrakech</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/uqa-marrakech" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/uqa-marrakech" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/uqa-marrakech" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/uqa-marrakech" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/uqa-marrakech" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- FSJES Oujda -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/umo-oujda</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/umo-oujda" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/umo-oujda" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/umo-oujda" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/umo-oujda" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/umo-oujda" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- FSJES Fès -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/usmba-fes</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/usmba-fes" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/usmba-fes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/usmba-fes" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/usmba-fes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/usmba-fes" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- FSJES Tanger -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/uae-tangier</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/uae-tangier" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/uae-tangier" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/uae-tangier" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/uae-tangier" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/uae-tangier" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- FSJES Settat (Université Hassan 1er) -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/uh1-settat</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/uh1-settat" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/uh1-settat" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/uh1-settat" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/uh1-settat" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/uh1-settat" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- FSJES Agadir (Université Ibn Zohr) -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/uiz-agadir</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/uiz-agadir" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/uiz-agadir" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/uiz-agadir" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/uiz-agadir" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/uiz-agadir" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- FSJES Meknès (Université Moulay Ismaïl) -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/umi-meknes</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/umi-meknes" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/umi-meknes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/umi-meknes" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/umi-meknes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/umi-meknes" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- FSJES Kénitra (Université Ibn Tofail) -->
+  <url>
+    <loc>https://www.mizan.page/ar/law-schools/uit-kenitra</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/law-schools/uit-kenitra" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/law-schools/uit-kenitra" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/law-schools/uit-kenitra" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/law-schools/uit-kenitra" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/law-schools/uit-kenitra" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- ==================================================================== -->
+  <!-- 📍 5. MOROCCAN CITIES & JURISDICTIONS (دليل المدن وهئيات المحامين بالمغرب) -->
+  <!-- ==================================================================== -->
+
+  <!-- Casablanca (الدار البيضاء - هيئة المحامين ومحكمة الاستئناف) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/casablanca</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/casablanca" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/casablanca" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/casablanca" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/casablanca" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/casablanca" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Rabat (الرباط - العاصمة وهيئة المحامين ومحكمة النقض) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/rabat</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/rabat" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/rabat" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/rabat" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/rabat" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/rabat" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Fès (فاس - هيئة المحامين ومحكمة الاستئناف) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/fes</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/fes" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/fes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/fes" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/fes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/fes" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- Marrakech (مراكش - هيئة المحامين والقضاء التجاري) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/marrakech</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/marrakech" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/marrakech" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/marrakech" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/marrakech" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/marrakech" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- Tanger (طنجة - هيئة المحامين والمحاكم الإدارية والتجارية) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/tangier</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/tangier" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/tangier" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/tangier" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/tangier" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/tangier" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- Agadir (أكادير - هيئة المحامين بالجنوب) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/agadir</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/agadir" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/agadir" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/agadir" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/agadir" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/agadir" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- Oujda (وجدة - هيئة المحامين بالشرق) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/oujda</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/oujda" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/oujda" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/oujda" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/oujda" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/oujda" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Meknès (مكناس - هيئة المحامين بمكناس) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/meknes</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/meknes" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/meknes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/meknes" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/meknes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/meknes" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Tétouan (تطوان - هيئة المحامين بتطوان) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/tetouan</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/tetouan" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/tetouan" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/tetouan" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/tetouan" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/tetouan" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Kénitra (القنيطرة - هيئة المحامين والمحاكم المحلية) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/kenitra</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/kenitra" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/kenitra" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/kenitra" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/kenitra" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/kenitra" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- El Jadida (الجديدة - هيئة المحامين بالجديدة) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/el-jadida</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/el-jadida" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/el-jadida" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/el-jadida" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/el-jadida" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/el-jadida" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+
+  <!-- Safi (أسفي - هيئة المحامين بأسفي) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/safi</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/safi" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/safi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/safi" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/safi" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/safi" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+
+  <!-- Beni Mellal (بني ملال - هيئة المحامين ببني ملال) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/beni-mellal</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/beni-mellal" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/beni-mellal" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/beni-mellal" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/beni-mellal" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/beni-mellal" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+
+  <!-- Khouribga (خريبكة - هيئة المحامين بخريبكة) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/khouribga</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/khouribga" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/khouribga" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/khouribga" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/khouribga" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/khouribga" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+
+  <!-- Nador (الناظور - المحاكم الابتدائية والاستئناف) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/nador</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/nador" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/nador" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/nador" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/nador" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/nador" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+
+  <!-- Laâyoune (العيون - محكمة الاستئناف بالعيون والدوائر الجنوبية) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/laayoune</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/laayoune" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/laayoune" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/laayoune" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/laayoune" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/laayoune" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Dakhla (الداخلة - المحكمة الابتدائية والخدمات القانونية) -->
+  <url>
+    <loc>https://www.mizan.page/ar/cities/dakhla</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/cities/dakhla" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/cities/dakhla" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/cities/dakhla" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/cities/dakhla" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/cities/dakhla" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.78</priority>
+  </url>
+
+  <!-- ==================================================================== -->
+  <!-- 📖 6. ACADEMIC SEMESTRES & ADVANCED DEGREES (الفصول والماستر)          -->
+  <!-- ==================================================================== -->
+
+  <!-- License Law S1 - S2 (الفصل الأول والثاني) -->
+  <url>
+    <loc>https://www.mizan.page/ar/archive/semesters-1-2</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive/semesters-1-2" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive/semesters-1-2" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive/semesters-1-2" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive/semesters-1-2" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive/semesters-1-2" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- License Law S3 - S4 (الفصل الثالث والرابع) -->
+  <url>
+    <loc>https://www.mizan.page/ar/archive/semesters-3-4</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive/semesters-3-4" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive/semesters-3-4" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive/semesters-3-4" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive/semesters-3-4" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive/semesters-3-4" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- License Law S5 - S6 (الفصل الخامس والسادس - التخصص) -->
+  <url>
+    <loc>https://www.mizan.page/ar/archive/semesters-5-6</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive/semesters-5-6" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive/semesters-5-6" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive/semesters-5-6" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive/semesters-5-6" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive/semesters-5-6" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.82</priority>
+  </url>
+
+  <!-- Masters & PhD Legal Directory (دليل ماستر ودكتوراه القانون) -->
+  <url>
+    <loc>https://www.mizan.page/ar/archive/masters-phd</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive/masters-phd" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive/masters-phd" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive/masters-phd" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive/masters-phd" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive/masters-phd" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Multilingual Legal Dictionary (المعجم القانوني المتعدد اللغات) -->
+  <url>
+    <loc>https://www.mizan.page/ar/dictionary</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/dictionary" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/dictionary" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/dictionary" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/dictionary" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/dictionary" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ==================================================================== -->
+  <!-- 🛠️ 7. TOOLS, SUBSCRIPTIONS & FOOTER (الأدوات والاشتراكات والدعم)      -->
+  <!-- ==================================================================== -->
+
+  <!-- 💳 Pricing & Subscriptions -->
+  <url>
+    <loc>https://www.mizan.page/ar/pricing</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/pricing" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/pricing" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/pricing" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- 🔍 Search Engine Portal -->
+  <url>
+    <loc>https://www.mizan.page/ar/search</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/search" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/search" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/search" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/search" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/search" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- ℹ️ About Us -->
+  <url>
+    <loc>https://www.mizan.page/ar/about</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/about" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/about" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/about" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <!-- 📬 Contact Page -->
+  <url>
+    <loc>https://www.mizan.page/ar/contact</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/contact" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/contact" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/contact" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+
+  <!-- 📜 Privacy Policy -->
+  <url>
+    <loc>https://www.mizan.page/ar/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/privacy" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/privacy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/privacy" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/privacy" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/privacy" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.40</priority>
+  </url>
+
+  <!-- ⚖️ Terms of Service -->
+  <url>
+    <loc>https://www.mizan.page/ar/terms</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/terms" />
+    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/terms" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/terms" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/terms" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/terms" />
+    <lastmod>2026-07-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.40</priority>
+  </url>
+
 </urlset>

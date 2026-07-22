@@ -13,17 +13,23 @@ const DOMAINS = [
 
 const LANGS = ['ar', 'fr', 'en', 'es'];
 const PATHS = ['/', '/library', '/archive', '/library/jurisprudence', '/pricing'];
+const TODAY = new Date().toISOString().split('T')[0];
 
 function buildAlternateLinks(baseUrl, path) {
   const cleanPath = path === '/' ? '' : path;
   
-  return LANGS.map((lang) => {
+  const links = LANGS.map((lang) => {
     // Default Arabic route uses base path, non-Arabic routes prepend lang prefix
     const href = lang === 'ar' 
       ? `${baseUrl}${path}` 
       : `${baseUrl}/${lang}${cleanPath}`;
     return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`;
-  }).join('\n');
+  });
+
+  // Add x-default fallback pointing to the default language version
+  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}${path}" />`);
+
+  return links.join('\n');
 }
 
 function generateDomainUrls(baseUrl, isPrimary) {
@@ -35,6 +41,7 @@ function generateDomainUrls(baseUrl, isPrimary) {
     return `  <url>
     <loc>${loc}</loc>
 ${buildAlternateLinks(baseUrl, path)}
+    <lastmod>${TODAY}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;

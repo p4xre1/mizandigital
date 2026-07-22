@@ -53,4 +53,4 @@ The **Mizan Digital Platform** is built using exceptional open-source software, 
 
 ---
 
-> *All product names, logos, brands, and trademarks referenced herein are property of their respective owners.*
+> *All product names, Logos, brands, and trademarks referenced herein are property of their respective owners.*

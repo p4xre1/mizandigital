@@ -1,27 +1,63 @@
+# ==============================================================================
+# Mizan Digital — Official robots.txt
+# Primary Domain: https://www.mizan.page
+# ==============================================================================
+
 User-agent: *
 
 # 🚫 منع أرشفة صفحات لوحة التحكم والإدارة
 Disallow: /admin
 Disallow: /admin/
 Disallow: /*/admin
-
-# 🚫 منع أرشفة صفحات الحسابات الشخصية وتسجيل الدخول العامة
-Disallow: /login
-Disallow: /profile
-Disallow: /*/login
-Disallow: /*/profile
+Disallow: /dashboard
+Disallow: /dashboard/
 Disallow: /*/dashboard
 
-# 🚫 منع زحف الملفات الداخلية المؤقتة أو الترتيبات الداخليّة
+# 🚫 منع أرشفة صفحات الحسابات الشخصية والمصادقة
+Disallow: /login
+Disallow: /register
+Disallow: /profile
+Disallow: /settings
+Disallow: /*/login
+Disallow: /*/register
+Disallow: /*/profile
+Disallow: /*/settings
+
+# 🚫 منع زحف الواجهات البرمجية والطلبات الداخلية
 Disallow: /api/
 Disallow: /*?*search=
+Disallow: /*?*q=
 
-# ✅ السماح لجميع محركات البحث بزحف باقي صفحات الموقع والملفات العامة
+# ✅ السماح الكامل لأرشفة الصفحات العامة والملفات الثابتة
 Allow: /
 Allow: /public/
 Allow: /*.css$
 Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.svg$
+Allow: /*.webp$
 
-# 🗺️ خريطة الموقع الرسمية (النطاق الرئيسي والنطاق الثانوي)
-Sitemap: https://mizanmaroc.qzz.io/sitemap.xml
-Sitemap: https://mizandigital.pages.dev/sitemap.xml
+# 🤖 السماح الصريح لمحركات البحث وعناكب الذكاء الاصطناعي
+User-agent: Googlebot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# 🗺️ خريطة الموقع ودليل الذكاء الاصطناعي الرسميان
+Sitemap: https://www.mizan.page/sitemap.xml
+Sitemap: https://www.mizan.page/llms.txt

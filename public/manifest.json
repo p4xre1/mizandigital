@@ -1,0 +1,19 @@
+{
+  "short_name": "ميزان - Mizan",
+  "name": "منصة ميزان الرقمية للقانون المغربي",
+  "icons": [
+    {
+      "src": "/Logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512 192x192 64x64 32x32"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#052e16",
+  "theme_color": "#052e16",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar-MA",
+  "description": "الموسوعة القانونية المغربية الإلكترونية - النصوص القانونية، مدونة الأسرة، قانون الشغل، واجتهادات المحاكم المغربية"
+}

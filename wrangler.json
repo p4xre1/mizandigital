@@ -1,4 +1,5 @@
 {
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "mizandigital",
   "compatibility_date": "2026-07-16",
   "assets": {
@@ -6,5 +7,12 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     "html_handling": "drop-trailing-slash"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mizan-db",
+      "database_id": "YOUR_CLOUDFLARE_D1_DATABASE_ID"
+    }
+  ]
 }

@@ -1,67 +1,42 @@
-import { defineConfig } from 'vite'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-function figmaAssetResolver() {
-  return {
-    name: 'figma-asset-resolver',
-    resolveId(id: string) { 
-      if (id.startsWith('figma:asset/')) {
-        const filename = id.replace('figma:asset/', '')
-        return path.resolve(__dirname, 'src/assets', filename)
-      }
-    },
-  }
-}
-
+// https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    figmaAssetResolver(),
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
+    // ⚡ Force Vite to deduplicate core React and React Router packages
+    dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
-
-  assetsInclude: ['**/*.svg', '**/*.csv'],
-
   build: {
+    target: 'es2020', // ⚡ Modern JS target for faster parsing on smartphones
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        // 🌟 Granular chunk splitting to eliminate the 900kB+ single vendor file
-        manualChunks(id: string) {
+        manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+            if (
+              id.includes('react') ||
+              id.includes('react-dom') ||
+              id.includes('react-router')
+            ) {
               return 'framework';
-            }
-            if (id.includes('@mui') || id.includes('@emotion')) {
-              return 'mui-ui';
-            }
-            if (id.includes('@radix-ui') || id.includes('lucide-react')) {
-              return 'radix-ui';
-            }
-            if (id.includes('recharts') || id.includes('d3')) {
-              return 'charts';
-            }
-            if (id.includes('motion')) {
-              return 'animations';
             }
             if (id.includes('@supabase')) {
               return 'supabase';
             }
-            return 'vendor-common';
+            if (id.includes('lucide-react')) {
+              return 'icons';
+            }
+            // Group all other npm modules into vendor to avoid circular references
+            return 'vendor';
           }
         },
       },
     },
-    chunkSizeWarningLimit: 600,
   },
-})
+});

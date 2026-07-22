@@ -1,27 +1,126 @@
 {
+
+
+
   "compilerOptions": {
+
+
+
     "target": "ESNext",
+
+
+
     "useDefineForClassFields": true,
+
+
+
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
+
+
+
     "module": "ESNext",
+
+
+
     "skipLibCheck": true,
 
+
+
+
+
+
+
     /* Bundler mode */
+
+
+
     "moduleResolution": "bundler",
+
+
+
     "allowImportingTsExtensions": true,
+
+
+
     "resolveJsonModule": true,
+
+
+
     "isolatedModules": true,
+
+
+
     "noEmit": true,
+
+
+
     "jsx": "react-jsx",
 
+
+
+
+
+
+
+    /* ⚡ Modern Path Aliases (No baseUrl needed) */
+
+
+
+    "paths": {
+
+
+
+      "@/*": ["./src/*"]
+
+
+
+    },
+
+
+
+
+
+
+
     /* Linting */
+
+
+
     "strict": true,
+
+
+
     "noUnusedLocals": false,
+
+
+
     "noUnusedParameters": false,
+
+
+
     "noFallthroughCasesInSwitch": true,
-    
+
+
+
+   
+
+
+
     /* Vite environment variables support */
-    "types": ["vite/client"]
+
+
+
+    "types": ["vite/client", "node"]
+
+
+
   },
+
+
+
   "include": ["src", "vite.config.ts"]
-}
+
+
+
+} 
+
