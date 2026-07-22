@@ -30,6 +30,7 @@ const requiredFiles = [
   'src/lib/navigation.ts',
   'src/lib/i18n.tsx',
   'public/_redirects',
+  'public/robots.txt',
   'vite.config.ts',
   'tsconfig.json',
 ];
@@ -45,7 +46,7 @@ requiredFiles.forEach((file) => {
 });
 
 // -----------------------------------------------------------------------------
-// 2. Validate `_redirects` Syntax & Spanish Loop Issue
+// 2. Validate `_redirects` Syntax & Routing Fallback Rules
 // -----------------------------------------------------------------------------
 console.log('\n--- 2. Cloudflare `_redirects` File Check ---');
 const redirectsPath = path.join(rootDir, 'public/_redirects');
@@ -85,7 +86,7 @@ if (fs.existsSync(redirectsPath)) {
 }
 
 // -----------------------------------------------------------------------------
-// 3. Verify `vite.config.ts` for Deduplication Rule
+// 3. Verify `vite.config.ts` for Router Deduplication Rule
 // -----------------------------------------------------------------------------
 console.log('\n--- 3. Vite Config Deduplication Check ---');
 const vitePath = path.join(rootDir, 'vite.config.ts');

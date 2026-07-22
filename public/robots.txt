@@ -1,11 +1,14 @@
 # ==============================================================================
-# Mizan Digital — Official robots.txt
-# Primary Domain: https://www.mizan.page
+# Mizan Digital (ميزان) — Official Search & AI Crawler Rules
+# Primary Host: https://www.mizan.page
 # ==============================================================================
 
+# ------------------------------------------------------------------------------
+# 1. GENERAL CRAWLER RULES (جميع محركات البحث والعناكب العامة)
+# ------------------------------------------------------------------------------
 User-agent: *
 
-# 🚫 منع أرشفة صفحات لوحة التحكم والإدارة
+# 🚫 Admin & Dashboard Interfaces (حظر لوحات التحكم والإدارة)
 Disallow: /admin
 Disallow: /admin/
 Disallow: /*/admin
@@ -13,51 +16,58 @@ Disallow: /dashboard
 Disallow: /dashboard/
 Disallow: /*/dashboard
 
-# 🚫 منع أرشفة صفحات الحسابات الشخصية والمصادقة
+# 🚫 Auth & Private User Pages (حظر الحسابات الشخصية والمصادقة)
 Disallow: /login
 Disallow: /register
 Disallow: /profile
 Disallow: /settings
+Disallow: /es/iniciar-sesion
+Disallow: /es/registro
 Disallow: /*/login
 Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# 🚫 منع زحف الواجهات البرمجية والطلبات الداخلية
+# 🚫 API Endpoints & Dynamic Query Junk (حظر الواجهات البرمجية ومعاملات البحث المكررة)
 Disallow: /api/
-Disallow: /*?*search=
-Disallow: /*?*q=
+Disallow: /*?*
+Disallow: /*.json$
 
-# ✅ السماح الكامل لأرشفة الصفحات العامة والملفات الثابتة
+# ✅ Essential Assets & Public Routes (السماح بالملفات الثابتة والأصول)
 Allow: /
-Allow: /public/
 Allow: /*.css$
 Allow: /*.js$
-Allow: /*.png$
-Allow: /*.jpg$
-Allow: /*.jpeg$
 Allow: /*.svg$
 Allow: /*.webp$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.ico$
 
-# 🤖 السماح الصريح لمحركات البحث وعناكب الذكاء الاصطناعي
+# ------------------------------------------------------------------------------
+# 2. SEARCH ENGINE BOT OVERRIDES (محركات البحث الأساسية)
+# ------------------------------------------------------------------------------
 User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Bingbot
+User-agent: YandexBot
+User-agent: Applebot
 Allow: /
 
+# ------------------------------------------------------------------------------
+# 3. AI SEARCH & LLM CRAWLERS (عناكب نماذج الذكاء الاصطناعي)
+# ------------------------------------------------------------------------------
 User-agent: GPTBot
-Allow: /
-
 User-agent: ChatGPT-User
-Allow: /
-
 User-agent: PerplexityBot
-Allow: /
-
 User-agent: ClaudeBot
-Allow: /
-
 User-agent: Google-Extended
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
 Allow: /
 
-# 🗺️ خريطة الموقع ودليل الذكاء الاصطناعي الرسميان
+# ------------------------------------------------------------------------------
+# 4. SITEMAPS & DOMAIN HOST SPECIFICATION
+# ------------------------------------------------------------------------------
+Host: https://www.mizan.page
 Sitemap: https://www.mizan.page/sitemap.xml
 Sitemap: https://www.mizan.page/llms.txt

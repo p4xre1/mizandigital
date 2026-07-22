@@ -5,46 +5,54 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, '../public/sitemap.xml');
 
-// 🚀 Primary custom domain and secondary fallback domain
+// 🌐 Primary canonical domain & apex fallback domain
 const DOMAINS = [
-  'https://mizanmaroc.qzz.io',
-  'https://mizandigital.pages.dev'
+  'https://www.mizan.page',
+  'https://mizan.page'
 ];
 
 const LANGS = ['ar', 'fr', 'en', 'es'];
-const PATHS = ['/', '/library', '/archive', '/library/jurisprudence', '/pricing'];
+
+// 📚 All core public routes matching router.tsx
+const PATHS = [
+  '',
+  '/about',
+  '/archive',
+  '/library',
+  '/schools',
+  '/login'
+];
+
 const TODAY = new Date().toISOString().split('T')[0];
 
 function buildAlternateLinks(baseUrl, path) {
-  const cleanPath = path === '/' ? '' : path;
-  
   const links = LANGS.map((lang) => {
-    // Default Arabic route uses base path, non-Arabic routes prepend lang prefix
-    const href = lang === 'ar' 
-      ? `${baseUrl}${path}` 
-      : `${baseUrl}/${lang}${cleanPath}`;
+    // Generates localized URL: e.g. https://www.mizan.page/ar/library
+    const href = `${baseUrl}/${lang}${path}`;
     return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`;
   });
 
-  // Add x-default fallback pointing to the default language version
-  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}${path}" />`);
+  // x-default points to default Arabic localized path
+  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}/ar${path}" />`);
 
   return links.join('\n');
 }
 
 function generateDomainUrls(baseUrl, isPrimary) {
-  return PATHS.map((path) => {
-    const loc = `${baseUrl}${path}`;
-    const priority = path === '/' ? (isPrimary ? '1.0' : '0.8') : (isPrimary ? '0.9' : '0.7');
-    const changefreq = path === '/' ? 'daily' : 'weekly';
+  return PATHS.flatMap((path) => {
+    return LANGS.map((lang) => {
+      const loc = `${baseUrl}/${lang}${path}`;
+      const priority = path === '' ? (isPrimary ? '1.0' : '0.8') : (isPrimary ? '0.9' : '0.7');
+      const changefreq = path === '' ? 'daily' : 'weekly';
 
-    return `  <url>
+      return `  <url>
     <loc>${loc}</loc>
 ${buildAlternateLinks(baseUrl, path)}
     <lastmod>${TODAY}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
+    });
   }).join('\n');
 }
 
@@ -56,4 +64,4 @@ ${allRows}
 </urlset>`;
 
 await writeFile(OUTPUT, xml, 'utf8');
-console.log('✅ Generated sitemap.xml with primary & secondary domains at:', OUTPUT);
+console.log('✅ Master sitemap.xml generated successfully at:', OUTPUT);

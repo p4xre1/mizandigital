@@ -13,9 +13,21 @@ interface ImportMetaEnv {
 
   /**
    * Google AdSense Client / Publisher ID
-   * @example "ca-pub-XXXXXXXXXXXXXXXX"
+   * @example "ca-pub-1749032173858747"
    */
   readonly VITE_GOOGLE_ADSENSE_CLIENT_ID?: string;
+
+  /**
+   * Google Tag Manager Container ID
+   * @example "GTM-PTT8P94G"
+   */
+  readonly VITE_GTM_ID?: string;
+
+  /**
+   * Google Analytics 4 Measurement ID
+   * @example "G-XXXXXXXXXX"
+   */
+  readonly VITE_GA_MEASUREMENT_ID?: string;
 
   /**
    * Supabase Project Endpoint URL

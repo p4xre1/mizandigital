@@ -10,7 +10,7 @@ const Home = lazy(() => import("@/pages/Home"));
 const About = lazy(() => import("@/pages/About"));
 const Archive = lazy(() => import("@/pages/Archive"));
 const ArticleDetail = lazy(() => import("@/pages/ArticleDetail"));
-const Library = lazy(() => import("@/pages/Library"));
+const Library = lazy(() => import("@/pages/Library").then((module) => ({ default: module.Library })));
 const Login = lazy(() => import("@/pages/Login"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Profile = lazy(() => import("@/pages/Profile"));
@@ -25,13 +25,36 @@ const AdminSeo = lazy(() => import("@/pages/admin/AdminSeo"));
 const AdminTraffic = lazy(() => import("@/pages/admin/AdminTraffic"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 
-// Scroll To Top Helper
-function ScrollToTopWrapper() {
-  const { pathname } = useLocation();
+// Ambient declaration to prevent TypeScript dataLayer conflicts
+declare global {
+  interface Window {
+    dataLayer: unknown[];
+  }
+}
+
+// 🚀 Analytics & Scroll Helper Wrapper
+function RouteTrackingWrapper() {
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
+    // 1. Scroll to top on route change
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, [pathname]);
+
+    // 2. Push full URL path, query params, and language to GTM
+    window.dataLayer = window.dataLayer || [];
+
+    // Extract language prefix (ar, fr, en, es)
+    const langMatch = pathname.match(/^\/(ar|fr|en|es)(\/|$)/);
+    const currentLang = langMatch ? langMatch[1] : "ar";
+
+    window.dataLayer.push({
+      event: "page_view",
+      page_path: pathname + search, // Captures full URL e.g. /ar/library?category=family-law
+      page_location: window.location.href,
+      page_title: document.title,
+      page_language: currentLang,
+    });
+  }, [pathname, search]);
 
   return <Outlet />;
 }
@@ -60,7 +83,7 @@ export const router = createBrowserRouter([
     errorElement: withSuspense(NotFound),
     children: [
       {
-        element: <ScrollToTopWrapper />,
+        element: <RouteTrackingWrapper />,
         children: [
           // 1. Root redirect: "/" -> "/ar"
           {
@@ -81,7 +104,7 @@ export const router = createBrowserRouter([
               { path: "library", element: withSuspense(Library) },
               { path: "library/:category", element: withSuspense(Library) },
               
-              // 🎓 Law Schools Routes (Uses Library page component)
+              // 🎓 Law Schools Routes
               { path: "schools", element: withSuspense(Library) },
               { path: "schools/:schoolSlug", element: withSuspense(Library) },
 
