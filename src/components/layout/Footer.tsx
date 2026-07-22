@@ -21,7 +21,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       home: "الرئيسية",
       library: "المكتبة القانونية",
       archive: "الأرشيف القانوني",
-      pricing: "الاشتراكات الباقات",
       about: "عن المنصة",
       contact: "اتصل بنا",
       privacy: "سياسة الخصوصية وحماية البيانات",
@@ -36,12 +35,11 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       disclaimerTitle: "Avertissement Légal",
       disclaimerText:
         "Tous les contenus et jurisprudences publiés sur la plateforme Mizan sont destinés exclusivement à la recherche académique et éducative. Ils ne constituent en aucun cas un conseil juridique formel.",
-      menuTitle: "Navigation Principal",
+      menuTitle: "Navigation Principale",
       policiesTitle: "Politiques & Conformité",
       home: "Accueil",
       library: "Bibliothèque",
       archive: "Archives",
-      pricing: "Tarifs & Premium",
       about: "À propos",
       contact: "Contact",
       privacy: "Politique de Confidentialité",
@@ -61,7 +59,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       home: "Home",
       library: "Library",
       archive: "Archive",
-      pricing: "Pricing & Plans",
       about: "About Us",
       contact: "Contact",
       privacy: "Privacy & Data Protection Policy",
@@ -81,7 +78,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       home: "Inicio",
       library: "Biblioteca",
       archive: "Archivo",
-      pricing: "Precios y Plan Premium",
       about: "Acerca de",
       contact: "Contacto",
       privacy: "Política de Privacidad",
@@ -143,14 +139,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
                   className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
                 >
                   🎓 <span className="mx-2">{t.archive}</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to={l("/pricing")}
-                  className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
-                >
-                  ✨ <span className="mx-2">{t.pricing}</span>
                 </Link>
               </li>
               <li>

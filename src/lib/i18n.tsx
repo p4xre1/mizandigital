@@ -34,7 +34,7 @@ export function getPreferredBrowserLanguage(): Lang {
 
 /**
  * ⚡ Fixed: Cleanly prepends or updates the target language in a path.
- * Prevents URL smash bugs like /fresentrarpricing.
+ * Prevents URL formatting bugs across language switches.
  */
 export function buildLocalizedPath(path: string, targetLang: Lang): string {
   if (

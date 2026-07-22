@@ -14,22 +14,14 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /register                       /ar/register     301
 /forgot-password                /ar/login        302
 
-/:lang/signin                   /:lang/login     301
-/:lang/signup                   /:lang/register  301
+/:lang/signin                    /:lang/login     301
+/:lang/signup                    /:lang/register  301
 
-# ── 3️⃣ Subscriptions & Premium Upgrades ───────────────────────────────────────
-/pro                            /ar/pricing      301
-/premium                        /ar/pricing      301
-/vip                            /ar/pricing      301
-/subscribe                      /ar/pricing      301
-/upgrade                        /ar/pricing      301
-
-# ── 4️⃣ Main Section & Dashboard Shortcuts ────────────────────────────────────
+# ── 3️⃣ Main Section & Dashboard Shortcuts ────────────────────────────────────
 /admin                          /ar/admin        302
 /dashboard                      /ar/dashboard    302
 /profile                        /ar/dashboard    302
 /settings                       /ar/dashboard    302
-/pricing                        /ar/pricing      301
 /about                          /ar/about        301
 /contact                        /ar/contact      301
 /privacy                        /ar/privacy      301
@@ -38,7 +30,7 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /help                           /ar/contact      302
 /support                        /ar/contact      302
 
-# ── 5️⃣ Footer & Navbar Unlinked / Placeholder Fallbacks ─────────────────────
+# ── 4️⃣ Footer & Navbar Unlinked / Placeholder Fallbacks ─────────────────────
 /privacy-policy                 /ar/privacy      301
 /cookie-policy                  /ar/privacy      301
 /cookies                        /ar/privacy      301
@@ -56,9 +48,8 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /developers                     /ar/contact      302
 /status                         /ar/about        302
 /partners                       /ar/contact      302
-/affiliate                      /ar/pricing      302
 
-# ── 6️⃣ Legal & Academic Database Aliases ────────────────────────────────────
+# ── 5️⃣ Legal & Academic Database Aliases ────────────────────────────────────
 /search                         /ar/search       302
 /laws                           /ar/laws         302
 /jurisprudence                  /ar/laws         301
@@ -69,7 +60,7 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /schools                        /ar/law-schools  301
 /faculties                      /ar/law-schools  301
 
-# ── 7️⃣ High-Traffic Moroccan Legal Keyword Shortcuts (SEO Power-ups) ───────
+# ── 6️⃣ High-Traffic Moroccan Legal Keyword Shortcuts (SEO Power-ups) ───────
 /moudawana                      /ar/laws/code-de-la-famille        301
 /doc                            /ar/laws/doc-obligations-contrats  301
 /code-penal                     /ar/laws/code-penal                301
@@ -82,9 +73,9 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /fsjes                          /ar/law-schools                    301
 /dictionary                     /ar/dictionary                     301
 
-# ── 8️⃣ Moroccan Law Faculties Direct Quick Links ──────────────────────────────
+# ── 7️⃣ Moroccan Law Faculties Direct Quick Links ──────────────────────────────
 /agdal                          /ar/law-schools/um5-rabat-agdal            301
-/ain-chock                      /ar/law-schools/uh2-casablanca-ain-chock  301
+/ain-chock                      /ar/law-schools/uh2-casablanca-ain-chock   301
 /marrakech                      /ar/law-schools/uqa-marrakech              301
 /oujda                          /ar/law-schools/umo-oujda                  301
 /fes                            /ar/law-schools/usmba-fes                  301
@@ -92,20 +83,19 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /settat                         /ar/law-schools/uh1-settat                 301
 /agadir                         /ar/law-schools/uiz-agadir                 301
 
-# ── 9️⃣ Social Media & Community Channels ──────────────────────────────────────
-/facebook                       https://www.facebook.com/mizandigital             302
-/twitter                        https://www.twitter.com/mizandigital              302
-/x                              https://www.twitter.com/mizandigital              302
-/linkedin                       https://www.linkedin.com/company/mizandigital     302
-/whatsapp                       https://wa.me/?text=Mizan%20Platform              302
-/telegram                       https://t.me/mizandigital                         302
+# ── 8️⃣ Social Media & Community Channels ──────────────────────────────────────
+/facebook                       https://www.facebook.com/mizandigital              302
+/twitter                        https://www.twitter.com/mizandigital               302
+/x                              https://www.twitter.com/mizandigital               302
+/linkedin                       https://www.linkedin.com/company/mizandigital      302
+/whatsapp                       https://wa.me/?text=Mizan%20Platform               302
+/telegram                       https://t.me/mizandigital                          302
 
-# ── 🔟 Expanded Localized Multilingual Aliases ──────────────────────────────
+# ── 9️⃣ Expanded Localized Multilingual Aliases ──────────────────────────────
 # 🇫🇷 French (Français)
 /fr/connexion                   /fr/login        301
 /fr/inscription                 /fr/register     301
 /fr/a-propos                    /fr/about        301
-/fr/tarifs                      /fr/pricing      301
 /fr/contactez-nous              /fr/contact      301
 /fr/facultes                    /fr/law-schools  301
 /fr/lois                        /fr/laws         301
@@ -117,7 +107,6 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /es/iniciar-sesion              /es/login        301
 /es/registro                    /es/register     301
 /es/sobre-nosotros              /es/about        301
-/es/precios                     /es/pricing      301
 /es/contacto                    /es/contact      301
 /es/facultades                  /es/law-schools  301
 /es/leyes                       /es/laws         301
@@ -125,10 +114,10 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /es/privacidad                  /es/privacy      301
 /es/terminos                    /es/terms        301
 
-# ── 1️⃣1️⃣ SEO System Routes ──────────────────────────────────────────────────────
+# ── 🔟 SEO System Routes ──────────────────────────────────────────────────────
 /sitemap                        /sitemap.xml     301
 /rss                            /feed.xml        301
 
-# ── 1️⃣2️⃣ SPA Fallback Handler (React Router) ───────────────────────────────────
+# ── 1️⃣1️⃣ SPA Fallback Handler (React Router) ───────────────────────────────────
 # ⚠️ CRITICAL: This wildcard rule MUST ALWAYS remain at the very end.
 /*                              /index.html      200
