@@ -1,14 +1,26 @@
 # ==============================================================================
 # Mizan Digital (ميزان) — Official Search & AI Crawler Rules
-# Primary Host: https://www.mizan.page
+# Primary Host: www.mizan.page
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# 1. GENERAL CRAWLER RULES (جميع محركات البحث والعناكب العامة)
+# 1. DEFAULT RULES FOR ALL CRAWLERS & AI BOTS
 # ------------------------------------------------------------------------------
 User-agent: *
+User-agent: Googlebot
+User-agent: Googlebot-Image
+User-agent: Bingbot
+User-agent: YandexBot
+User-agent: Applebot
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: PerplexityBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: Bytespider
+User-agent: Meta-ExternalAgent
 
-# 🚫 Admin & Dashboard Interfaces (حظر لوحات التحكم والإدارة)
+# 🚫 Admin & Dashboard Interfaces
 Disallow: /admin
 Disallow: /admin/
 Disallow: /*/admin
@@ -16,7 +28,7 @@ Disallow: /dashboard
 Disallow: /dashboard/
 Disallow: /*/dashboard
 
-# 🚫 Auth & Private User Pages (حظر الحسابات الشخصية والمصادقة)
+# 🚫 Auth & Private User Pages
 Disallow: /login
 Disallow: /register
 Disallow: /profile
@@ -28,12 +40,16 @@ Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# 🚫 API Endpoints & Dynamic Query Junk (حظر الواجهات البرمجية ومعاملات البحث المكررة)
+# 🚫 Internal APIs & System Files
 Disallow: /api/
-Disallow: /*?*
 Disallow: /*.json$
 
-# ✅ Essential Assets & Public Routes (السماح بالملفات الثابتة والأصول)
+# 🚫 Prevent crawling duplicate internal search parameters
+Disallow: /*?*search=
+Disallow: /*?*q=
+Disallow: /*?*filter=
+
+# ✅ Essential CSS, JS & Image Assets
 Allow: /
 Allow: /*.css$
 Allow: /*.js$
@@ -41,33 +57,12 @@ Allow: /*.svg$
 Allow: /*.webp$
 Allow: /*.png$
 Allow: /*.jpg$
+Allow: /*.jpeg$
 Allow: /*.ico$
 
 # ------------------------------------------------------------------------------
-# 2. SEARCH ENGINE BOT OVERRIDES (محركات البحث الأساسية)
+# 2. SITEMAPS & DOMAIN SPECIFICATION
 # ------------------------------------------------------------------------------
-User-agent: Googlebot
-User-agent: Googlebot-Image
-User-agent: Bingbot
-User-agent: YandexBot
-User-agent: Applebot
-Allow: /
-
-# ------------------------------------------------------------------------------
-# 3. AI SEARCH & LLM CRAWLERS (عناكب نماذج الذكاء الاصطناعي)
-# ------------------------------------------------------------------------------
-User-agent: GPTBot
-User-agent: ChatGPT-User
-User-agent: PerplexityBot
-User-agent: ClaudeBot
-User-agent: Google-Extended
-User-agent: Bytespider
-User-agent: Meta-ExternalAgent
-Allow: /
-
-# ------------------------------------------------------------------------------
-# 4. SITEMAPS & DOMAIN HOST SPECIFICATION
-# ------------------------------------------------------------------------------
-Host: https://www.mizan.page
+Host: www.mizan.page
 Sitemap: https://www.mizan.page/sitemap.xml
 Sitemap: https://www.mizan.page/llms.txt
