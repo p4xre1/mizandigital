@@ -2,10 +2,8 @@ import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../../lib/supabase";
 import { isValidEmail } from "../../lib/security";
-import { useTurnstile } from "../../hooks/useTurnstile";
+import { TurnstileCaptcha } from "./TurnstileCaptcha";
 import { useI18n, sansFont } from "../../lib/i18n";
-
-const TURNSTILE_SITE_KEY = "0x4AAAAAAD3-pbXQ2_GzbNGJ";
 
 interface LoginFormProps {
   onSwitchTab: (tab: "signup" | "forgot") => void;
@@ -25,10 +23,15 @@ export function LoginForm({
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [turnstileKey, setTurnstileKey] = useState(0);
 
   const { lang, dir } = useI18n();
-  const { captchaToken, resetCaptcha, renderTurnstile } =
-    useTurnstile(TURNSTILE_SITE_KEY);
+
+  const resetCaptcha = () => {
+    setCaptchaToken(null);
+    setTurnstileKey((prev) => prev + 1); // Triggers clean re-render of Turnstile
+  };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,7 +122,7 @@ export function LoginForm({
       style={{ fontFamily: sansFont(lang) }}
     >
       <div>
-        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
           {lang === "ar" && "البريد الإلكتروني"}
           {lang === "fr" && "Adresse e-mail"}
           {lang === "en" && "Email address"}
@@ -138,7 +141,7 @@ export function LoginForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
-            className={`w-full py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors ${
+            className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${
               dir === "rtl" ? "pr-10 pl-3.5" : "pl-10 pr-3.5"
             }`}
             dir="ltr"
@@ -148,7 +151,7 @@ export function LoginForm({
 
       <div>
         <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-xs font-semibold text-slate-700">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
             {lang === "ar" && "كلمة المرور"}
             {lang === "fr" && "Mot de passe"}
             {lang === "en" && "Password"}
@@ -157,7 +160,7 @@ export function LoginForm({
           <button
             type="button"
             onClick={() => onSwitchTab("forgot")}
-            className="text-[11px] text-primary hover:underline font-medium"
+            className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {lang === "ar" && "نسيت كلمة المرور؟"}
             {lang === "fr" && "Mot de passe oublié ?"}
@@ -178,7 +181,7 @@ export function LoginForm({
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className={`w-full py-2.5 text-sm border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white transition-colors ${
+            className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${
               dir === "rtl" ? "pr-10 pl-10" : "pl-10 pr-10"
             }`}
             dir="ltr"
@@ -186,7 +189,7 @@ export function LoginForm({
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
-            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 ${
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ${
               dir === "rtl" ? "left-3.5" : "right-3.5"
             }`}
           >
@@ -196,13 +199,20 @@ export function LoginForm({
       </div>
 
       <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
-        {renderTurnstile(() =>
-          setError(
-            lang === "ar"
-              ? "فشل التحقق الأمني. الرجاء المحاولة مجدداً."
-              : "Security verification failed. Please try again."
-          )
-        )}
+        <TurnstileCaptcha
+          key={turnstileKey}
+          onVerify={(token) => setCaptchaToken(token)}
+          onExpire={() => setCaptchaToken(null)}
+          onError={() => {
+            setCaptchaToken(null);
+            setError(
+              lang === "ar"
+                ? "فشل التحقق الأمني. الرجاء المحاولة مجدداً."
+                : "Security verification failed. Please try again."
+            );
+          }}
+          theme="auto"
+        />
       </div>
 
       {error && (
@@ -212,7 +222,7 @@ export function LoginForm({
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors text-sm disabled:opacity-60 shadow-sm active:scale-[0.99]"
+        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-60 shadow-xs cursor-pointer"
       >
         {loading
           ? lang === "ar"
@@ -231,13 +241,13 @@ export function LoginForm({
           : "Sign In"}
       </button>
 
-      <p className="text-center text-xs text-slate-500 mt-4">
+      <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
         {lang === "ar" && (
           <>
             ليس لديك حساب؟{" "}
             <button
               type="button"
-              className="text-blue-600 hover:underline font-bold"
+              className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer"
               onClick={() => onSwitchTab("signup")}
             >
               إنشاء حساب جديد
@@ -249,7 +259,7 @@ export function LoginForm({
             Vous n'avez pas de compte ?{" "}
             <button
               type="button"
-              className="text-blue-600 hover:underline font-bold"
+              className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer"
               onClick={() => onSwitchTab("signup")}
             >
               S'inscrire
@@ -261,7 +271,7 @@ export function LoginForm({
             Don't have an account?{" "}
             <button
               type="button"
-              className="text-blue-600 hover:underline font-bold"
+              className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer"
               onClick={() => onSwitchTab("signup")}
             >
               Create account
@@ -273,7 +283,7 @@ export function LoginForm({
             ¿No tienes una cuenta?{" "}
             <button
               type="button"
-              className="text-blue-600 hover:underline font-bold"
+              className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer"
               onClick={() => onSwitchTab("signup")}
             >
               Crear cuenta

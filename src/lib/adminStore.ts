@@ -13,6 +13,20 @@ export interface AdminUser {
   joined: string;
 }
 
+export interface LegalText {
+  id: string; title: string; slug: string;
+  domain: string;            // قانون الأسرة / الشغل / الجنائي / التجاري / المدني...
+  status: "published" | "draft";
+  content?: string;          // sanitised rich HTML (full text)
+  reference?: string;        // رقم الظهير / رقم القانون (e.g. "ظهير 1.04.22")
+  officialGazetteNumber?: string;   // رقم الجريدة الرسمية
+  effectiveDate?: string;    // تاريخ النفاذ
+  lastAmendedDate?: string;  // تاريخ آخر تعديل
+  accessTier?: "free" | "premium" | "enterprise";
+  attachmentUrl?: string;    // PDF of official text, if any
+  tags?: string[];
+  updated: string;
+} 
 export interface AdminArticle {
   id: string; title: string; slug: string; category: string;
   status: "published" | "draft"; author: string; views: number; updated: string;

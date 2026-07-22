@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate, Outlet } from "react-router-dom";
 import {
-  Menu, X, ChevronDown, ChevronRight, Search, Scale, BookOpen,
-  GraduationCap, Gavel, Users, Moon, Sun, Sparkles, User
+  Menu, X, ChevronDown, ChevronRight, Scale, BookOpen,
+  GraduationCap, Gavel, Users, Moon, Sun, User
 } from "lucide-react";
 import { trackPageView, initGA } from "../../lib/analytics";
 import { useI18n, LANGS, type Lang } from "../../lib/i18n";
 import { setOrganizationSchema } from "../../lib/jsonld";
-import { useReferralTracking } from "../../lib/referral";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
-import { useRole } from "../../hooks/useRole";
+import { useRole, type Tier } from "../../hooks/useRole";
 import { AuthModal } from "../auth/AuthModal";
 import { useLocalizedPath, buildLocalizedPath } from "../../lib/navigation";
 
@@ -204,7 +203,6 @@ const megaMenuData: MegaItem[] = [
         heading: t4("ميزان", "Mizan", "Mizan", "Mizan"),
         links: [
           { label: t4("من نحن", "Qui sommes-nous", "About Us", "Quiénes somos"), href: "/about" },
-          { label: t4("خطط الأسعار ✨", "Tarifs ✨", "Subscription Plans ✨", "Precios ✨"), href: "/pricing" },
           { label: t4("هيئة التحرير", "Comité éditorial", "Editorial Board", "Consejo editorial"), href: "/about#team" },
           { label: t4("شركاء أكاديميون", "Partenaires académiques", "Academic Partners", "Socios académicos"), href: "/about#partners" },
           { label: t4("اتصل بنا", "Contact", "Contact", "Contacto"), href: "/contact" },
@@ -262,34 +260,17 @@ const legalLinks: { label: L; href: string }[] = [
 // ── Action Buttons ─────────────────────────────────────────────────────────────
 
 interface NavActionsProps {
-  tier: "free" | "premium" | "enterprise";
+  tier: Tier;
   isAuthenticated: boolean;
   onOpenAuth: () => void;
 }
 
-function NavActions({ tier, isAuthenticated, onOpenAuth }: NavActionsProps) {
+function NavActions({ isAuthenticated, onOpenAuth }: NavActionsProps) {
   const { lang, t } = useI18n();
   const localizedPath = useLocalizedPath();
 
   return (
     <div className="flex items-center gap-2.5">
-      {tier === "free" ? (
-        <Link 
-          to={localizedPath("/pricing")} 
-          className="text-xs sm:text-sm px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold transition-all flex items-center gap-1.5 shadow-xs touch-manipulation min-h-[38px]"
-          style={{ fontFamily: sansFont(lang) }}
-        >
-          <Sparkles size={13} className="fill-current animate-pulse shrink-0" aria-hidden="true" />
-          <span className="hidden sm:inline">{t4("ترقية الاشتراك ✨", "Premium ✨", "Go Premium ✨", "Premium ✨")[lang]}</span>
-          <span className="sm:hidden">✨</span>
-        </Link>
-      ) : (
-        <div className="px-3 py-1.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold rounded-full flex items-center gap-1 select-none">
-          <Sparkles size={11} className="fill-current animate-pulse shrink-0" aria-hidden="true" />
-          <span>{tier === "enterprise" ? t4("شراكة جامعية", "Univ Access", "Univ", "Univ")[lang] : t4("بريميوم", "Premium", "Premium", "Premium")[lang]}</span>
-        </div>
-      )}
-
       {isAuthenticated ? (
         <Link 
           to={localizedPath("/profile")} 
@@ -315,7 +296,7 @@ function NavActions({ tier, isAuthenticated, onOpenAuth }: NavActionsProps) {
 // ── Main Navbars ─────────────────────────────────────────────────────────────
 
 interface NavbarProps {
-  tier: "free" | "premium" | "enterprise";
+  tier: Tier;
   isAuthenticated: boolean;
   onOpenAuth: () => void;
 }
@@ -324,14 +305,6 @@ function NavDesktop({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
   const { lang, dir, t } = useI18n();
   const localizedPath = useLocalizedPath();
   const [open, setOpen] = useState<number | null>(null);
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-  const align = dir === "rtl" ? "text-right" : "text-left";
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (q.trim()) navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`));
-  };
 
   return (
     <nav className="hidden lg:block bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-40 shadow-xs transition-colors">
@@ -414,19 +387,6 @@ function NavDesktop({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
         </div>
 
         <div className="flex items-center gap-4 shrink-0">
-          <form onSubmit={handleSearch} className="relative" role="search" aria-label="Site-wide search">
-            <Search size={14} className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${dir === "rtl" ? "right-3" : "left-3"}`} aria-hidden="true" />
-            <input
-              value={q} 
-              onChange={e => setQ(e.target.value)}
-              placeholder={t("search_placeholder")}
-              aria-label={t("search_placeholder")}
-              type="search"
-              className={`w-40 py-1.5 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all ${align} ${dir === "rtl" ? "pr-8 pl-3" : "pl-8 pr-3"}`}
-              style={{ fontFamily: sansFont(lang) }}
-            />
-          </form>
-
           <NavActions tier={tier} isAuthenticated={isAuthenticated} onOpenAuth={onOpenAuth} />
         </div>
       </div>
@@ -439,21 +399,10 @@ function NavTablet({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
   const localizedPath = useLocalizedPath();
   const location = useLocation();
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-  const align = dir === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (q.trim()) { 
-      navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); 
-      setOpen(false); 
-    }
-  };
 
   return (
     <nav className="hidden md:block lg:hidden bg-white dark:bg-slate-900 sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
@@ -481,24 +430,6 @@ function NavTablet({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
       {open && (
         <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-4 space-y-3" dir={dir}>
           <MobileControls />
-          <form onSubmit={handleSearch} className="flex gap-2" role="search" aria-label="Tablet search">
-            <input 
-              value={q} 
-              onChange={e => setQ(e.target.value)} 
-              placeholder={t("search_placeholder_long")}
-              aria-label={t("search_placeholder_long")}
-              type="search"
-              className={`flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 ${align}`}
-              style={{ fontFamily: sansFont(lang) }} 
-            />
-            <button 
-              type="submit" 
-              aria-label="Submit search"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm cursor-pointer font-bold touch-manipulation"
-            >
-              <Search size={14} aria-hidden="true" />
-            </button>
-          </form>
           <div className="grid grid-cols-2 gap-2" role="menu">
             {megaMenuData.map((item, i) => (
               <Link 
@@ -526,21 +457,10 @@ function NavPhone({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [expanded, setExpanded] = useState<number | null>(null);
-  const navigate = useNavigate();
-  const [q, setQ] = useState("");
-  const align = dir === "rtl" ? "text-right" : "text-left";
 
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (q.trim()) { 
-      navigate(localizedPath(`/search?q=${encodeURIComponent(q.trim())}`)); 
-      setMenuOpen(false); 
-    }
-  };
 
   return (
     <nav className="md:hidden bg-white dark:bg-slate-900 sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
@@ -574,24 +494,6 @@ function NavPhone({ tier, isAuthenticated, onOpenAuth }: NavbarProps) {
       </div>
       {menuOpen && (
         <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 max-h-[75vh] overflow-y-auto" dir={dir}>
-          <form onSubmit={handleSearch} className="flex gap-2 p-4 border-b border-slate-200 dark:border-slate-800" role="search" aria-label="Mobile search">
-            <input 
-              value={q} 
-              onChange={e => setQ(e.target.value)} 
-              placeholder={t("search_placeholder")}
-              aria-label={t("search_placeholder")}
-              type="search"
-              className={`flex-1 px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-500 ${align}`}
-              style={{ fontFamily: sansFont(lang) }} 
-            />
-            <button 
-              type="submit" 
-              aria-label="Submit mobile search"
-              className="px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center justify-center cursor-pointer touch-manipulation min-h-[44px]"
-            >
-              <Search size={16} aria-hidden="true" />
-            </button>
-          </form>
           <div role="menu" aria-label="Mobile Directory">
             {megaMenuData.map((item, i) => (
               <div key={i} className="border-b border-slate-200 dark:border-slate-800 last:border-0">
@@ -684,7 +586,7 @@ function SponsorRibbon() {
 // ── Global Layout Component ──────────────────────────────────────────────────
 
 export default function Layout() {
-  const { lang, dir } = useI18n();
+  const { lang, dir, t } = useI18n();
   const localizedPath = useLocalizedPath();
   const location = useLocation();
   
@@ -715,8 +617,6 @@ export default function Layout() {
     setOrganizationSchema();
   }, [location]);
 
-  useReferralTracking();
-
   const handleOpenAuth = () => setIsAuthModalOpen(true);
 
   return (
@@ -734,43 +634,60 @@ export default function Layout() {
       <SponsorRibbon />
 
       <footer className="bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 mt-auto transition-colors" dir={dir} aria-label="Global Site Footer">
-        <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-          {footerCols.map((col, idx) => (
-            <div key={idx}>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-200 tracking-widest uppercase mb-4 pb-1 border-b border-slate-200 dark:border-slate-800">
-                {col.heading[lang]}
-              </h4>
-              <ul className="space-y-2.5">
-                {col.links.map((lnk, lidx) => (
-                  <li key={lidx}>
-                    <Link 
-                      to={localizedPath(lnk.href)}
-                      className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block py-0.5"
-                      style={{ fontFamily: sansFont(lang) }}
-                    >
-                      {lnk.label[lang]}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12 border-b border-slate-200 dark:border-slate-800">
+            {/* Brand Column */}
+            <div className="lg:col-span-1 space-y-4">
+              <Link to={localizedPath("/")} className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
+                  <Scale size={18} className="text-white" />
+                </div>
+                <span className="font-bold text-slate-900 dark:text-slate-100 text-lg leading-tight" style={{ fontFamily: serifFont(lang) }}>
+                  {t("brand_full")}
+                </span>
+              </Link>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed" style={{ fontFamily: sansFont(lang) }}>
+                {t("motto")}
+              </p>
             </div>
-          ))}
-        </div>
 
-        <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 px-6">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              &copy; {new Date().getFullYear()} {lang === 'ar' ? 'منصة ميزان الرقمية. جميع الحقوق محفوظة.' : 'Mizan Digital Platform. All rights reserved.'}
-            </p>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 justify-center">
-              {legalLinks.map((ll, lidx) => (
-                <Link 
-                  key={lidx}
-                  to={localizedPath(ll.href)}
-                  className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
+            {/* Links Columns */}
+            {footerCols.map((col, idx) => (
+              <div key={idx} className="space-y-3">
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
+                  {col.heading[lang]}
+                </p>
+                <ul className="space-y-2">
+                  {col.links.map((lnk) => (
+                    <li key={lnk.href}>
+                      <Link
+                        to={localizedPath(lnk.href)}
+                        className="text-xs text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        style={{ fontFamily: sansFont(lang) }}
+                      >
+                        {lnk.label[lang]}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Legal & Copyright */}
+          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <div>
+              &copy; {new Date().getFullYear()} {t("brand_full")}. All rights reserved.
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              {legalLinks.map((lnk) => (
+                <Link
+                  key={lnk.href}
+                  to={localizedPath(lnk.href)}
+                  className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   style={{ fontFamily: sansFont(lang) }}
                 >
-                  {ll.label[lang]}
+                  {lnk.label[lang]}
                 </Link>
               ))}
             </div>
@@ -778,12 +695,14 @@ export default function Layout() {
         </div>
       </footer>
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        lang={lang}
-        dir={dir}
-      />
+      {/* Auth Modal */}
+ 
+<AuthModal
+  isOpen={isAuthModalOpen}
+  onClose={() => setIsAuthModalOpen(false)}
+  lang={lang}
+  dir={dir}
+/>
     </div>
   );
 }

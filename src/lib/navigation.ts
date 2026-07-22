@@ -4,7 +4,7 @@ const VALID_LANGS: Lang[] = ["ar", "fr", "en", "es"];
 
 /**
  * Cleanly prepends or replaces the language code in a URL path.
- * Guarantees output formatted as: /:lang/path (e.g. /fr/pricing)
+ * Guarantees output formatted as: /:lang/path (e.g. /fr/laws)
  */
 export function buildLocalizedPath(pathname: string, targetLang: Lang): string {
   // Return early for external links or anchor tags
@@ -18,7 +18,7 @@ export function buildLocalizedPath(pathname: string, targetLang: Lang): string {
     return pathname;
   }
 
-  // Split and filter out all valid language codes that might have stacked up (e.g., /fr/es/en/pricing)
+  // Split and filter out all valid language codes that might have stacked up (e.g., /fr/es/en/laws)
   const segments = pathname
     .split("/")
     .filter(Boolean)

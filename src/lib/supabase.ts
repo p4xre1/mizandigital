@@ -68,6 +68,16 @@ export interface ContactMessage {
   message: string;
 }
 
+export interface Comment {
+  id: string;
+  article_id: string;
+  author_name: string;
+  body: string;
+  created_at: string;
+}
+
+export class ValidationError extends Error {}
+
 // ── Queries ──────────────────────────────────────────────────────────────────
 
 export async function getArticles(opts?: {
@@ -130,8 +140,6 @@ export async function getUniversities() {
   return data as University[];
 }
 
-export class ValidationError extends Error {}
-
 export async function submitContact(msg: ContactMessage) {
   ensureConfigured();
 
@@ -155,4 +163,37 @@ export async function submitContact(msg: ContactMessage) {
 export async function incrementViews(id: string) {
   if (!isSupabaseConfigured) return;
   await supabase.rpc("increment_views", { article_id: id });
+}
+
+// ── Comments API ─────────────────────────────────────────────────────────────
+
+export async function getArticleComments(articleId: string) {
+  ensureConfigured();
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("article_id", articleId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data as Comment[];
+}
+
+export async function postArticleComment(articleId: string, authorName: string, bodyText: string) {
+  ensureConfigured();
+
+  const author_name = sanitizeText(authorName, 60);
+  const body = sanitizeText(bodyText, 1000);
+
+  if (body.length < 2) throw new ValidationError("comment_too_short");
+  if (looksLikeSpam(`${author_name} ${body}`)) throw new ValidationError("spam_detected");
+
+  const { data, error } = await supabase
+    .from("comments")
+    .insert([{ article_id: articleId, author_name, body }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data as Comment;
 }
