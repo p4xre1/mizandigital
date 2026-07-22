@@ -1,4 +1,4 @@
-const CACHE_NAME = "mizan-pwa-v2";
+const CACHE_NAME = "mizan-pwa-v3";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -29,18 +29,21 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Network-First Strategy with Offline SPA Fallback
+// Network-First Strategy with Safety Checks
 self.addEventListener("fetch", (event) => {
-  // Only process GET requests
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Skip caching for external ads, analytics, or browser extensions
+  // 🚨 CRITICAL FIX: Only allow standard http and https requests.
+  // This completely ignores chrome-extension://, moz-extension://, etc.
+  if (!url.protocol.startsWith("http")) return;
+
+  // Skip caching for external ads and analytics tracking
   if (
-    url.protocol === "chrome-extension:" ||
     url.hostname.includes("googlesyndication.com") ||
-    url.hostname.includes("googletagmanager.com")
+    url.hostname.includes("googletagmanager.com") ||
+    url.hostname.includes("cloudflareinsights.com")
   ) {
     return;
   }
@@ -48,8 +51,8 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful HTTP/HTTPS GET responses
-        if (response.status === 200 && response.type === "basic") {
+        // Cache valid basic/opaque responses
+        if (response.status === 200 && (response.type === "basic" || response.type === "cors")) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
         }
@@ -59,7 +62,7 @@ self.addEventListener("fetch", (event) => {
         const cachedResponse = await caches.match(event.request);
         if (cachedResponse) return cachedResponse;
 
-        // Fallback to index.html for navigation route requests offline
+        // Fallback to index.html for client-side navigation offline
         if (event.request.mode === "navigate") {
           return caches.match("/index.html");
         }
