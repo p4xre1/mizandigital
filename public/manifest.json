@@ -1,19 +1,65 @@
 {
+  "id": "https://www.mizan.page/?source=pwa",
   "short_name": "ميزان - Mizan",
   "name": "منصة ميزان الرقمية للقانون المغربي",
-  "icons": [
-    {
-      "src": "/Logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "512x512 192x192 64x64 32x32"
-    }
-  ],
-  "start_url": "/",
-  "background_color": "#052e16",
-  "theme_color": "#052e16",
+  "description": "الموسوعة القانونية المغربية الإلكترونية - النصوص القانونية، مدونة الأسرة، قانون الشغل، واجتهادات المحاكم المغربية",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "dir": "rtl",
   "lang": "ar-MA",
-  "description": "الموسوعة القانونية المغربية الإلكترونية - النصوص القانونية، مدونة الأسرة، قانون الشغل، واجتهادات المحاكم المغربية"
+  "background_color": "#052e16",
+  "theme_color": "#052e16",
+  "categories": [
+    "education",
+    "utilities",
+    "reference"
+  ],
+  "icons": [
+    {
+      "src": "/Logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "32x32 64x64 192x192 512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "القوانين والمدونات",
+      "short_name": "القوانين",
+      "description": "تصفح القوانين المغربية",
+      "url": "/ar/laws",
+      "icons": [
+        {
+          "src": "/Logo.svg",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "مباريات المحاماة والقضاء",
+      "short_name": "المباريات",
+      "description": "نماذج واسئلة QCM",
+      "url": "/ar/exams/qcm-practice",
+      "icons": [
+        {
+          "src": "/Logo.svg",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
 }
