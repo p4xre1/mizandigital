@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { DeveloperBuilder } from "@/components/common/DeveloperBuilder";
 import { Footer } from "@/components/layout/Footer";
@@ -7,8 +8,20 @@ import { useI18n, serifFont, sansFont, type Lang } from "@/lib/i18n";
 type L = Record<Lang, string>;
 const t4 = (ar: string, fr: string, en: string, es: string): L => ({ ar, fr, en, es });
 
-// Translations for the Home page banner
+// Translations for the Home page banner & SEO
 const txt = {
+  seoTitle: t4(
+    "ميزان الرقمية | المنصة القانونية الشاملة للبحوث والخدمات",
+    "Mizan Digital | Plateforme Juridique Globale",
+    "Mizan Digital | Comprehensive Legal Platform",
+    "Mizan Digital | Plataforma Jurídica Integral"
+  ),
+  seoDesc: t4(
+    "المنصة الأولى للخدمات والبحوث القانونية، المكتبة الرقمية، الاجتهادات القضائية ونماذج العقود بالمغرب.",
+    "Première plateforme de services et recherches juridiques, bibliothèque numérique et jurisprudence au Maroc.",
+    "Leading platform for legal services, research, digital library, and jurisprudence in Morocco.",
+    "Plataforma líder en servicios e investigaciones jurídicas, biblioteca digital y jurisprudencia en Marruecos."
+  ),
   sectionTitle: t4(
     "🎓 المساحة التعليمية والمنصة",
     "🎓 Espace Éducatif et Plateforme",
@@ -26,6 +39,15 @@ const txt = {
 export default function Home() {
   const { lang, dir } = useI18n();
 
+  // 🚀 Update page title & description dynamically on language change
+  useEffect(() => {
+    document.title = txt.seoTitle[lang];
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", txt.seoDesc[lang]);
+    }
+  }, [lang]);
+
   return (
     <div 
       className="min-h-screen bg-background text-foreground flex flex-col justify-between transition-colors duration-300 selection:bg-accent-gold/20 selection:text-accent-gold" 
@@ -35,7 +57,7 @@ export default function Home() {
         <Navbar />
         <main className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
           <DeveloperBuilder />
-          
+
           <section 
             className="bg-card/90 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-border shadow-sm text-center transition-colors relative overflow-hidden"
             aria-labelledby="educational-space-heading"
@@ -58,6 +80,18 @@ export default function Home() {
               {txt.sectionDesc[lang]}
             </p>
           </section>
+
+          {/* 💰 Google AdSense Placement Slot */}
+          <div className="my-6 text-center overflow-hidden min-h-[90px]">
+            <ins
+              className="adsbygoogle"
+              style={{ display: "block" }}
+              data-ad-client="ca-pub-1749032173858747"
+              data-ad-slot="auto"
+              data-ad-format="auto"
+              data-full-width-responsive="true"
+            />
+          </div>
         </main>
       </div>
 
