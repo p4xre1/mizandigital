@@ -31,12 +31,6 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{2,}$/.test(e);
 }
 
-/**
- * Neutralise a value used inside a PostgREST `.or()` / `.ilike()` filter.
- * PostgREST treats , ( ) . * and " as structural — a raw user string could
- * otherwise inject extra filter conditions (e.g. `,is_admin.eq.true`).
- * We drop the structural characters and the SQL LIKE wildcards.
- */
 export function isGuestRole(role: string | null | undefined): boolean {
   return role === "guest";
 }
@@ -47,7 +41,11 @@ export function isCopyShortcut(event: KeyboardEvent): boolean {
 
 export function isPrintScreenShortcut(event: KeyboardEvent): boolean {
   const key = event.key.toLowerCase();
-  return key === "printscreen" || key === "print" || ((event.ctrlKey || event.metaKey) && event.shiftKey && ["4", "5", "s"].includes(key));
+  return (
+    key === "printscreen" ||
+    key === "print" ||
+    ((event.ctrlKey || event.metaKey) && event.shiftKey && ["4", "5", "s"].includes(key))
+  );
 }
 
 export function isGuestPiracyKey(event: KeyboardEvent): boolean {
@@ -60,6 +58,8 @@ const BOT_PATTERNS = [
   /bravechromium/i,
   /chatgpt-user/i,
   /claudebot/i,
+  /perplexitybot/i,
+  /google-extended/i,
   /applebot/i,
   /slurp/i,
   /duckduckbot/i,
@@ -81,13 +81,17 @@ const BOT_PATTERNS = [
   /huggingface/i,
 ];
 
-export function isAllowedSeoCrawler(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""): boolean {
+export function isAllowedSeoCrawler(
+  userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""
+): boolean {
   if (!userAgent) return false;
   const ua = userAgent.toLowerCase();
   return BOT_PATTERNS.some((re) => re.test(ua));
 }
 
-export function isSearchEngineBot(userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""): boolean {
+export function isSearchEngineBot(
+  userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""
+): boolean {
   if (!userAgent) return false;
   const ua = userAgent.toLowerCase();
   if (typeof navigator !== "undefined") {
@@ -123,11 +127,6 @@ export function sanitizePgFilter(input: string, maxLen = 100): string {
 }
 
 // ── Rich-text HTML sanitiser ────────────────────────────────────────────────────
-// Admin-authored article bodies are stored as HTML. Even though authors are
-// trusted, we sanitise on the way IN and render the sanitised result — this
-// blocks stored-XSS if an account is compromised and keeps the markup to a
-// known-good allowlist. Runs in the browser via DOMParser.
-
 const ALLOWED_TAGS = new Set([
   "P", "BR", "HR", "B", "STRONG", "I", "EM", "U", "S", "STRIKE", "SUB", "SUP",
   "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE", "UL", "OL", "LI",
@@ -156,7 +155,10 @@ const ALLOWED_IFRAME_HOSTS = [
 
 function safeUrl(url: string, allowRelative = true): string | null {
   const v = url.trim();
-  if (/^\s*javascript:/i.test(v) || /^\s*data:(?!image\/)/i.test(v) || /^\s*vbscript:/i.test(v)) return null;
+  // Neutralize obfuscated javascript/data/vbscript scheme attacks
+  if (/^\s*(javascript|data|vbscript):/i.test(v)) {
+    if (!/^\s*data:image\//i.test(v)) return null;
+  }
   if (/^(https?:)?\/\//i.test(v) || /^mailto:/i.test(v)) return v;
   if (/^data:image\//i.test(v)) return v;
   if (allowRelative && /^[/#]/.test(v)) return v;
@@ -164,21 +166,25 @@ function safeUrl(url: string, allowRelative = true): string | null {
 }
 
 function sanitizeStyle(style: string): string {
-  return style.split(";").map(rule => {
-    const [propRaw, ...valParts] = rule.split(":");
-    const prop = propRaw.trim().toLowerCase();
-    const val = valParts.join(":").trim();
-    if (!prop || !val) return "";
-    if (!ALLOWED_STYLE.has(prop)) return "";
-    if (/expression|url\s*\(|javascript:/i.test(val)) return "";
-    return `${prop}: ${val}`;
-  }).filter(Boolean).join("; ");
+  return style
+    .split(";")
+    .map((rule) => {
+      const [propRaw, ...valParts] = rule.split(":");
+      const prop = propRaw.trim().toLowerCase();
+      const val = valParts.join(":").trim();
+      if (!prop || !val) return "";
+      if (!ALLOWED_STYLE.has(prop)) return "";
+      if (/expression|url\s*\(|javascript:/i.test(val)) return "";
+      return `${prop}: ${val}`;
+    })
+    .filter(Boolean)
+    .join("; ");
 }
 
 function cleanNode(el: Element) {
   const tag = el.tagName.toUpperCase();
+
   if (!ALLOWED_TAGS.has(tag)) {
-    // Unwrap unknown elements (keep their text/children), drop dangerous ones.
     if (tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" || tag === "META") {
       el.remove();
     } else {
@@ -190,14 +196,21 @@ function cleanNode(el: Element) {
   const allowed = new Set([...(ALLOWED_ATTR[tag] || []), ...GLOBAL_ATTR]);
   for (const attr of Array.from(el.attributes)) {
     const name = attr.name.toLowerCase();
-    if (name.startsWith("on") || !allowed.has(name)) { el.removeAttribute(attr.name); continue; }
+    if (name.startsWith("on") || !allowed.has(name)) {
+      el.removeAttribute(attr.name);
+      continue;
+    }
     if (name === "style") {
       const cleaned = sanitizeStyle(attr.value);
-      if (cleaned) el.setAttribute("style", cleaned); else el.removeAttribute("style");
+      if (cleaned) el.setAttribute("style", cleaned);
+      else el.removeAttribute("style");
     }
-    if ((name === "href" || name === "src") ) {
+    if (name === "href" || name === "src") {
       const ok = safeUrl(attr.value, name === "href");
-      if (!ok) { el.remove(); return; }
+      if (!ok) {
+        el.remove();
+        return;
+      }
       el.setAttribute(name, ok);
     }
   }
@@ -205,15 +218,25 @@ function cleanNode(el: Element) {
   if (tag === "IFRAME") {
     try {
       const host = new URL(el.getAttribute("src") || "", window.location.origin).hostname;
-      if (!ALLOWED_IFRAME_HOSTS.includes(host)) { el.remove(); return; }
+      if (!ALLOWED_IFRAME_HOSTS.includes(host)) {
+        el.remove();
+        return;
+      }
       el.setAttribute("allowfullscreen", "");
-    } catch { el.remove(); return; }
-  }
-  if (tag === "A") {
-    el.setAttribute("rel", "noopener noreferrer nofollow");
-    if (el.getAttribute("target") === "_blank") { /* keep */ } else el.removeAttribute("target");
+    } catch {
+      el.remove();
+      return;
+    }
   }
 
+  if (tag === "A") {
+    el.setAttribute("rel", "noopener noreferrer nofollow");
+    if (el.getAttribute("target") !== "_blank") {
+      el.removeAttribute("target");
+    }
+  }
+
+  // Safely iterate children
   Array.from(el.children).forEach(cleanNode);
 }
 

@@ -71,7 +71,7 @@ function SideLinks({ onLinkClick, lang, t }: SideLinksProps) {
           style={{ fontFamily: sansFont(lang) }}
         >
           <item.icon size={18} className="shrink-0" aria-hidden="true" />
-          <span className="truncate">{t(item.key)}</span>
+          <span className="truncate">{t(item.key) || item.key}</span>
         </NavLink>
       ))}
     </nav>
@@ -85,7 +85,7 @@ export default function AdminLayout() {
   const authed = useAdminAuth();
 
   // SEO 🛡️: noindex hides the admin panel from search engines
-  useSeo({ title: t("admin_panel"), noindex: true, path: "/admin" }, [lang]);
+  useSeo({ title: t("admin_panel") || "Admin Panel", noindex: true, path: "/admin" }, [lang]);
 
   // Security & Mobile UX: Lock body scroll when drawer is open
   useEffect(() => {
@@ -126,7 +126,7 @@ export default function AdminLayout() {
           {/* Left section: Hamburger + Brand */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
-              className="lg:hidden p-2 text-foreground/80 hover:text-foreground rounded-lg hover:bg-muted active:scale-95 transition-transform touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary shrink-0 min-h-[40px] min-w-[40px] flex items-center justify-center"
+              className="lg:hidden p-2 text-foreground/80 hover:text-foreground rounded-lg hover:bg-muted active:scale-95 transition-transform touch-manipulation focus:outline-none focus:ring-2 focus:ring-primary shrink-0 min-h-[40px] min-w-[40px] flex items-center justify-center cursor-pointer"
               onClick={() => setOpen(!open)}
               aria-expanded={open}
               aria-controls="admin-sidebar"
@@ -227,7 +227,7 @@ export default function AdminLayout() {
                 </div>
                 <button
                   onClick={() => setOpen(false)}
-                  className="p-1.5 text-foreground/70 hover:text-foreground rounded-lg"
+                  className="p-1.5 text-foreground/70 hover:text-foreground rounded-lg cursor-pointer"
                   aria-label="Close menu"
                 >
                   <X size={18} />

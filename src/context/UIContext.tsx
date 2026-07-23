@@ -1,6 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  type ReactNode,
+} from "react";
 
 interface UIContextType {
   // 🔐 Auth Modal State
@@ -27,15 +35,22 @@ interface UIContextType {
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
-export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const UIProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
+  // 🧹 Utility to close all overlays
+  const closeAllOverlays = useCallback(() => {
+    setIsAuthModalOpen(false);
+    setIsMobileMenuOpen(false);
+    setIsSearchOpen(false);
+  }, []);
+
   // 🔒 Prevent background body scrolling when mobile drawers or modals are open
   useEffect(() => {
     const isAnyOverlayOpen = isAuthModalOpen || isMobileMenuOpen || isSearchOpen;
-    
+
     if (isAnyOverlayOpen) {
       document.body.style.overflow = "hidden";
       document.body.style.touchAction = "none"; // Disables touch scrolling leak on iOS
@@ -50,6 +65,18 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
     };
   }, [isAuthModalOpen, isMobileMenuOpen, isSearchOpen]);
 
+  // ⌨️ Close all overlays on 'Escape' key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeAllOverlays();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [closeAllOverlays]);
+
   // ⚙️ Memoized Handlers for smooth mobile performance
   const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
   const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
@@ -62,12 +89,6 @@ export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }
   const openSearch = useCallback(() => setIsSearchOpen(true), []);
   const closeSearch = useCallback(() => setIsSearchOpen(false), []);
   const toggleSearch = useCallback(() => setIsSearchOpen((prev) => !prev), []);
-
-  const closeAllOverlays = useCallback(() => {
-    setIsAuthModalOpen(false);
-    setIsMobileMenuOpen(false);
-    setIsSearchOpen(false);
-  }, []);
 
   const value = useMemo(
     () => ({
