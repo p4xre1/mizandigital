@@ -78,17 +78,65 @@ export const UIProvider = ({ children }: { children: ReactNode }) => {
   }, [closeAllOverlays]);
 
   // ⚙️ Memoized Handlers for smooth mobile performance
-  const openAuthModal = useCallback(() => setIsAuthModalOpen(true), []);
-  const closeAuthModal = useCallback(() => setIsAuthModalOpen(false), []);
-  const toggleAuthModal = useCallback(() => setIsAuthModalOpen((prev) => !prev), []);
+  const openAuthModal = useCallback(() => {
+    setIsMobileMenuOpen(false);
+    setIsSearchOpen(false);
+    setIsAuthModalOpen(true);
+  }, []);
 
-  const openMobileMenu = useCallback(() => setIsMobileMenuOpen(true), []);
-  const closeMobileMenu = useCallback(() => setIsMobileMenuOpen(false), []);
-  const toggleMobileMenu = useCallback(() => setIsMobileMenuOpen((prev) => !prev), []);
+  const closeAuthModal = useCallback(() => {
+    setIsAuthModalOpen(false);
+  }, []);
 
-  const openSearch = useCallback(() => setIsSearchOpen(true), []);
-  const closeSearch = useCallback(() => setIsSearchOpen(false), []);
-  const toggleSearch = useCallback(() => setIsSearchOpen((prev) => !prev), []);
+  const toggleAuthModal = useCallback(() => {
+    setIsAuthModalOpen((prev) => {
+      if (!prev) {
+        setIsMobileMenuOpen(false);
+        setIsSearchOpen(false);
+      }
+      return !prev;
+    });
+  }, []);
+
+  const openMobileMenu = useCallback(() => {
+    setIsSearchOpen(false);
+    setIsAuthModalOpen(false);
+    setIsMobileMenuOpen(true);
+  }, []);
+
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
+
+  const toggleMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen((prev) => {
+      if (!prev) {
+        setIsSearchOpen(false);
+        setIsAuthModalOpen(false);
+      }
+      return !prev;
+    });
+  }, []);
+
+  const openSearch = useCallback(() => {
+    setIsMobileMenuOpen(false);
+    setIsAuthModalOpen(false);
+    setIsSearchOpen(true);
+  }, []);
+
+  const closeSearch = useCallback(() => {
+    setIsSearchOpen(false);
+  }, []);
+
+  const toggleSearch = useCallback(() => {
+    setIsSearchOpen((prev) => {
+      if (!prev) {
+        setIsMobileMenuOpen(false);
+        setIsAuthModalOpen(false);
+      }
+      return !prev;
+    });
+  }, []);
 
   const value = useMemo(
     () => ({

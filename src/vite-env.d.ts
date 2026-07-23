@@ -40,6 +40,12 @@ interface ImportMetaEnv {
    * @example "sb_publishable_y0738q3ikStPOZMl9Ei_eg_2hDOUUe6"
    */
   readonly VITE_SUPABASE_ANON_KEY?: string;
+
+  /**
+   * Cloudflare Turnstile CAPTCHA Site Key
+   * @example "0x4AAAAAAD7kaEjAcOwwsXHc"
+   */
+  readonly VITE_TURNSTILE_SITE_KEY?: string;
 }
 
 interface ImportMeta {

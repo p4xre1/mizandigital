@@ -4,13 +4,12 @@ import App from "./App";
 import "./styles/globals.css";
 
 // 🚀 Site Domain Configuration
-const SITE_URL =
-  (import.meta.env.VITE_SITE_URL as string) || "https://www.mizan.page";
+const SITE_URL = import.meta.env.VITE_SITE_URL || "https://www.mizan.page";
 
 /**
  * Dynamically injects Schema.org WebSite JSON-LD for Google search engine indexing.
  */
-function injectWebSiteSchema() {
+function injectWebSiteSchema(): void {
   if (typeof document === "undefined") return;
 
   const SCRIPT_ID = "mizan-schema-website";
@@ -19,23 +18,24 @@ function injectWebSiteSchema() {
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "منصة ميزان الرقمية - Mizan Digital",
-    "alternateName": [
+    name: "منصة ميزان الرقمية - Mizan Digital",
+    alternateName: [
       "منصة ميزان القانونية المغربية",
       "Mizan Law Morocco",
-      "Plateforme Numérique Mizan Maroc"
+      "Plateforme Numérique Mizan Maroc",
     ],
-    "url": SITE_URL,
-    "description": "المرجع الأول للباحثين القانونيين والمحامين في المغرب - أرشيف قانوني شامل، النصوص التشريعية المحدثة، ومدونة الأسرة والشغل.",
-    "inLanguage": ["ar-MA", "fr-MA", "ar", "fr", "en"],
-    "potentialAction": {
+    url: SITE_URL,
+    description:
+      "المرجع الأول للباحثين القانونيين والمحامين في المغرب - أرشيف قانوني شامل، النصوص التشريعية المحدثة، ومدونة الأسرة والشغل.",
+    inLanguage: ["ar-MA", "fr-MA", "ar", "fr", "en"],
+    potentialAction: {
       "@type": "SearchAction",
-      "target": {
+      target: {
         "@type": "EntryPoint",
-        "urlTemplate": `${SITE_URL}/ar/archive?search={search_term_string}`
+        urlTemplate: `${SITE_URL}/ar/archive?search={search_term_string}`,
       },
-      "query-input": "required name=search_term_string"
-    }
+      "query-input": "required name=search_term_string",
+    },
   };
 
   const script = document.createElement("script");
@@ -48,7 +48,7 @@ function injectWebSiteSchema() {
 /**
  * Registers PWA Service Worker for zero-lag mobile loading and offline legal access.
  */
-function registerServiceWorker() {
+function registerServiceWorker(): void {
   if ("serviceWorker" in navigator && import.meta.env.PROD) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
@@ -61,8 +61,13 @@ function registerServiceWorker() {
             const installingWorker = reg.installing;
             if (installingWorker) {
               installingWorker.onstatechange = () => {
-                if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
-                  console.log("🔄 [Mizan PWA] New version available! Refresh to update.");
+                if (
+                  installingWorker.state === "installed" &&
+                  navigator.serviceWorker.controller
+                ) {
+                  console.log(
+                    "🔄 [Mizan PWA] New version available! Refresh to update."
+                  );
                 }
               };
             }
@@ -75,10 +80,10 @@ function registerServiceWorker() {
   }
 }
 
-// 1. Inject structured SEO metadata for Google Morocco
+// 1. Inject structured SEO metadata
 injectWebSiteSchema();
 
-// 2. Enable offline PWA capabilities for smartphones
+// 2. Enable offline PWA capabilities
 registerServiceWorker();
 
 // 3. Mount React Root securely
@@ -90,7 +95,6 @@ if (!rootElement) {
   );
 }
 
-// Render React App wrapped in StrictMode
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <App />

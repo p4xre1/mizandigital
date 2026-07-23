@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useAdminAuth } from "../lib/adminAuth";
+import { TurnstileCaptcha } from "./auth/TurnstileCaptcha"; // Corrected path to the auth folder
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -7,6 +8,7 @@ interface AdminGuardProps {
 
 export function AdminGuard({ children }: AdminGuardProps) {
   const isAuthenticated = useAdminAuth();
+  const [turnstileVerified, setTurnstileVerified] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated && typeof window !== "undefined") {
@@ -15,6 +17,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
     }
   }, [isAuthenticated]);
 
+  // 1. Loading check for auth state
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
@@ -28,5 +31,31 @@ export function AdminGuard({ children }: AdminGuardProps) {
     );
   }
 
+  // 2. Turnstile Verification Challenge
+  if (!turnstileVerified) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground p-4">
+        <div className="bg-card border border-border p-6 rounded-2xl shadow-lg max-w-sm w-full text-center space-y-4">
+          <div className="space-y-1">
+            <h2 className="font-bold text-lg text-foreground">Security Verification</h2>
+            <p className="text-xs text-muted-foreground">
+              Please complete the challenge below to access the admin portal.
+            </p>
+          </div>
+
+          <TurnstileCaptcha
+            onVerify={(token) => {
+              console.log("Turnstile verified:", token);
+              setTurnstileVerified(true);
+            }}
+            onError={() => setTurnstileVerified(false)}
+            onExpire={() => setTurnstileVerified(false)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Fully Authenticated and Verified
   return <>{children}</>;
 }

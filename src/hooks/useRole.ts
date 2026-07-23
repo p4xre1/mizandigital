@@ -2,17 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import type { Role, UserProfile } from "@/types/database";
 
-// Simplified Tier without enterprise and premium
-export type Tier = "free";
-
 export interface UseRoleResult {
   profile: UserProfile | null;
   role: Role;
-  tier: Tier;
   daily_credits: number;
   bonus_credits: number;
   // Role Helpers
-  isPremium: boolean;
   isStaff: boolean;
   isGuest: boolean;
   // Master Blueprint UI Helpers
@@ -28,7 +23,6 @@ export interface UseRoleResult {
 
 interface ProfileData {
   role: string | null;
-  tier: string | null;
   daily_credits: number | null;
   bonus_credits: number | null;
 }
@@ -55,25 +49,21 @@ function normalizeRole(value: string | null | undefined): Role {
   }
 }
 
-// Enterprise and premium stripped out; all tiers default to free
-function normalizeTier(_value?: string | null): Tier {
-  return "free";
-}
-
 async function fetchProfileState(): Promise<{
   profile: UserProfile | null;
   role: Role;
-  tier: Tier;
   daily_credits: number;
   bonus_credits: number;
 }> {
   if (!isSupabaseConfigured) {
-    return { profile: null, role: "guest", tier: "free", daily_credits: 0, bonus_credits: 0 };
+    return { profile: null, role: "guest", daily_credits: 0, bonus_credits: 0 };
   }
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) {
-    return { profile: null, role: "guest", tier: "free", daily_credits: 0, bonus_credits: 0 };
+    return { profile: null, role: "guest", daily_credits: 0, bonus_credits: 0 };
   }
 
   const { data, error } = await supabase
@@ -83,7 +73,7 @@ async function fetchProfileState(): Promise<{
     .single();
 
   if (error || !data) {
-    return { profile: null, role: "member", tier: "free", daily_credits: 0, bonus_credits: 0 };
+    return { profile: null, role: "member", daily_credits: 0, bonus_credits: 0 };
   }
 
   const raw = data as ProfileData & UserProfile;
@@ -91,7 +81,6 @@ async function fetchProfileState(): Promise<{
   return {
     profile: raw,
     role: normalizeRole(raw.role),
-    tier: normalizeTier(raw.tier),
     daily_credits: Math.max(0, Number(raw.daily_credits ?? 0)),
     bonus_credits: Math.max(0, Number(raw.bonus_credits ?? 0)),
   };
@@ -100,7 +89,6 @@ async function fetchProfileState(): Promise<{
 export function useRole(): UseRoleResult {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<Role>("guest");
-  const [tier, setTier] = useState<Tier>("free");
   const [dailyCredits, setDailyCredits] = useState(0);
   const [bonusCredits, setBonusCredits] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -113,14 +101,12 @@ export function useRole(): UseRoleResult {
       const state = await fetchProfileState();
       setProfile(state.profile);
       setRole(state.role);
-      setTier(state.tier);
       setDailyCredits(state.daily_credits);
       setBonusCredits(state.bonus_credits);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to load role.");
       setProfile(null);
       setRole("guest");
-      setTier("free");
       setDailyCredits(0);
       setBonusCredits(0);
     } finally {
@@ -133,7 +119,9 @@ export function useRole(): UseRoleResult {
 
     if (!isSupabaseConfigured) return;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(() => {
       void loadRole();
     });
 
@@ -141,22 +129,28 @@ export function useRole(): UseRoleResult {
   }, []);
 
   // 1. Role Mappings
-  const isPremium = useMemo(() => false, []); // Premium removed
-  const isStaff = useMemo(() => role === "writer" || role === "security_admin" || role === "root", [role]);
+  const isStaff = useMemo(
+    () => role === "writer" || role === "security_admin" || role === "root",
+    [role]
+  );
   const isGuest = useMemo(() => role === "guest", [role]);
 
   // 2. Blueprint Permission Helpers
-  const isDeveloper = useMemo(() => role === "root" || role === "security_admin", [role]);
-  const isAdmin = useMemo(() => role === "root" || role === "security_admin", [role]);
+  const isDeveloper = useMemo(
+    () => role === "root" || role === "security_admin",
+    [role]
+  );
+  const isAdmin = useMemo(
+    () => role === "root" || role === "security_admin",
+    [role]
+  );
   const isEditor = useMemo(() => role === "writer" || role === "root", [role]);
 
   return {
     profile,
     role,
-    tier,
     daily_credits: dailyCredits,
     bonus_credits: bonusCredits,
-    isPremium,
     isStaff,
     isGuest,
     isDeveloper,
