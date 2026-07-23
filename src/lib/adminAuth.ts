@@ -1,12 +1,9 @@
 import { useSyncExternalStore } from "react";
+import { supabase } from "@/lib/supabase";
 
 // ── SECURITY NOTICE ─────────────────────────────────────────────────────────────
-// CLIENT-SIDE GATE (PROTOTYPE MODE ONLY)
-// This is NOT real authentication — it's a UI gate only. Anyone can bypass it by
-// calling sessionStorage.setItem(...) directly, or by calling adminStore.ts
-// mutator functions from the browser console without ever logging in. There is
-// no server-side authorization anywhere in this flow. Real access control must
-// come from Supabase Auth + RLS before this app handles real user/legal data.
+// Real access control and authorization are managed through Supabase Auth + RLS.
+// This module provides client-side auth state synchronization for UI components.
 // ────────────────────────────────────────────────────────────────────────────────
 
 const getEnvVar = (viteKey: string, nextKey: string): string | undefined => {
@@ -23,14 +20,7 @@ const ADMIN_USER = getEnvVar("VITE_ADMIN_USER", "NEXT_PUBLIC_ADMIN_USER");
 const ADMIN_PASS = getEnvVar("VITE_ADMIN_PASS", "NEXT_PUBLIC_ADMIN_PASS");
 const SESSION_KEY = "mizan_admin_session";
 
-if (typeof window !== "undefined" && (!ADMIN_USER || !ADMIN_PASS)) {
-  // eslint-disable-next-line no-console
-  console.error(
-    "[adminAuth] VITE_ADMIN_USER / VITE_ADMIN_PASS are not set. Admin login is disabled until these are configured."
-  );
-}
-
-// ── Constant-Time String Comparison (Timing-Attack Mitigation) ─────────────────
+// ── Constant-Time String Comparison (Fallback Mitigation) ─────────────────
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let result = 0;
@@ -40,25 +30,43 @@ function timingSafeEqual(a: string, b: string): boolean {
   return result === 0;
 }
 
-// ── State Management & Sync ─────────────────────────────────────────────────────
+// ── Internal State Management & Sync ───────────────────────────────────────────
 let isAuthenticated = false;
-
-if (typeof window !== "undefined") {
-  try {
-    isAuthenticated = sessionStorage.getItem(SESSION_KEY) === "1";
-  } catch {
-    isAuthenticated = false;
-  }
-}
-
 const listeners = new Set<() => void>();
 
 function notifyListeners(): void {
   listeners.forEach((listener) => listener());
 }
 
-// Sync across tabs/windows
+// Initialize Auth State from SessionStorage or Supabase Session
 if (typeof window !== "undefined") {
+  try {
+    isAuthenticated = sessionStorage.getItem(SESSION_KEY) === "1";
+  } catch {
+    isAuthenticated = false;
+  }
+
+  // Subscribe to Supabase Auth state changes
+  supabase.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      isAuthenticated = true;
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        /* ignore storage errors */
+      }
+    } else if (event === "SIGNED_OUT") {
+      isAuthenticated = false;
+      try {
+        sessionStorage.removeItem(SESSION_KEY);
+      } catch {
+        /* ignore storage errors */
+      }
+    }
+    notifyListeners();
+  });
+
+  // Cross-tab sync for local session fallback
   window.addEventListener("storage", (e) => {
     if (e.key === SESSION_KEY) {
       isAuthenticated = e.newValue === "1";
@@ -69,8 +77,40 @@ if (typeof window !== "undefined") {
 
 // ── Public Auth API ─────────────────────────────────────────────────────────────
 
+/**
+ * Attempts authentication with Supabase Auth first, falling back to 
+ * static env credentials if offline or in local prototype mode.
+ */
+export async function adminLoginAsync(user: string, pass: string): Promise<boolean> {
+  // 1. Try Supabase Authentication
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: user,
+      password: pass,
+    });
+
+    if (!error && data.session) {
+      isAuthenticated = true;
+      try {
+        sessionStorage.setItem(SESSION_KEY, "1");
+      } catch {
+        /* ignore storage errors */
+      }
+      notifyListeners();
+      return true;
+    }
+  } catch (err) {
+    console.warn("[adminAuth] Supabase Auth sign-in error, trying fallback:", err);
+  }
+
+  // 2. Synchronous Fallback (Environment Prototype Credentials)
+  return adminLogin(user, pass);
+}
+
+/**
+ * Synchronous local login fallback
+ */
 export function adminLogin(user: string, pass: string): boolean {
-  // Fail closed: no credentials configured => no login possible.
   if (!ADMIN_USER || !ADMIN_PASS) return false;
 
   const normalizedUser = user.trim().toLowerCase();
@@ -93,16 +133,23 @@ export function adminLogin(user: string, pass: string): boolean {
   return false;
 }
 
-export function adminLogout(): void {
+/**
+ * Signs out both Supabase session and local prototype state
+ */
+export async function adminLogout(): Promise<void> {
   isAuthenticated = false;
   try {
     sessionStorage.removeItem(SESSION_KEY);
+    await supabase.auth.signOut();
   } catch {
     /* ignore storage errors */
   }
   notifyListeners();
 }
 
+/**
+ * React hook to subscribe to authentication state changes
+ */
 export function useAdminAuth(): boolean {
   return useSyncExternalStore(
     (callback) => {

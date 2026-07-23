@@ -1,4 +1,5 @@
-import { Users, FileText, Eye, ShieldAlert, TrendingUp } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Users, FileText, Eye, ShieldAlert, TrendingUp, RefreshCw } from "lucide-react";
 import {
   AreaChart,
   Area,
@@ -13,6 +14,7 @@ import {
 import { useI18n, serifFont, sansFont, useLocalizedPath } from "../../lib/i18n";
 import { useCms } from "../../lib/adminStore";
 import { AdminWrapper } from "../../components/AdminWrapper";
+import { supabase } from "@/lib/supabase";
 
 const traffic = [
   { d: "Mon", v: 1200 },
@@ -37,34 +39,86 @@ export default function Dashboard() {
   const getLocalizedPath = useLocalizedPath();
   const cms = useCms();
 
-  const totalViews = cms.articles.reduce((s, a) => s + a.views, 0);
+  const [loading, setLoading] = useState(false);
+  const [metrics, setMetrics] = useState({
+    userCount: cms.users.length,
+    bannedCount: cms.users.filter((u) => u.status === "banned").length,
+    articleCount: cms.articles.length,
+    publishedCount: cms.articles.filter((a) => a.status === "published").length,
+    totalViews: cms.articles.reduce((s, a) => s + a.views, 0),
+    securityAlerts: cms.security.filter((s) => s.severity !== "info").length,
+  });
+
+  // Fetch real-time KPI metrics from Supabase DB
+  const fetchDbMetrics = useCallback(async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch Users Count
+      const { count: uCount, data: uData } = await supabase
+        .from("profiles")
+        .select("is_frozen", { count: "exact" });
+
+      const banned = uData ? uData.filter((u) => u.is_frozen).length : 0;
+
+      // 2. Fetch Articles Count & Views
+      const { count: aCount, data: aData } = await supabase
+        .from("articles")
+        .select("status, views", { count: "exact" });
+
+      const published = aData ? aData.filter((a) => a.status === "published").length : 0;
+      const viewsSum = aData ? aData.reduce((acc, curr) => acc + (curr.views || 0), 0) : 0;
+
+      // 3. Fetch Security Logs (Warning / Critical)
+      const { count: secCount } = await supabase
+        .from("security_logs")
+        .select("*", { count: "exact", head: true })
+        .neq("severity", "info");
+
+      setMetrics({
+        userCount: uCount ?? cms.users.length,
+        bannedCount: banned || cms.users.filter((u) => u.status === "banned").length,
+        articleCount: aCount ?? cms.articles.length,
+        publishedCount: published || cms.articles.filter((a) => a.status === "published").length,
+        totalViews: viewsSum || cms.articles.reduce((s, a) => s + a.views, 0),
+        securityAlerts: secCount ?? cms.security.filter((s) => s.severity !== "info").length,
+      });
+    } catch (err) {
+      console.error("Error fetching live dashboard metrics:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [cms]);
+
+  useEffect(() => {
+    fetchDbMetrics();
+  }, [fetchDbMetrics]);
 
   const kpis = [
     {
       icon: Users,
       label: t("admin_users"),
-      value: cms.users.length,
-      sub: `${cms.users.filter((u) => u.status === "banned").length} ${t("admin_banned")}`,
+      value: metrics.userCount,
+      sub: `${metrics.bannedCount} ${t("admin_banned")}`,
       link: getLocalizedPath("/admin/users"),
     },
     {
       icon: FileText,
       label: t("admin_articles"),
-      value: cms.articles.length,
-      sub: `${cms.articles.filter((a) => a.status === "published").length} ${t("admin_published")}`,
+      value: metrics.articleCount,
+      sub: `${metrics.publishedCount} ${t("admin_published")}`,
       link: getLocalizedPath("/admin/articles"),
     },
     {
       icon: Eye,
       label: t("reads"),
-      value: totalViews.toLocaleString(),
+      value: metrics.totalViews.toLocaleString(),
       sub: "+12.4%",
       link: getLocalizedPath("/admin/analytics"),
     },
     {
       icon: ShieldAlert,
       label: t("admin_security"),
-      value: cms.security.filter((s) => s.severity !== "info").length,
+      value: metrics.securityAlerts,
       sub: "24h",
       link: getLocalizedPath("/admin/security"),
     },
@@ -73,21 +127,32 @@ export default function Dashboard() {
   return (
     <AdminWrapper title={t("admin_overview")}>
       <div>
-        <h1
-          className="text-2xl font-bold text-foreground mb-6"
-          style={{ fontFamily: serifFont(lang) }}
-        >
-          {t("admin_overview")}
-        </h1>
+        {/* Header Title with Sync Button */}
+        <div className="flex items-center justify-between mb-6">
+          <h1
+            className="text-2xl font-bold text-foreground"
+            style={{ fontFamily: serifFont(lang) }}
+          >
+            {t("admin_overview")}
+          </h1>
+          <button
+            onClick={() => fetchDbMetrics()}
+            className="p-2 text-muted-foreground hover:text-emerald-500 rounded-lg border border-border bg-card transition-all"
+            title="Refresh Metrics"
+          >
+            <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+          </button>
+        </div>
 
+        {/* KPI Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {kpis.map((k) => (
             <a
               key={k.label}
               href={k.link}
-              className="bg-card border border-border rounded-2xl p-5 transition-all hover:border-primary/50 hover:shadow-sm block"
+              className="bg-card border border-border rounded-2xl p-5 transition-all hover:border-emerald-500/50 hover:shadow-sm block"
             >
-              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-primary mb-3">
+              <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-emerald-500 mb-3">
                 <k.icon size={18} />
               </div>
               <div className="text-2xl font-bold text-foreground">{k.value}</div>
@@ -97,7 +162,7 @@ export default function Dashboard() {
               >
                 {k.label}
               </div>
-              <div className="text-[11px] text-primary font-semibold mt-1 flex items-center gap-1">
+              <div className="text-[11px] text-emerald-500 font-semibold mt-1 flex items-center gap-1">
                 <TrendingUp size={11} />
                 {k.sub}
               </div>
@@ -105,7 +170,9 @@ export default function Dashboard() {
           ))}
         </div>
 
+        {/* Charts Grid */}
         <div className="grid lg:grid-cols-2 gap-6">
+          {/* Traffic / Analytics Chart */}
           <div className="bg-card border border-border rounded-2xl p-5">
             <h2
               className="font-bold text-foreground mb-4"
@@ -143,6 +210,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
 
+          {/* Article Category Distribution */}
           <div className="bg-card border border-border rounded-2xl p-5">
             <h2
               className="font-bold text-foreground mb-4"

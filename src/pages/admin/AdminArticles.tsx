@@ -226,7 +226,13 @@ function ArticleEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Handle title changes & auto-slug generation if user hasn't explicitly customized slug
+  const slugify = (text: string) =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
+
   const handleTitleChange = (title: string) => {
     const shouldAutoSlug = !d.id && (!d.slug || d.slug === slugify(d.title || ""));
     setD((prev) => ({
@@ -235,13 +241,6 @@ function ArticleEditor({
       slug: shouldAutoSlug ? slugify(title) : prev.slug,
     }));
   };
-
-  const slugify = (text: string) =>
-    text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
 
   const report: SeoReport = useMemo(
     () =>

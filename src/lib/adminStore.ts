@@ -1,10 +1,9 @@
 import { useSyncExternalStore } from "react";
+import { supabase } from "@/lib/supabase";
 
-// ── Lightweight CMS store ──────────────────────────────────────────────────────
-// A localStorage-backed mock store for the admin dashboard. This powers the
-// prototype UI (users, articles, legal texts, pages, SEO keywords). When a
-// Supabase backend is wired up, these reads/writes can be swapped for PostgREST
-// calls + RLS — the shapes below intentionally mirror typical CMS tables.
+// ── Lightweight CMS store with Supabase Sync ──────────────────────────────────
+// A local-first store for the admin dashboard. Local mutations update state 
+// and localStorage immediately, then asynchronously push updates to Supabase tables.
 
 export interface AdminUser {
   id: string;
@@ -175,7 +174,6 @@ function read(): CmsState {
       return {
         ...SEED,
         ...parsed,
-        // Ensure sub-arrays exist even if loaded from older key schema
         legalTexts: parsed.legalTexts || SEED.legalTexts,
       };
     }
@@ -231,29 +229,44 @@ const uid = () =>
 const today = () => new Date().toISOString().slice(0, 10);
 
 // ── Users ─────────────────────────────────────────────────────────────────────
-export const setUserStatus = (id: string, status: AdminUser["status"]) =>
+export const setUserStatus = async (id: string, status: AdminUser["status"]) => {
   commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, status } : u)) });
+  await supabase
+    .from("profiles")
+    .update({ is_frozen: status === "banned" })
+    .eq("id", id);
+};
 
-export const setUserRole = (id: string, role: AdminUser["role"]) =>
+export const setUserRole = async (id: string, role: AdminUser["role"]) => {
   commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, role } : u)) });
+  await supabase
+    .from("profiles")
+    .update({ role })
+    .eq("id", id);
+};
 
-export const deleteUser = (id: string) =>
+export const deleteUser = async (id: string) => {
   commit({ ...state, users: state.users.filter((u) => u.id !== id) });
+  await supabase.from("profiles").delete().eq("id", id);
+};
 
 // ── Articles ──────────────────────────────────────────────────────────────────
-export const upsertArticle = (a: Partial<AdminArticle> & { id?: string }) => {
-  if (a.id && state.articles.some((x) => x.id === a.id)) {
+export const upsertArticle = async (a: Partial<AdminArticle> & { id?: string }) => {
+  const isExisting = a.id && state.articles.some((x) => x.id === a.id);
+  const targetId = a.id || uid();
+
+  if (isExisting) {
     commit({
       ...state,
       articles: state.articles.map((x) =>
-        x.id === a.id ? ({ ...x, ...a, updated: today() } as AdminArticle) : x
+        x.id === targetId ? ({ ...x, ...a, updated: today() } as AdminArticle) : x
       ),
     });
   } else {
     const na: AdminArticle = {
-      id: uid(),
+      id: targetId,
       title: a.title || "",
-      slug: a.slug || uid(),
+      slug: a.slug || targetId,
       category: a.category || "",
       status: a.status || "draft",
       author: a.author || "—",
@@ -262,25 +275,40 @@ export const upsertArticle = (a: Partial<AdminArticle> & { id?: string }) => {
     };
     commit({ ...state, articles: [na, ...state.articles] });
   }
+
+  await supabase.from("articles").upsert({
+    id: targetId,
+    title: a.title,
+    slug: a.slug,
+    category: a.category,
+    status: a.status,
+    author: a.author,
+    updated_at: new Date().toISOString(),
+  });
 };
 
-export const deleteArticle = (id: string) =>
+export const deleteArticle = async (id: string) => {
   commit({ ...state, articles: state.articles.filter((a) => a.id !== id) });
+  await supabase.from("articles").delete().eq("id", id);
+};
 
 // ── Legal Texts ───────────────────────────────────────────────────────────────
-export const upsertLegalText = (lt: Partial<LegalText> & { id?: string }) => {
-  if (lt.id && state.legalTexts.some((x) => x.id === lt.id)) {
+export const upsertLegalText = async (lt: Partial<LegalText> & { id?: string }) => {
+  const isExisting = lt.id && state.legalTexts.some((x) => x.id === lt.id);
+  const targetId = lt.id || uid();
+
+  if (isExisting) {
     commit({
       ...state,
       legalTexts: state.legalTexts.map((x) =>
-        x.id === lt.id ? ({ ...x, ...lt, updated: today() } as LegalText) : x
+        x.id === targetId ? ({ ...x, ...lt, updated: today() } as LegalText) : x
       ),
     });
   } else {
     const nlt: LegalText = {
-      id: uid(),
+      id: targetId,
       title: lt.title || "",
-      slug: lt.slug || uid(),
+      slug: lt.slug || targetId,
       domain: lt.domain || "عام",
       status: lt.status || "draft",
       accessTier: lt.accessTier || "free",
@@ -288,37 +316,62 @@ export const upsertLegalText = (lt: Partial<LegalText> & { id?: string }) => {
     };
     commit({ ...state, legalTexts: [nlt, ...state.legalTexts] });
   }
+
+  await supabase.from("legal_texts").upsert({
+    id: targetId,
+    title: lt.title,
+    slug: lt.slug,
+    domain: lt.domain,
+    status: lt.status,
+    access_tier: lt.accessTier,
+    updated_at: new Date().toISOString(),
+  });
 };
 
-export const deleteLegalText = (id: string) =>
+export const deleteLegalText = async (id: string) => {
   commit({ ...state, legalTexts: state.legalTexts.filter((lt) => lt.id !== id) });
+  await supabase.from("legal_texts").delete().eq("id", id);
+};
 
 // ── Pages ─────────────────────────────────────────────────────────────────────
-export const upsertPage = (p: Partial<AdminPage> & { id?: string }) => {
-  if (p.id && state.pages.some((x) => x.id === p.id)) {
+export const upsertPage = async (p: Partial<AdminPage> & { id?: string }) => {
+  const isExisting = p.id && state.pages.some((x) => x.id === p.id);
+  const targetId = p.id || uid();
+
+  if (isExisting) {
     commit({
       ...state,
       pages: state.pages.map((x) =>
-        x.id === p.id ? ({ ...x, ...p, updated: today() } as AdminPage) : x
+        x.id === targetId ? ({ ...x, ...p, updated: today() } as AdminPage) : x
       ),
     });
   } else {
     const np: AdminPage = {
-      id: uid(),
+      id: targetId,
       title: p.title || "",
-      slug: p.slug || uid(),
+      slug: p.slug || targetId,
       status: p.status || "draft",
       updated: today(),
     };
     commit({ ...state, pages: [np, ...state.pages] });
   }
+
+  await supabase.from("pages").upsert({
+    id: targetId,
+    title: p.title,
+    slug: p.slug,
+    status: p.status,
+    updated_at: new Date().toISOString(),
+  });
 };
 
-export const deletePage = (id: string) =>
+export const deletePage = async (id: string) => {
   commit({ ...state, pages: state.pages.filter((p) => p.id !== id) });
+  await supabase.from("pages").delete().eq("id", id);
+};
 
 // ── Comments ──────────────────────────────────────────────────────────────────
-export const addComment = (articleId: string, name: string, body: string) => {
+export const addComment = async (articleId: string, name: string, body: string) => {
   const c: Comment = {
     id: uid(),
     articleId,
@@ -327,22 +380,40 @@ export const addComment = (articleId: string, name: string, body: string) => {
     at: new Date().toISOString().slice(0, 16).replace("T", " "),
   };
   commit({ ...state, comments: [...state.comments, c] });
+
+  await supabase.from("comments").insert({
+    id: c.id,
+    article_id: articleId,
+    name,
+    body,
+    created_at: new Date().toISOString(),
+  });
+
   return c;
 };
 
-export const deleteComment = (id: string) =>
+export const deleteComment = async (id: string) => {
   commit({ ...state, comments: state.comments.filter((c) => c.id !== id) });
+  await supabase.from("comments").delete().eq("id", id);
+};
 
 export const getComments = (articleId: string) =>
   state.comments.filter((c) => c.articleId === articleId);
 
 // ── Traffic / Referral Tracking ───────────────────────────────────────────────
-export const logTraffic = (hit: Omit<TrafficHit, "id" | "at">) => {
+export const logTraffic = async (hit: Omit<TrafficHit, "id" | "at">) => {
   const h: TrafficHit = {
     ...hit,
     id: uid(),
     at: new Date().toISOString().slice(0, 16).replace("T", " "),
   };
-  // keep the most recent 200 hits
   commit({ ...state, traffic: [h, ...state.traffic].slice(0, 200) });
+
+  await supabase.from("traffic_logs").insert({
+    path: hit.path,
+    source: hit.source,
+    medium: hit.medium,
+    campaign: hit.campaign,
+    referrer: hit.referrer,
+  });
 };

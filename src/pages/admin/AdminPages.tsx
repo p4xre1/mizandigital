@@ -11,6 +11,7 @@ export default function AdminPages() {
   const { lang, dir, t } = useI18n();
   const cms = useCms();
   const [editing, setEditing] = useState<Draft | null>(null);
+  const [saving, setSaving] = useState(false);
 
   // Close modal on ESC key
   useEffect(() => {
@@ -42,18 +43,35 @@ export default function AdminPages() {
     });
   };
 
-  const save = () => {
+  const save = async () => {
     if (!editing || !editing.title) return;
 
-    upsertPage({
-      ...editing,
-      title: sanitizeText(editing.title, 200),
-      slug: editing.slug
-        ? sanitizeText(editing.slug, 120).replace(/\s+/g, "-").toLowerCase()
-        : generateSlug(editing.title),
-      updated: new Date().toISOString().split("T")[0],
-    });
-    setEditing(null);
+    setSaving(true);
+    try {
+      await upsertPage({
+        ...editing,
+        title: sanitizeText(editing.title, 200),
+        slug: editing.slug
+          ? sanitizeText(editing.slug, 120).replace(/\s+/g, "-").toLowerCase()
+          : generateSlug(editing.title),
+        updated: new Date().toISOString().split("T")[0],
+      });
+      setEditing(null);
+    } catch (err) {
+      console.error("Error saving page:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm(t("admin_confirm_delete"))) {
+      try {
+        await deletePage(id);
+      } catch (err) {
+        console.error("Error deleting page:", err);
+      }
+    }
   };
 
   return (
@@ -164,9 +182,7 @@ export default function AdminPages() {
                             <Pencil size={15} />
                           </button>
                           <button
-                            onClick={() => {
-                              if (confirm(t("admin_confirm_delete"))) deletePage(p.id);
-                            }}
+                            onClick={() => handleDelete(p.id)}
                             className="p-2 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-950/20 transition-all"
                             title={t("admin_delete")}
                           >
@@ -274,10 +290,10 @@ export default function AdminPages() {
               <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border">
                 <button
                   onClick={save}
-                  disabled={!editing.title?.trim()}
+                  disabled={saving || !editing.title?.trim()}
                   className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-slate-950 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.2)]"
                 >
-                  {t("admin_save")}
+                  {saving ? "..." : t("admin_save")}
                 </button>
                 <button
                   onClick={() => setEditing(null)}
