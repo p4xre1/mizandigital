@@ -9,6 +9,7 @@ import {
   Gauge,
   FileText,
   Eye,
+  Loader2,
 } from "lucide-react";
 import { useI18n, serifFont, sansFont } from "../../lib/i18n";
 import {
@@ -27,6 +28,19 @@ export default function AdminArticles() {
   const { lang, dir, t } = useI18n();
   const cms = useCms();
   const [editing, setEditing] = useState<Draft | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm(t("admin_confirm_delete"))) return;
+    try {
+      setDeletingId(id);
+      await deleteArticle(id);
+    } catch (err) {
+      console.error("Failed to delete article:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div dir={dir} className="w-full space-y-6">
@@ -61,7 +75,7 @@ export default function AdminArticles() {
               tags: [],
             })
           }
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-colors shadow-sm cursor-pointer"
           style={{ fontFamily: sansFont(lang) }}
         >
           <Plus size={15} />
@@ -146,27 +160,29 @@ export default function AdminArticles() {
                     <td className="p-4 text-muted-foreground font-mono text-xs">
                       <span className="inline-flex items-center gap-1">
                         <Eye size={13} className="text-muted-foreground/60" />
-                        {a.views.toLocaleString()}
+                        {(a.views ?? 0).toLocaleString()}
                       </span>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => setEditing(a)}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-emerald-400 hover:bg-emerald-950/30 transition-all"
+                          className="p-2 rounded-lg text-muted-foreground hover:text-emerald-400 hover:bg-emerald-950/30 transition-all cursor-pointer"
                           title={t("admin_edit")}
                         >
                           <Pencil size={15} />
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(t("admin_confirm_delete")))
-                              deleteArticle(a.id);
-                          }}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-950/30 transition-all"
+                          onClick={() => handleDelete(a.id)}
+                          disabled={deletingId === a.id}
+                          className="p-2 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-950/30 transition-all disabled:opacity-50 cursor-pointer"
                           title={t("admin_delete")}
                         >
-                          <Trash2 size={15} />
+                          {deletingId === a.id ? (
+                            <Loader2 size={15} className="animate-spin text-rose-400" />
+                          ) : (
+                            <Trash2 size={15} />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -207,6 +223,25 @@ function ArticleEditor({
 }) {
   const [d, setD] = useState<Draft>(draft);
   const [tagInput, setTagInput] = useState((draft.tags || []).join(", "));
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle title changes & auto-slug generation if user hasn't explicitly customized slug
+  const handleTitleChange = (title: string) => {
+    const shouldAutoSlug = !d.id && (!d.slug || d.slug === slugify(d.title || ""));
+    setD((prev) => ({
+      ...prev,
+      title,
+      slug: shouldAutoSlug ? slugify(title) : prev.slug,
+    }));
+  };
+
+  const slugify = (text: string) =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-");
 
   const report: SeoReport = useMemo(
     () =>
@@ -225,27 +260,41 @@ function ArticleEditor({
     [d, tagInput]
   );
 
-  const save = () => {
-    upsertArticle({
-      ...d,
-      title: sanitizeText(d.title || "", 200),
-      slug: sanitizeText(d.slug || "", 120)
-        .replace(/\s+/g, "-")
-        .toLowerCase(),
-      category: sanitizeText(d.category || "", 80),
-      author: sanitizeText(d.author || "", 120),
-      excerpt: sanitizeText(d.excerpt || "", 300),
-      metaTitle: sanitizeText(d.metaTitle || "", 70),
-      metaDescription: sanitizeText(d.metaDescription || "", 180),
-      keyword: sanitizeText(d.keyword || "", 60),
-      content: sanitizeHtml(d.content || ""),
-      tags: tagInput
-        .split(",")
-        .map((s) => sanitizeText(s, 40))
-        .filter(Boolean)
-        .slice(0, 12),
-    });
-    onClose();
+  const save = async () => {
+    setError(null);
+    if (!d.title?.trim()) {
+      setError(lang === "ar" ? "العنوان مطلوب" : "Title is required");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      await upsertArticle({
+        ...d,
+        title: sanitizeText(d.title || "", 200),
+        slug: sanitizeText(d.slug || "", 120)
+          .replace(/\s+/g, "-")
+          .toLowerCase(),
+        category: sanitizeText(d.category || "", 80),
+        author: sanitizeText(d.author || "", 120),
+        excerpt: sanitizeText(d.excerpt || "", 300),
+        metaTitle: sanitizeText(d.metaTitle || "", 70),
+        metaDescription: sanitizeText(d.metaDescription || "", 180),
+        keyword: sanitizeText(d.keyword || "", 60),
+        content: sanitizeHtml(d.content || ""),
+        tags: tagInput
+          .split(",")
+          .map((s) => sanitizeText(s, 40))
+          .filter(Boolean)
+          .slice(0, 12),
+      });
+      onClose();
+    } catch (err) {
+      console.error("Save error:", err);
+      setError(lang === "ar" ? "حدث خطأ أثناء الحفظ" : "An error occurred while saving.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const gradeBadgeClass =
@@ -290,18 +339,26 @@ function ArticleEditor({
           <div className="flex items-center gap-2">
             <button
               onClick={save}
-              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+              disabled={isSaving}
+              className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
             >
+              {isSaving && <Loader2 size={14} className="animate-spin" />}
               {t("admin_save")}
             </button>
             <button
               onClick={onClose}
-              className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-foreground rounded-lg transition-colors cursor-pointer"
             >
               <X size={18} />
             </button>
           </div>
         </div>
+
+        {error && (
+          <div className="bg-rose-950/30 border-b border-rose-500/30 px-5 py-2 text-xs text-rose-400 font-medium">
+            {error}
+          </div>
+        )}
 
         {/* Modal Content Grid */}
         <div
@@ -313,7 +370,7 @@ function ArticleEditor({
             <Field
               label={lang === "ar" ? "العنوان" : "Title"}
               value={d.title || ""}
-              onChange={(v) => setD({ ...d, title: v })}
+              onChange={handleTitleChange}
               dir={dir}
             />
             <div className="grid grid-cols-2 gap-3">
@@ -401,7 +458,7 @@ function ArticleEditor({
                   onChange={(e) =>
                     setD({ ...d, commentsEnabled: e.target.checked })
                   }
-                  className="w-4 h-4 rounded border-border text-emerald-600 focus:ring-emerald-500/30 accent-emerald-500"
+                  className="w-4 h-4 rounded border-border text-emerald-600 focus:ring-emerald-500/30 accent-emerald-500 cursor-pointer"
                 />
               </label>
             </div>

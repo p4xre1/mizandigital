@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Lock, User, AlertTriangle, Activity, KeyRound, Terminal } from "lucide-react";
 import { useI18n, serifFont, sansFont } from "../../lib/i18n";
 import { supabase } from "@/lib/supabase";
@@ -6,6 +7,7 @@ import { throttle } from "../../lib/security";
 
 export default function AdminLogin() {
   const { lang, dir, t } = useI18n();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
@@ -45,6 +47,9 @@ export default function AdminLogin() {
       );
       return;
     }
+
+    // Redirect to admin dashboard on successful login
+    navigate("/admin");
   };
 
   return (
