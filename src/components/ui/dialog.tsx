@@ -6,18 +6,73 @@ import { XIcon } from "lucide-react";
 
 import { cn } from "../../lib/utils";
 
-const Dialog = DialogPrimitive.Root;
+/* ==========================================================================
+   1. DIALOG ROOT & PORTAL & TRIGGER & CLOSE
+   ========================================================================== */
 
-const DialogTrigger = DialogPrimitive.Trigger;
+export interface DialogProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root> {}
 
-const DialogPortal = DialogPrimitive.Portal;
+const Dialog = ({ ...props }: DialogProps): React.JSX.Element => (
+  <DialogPrimitive.Root data-slot="dialog" {...props} />
+);
+Dialog.displayName = "Dialog";
 
-const DialogClose = DialogPrimitive.Close;
 
-const DialogOverlay = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+export interface DialogPortalProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Portal> {}
+
+const DialogPortal = ({ ...props }: DialogPortalProps): React.JSX.Element => (
+  <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+);
+DialogPortal.displayName = "DialogPortal";
+
+
+export type DialogTriggerElement = React.ElementRef<typeof DialogPrimitive.Trigger>;
+export interface DialogTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Trigger> {}
+
+const DialogTrigger = React.forwardRef<DialogTriggerElement, DialogTriggerProps>((
+  { ...props }: DialogTriggerProps,
+  ref: React.ForwardedRef<DialogTriggerElement>
+): React.JSX.Element => (
+  <DialogPrimitive.Trigger
+    ref={ref}
+    data-slot="dialog-trigger"
+    {...props}
+  />
+));
+DialogTrigger.displayName = DialogPrimitive.Trigger.displayName ?? "DialogTrigger";
+
+
+export type DialogCloseElement = React.ElementRef<typeof DialogPrimitive.Close>;
+export interface DialogCloseProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close> {}
+
+const DialogClose = React.forwardRef<DialogCloseElement, DialogCloseProps>((
+  { ...props }: DialogCloseProps,
+  ref: React.ForwardedRef<DialogCloseElement>
+): React.JSX.Element => (
+  <DialogPrimitive.Close
+    ref={ref}
+    data-slot="dialog-close"
+    {...props}
+  />
+));
+DialogClose.displayName = DialogPrimitive.Close.displayName ?? "DialogClose";
+
+/* ==========================================================================
+   2. DIALOG OVERLAY
+   ========================================================================== */
+
+export type DialogOverlayElement = React.ElementRef<typeof DialogPrimitive.Overlay>;
+export interface DialogOverlayProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> {}
+
+const DialogOverlay = React.forwardRef<DialogOverlayElement, DialogOverlayProps>((
+  { className, ...props }: DialogOverlayProps,
+  ref: React.ForwardedRef<DialogOverlayElement>
+): React.JSX.Element => (
   <DialogPrimitive.Overlay
     ref={ref}
     data-slot="dialog-overlay"
@@ -28,12 +83,20 @@ const DialogOverlay = React.forwardRef<
     {...props}
   />
 ));
-DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
+DialogOverlay.displayName = DialogPrimitive.Overlay.displayName ?? "DialogOverlay";
 
-const DialogContent = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
+/* ==========================================================================
+   3. DIALOG CONTENT
+   ========================================================================== */
+
+export type DialogContentElement = React.ElementRef<typeof DialogPrimitive.Content>;
+export interface DialogContentProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {}
+
+const DialogContent = React.forwardRef<DialogContentElement, DialogContentProps>((
+  { className, children, ...props }: DialogContentProps,
+  ref: React.ForwardedRef<DialogContentElement>
+): React.JSX.Element => (
   <DialogPortal data-slot="dialog-portal">
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -54,12 +117,19 @@ const DialogContent = React.forwardRef<
     </DialogPrimitive.Content>
   </DialogPortal>
 ));
-DialogContent.displayName = DialogPrimitive.Content.displayName;
+DialogContent.displayName = DialogPrimitive.Content.displayName ?? "DialogContent";
 
-const DialogHeader = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentPropsWithoutRef<"div">
->(({ className, ...props }, ref) => (
+/* ==========================================================================
+   4. DIALOG HEADER & FOOTER
+   ========================================================================== */
+
+export type DialogHeaderElement = React.ElementRef<"div">;
+export interface DialogHeaderProps extends React.ComponentPropsWithoutRef<"div"> {}
+
+const DialogHeader = React.forwardRef<DialogHeaderElement, DialogHeaderProps>((
+  { className, ...props }: DialogHeaderProps,
+  ref: React.ForwardedRef<DialogHeaderElement>
+): React.JSX.Element => (
   <div
     ref={ref}
     data-slot="dialog-header"
@@ -72,10 +142,14 @@ const DialogHeader = React.forwardRef<
 ));
 DialogHeader.displayName = "DialogHeader";
 
-const DialogFooter = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentPropsWithoutRef<"div">
->(({ className, ...props }, ref) => (
+
+export type DialogFooterElement = React.ElementRef<"div">;
+export interface DialogFooterProps extends React.ComponentPropsWithoutRef<"div"> {}
+
+const DialogFooter = React.forwardRef<DialogFooterElement, DialogFooterProps>((
+  { className, ...props }: DialogFooterProps,
+  ref: React.ForwardedRef<DialogFooterElement>
+): React.JSX.Element => (
   <div
     ref={ref}
     data-slot="dialog-footer"
@@ -88,10 +162,18 @@ const DialogFooter = React.forwardRef<
 ));
 DialogFooter.displayName = "DialogFooter";
 
-const DialogTitle = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
+/* ==========================================================================
+   5. DIALOG TITLE & DESCRIPTION
+   ========================================================================== */
+
+export type DialogTitleElement = React.ElementRef<typeof DialogPrimitive.Title>;
+export interface DialogTitleProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> {}
+
+const DialogTitle = React.forwardRef<DialogTitleElement, DialogTitleProps>((
+  { className, ...props }: DialogTitleProps,
+  ref: React.ForwardedRef<DialogTitleElement>
+): React.JSX.Element => (
   <DialogPrimitive.Title
     ref={ref}
     data-slot="dialog-title"
@@ -102,12 +184,17 @@ const DialogTitle = React.forwardRef<
     {...props}
   />
 ));
-DialogTitle.displayName = DialogPrimitive.Title.displayName;
+DialogTitle.displayName = DialogPrimitive.Title.displayName ?? "DialogTitle";
 
-const DialogDescription = React.forwardRef<
-  React.ElementRef<typeof DialogPrimitive.Description>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
->(({ className, ...props }, ref) => (
+
+export type DialogDescriptionElement = React.ElementRef<typeof DialogPrimitive.Description>;
+export interface DialogDescriptionProps
+  extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description> {}
+
+const DialogDescription = React.forwardRef<DialogDescriptionElement, DialogDescriptionProps>((
+  { className, ...props }: DialogDescriptionProps,
+  ref: React.ForwardedRef<DialogDescriptionElement>
+): React.JSX.Element => (
   <DialogPrimitive.Description
     ref={ref}
     data-slot="dialog-description"
@@ -115,7 +202,7 @@ const DialogDescription = React.forwardRef<
     {...props}
   />
 ));
-DialogDescription.displayName = DialogPrimitive.Description.displayName;
+DialogDescription.displayName = DialogPrimitive.Description.displayName ?? "DialogDescription";
 
 export {
   Dialog,

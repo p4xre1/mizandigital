@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 /* ==========================================================================
    CARD COMPONENTS (حاويات الكروت والهياكل الفرعية)
@@ -15,7 +15,7 @@ const Card = React.forwardRef<CardElement, CardProps>(
       ref={ref}
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm",
         className
       )}
       {...props}
@@ -23,7 +23,6 @@ const Card = React.forwardRef<CardElement, CardProps>(
   )
 );
 Card.displayName = "Card";
-
 
 export type CardHeaderElement = React.ElementRef<"div">;
 export interface CardHeaderProps extends React.ComponentPropsWithoutRef<"div"> {}
@@ -43,7 +42,6 @@ const CardHeader = React.forwardRef<CardHeaderElement, CardHeaderProps>(
 );
 CardHeader.displayName = "CardHeader";
 
-
 export type CardTitleElement = React.ElementRef<"h4">;
 export interface CardTitleProps extends React.ComponentPropsWithoutRef<"h4"> {}
 
@@ -52,13 +50,12 @@ const CardTitle = React.forwardRef<CardTitleElement, CardTitleProps>(
     <h4
       ref={ref}
       data-slot="card-title"
-      className={cn("leading-none", className)}
+      className={cn("font-semibold leading-none tracking-tight", className)}
       {...props}
     />
   )
 );
 CardTitle.displayName = "CardTitle";
-
 
 export type CardDescriptionElement = React.ElementRef<"p">;
 export interface CardDescriptionProps extends React.ComponentPropsWithoutRef<"p"> {}
@@ -68,13 +65,12 @@ const CardDescription = React.forwardRef<CardDescriptionElement, CardDescription
     <p
       ref={ref}
       data-slot="card-description"
-      className={cn("text-muted-foreground", className)}
+      className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
   )
 );
 CardDescription.displayName = "CardDescription";
-
 
 export type CardActionElement = React.ElementRef<"div">;
 export interface CardActionProps extends React.ComponentPropsWithoutRef<"div"> {}
@@ -94,7 +90,6 @@ const CardAction = React.forwardRef<CardActionElement, CardActionProps>(
 );
 CardAction.displayName = "CardAction";
 
-
 export type CardContentElement = React.ElementRef<"div">;
 export interface CardContentProps extends React.ComponentPropsWithoutRef<"div"> {}
 
@@ -109,7 +104,6 @@ const CardContent = React.forwardRef<CardContentElement, CardContentProps>(
   )
 );
 CardContent.displayName = "CardContent";
-
 
 export type CardFooterElement = React.ElementRef<"div">;
 export interface CardFooterProps extends React.ComponentPropsWithoutRef<"div"> {}

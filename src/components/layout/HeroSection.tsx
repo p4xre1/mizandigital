@@ -1,7 +1,5 @@
-"use client";
-
 import React from "react";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 interface HeroSectionProps {
   lang: "ar" | "fr" | "en" | "es";
@@ -91,13 +89,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
         {/* Action Buttons */}
         <div className="pt-2 sm:pt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-xs sm:max-w-none mx-auto">
           <Link
-            href={getPath("/archive")}
+            to={getPath("/archive")}
             className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm uppercase tracking-wider shadow-md active:scale-95 transition-transform touch-manipulation"
           >
             {t.ctaPrimary}
           </Link>
           <Link
-            href={getPath("/library")}
+            to={getPath("/fields/family-law")}
             className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm uppercase tracking-wider active:scale-95 transition-transform touch-manipulation"
           >
             {t.ctaSecondary}

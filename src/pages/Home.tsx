@@ -6,6 +6,7 @@ import { ImageWithFallback } from "../components/common/ImageWithFallback";
 import { useI18n, useLocalizedPath, serifFont, sansFont, type Lang } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
 import { setWebSiteSchema, clearSchema } from "../lib/jsonld";
+import AdSenseSlot from "../components/ads/AdSenseSlot";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1759732419233-5b84c4cb5a9c?crop=entropy&cs=tinysrgb&fit=max&fm=webp&q=70&w=1440";
 
@@ -332,6 +333,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 🎯 Main Horizontal Ad Unit */}
+      <div className="max-w-7xl mx-auto px-6 pt-6">
+        <AdSenseSlot slotId="1234567890" />
+      </div>
+
       {/* Main Content Grid */}
       <section className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid lg:grid-cols-[1fr_300px] gap-8">
@@ -388,6 +394,11 @@ export default function Home() {
                   </Link>
                 ))}
               </div>
+            </div>
+
+            {/* 🎯 Sidebar Ad Unit */}
+            <div className="bg-card border border-border rounded-xl p-3 shadow-sm overflow-hidden">
+              <AdSenseSlot slotId="0987654321" format="rectangle" />
             </div>
 
             {/* Semester Navigation */}

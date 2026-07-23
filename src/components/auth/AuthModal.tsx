@@ -4,6 +4,7 @@ import { X, AlertCircle, CheckCircle2 } from "lucide-react";
 import { LoginForm } from "./LoginForm";
 import { SignupForm } from "./SignupForm";
 import { ForgotPasswordForm } from "./ForgotPasswordForm";
+import { ResetPasswordForm } from "./ResetPasswordForm";
 
 export type Lang = "ar" | "fr" | "en" | "es";
 
@@ -12,11 +13,13 @@ interface AuthModalProps {
   onClose: () => void;
   lang: Lang;
   dir: "rtl" | "ltr";
+  /** Optional initial tab override */
+  initialTab?: TabType;
   /** Optional callback triggered on success */
   onSuccess?: () => void;
 }
 
-type TabType = "login" | "signup" | "forgot";
+export type TabType = "login" | "signup" | "forgot" | "reset";
 
 const TITLE_LABELS = {
   login: {
@@ -36,6 +39,12 @@ const TITLE_LABELS = {
     fr: "Mot de passe oublié",
     en: "Reset Password",
     es: "Restablecer contraseña",
+  },
+  reset: {
+    ar: "تعيين كلمة المرور الجديدة",
+    fr: "Définir un nouveau mot de passe",
+    en: "Set New Password",
+    es: "Establecer nueva contraseña",
   },
 };
 
@@ -58,6 +67,12 @@ const SUBTITLE_LABELS = {
     en: "Enter your email to receive a password reset link",
     es: "Ingresa tu correo para recibir un enlace de restablecimiento",
   },
+  reset: {
+    ar: "أدخل كلمة المرور الجديدة لحسابك لإنهاء عملية الاستعادة",
+    fr: "Entrez votre nouveau mot de passe pour finaliser la réinitialisation",
+    en: "Enter your new password to complete the recovery process",
+    es: "Ingresa tu nueva contraseña para completar la recuperación",
+  },
 };
 
 export const AuthModal: React.FC<AuthModalProps> = ({
@@ -65,10 +80,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   lang,
   dir,
+  initialTab = "login",
   onSuccess,
 }) => {
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>("login");
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
   const [globalError, setGlobalError] = useState("");
   const [globalSuccess, setGlobalSuccess] = useState("");
 
@@ -77,14 +93,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setMounted(true);
   }, []);
 
-  // Reset tab and error messages when modal opens/closes
+  // Reset tab and error messages when modal opens/closes or initialTab changes
   useEffect(() => {
     if (isOpen) {
-      setActiveTab("login");
+      setActiveTab(initialTab);
       setGlobalError("");
       setGlobalSuccess("");
     }
-  }, [isOpen]);
+  }, [isOpen, initialTab]);
 
   // Lock body scroll and bind Escape key
   useEffect(() => {
@@ -150,10 +166,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             id="auth-modal-title"
             className="text-xl font-extrabold text-slate-900 dark:text-white"
           >
-            {TITLE_LABELS[activeTab][lang] || TITLE_LABELS[activeTab].en}
+            {TITLE_LABELS[activeTab]?.[lang] || TITLE_LABELS[activeTab]?.en}
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            {SUBTITLE_LABELS[activeTab][lang] || SUBTITLE_LABELS[activeTab].en}
+            {SUBTITLE_LABELS[activeTab]?.[lang] || SUBTITLE_LABELS[activeTab]?.en}
           </p>
         </div>
 
@@ -203,6 +219,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             onSwitchTab={(tab) => {
               setActiveTab(tab);
               setGlobalError("");
+            }}
+            setGlobalError={setGlobalError}
+            setGlobalSuccess={setGlobalSuccess}
+          />
+        )}
+
+        {activeTab === "reset" && (
+          <ResetPasswordForm
+            onSuccessReset={() => {
+              handleAuthSuccess();
             }}
             setGlobalError={setGlobalError}
             setGlobalSuccess={setGlobalSuccess}

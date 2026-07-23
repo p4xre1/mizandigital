@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { MessageSquare, Send, MessageSquareOff, Loader2 } from "lucide-react";
-// Fixed: Go up 2 levels (../../) to reach src/lib
 import { useI18n, serifFont, sansFont, type Lang } from "../../lib/i18n";
 import { useCms, addComment } from "../../lib/adminStore";
 import { sanitizeText, looksLikeSpam, throttle } from "../../lib/security";
@@ -32,13 +31,12 @@ function safeIsoDate(dateStr: string): string {
   }
 }
 
-export default function ArticleComments({
-  articleId,
-  enabled,
-}: {
+interface ArticleCommentsProps {
   articleId: string;
   enabled: boolean;
-}) {
+}
+
+export default function ArticleComments({ articleId, enabled }: ArticleCommentsProps) {
   const { lang, dir } = useI18n();
   const cms = useCms();
   const [name, setName] = useState("");
@@ -49,7 +47,7 @@ export default function ArticleComments({
   const [err, setErr] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const comments = cms.comments.filter((c) => c.articleId === articleId);
+  const comments = (cms?.comments || []).filter((c) => c.articleId === articleId);
 
   if (!enabled) {
     return (

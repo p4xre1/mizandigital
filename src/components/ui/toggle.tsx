@@ -28,18 +28,26 @@ const toggleVariants = cva(
   }
 );
 
-const Toggle = React.forwardRef<
-  React.ElementRef<typeof TogglePrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof TogglePrimitive.Root> &
-    VariantProps<typeof toggleVariants>
->(({ className, variant, size, ...props }, ref) => (
-  <TogglePrimitive.Root
-    ref={ref}
-    data-slot="toggle"
-    className={cn(toggleVariants({ variant, size, className }))}
-    {...props}
-  />
-));
+export type ToggleElement = React.ElementRef<typeof TogglePrimitive.Root>;
+
+export type ToggleProps = React.ComponentPropsWithoutRef<
+  typeof TogglePrimitive.Root
+> &
+  VariantProps<typeof toggleVariants>;
+
+const Toggle = React.forwardRef<ToggleElement, ToggleProps>(
+  (
+    { className, variant, size, ...props }: ToggleProps,
+    ref: React.ForwardedRef<ToggleElement>
+  ): React.JSX.Element => (
+    <TogglePrimitive.Root
+      ref={ref}
+      data-slot="toggle"
+      className={cn(toggleVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
+);
 Toggle.displayName = TogglePrimitive.Root.displayName;
 
 export { Toggle, toggleVariants };

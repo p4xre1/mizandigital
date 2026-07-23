@@ -171,7 +171,7 @@ export function ForgotPasswordForm({
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !captchaToken}
         className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-60 shadow-xs cursor-pointer"
       >
         {loading

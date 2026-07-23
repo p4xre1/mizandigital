@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { GraduationCap, Filter, ArrowRight, Download, BookOpen, Search, ShieldCheck, UserPlus, Sparkles } from "lucide-react";
+import { GraduationCap, Filter, ArrowRight, Download, BookOpen, Search } from "lucide-react";
 import { getArticles, type Article } from "../lib/supabase";
-import { useLocalizedPath, useI18n, serifFont, sansFont, type Lang } from "../lib/i18n";
+import { useLocalizedPath, useI18n, serifFont, sansFont } from "../lib/i18n";
 import { useRole } from "../hooks/useRole";
-import { trackEvent } from "../lib/analytics";
+import AdSenseSlot from "../components/ads/AdSenseSlot";
 
 // Moroccan Law Faculties & Universities
 const UNIVERSITIES = [
@@ -38,52 +38,6 @@ const MOCK: Article[] = [
   { id: "4", title: "أسئلة القانون الجنائي S4 — جامعة محمد الأول 2025", slug: "criminal-s4-umo-2025", excerpt: "نماذج امتحانات القانون الجنائي العام والخاص — الفصل الرابع.", category: "القانون الجنائي", university: "محمد الأول — وجدة", semester: "s4", year: 2025, views: 1400, is_featured: false, created_at: "2026-07-07T10:00:00Z", updated_at: "2026-07-07T10:00:00Z", pdf_url: "#" },
   { id: "5", title: "ملخص التنظيم القضائي S4 — جامعة ابن طفيل 2026", slug: "judicial-organization-s4-usa-2026", excerpt: "ملخص مركز لقواعد الاختصاص والمحاكم الابتدائية والاستئناف وفق تعديلات 2026.", category: "التنظيم القضائي", university: "ابن طفيل — القنيطرة", semester: "s4", year: 2026, views: 3100, is_featured: false, created_at: "2026-07-05T10:00:00Z", updated_at: "2026-07-05T10:00:00Z", pdf_url: "#" },
 ];
-
-function SecuredAdCard({ lang }: { lang: Lang }) {
-  const localizedPath = useLocalizedPath();
-
-  return (
-    <aside
-      aria-label="Advertisement"
-      className="col-span-full my-3 p-5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 border border-amber-200/80 dark:border-amber-800/40 text-center relative overflow-hidden shadow-sm"
-    >
-      <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-amber-200/50 dark:border-amber-800/30 text-[10px] uppercase font-bold tracking-wider text-amber-700 dark:text-amber-400">
-        <span className="flex items-center gap-1">
-          <Sparkles size={12} aria-hidden="true" />
-          {lang === "ar" ? "إعلان موجه للطلبة" : "Student Announcement"}
-        </span>
-        <span className="flex items-center gap-1 opacity-80">
-          <ShieldCheck size={11} aria-hidden="true" />
-          {lang === "ar" ? "منصة ميزان" : "Mizan Network"}
-        </span>
-      </div>
-
-      <div className="space-y-1.5 my-2">
-        <p className="font-bold text-slate-900 dark:text-amber-100 text-sm md:text-base leading-snug">
-          {lang === "ar"
-            ? "انضم إلى أكثر من 50,000 طالب وطالبة قانون في المغرب!"
-            : "Join thousands of legal students across Moroccan universities!"}
-        </p>
-        <p className="text-slate-600 dark:text-amber-200/80 text-xs">
-          {lang === "ar"
-            ? "أنشئ حسابك المجاني لحفظ المقالات، تحميل ملخصات PDF، والمشاركة في المناقشات."
-            : "Create your free account to save articles, download PDF summaries, and participate."}
-        </p>
-      </div>
-
-      <div className="mt-4 flex items-center justify-center gap-3">
-        <Link
-          to={localizedPath("/register")}
-          onClick={() => trackEvent("ad_click", { slot: "archive_grid", ad_id: "register_banner" })}
-          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 text-white font-semibold text-xs hover:bg-amber-700 transition-colors shadow-sm min-h-[38px]"
-        >
-          <UserPlus size={14} aria-hidden="true" />
-          <span>{lang === "ar" ? "إنشاء حساب مجاني" : "Register Free"}</span>
-        </Link>
-      </div>
-    </aside>
-  );
-}
 
 export default function Archive() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -250,6 +204,11 @@ export default function Archive() {
         ))}
       </nav>
 
+      {/* 🎯 Top Ad Banner before results */}
+      <div className="mb-6">
+        <AdSenseSlot slotId="3344556677" />
+      </div>
+
       {/* Archive Results List */}
       {loading ? (
         <div className="grid md:grid-cols-2 gap-4">
@@ -274,7 +233,11 @@ export default function Archive() {
 
             return (
               <div key={a.id} className="contents">
-                {showAdHere && <SecuredAdCard lang={lang} />}
+                {showAdHere && (
+                  <div className="col-span-full my-2">
+                    <AdSenseSlot slotId="8899001122" format="auto" />
+                  </div>
+                )}
                 <article
                   className="bg-card border border-border rounded-2xl p-5 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-800 transition-all flex flex-col justify-between"
                 >

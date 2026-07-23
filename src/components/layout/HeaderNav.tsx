@@ -1,463 +1,430 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useParams, useLocation } from "react-router-dom";
+import { useRole } from "../../hooks/useRole";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { LAW_SCHOOLS } from "@/data/lawSchools";
+import type { Lang } from "@/lib/i18n";
 import {
-  Globe,
-  Moon,
-  Sun,
   User,
-  ShieldCheck,
+  LogOut,
+  LogIn,
+  GraduationCap,
+  BookOpen,
+  Scale,
+  FileText,
   ChevronDown,
   Menu,
   X,
+  Home,
+  Shield,
+  FolderTree,
 } from "lucide-react";
-// Inside Layout.tsx and/or Navbar.tsx
-import { AuthModal } from "../auth/AuthModal"; // ✅ Added curly braces {}
-
-type Locale = "ar" | "fr" | "en" | "es";
-
-interface HeaderNavProps {
-  currentLang: Locale;
-  onLanguageChange: (lang: Locale) => void;
-  isDarkMode: boolean;
-  onToggleTheme: () => void;
-  isAuthenticated: boolean;
-  userName?: string;
-  onAuthSuccess?: () => void;
-}
 
 interface NavItem {
-  label: string;
-  href: string;
-  dropdown?: { label: string; href: string }[];
+  slug: string;
+  path: string;
+  ar: string;
+  fr: string;
+  en: string;
+  es: string;
 }
 
-export const HeaderNav: React.FC<HeaderNavProps> = ({
-  currentLang,
-  onLanguageChange,
-  isDarkMode,
-  onToggleTheme,
-  isAuthenticated,
-  userName,
-  onAuthSuccess,
-}) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [expandedMobileMenu, setExpandedMobileMenu] = useState<number | null>(
-    null
-  );
+// ⚖️ Fields of Law Items
+const FIELDS_OF_LAW: NavItem[] = [
+  { slug: "family-law", path: "fields/family-law", ar: "قانون الأسرة / المدونة", fr: "Droit de la famille", en: "Family Law", es: "Derecho de familia" },
+  { slug: "criminal-law", path: "fields/criminal-law", ar: "القانون الجنائي", fr: "Droit pénal", en: "Criminal Law", es: "Derecho penal" },
+  { slug: "commercial-law", path: "fields/commercial-law", ar: "القانون التجاري", fr: "Droit commercial", en: "Commercial Law", es: "Derecho comercial" },
+  { slug: "administrative-law", path: "fields/administrative-law", ar: "القانون الإداري", fr: "Droit administratif", en: "Administrative Law", es: "Derecho administrativo" },
+  { slug: "constitutional-law", path: "fields/constitutional-law", ar: "القانون الدستوري", fr: "Droit constitutionnel", en: "Constitutional Law", es: "Derecho constitucional" },
+];
 
-  const dir = currentLang === "ar" ? "rtl" : "ltr";
-  const getPath = (href: string) => `/${currentLang}${href}`;
+// 📄 Document Types Items
+const DOCUMENT_TYPES: NavItem[] = [
+  { slug: "legal-texts", path: "documents/legal-texts", ar: "النصوص القانونية", fr: "Textes juridiques", en: "Legal Texts", es: "Textos legales" },
+  { slug: "ministerial-decrees", path: "documents/ministerial-decrees", ar: "المراسيم والقرارات", fr: "Décrets ministériels", en: "Ministerial Decrees", es: "Decretos ministeriales" },
+  { slug: "cassation-rulings", path: "documents/cassation-rulings", ar: "قرارات محكمة النقض", fr: "Arrêts de Cassation", en: "Cassation Rulings", es: "Decisiones de Casación" },
+  { slug: "official-journals", path: "documents/official-journals", ar: "الجريدة الرسمية", fr: "Journaux officiels", en: "Official Journals", es: "Boletines oficiales" },
+];
 
-  // Lock background scrolling when mobile menu is open
+export function Navbar() {
+  const { lang: rawLang = "ar" } = useParams();
+  const lang = (["ar", "fr", "en", "es"].includes(rawLang) ? rawLang : "ar") as Lang;
+  const location = useLocation();
+
+  const { role, isDeveloper, loading } = useRole();
+
+  // Mobile drawer states
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
+  const [mobileSchoolsOpen, setMobileSchoolsOpen] = useState(false);
+
+  // Desktop hover/click state & ref for click-outside
+  const [desktopLibraryOpen, setDesktopLibraryOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Auth modal & user state
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+
+  // Automatically close menus on route change
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [mobileMenuOpen]);
+    setIsMobileMenuOpen(false);
+    setMobileLibraryOpen(false);
+    setMobileSchoolsOpen(false);
+    setDesktopLibraryOpen(false);
+  }, [location.pathname]);
 
-  const navStructure: Record<Locale, NavItem[]> = {
-    ar: [
-      {
-        label: "الأرشيف الجامعي",
-        href: "/archive",
-        dropdown: [
-          { label: "الفصل الأول (S1)", href: "/archive/s1" },
-          { label: "الفصل الثاني (S2)", href: "/archive/s2" },
-          { label: "الفصل الثالث (S3)", href: "/archive/s3" },
-          { label: "الفصل الرابع (S4)", href: "/archive/s4" },
-          { label: "الفصل الخامس (S5)", href: "/archive/s5" },
-          { label: "الفصل السادس (S6)", href: "/archive/s6" },
-        ],
-      },
-      { label: "المكتبة القانونية", href: "/library" },
-      { label: "الاجتهاد القضائي", href: "/jurisprudence" },
-      {
-        label: "كليات الحقوق",
-        href: "/schools",
-        dropdown: [
-          { label: "دليل الكليات بالمغرب", href: "/schools" },
-          { label: "جامعة محمد الخامس - الرباط", href: "/schools/rabat" },
-          { label: "جامعة الحسن الثاني - البيضاء", href: "/schools/casablanca" },
-          { label: "جامعة القاضي عياض - مراكش", href: "/schools/marrakech" },
-        ],
-      },
-      { label: "الندوات العلمية", href: "/symposiums" },
-    ],
-    fr: [
-      {
-        label: "Archives Universitaires",
-        href: "/archive",
-        dropdown: [
-          { label: "Semestre 1 (S1)", href: "/archive/s1" },
-          { label: "Semestre 2 (S2)", href: "/archive/s2" },
-          { label: "Semestre 3 (S3)", href: "/archive/s3" },
-          { label: "Semestre 4 (S4)", href: "/archive/s4" },
-          { label: "Semestre 5 (S5)", href: "/archive/s5" },
-          { label: "Semestre 6 (S6)", href: "/archive/s6" },
-        ],
-      },
-      { label: "Bibliothèque", href: "/library" },
-      { label: "Jurisprudence", href: "/jurisprudence" },
-      { label: "Facultés de Droit", href: "/schools" },
-      { label: "Colloques", href: "/symposiums" },
-    ],
-    en: [
-      {
-        label: "Academic Archive",
-        href: "/archive",
-        dropdown: [
-          { label: "Semester 1 (S1)", href: "/archive/s1" },
-          { label: "Semester 2 (S2)", href: "/archive/s2" },
-          { label: "Semester 3 (S3)", href: "/archive/s3" },
-          { label: "Semester 4 (S4)", href: "/archive/s4" },
-          { label: "Semester 5 (S5)", href: "/archive/s5" },
-          { label: "Semester 6 (S6)", href: "/archive/s6" },
-        ],
-      },
-      { label: "Legal Library", href: "/library" },
-      { label: "Case Law", href: "/jurisprudence" },
-      { label: "Law Schools", href: "/schools" },
-      { label: "Symposiums", href: "/symposiums" },
-    ],
-    es: [
-      {
-        label: "Archivo Académico",
-        href: "/archive",
-        dropdown: [
-          { label: "Semestre 1 (S1)", href: "/archive/s1" },
-          { label: "Semestre 2 (S2)", href: "/archive/s2" },
-          { label: "Semestre 3 (S3)", href: "/archive/s3" },
-          { label: "Semestre 4 (S4)", href: "/archive/s4" },
-          { label: "Semestre 5 (S5)", href: "/archive/s5" },
-          { label: "Semestre 6 (S6)", href: "/archive/s6" },
-        ],
-      },
-      { label: "Biblioteca Jurídica", href: "/library" },
-      { label: "Jurisprudencia", href: "/jurisprudence" },
-      { label: "Facultades", href: "/schools" },
-      { label: "Simposios", href: "/symposiums" },
-    ],
+  // Load user from localStorage & keep synced
+  const loadUser = () => {
+    try {
+      const stored = localStorage.getItem("mizan_user");
+      setUser(stored ? JSON.parse(stored) : null);
+    } catch {
+      setUser(null);
+    }
   };
 
-  const currentNavItems = navStructure[currentLang] || navStructure.ar;
+  useEffect(() => {
+    loadUser();
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
+  }, []);
 
-  const handleAuthSuccess = () => {
-    if (onAuthSuccess) {
-      onAuthSuccess();
-    } else {
-      window.location.reload();
+  // Handle clicking outside the desktop dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDesktopLibraryOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("mizan_user");
+    } catch {
+      // Ignore errors
     }
+    setUser(null);
   };
 
   return (
-    <>
-      <header
-        className="w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md sticky top-0 z-40 shadow-xs select-none"
-        dir={dir}
-      >
-        {/* Top Institutional Utility Bar */}
-        <div className="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 text-[11px] py-1 px-3 sm:px-8 flex justify-between items-center gap-2">
-          <div className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 truncate">
-            <ShieldCheck
-              size={14}
-              className="text-amber-600 dark:text-amber-400 shrink-0"
-            />
-            <span
-              className="truncate"
-              style={{
-                fontFamily:
-                  currentLang === "ar" ? "var(--font-serif-ar)" : "inherit",
-              }}
-            >
-              {currentLang === "ar"
-                ? "الحق · العدل · الميزان"
-                : "Veritas · Justitia · Libra"}
-            </span>
+    <header className="w-full font-sans border-b border-border bg-card sticky top-0 z-50">
+      {/* Disclaimer Bar */}
+      <div className="bg-amber-100 border-b border-amber-300 px-3 py-1.5 text-center text-xs text-amber-950 font-semibold leading-snug">
+        <span>⚠️ <strong>تنويه:</strong> محتوى المنصة تعليمي وتثقيفي بالكامل.</span>
+      </div>
+
+      {/* Main Navbar */}
+      <div className="px-4 py-2.5 max-w-7xl mx-auto flex items-center justify-between">
+        {/* Brand Logo */}
+        <Link to={`/${lang}`} className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-primary-foreground font-black text-lg shadow-sm shrink-0">
+            M
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Language Selector */}
-            <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md p-0.5">
-              <Globe
-                size={12}
-                className="mx-1 text-slate-500 shrink-0 hidden sm:block"
-              />
-              {(["ar", "fr", "en", "es"] as Locale[]).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => onLanguageChange(lang)}
-                  className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-extrabold transition-all touch-manipulation active:scale-95 cursor-pointer ${
-                    currentLang === lang
-                      ? "bg-blue-600 text-white dark:bg-blue-500"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-                >
-                  {lang === "ar" ? "ع" : lang.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
-            {/* Theme Toggle Button */}
-            <button
-              onClick={onToggleTheme}
-              className="p-1 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 active:scale-95 transition touch-manipulation cursor-pointer flex items-center justify-center min-w-[28px] min-h-[28px]"
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? (
-                <Sun size={13} className="text-amber-400" />
-              ) : (
-                <Moon size={13} />
-              )}
-            </button>
+          <div className="flex flex-col">
+            <h1 className="text-base font-bold text-foreground leading-none">Mizan Digital</h1>
+            <span className="text-[10px] text-muted-foreground font-medium hidden sm:inline">Modern Legal Library</span>
           </div>
-        </div>
+        </Link>
 
-        {/* Main Header Container */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 bg-white dark:bg-slate-900">
-          {/* Brand Logo */}
-          <Link
-            to={getPath("/")}
-            className="flex items-center gap-2.5 group shrink-0 active:scale-95 transition-transform"
-          >
-            <img
-              src="/Logo.svg"
-              alt="Mizan Logo"
-              className="h-9 sm:h-10 w-auto object-contain"
-            />
-            <div className="flex flex-col">
-              <span
-                className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none"
-                style={{
-                  fontFamily:
-                    currentLang === "ar"
-                      ? "var(--font-serif-ar)"
-                      : "var(--font-serif-en)",
-                }}
-              >
-                {currentLang === "ar" ? "منصة ميزان" : "MIZAN"}
-              </span>
-              <span className="text-[10px] tracking-wider text-slate-500 dark:text-slate-400 uppercase font-semibold">
-                Legal Archive
-              </span>
-            </div>
+        {/* DESKTOP MENU */}
+        <nav className="hidden md:flex items-center gap-1 text-sm font-semibold">
+          <Link to={`/${lang}`} className="px-3 py-2 hover:text-primary transition-colors">
+            {lang === "ar" ? "الرئيسية" : "Home"}
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden lg:flex items-center gap-6">
-            <nav className="flex items-center gap-5 text-sm font-semibold text-slate-800 dark:text-slate-200">
-              {currentNavItems.map((item, idx) => (
-                <div key={idx} className="relative group py-2">
-                  <Link
-                    to={getPath(item.href)}
-                    className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  >
-                    <span>{item.label}</span>
-                    {item.dropdown && (
-                      <ChevronDown
-                        size={14}
-                        className="opacity-70 group-hover:rotate-180 transition-transform"
-                      />
-                    )}
-                  </Link>
+          {/* Desktop Library Dropdown */}
+          <div
+            ref={dropdownRef}
+            className="relative"
+            onMouseEnter={() => setDesktopLibraryOpen(true)}
+            onMouseLeave={() => setDesktopLibraryOpen(false)}
+          >
+            <button
+              onClick={() => setDesktopLibraryOpen((prev) => !prev)}
+              aria-expanded={desktopLibraryOpen}
+              aria-haspopup="true"
+              className="flex items-center gap-1.5 px-3 py-2 hover:text-primary transition-colors cursor-pointer"
+            >
+              <BookOpen size={16} />
+              <span>{lang === "ar" ? "المكتبة الرقمية" : "Digital Library"}</span>
+              <ChevronDown size={14} className={`transition-transform duration-200 ${desktopLibraryOpen ? "rotate-180" : ""}`} />
+            </button>
 
-                  {item.dropdown && (
-                    <div
-                      className={`absolute top-full ${
-                        dir === "rtl" ? "right-0" : "left-0"
-                      } hidden group-hover:block w-56 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50`}
-                    >
-                      {item.dropdown.map((sub, sIdx) => (
-                        <Link
-                          key={sIdx}
-                          to={getPath(sub.href)}
-                          className="block px-3 py-2 rounded-lg text-xs text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition-colors"
-                        >
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+            {desktopLibraryOpen && (
+              <div className="absolute top-full rtl:right-0 ltr:left-0 w-[680px] bg-card border border-border rounded-xl shadow-xl p-5 grid grid-cols-3 gap-5 z-50 animate-in fade-in-50 zoom-in-95">
+                {/* Column 1: Fields of Law */}
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase mb-3 pb-1 border-b border-border">
+                    <Scale size={14} />
+                    <span>{lang === "ar" ? "التخصصات القانونية" : "Fields of Law"}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {FIELDS_OF_LAW.map((cat) => (
+                      <Link
+                        key={cat.slug}
+                        to={`/${lang}/${cat.path}`}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors"
+                      >
+                        <FileText size={14} className="text-muted-foreground shrink-0" />
+                        <span>{cat[lang]}</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </nav>
 
-            {/* Desktop Auth Button */}
-            {isAuthenticated ? (
-              <Link
-                to={getPath("/profile")}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 text-white text-xs font-bold transition shadow-xs"
-              >
-                <User size={15} />
-                <span>
-                  {userName || (currentLang === "ar" ? "حسابي" : "Profile")}
-                </span>
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 text-white text-xs font-bold transition shadow-xs cursor-pointer"
-              >
-                <User size={15} />
-                <span>
-                  {currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}
-                </span>
-              </button>
+                {/* Column 2: Document Types */}
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase mb-3 pb-1 border-b border-border">
+                    <FolderTree size={14} />
+                    <span>{lang === "ar" ? "أنواع الوثائق" : "Document Types"}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {DOCUMENT_TYPES.map((doc) => (
+                      <Link
+                        key={doc.slug}
+                        to={`/${lang}/${doc.path}`}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors"
+                      >
+                        <FileText size={14} className="text-muted-foreground shrink-0" />
+                        <span>{doc[lang]}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Column 3: Law Schools */}
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-primary uppercase mb-3 pb-1 border-b border-border">
+                    <GraduationCap size={14} />
+                    <span>{lang === "ar" ? "كليات الحقوق" : "Law Schools"}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {LAW_SCHOOLS.slice(0, 5).map((school) => (
+                      <Link
+                        key={school.slug}
+                        to={`/${lang}/schools/${school.slug}`}
+                        className="block p-2 rounded-lg hover:bg-muted text-xs font-medium truncate transition-colors"
+                      >
+                        {(school.name as Record<string, string>)[lang] || school.name.ar}
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="mt-3 pt-2 border-t border-border">
+                    <Link to={`/${lang}/schools`} className="text-xs text-primary font-bold hover:underline block">
+                      {lang === "ar" ? "عرض جميع الكليات ←" : "View all faculties →"}
+                    </Link>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className="lg:hidden p-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-800 active:scale-90 transition-transform touch-manipulation cursor-pointer flex items-center justify-center min-w-[42px] min-h-[42px]"
-            aria-label="Open Mobile Menu"
-          >
-            <Menu size={22} />
-          </button>
-        </div>
-      </header>
+          <Link to={`/${lang}/schools`} className="px-3 py-2 hover:text-primary transition-colors flex items-center gap-1.5">
+            <GraduationCap size={16} />
+            <span>{lang === "ar" ? "كليات الحقوق" : "Law Schools"}</span>
+          </Link>
 
-      {/* MOBILE OFF-CANVAS SLIDE DRAWER & BACKDROP */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden" dir={dir}>
-          {/* Semi-transparent Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileMenuOpen(false)}
-          />
+          {isDeveloper && (
+            <Link to={`/${lang}/admin`} className="px-3 py-2 text-purple-700 font-bold hover:opacity-80 transition-colors">
+              🛠️ باني المطور
+            </Link>
+          )}
+        </nav>
 
-          {/* Drawer Sidebar */}
-          <aside
-            className={`fixed top-0 bottom-0 ${
-              dir === "rtl" ? "right-0" : "left-0"
-            } w-[82%] max-w-sm bg-white dark:bg-slate-900 shadow-2xl z-50 flex flex-col justify-between overflow-y-auto animate-in slide-in-from-${
-              dir === "rtl" ? "right" : "left"
-            } duration-200`}
-          >
-            {/* Drawer Header */}
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <img
-                  src="/Logo.svg"
-                  alt="Mizan Logo"
-                  className="h-8 w-auto object-contain"
-                />
-                <span className="font-bold text-sm text-slate-900 dark:text-white">
-                  {currentLang === "ar" ? "القائمة الرئيسية" : "Menu"}
-                </span>
-              </div>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 touch-manipulation cursor-pointer"
-              >
-                <X size={20} />
+        {/* Desktop User Controls */}
+        <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold bg-muted px-3 py-1.5 rounded-lg border border-border flex items-center gap-1.5">
+                <User size={14} className="text-amber-600" />
+                {user.name}
+              </span>
+              <button onClick={handleLogout} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer">
+                <LogOut size={16} />
               </button>
             </div>
+          ) : (
+            <button onClick={() => setIsAuthOpen(true)} className="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-sm transition cursor-pointer flex items-center gap-1.5">
+              <LogIn size={14} />
+              <span>{lang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
+            </button>
+          )}
+        </div>
 
-            {/* Nav Items Accordion */}
-            <div className="p-4 space-y-2 flex-1">
-              {currentNavItems.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="border-b border-slate-100 dark:border-slate-800/60 pb-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <Link
-                      to={getPath(item.href)}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="font-bold text-sm text-slate-800 dark:text-slate-200 py-1.5 block hover:text-blue-600"
-                    >
-                      {item.label}
-                    </Link>
-                    {item.dropdown && (
-                      <button
-                        onClick={() =>
-                          setExpandedMobileMenu(
-                            expandedMobileMenu === idx ? null : idx
-                          )
-                        }
-                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white touch-manipulation"
+        {/* MOBILE CONTROLS */}
+        <div className="flex items-center gap-2 md:hidden">
+          {!user && (
+            <button
+              onClick={() => setIsAuthOpen(true)}
+              className="px-3 py-2 text-xs font-bold bg-amber-600 text-white rounded-lg min-h-[40px] flex items-center gap-1"
+            >
+              <LogIn size={14} />
+              <span>{lang === "ar" ? "دخول" : "Sign In"}</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle navigation menu"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg bg-muted text-foreground border border-border transition cursor-pointer"
+          >
+            {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE DRAWER MENU */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-card border-t border-border px-4 py-4 space-y-3 animate-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
+          {user && (
+            <div className="flex items-center justify-between p-3 bg-muted rounded-xl border border-border">
+              <div className="flex items-center gap-2 text-xs font-bold">
+                <User size={16} className="text-amber-600" />
+                <span>{user.name}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-xs font-bold text-destructive hover:bg-destructive/10 px-2 py-1 rounded-md flex items-center gap-1"
+              >
+                <LogOut size={14} />
+                <span>{lang === "ar" ? "خروج" : "Logout"}</span>
+              </button>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between px-3 py-2 bg-slate-900 text-white rounded-xl text-xs font-medium">
+            <span className="flex items-center gap-1.5 text-slate-300">
+              <Shield size={14} className="text-emerald-400" />
+              <span>{lang === "ar" ? "الصلاحية" : "Role"}:</span>
+            </span>
+            <span className="font-bold text-emerald-400">{loading ? "..." : role}</span>
+          </div>
+
+          <div className="space-y-1 pt-1">
+            <Link
+              to={`/${lang}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex items-center gap-3 min-h-[48px] px-3 rounded-xl font-semibold text-sm hover:bg-muted active:bg-muted"
+            >
+              <Home size={18} className="text-primary" />
+              <span>{lang === "ar" ? "الرئيسية" : "Home"}</span>
+            </Link>
+
+            {/* Mobile Library Accordion */}
+            <div className="border border-border rounded-xl overflow-hidden">
+              <button
+                onClick={() => setMobileLibraryOpen(!mobileLibraryOpen)}
+                className="w-full flex items-center justify-between min-h-[48px] px-3 font-semibold text-sm bg-card hover:bg-muted active:bg-muted cursor-pointer"
+              >
+                <span className="flex items-center gap-3">
+                  <BookOpen size={18} className="text-primary" />
+                  <span>{lang === "ar" ? "المكتبة الرقمية" : "Digital Library"}</span>
+                </span>
+                <ChevronDown size={16} className={`transition-transform ${mobileLibraryOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {mobileLibraryOpen && (
+                <div className="bg-muted/50 p-2 space-y-3 border-t border-border">
+                  {/* Fields Section */}
+                  <div>
+                    <span className="text-[11px] font-bold text-primary uppercase px-2 mb-1 block">
+                      {lang === "ar" ? "التخصصات القانونية" : "Fields of Law"}
+                    </span>
+                    {FIELDS_OF_LAW.map((cat) => (
+                      <Link
+                        key={cat.slug}
+                        to={`/${lang}/${cat.path}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2 min-h-[40px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card"
                       >
-                        <ChevronDown
-                          size={16}
-                          className={`transition-transform duration-200 ${
-                            expandedMobileMenu === idx ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                    )}
+                        <FileText size={14} className="text-muted-foreground shrink-0" />
+                        <span>{cat[lang]}</span>
+                      </Link>
+                    ))}
                   </div>
 
-                  {/* Submenu Dropdown */}
-                  {item.dropdown && expandedMobileMenu === idx && (
-                    <div className="mt-1 space-y-1 ltr:pl-3 rtl:pr-3 border-l-2 rtl:border-r-2 rtl:border-l-0 border-blue-600/30">
-                      {item.dropdown.map((sub, sIdx) => (
-                        <Link
-                          key={sIdx}
-                          to={getPath(sub.href)}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="block text-xs font-medium text-slate-600 dark:text-slate-400 py-1.5 hover:text-blue-600"
-                        >
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
+                  {/* Document Types Section */}
+                  <div>
+                    <span className="text-[11px] font-bold text-primary uppercase px-2 mb-1 block">
+                      {lang === "ar" ? "أنواع الوثائق" : "Document Types"}
+                    </span>
+                    {DOCUMENT_TYPES.map((doc) => (
+                      <Link
+                        key={doc.slug}
+                        to={`/${lang}/${doc.path}`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="flex items-center gap-2 min-h-[40px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card"
+                      >
+                        <FileText size={14} className="text-muted-foreground shrink-0" />
+                        <span>{doc[lang]}</span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Drawer Bottom Actions */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 space-y-3">
-              {isAuthenticated ? (
-                <Link
-                  to={getPath("/profile")}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs touch-manipulation"
-                >
-                  <User size={16} />
-                  <span>
-                    {userName ||
-                      (currentLang === "ar" ? "الملف الشخصي" : "Profile")}
-                  </span>
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setIsAuthModalOpen(true);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs touch-manipulation cursor-pointer active:scale-95 transition-transform"
-                >
-                  <User size={16} />
-                  <span>
-                    {currentLang === "ar" ? "تسجيل الدخول" : "Sign In"}
-                  </span>
-                </button>
               )}
             </div>
-          </aside>
+
+            {/* Mobile Schools Accordion */}
+            <div className="border border-border rounded-xl overflow-hidden">
+              <button
+                onClick={() => setMobileSchoolsOpen(!mobileSchoolsOpen)}
+                className="w-full flex items-center justify-between min-h-[48px] px-3 font-semibold text-sm bg-card hover:bg-muted active:bg-muted cursor-pointer"
+              >
+                <span className="flex items-center gap-3">
+                  <GraduationCap size={18} className="text-primary" />
+                  <span>{lang === "ar" ? "كليات الحقوق" : "Law Faculties"}</span>
+                </span>
+                <ChevronDown size={16} className={`transition-transform ${mobileSchoolsOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {mobileSchoolsOpen && (
+                <div className="bg-muted/50 p-2 space-y-1 border-t border-border">
+                  {LAW_SCHOOLS.slice(0, 5).map((school) => (
+                    <Link
+                      key={school.slug}
+                      to={`/${lang}/schools/${school.slug}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center min-h-[44px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card truncate"
+                    >
+                      {(school.name as Record<string, string>)[lang] || school.name.ar}
+                    </Link>
+                  ))}
+                  <Link
+                    to={`/${lang}/schools`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center min-h-[44px] px-3 text-xs font-bold text-primary hover:underline"
+                  >
+                    {lang === "ar" ? "عرض جميع الكليات ←" : "View all faculties →"}
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {isDeveloper && (
+              <Link
+                to={`/${lang}/admin`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-3 min-h-[48px] px-3 rounded-xl font-bold text-sm text-purple-700 bg-purple-50 dark:bg-purple-950/30"
+              >
+                <span>🛠️ باني المطور</span>
+              </Link>
+            )}
+          </div>
         </div>
       )}
 
       {/* Auth Modal */}
       <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        lang={currentLang}
-        dir={dir}
-        onSuccess={handleAuthSuccess}
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        lang={lang}
+        dir={lang === "ar" ? "rtl" : "ltr"}
+        onSuccess={loadUser}
       />
-    </>
+    </header>
   );
-};
+}

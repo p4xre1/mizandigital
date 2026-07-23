@@ -4,18 +4,17 @@ import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { ChevronDownIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 /* ==========================================================================
    1. ACCORDION ROOT (المكوّن الجذري للأكورديون)
    ========================================================================== */
 
 export type AccordionElement = React.ElementRef<typeof AccordionPrimitive.Root>;
-
 export type AccordionProps = React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Root>;
 
 const Accordion = React.forwardRef<AccordionElement, AccordionProps>((props, ref) => (
-  <AccordionPrimitive.Root ref={ref} data-slot="accordion" {...(props as any)} />
+  <AccordionPrimitive.Root ref={ref} data-slot="accordion" {...props} />
 ));
 Accordion.displayName = "Accordion";
 

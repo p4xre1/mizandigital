@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as AspectRatioPrimitive from "@radix-ui/react-aspect-ratio";
 
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils";
 
 /* ==========================================================================
    1. ASPECT RATIO ROOT COMPONENT (مكوّن تثبيت الأبعاد الهندسية)

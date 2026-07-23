@@ -1,164 +1,186 @@
 "use client";
 
 import * as React from "react";
-import { Command as CommandPrimitive } from "cmdk";
-import { SearchIcon } from "lucide-react";
+import * as ContextMenuPrimitive from "@radix-ui/react-context-menu";
+import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 import { cn } from "../../lib/utils";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "./dialog";
 
-const Command = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive
+const ContextMenu = ContextMenuPrimitive.Root;
+
+const ContextMenuTrigger = ContextMenuPrimitive.Trigger;
+
+const ContextMenuGroup = ContextMenuPrimitive.Group;
+
+const ContextMenuPortal = ContextMenuPrimitive.Portal;
+
+const ContextMenuSub = ContextMenuPrimitive.Sub;
+
+const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup;
+
+const ContextMenuSubTrigger = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.SubTrigger>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.SubTrigger> & {
+    inset?: boolean;
+  }
+>(({ className, inset, children, ...props }, ref) => (
+  <ContextMenuPrimitive.SubTrigger
     ref={ref}
-    data-slot="command"
+    data-slot="context-menu-sub-trigger"
+    data-inset={inset}
     className={cn(
-      "flex h-full w-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+      "flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground data-[inset]:ltr:pl-8 data-[inset]:rtl:pr-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+      className
+    )}
+    {...props}
+  >
+    {children}
+    <ChevronRightIcon className="ltr:ml-auto rtl:mr-auto rtl:rotate-180" />
+  </ContextMenuPrimitive.SubTrigger>
+));
+ContextMenuSubTrigger.displayName = ContextMenuPrimitive.SubTrigger.displayName;
+
+const ContextMenuSubContent = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.SubContent>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.SubContent>
+>(({ className, ...props }, ref) => (
+  <ContextMenuPrimitive.SubContent
+    ref={ref}
+    data-slot="context-menu-sub-content"
+    className={cn(
+      "z-50 min-w-[8rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
       className
     )}
     {...props}
   />
 ));
-Command.displayName = CommandPrimitive.displayName;
+ContextMenuSubContent.displayName = ContextMenuPrimitive.SubContent.displayName;
 
-interface CommandDialogProps extends React.ComponentPropsWithoutRef<typeof Dialog> {
-  title?: string;
-  description?: string;
-  children?: React.ReactNode;
-}
-
-const CommandDialog = ({
-  title = "Command Palette",
-  description = "Search for a command to run...",
-  children,
-  ...props
-}: CommandDialogProps) => {
-  return (
-    <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
-      <DialogContent className="overflow-hidden p-0 shadow-lg">
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
-          {children}
-        </Command>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const CommandInput = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Input>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
+const ContextMenuContent = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Content>
 >(({ className, ...props }, ref) => (
-  <div
-    data-slot="command-input-wrapper"
-    className="flex h-9 items-center gap-2 border-b px-3"
-  >
-    <SearchIcon className="h-4 w-4 shrink-0 opacity-50" />
-    <CommandPrimitive.Input
+  <ContextMenuPrimitive.Portal>
+    <ContextMenuPrimitive.Content
       ref={ref}
-      data-slot="command-input"
+      data-slot="context-menu-content"
       className={cn(
-        "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+        "z-50 max-h-[var(--radix-context-menu-content-available-height)] min-w-[8rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         className
       )}
       {...props}
     />
-  </div>
+  </ContextMenuPrimitive.Portal>
 ));
-CommandInput.displayName = CommandPrimitive.Input.displayName;
+ContextMenuContent.displayName = ContextMenuPrimitive.Content.displayName;
 
-const CommandList = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.List>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.List
+const ContextMenuItem = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Item> & {
+    inset?: boolean;
+    variant?: "default" | "destructive";
+  }
+>(({ className, inset, variant = "default", ...props }, ref) => (
+  <ContextMenuPrimitive.Item
     ref={ref}
-    data-slot="command-list"
+    data-slot="context-menu-item"
+    data-inset={inset}
+    data-variant={variant}
     className={cn(
-      "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto",
+      "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:ltr:pl-8 data-[inset]:rtl:pr-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
       className
     )}
     {...props}
   />
 ));
-CommandList.displayName = CommandPrimitive.List.displayName;
+ContextMenuItem.displayName = ContextMenuPrimitive.Item.displayName;
 
-const CommandEmpty = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Empty>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Empty>
->((props, ref) => (
-  <CommandPrimitive.Empty
+const ContextMenuCheckboxItem = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.CheckboxItem>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.CheckboxItem>
+>(({ className, children, checked, ...props }, ref) => (
+  <ContextMenuPrimitive.CheckboxItem
     ref={ref}
-    data-slot="command-empty"
-    className="py-6 text-center text-sm"
-    {...props}
-  />
-));
-CommandEmpty.displayName = CommandPrimitive.Empty.displayName;
-
-const CommandGroup = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Group>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Group>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Group
-    ref={ref}
-    data-slot="command-group"
+    data-slot="context-menu-checkbox-item"
     className={cn(
-      "overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:text-start",
+      "relative flex cursor-default select-none items-center gap-2 rounded-sm py-1.5 ltr:pl-8 ltr:pr-2 rtl:pr-8 rtl:pl-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+      className
+    )}
+    checked={checked}
+    {...props}
+  >
+    <span className="pointer-events-none absolute ltr:left-2 rtl:right-2 flex size-3.5 items-center justify-center">
+      <ContextMenuPrimitive.ItemIndicator>
+        <CheckIcon className="size-4" />
+      </ContextMenuPrimitive.ItemIndicator>
+    </span>
+    {children}
+  </ContextMenuPrimitive.CheckboxItem>
+));
+ContextMenuCheckboxItem.displayName = ContextMenuPrimitive.CheckboxItem.displayName;
+
+const ContextMenuRadioItem = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.RadioItem>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.RadioItem>
+>(({ className, children, ...props }, ref) => (
+  <ContextMenuPrimitive.RadioItem
+    ref={ref}
+    data-slot="context-menu-radio-item"
+    className={cn(
+      "relative flex cursor-default select-none items-center gap-2 rounded-sm py-1.5 ltr:pl-8 ltr:pr-2 rtl:pr-8 rtl:pl-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+      className
+    )}
+    {...props}
+  >
+    <span className="pointer-events-none absolute ltr:left-2 rtl:right-2 flex size-3.5 items-center justify-center">
+      <ContextMenuPrimitive.ItemIndicator>
+        <CircleIcon className="size-2 fill-current" />
+      </ContextMenuPrimitive.ItemIndicator>
+    </span>
+    {children}
+  </ContextMenuPrimitive.RadioItem>
+));
+ContextMenuRadioItem.displayName = ContextMenuPrimitive.RadioItem.displayName;
+
+const ContextMenuLabel = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.Label>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Label> & {
+    inset?: boolean;
+  }
+>(({ className, inset, ...props }, ref) => (
+  <ContextMenuPrimitive.Label
+    ref={ref}
+    data-slot="context-menu-label"
+    data-inset={inset}
+    className={cn(
+      "px-2 py-1.5 text-sm font-semibold text-foreground data-[inset]:ltr:pl-8 data-[inset]:rtl:pr-8",
       className
     )}
     {...props}
   />
 ));
-CommandGroup.displayName = CommandPrimitive.Group.displayName;
+ContextMenuLabel.displayName = ContextMenuPrimitive.Label.displayName;
 
-const CommandSeparator = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Separator>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Separator>
+const ContextMenuSeparator = React.forwardRef<
+  React.ElementRef<typeof ContextMenuPrimitive.Separator>,
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => (
-  <CommandPrimitive.Separator
+  <ContextMenuPrimitive.Separator
     ref={ref}
-    data-slot="command-separator"
-    className={cn("-mx-1 h-px bg-border", className)}
+    data-slot="context-menu-separator"
+    className={cn("-mx-1 my-1 h-px bg-border", className)}
     {...props}
   />
 ));
-CommandSeparator.displayName = CommandPrimitive.Separator.displayName;
+ContextMenuSeparator.displayName = ContextMenuPrimitive.Separator.displayName;
 
-const CommandItem = React.forwardRef<
-  React.ElementRef<typeof CommandPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Item>
->(({ className, ...props }, ref) => (
-  <CommandPrimitive.Item
-    ref={ref}
-    data-slot="command-item"
-    className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled=true]:pointer-events-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
-      className
-    )}
-    {...props}
-  />
-));
-CommandItem.displayName = CommandPrimitive.Item.displayName;
-
-function CommandShortcut({
+function ContextMenuShortcut({
   className,
   ...props
-}: React.HTMLAttributes<HTMLSpanElement>) {
+}: React.ComponentProps<"span">) {
   return (
     <span
-      data-slot="command-shortcut"
+      data-slot="context-menu-shortcut"
       className={cn(
         "ltr:ml-auto rtl:mr-auto text-xs tracking-widest text-muted-foreground",
         className
@@ -167,16 +189,22 @@ function CommandShortcut({
     />
   );
 }
-CommandShortcut.displayName = "CommandShortcut";
+ContextMenuShortcut.displayName = "ContextMenuShortcut";
 
 export {
-  Command,
-  CommandDialog,
-  CommandInput,
-  CommandList,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandShortcut,
-  CommandSeparator,
+  ContextMenu,
+  ContextMenuTrigger,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuCheckboxItem,
+  ContextMenuRadioItem,
+  ContextMenuLabel,
+  ContextMenuSeparator,
+  ContextMenuShortcut,
+  ContextMenuGroup,
+  ContextMenuPortal,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuRadioGroup,
 };

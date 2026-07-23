@@ -93,6 +93,7 @@ export function ResetPasswordForm({
 
     setLoading(true);
     try {
+      // updateUser works on an authenticated recovery session and does not accept captchaToken
       const { error: err } = await supabase.auth.updateUser({
         password,
       });
@@ -231,7 +232,7 @@ export function ResetPasswordForm({
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !captchaToken}
         className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-60 shadow-xs cursor-pointer"
       >
         {loading

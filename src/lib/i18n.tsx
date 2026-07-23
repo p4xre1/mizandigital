@@ -1,4 +1,10 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  interactionUIElements,
+  accountManagementElements,
+  getInteractionText,
+  type LocalizedText,
+} from "./interaction-i18n";
 
 export type Lang = "ar" | "fr" | "en" | "es";
 export type Theme = "light" | "dark";
@@ -101,6 +107,21 @@ export const T: Dict = {
   footer_tagline: { ar: "المجلة القانونية الرقمية الأولى في المغرب. أرشيف جامعي، وثائق تشريعية، وأحكام قضائية.", fr: "Le premier journal juridique numérique du Maroc. Archives universitaires, textes législatifs et jurisprudence.", en: "Morocco's leading digital legal journal. University archives, legislative texts, and case law.", es: "La principal revista jurídica digital de Marruecos. Archivos universitarios, textos legislativos y jurisprudencia." },
   sponsors_heading: { ar: "بدعم من شركائنا المؤسساتيين", fr: "Avec le soutien de nos partenaires institutionnels", en: "Supported by our institutional partners", es: "Con el apoyo de nuestros socios institucionales" },
   
+  // Library
+  "library.title": { ar: "المكتبة الرقمية", fr: "Bibliothèque Numérique", en: "Digital Library", es: "Biblioteca Digital" },
+  "library.subtitle": { ar: "استعرض القوانين والمراسيم والنصوص التشريعية المغربية.", fr: "Consultez les lois, décrets et textes législatifs marocains.", en: "Browse Moroccan laws, decrees, and legislative texts.", es: "Consulte las leyes, decretos y textos legislativos marroquíes." },
+  
+  // Jurisprudence
+  "jurisprudence.title": { ar: "الاجتهاد القضائي", fr: "Jurisprudence", en: "Jurisprudence & Precedents", es: "Jurisprudencia" },
+  "jurisprudence.subtitle": { ar: "قرارات محكمة النقض ومحاكم الاستئناف والدراسات الأكاديمية.", fr: "Décisions de la Cour de Cassation, cours d'appel et études.", en: "Court of Cassation rulings, appeal decisions, and studies.", es: "Decisiones de la Corte de Casación, tribunales de apelación y estudios." },
+  "jurisprudence.empty": { ar: "لا توجد نتائج مطابقة لخيارات البحث حالياً.", fr: "Aucun résultat ne correspond à votre recherche.", en: "No legal precedents found matching your criteria.", es: "No se encontraron precedentes que coincidan con su búsqueda." },
+
+  // Common / Filter Categories
+  "common.all": { ar: "جميع المواد", fr: "Tous", en: "All Resources", es: "Todos" },
+  "categories.civil": { ar: "القانون المدني", fr: "Droit Civil", en: "Civil Law", es: "Derecho Civil" },
+  "categories.commercial": { ar: "القانون التجاري", fr: "Droit Commercial", en: "Commercial Law", es: "Derecho Comercial" },
+  "categories.penal": { ar: "القانون الجنائي", fr: "Droit Pénal", en: "Penal Law", es: "Derecho Penal" },
+
   // Hero
   hero_badge: { ar: "المجلة القانونية الرقمية · 2026", fr: "Journal Juridique Numérique · 2026", en: "Digital Legal Journal · 2026", es: "Revista Jurídica Digital · 2026" },
   hero_title: { ar: "المرجع الأول للباحثين القانونيين في المغرب", fr: "La référence des chercheurs en droit au Maroc", en: "The leading reference for legal researchers in Morocco", es: "La referencia de los investigadores jurídicos en Marruecos" },
@@ -287,9 +308,27 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     }
   }, [theme]);
 
-  // Helper with parameter replacement support (e.g., {n}) and fallback to Arabic
+  // Helper with parameter replacement support (e.g., {n}) and multi-dictionary fallback
   const t = (key: string, params?: Record<string, string | number>): string => {
-    let text = T[key]?.[lang] ?? T[key]?.ar ?? key;
+    let text = T[key]?.[lang] ?? T[key]?.ar;
+
+    // Fallback search through interactionUIElements & accountManagementElements if key isn't in T
+    if (!text) {
+      const parts = key.split(".");
+      if (parts.length === 2) {
+        const scope = (interactionUIElements as Record<string, Record<string, LocalizedText>>)[parts[0]] 
+                   || (accountManagementElements as Record<string, Record<string, LocalizedText>>)[parts[0]];
+        
+        if (scope?.[parts[1]]) {
+          text = getInteractionText(scope[parts[1]], lang);
+        }
+      }
+    }
+
+    if (!text) {
+      text = key;
+    }
+
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {
         text = text.replace(new RegExp(`\\{${paramKey}\\}`, "g"), String(value));
