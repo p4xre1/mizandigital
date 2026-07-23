@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Ban, ShieldCheck, Trash2, Search, Calendar } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Ban, ShieldCheck, Trash2, Search, Calendar, RefreshCw } from "lucide-react";
 import { useI18n, serifFont, sansFont } from "../../lib/i18n";
 import { useCms, setUserStatus, setUserRole, deleteUser, type AdminUser } from "../../lib/adminStore";
 import { sanitizePgFilter } from "../../lib/security";
 import { AdminWrapper } from "../../components/AdminWrapper";
+import { supabase } from "@/lib/supabase";
 
 const ROLES: AdminUser["role"][] = ["admin", "editor", "student"];
 
@@ -11,11 +12,113 @@ export default function AdminUsers() {
   const { lang, dir, t } = useI18n();
   const cms = useCms();
   const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [dbUsers, setDbUsers] = useState<AdminUser[]>([]);
 
+  // 1. Fetch Users directly from Supabase DB profiles table
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, full_name, username, email, role, is_frozen, created_at")
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        const formatted: AdminUser[] = data.map((p) => ({
+          id: p.id,
+          name: p.full_name || p.username || p.email?.split("@")[0] || "User",
+          email: p.email || "No email",
+          role: (p.role as AdminUser["role"]) || "student",
+          status: p.is_frozen ? "banned" : "active",
+          joined: p.created_at ? new Date(p.created_at).toISOString().split("T")[0] : "N/A",
+        }));
+        setDbUsers(formatted);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profiles from Supabase:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  // Combine local CMS fallback state with live Supabase DB rows
+  const activeUsersList = dbUsers.length > 0 ? dbUsers : cms.users;
+
+  // 2. Filter Search Term
   const term = sanitizePgFilter(q).toLowerCase();
-  const rows = cms.users.filter((u) =>
+  const rows = activeUsersList.filter((u) =>
     `${u.name} ${u.email}`.toLowerCase().includes(term)
   );
+
+  // 3. Handle Role Updates
+  const handleRoleChange = async (userId: string, newRole: AdminUser["role"]) => {
+    // Local Store Sync
+    setUserRole(userId, newRole);
+
+    // DB Sync
+    setDbUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+    );
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: newRole })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user role in DB:", error.message);
+      fetchUsers(); // Rollback on fail
+    }
+  };
+
+  // 4. Handle Status Toggle (Active / Banned via is_frozen)
+  const handleStatusToggle = async (userId: string, targetStatus: "active" | "banned") => {
+    const isFrozen = targetStatus === "banned";
+
+    // Local Store Sync
+    setUserStatus(userId, targetStatus);
+
+    // DB Sync
+    setDbUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, status: targetStatus } : u))
+    );
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({ is_frozen: isFrozen })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user status in DB:", error.message);
+      fetchUsers(); // Rollback on fail
+    }
+  };
+
+  // 5. Handle User Deletion
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm(t("admin_confirm_delete"))) return;
+
+    // Local Store Sync
+    deleteUser(userId);
+
+    // DB Sync
+    setDbUsers((prev) => prev.filter((u) => u.id !== userId));
+
+    const { error } = await supabase
+      .from("profiles")
+      .delete()
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error deleting user profile from DB:", error.message);
+      fetchUsers(); // Rollback on fail
+    }
+  };
 
   return (
     <AdminWrapper title={t("admin_users")}>
@@ -24,10 +127,17 @@ export default function AdminUsers() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1
-              className="text-2xl font-bold text-foreground"
+              className="text-2xl font-bold text-foreground flex items-center gap-2"
               style={{ fontFamily: serifFont(lang) }}
             >
               {t("admin_users")}
+              <button
+                onClick={() => fetchUsers()}
+                className="p-1 text-muted-foreground hover:text-emerald-500 transition-colors"
+                title="Refresh Table"
+              >
+                <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
+              </button>
             </h1>
             <p
               className="text-xs text-muted-foreground mt-0.5"
@@ -84,7 +194,11 @@ export default function AdminUsers() {
                 {rows.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="p-8 text-center text-muted-foreground text-xs font-mono">
-                      {lang === "ar" ? "لم يتم العثور على أي مستخدمين." : "No users matching search query."}
+                      {loading
+                        ? "Loading system profiles..."
+                        : lang === "ar"
+                        ? "لم يتم العثور على أي مستخدمين."
+                        : "No users matching search query."}
                     </td>
                   </tr>
                 ) : (
@@ -115,7 +229,7 @@ export default function AdminUsers() {
                         <select
                           value={u.role}
                           onChange={(e) =>
-                            setUserRole(u.id, e.target.value as AdminUser["role"])
+                            handleRoleChange(u.id, e.target.value as AdminUser["role"])
                           }
                           className="text-xs border border-border rounded-lg px-2.5 py-1.5 bg-background text-foreground outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all font-mono uppercase"
                         >
@@ -158,7 +272,7 @@ export default function AdminUsers() {
                         <div className="flex items-center justify-end gap-1">
                           {u.status === "banned" ? (
                             <button
-                              onClick={() => setUserStatus(u.id, "active")}
+                              onClick={() => handleStatusToggle(u.id, "active")}
                               title={t("admin_unban")}
                               className="p-2 rounded-lg text-emerald-400 hover:bg-emerald-950/30 transition-all"
                             >
@@ -166,7 +280,7 @@ export default function AdminUsers() {
                             </button>
                           ) : (
                             <button
-                              onClick={() => setUserStatus(u.id, "banned")}
+                              onClick={() => handleStatusToggle(u.id, "banned")}
                               title={t("admin_ban")}
                               className="p-2 rounded-lg text-amber-400 hover:bg-amber-950/30 transition-all"
                             >
@@ -174,9 +288,7 @@ export default function AdminUsers() {
                             </button>
                           )}
                           <button
-                            onClick={() => {
-                              if (confirm(t("admin_confirm_delete"))) deleteUser(u.id);
-                            }}
+                            onClick={() => handleDeleteUser(u.id)}
                             title={t("admin_delete")}
                             className="p-2 rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-950/30 transition-all"
                           >

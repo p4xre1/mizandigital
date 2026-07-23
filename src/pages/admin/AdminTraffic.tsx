@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Trash2, MessageSquare, Activity, Globe, Clock, ArrowRight } from "lucide-react";
 import {
   PieChart,
@@ -25,18 +26,24 @@ export default function AdminTraffic() {
   const { lang, t } = useI18n();
   const cms = useCms();
 
-  // Aggregate traffic by source.
-  const bySource = Object.entries(
-    cms.traffic.reduce<Record<string, number>>((acc, h) => {
+  // Memoize traffic aggregated by source
+  const bySource = useMemo(() => {
+    const aggregated = cms.traffic.reduce<Record<string, number>>((acc, h) => {
       acc[h.source] = (acc[h.source] || 0) + 1;
       return acc;
-    }, {})
-  )
-    .map(([name, value]) => ({ name, value }))
-    .sort((a, b) => b.value - a.value);
+    }, {});
 
-  const articleTitle = (id: string) =>
-    cms.articles.find((a) => a.id === id)?.title || id;
+    return Object.entries(aggregated)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [cms.traffic]);
+
+  // Memoize article lookup map for O(1) title retrieval
+  const articleMap = useMemo(() => {
+    return new Map(cms.articles.map((a) => [a.id, a.title]));
+  }, [cms.articles]);
+
+  const articleTitle = (id: string) => articleMap.get(id) || id;
 
   return (
     <AdminWrapper title={t("admin_analytics")}>
@@ -243,7 +250,7 @@ export default function AdminTraffic() {
                         • {c.at}
                       </span>
                       <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium truncate max-w-[260px]">
-                        <ArrowRight size={10} className="shrink-0" />
+                        <ArrowRight size={10} className="shrink-0 rtl:rotate-180" />
                         {articleTitle(c.articleId)}
                       </span>
                     </div>

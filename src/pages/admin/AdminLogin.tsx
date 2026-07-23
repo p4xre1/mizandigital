@@ -52,7 +52,7 @@ export default function AdminLogin() {
     setSubmitting(true);
 
     try {
-      // 4. Client Env Admin Fallback Gate (VITE_ADMIN_USER / VITE_ADMIN_PASS)
+      // 4. Check Local Fallback Credentials (VITE_ADMIN_USER / VITE_ADMIN_PASS)
       const envAuthSuccess = adminLogin(cleanIdentity, cleanPass);
       if (envAuthSuccess) {
         setSubmitting(false);
@@ -60,13 +60,13 @@ export default function AdminLogin() {
         return;
       }
 
-      // 5. Supabase Auth Gate (Database-backed Admins)
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      // 5. Authenticate via Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: cleanIdentity,
         password: cleanPass,
       });
 
-      if (authError) {
+      if (authError || !authData.user) {
         setError(
           lang === "ar"
             ? "خطأ في الاعتماد. البريد الإلكتروني أو كلمة المرور غير صحيحة."
@@ -79,7 +79,48 @@ export default function AdminLogin() {
         return;
       }
 
-      // Successful Supabase Login
+      // 6. Query DB profiles table to check Admin Role & Frozen Status
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role, admin_god_mode, is_frozen")
+        .eq("id", authData.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        await supabase.auth.signOut();
+        setError(
+          lang === "ar"
+            ? "فشل في التحقق من صلاحيات الحساب."
+            : "Failed to verify account permissions."
+        );
+        return;
+      }
+
+      // Account Suspension Check
+      if (profile.is_frozen) {
+        await supabase.auth.signOut();
+        setError(
+          lang === "ar"
+            ? "تم تجميد هذا الحساب. يرجى الاتصال بمسؤول النظام."
+            : "Account is frozen. Contact system support."
+        );
+        return;
+      }
+
+      // Role Check (Accepts 'admin' role OR admin_god_mode)
+      const isAdmin = profile.role === "admin" || profile.admin_god_mode === true;
+
+      if (!isAdmin) {
+        await supabase.auth.signOut();
+        setError(
+          lang === "ar"
+            ? "عذراً، لا تملك صلاحية الوصول إلى لوحة التحكم."
+            : "Access denied. Admin privileges required."
+        );
+        return;
+      }
+
+      // Authorized -> Redirect to CMS Admin Panel
       navigate("/admin");
     } catch (err) {
       console.error("Login exception:", err);
