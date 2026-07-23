@@ -20,8 +20,7 @@ import { useRole } from "@/hooks/useRole";
 
 
 
-import ArticleComments from "/workspaces/mizandigital/src/components/common/ArticleComments.tsx";
-
+import ArticleComments from "../components/common/ArticleComments";
 
 
 const isHtml = (s: string) => /<(p|h[1-6]|div|ul|ol|li|img|iframe|strong|em|br|blockquote|span|font)[\s/>]/i.test(s);
