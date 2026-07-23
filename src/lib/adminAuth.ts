@@ -30,6 +30,17 @@ if (typeof window !== "undefined" && (!ADMIN_USER || !ADMIN_PASS)) {
   );
 }
 
+// ── Constant-Time String Comparison (Timing-Attack Mitigation) ─────────────────
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+// ── State Management & Sync ─────────────────────────────────────────────────────
 let isAuthenticated = false;
 
 if (typeof window !== "undefined") {
@@ -42,15 +53,33 @@ if (typeof window !== "undefined") {
 
 const listeners = new Set<() => void>();
 
-function notifyListeners() {
+function notifyListeners(): void {
   listeners.forEach((listener) => listener());
 }
 
+// Sync across tabs/windows
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === SESSION_KEY) {
+      isAuthenticated = e.newValue === "1";
+      notifyListeners();
+    }
+  });
+}
+
+// ── Public Auth API ─────────────────────────────────────────────────────────────
+
 export function adminLogin(user: string, pass: string): boolean {
-  // Fail closed: no credentials configured => no login possible, ever.
+  // Fail closed: no credentials configured => no login possible.
   if (!ADMIN_USER || !ADMIN_PASS) return false;
 
-  if (user.trim() === ADMIN_USER && pass === ADMIN_PASS) {
+  const normalizedUser = user.trim().toLowerCase();
+  const targetUser = ADMIN_USER.trim().toLowerCase();
+
+  const userMatches = timingSafeEqual(normalizedUser, targetUser);
+  const passMatches = timingSafeEqual(pass, ADMIN_PASS);
+
+  if (userMatches && passMatches) {
     isAuthenticated = true;
     try {
       sessionStorage.setItem(SESSION_KEY, "1");
@@ -60,6 +89,7 @@ export function adminLogin(user: string, pass: string): boolean {
     notifyListeners();
     return true;
   }
+
   return false;
 }
 

@@ -2,37 +2,48 @@ import { useSyncExternalStore } from "react";
 
 // ── Lightweight CMS store ──────────────────────────────────────────────────────
 // A localStorage-backed mock store for the admin dashboard. This powers the
-// prototype UI (users, articles, pages, SEO keywords). When a Supabase backend
-// is wired up, these reads/writes can be swapped for PostgREST calls + RLS —
-// the shapes below intentionally mirror typical CMS tables.
+// prototype UI (users, articles, legal texts, pages, SEO keywords). When a
+// Supabase backend is wired up, these reads/writes can be swapped for PostgREST
+// calls + RLS — the shapes below intentionally mirror typical CMS tables.
 
 export interface AdminUser {
-  id: string; name: string; email: string;
+  id: string;
+  name: string;
+  email: string;
   role: "admin" | "editor" | "student";
   status: "active" | "banned";
   joined: string;
 }
 
 export interface LegalText {
-  id: string; title: string; slug: string;
-  domain: string;            // قانون الأسرة / الشغل / الجنائي / التجاري / المدني...
+  id: string;
+  title: string;
+  slug: string;
+  domain: string; // قانون الأسرة / الشغل / الجنائي / التجاري / المدني...
   status: "published" | "draft";
-  content?: string;          // sanitised rich HTML (full text)
-  reference?: string;        // رقم الظهير / رقم القانون (e.g. "ظهير 1.04.22")
-  officialGazetteNumber?: string;   // رقم الجريدة الرسمية
-  effectiveDate?: string;    // تاريخ النفاذ
-  lastAmendedDate?: string;  // تاريخ آخر تعديل
+  content?: string; // sanitised rich HTML (full text)
+  reference?: string; // رقم الظهير / رقم القانون (e.g. "ظهير 1.04.22")
+  officialGazetteNumber?: string; // رقم الجريدة الرسمية
+  effectiveDate?: string; // تاريخ النفاذ
+  lastAmendedDate?: string; // تاريخ آخر تعديل
   accessTier?: "free" | "premium" | "enterprise";
-  attachmentUrl?: string;    // PDF of official text, if any
+  attachmentUrl?: string; // PDF of official text, if any
   tags?: string[];
   updated: string;
-} 
+}
+
 export interface AdminArticle {
-  id: string; title: string; slug: string; category: string;
-  status: "published" | "draft"; author: string; views: number; updated: string;
-  content?: string;          // sanitised rich HTML
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  status: "published" | "draft";
+  author: string;
+  views: number;
+  updated: string;
+  content?: string; // sanitised rich HTML
   excerpt?: string;
-  keyword?: string;          // focus keyword
+  keyword?: string; // focus keyword
   metaTitle?: string;
   metaDescription?: string;
   tags?: string[];
@@ -41,30 +52,51 @@ export interface AdminArticle {
 }
 
 export interface Comment {
-  id: string; articleId: string; name: string; body: string; at: string;
+  id: string;
+  articleId: string;
+  name: string;
+  body: string;
+  at: string;
 }
 
 export interface TrafficHit {
-  id: string; path: string; source: string; medium: string; campaign: string;
-  referrer: string; at: string;
+  id: string;
+  path: string;
+  source: string;
+  medium: string;
+  campaign: string;
+  referrer: string;
+  at: string;
 }
 
 export interface AdminPage {
-  id: string; title: string; slug: string;
-  status: "published" | "draft"; updated: string;
+  id: string;
+  title: string;
+  slug: string;
+  status: "published" | "draft";
+  updated: string;
 }
 
 export interface SeoKeyword {
-  id: string; keyword: string; clicks: number; impressions: number; position: number;
+  id: string;
+  keyword: string;
+  clicks: number;
+  impressions: number;
+  position: number;
 }
 
 export interface SecurityEvent {
-  id: string; type: string; detail: string; severity: "info" | "warning" | "critical"; at: string;
+  id: string;
+  type: string;
+  detail: string;
+  severity: "info" | "warning" | "critical";
+  at: string;
 }
 
 interface CmsState {
   users: AdminUser[];
   articles: AdminArticle[];
+  legalTexts: LegalText[];
   pages: AdminPage[];
   keywords: SeoKeyword[];
   security: SecurityEvent[];
@@ -86,6 +118,21 @@ const SEED: CmsState = {
     { id: "a1", title: "أسئلة وأجوبة امتحان قانون الأسرة S1", slug: "family-law-s1-2026", category: "قانون الأسرة", status: "published", author: "سلمى الفاسي", views: 4200, updated: "2026-07-13", commentsEnabled: true, tags: ["S1", "2026", "مدوّنة الأسرة"], excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة.", metaDescription: "نماذج إجابات شاملة لامتحان قانون الأسرة S1 بالمغرب 2026: الزواج، الطلاق، النسب والحضانة.", keyword: "قانون الأسرة" },
     { id: "a2", title: "مستجدات قانون المسطرة الجنائية 2025", slug: "criminal-procedure-2025", category: "القانون الجنائي", status: "published", author: "أمين البقالي", views: 2800, updated: "2026-07-12", commentsEnabled: true, tags: ["مسطرة جنائية", "2025"] },
     { id: "a3", title: "عقد الشركة وأحكام محكمة النقض", slug: "company-contract-cassation", category: "القانون التجاري", status: "draft", author: "سلمى الفاسي", views: 0, updated: "2026-07-09", commentsEnabled: false, tags: ["شركات"] },
+  ],
+  legalTexts: [
+    {
+      id: "lt1",
+      title: "مدونة الأسرة - القانون رقم 70.03",
+      slug: "moudawana-family-code",
+      domain: "قانون الأسرة",
+      status: "published",
+      reference: "ظهير شريف رقم 1.04.22",
+      officialGazetteNumber: "5184",
+      effectiveDate: "2004-02-05",
+      accessTier: "free",
+      updated: "2026-06-10",
+      tags: ["الأسرة", "الزواج", "الحضانة"],
+    },
   ],
   pages: [
     { id: "p1", title: "عن المنصة", slug: "about", status: "published", updated: "2026-06-01" },
@@ -120,10 +167,21 @@ const SEED: CmsState = {
 };
 
 function read(): CmsState {
+  if (typeof window === "undefined") return SEED;
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { ...SEED, ...JSON.parse(raw) };
-  } catch { /* ignore */ }
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        ...SEED,
+        ...parsed,
+        // Ensure sub-arrays exist even if loaded from older key schema
+        legalTexts: parsed.legalTexts || SEED.legalTexts,
+      };
+    }
+  } catch {
+    /* ignore parse errors */
+  }
   return structuredClone(SEED);
 }
 
@@ -132,8 +190,24 @@ const listeners = new Set<() => void>();
 
 function commit(next: CmsState) {
   state = next;
-  try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
-  listeners.forEach(l => l());
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(next));
+    } catch {
+      /* ignore storage errors */
+    }
+  }
+  listeners.forEach((l) => l());
+}
+
+// Cross-tab synchronization
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key === KEY) {
+      state = read();
+      listeners.forEach((l) => l());
+    }
+  });
 }
 
 function subscribe(cb: () => void) {
@@ -141,61 +215,134 @@ function subscribe(cb: () => void) {
   return () => listeners.delete(cb);
 }
 
-export function useCms() {
-  return useSyncExternalStore(subscribe, () => state);
+export function useCms(): CmsState {
+  return useSyncExternalStore(
+    subscribe,
+    () => state,
+    () => SEED
+  );
 }
 
-const uid = () => Math.random().toString(36).slice(2, 9);
+const uid = () =>
+  typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID().slice(0, 8)
+    : Math.random().toString(36).slice(2, 9);
+
 const today = () => new Date().toISOString().slice(0, 10);
 
-// ── Users ──
+// ── Users ─────────────────────────────────────────────────────────────────────
 export const setUserStatus = (id: string, status: AdminUser["status"]) =>
-  commit({ ...state, users: state.users.map(u => u.id === id ? { ...u, status } : u) });
-export const setUserRole = (id: string, role: AdminUser["role"]) =>
-  commit({ ...state, users: state.users.map(u => u.id === id ? { ...u, role } : u) });
-export const deleteUser = (id: string) =>
-  commit({ ...state, users: state.users.filter(u => u.id !== id) });
+  commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, status } : u)) });
 
-// ── Articles ──
+export const setUserRole = (id: string, role: AdminUser["role"]) =>
+  commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, role } : u)) });
+
+export const deleteUser = (id: string) =>
+  commit({ ...state, users: state.users.filter((u) => u.id !== id) });
+
+// ── Articles ──────────────────────────────────────────────────────────────────
 export const upsertArticle = (a: Partial<AdminArticle> & { id?: string }) => {
-  if (a.id && state.articles.some(x => x.id === a.id)) {
-    commit({ ...state, articles: state.articles.map(x => x.id === a.id ? { ...x, ...a, updated: today() } as AdminArticle : x) });
+  if (a.id && state.articles.some((x) => x.id === a.id)) {
+    commit({
+      ...state,
+      articles: state.articles.map((x) =>
+        x.id === a.id ? ({ ...x, ...a, updated: today() } as AdminArticle) : x
+      ),
+    });
   } else {
     const na: AdminArticle = {
-      id: uid(), title: a.title || "", slug: a.slug || uid(), category: a.category || "",
-      status: a.status || "draft", author: a.author || "—", views: 0, updated: today(),
+      id: uid(),
+      title: a.title || "",
+      slug: a.slug || uid(),
+      category: a.category || "",
+      status: a.status || "draft",
+      author: a.author || "—",
+      views: 0,
+      updated: today(),
     };
     commit({ ...state, articles: [na, ...state.articles] });
   }
 };
-export const deleteArticle = (id: string) =>
-  commit({ ...state, articles: state.articles.filter(a => a.id !== id) });
 
-// ── Pages ──
-export const upsertPage = (p: Partial<AdminPage> & { id?: string }) => {
-  if (p.id && state.pages.some(x => x.id === p.id)) {
-    commit({ ...state, pages: state.pages.map(x => x.id === p.id ? { ...x, ...p, updated: today() } as AdminPage : x) });
+export const deleteArticle = (id: string) =>
+  commit({ ...state, articles: state.articles.filter((a) => a.id !== id) });
+
+// ── Legal Texts ───────────────────────────────────────────────────────────────
+export const upsertLegalText = (lt: Partial<LegalText> & { id?: string }) => {
+  if (lt.id && state.legalTexts.some((x) => x.id === lt.id)) {
+    commit({
+      ...state,
+      legalTexts: state.legalTexts.map((x) =>
+        x.id === lt.id ? ({ ...x, ...lt, updated: today() } as LegalText) : x
+      ),
+    });
   } else {
-    const np: AdminPage = { id: uid(), title: p.title || "", slug: p.slug || uid(), status: p.status || "draft", updated: today() };
+    const nlt: LegalText = {
+      id: uid(),
+      title: lt.title || "",
+      slug: lt.slug || uid(),
+      domain: lt.domain || "عام",
+      status: lt.status || "draft",
+      accessTier: lt.accessTier || "free",
+      updated: today(),
+    };
+    commit({ ...state, legalTexts: [nlt, ...state.legalTexts] });
+  }
+};
+
+export const deleteLegalText = (id: string) =>
+  commit({ ...state, legalTexts: state.legalTexts.filter((lt) => lt.id !== id) });
+
+// ── Pages ─────────────────────────────────────────────────────────────────────
+export const upsertPage = (p: Partial<AdminPage> & { id?: string }) => {
+  if (p.id && state.pages.some((x) => x.id === p.id)) {
+    commit({
+      ...state,
+      pages: state.pages.map((x) =>
+        x.id === p.id ? ({ ...x, ...p, updated: today() } as AdminPage) : x
+      ),
+    });
+  } else {
+    const np: AdminPage = {
+      id: uid(),
+      title: p.title || "",
+      slug: p.slug || uid(),
+      status: p.status || "draft",
+      updated: today(),
+    };
     commit({ ...state, pages: [np, ...state.pages] });
   }
 };
-export const deletePage = (id: string) =>
-  commit({ ...state, pages: state.pages.filter(p => p.id !== id) });
 
-// ── Comments ──
+export const deletePage = (id: string) =>
+  commit({ ...state, pages: state.pages.filter((p) => p.id !== id) });
+
+// ── Comments ──────────────────────────────────────────────────────────────────
 export const addComment = (articleId: string, name: string, body: string) => {
-  const c: Comment = { id: uid(), articleId, name, body, at: new Date().toISOString().slice(0, 16).replace("T", " ") };
+  const c: Comment = {
+    id: uid(),
+    articleId,
+    name,
+    body,
+    at: new Date().toISOString().slice(0, 16).replace("T", " "),
+  };
   commit({ ...state, comments: [...state.comments, c] });
   return c;
 };
-export const deleteComment = (id: string) =>
-  commit({ ...state, comments: state.comments.filter(c => c.id !== id) });
-export const getComments = (articleId: string) => state.comments.filter(c => c.articleId === articleId);
 
-// ── Traffic / referral tracking ──
+export const deleteComment = (id: string) =>
+  commit({ ...state, comments: state.comments.filter((c) => c.id !== id) });
+
+export const getComments = (articleId: string) =>
+  state.comments.filter((c) => c.articleId === articleId);
+
+// ── Traffic / Referral Tracking ───────────────────────────────────────────────
 export const logTraffic = (hit: Omit<TrafficHit, "id" | "at">) => {
-  const h: TrafficHit = { ...hit, id: uid(), at: new Date().toISOString().slice(0, 16).replace("T", " ") };
+  const h: TrafficHit = {
+    ...hit,
+    id: uid(),
+    at: new Date().toISOString().slice(0, 16).replace("T", " "),
+  };
   // keep the most recent 200 hits
   commit({ ...state, traffic: [h, ...state.traffic].slice(0, 200) });
 };
