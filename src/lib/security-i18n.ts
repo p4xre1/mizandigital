@@ -3,6 +3,15 @@
 // NOTE: These are UI trust labels. They only hold true if the backend
 // actually enforces the referenced controls (see securityBackendReference).
 
+import { type Lang } from "@/lib/i18n";
+
+export interface SecurityTranslation {
+  ar: string;
+  fr: string;
+  en: string;
+  es: string;
+}
+
 export const securityUIElements = {
   encryption_status_labels: {
     encryption_badge: {
@@ -40,3 +49,13 @@ export const securityBackendReference = {
   encryption_layer_2: "Storage Encryption via Transparent Data Encryption (At Rest)",
   cipher_suite: "AES_256_GCM",
 } as const;
+
+/**
+ * Utility helper to safely extract localized security trust text with fallbacks
+ */
+export function getSecurityText(
+  translation: SecurityTranslation,
+  lang: Lang
+): string {
+  return translation[lang] || translation.ar || translation.en;
+}

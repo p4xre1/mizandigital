@@ -33,16 +33,18 @@ export function getPreferredBrowserLanguage(): Lang {
 }
 
 /**
- * ⚡ Fixed: Cleanly prepends or updates the target language in a path.
- * Prevents URL formatting bugs across language switches.
+ * ⚡ Cleanly prepends or updates the target language in a path.
+ * Prevents URL formatting bugs across language switches and handles edge cases.
  */
 export function buildLocalizedPath(path: string, targetLang: Lang): string {
   if (
     !path ||
     path.startsWith("http://") ||
     path.startsWith("https://") ||
+    path.startsWith("//") ||
     path.startsWith("#") ||
-    path.startsWith("mailto:")
+    path.startsWith("mailto:") ||
+    path.startsWith("tel:")
   ) {
     return path;
   }
@@ -192,16 +194,16 @@ export const T: Dict = {
 };
 
 // ── Font Helpers ─────────────────────────────────────────────────────────────
-// ⚡ Updated to modern fonts: Readex Pro (Arabic) & Plus Jakarta Sans (FR / EN / ES)
-export const serifFont = (lang: Lang) =>
-  lang === "ar"
-    ? "'Readex Pro', sans-serif"
-    : "'Plus Jakarta Sans', system-ui, sans-serif";
+// Modern fonts: Readex Pro (Arabic) & Plus Jakarta Sans (FR / EN / ES)
+const FONT_MAP: Record<Lang, string> = {
+  ar: "'Readex Pro', sans-serif",
+  fr: "'Plus Jakarta Sans', system-ui, sans-serif",
+  en: "'Plus Jakarta Sans', system-ui, sans-serif",
+  es: "'Plus Jakarta Sans', system-ui, sans-serif",
+};
 
-export const sansFont = (lang: Lang) =>
-  lang === "ar"
-    ? "'Readex Pro', sans-serif"
-    : "'Plus Jakarta Sans', system-ui, sans-serif";
+export const serifFont = (lang: Lang) => FONT_MAP[lang] || FONT_MAP.ar;
+export const sansFont = (lang: Lang) => FONT_MAP[lang] || FONT_MAP.ar;
 
 // ── Context & Provider ─────────────────────────────────────────────────────────
 interface I18nCtx {
@@ -285,9 +287,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     }
   }, [theme]);
 
-  // Helper with parameter replacement support (e.g., {n})
+  // Helper with parameter replacement support (e.g., {n}) and fallback to Arabic
   const t = (key: string, params?: Record<string, string | number>): string => {
-    let text = T[key]?.[lang] ?? key;
+    let text = T[key]?.[lang] ?? T[key]?.ar ?? key;
     if (params) {
       Object.entries(params).forEach(([paramKey, value]) => {
         text = text.replace(new RegExp(`\\{${paramKey}\\}`, "g"), String(value));

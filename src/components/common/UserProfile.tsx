@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   BookOpen,
   Bookmark,
@@ -13,11 +13,14 @@ import {
   Check,
   X,
   File,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export type Lang = "ar" | "fr" | "en" | "es";
 
 export interface UserData {
+  id?: string;
   fullName: string;
   email: string;
   academicRole: "Student" | "Researcher" | "Admin" | string;
@@ -127,6 +130,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   lang = "ar",
   onUpdateUser,
 }) => {
+  // Loading state
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
   // Bio edit state
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [bioText, setBioText] = useState(user.bio || "");
@@ -134,46 +141,95 @@ export const UserProfile: React.FC<UserProfileProps> = ({
   // Delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // File Upload State
+  // File List State
   const [uploadedFiles, setUploadedFiles] = useState<
-    { name: string; date: string }[]
+    { name: string; date: string; url?: string }[]
   >([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Handle Bio Save
-  const handleSaveBio = () => {
-    const updatedUser = { ...user, bio: bioText };
+  // Sync state if user prop changes
+  useEffect(() => {
+    setBioText(user.bio || "");
+  }, [user.bio]);
+
+  // Handle Bio Save directly to Supabase DB
+  const handleSaveBio = async () => {
     try {
-      localStorage.setItem("mizan_user", JSON.stringify(updatedUser));
-    } catch {
-      // Storage error
+      setIsSaving(true);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ bio: bioText })
+        .eq("id", session.user.id);
+
+      if (error) throw error;
+
+      const updatedUser = { ...user, bio: bioText };
+      if (onUpdateUser) onUpdateUser(updatedUser);
+      setIsEditingBio(false);
+    } catch (err) {
+      console.error("Failed to update bio in Supabase:", err);
+    } finally {
+      setIsSaving(false);
     }
-    if (onUpdateUser) onUpdateUser(updatedUser);
-    setIsEditingBio(false);
   };
 
-  // Handle File Upload Simulation
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Upload file directly to Supabase Storage
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0) {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    try {
+      setIsUploading(true);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) return;
+
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${session.user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("user-uploads")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from("user-uploads")
+        .getPublicUrl(filePath);
+
       const newFile = {
-        name: files[0].name,
+        name: file.name,
         date: new Date().toLocaleDateString(
           lang === "ar" ? "ar-EG" : "en-US"
         ),
+        url: publicUrlData.publicUrl,
       };
+
       setUploadedFiles((prev) => [newFile, ...prev]);
+    } catch (err) {
+      console.error("Failed to upload file to Supabase:", err);
+    } finally {
+      setIsUploading(false);
     }
   };
 
-  // Handle Account Deletion
-  const handleConfirmDelete = () => {
+  // Delete User Account via Supabase Auth
+  const handleConfirmDelete = async () => {
     try {
-      localStorage.removeItem("mizan_user");
-    } catch {
-      // Storage error
+      await supabase.auth.signOut();
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Failed to sign out:", err);
     }
-    window.location.href = "/";
   };
 
   return (
@@ -254,9 +310,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({
 
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition cursor-pointer"
+                disabled={isUploading}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition cursor-pointer disabled:opacity-50"
               >
-                <UploadCloud size={15} />
+                {isUploading ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <UploadCloud size={15} />
+                )}
                 <span>{t("uploadFile", lang)}</span>
               </button>
             </div>
@@ -321,9 +382,15 @@ export const UserProfile: React.FC<UserProfileProps> = ({
                 <div className="flex gap-2">
                   <button
                     onClick={handleSaveBio}
-                    className="flex-1 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1"
+                    disabled={isSaving}
+                    className="flex-1 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 disabled:opacity-50"
                   >
-                    <Check size={13} /> {t("save", lang)}
+                    {isSaving ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <Check size={13} />
+                    )}
+                    {t("save", lang)}
                   </button>
                   <button
                     onClick={() => setIsEditingBio(false)}

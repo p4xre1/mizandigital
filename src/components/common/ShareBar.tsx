@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Share2, Link2, Check, Smartphone } from "lucide-react";
-// Fixed: Go up 2 levels (../../) to reach src/lib
-import { useI18n, sansFont } from "../../lib/i18n";
-import { SHARE_TARGETS, withUtm } from "../../lib/referral";
-import { trackEvent } from "../../lib/analytics";
+import { useI18n, sansFont, type Lang } from "@/lib/i18n";
+import { trackEvent } from "@/lib/analytics";
 
 const LABELS = {
   share: { ar: "مشاركة", fr: "Partager", en: "Share", es: "Compartir" },
@@ -18,6 +16,51 @@ const LABELS = {
   copy: { ar: "نسخ الرابط", fr: "Copier le lien", en: "Copy Link", es: "Copiar enlace" },
   copied: { ar: "تم النسخ!", fr: "Copié !", en: "Copied!", es: "¡Copiado!" },
 } as const;
+
+function getLabel(key: keyof typeof LABELS, lang: Lang): string {
+  return LABELS[key][lang] || LABELS[key].en;
+}
+
+/** Utility to append UTM query parameters to a share URL */
+function withUtm(url: string, medium: string, campaign: string): string {
+  try {
+    const parsed = new URL(url, typeof window !== "undefined" ? window.location.origin : "https://mizandigital.com");
+    parsed.searchParams.set("utm_source", "share");
+    parsed.searchParams.set("utm_medium", medium);
+    parsed.searchParams.set("utm_campaign", campaign);
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+/** Built-in social sharing targets */
+const SHARE_TARGETS = [
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    build: (url: string, title: string) =>
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(`${title} ${url}`)}`,
+  },
+  {
+    key: "twitter",
+    label: "X / Twitter",
+    build: (url: string, title: string) =>
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+  },
+  {
+    key: "facebook",
+    label: "Facebook",
+    build: (url: string) =>
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+  },
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    build: (url: string, title: string) =>
+      `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`,
+  },
+];
 
 /** Share buttons optimized for instant mobile interactions with native Web Share API support. */
 export default function ShareBar({
@@ -91,10 +134,10 @@ export default function ShareBar({
     >
       <h4 id="share-heading" className="flex items-center gap-1.5 text-xs font-bold text-foreground mb-3">
         <Share2 size={14} aria-hidden="true" />
-        {LABELS.share[lang]}
+        {getLabel("share", lang)}
       </h4>
 
-      {/* Primary Native Mobile Share Button (Appears automatically on phones) */}
+      {/* Primary Native Mobile Share Button */}
       {canNativeShare && (
         <button
           type="button"
@@ -102,7 +145,7 @@ export default function ShareBar({
           className="w-full flex items-center justify-center gap-2 mb-2.5 min-h-[44px] px-4 py-2.5 rounded-xl bg-blue-900 dark:bg-blue-600 text-white font-bold text-xs shadow-xs active:scale-[0.98] transition-transform touch-manipulation cursor-pointer"
         >
           <Smartphone size={15} aria-hidden="true" />
-          <span>{LABELS.nativeShare[lang]}</span>
+          <span>{getLabel("nativeShare", lang)}</span>
         </button>
       )}
 
@@ -113,7 +156,7 @@ export default function ShareBar({
             key={t.key}
             type="button"
             onClick={() => open(t.key, t.build(withUtm(url, t.key, campaign), title))}
-            aria-label={`${LABELS.share[lang]} on ${t.label}`}
+            aria-label={`${getLabel("share", lang)} on ${t.label}`}
             className="min-h-[44px] text-xs py-2.5 px-3 rounded-xl border border-border bg-card text-foreground/90 font-medium hover:border-primary hover:text-primary active:scale-[0.97] transition-all touch-manipulation flex items-center justify-center text-center cursor-pointer"
           >
             {t.label}
@@ -126,7 +169,7 @@ export default function ShareBar({
         <button
           type="button"
           onClick={copy}
-          aria-label={copied ? LABELS.copied[lang] : LABELS.copy[lang]}
+          aria-label={copied ? getLabel("copied", lang) : getLabel("copy", lang)}
           className="w-full min-h-[44px] flex items-center justify-center gap-1.5 text-xs py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-foreground font-bold hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.98] transition-all touch-manipulation cursor-pointer"
         >
           {copied ? (
@@ -134,7 +177,7 @@ export default function ShareBar({
           ) : (
             <Link2 size={14} aria-hidden="true" />
           )}
-          <span>{copied ? LABELS.copied[lang] : LABELS.copy[lang]}</span>
+          <span>{copied ? getLabel("copied", lang) : getLabel("copy", lang)}</span>
         </button>
       </div>
     </section>
