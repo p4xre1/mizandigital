@@ -4,15 +4,9 @@
 export type Role =
   | "guest"
   | "member"
-  | "premium_member"
   | "writer"
   | "security_admin"
   | "root";
-
-/**
- * Subscription Tiers for Platform Access & Feature Quotas
- */
-export type Tier = "free" | "premium" | "enterprise";
 
 /**
  * User Profile record stored in `public.profiles`
@@ -26,9 +20,6 @@ export interface UserProfile {
 
   /** Role assigned for RBAC (Role-Based Access Control) */
   role: Role;
-
-  /** Access tier for monetization & rate limits */
-  tier: Tier;
 
   /** Daily recurring research credits */
   daily_credits?: number;
@@ -65,7 +56,6 @@ export interface Database {
     Functions: Record<string, never>;
     Enums: {
       role: Role;
-      tier: Tier;
     };
   };
 }

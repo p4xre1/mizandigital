@@ -19,6 +19,7 @@ import { useI18n } from "../lib/i18n";
 import { isSupabaseConfigured, supabase } from "../lib/supabase";
 import { trackEvent } from "../lib/analytics";
 import { sanitizeText, looksLikeSpam } from "../lib/security";
+import { useRole } from "../hooks/useRole";
 
 interface Article {
   id: string;
@@ -40,6 +41,8 @@ interface ResumeItem {
 
 export default function Profile() {
   const { t, dir } = useI18n();
+  const { role, isStaff, isAdmin, isDeveloper } = useRole();
+
   const [bio, setBio] = useState("");
   const [showDelete, setShowDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -54,9 +57,6 @@ export default function Profile() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarError, setAvatarError] = useState("");
-
-  // Role management (Only Admin vs Standard Ad-Supported User)
-  const [isAdmin, setIsAdmin] = useState(false);
 
   // S1 - S6 Dynamic Academic Progress state
   const [progress, setProgress] = useState<Record<string, number>>({
@@ -105,7 +105,7 @@ export default function Profile() {
         // Fetch user profile attributes
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
-          .select("bio, full_name, avatar_url, progress, role")
+          .select("bio, full_name, avatar_url, progress")
           .eq("id", user.id)
           .single();
 
@@ -113,7 +113,6 @@ export default function Profile() {
           if (profile.bio) setBio(profile.bio);
           if (profile.full_name) setDisplayName(profile.full_name);
           if (profile.avatar_url) setAvatarUrl(profile.avatar_url);
-          if (profile.role === "admin") setIsAdmin(true);
           if (profile.progress) {
             setProgress(profile.progress as Record<string, number>);
           }
@@ -176,7 +175,7 @@ export default function Profile() {
     const rect = e.currentTarget.getBoundingClientRect();
     const isRTL = dir === "rtl";
     const clickX = isRTL ? rect.right - e.clientX : e.clientX - rect.left;
-    
+
     let percentage = Math.round((clickX / rect.width) * 100);
     percentage = Math.max(0, Math.min(100, Math.round(percentage / 5) * 5));
 
@@ -345,13 +344,27 @@ export default function Profile() {
     setShowDelete(false);
   };
 
-  // Ad Status Badge Configuration
+  // Dynamic Role Badge Configuration using `useRole`
   const getAdStatusBadge = () => {
+    if (isDeveloper || role === "root") {
+      return {
+        label: "المدير التنفيذي (Root) • وصول كامل",
+        colorClass: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+        icon: <ShieldCheck size={12} />,
+      };
+    }
     if (isAdmin) {
       return {
-        label: "مسؤول النظام • بدون إعلانات",
+        label: "مسؤول الحماية والأمان • بدون إعلانات",
         colorClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20",
         icon: <ShieldCheck size={12} />,
+      };
+    }
+    if (isStaff) {
+      return {
+        label: "محرر محتوى (Writer) • بدون إعلانات",
+        colorClass: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+        icon: <Award size={12} />,
       };
     }
     return {

@@ -1,6 +1,7 @@
+// /workspaces/mizandigital/src/components/auth/TurnstileCaptcha.tsx
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface TurnstileProps {
   onVerify: (token: string) => void;
@@ -22,11 +23,12 @@ export function TurnstileCaptcha({
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Universal Env Variable Resolution (Next.js & Vite compatible)
+    // Universal Env Variable Resolution (Vite & Next.js compatible)
     const siteKey =
-      process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
       (typeof import.meta !== "undefined" &&
         import.meta.env?.VITE_TURNSTILE_SITE_KEY) ||
+      (typeof process !== "undefined" &&
+        process.env?.NEXT_PUBLIC_TURNSTILE_SITE_KEY) ||
       "";
 
     if (!siteKey) {
@@ -38,6 +40,7 @@ export function TurnstileCaptcha({
     let pollInterval: NodeJS.Timeout;
 
     const renderWidget = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { turnstile } = window as any;
 
       if (turnstile && containerRef.current && !widgetIdRef.current) {
@@ -64,11 +67,13 @@ export function TurnstileCaptcha({
       }
     };
 
-    // Fast check or poll until script is ready on mobile network connection
+    // Fast check or poll until Turnstile script is ready on slow connections
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).turnstile) {
       renderWidget();
     } else {
       pollInterval = setInterval(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((window as any).turnstile) {
           renderWidget();
           clearInterval(pollInterval);
@@ -80,10 +85,14 @@ export function TurnstileCaptcha({
     return () => {
       isMounted = false;
       if (pollInterval) clearInterval(pollInterval);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (widgetIdRef.current && (window as any).turnstile) {
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (window as any).turnstile.remove(widgetIdRef.current);
-        } catch (_) {}
+        } catch {
+          /* Ignore cleanup errors */
+        }
         widgetIdRef.current = null;
       }
     };
