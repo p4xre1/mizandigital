@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { ShieldCheck, Lock, User, AlertTriangle, Activity, KeyRound, Terminal } from "lucide-react";
 import { useI18n, serifFont, sansFont } from "../../lib/i18n";
 import { supabase } from "@/lib/supabase";
-import { throttle } from "../../lib/security";
+import { throttle, sanitizeText } from "../../lib/security";
+import { adminLogin } from "../../lib/adminAuth";
 
 export default function AdminLogin() {
   const { lang, dir, t } = useI18n();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identity, setIdentity] = useState(""); // Email or Username
   const [pass, setPass] = useState("");
+  const [honeypot, setHoneypot] = useState(""); // Anti-bot honeypot field
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -17,7 +19,13 @@ export default function AdminLogin() {
     e.preventDefault();
     setError("");
 
-    // Throttle login attempts to prevent brute force
+    // 1. Anti-Spam Bot Trap (Honeypot Check)
+    if (honeypot.trim().length > 0) {
+      console.warn("Spam bot submission blocked.");
+      return;
+    }
+
+    // 2. Throttle Login Attempts (Rate Limiting)
     const wait = throttle("admin_login", 4000);
     if (wait) {
       setError(
@@ -28,28 +36,57 @@ export default function AdminLogin() {
       return;
     }
 
-    setSubmitting(true);
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
-    });
-    setSubmitting(false);
+    // 3. Input Sanitization (Anti-Injection / XSS Prevention)
+    const cleanIdentity = sanitizeText(identity.trim(), 150);
+    const cleanPass = pass.trim();
 
-    if (authError) {
+    if (!cleanIdentity || !cleanPass) {
       setError(
         lang === "ar"
-          ? "خطأ في الاعتماد. البريد الإلكتروني أو كلمة المرور غير صحيحة."
-          : lang === "fr"
-          ? "Échec d'authentification. Identifiants invalides."
-          : lang === "es"
-          ? "Fallo de autenticación. Credenciales inválidas."
-          : "Authentication failure. Invalid credentials."
+          ? "الرجاء إدخال اسم المستخدم وكلمة المرور."
+          : "Please provide valid credentials."
       );
       return;
     }
 
-    // Redirect to admin dashboard on successful login
-    navigate("/admin");
+    setSubmitting(true);
+
+    try {
+      // 4. Client Env Admin Fallback Gate (VITE_ADMIN_USER / VITE_ADMIN_PASS)
+      const envAuthSuccess = adminLogin(cleanIdentity, cleanPass);
+      if (envAuthSuccess) {
+        setSubmitting(false);
+        navigate("/admin");
+        return;
+      }
+
+      // 5. Supabase Auth Gate (Database-backed Admins)
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: cleanIdentity,
+        password: cleanPass,
+      });
+
+      if (authError) {
+        setError(
+          lang === "ar"
+            ? "خطأ في الاعتماد. البريد الإلكتروني أو كلمة المرور غير صحيحة."
+            : lang === "fr"
+            ? "Échec d'authentification. Identifiants invalides."
+            : lang === "es"
+            ? "Fallo de autenticación. Credenciales inválidas."
+            : "Authentication failure. Invalid credentials."
+        );
+        return;
+      }
+
+      // Successful Supabase Login
+      navigate("/admin");
+    } catch (err) {
+      console.error("Login exception:", err);
+      setError("An unexpected system error occurred.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -96,6 +133,17 @@ export default function AdminLogin() {
 
         {/* Login Form */}
         <form onSubmit={submit} className="space-y-4">
+          {/* Honeypot field - Hidden from real users to catch automated bots */}
+          <input
+            type="text"
+            name="website_confirm_field"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            style={{ display: "none" }}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+
           <div className="relative">
             <User
               size={16}
@@ -104,12 +152,12 @@ export default function AdminLogin() {
               }`}
             />
             <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="OPERATOR_ID / EMAIL"
+              value={identity}
+              onChange={(e) => setIdentity(e.target.value)}
+              type="text"
+              placeholder="OPERATOR_ID / USERNAME / EMAIL"
               autoComplete="username"
-              maxLength={200}
+              maxLength={150}
               required
               className={`w-full py-2.5 text-xs font-sans border border-slate-800 rounded-lg bg-slate-950/80 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
                 dir === "rtl" ? "pr-9 pl-3 text-right" : "pl-9 pr-3 text-left"
@@ -150,7 +198,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-slate-950 font-black rounded-lg text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-slate-950 font-black rounded-lg text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             {submitting ? (
               <span className="animate-pulse">AUTHENTICATING...</span>
