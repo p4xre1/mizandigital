@@ -37,9 +37,11 @@ export interface AdminArticle {
   slug: string;
   category: string;
   status: "published" | "draft";
+  published?: boolean;
   author: string;
   views: number;
   updated: string;
+  updatedAt?: string;
   content?: string; // sanitised rich HTML
   excerpt?: string;
   keyword?: string; // focus keyword
@@ -47,8 +49,12 @@ export interface AdminArticle {
   metaDescription?: string;
   tags?: string[];
   commentsEnabled?: boolean;
+  allowComments?: boolean;
   coverImage?: string;
 }
+
+// Type alias for compatibility with ArticleEditor
+export type Article = AdminArticle;
 
 export interface Comment {
   id: string;
@@ -114,9 +120,9 @@ const SEED: CmsState = {
     { id: "u5", name: "Karim Alaoui", email: "karim@uca.ma", role: "student", status: "active", joined: "2026-05-30" },
   ],
   articles: [
-    { id: "a1", title: "أسئلة وأجوبة امتحان قانون الأسرة S1", slug: "family-law-s1-2026", category: "قانون الأسرة", status: "published", author: "سلمى الفاسي", views: 4200, updated: "2026-07-13", commentsEnabled: true, tags: ["S1", "2026", "مدوّنة الأسرة"], excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة.", metaDescription: "نماذج إجابات شاملة لامتحان قانون الأسرة S1 بالمغرب 2026: الزواج، الطلاق، النسب والحضانة.", keyword: "قانون الأسرة" },
-    { id: "a2", title: "مستجدات قانون المسطرة الجنائية 2025", slug: "criminal-procedure-2025", category: "القانون الجنائي", status: "published", author: "أمين البقالي", views: 2800, updated: "2026-07-12", commentsEnabled: true, tags: ["مسطرة جنائية", "2025"] },
-    { id: "a3", title: "عقد الشركة وأحكام محكمة النقض", slug: "company-contract-cassation", category: "القانون التجاري", status: "draft", author: "سلمى الفاسي", views: 0, updated: "2026-07-09", commentsEnabled: false, tags: ["شركات"] },
+    { id: "a1", title: "أسئلة وأجوبة امتحان قانون الأسرة S1", slug: "family-law-s1-2026", category: "قانون الأسرة", status: "published", published: true, author: "سلمى الفاسي", views: 4200, updated: "2026-07-13", commentsEnabled: true, allowComments: true, tags: ["S1", "2026", "مدوّنة الأسرة"], excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة.", metaDescription: "نماذج إجابات شاملة لامتحان قانون الأسرة S1 بالمغرب 2026: الزواج، الطلاق، النسب والحضانة.", keyword: "قانون الأسرة" },
+    { id: "a2", title: "مستجدات قانون المسطرة الجنائية 2025", slug: "criminal-procedure-2025", category: "القانون الجنائي", status: "published", published: true, author: "أمين البقالي", views: 2800, updated: "2026-07-12", commentsEnabled: true, allowComments: true, tags: ["مسطرة جنائية", "2025"] },
+    { id: "a3", title: "عقد الشركة وأحكام محكمة النقض", slug: "company-contract-cassation", category: "القانون التجاري", status: "draft", published: false, author: "سلمى الفاسي", views: 0, updated: "2026-07-09", commentsEnabled: false, allowComments: false, tags: ["شركات"] },
   ],
   legalTexts: [
     {
@@ -251,15 +257,31 @@ export const deleteUser = async (id: string) => {
 };
 
 // ── Articles ──────────────────────────────────────────────────────────────────
-export const upsertArticle = async (a: Partial<AdminArticle> & { id?: string }) => {
+export const getArticleById = (cmsState: CmsState, id: string): AdminArticle | undefined => {
+  return cmsState.articles.find((a) => a.id === id);
+};
+
+export const saveArticle = async (a: Partial<AdminArticle> & { id?: string }) => {
   const isExisting = a.id && state.articles.some((x) => x.id === a.id);
   const targetId = a.id || uid();
+  const isPublished = a.published ?? (a.status === "published");
 
   if (isExisting) {
     commit({
       ...state,
       articles: state.articles.map((x) =>
-        x.id === targetId ? ({ ...x, ...a, updated: today() } as AdminArticle) : x
+        x.id === targetId
+          ? ({
+              ...x,
+              ...a,
+              status: isPublished ? "published" : "draft",
+              published: isPublished,
+              allowComments: a.allowComments ?? x.allowComments ?? x.commentsEnabled ?? true,
+              commentsEnabled: a.allowComments ?? x.commentsEnabled ?? true,
+              updated: today(),
+              updatedAt: new Date().toISOString(),
+            } as AdminArticle)
+          : x
       ),
     });
   } else {
@@ -267,11 +289,18 @@ export const upsertArticle = async (a: Partial<AdminArticle> & { id?: string }) 
       id: targetId,
       title: a.title || "",
       slug: a.slug || targetId,
-      category: a.category || "",
-      status: a.status || "draft",
-      author: a.author || "—",
+      category: a.category || "Uncategorized",
+      status: isPublished ? "published" : "draft",
+      published: isPublished,
+      author: a.author || "Admin",
       views: 0,
       updated: today(),
+      updatedAt: new Date().toISOString(),
+      excerpt: a.excerpt || "",
+      content: a.content || "",
+      coverImage: a.coverImage || "",
+      allowComments: a.allowComments ?? true,
+      commentsEnabled: a.allowComments ?? true,
     };
     commit({ ...state, articles: [na, ...state.articles] });
   }
@@ -281,11 +310,17 @@ export const upsertArticle = async (a: Partial<AdminArticle> & { id?: string }) 
     title: a.title,
     slug: a.slug,
     category: a.category,
-    status: a.status,
+    status: isPublished ? "published" : "draft",
     author: a.author,
+    excerpt: a.excerpt,
+    content: a.content,
+    cover_image: a.coverImage,
+    allow_comments: a.allowComments,
     updated_at: new Date().toISOString(),
   });
 };
+
+export const upsertArticle = saveArticle;
 
 export const deleteArticle = async (id: string) => {
   commit({ ...state, articles: state.articles.filter((a) => a.id !== id) });

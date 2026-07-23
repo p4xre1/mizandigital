@@ -44,10 +44,39 @@ export const backendActionTriggers = {
   supabase_edge_function_trigger: "deleteUserAccount Cascade",
 } as const;
 
-// ── Helper to safely extract dynamic locale string ───────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Safely extracts localized string directly from a LocalizedText object
+ */
 export function getInteractionText(
   item: LocalizedText | { readonly [K in Lang]: string },
   lang: Lang
 ): string {
-  return item[lang] || item["ar"] || "";
+  if (!item) return "";
+  return item[lang] || item["ar"] || item["en"] || "";
+}
+
+/**
+ * Safely resolves dot-notation paths (e.g. "article_actions.like_active")
+ */
+export function getInteractionKey(path: string, lang: Lang): string {
+  if (!path) return "";
+
+  const parts = path.split(".");
+  const scopes = [
+    interactionUIElements,
+    accountManagementElements,
+  ] as Array<Record<string, Record<string, LocalizedText>>>;
+
+  for (const scope of scopes) {
+    if (parts.length === 2) {
+      const target = scope[parts[0]]?.[parts[1]];
+      if (target) {
+        return getInteractionText(target, lang);
+      }
+    }
+  }
+
+  return path;
 }

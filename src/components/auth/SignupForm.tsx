@@ -378,7 +378,7 @@ export function SignupForm({
         </label>
       </div>
 
-      {/* Cloudflare Turnstile */}
+      {/* Cloudflare Turnstile Captcha Widget */}
       <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
         <TurnstileCaptcha
           key={turnstileKey}
@@ -402,7 +402,7 @@ export function SignupForm({
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !captchaToken}
         className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-60 shadow-xs cursor-pointer"
       >
         {loading

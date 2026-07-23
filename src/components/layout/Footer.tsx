@@ -19,7 +19,8 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       menuTitle: "القائمة الرئيسية",
       policiesTitle: "السياسات والامتثال",
       home: "الرئيسية",
-      library: "المكتبة القانونية",
+      library: "المكتبة الرقمية",
+      schools: "كليات الحقوق",
       archive: "الأرشيف القانوني",
       about: "عن المنصة",
       contact: "اتصل بنا",
@@ -38,8 +39,9 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       menuTitle: "Navigation Principale",
       policiesTitle: "Politiques & Conformité",
       home: "Accueil",
-      library: "Bibliothèque",
-      archive: "Archives",
+      library: "Bibliothèque Numérique",
+      schools: "Facultés de Droit",
+      archive: "Archives Numériques",
       about: "À propos",
       contact: "Contact",
       privacy: "Politique de Confidentialité",
@@ -57,8 +59,9 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       menuTitle: "Main Navigation",
       policiesTitle: "Policies & Compliance",
       home: "Home",
-      library: "Library",
-      archive: "Archive",
+      library: "Digital Library",
+      schools: "Law Faculties",
+      archive: "Legal Archive",
       about: "About Us",
       contact: "Contact",
       privacy: "Privacy & Data Protection Policy",
@@ -76,8 +79,9 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       menuTitle: "Navegación Principal",
       policiesTitle: "Políticas y Cumplimiento",
       home: "Inicio",
-      library: "Biblioteca",
-      archive: "Archivo",
+      library: "Biblioteca Digital",
+      schools: "Facultades de Derecho",
+      archive: "Archivo Legal",
       about: "Acerca de",
       contact: "Contacto",
       privacy: "Política de Privacidad",
@@ -127,7 +131,7 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
               </li>
               <li>
                 <Link
-                  to={l("/library")}
+                  to={l("/fields/family-law")}
                   className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
                 >
                   📚 <span className="mx-2">{t.library}</span>
@@ -135,10 +139,18 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
               </li>
               <li>
                 <Link
+                  to={l("/schools")}
+                  className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
+                >
+                  🎓 <span className="mx-2">{t.schools}</span>
+                </Link>
+              </li>
+              <li>
+                <Link
                   to={l("/archive")}
                   className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
                 >
-                  🎓 <span className="mx-2">{t.archive}</span>
+                  📂 <span className="mx-2">{t.archive}</span>
                 </Link>
               </li>
               <li>
@@ -170,7 +182,7 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
             <ul className="space-y-1">
               <li>
                 <Link
-                  to={l("/legal")}
+                  to={l("/legal#privacy")}
                   className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
                 >
                   🔒 <span className="mx-2">{t.privacy}</span>
@@ -178,7 +190,7 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
               </li>
               <li>
                 <Link
-                  to={l("/legal")}
+                  to={l("/legal#terms")}
                   className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
                 >
                   📝 <span className="mx-2">{t.terms}</span>
@@ -186,7 +198,7 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
               </li>
               <li>
                 <Link
-                  to={l("/legal")}
+                  to={l("/legal#cookies")}
                   className="text-slate-300 hover:text-white transition-colors flex items-center py-1 touch-manipulation"
                 >
                   🛡️ <span className="mx-2">{t.cookies}</span>

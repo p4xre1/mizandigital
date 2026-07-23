@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { NavLink, Outlet, Link } from "react-router";
+import { NavLink, Outlet, Link } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,

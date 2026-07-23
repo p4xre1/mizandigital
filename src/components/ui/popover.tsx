@@ -7,33 +7,61 @@ import { cn } from "../../lib/utils";
 
 const Popover = PopoverPrimitive.Root;
 
+export type PopoverTriggerElement = React.ElementRef<
+  typeof PopoverPrimitive.Trigger
+>;
+export interface PopoverTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger> {}
+
 const PopoverTrigger = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Trigger>
->(({ ...props }, ref) => (
-  <PopoverPrimitive.Trigger
-    ref={ref}
-    data-slot="popover-trigger"
-    {...props}
-  />
-));
+  PopoverTriggerElement,
+  PopoverTriggerProps
+>(
+  (
+    { ...props }: PopoverTriggerProps,
+    ref: React.ForwardedRef<PopoverTriggerElement>
+  ): React.JSX.Element => (
+    <PopoverPrimitive.Trigger
+      ref={ref}
+      data-slot="popover-trigger"
+      {...props}
+    />
+  )
+);
 PopoverTrigger.displayName = PopoverPrimitive.Trigger.displayName;
 
+export type PopoverAnchorElement = React.ElementRef<
+  typeof PopoverPrimitive.Anchor
+>;
+export interface PopoverAnchorProps
+  extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Anchor> {}
+
 const PopoverAnchor = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Anchor>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Anchor>
->(({ ...props }, ref) => (
-  <PopoverPrimitive.Anchor
-    ref={ref}
-    data-slot="popover-anchor"
-    {...props}
-  />
-));
+  PopoverAnchorElement,
+  PopoverAnchorProps
+>(
+  (
+    { ...props }: PopoverAnchorProps,
+    ref: React.ForwardedRef<PopoverAnchorElement>
+  ): React.JSX.Element => (
+    <PopoverPrimitive.Anchor
+      ref={ref}
+      data-slot="popover-anchor"
+      {...props}
+    />
+  )
+);
 PopoverAnchor.displayName = PopoverPrimitive.Anchor.displayName;
 
+export type PopoverContentElement = React.ElementRef<
+  typeof PopoverPrimitive.Content
+>;
+export interface PopoverContentProps
+  extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> {}
+
 const PopoverContent = React.forwardRef<
-  React.ElementRef<typeof PopoverPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
+  PopoverContentElement,
+  PopoverContentProps
 >(
   (
     {
@@ -43,9 +71,9 @@ const PopoverContent = React.forwardRef<
       collisionPadding = 8,
       avoidCollisions = true,
       ...props
-    },
-    ref
-  ) => (
+    }: PopoverContentProps,
+    ref: React.ForwardedRef<PopoverContentElement>
+  ): React.JSX.Element => (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content
         ref={ref}

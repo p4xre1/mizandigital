@@ -4,6 +4,13 @@ import { DeveloperBuilder } from "@/components/common/DeveloperBuilder";
 import { Footer } from "@/components/layout/Footer";
 import { useI18n, serifFont, sansFont, type Lang } from "@/lib/i18n";
 
+// Declare global adsbygoogle type for TypeScript safety
+declare global {
+  interface Window {
+    adsbygoogle?: Array<Record<string, unknown>>;
+  }
+}
+
 // Multilingual helper type
 type L = Record<Lang, string>;
 const t4 = (ar: string, fr: string, en: string, es: string): L => ({ ar, fr, en, es });
@@ -48,6 +55,17 @@ export default function Home() {
     }
   }, [lang]);
 
+  // 💰 Push Google AdSense ad on mount safely
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      }
+    } catch (err) {
+      console.error("AdSense execution error:", err);
+    }
+  }, []);
+
   return (
     <div 
       className="min-h-screen bg-background text-foreground flex flex-col justify-between transition-colors duration-300 selection:bg-accent-gold/20 selection:text-accent-gold" 
@@ -82,10 +100,10 @@ export default function Home() {
           </section>
 
           {/* 💰 Google AdSense Placement Slot */}
-          <div className="my-6 text-center overflow-hidden min-h-[90px]">
+          <div className="my-6 text-center overflow-hidden min-h-[90px] rounded-xl border border-border/40 bg-muted/20 flex items-center justify-center">
             <ins
               className="adsbygoogle"
-              style={{ display: "block" }}
+              style={{ display: "block", width: "100%" }}
               data-ad-client="ca-pub-1749032173858747"
               data-ad-slot="auto"
               data-ad-format="auto"

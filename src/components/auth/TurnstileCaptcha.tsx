@@ -1,4 +1,3 @@
-// /workspaces/mizandigital/src/components/auth/TurnstileCaptcha.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -10,6 +9,9 @@ interface TurnstileProps {
   theme?: "auto" | "light" | "dark";
   size?: "normal" | "compact" | "flexible";
 }
+
+// Official Cloudflare dummy site key for testing (Passes verification in dev mode)
+const DEMO_TEST_SITE_KEY = "1x00000000000000000000AA";
 
 export function TurnstileCaptcha({
   onVerify,
@@ -23,21 +25,16 @@ export function TurnstileCaptcha({
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    // Universal Env Variable Resolution (Vite & Next.js compatible)
+    // Direct static evaluation so Vite / Next.js can resolve env variables at build time
     const siteKey =
-      (typeof import.meta !== "undefined" &&
-        import.meta.env?.VITE_TURNSTILE_SITE_KEY) ||
-      (typeof process !== "undefined" &&
-        process.env?.NEXT_PUBLIC_TURNSTILE_SITE_KEY) ||
-      "";
-
-    if (!siteKey) {
-      console.warn("Turnstile Site Key is missing in environment variables.");
-      return;
-    }
+      import.meta.env?.VITE_TURNSTILE_SITE_KEY ||
+      process.env?.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
+      DEMO_TEST_SITE_KEY;
 
     let isMounted = true;
     let pollInterval: NodeJS.Timeout;
+    let pollAttempts = 0;
+    const MAX_POLL_ATTEMPTS = 50; // Timeout after 5 seconds if script fails to load
 
     const renderWidget = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -67,21 +64,25 @@ export function TurnstileCaptcha({
       }
     };
 
-    // Fast check or poll until Turnstile script is ready on slow connections
+    // Fast check or poll until Turnstile script is injected by Cloudflare CDN
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).turnstile) {
       renderWidget();
     } else {
       pollInterval = setInterval(() => {
+        pollAttempts += 1;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((window as any).turnstile) {
           renderWidget();
           clearInterval(pollInterval);
+        } else if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+          clearInterval(pollInterval);
+          console.error("Cloudflare Turnstile script failed to load after 5s.");
         }
       }, 100);
     }
 
-    // Cleanup on component unmount
+    // Cleanup on unmount or re-render
     return () => {
       isMounted = false;
       if (pollInterval) clearInterval(pollInterval);
@@ -100,7 +101,7 @@ export function TurnstileCaptcha({
 
   return (
     <div className="my-3 w-full flex flex-col items-center justify-center min-h-[65px] overflow-hidden select-none touch-manipulation">
-      {/* Loading Skeleton for Slow Mobile Connections */}
+      {/* Loading Skeleton */}
       {!isLoaded && (
         <div className="w-[300px] h-[65px] rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 animate-pulse flex items-center justify-center text-xs text-slate-400 font-medium">
           🔒 Verifying connection...
