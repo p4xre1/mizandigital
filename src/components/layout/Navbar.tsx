@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
 import { useRole } from "../../hooks/useRole";
-import { AuthModal } from "../auth/AuthModal";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { LAW_SCHOOLS } from "@/data/lawSchools";
 import type { Lang } from "@/lib/i18n";
 import {
@@ -48,14 +48,15 @@ export function Navbar() {
   const [mobileLibraryOpen, setMobileLibraryOpen] = useState(false);
   const [mobileSchoolsOpen, setMobileSchoolsOpen] = useState(false);
 
-  // Desktop hover state
+  // Desktop hover/click state & ref for click-outside
   const [desktopLibraryOpen, setDesktopLibraryOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Auth modal & user state
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
-  // Automatically close menus when changing page
+  // Automatically close menus on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setMobileLibraryOpen(false);
@@ -63,14 +64,31 @@ export function Navbar() {
     setDesktopLibraryOpen(false);
   }, [location.pathname]);
 
-  // Load user from localStorage
-  useEffect(() => {
+  // Load user from localStorage & keep synced
+  const loadUser = () => {
     try {
       const stored = localStorage.getItem("mizan_user");
-      if (stored) setUser(JSON.parse(stored));
+      setUser(stored ? JSON.parse(stored) : null);
     } catch {
-      // Ignore errors
+      setUser(null);
     }
+  };
+
+  useEffect(() => {
+    loadUser();
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
+  }, []);
+
+  // Handle clicking outside the desktop dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDesktopLibraryOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -80,7 +98,6 @@ export function Navbar() {
       // Ignore errors
     }
     setUser(null);
-    window.location.reload();
   };
 
   return (
@@ -111,12 +128,15 @@ export function Navbar() {
 
           {/* Desktop Library Dropdown */}
           <div
+            ref={dropdownRef}
             className="relative"
             onMouseEnter={() => setDesktopLibraryOpen(true)}
             onMouseLeave={() => setDesktopLibraryOpen(false)}
           >
             <button
-              onClick={() => setDesktopLibraryOpen(!desktopLibraryOpen)}
+              onClick={() => setDesktopLibraryOpen((prev) => !prev)}
+              aria-expanded={desktopLibraryOpen}
+              aria-haspopup="true"
               className="flex items-center gap-1.5 px-3 py-2 hover:text-primary transition-colors cursor-pointer"
             >
               <BookOpen size={16} />
@@ -347,14 +367,7 @@ export function Navbar() {
         onClose={() => setIsAuthOpen(false)}
         lang={lang}
         dir={lang === "ar" ? "rtl" : "ltr"}
-        onSuccess={() => {
-          try {
-            const stored = localStorage.getItem("mizan_user");
-            if (stored) setUser(JSON.parse(stored));
-          } catch {
-            // Ignore error
-          }
-        }}
+        onSuccess={loadUser}
       />
     </header>
   );

@@ -12,7 +12,8 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import { AuthModal } from "../auth/AuthModal";
+// Inside Layout.tsx and/or Navbar.tsx
+import { AuthModal } from "../auth/AuthModal"; // ✅ Added curly braces {}
 
 type Locale = "ar" | "fr" | "en" | "es";
 

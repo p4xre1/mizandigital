@@ -213,3 +213,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     document.body
   );
 };
+
+// Export as Default to satisfy imports in Navbar/Layout regardless of import style
+export default AuthModal;

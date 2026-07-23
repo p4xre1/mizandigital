@@ -9,7 +9,8 @@ import { useI18n, LANGS, type Lang } from "../../lib/i18n";
 import { setOrganizationSchema } from "../../lib/jsonld";
 import { isSupabaseConfigured, supabase } from "../../lib/supabase";
 import { useRole, type Tier } from "../../hooks/useRole";
-import { AuthModal } from "../auth/AuthModal";
+// Inside Layout.tsx and/or Navbar.tsx
+import AuthModal from "../auth/AuthModal";
 import { useLocalizedPath, buildLocalizedPath } from "../../lib/navigation";
 
 // Dynamic font helpers based on language

@@ -11,6 +11,7 @@ const About = lazy(() => import("@/pages/About"));
 const Archive = lazy(() => import("@/pages/Archive"));
 const ArticleDetail = lazy(() => import("@/pages/ArticleDetail"));
 const Library = lazy(() => import("@/pages/Library").then((module) => ({ default: module.Library })));
+const Jurisprudence = lazy(() => import("@/pages/Jurisprudence").then((module) => ({ default: module.Jurisprudence })));
 const Login = lazy(() => import("@/pages/Login"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Profile = lazy(() => import("@/pages/Profile"));
@@ -104,6 +105,10 @@ export const router = createBrowserRouter([
               { path: "library", element: withSuspense(Library) },
               { path: "library/:category", element: withSuspense(Library) },
               
+              // ⚖️ Jurisprudence Routes
+              { path: "jurisprudence", element: withSuspense(Jurisprudence) },
+              { path: "jurisprudence/:category", element: withSuspense(Jurisprudence) },
+
               // 🎓 Law Schools Routes
               { path: "schools", element: withSuspense(Library) },
               { path: "schools/:schoolSlug", element: withSuspense(Library) },
