@@ -1,5 +1,5 @@
 {
-  "id": "https://www.mizan.page/?source=pwa",
+  "id": "/?source=pwa",
   "short_name": "ميزان - Mizan",
   "name": "منصة ميزان الرقمية للقانون المغربي",
   "description": "الموسوعة القانونية المغربية الإلكترونية - النصوص القانونية، مدونة الأسرة، قانون الشغل، واجتهادات المحاكم المغربية",
@@ -33,7 +33,13 @@
       "src": "/pwa-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [

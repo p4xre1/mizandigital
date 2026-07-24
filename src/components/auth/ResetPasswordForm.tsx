@@ -137,7 +137,10 @@ export function ResetPasswordForm({
     >
       {/* New Password */}
       <div>
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+        <label 
+          htmlFor="new-password" 
+          className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 cursor-pointer"
+        >
           {lang === "ar" && "كلمة المرور الجديدة"}
           {lang === "fr" && "Nouveau mot de passe"}
           {lang === "en" && "New Password"}
@@ -151,6 +154,7 @@ export function ResetPasswordForm({
             }`}
           />
           <input
+            id="new-password" // 👈 إضافة المعرف للربط مع الـ label
             required
             minLength={8}
             maxLength={128}
@@ -178,7 +182,10 @@ export function ResetPasswordForm({
 
       {/* Confirm Password */}
       <div>
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+        <label 
+          htmlFor="confirm-password" 
+          className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 cursor-pointer"
+        >
           {lang === "ar" && "تأكيد كلمة المرور"}
           {lang === "fr" && "Confirmer le mot de passe"}
           {lang === "en" && "Confirm Password"}
@@ -192,6 +199,7 @@ export function ResetPasswordForm({
             }`}
           />
           <input
+            id="confirm-password" // 👈 إضافة المعرف للربط مع الـ label
             required
             minLength={8}
             maxLength={128}

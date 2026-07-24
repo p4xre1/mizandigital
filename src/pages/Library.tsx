@@ -1,523 +1,253 @@
-import { useEffect, useState, useMemo } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
-import { useI18n, serifFont, sansFont, type Lang } from "@/lib/i18n";
-import {
-  BookOpen,
-  Download,
-  FileText,
-  Search,
-  Scale,
-  FolderOpen,
-  Gavel,
-  ShieldAlert,
-  Building2,
-  Landmark,
-  Scroll,
-  FileCheck2,
-  BookMarked,
-  Newspaper,
-  Layers,
-  Sparkles,
-} from "lucide-react";
+import { Search, Filter } from "lucide-react";
+import { DocumentCard, LegalDocument } from "../components/DocumentCard";
 
-interface Article {
-  id: string;
-  title: string;
-  category_slug: string;
-  doc_type_slug?: string;
-  school_slug?: string;
-  file_url?: string;
-  author?: string;
-}
+// 1. تحديث الفئات لتعتمد على معرفات (IDs) إنجليزية وتوفر ترجمات لجميع اللغات
+const CATEGORIES: Record<string, any>[] = [
+  { id: "all", ar: "الكل", en: "All", fr: "Tout" },
+  { id: "civil", ar: "القانون المدني", en: "Civil Law", fr: "Droit Civil" },
+  { id: "criminal", ar: "القانون الجنائي", en: "Criminal Law", fr: "Droit Pénal" },
+  { id: "family", ar: "قانون الأسرة", en: "Family Law", fr: "Droit de la Famille" },
+  { id: "commercial", ar: "القانون التجاري", en: "Commercial Law", fr: "Droit Commercial" },
+  { id: "administrative", ar: "القانون الإداري", en: "Administrative Law", fr: "Droit Administratif" },
+  { id: "constitutional", ar: "القانون الدستوري", en: "Constitutional Law", fr: "Droit Constitutionnel" },
+];
 
-const VALID_LANGS: Lang[] = ["ar", "fr", "en", "es"];
+const DOC_TYPES: Record<string, any>[] = [
+  { id: "all", ar: "جميع أنواع الوثائق", en: "All Document Types", fr: "Tous les types" },
+  { id: "legal_texts", ar: "النصوص القانونية", en: "Legal Texts", fr: "Textes Juridiques" },
+  { id: "decrees", ar: "المراسيم والقرارات", en: "Ministerial Decrees", fr: "Décrets et Arrêtés" },
+  { id: "rulings", ar: "قرارات محكمة النقض", en: "Cassation Rulings", fr: "Arrêts de Cassation" },
+  { id: "official_journal", ar: "الجريدة الرسمية", en: "Official Journals", fr: "Journal Officiel" },
+];
 
-function isValidLang(langStr: string | undefined): langStr is Lang {
-  return typeof langStr === "string" && VALID_LANGS.includes(langStr as Lang);
-}
-
-export function Library() {
-  const params = useParams();
-  const { lang: contextLang, dir, t } = useI18n();
-
-  const lang: Lang = isValidLang(params.lang)
-    ? params.lang
-    : contextLang || "ar";
-
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [allArticlesForCount, setAllArticlesForCount] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Selected category state ('all' or specific slug)
-  const [selectedSlug, setSelectedSlug] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-
-  // Define Category Taxonomy (Fields of Law & Document Types)
-  const taxonomy = useMemo(() => {
-    return [
-      {
-        sectionId: "fields_of_law",
-        title: {
-          ar: "مجالات القانون",
-          fr: "Domaines du Droit",
-          en: "Fields of Law",
-          es: "Campos del Derecho",
-        },
-        icon: Scale,
-        items: [
-          {
-            slug: "family",
-            icon: HeartHandshakeIcon,
-            label: {
-              ar: "قانون الأسرة / المدونة",
-              fr: "Droit de la Famille / Moudawana",
-              en: "Family Law / Moudawana",
-              es: "Derecho de Familia",
-            },
-          },
-          {
-            slug: "criminal",
-            icon: ShieldAlert,
-            label: {
-              ar: "القانون الجنائي",
-              fr: "Droit Pénal",
-              en: "Criminal Law",
-              es: "Derecho Penal",
-            },
-          },
-          {
-            slug: "commercial",
-            icon: Building2,
-            label: {
-              ar: "القانون التجاري",
-              fr: "Droit Commercial",
-              en: "Commercial Law",
-              es: "Derecho Commercial",
-            },
-          },
-          {
-            slug: "administrative",
-            icon: Landmark,
-            label: {
-              ar: "القانون الإداري",
-              fr: "Droit Administratif",
-              en: "Administrative Law",
-              es: "Derecho Administrativo",
-            },
-          },
-          {
-            slug: "constitutional",
-            icon: Scroll,
-            label: {
-              ar: "القانون الدستوري",
-              fr: "Droit Constitutionnel",
-              en: "Constitutional Law",
-              es: "Derecho Constitucional",
-            },
-          },
-        ],
+// 2. تحديث قاعدة البيانات لتشمل كائن "translations" لكل لغة
+const DOCS_DB = [
+  {
+    id: "13234",
+    // البيانات الافتراضية (عربي)
+    title: "قانون الالتزامات والعقود المغربي - النسخة المحينة 2026",
+    description: "النص الكامل لقانون الالتزامات والعقود المكون من الكتابين الأول والثاني مع كافة التعديلات الأخيرة المعتمدة.",
+    category: "civil", // 👈 نستخدم الـ ID بدلاً من النص العربي
+    docType: "legal_texts",
+    fileType: "PDF",
+    fileSize: "1,678 KB",
+    pages: 342,
+    documentNumber: "رقم 1.11.140",
+    publishDate: "2026-01-10",
+    modifiedDate: "7/23/2026",
+    authorOrPublisher: "الأمانة العامة للحكومة",
+    downloadUrl: "#",
+    tags: ["التزامات", "عقود", "قانون_مدني"],
+    isVerified: true,
+    // 👈 الترجمات للغات الأخرى
+    translations: {
+      en: {
+        title: "Moroccan Code of Obligations and Contracts - 2026 Update",
+        description: "Full text of the Code of Obligations and Contracts comprising the first and second books with all recently approved amendments.",
+        tags: ["obligations", "contracts", "civil_law"],
+        documentNumber: "No. 1.11.140",
+        authorOrPublisher: "General Secretariat of the Government",
       },
-      {
-        sectionId: "document_types",
-        title: {
-          ar: "أنواع الوثائق",
-          fr: "Types de Documents",
-          en: "Document Types",
-          es: "Tipos de Documentos",
-        },
-        icon: FolderOpen,
-        items: [
-          {
-            slug: "legal_texts",
-            icon: FileText,
-            label: {
-              ar: "النصوص القانونية / القوانين",
-              fr: "Textes Juridiques / Lois",
-              en: "Legal Texts / Laws",
-              es: "Textos Legales / Leyes",
-            },
-          },
-          {
-            slug: "ministerial_decrees",
-            icon: FileCheck2,
-            label: {
-              ar: "المراسيم والقرارات الوزارية",
-              fr: "Décrets Ministériels",
-              en: "Ministerial Decrees",
-              es: "Decretos Ministeriales",
-            },
-          },
-          {
-            slug: "cassation_rulings",
-            icon: Gavel,
-            label: {
-              ar: "قرارات محكمة النقض",
-              fr: "Arrêts de la Cour de Cassation",
-              en: "Cassation Rulings",
-              es: "Fallos de Casación",
-            },
-          },
-          {
-            slug: "official_journals",
-            icon: Newspaper,
-            label: {
-              ar: "الجريدة الرسمية",
-              fr: "Journaux Officiels",
-              en: "Official Journals",
-              es: "Boletines Oficiales",
-            },
-          },
-        ],
-      },
-    ];
-  }, []);
-
-  // Fetch all items for counting
-  useEffect(() => {
-    async function fetchAllForCounts() {
-      const { data, error } = await supabase.from("articles").select("*");
-      if (error) {
-        console.error("Supabase count fetch error:", error.message);
-      } else if (data) {
-        setAllArticlesForCount(data as Article[]);
+      fr: {
+        title: "Code des Obligations et des Contrats - Version 2026",
+        description: "Texte complet du DOC avec tous les amendements récents.",
+        tags: ["obligations", "contrats", "droit_civil"],
+        documentNumber: "N° 1.11.140",
+        authorOrPublisher: "Secrétariat Général du Gouvernement",
       }
     }
-    fetchAllForCounts();
-  }, []);
-
-  // Fetch filtered items
-  useEffect(() => {
-    async function fetchDynamicArticles() {
-      setLoading(true);
-
-      let query = supabase.from("articles").select("*");
-
-      if (selectedSlug !== "all") {
-        // Query matching category_slug or doc_type_slug
-        query = query.or(
-          `category_slug.eq.${selectedSlug},doc_type_slug.eq.${selectedSlug}`
-        );
+  },
+  {
+    id: "98765",
+    title: "Synthèse - ملخص الوجيز في القانون الجنائي الخاص",
+    description: "ملخص شامل ومكثف لدروس القانون الجنائي الخاص موجه لطلبة السداسيات المتقدمة والباحثين.",
+    category: "criminal",
+    docType: "official_journal",
+    fileType: "PDF",
+    fileSize: "1,138 KB",
+    pages: 45,
+    documentNumber: "مطبوع جامعي",
+    publishDate: "2026-05-14",
+    modifiedDate: "7/23/2026",
+    authorOrPublisher: "جامعة محمد الخامس",
+    downloadUrl: "#",
+    tags: ["جنائي_خاص", "ملخصات", "سداسيات"],
+    isVerified: true,
+    translations: {
+      en: {
+        title: "Synthesis - Brief in Special Criminal Law",
+        description: "Comprehensive summary of Special Criminal Law lessons for advanced semester students and researchers.",
+        tags: ["special_criminal", "summaries", "semesters"],
+        documentNumber: "University Print",
+        authorOrPublisher: "Mohammed V University",
+      },
+      fr: {
+        title: "Synthèse - Droit Pénal Spécial",
+        description: "Résumé complet du droit pénal spécial pour les étudiants.",
+        tags: ["pénal_spécial", "résumés", "semestres"],
+        documentNumber: "Impression Universitaire",
+        authorOrPublisher: "Université Mohammed V",
       }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error("Supabase articles error:", error.message);
-      } else {
-        setArticles(data || []);
-      }
-      setLoading(false);
     }
+  }
+];
 
-    fetchDynamicArticles();
-  }, [selectedSlug]);
+export default function Library() {
+  const { lang: rawLang = "ar" } = useParams();
+  const lang = ["ar", "fr", "en", "es"].includes(rawLang) ? rawLang : "ar";
+  const dir = lang === "ar" ? "rtl" : "ltr";
 
-  // Client search filter
-  const filteredArticles = useMemo(() => {
-    if (!searchQuery.trim()) return articles;
-    const q = searchQuery.toLowerCase();
-    return articles.filter(
-      (a) =>
-        a.title.toLowerCase().includes(q) ||
-        (a.author && a.author.toLowerCase().includes(q))
-    );
-  }, [articles, searchQuery]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedDocType, setSelectedDocType] = useState("all");
 
-  // Count helper for badges
-  const getItemCount = (slug: string) => {
-    if (slug === "all") return allArticlesForCount.length || articles.length;
-    return allArticlesForCount.filter(
-      (a) => a.category_slug === slug || a.doc_type_slug === slug
-    ).length;
+  // 3. دالة سحرية تقوم بتحويل الوثائق للغة المطلوبة قبل عرضها!
+  const getLocalizedDocuments = (): LegalDocument[] => {
+    return DOCS_DB.map((doc) => {
+      const t = (doc.translations as any)?.[lang] || {};
+      
+      // استخراج الاسم المترجم للتخصص ونوع الوثيقة
+      const categoryLabel = CATEGORIES.find(c => c.id === doc.category)?.[lang] || doc.category;
+      const docTypeLabel = DOC_TYPES.find(d => d.id === doc.docType)?.[lang] || doc.docType;
+
+      return {
+        id: doc.id,
+        title: t.title || doc.title,
+        description: t.description || doc.description,
+        category: categoryLabel,
+        docType: docTypeLabel,
+        fileType: doc.fileType,
+        fileSize: doc.fileSize,
+        pages: doc.pages,
+        documentNumber: t.documentNumber || doc.documentNumber,
+        publishDate: doc.publishDate,
+        modifiedDate: doc.modifiedDate,
+        authorOrPublisher: t.authorOrPublisher || doc.authorOrPublisher,
+        downloadUrl: doc.downloadUrl,
+        viewUrl: `/${lang}/library/${doc.id}`, // توليد الرابط الديناميكي
+        tags: t.tags || doc.tags,
+        isVerified: doc.isVerified,
+      };
+    });
   };
 
-  // Label helper
-  const getSlugLabel = (slug: string) => {
-    for (const sec of taxonomy) {
-      const found = sec.items.find((item) => item.slug === slug);
-      if (found) return found.label[lang] || found.label.en;
-    }
-    return slug;
+  const localizedDocs = getLocalizedDocuments();
+
+  // دوال حساب الأرقام (تستخدم البيانات الأصلية بمعرفاتها)
+  const getCategoryCount = (categoryId: string) => {
+    if (categoryId === "all") return DOCS_DB.length;
+    return DOCS_DB.filter((doc) => doc.category === categoryId).length;
   };
 
-  // Localized Strings
-  const translations = {
-    title:
-      t("library.title") ||
-      (lang === "fr"
-        ? "Bibliothèque Numérique"
-        : lang === "en"
-        ? "Digital Library"
-        : "المكتبة الرقمية"),
-    subtitle:
-      t("library.subtitle") ||
-      (lang === "fr"
-        ? "Explorez nos ressources juridiques, lois et jurisprudence"
-        : lang === "en"
-        ? "Explore our legal resources, statutes, and case law"
-        : "المكتبة الرقمية للكتب، والمقالات، والأبحاث والقرارات القانونية"),
-    searchPlaceholder:
-      lang === "fr"
-        ? "Rechercher par titre ou auteur..."
-        : lang === "en"
-        ? "Search by title or author..."
-        : "البحث في العنوان أو اسم المؤلف...",
-    allDocs:
-      lang === "fr"
-        ? "Toutes les ressources"
-        : lang === "en"
-        ? "All Resources"
-        : "جميع الوثائق والمقالات",
-    loading:
-      t("common.loading") ||
-      (lang === "fr" ? "Chargement..." : lang === "en" ? "Loading..." : "جاري التحميل..."),
-    empty:
-      t("library.empty") ||
-      (lang === "fr"
-        ? "Aucun document trouvé dans cette catégorie"
-        : lang === "en"
-        ? "No documents found in this section"
-        : "لا توجد وثائق متاحة حالياً في هذا القسم"),
-    download:
-      t("common.download") ||
-      (lang === "fr" ? "Télécharger" : lang === "en" ? "Download" : "تحميل المستند"),
-    docCount:
-      lang === "fr" ? "documents" : lang === "en" ? "documents" : "وثيقة",
+  const getDocTypeCount = (typeId: string) => {
+    if (typeId === "all") return DOCS_DB.length;
+    return DOCS_DB.filter((doc) => doc.docType === typeId).length;
+  };
+
+  // فلترة الوثائق بعد ترجمتها
+  const filteredDocs = localizedDocs.filter((doc) => {
+    const docOriginal = DOCS_DB.find(d => d.id === doc.id);
+    
+    // البحث يعتمد على النصوص المترجمة الحالية ليتمكن المستخدم من البحث بلغته!
+    const matchesSearch =
+      doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.tags.some((t: string) => t.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // الفلترة تعتمد على المعرف (ID) الأصلي لضمان الدقة
+    const matchesCategory = selectedCategory === "all" || docOriginal?.category === selectedCategory;
+    const matchesDocType = selectedDocType === "all" || docOriginal?.docType === selectedDocType;
+
+    return matchesSearch && matchesCategory && matchesDocType;
+  });
+
+  // نصوص الواجهة
+  const uiTexts = {
+    title: { ar: "المكتبة الرقمية القانونية", en: "Digital Legal Library", fr: "Bibliothèque Juridique Numérique" },
+    subtitle: { ar: "دليل المراجع والكتب القانونية الموثوقة.", en: "Catalog of verified legal references and documents.", fr: "Catalogue de références et documents juridiques vérifiés." },
+    search: { ar: "ابحث باسم الملف أو الكلمة المفتاحية...", en: "Search file or keyword...", fr: "Rechercher un fichier ou mot-clé..." },
+    empty: { ar: "لا توجد ملفات تطابق الفلاتر المحددة.", en: "No documents match your filters.", fr: "Aucun document ne correspond à vos filtres." }
   };
 
   return (
-    <div
-      className="max-w-7xl mx-auto p-4 md:p-6 space-y-8 text-foreground min-h-screen"
-      dir={dir}
-      style={{ fontFamily: sansFont(lang) }}
-    >
-      {/* Main Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <h1
-            className="text-2xl md:text-3xl font-extrabold flex items-center gap-3"
-            style={{ fontFamily: serifFont(lang) }}
-          >
-            <BookOpen className="text-primary shrink-0" size={32} />
-            <span>{translations.title}</span>
-            <span className="text-sm font-medium px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-              {filteredArticles.length} {translations.docCount}
-            </span>
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {translations.subtitle}
-          </p>
-        </div>
+    <main dir={dir} className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+      <header className="space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-black text-foreground">
+          {(uiTexts.title as any)[lang] || uiTexts.title.ar}
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl">
+          {(uiTexts.subtitle as any)[lang] || uiTexts.subtitle.ar}
+        </p>
+      </header>
 
-        {/* Global Search Bar */}
-        <div className="relative w-full md:w-80">
-          <Search
-            size={18}
-            className="absolute top-1/2 -translate-y-1/2 ltr:left-3.5 rtl:right-3.5 text-muted-foreground pointer-events-none"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={translations.searchPlaceholder}
-            className="w-full text-sm ltr:pl-10 rtl:pr-10 ltr:pr-4 rtl:pl-4 py-2.5 rounded-2xl border border-border bg-card outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-          />
-        </div>
-      </div>
-
-      {/* Main Layout Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        {/* Sidebar / Navigation (Desktop Sidebar & Mobile Slide Bar) */}
-        <aside className="lg:col-span-1 space-y-6 bg-card/60 p-4 rounded-2xl border border-border sticky top-20 shadow-sm">
-          {/* "All Documents" Link */}
-          <button
-            onClick={() => setSelectedSlug("all")}
-            className={`w-full flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all border ${
-              selectedSlug === "all"
-                ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                : "bg-background border-border hover:bg-muted text-foreground"
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Layers size={16} />
-              <span>{translations.allDocs}</span>
-            </div>
-            <span
-              className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
-                selectedSlug === "all"
-                  ? "bg-primary-foreground/20 text-primary-foreground"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {getItemCount("all")}
-            </span>
-          </button>
-
-          {/* Section 1: Fields of Law & Section 2: Document Types */}
-          {taxonomy.map((sec) => {
-            const SectionIcon = sec.icon;
-            return (
-              <div key={sec.sectionId} className="space-y-3">
-                <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-muted-foreground border-b border-border/60 pb-2">
-                  <SectionIcon size={16} className="text-primary" />
-                  <span>{sec.title[lang] || sec.title.en}</span>
-                </div>
-
-                <div className="space-y-1">
-                  {sec.items.map((item) => {
-                    const ItemIcon = item.icon;
-                    const isActive = selectedSlug === item.slug;
-                    const count = getItemCount(item.slug);
-
-                    return (
-                      <button
-                        key={item.slug}
-                        onClick={() => setSelectedSlug(item.slug)}
-                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-medium transition-all group ${
-                          isActive
-                            ? "bg-primary/10 text-primary font-bold border border-primary/20 shadow-xs"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <ItemIcon
-                            size={15}
-                            className={`shrink-0 transition-colors ${
-                              isActive
-                                ? "text-primary"
-                                : "text-muted-foreground group-hover:text-foreground"
-                            }`}
-                          />
-                          <span className="truncate">
-                            {item.label[lang] || item.label.en}
-                          </span>
-                        </div>
-
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono shrink-0 ltr:ml-1 rtl:mr-1 ${
-                            isActive
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted/80 text-muted-foreground"
-                          }`}
-                        >
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </aside>
-
-        {/* Content Area (Document Cards) */}
-        <main className="lg:col-span-3 space-y-6">
-          {/* Category Title Header */}
-          <div className="flex items-center justify-between bg-card p-4 rounded-2xl border border-border shadow-xs">
-            <div className="flex items-center gap-2">
-              <Sparkles size={18} className="text-primary" />
-              <h2
-                className="text-base font-bold text-foreground"
-                style={{ fontFamily: serifFont(lang) }}
-              >
-                {selectedSlug === "all"
-                  ? translations.allDocs
-                  : getSlugLabel(selectedSlug)}
-              </h2>
-            </div>
-            <span className="text-xs text-muted-foreground font-mono">
-              {filteredArticles.length} {translations.docCount}
-            </span>
+      <div className="space-y-4">
+        {/* شريط البحث والفلترة */}
+        <div className="flex flex-col sm:flex-row gap-3 items-center bg-card p-3 rounded-2xl border border-border shadow-xs">
+          
+          <div className="relative w-full sm:flex-1">
+            <Search size={16} className="absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={(uiTexts.search as any)[lang] || uiTexts.search.ar}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rtl:pr-9 ltr:pl-9 pl-3 pr-3 py-2.5 text-xs bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
           </div>
 
-          {/* Cards Grid */}
-          {loading ? (
-            <div className="text-center py-20 text-muted-foreground text-sm">
-              {translations.loading}
-            </div>
-          ) : filteredArticles.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground border border-dashed border-border rounded-2xl p-8 bg-card/40 space-y-3">
-              <BookMarked size={40} className="mx-auto text-muted-foreground/40" />
-              <p className="text-sm font-medium">{translations.empty}</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {filteredArticles.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-5 border border-border rounded-2xl bg-card text-card-foreground shadow-sm hover:border-primary/40 hover:shadow-md transition-all flex flex-col justify-between group"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="inline-block px-2.5 py-1 text-[11px] rounded-lg bg-secondary text-secondary-foreground font-semibold border border-border/50">
-                        {getSlugLabel(item.category_slug || item.doc_type_slug || "legal")}
-                      </span>
-                    </div>
-
-                    <h3
-                      className="font-bold text-base leading-snug group-hover:text-primary transition-colors line-clamp-2"
-                      style={{ fontFamily: serifFont(lang) }}
-                    >
-                      {item.title}
-                    </h3>
-
-                    {item.author && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <FileText size={13} className="shrink-0 text-muted-foreground/70" />
-                        <span className="truncate">{item.author}</span>
-                      </p>
-                    )}
-                  </div>
-
-                  {item.file_url ? (
-                    <a
-                      href={item.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-5 inline-flex items-center justify-center gap-2 w-full py-2.5 bg-secondary hover:bg-primary hover:text-primary-foreground text-xs font-bold rounded-xl transition-all shadow-xs active:scale-[0.98]"
-                    >
-                      <Download size={14} />
-                      <span>{translations.download}</span>
-                    </a>
-                  ) : (
-                    <div className="mt-5 pt-3 border-t border-border/40 text-[11px] text-muted-foreground italic text-center">
-                      {lang === "fr"
-                        ? "Document en consultation"
-                        : lang === "en"
-                        ? "Consultation mode"
-                        : "متاح للقراءة والاطلاع"}
-                    </div>
-                  )}
-                </div>
+          <div className="relative w-full sm:w-64 shrink-0">
+            <Filter size={14} className="absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <select
+              value={selectedDocType}
+              onChange={(e) => setSelectedDocType(e.target.value)}
+              className="w-full rtl:pr-9 ltr:pl-9 pl-3 pr-8 py-2.5 text-xs font-medium bg-muted/50 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
+            >
+              {DOC_TYPES.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type[lang] || type.ar} ({getDocTypeCount(type.id)})
+                </option>
               ))}
-            </div>
-          )}
-        </main>
+            </select>
+          </div>
+        </div>
+
+        {/* أزرار التخصصات */}
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`shrink-0 snap-start flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-full border transition-all duration-200 cursor-pointer ${
+                selectedCategory === cat.id
+                  ? "bg-blue-600 border-blue-600 text-white shadow-md"
+                  : "bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              <span>{cat[lang] || cat.ar}</span>
+              <span className={`px-1.5 py-0.5 rounded-md text-[10px] ${
+                selectedCategory === cat.id ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"
+              }`}>
+                {getCategoryCount(cat.id)}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* قائمة الوثائق */}
+      <section className="space-y-3">
+        {filteredDocs.length > 0 ? (
+          filteredDocs.map((doc) => (
+            <DocumentCard key={doc.id} doc={doc} lang={lang} />
+          ))
+        ) : (
+          <div className="text-center py-10 text-muted-foreground text-sm">
+            {(uiTexts.empty as any)[lang] || uiTexts.empty.ar}
+          </div>
+        )}
+      </section>
+    </main>
   );
 }
-
-// Fallback Heart Icon helper
-function HeartHandshakeIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-    </svg>
-  );
-}
-
-export default Library;

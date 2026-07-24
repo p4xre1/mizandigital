@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import "./styles/globals.css";
 
@@ -26,8 +27,8 @@ function injectWebSiteSchema(): void {
     ],
     url: SITE_URL,
     description:
-      "المرجع الأول للباحثين القانونيين والمحامين في المغرب - أرشيف قانوني شامل، النصوص التشريعية المحدثة، ومدونة الأسرة والشغل.",
-    inLanguage: ["ar-MA", "fr-MA", "ar", "fr", "en"],
+      "المرجع الأول للباحثين القانونيين والمحامين في المغرب - أرشيف قانوني شامل، الاجتهادات القضائية، محكمة النقض، محاكم الاستئناف، والدراسات الفقهية.",
+    inLanguage: ["ar-MA", "fr-MA", "ar", "fr", "en", "es"],
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -36,6 +37,18 @@ function injectWebSiteSchema(): void {
       },
       "query-input": "required name=search_term_string",
     },
+    hasPart: [
+      {
+        "@type": "WebPage",
+        name: "Court Rulings - الاجتهادات القضائية",
+        description: "Court of Cassation, Courts of Appeal, and Administrative Courts judgments."
+      },
+      {
+        "@type": "WebPage",
+        name: "Legal Doctrine - الدراسات الفقهية",
+        description: "Academic Articles, Case Commentaries, and Comparative Studies."
+      }
+    ]
   };
 
   const script = document.createElement("script");
@@ -97,6 +110,8 @@ if (!rootElement) {
 
 ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
-    <App />
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
   </React.StrictMode>
 );

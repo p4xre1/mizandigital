@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 interface AdSenseProps {
   slotId: string;
-  format?: 'auto' | 'fluid' | 'rectangle';
+  format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical';
   responsive?: boolean;
   className?: string;
 }
@@ -16,9 +16,17 @@ export const AdSenseSlot = ({
   const adRef = useRef<HTMLModElement>(null);
   const isInitialized = useRef(false);
 
+  // 1. الفحص التلقائي لبيئة التطوير أو المعرفات التجريبية
+  const isDevEnv =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.hostname.includes('github.dev') ||
+      window.location.hostname.includes('127.0.0.1') ||
+      ['1234567890', '0987654321', '3344556677', '8899001122'].includes(slotId));
+
   useEffect(() => {
-    // لمنع استدعاء الإعلان أكثر من مرة في بيئة React 18/19 StrictMode
-    if (isInitialized.current) return;
+    // عدم إرسال أي طلبات إعلانية في بيئة التطوير أو عند التهيئة المسبقة
+    if (isDevEnv || isInitialized.current) return;
 
     try {
       if (typeof window !== 'undefined' && adRef.current) {
@@ -29,10 +37,16 @@ export const AdSenseSlot = ({
     } catch (err) {
       console.error('AdSense Push Error:', err);
     }
-  }, []);
+  }, [slotId, isDevEnv]);
+
+  // 2. إلغاء عرض المكون نهائياً في بيئة التطوير لتجنب أي مساحات بيضاء أو أخطاء 400
+  if (isDevEnv) {
+    return null;
+  }
 
   return (
-    <div className={`adsense-container my-4 text-center min-h-[90px] overflow-hidden ${className}`}>
+    // 3. إزالة min-h-[90px] واستبدال my-4 بـ empty:hidden لمنع حجز مساحة إذا كان فارغاً
+    <div className={`adsense-container w-full text-center overflow-hidden empty:hidden ${className}`}>
       <ins
         ref={adRef}
         className="adsbygoogle"

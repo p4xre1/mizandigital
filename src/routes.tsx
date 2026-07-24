@@ -10,8 +10,15 @@ const Home = lazy(() => import("@/pages/Home"));
 const About = lazy(() => import("@/pages/About"));
 const Archive = lazy(() => import("@/pages/Archive"));
 const ArticleDetail = lazy(() => import("@/pages/ArticleDetail"));
-const Library = lazy(() => import("@/pages/Library").then((module) => ({ default: module.Library })));
+
+// 🟢 UPDATED: Import Library as Default Export
+const Library = lazy(() => import("@/pages/Library"));
+
+// 🎓 Law Schools Page
+const SchoolPage = lazy(() => import("@/pages/schools/SchoolPage"));
+
 const Jurisprudence = lazy(() => import("@/pages/Jurisprudence").then((module) => ({ default: module.Jurisprudence })));
+const CourtRulingsCategory = lazy(() => import("@/pages/CourtRulingsCategory").then((module) => ({ default: module.CourtRulingsCategory })));
 const Login = lazy(() => import("@/pages/Login"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Profile = lazy(() => import("@/pages/Profile"));
@@ -39,10 +46,10 @@ const AdminSeo = lazy(() => import("@/pages/admin/AdminSeo"));
 const AdminTraffic = lazy(() => import("@/pages/admin/AdminTraffic"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 
-type Lang = "ar" | "fr" | "en" | "es";
+export type Lang = "ar" | "fr" | "en" | "es";
 
 // 🌐 Dynamic Layout Wrapper that extracts route params
-function LocalizedLayoutWrapper() {
+function LocalizedLayoutWrapper(): React.JSX.Element {
   const { lang } = useParams<{ lang: string }>();
   const validLang: Lang = ["ar", "fr", "en", "es"].includes(lang || "")
     ? (lang as Lang)
@@ -60,7 +67,7 @@ declare global {
 }
 
 // 🚀 Analytics & Scroll Helper Wrapper
-function RouteTrackingWrapper() {
+function RouteTrackingWrapper(): React.JSX.Element {
   const { pathname, search } = useLocation();
 
   useEffect(() => {
@@ -83,7 +90,7 @@ function RouteTrackingWrapper() {
 }
 
 // Loading Fallback
-function PageFallback() {
+function PageFallback(): React.JSX.Element {
   return (
     <div className="p-4 space-y-4 max-w-2xl mx-auto mt-6">
       <Skeleton className="h-8 w-2/3 rounded-lg" />
@@ -93,7 +100,7 @@ function PageFallback() {
   );
 }
 
-const withSuspense = (Component: ComponentType) => (
+const withSuspense = (Component: ComponentType): React.JSX.Element => (
   <Suspense fallback={<PageFallback />}>
     <Component />
   </Suspense>
@@ -120,6 +127,11 @@ export const router = createBrowserRouter([
           { path: "archive", element: withSuspense(Archive) },
           { path: "article/:id", element: withSuspense(ArticleDetail) },
 
+          // 📚 Court Rulings & Doctrine Dynamic Category Routes
+          { path: "category/:slug", element: withSuspense(CourtRulingsCategory) },
+          { path: "rulings/:slug", element: withSuspense(CourtRulingsCategory) },
+          { path: "doctrine/:slug", element: withSuspense(CourtRulingsCategory) },
+
           // 📚 Library Core Routes
           { path: "library", element: withSuspense(Library) },
           { path: "library/:category", element: withSuspense(Library) },
@@ -142,8 +154,8 @@ export const router = createBrowserRouter([
           { path: "jurisprudence/:category", element: withSuspense(Jurisprudence) },
 
           // 🎓 Law Schools Routes
-          { path: "schools", element: withSuspense(Library) },
-          { path: "schools/:schoolSlug", element: withSuspense(Library) },
+          { path: "schools", element: withSuspense(SchoolPage) },
+          { path: "schools/:slug", element: withSuspense(SchoolPage) },
 
           { path: "login", element: withSuspense(Login) },
           { path: "profile", element: withSuspense(Profile) },

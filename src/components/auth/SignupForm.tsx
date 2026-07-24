@@ -202,7 +202,7 @@ export function SignupForm({
           <input
             required
             maxLength={120}
-            autoComplete="name"
+            autoComplete="name" // 👈 ممتاز، كما هو
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={
@@ -233,7 +233,7 @@ export function SignupForm({
           <input
             required
             type="email"
-            autoComplete="username"
+            autoComplete="email" // 👈 تم التعديل من username إلى email لتوحيد المعايير
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
@@ -265,7 +265,7 @@ export function SignupForm({
             minLength={8}
             maxLength={128}
             type={showPass ? "text" : "password"}
-            autoComplete="new-password"
+            autoComplete="new-password" // 👈 ممتاز، يمنع تعبئة كلمة المرور القديمة بالخطأ
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
@@ -402,7 +402,7 @@ export function SignupForm({
 
       <button
         type="submit"
-        disabled={loading || !captchaToken}
+        disabled={loading || !captchaToken || !acceptedTerms} // 👈 إضافة أمان إضافية لزر الإرسال للتأكد من الشروط
         className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-60 shadow-xs cursor-pointer"
       >
         {loading

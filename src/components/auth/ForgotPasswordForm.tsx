@@ -119,7 +119,10 @@ export function ForgotPasswordForm({
       style={{ fontFamily: sansFont(lang) }}
     >
       <div>
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+        <label 
+          htmlFor="forgot-email" 
+          className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 cursor-pointer"
+        >
           {lang === "ar" && "البريد الإلكتروني"}
           {lang === "fr" && "Adresse e-mail"}
           {lang === "en" && "Email address"}
@@ -133,6 +136,7 @@ export function ForgotPasswordForm({
             }`}
           />
           <input
+            id="forgot-email" // 👈 إضافة المعرف للربط مع الـ label
             required
             type="email"
             autoComplete="email"

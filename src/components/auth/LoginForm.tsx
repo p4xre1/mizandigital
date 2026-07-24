@@ -139,6 +139,7 @@ export function LoginForm({
             required
             type="email"
             value={email}
+            autoComplete="email" // 👈 تمت الإضافة لمنع تحذيرات الكونسول ومساعدة مديري كلمات السر
             onChange={(e) => setEmail(e.target.value)}
             placeholder="name@example.com"
             className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${
@@ -179,6 +180,7 @@ export function LoginForm({
             required
             type={showPass ? "text" : "password"}
             value={password}
+            autoComplete="current-password" // 👈 تمت الإضافة لإصلاح تحذير المتصفح
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
             className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${

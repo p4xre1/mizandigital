@@ -9,6 +9,22 @@ export type Role =
   | "root";
 
 /**
+ * Categories for Court Rulings
+ */
+export type CourtRulingCategory =
+  | "court-of-cassation"
+  | "courts-of-appeal"
+  | "administrative-courts";
+
+/**
+ * Categories for Legal Doctrine
+ */
+export type DoctrineCategory =
+  | "academic-articles"
+  | "case-commentaries"
+  | "comparative-studies";
+
+/**
  * User Profile record stored in `public.profiles`
  */
 export interface UserProfile {
@@ -38,6 +54,39 @@ export interface UserProfile {
 }
 
 /**
+ * Court Ruling record stored in `public.court_rulings`
+ */
+export interface CourtRuling {
+  id: string;
+  title: string;
+  slug: string;
+  category: CourtRulingCategory;
+  case_number: string | null;
+  ruling_date: string | null;
+  summary: string | null;
+  content: string;
+  published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
+ * Doctrinal Study record stored in `public.doctrinal_articles`
+ */
+export interface DoctrinalArticle {
+  id: string;
+  title: string;
+  slug: string;
+  category: DoctrineCategory;
+  author_name: string;
+  excerpt: string | null;
+  content: string;
+  published: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+/**
  * Supabase Database Schema Type Definitions
  */
 export interface Database {
@@ -51,11 +100,31 @@ export interface Database {
         };
         Update: Partial<Omit<UserProfile, "id">>;
       };
+      court_rulings: {
+        Row: CourtRuling;
+        Insert: Omit<CourtRuling, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<CourtRuling, "id">>;
+      };
+      doctrinal_articles: {
+        Row: DoctrinalArticle;
+        Insert: Omit<DoctrinalArticle, "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Omit<DoctrinalArticle, "id">>;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
       role: Role;
+      court_ruling_category: CourtRulingCategory;
+      doctrine_category: DoctrineCategory;
     };
   };
 }

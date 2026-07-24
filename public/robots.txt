@@ -40,16 +40,18 @@ Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# 🚫 Internal APIs & System Files
+# 🚫 Internal APIs & System Files (Disallow JSON except PWA manifest)
 Disallow: /api/
 Disallow: /*.json$
+Allow: /manifest.json
+Allow: /*manifest.json
 
 # 🚫 Prevent crawling duplicate internal search parameters
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
 
-# ✅ Essential CSS, JS & Image Assets
+# ✅ Essential CSS, JS, Fonts & Image Assets
 Allow: /
 Allow: /*.css$
 Allow: /*.js$
@@ -59,6 +61,7 @@ Allow: /*.png$
 Allow: /*.jpg$
 Allow: /*.jpeg$
 Allow: /*.ico$
+Allow: /*.woff2$
 
 # ------------------------------------------------------------------------------
 # 2. SITEMAPS & DOMAIN SPECIFICATION
