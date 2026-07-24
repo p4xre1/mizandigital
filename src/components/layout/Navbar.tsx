@@ -20,6 +20,8 @@ import {
   Moon,
   Globe,
   Users,
+  ArrowRight,
+  ArrowLeft
 } from "lucide-react";
 
 const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
@@ -177,49 +179,65 @@ export function Navbar() {
         {/* ================= DESKTOP NAVIGATION ================= */}
         <nav className="hidden md:flex items-center gap-1 text-xs xl:text-sm font-semibold">
           
-          {/* 1. Home Link (With Home Icon) */}
+          {/* 1. Home Link */}
           <Link to={`/${lang}`} className="px-3 py-2 rounded-lg hover:bg-muted hover:text-primary transition-colors flex items-center gap-1.5">
             <Home size={16} />
             <span>{lang === "ar" ? "الرئيسية" : "Home"}</span>
           </Link>
 
-          {/* 2. Digital Library Dropdown */}
+          {/* 2. Digital Library Dropdown - FIXED LINK */}
           <div
             className="relative"
             onMouseEnter={() => setActiveDropdown("library")}
             onMouseLeave={() => setActiveDropdown(null)}
           >
-            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted hover:text-primary transition-colors cursor-pointer">
+            <Link 
+              to={`/${lang}/library`} 
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+            >
               <BookOpen size={16} />
               <span>{lang === "ar" ? "المكتبة الرقمية" : "Library"}</span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${activeDropdown === "library" ? "rotate-180" : ""}`} />
-            </button>
+            </Link>
 
             {activeDropdown === "library" && (
-              <div className="absolute top-full rtl:right-0 ltr:left-0 mt-1 w-[460px] bg-card border border-border rounded-2xl shadow-xl p-5 grid grid-cols-2 gap-6 z-50 animate-in fade-in-50 zoom-in-95">
-                <div>
-                  <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-1 border-b border-border">
-                    {lang === "ar" ? "التخصصات القانونية" : "FIELDS OF LAW"}
-                  </h4>
-                  <div className="space-y-2 text-xs font-medium">
-                    <Link to={`/${lang}/fields/family-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "قانون الأسرة" : "Family Law"}</Link>
-                    <Link to={`/${lang}/fields/criminal-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون الجنائي" : "Criminal Law"}</Link>
-                    <Link to={`/${lang}/fields/commercial-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون التجاري" : "Commercial Law"}</Link>
-                    <Link to={`/${lang}/fields/administrative-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون الإداري" : "Administrative Law"}</Link>
-                    <Link to={`/${lang}/fields/constitutional-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون الدستوري" : "Constitutional Law"}</Link>
+              <div className="absolute top-full rtl:right-0 ltr:left-0 mt-1 w-[460px] bg-card border border-border rounded-2xl shadow-xl p-5 z-50 animate-in fade-in-50 zoom-in-95">
+                <div className="grid grid-cols-2 gap-6 mb-4">
+                  <div>
+                    <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-1 border-b border-border">
+                      {lang === "ar" ? "التخصصات القانونية" : "FIELDS OF LAW"}
+                    </h4>
+                    <div className="space-y-2 text-xs font-medium">
+                      <Link to={`/${lang}/fields/family-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "قانون الأسرة" : "Family Law"}</Link>
+                      <Link to={`/${lang}/fields/criminal-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون الجنائي" : "Criminal Law"}</Link>
+                      <Link to={`/${lang}/fields/commercial-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون التجاري" : "Commercial Law"}</Link>
+                      <Link to={`/${lang}/fields/administrative-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون الإداري" : "Administrative Law"}</Link>
+                      <Link to={`/${lang}/fields/constitutional-law`} className="block hover:text-primary transition-colors">{lang === "ar" ? "القانون الدستوري" : "Constitutional Law"}</Link>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-1 border-b border-border">
+                      {lang === "ar" ? "الوثائق" : "DOCUMENTS"}
+                    </h4>
+                    <div className="space-y-2 text-xs font-medium">
+                      <Link to={`/${lang}/documents/legal-texts`} className="block hover:text-primary transition-colors">{lang === "ar" ? "النصوص القانونية" : "Legal Texts"}</Link>
+                      <Link to={`/${lang}/documents/ministerial-decrees`} className="block hover:text-primary transition-colors">{lang === "ar" ? "المراسيم والقرارات" : "Ministerial Decrees"}</Link>
+                      <Link to={`/${lang}/documents/cassation-rulings`} className="block hover:text-primary transition-colors">{lang === "ar" ? "قرارات محكمة النقض" : "Cassation Rulings"}</Link>
+                      <Link to={`/${lang}/documents/official-journals`} className="block hover:text-primary transition-colors">{lang === "ar" ? "الجريدة الرسمية" : "Official Journals"}</Link>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3 pb-1 border-b border-border">
-                    {lang === "ar" ? "الوثائق" : "DOCUMENTS"}
-                  </h4>
-                  <div className="space-y-2 text-xs font-medium">
-                    <Link to={`/${lang}/documents/legal-texts`} className="block hover:text-primary transition-colors">{lang === "ar" ? "النصوص القانونية" : "Legal Texts"}</Link>
-                    <Link to={`/${lang}/documents/ministerial-decrees`} className="block hover:text-primary transition-colors">{lang === "ar" ? "المراسيم والقرارات" : "Ministerial Decrees"}</Link>
-                    <Link to={`/${lang}/documents/cassation-rulings`} className="block hover:text-primary transition-colors">{lang === "ar" ? "قرارات محكمة النقض" : "Cassation Rulings"}</Link>
-                    <Link to={`/${lang}/documents/official-journals`} className="block hover:text-primary transition-colors">{lang === "ar" ? "الجريدة الرسمية" : "Official Journals"}</Link>
-                  </div>
+                {/* Direct Link to Main Library Page */}
+                <div className="pt-3 border-t border-border">
+                  <Link 
+                    to={`/${lang}/library`} 
+                    className="flex items-center justify-between text-xs font-bold text-primary hover:underline"
+                  >
+                    <span>{lang === "ar" ? "تصفح كل المكتبة الرقمية" : "Browse All Library Resources"}</span>
+                    {dir === "rtl" ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
+                  </Link>
                 </div>
               </div>
             )}
@@ -481,19 +499,32 @@ export function Navbar() {
 
             {/* Library Accordion */}
             <div className="border border-border rounded-xl overflow-hidden">
-              <button
-                onClick={() => setMobileSectionOpen(mobileSectionOpen === "library" ? null : "library")}
-                className="w-full flex items-center justify-between min-h-[44px] px-3 font-semibold text-sm bg-card hover:bg-muted cursor-pointer"
-              >
-                <span className="flex items-center gap-3">
+              <div className="flex items-center justify-between min-h-[44px] px-3 font-semibold text-sm bg-card hover:bg-muted">
+                <Link
+                  to={`/${lang}/library`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 flex-1 py-2"
+                >
                   <BookOpen size={18} className="text-primary" />
                   <span>{lang === "ar" ? "المكتبة الرقمية" : "Library"}</span>
-                </span>
-                <ChevronDown size={16} className={`transition-transform ${mobileSectionOpen === "library" ? "rotate-180" : ""}`} />
-              </button>
+                </Link>
+                <button
+                  onClick={() => setMobileSectionOpen(mobileSectionOpen === "library" ? null : "library")}
+                  className="p-2 hover:bg-muted rounded-lg"
+                >
+                  <ChevronDown size={16} className={`transition-transform ${mobileSectionOpen === "library" ? "rotate-180" : ""}`} />
+                </button>
+              </div>
 
               {mobileSectionOpen === "library" && (
                 <div className="bg-muted/40 p-3 space-y-3 border-t border-border text-xs">
+                  <Link 
+                    to={`/${lang}/library`} 
+                    onClick={() => setIsMobileMenuOpen(false)} 
+                    className="block py-1.5 font-bold text-primary border-b border-border/50"
+                  >
+                    {lang === "ar" ? "📑 كافة كتب ومستندات المكتبة" : "📑 All Library Documents"}
+                  </Link>
                   <div>
                     <span className="font-bold text-primary uppercase block mb-1">FIELDS OF LAW</span>
                     <Link to={`/${lang}/fields/family-law`} onClick={() => setIsMobileMenuOpen(false)} className="block py-1">Family Law</Link>

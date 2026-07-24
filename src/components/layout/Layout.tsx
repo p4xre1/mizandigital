@@ -3,7 +3,7 @@ import { Link, Outlet } from "react-router-dom";
 import { Scale } from "lucide-react";
 import { Navbar } from "./Navbar";
 import { AuthModal } from "@/components/auth/AuthModal";
-import { useLocalizedPath } from "@/lib/navigation";
+import { Helmet } from "react-helmet-async";
 
 interface LayoutProps {
   lang: "ar" | "fr" | "en" | "es";
@@ -12,7 +12,12 @@ interface LayoutProps {
 
 export function Layout({ lang, dir }: LayoutProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const localizedPath = useLocalizedPath();
+
+  // تم إنشاء الدالة محلياً لتفادي خطأ الاستيراد
+  const localizedPath = (path: string) => {
+    const cleanPath = path.startsWith("/") ? path : `/${path}`;
+    return cleanPath === "/" ? `/${lang}` : `/${lang}${cleanPath}`;
+  };
 
   const serifFont = (l: string) =>
     l === "ar" ? "var(--font-serif-ar)" : "var(--font-serif-en)";
@@ -34,6 +39,12 @@ export function Layout({ lang, dir }: LayoutProps) {
         en: "Academic archives and unified legal jurisprudence for researchers and universities.",
         es: "Archivos académicos y jurisprudencia unificada para investigadores y universidades.",
       },
+      keywords: {
+        ar: "قانون, ميزان, أرشيف قضائي, تشريعات, مذكرات قانونية",
+        fr: "droit, mizan, archives judiciaires, législation, mémoires juridiques",
+        en: "law, mizan, judicial archives, legislation, legal memorandums",
+        es: "derecho, mizan, archivos judiciales, legislación, memorandos legales",
+      }
     };
     return translations[key]?.[lang] || key;
   };
@@ -57,7 +68,7 @@ export function Layout({ lang, dir }: LayoutProps) {
           },
         },
         {
-          href: "/fields/family-law",
+          href: "/library",
           label: {
             ar: "المكتبة الرقمية",
             fr: "Bibliothèque Numérique",
@@ -141,21 +152,24 @@ export function Layout({ lang, dir }: LayoutProps) {
       dir={dir}
       className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased selection:bg-blue-500 selection:text-white"
     >
-      {/* Top Header Navigation (No extra props passed) */}
+      <Helmet>
+        <html lang={lang} dir={dir} />
+        <title>{t("brand_full")}</title>
+        <meta name="description" content={t("motto")} />
+        <meta name="keywords" content={t("keywords")} />
+      </Helmet>
+
       <Navbar />
 
-      {/* Main Page Content */}
       <main className="flex-1 w-full">
         <Outlet />
       </main>
 
-      {/* Footer Section */}
       <footer className="w-full bg-slate-100 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 pt-12 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          {/* Real Internal Ad/Sponsorship Banner (No Premium/Enterprise) */}
           <div className="mb-10 p-4 sm:p-6 rounded-2xl bg-gradient-to-r from-blue-900/40 via-slate-900/60 to-slate-900 border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="space-y-1 text-center sm:text-left">
+            <div className="space-y-1 text-center sm:text-left rtl:sm:text-right">
               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                 {lang === "ar" ? "إعلان أكاديمي" : "Academic Sponsor"}
               </span>
@@ -187,7 +201,6 @@ export function Layout({ lang, dir }: LayoutProps) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12 border-b border-slate-200 dark:border-slate-800">
-            {/* Brand Column */}
             <div className="lg:col-span-1 space-y-4">
               <Link to={localizedPath("/")} className="flex items-center gap-2.5">
                 <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shrink-0">
@@ -208,7 +221,6 @@ export function Layout({ lang, dir }: LayoutProps) {
               </p>
             </div>
 
-            {/* Links Columns */}
             {footerCols.map((col, idx) => (
               <div key={idx} className="space-y-3">
                 <p className="text-xs font-bold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
@@ -231,7 +243,6 @@ export function Layout({ lang, dir }: LayoutProps) {
             ))}
           </div>
 
-          {/* Legal & Copyright */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
             <div>
               &copy; {new Date().getFullYear()} {t("brand_full")}. All rights reserved.
@@ -252,7 +263,6 @@ export function Layout({ lang, dir }: LayoutProps) {
         </div>
       </footer>
 
-      {/* Auth Modal */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

@@ -14,7 +14,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
       subtitle:
         "منظومة رقمية شاملة لدراسة المذكرات القضائية، التشريعات الوطنية، والاجتهادات الدستورية بأسلوب أكاديمي موثق.",
       ctaPrimary: "استكشاف الأرشيف",
-      ctaSecondary: "المكتبة القانونية",
+      ctaSecondary: "المكتبة الرقمية",
     },
     fr: {
       badge: "Plateforme Mizan - Archives Académiques",
@@ -22,7 +22,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
       subtitle:
         "Un système numérique exhaustif dédié à l'étude des mémoires judiciaires, des textes législatifs et des doctrines.",
       ctaPrimary: "Consulter les Archives",
-      ctaSecondary: "Bibliothèque Juridique",
+      ctaSecondary: "Bibliothèque Numérique",
     },
     en: {
       badge: "Mizan Platform - Academic Archive",
@@ -30,7 +30,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
       subtitle:
         "A comprehensive institutional engine for legal research, constitutional precedents, and academic case commentary.",
       ctaPrimary: "Explore Archive",
-      ctaSecondary: "Academic Library",
+      ctaSecondary: "Digital Library",
     },
     es: {
       badge: "Plataforma Mizan - Archivo Académico",
@@ -38,7 +38,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
       subtitle:
         "Un sistema digital exhaustivo para la investigación legal, precedentes constitucionales y doctrinas académicas.",
       ctaPrimary: "Explorar Archivo",
-      ctaSecondary: "Biblioteca Legal",
+      ctaSecondary: "Biblioteca Digital",
     },
   };
 
@@ -51,7 +51,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
       className="relative w-full min-h-[440px] sm:min-h-[540px] flex items-center justify-center overflow-hidden border-b border-slate-200 dark:border-slate-800 bg-slate-900 text-white select-none"
       dir={dir}
     >
-      {/* Ultra-Fast Modern Gradient Background (Zero network requests) */}
+      {/* Ultra-Fast Modern Gradient Background */}
       <div
         className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/60 via-slate-900 to-slate-950 pointer-events-none"
         aria-hidden="true"
@@ -95,7 +95,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ lang, dir }) => {
             {t.ctaPrimary}
           </Link>
           <Link
-            to={getPath("/fields/family-law")}
+            to={getPath("/library")}
             className="inline-flex items-center justify-center min-h-[48px] px-6 py-3 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-800 text-slate-200 font-bold text-xs sm:text-sm uppercase tracking-wider active:scale-95 transition-transform touch-manipulation"
           >
             {t.ctaSecondary}

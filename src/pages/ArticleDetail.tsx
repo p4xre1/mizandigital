@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import { useParams, Link } from "react-router-dom";
 
@@ -348,51 +348,58 @@ function SecuredAdBanner({ slot, lang, isSidebar = false }: { slot: string; lang
 
 
 export default function ArticleDetail() {
-
   const { slug } = useParams<{ slug: string }>();
-
   const localizedPath = useLocalizedPath();
-
   const { lang, dir, t } = useI18n();
-
   const cms = useCms();
-
   const { isStaff, isGuest } = useRole();
-
+  
   const [article, setArticle] = useState<Article>(MOCK);
-
   const [loading, setLoading] = useState(true);
-
   const [liked, setLiked] = useState(false);
-
   const [saved, setSaved] = useState(false);
-
   const [likes, setLikes] = useState(342);
 
+  // ⏳ حالات عداد التحميل والإعلانات
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(20);
+  const [isReady, setIsReady] = useState(false);
+  // تأكد من استيراد useRef في أعلى الملف إذا لم تكن تستخدم React.useRef
+  const downloadRef = React.useRef<HTMLDivElement>(null);
 
+  // منطق العداد التنازلي للتحميل
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (isWaiting && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    } else if (isWaiting && timeLeft === 0) {
+      setIsReady(true);
+      setIsWaiting(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isWaiting, timeLeft]);
+
+  // دالة بدء التحميل والتمرير التلقائي
+  const startDownloadTimer = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsWaiting(true);
+    // التمرير السلس إلى منطقة العداد والإعلان
+    if (downloadRef.current) {
+      downloadRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
 
   // CMS-authored article with matching slug takes priority
-
   const cmsArticle = cms.articles.find((a) => a.slug === slug);
-
   const commentsEnabled = cmsArticle ? cmsArticle.commentsEnabled !== false : true;
 
-
-
   const toggleLike = () => {
-
     setLiked((v) => {
-
       const next = !v;
-
       setLikes((c) => c + (next ? 1 : -1));
-
       trackEvent(next ? "article_like" : "article_unlike", { id: article.id });
-
       return next;
-
     });
-
   };
 
 
@@ -864,217 +871,156 @@ export default function ArticleDetail() {
         {/* Sticky Sidebar */}
 
         <aside className="space-y-4 lg:sticky lg:top-24 self-start">
-
+          
+          {/* ⬇️ منطقة التحميل المخصصة للربح من الإعلانات */}
           {article.pdf_url && (
-
-            <a
-
-              href={article.pdf_url}
-
-              onClick={handlePDF}
-
-              className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-colors text-sm shadow-sm min-h-[44px]"
-
-              style={{ fontFamily: sansFont(lang) }}
-
+            <div 
+              ref={downloadRef}
+              className="bg-card border border-border rounded-xl p-4 shadow-sm text-center transition-all"
             >
+              <h3 className="text-sm font-bold mb-3 text-foreground" style={{ fontFamily: serifFont(lang) }}>
+                {lang === "ar" ? "تحميل المرفقات" : lang === "fr" ? "Télécharger les pièces jointes" : "Download Attachments"}
+              </h3>
 
-              <Download size={16} aria-hidden="true" /> {lang === "ar" ? "تحميل PDF" : lang === "fr" ? "Télécharger PDF" : "Download PDF"}
+              {/* الحالة 1: زر البدء */}
+              {!isWaiting && !isReady && (
+                <button
+                  onClick={startDownloadTimer}
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all text-sm shadow-sm"
+                  style={{ fontFamily: sansFont(lang) }}
+                >
+                  <Download size={16} aria-hidden="true" /> 
+                  {lang === "ar" ? "تحميل PDF" : lang === "fr" ? "Télécharger PDF" : "Download PDF"}
+                </button>
+              )}
 
-            </a>
+              {/* الحالة 2: العداد التنازلي (20 ثانية) */}
+              {isWaiting && (
+                <div className="w-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-4 animate-in fade-in">
+                  <Clock className="mx-auto text-amber-500 mb-2 animate-pulse" size={24} />
+                  <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2" style={{ fontFamily: sansFont(lang) }}>
+                    {lang === "ar" ? "جاري تجهيز الرابط المباشر..." : lang === "fr" ? "Préparation du lien..." : "Preparing link..."}
+                  </p>
+                  <p className="text-4xl font-black text-amber-600 drop-shadow-sm">{timeLeft}</p>
+                </div>
+              )}
 
+              {/* الحالة 3: زر التحميل الجاهز */}
+              {isReady && (
+                <a
+                  href={article.pdf_url}
+                  onClick={handlePDF}
+                  download
+                  className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all text-sm shadow-md animate-in zoom-in"
+                  style={{ fontFamily: sansFont(lang) }}
+                >
+                  <ShieldCheck size={16} aria-hidden="true" /> 
+                  {lang === "ar" ? "الرابط جاهز - اضغط للتحميل" : lang === "fr" ? "Lien prêt - Cliquez ici" : "Link ready - Click here"}
+                </a>
+              )}
+
+              {/* 💰 مساحة إعلان جوجل أدسنس */}
+              <div className="mt-4 w-full min-h-[250px] bg-slate-50 dark:bg-slate-800/50 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center relative overflow-hidden">
+                 <span className="text-slate-400 text-[10px] uppercase absolute top-2 right-2">Ad</span>
+                 <span className="text-slate-400/70 text-xs font-medium">Google AdSense Space</span>
+              </div>
+            </div>
           )}
 
           <div className="grid grid-cols-2 gap-2">
-
             <button
-
               onClick={toggleLike}
-
               aria-pressed={liked}
-
               className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] ${
-
                 liked
-
                   ? "bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
-
                   : "border-border text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary"
-
               }`}
-
               style={{ fontFamily: sansFont(lang) }}
-
             >
-
               <Heart size={15} className={liked ? "fill-red-500 text-red-500" : ""} aria-hidden="true" />
-
               <span>{likes.toLocaleString()}</span>
-
             </button>
-
             <button
-
               onClick={toggleSave}
-
               aria-pressed={saved}
-
               className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] ${
-
                 saved
-
                   ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200"
-
                   : "border-border text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary"
-
               }`}
-
               style={{ fontFamily: sansFont(lang) }}
-
             >
-
               <Bookmark size={15} className={saved ? "fill-current" : ""} aria-hidden="true" />
-
               <span>
-
                 {saved
-
                   ? lang === "ar"
-
                     ? "محفوظ"
-
                     : lang === "fr"
-
                     ? "Enregistré"
-
                     : "Saved"
-
                   : lang === "ar"
-
                   ? "حفظ"
-
                   : lang === "fr"
-
                   ? "Enregistrer"
-
                   : "Save"}
-
               </span>
-
             </button>
-
           </div>
-
-
-
-          
 
           {/* Sidebar Ad for standard/guest users */}
-
           {!isStaff && <SecuredAdBanner slot="sidebar" lang={lang} isSidebar />}
 
-
-
           {/* Document Meta Box */}
-
           <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-
             <h2 className="text-xs font-bold text-foreground mb-3 pb-2 border-b border-border" style={{ fontFamily: serifFont(lang) }}>
-
               {lang === "ar" ? "تفاصيل الوثيقة" : lang === "fr" ? "Détails du document" : "Document Details"}
-
             </h2>
-
             <dl className="space-y-2 text-xs" style={{ fontFamily: sansFont(lang) }}>
-
               {[
-
                 [lang === "ar" ? "الفئة" : lang === "fr" ? "Catégorie" : "Category", article.category],
-
                 [lang === "ar" ? "الجامعة" : lang === "fr" ? "Université" : "University", article.university],
-
                 [lang === "ar" ? "الفصل" : lang === "fr" ? "Semestre" : "Semester", article.semester?.toUpperCase()],
-
                 [lang === "ar" ? "السنة" : lang === "fr" ? "Année" : "Year", article.year?.toString()],
-
               ]
-
                 .filter(([, v]) => v)
-
                 .map(([k, v]) => (
-
                   <div key={k} className="flex justify-between items-center">
-
                     <dt className="text-slate-500 dark:text-slate-400">{k}</dt>
-
                     <dd className="font-medium text-foreground">{v}</dd>
-
                   </div>
-
                 ))}
-
             </dl>
-
           </div>
-
-
 
           {/* Sidebar Newsletter */}
-
           <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 shadow-sm">
-
             <h3 className="text-xs font-bold text-blue-900 dark:text-blue-200 mb-2" style={{ fontFamily: serifFont(lang) }}>
-
               {t("newsletter_title")}
-
             </h3>
-
             <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
-
               <label htmlFor="sidebar-newsletter-email" className="sr-only">
-
                 {t("newsletter_email")}
-
               </label>
-
               <input
-
                 id="sidebar-newsletter-email"
-
                 type="email"
-
                 placeholder={t("newsletter_email")}
-
                 aria-label={t("newsletter_email")}
-
                 className={`w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground outline-none focus:ring-2 focus:ring-primary ${
-
                   dir === "rtl" ? "text-right" : "text-left"
-
                 }`}
-
                 style={{ fontFamily: sansFont(lang) }}
-
               />
-
               <button
-
                 type="submit"
-
                 className="w-full py-2 bg-blue-900 dark:bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-950 dark:hover:bg-blue-700 transition-colors min-h-[36px]"
-
                 style={{ fontFamily: sansFont(lang) }}
-
               >
-
                 {t("newsletter_cta")}
-
               </button>
-
             </form>
-
           </div>
-
         </aside>
 
       </div>

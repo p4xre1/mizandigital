@@ -3,6 +3,7 @@ import { Link, useParams, useLocation } from "react-router-dom";
 import { useRole } from "../../hooks/useRole";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { LAW_SCHOOLS } from "@/data/lawSchools";
+import { LEGAL_FIELDS, DOCUMENT_TYPES } from "@/lib/navigation";
 import type { Lang } from "@/lib/i18n";
 import {
   User,
@@ -18,33 +19,8 @@ import {
   Home,
   Shield,
   FolderTree,
+  Archive,
 } from "lucide-react";
-
-interface NavItem {
-  slug: string;
-  path: string;
-  ar: string;
-  fr: string;
-  en: string;
-  es: string;
-}
-
-// ⚖️ Fields of Law Items
-const FIELDS_OF_LAW: NavItem[] = [
-  { slug: "family-law", path: "fields/family-law", ar: "قانون الأسرة / المدونة", fr: "Droit de la famille", en: "Family Law", es: "Derecho de familia" },
-  { slug: "criminal-law", path: "fields/criminal-law", ar: "القانون الجنائي", fr: "Droit pénal", en: "Criminal Law", es: "Derecho penal" },
-  { slug: "commercial-law", path: "fields/commercial-law", ar: "القانون التجاري", fr: "Droit commercial", en: "Commercial Law", es: "Derecho comercial" },
-  { slug: "administrative-law", path: "fields/administrative-law", ar: "القانون الإداري", fr: "Droit administratif", en: "Administrative Law", es: "Derecho administrativo" },
-  { slug: "constitutional-law", path: "fields/constitutional-law", ar: "القانون الدستوري", fr: "Droit constitutionnel", en: "Constitutional Law", es: "Derecho constitucional" },
-];
-
-// 📄 Document Types Items
-const DOCUMENT_TYPES: NavItem[] = [
-  { slug: "legal-texts", path: "documents/legal-texts", ar: "النصوص القانونية", fr: "Textes juridiques", en: "Legal Texts", es: "Textos legales" },
-  { slug: "ministerial-decrees", path: "documents/ministerial-decrees", ar: "المراسيم والقرارات", fr: "Décrets ministériels", en: "Ministerial Decrees", es: "Decretos ministeriales" },
-  { slug: "cassation-rulings", path: "documents/cassation-rulings", ar: "قرارات محكمة النقض", fr: "Arrêts de Cassation", en: "Cassation Rulings", es: "Decisiones de Casación" },
-  { slug: "official-journals", path: "documents/official-journals", ar: "الجريدة الرسمية", fr: "Journaux officiels", en: "Official Journals", es: "Boletines oficiales" },
-];
 
 export function Navbar() {
   const { lang: rawLang = "ar" } = useParams();
@@ -163,14 +139,14 @@ export function Navbar() {
                     <span>{lang === "ar" ? "التخصصات القانونية" : "Fields of Law"}</span>
                   </div>
                   <div className="space-y-1">
-                    {FIELDS_OF_LAW.map((cat) => (
+                    {LEGAL_FIELDS.map((cat) => (
                       <Link
                         key={cat.slug}
-                        to={`/${lang}/${cat.path}`}
+                        to={`/${lang}/library?category=${cat.slug}`}
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{cat[lang]}</span>
+                        <span>{cat.title[lang as keyof typeof cat.title] || cat.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -186,11 +162,11 @@ export function Navbar() {
                     {DOCUMENT_TYPES.map((doc) => (
                       <Link
                         key={doc.slug}
-                        to={`/${lang}/${doc.path}`}
+                        to={`/${lang}/library?type=${doc.slug}`}
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{doc[lang]}</span>
+                        <span>{doc.title[lang as keyof typeof doc.title] || doc.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -222,6 +198,11 @@ export function Navbar() {
               </div>
             )}
           </div>
+
+          <Link to={`/${lang}/archive`} className="px-3 py-2 hover:text-primary transition-colors flex items-center gap-1.5">
+            <Archive size={16} />
+            <span>{lang === "ar" ? "الأرشيف القانوني" : "Archive"}</span>
+          </Link>
 
           <Link to={`/${lang}/schools`} className="px-3 py-2 hover:text-primary transition-colors flex items-center gap-1.5">
             <GraduationCap size={16} />
@@ -334,15 +315,15 @@ export function Navbar() {
                     <span className="text-[11px] font-bold text-primary uppercase px-2 mb-1 block">
                       {lang === "ar" ? "التخصصات القانونية" : "Fields of Law"}
                     </span>
-                    {FIELDS_OF_LAW.map((cat) => (
+                    {LEGAL_FIELDS.map((cat) => (
                       <Link
                         key={cat.slug}
-                        to={`/${lang}/${cat.path}`}
+                        to={`/${lang}/library?category=${cat.slug}`}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="flex items-center gap-2 min-h-[40px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{cat[lang]}</span>
+                        <span>{cat.title[lang as keyof typeof cat.title] || cat.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -355,12 +336,12 @@ export function Navbar() {
                     {DOCUMENT_TYPES.map((doc) => (
                       <Link
                         key={doc.slug}
-                        to={`/${lang}/${doc.path}`}
+                        to={`/${lang}/library?type=${doc.slug}`}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="flex items-center gap-2 min-h-[40px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{doc[lang]}</span>
+                        <span>{doc.title[lang as keyof typeof doc.title] || doc.title.ar}</span>
                       </Link>
                     ))}
                   </div>

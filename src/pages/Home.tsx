@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { ArrowRight, TrendingUp, Clock, Star, FileText, GraduationCap, Gavel, Users } from "lucide-react";
+import { ArrowRight, TrendingUp, Clock, Star } from "lucide-react";
 import { getArticles, type Article } from "../lib/supabase";
 import { ImageWithFallback } from "../components/common/ImageWithFallback";
 import { useI18n, useLocalizedPath, serifFont, sansFont, type Lang } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
 import { setWebSiteSchema, clearSchema } from "../lib/jsonld";
-import AdSenseSlot from "../components/ads/AdSenseSlot";
 
 const HERO_IMG = "https://images.unsplash.com/photo-1759732419233-5b84c4cb5a9c?crop=entropy&cs=tinysrgb&fit=max&fm=webp&q=70&w=1440";
 
@@ -119,13 +118,6 @@ const MOCK_ARTICLES: LocalArticle[] = [
   },
 ];
 
-const statsData: { key: string; value: string; icon: React.ReactNode }[] = [
-  { key: "stat_documents", value: "12,400+", icon: <FileText size={20} aria-hidden="true" /> },
-  { key: "stat_universities", value: "18", icon: <GraduationCap size={20} aria-hidden="true" /> },
-  { key: "stat_rulings", value: "3,200+", icon: <Gavel size={20} aria-hidden="true" /> },
-  { key: "stat_researchers", value: "28k", icon: <Users size={20} aria-hidden="true" /> },
-];
-
 const trendingTopics: L[] = [
   t4("إصلاح مدوّنة الأسرة 2024", "Réforme du Code de la famille 2024", "Family Code Reform 2024", "Reforma del Código de Familia 2024"),
   t4("امتحانات S1 2026", "Examens S1 2026", "S1 Exams 2026", "Exámenes S1 2026"),
@@ -154,13 +146,13 @@ function ArticleCard({ article, featured = false }: { article: LocalArticle; fea
 
   return (
     <article
-      className={`group bg-card border border-border rounded-xl p-5 hover:shadow-md hover:border-primary/40 transition-all flex flex-col justify-between ${
-        featured ? "md:col-span-2" : ""
+      className={`group bg-card border border-border rounded-xl p-4 sm:p-5 hover:shadow-md hover:border-primary/40 transition-all flex flex-col justify-between ${
+        featured ? "md:col-span-2" : "col-span-1"
       }`}
       dir={dir}
     >
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between gap-2 mb-2.5 sm:mb-3">
           <span
             className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
               article.is_featured
@@ -171,7 +163,7 @@ function ArticleCard({ article, featured = false }: { article: LocalArticle; fea
             {category}
           </span>
           {article.is_featured && (
-            <span className="text-xs text-red-600 dark:text-red-400 font-bold flex items-center gap-1">
+            <span className="text-xs text-red-600 dark:text-red-400 font-bold flex items-center gap-1 shrink-0">
               <TrendingUp size={12} aria-hidden="true" /> {t("trending_badge")}
             </span>
           )}
@@ -180,7 +172,7 @@ function ArticleCard({ article, featured = false }: { article: LocalArticle; fea
         <Link to={articleUrl} className="block group-hover:text-primary transition-colors">
           <h3
             className={`font-bold text-foreground leading-snug mb-2 ${
-              featured ? "text-lg md:text-xl" : "text-base"
+              featured ? "text-base sm:text-lg md:text-xl" : "text-sm sm:text-base"
             }`}
             style={{ fontFamily: serifFont(lang) }}
           >
@@ -189,14 +181,14 @@ function ArticleCard({ article, featured = false }: { article: LocalArticle; fea
         </Link>
 
         <p
-          className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4 line-clamp-2"
+          className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3 sm:mb-4 line-clamp-2"
           style={{ fontFamily: sansFont(lang) }}
         >
           {excerpt}
         </p>
       </div>
 
-      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-border/50">
+      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-border/50 gap-2 flex-wrap sm:flex-nowrap">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
             <Clock size={12} aria-hidden="true" />
@@ -209,7 +201,7 @@ function ArticleCard({ article, featured = false }: { article: LocalArticle; fea
         </div>
         <Link
           to={articleUrl}
-          className="text-primary hover:underline flex items-center gap-1 font-semibold text-xs py-1"
+          className="text-primary hover:underline flex items-center gap-1 font-semibold text-xs py-1 min-h-[36px]"
           style={{ fontFamily: sansFont(lang) }}
         >
           {t("read_more")}
@@ -275,35 +267,35 @@ export default function Home() {
           style={{
             background:
               theme === "dark"
-                ? "radial-gradient(120% 100% at 75% 30%, rgba(10,15,26,0.65) 0%, rgba(10,15,26,0.90) 55%, rgba(6,10,20,0.98) 100%)"
-                : "radial-gradient(120% 100% at 75% 30%, rgba(120,90,20,0.60) 0%, rgba(30,58,138,0.85) 55%, rgba(17,29,58,0.96) 100%)",
+                ? "radial-gradient(120% 100% at 75% 30%, rgba(10,15,26,0.70) 0%, rgba(10,15,26,0.92) 55%, rgba(6,10,20,0.98) 100%)"
+                : "radial-gradient(120% 100% at 75% 30%, rgba(120,90,20,0.65) 0%, rgba(30,58,138,0.88) 55%, rgba(17,29,58,0.96) 100%)",
           }}
         />
-        <div className="relative max-w-7xl mx-auto px-6 py-20 md:py-28">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20 md:py-28">
           <div className="max-w-2xl">
             <h1
-              className="text-3xl md:text-5xl font-bold leading-tight mb-4 drop-shadow-sm"
+              className="text-2xl sm:text-4xl md:text-5xl font-bold leading-tight mb-3 sm:mb-4 drop-shadow-sm"
               style={{ fontFamily: serifFont(lang) }}
             >
               {t("hero_title")}
             </h1>
             <p
-              className="text-white/95 text-base md:text-lg max-w-lg mb-8 leading-relaxed font-normal"
+              className="text-white/95 text-sm sm:text-base md:text-lg max-w-lg mb-6 sm:mb-8 leading-relaxed font-normal"
               style={{ fontFamily: sansFont(lang) }}
             >
               {t("hero_subtitle")}
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
               <Link
                 to={localizedPath("/library")}
-                className="px-6 py-3 bg-white text-blue-950 font-bold rounded-xl hover:bg-slate-100 transition-colors text-sm shadow-lg min-h-[44px] flex items-center justify-center"
+                className="w-full sm:w-auto text-center px-6 py-3 bg-white text-blue-950 font-bold rounded-xl hover:bg-slate-100 transition-colors text-sm shadow-md min-h-[48px] flex items-center justify-center"
                 style={{ fontFamily: sansFont(lang) }}
               >
                 {t("hero_cta_library")}
               </Link>
               <Link
                 to={localizedPath("/archive")}
-                className="px-6 py-3 border border-white/60 text-white font-semibold rounded-xl hover:bg-white/10 backdrop-blur-sm transition-colors text-sm min-h-[44px] flex items-center justify-center"
+                className="w-full sm:w-auto text-center px-6 py-3 border border-white/60 text-white font-semibold rounded-xl hover:bg-white/10 backdrop-blur-sm transition-colors text-sm min-h-[48px] flex items-center justify-center"
                 style={{ fontFamily: sansFont(lang) }}
               >
                 {t("hero_cta_archive")}
@@ -313,58 +305,33 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="border-b border-border bg-card">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4" dir={dir}>
-            {statsData.map((s) => (
-              <div key={s.key} className="text-center p-4">
-                <div className="text-primary flex justify-center mb-2">{s.icon}</div>
-                <div className="text-2xl md:text-3xl font-extrabold text-foreground">{s.value}</div>
-                <div
-                  className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium"
-                  style={{ fontFamily: sansFont(lang) }}
-                >
-                  {t(s.key)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 🎯 Main Horizontal Ad Unit */}
-      <div className="max-w-7xl mx-auto px-6 pt-6">
-        <AdSenseSlot slotId="1234567890" />
-      </div>
-
       {/* Main Content Grid */}
-      <section className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid lg:grid-cols-[1fr_300px] gap-8">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
           <div>
-            <div className="flex items-center justify-between mb-6" dir={dir}>
+            <div className="flex items-center justify-between mb-4 sm:mb-6" dir={dir}>
               <h2
-                className="text-lg md:text-xl font-bold text-foreground"
+                className="text-base sm:text-lg md:text-xl font-bold text-foreground"
                 style={{ fontFamily: serifFont(lang) }}
               >
                 {t("latest_articles")}
               </h2>
               <Link
                 to={localizedPath("/library")}
-                className="text-sm font-semibold text-primary flex items-center gap-1 hover:underline min-h-[36px]"
+                className="text-xs sm:text-sm font-semibold text-primary flex items-center gap-1 hover:underline min-h-[36px]"
                 style={{ fontFamily: sansFont(lang) }}
               >
                 {t("view_all")} <ArrowRight size={14} className={arrowFlip} aria-hidden="true" />
               </Link>
             </div>
             {loading ? (
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[...Array(4)].map((_, i) => (
-                  <div key={i} className="h-48 rounded-xl bg-slate-100 dark:bg-slate-800/60 animate-pulse" />
+                  <div key={i} className="h-44 sm:h-48 rounded-xl bg-slate-100 dark:bg-slate-800/60 animate-pulse" />
                 ))}
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {articles.map((a, i) => (
                   <ArticleCard key={a.id} article={a} featured={i === 0} />
                 ))}
@@ -375,9 +342,9 @@ export default function Home() {
           {/* Sidebar */}
           <aside className="space-y-6" dir={dir}>
             {/* Trending Topics */}
-            <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <div className="bg-card border border-border rounded-xl p-4 sm:p-5 shadow-sm">
               <h2
-                className="text-sm font-bold mb-4 pb-3 border-b border-border text-foreground"
+                className="text-sm font-bold mb-3 pb-2.5 border-b border-border text-foreground"
                 style={{ fontFamily: serifFont(lang) }}
               >
                 {t("trending_topics")}
@@ -387,7 +354,7 @@ export default function Home() {
                   <Link
                     key={topic.en}
                     to={localizedPath(`/search?q=${encodeURIComponent(topic[lang])}`)}
-                    className="text-xs px-3 py-1.5 rounded-full border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-colors font-medium"
+                    className="text-xs px-3 py-2 rounded-full border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-colors font-medium min-h-[36px] flex items-center"
                     style={{ fontFamily: sansFont(lang) }}
                   >
                     {topic[lang]}
@@ -396,25 +363,20 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 🎯 Sidebar Ad Unit */}
-            <div className="bg-card border border-border rounded-xl p-3 shadow-sm overflow-hidden">
-              <AdSenseSlot slotId="0987654321" format="rectangle" />
-            </div>
-
             {/* Semester Navigation */}
-            <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
+            <div className="bg-card border border-border rounded-xl p-4 sm:p-5 shadow-sm">
               <h2
-                className="text-sm font-bold mb-3 pb-3 border-b border-border text-foreground"
+                className="text-sm font-bold mb-3 pb-2.5 border-b border-border text-foreground"
                 style={{ fontFamily: serifFont(lang) }}
               >
                 {t("browse_by_semester")}
               </h2>
-              <nav aria-label={t("browse_by_semester")} className="space-y-2">
+              <nav aria-label={t("browse_by_semester")} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-2">
                 {["S1", "S2", "S3", "S4", "S5", "S6"].map((s) => (
                   <Link
                     key={s}
                     to={localizedPath(`/archive?semester=${s.toLowerCase()}`)}
-                    className="flex items-center justify-between p-2.5 rounded-lg border border-border hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group text-sm"
+                    className="flex items-center justify-between p-2.5 rounded-lg border border-border hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group text-xs sm:text-sm min-h-[42px]"
                     style={{ fontFamily: sansFont(lang) }}
                   >
                     <span className="text-slate-700 dark:text-slate-300 font-medium">
@@ -431,7 +393,7 @@ export default function Home() {
             </div>
 
             {/* Newsletter Subscription */}
-            <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-5 shadow-sm">
+            <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 sm:p-5 shadow-sm">
               <h2
                 className="text-sm font-bold text-blue-900 dark:text-blue-200 mb-1"
                 style={{ fontFamily: serifFont(lang) }}
@@ -444,7 +406,7 @@ export default function Home() {
               >
                 {t("newsletter_sub")}
               </p>
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-2.5">
                 <label htmlFor="newsletter-email-input" className="sr-only">
                   {t("newsletter_email")}
                 </label>
@@ -454,14 +416,14 @@ export default function Home() {
                   placeholder={t("newsletter_email")}
                   maxLength={254}
                   aria-label={t("newsletter_email")}
-                  className={`w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-primary ${
+                  className={`w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-primary min-h-[44px] ${
                     dir === "rtl" ? "text-right" : "text-left"
                   }`}
                   style={{ fontFamily: sansFont(lang) }}
                 />
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-blue-900 dark:bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-950 dark:hover:bg-blue-700 transition-colors min-h-[40px]"
+                  className="w-full py-2.5 bg-blue-900 dark:bg-blue-600 text-white text-xs sm:text-sm font-bold rounded-lg hover:bg-blue-950 dark:hover:bg-blue-700 transition-colors min-h-[44px]"
                   style={{ fontFamily: sansFont(lang) }}
                 >
                   {t("newsletter_cta")}

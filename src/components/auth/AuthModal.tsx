@@ -139,9 +139,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       aria-modal="true"
       aria-labelledby="auth-modal-title"
     >
-      {/* OPAQUE MODAL CARD */}
+      {/* OPAQUE MODAL CARD - 👈 تمت إضافة تأثير التكبير zoom-in-95 هنا */}
       <div
-        className="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 md:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto"
+        className="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 md:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 ease-out"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close (X) Button */}
@@ -240,5 +240,4 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   );
 };
 
-// Export as Default to satisfy imports in Navbar/Layout regardless of import style
 export default AuthModal;
