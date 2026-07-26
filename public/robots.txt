@@ -4,21 +4,9 @@
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# 1. DEFAULT RULES FOR ALL CRAWLERS & AI BOTS
+# 1. GLOBAL CRAWLER RULES
 # ------------------------------------------------------------------------------
 User-agent: *
-User-agent: Googlebot
-User-agent: Googlebot-Image
-User-agent: Bingbot
-User-agent: YandexBot
-User-agent: Applebot
-User-agent: GPTBot
-User-agent: ChatGPT-User
-User-agent: PerplexityBot
-User-agent: ClaudeBot
-User-agent: Google-Extended
-User-agent: Bytespider
-User-agent: Meta-ExternalAgent
 
 # 🚫 Admin & Dashboard Interfaces
 Disallow: /admin
@@ -40,18 +28,15 @@ Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# 🚫 Internal APIs & System Files (Disallow JSON except PWA manifest)
+# 🚫 Internal APIs & Private Data
 Disallow: /api/
-Disallow: /*.json$
-Allow: /manifest.json
-Allow: /*manifest.json
 
 # 🚫 Prevent crawling duplicate internal search parameters
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
 
-# ✅ Essential CSS, JS, Fonts & Image Assets
+# ✅ Allow essential static assets & pages
 Allow: /
 Allow: /*.css$
 Allow: /*.js$
@@ -62,10 +47,10 @@ Allow: /*.jpg$
 Allow: /*.jpeg$
 Allow: /*.ico$
 Allow: /*.woff2$
+Allow: /manifest.json
 
 # ------------------------------------------------------------------------------
 # 2. SITEMAPS & DOMAIN SPECIFICATION
 # ------------------------------------------------------------------------------
 Host: www.mizan.page
 Sitemap: https://www.mizan.page/sitemap.xml
-Sitemap: https://www.mizan.page/llms.txt

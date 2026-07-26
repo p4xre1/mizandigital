@@ -1,164 +1,170 @@
-import { useEffect, useMemo, useState } from "react";
-import { isSupabaseConfigured, supabase } from "@/lib/supabase";
-import type { Role, UserProfile } from "@/types/database";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
+export type Role =
+  | "root"
+  | "security_admin"
+  | "admin"
+  | "marketer"
+  | "writer"
+  | "member"
+  | "guest";
+
+const VALID_ROLES = new Set<Role>([
+  "root",
+  "security_admin",
+  "admin",
+  "marketer",
+  "writer",
+  "member",
+  "guest",
+]);
 
 export interface UseRoleResult {
-  profile: UserProfile | null;
   role: Role;
-  daily_credits: number;
-  bonus_credits: number;
-  // Role Helpers
-  isStaff: boolean;
-  isGuest: boolean;
-  // Master Blueprint UI Helpers
-  isDeveloper: boolean;
-  isAdmin: boolean;
-  isEditor: boolean;
-  // Loading & Execution States
+  userId: string | null;
   loading: boolean;
-  isLoading: boolean;
-  error: string | null;
+  // Role Helper Flags
+  isRoot: boolean;
+  isSecurityAdmin: boolean;
+  isAdmin: boolean;
+  isMarketer: boolean;
+  isWriter: boolean;
+  isMember: boolean;
+  isGuest: boolean;
+  // Tiered Permissions
+  isStaff: boolean;        // Writers, Marketers, Admins, Security, Root
+  canManageUsers: boolean; // Security, Admin, Root
+  canWriteContent: boolean;// Writer, Admin, Root
   refresh: () => Promise<void>;
 }
 
-interface ProfileData {
-  role: string | null;
-  daily_credits: number | null;
-  bonus_credits: number | null;
-}
-
-function normalizeRole(value: string | null | undefined): Role {
-  if (!value) return "guest";
-  const lower = value.toLowerCase();
-
-  switch (lower) {
-    case "root":
-    case "admin":
-    case "developer":
-      return "root";
-    case "security_admin":
-      return "security_admin";
-    case "writer":
-    case "editor":
-      return "writer";
-    case "member":
-    case "user":
-      return "member";
-    default:
-      return "guest";
-  }
-}
-
-async function fetchProfileState(): Promise<{
-  profile: UserProfile | null;
-  role: Role;
-  daily_credits: number;
-  bonus_credits: number;
-}> {
-  if (!isSupabaseConfigured) {
-    return { profile: null, role: "guest", daily_credits: 0, bonus_credits: 0 };
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return { profile: null, role: "guest", daily_credits: 0, bonus_credits: 0 };
-  }
-
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  if (error || !data) {
-    return { profile: null, role: "member", daily_credits: 0, bonus_credits: 0 };
-  }
-
-  const raw = data as ProfileData & UserProfile;
-
-  return {
-    profile: raw,
-    role: normalizeRole(raw.role),
-    daily_credits: Math.max(0, Number(raw.daily_credits ?? 0)),
-    bonus_credits: Math.max(0, Number(raw.bonus_credits ?? 0)),
-  };
-}
-
 export function useRole(): UseRoleResult {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [role, setRole] = useState<Role>("guest");
-  const [dailyCredits, setDailyCredits] = useState(0);
-  const [bonusCredits, setBonusCredits] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const loadRole = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const state = await fetchProfileState();
-      setProfile(state.profile);
-      setRole(state.role);
-      setDailyCredits(state.daily_credits);
-      setBonusCredits(state.bonus_credits);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to load role.");
-      setProfile(null);
-      setRole("guest");
-      setDailyCredits(0);
-      setBonusCredits(0);
-    } finally {
-      setIsLoading(false);
+  // Track mount status to avoid state updates on unmounted components
+  const isMounted = useRef<boolean>(true);
+
+  const fetchRole = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      if (isMounted.current) {
+        setRole("guest");
+        setUserId(null);
+        setLoading(false);
+      }
+      return;
     }
-  };
 
-  useEffect(() => {
-    void loadRole();
+    if (isMounted.current) {
+      setLoading(true);
+    }
 
-    if (!isSupabaseConfigured) return;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(() => {
-      void loadRole();
-    });
+      if (!session?.user) {
+        if (isMounted.current) {
+          setRole("guest");
+          setUserId(null);
+        }
+        return;
+      }
 
-    return () => subscription.unsubscribe();
+      if (isMounted.current) {
+        setUserId(session.user.id);
+      }
+
+      // Fetch user role from Supabase 'profiles' table
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (!isMounted.current) return;
+
+      // Safe Type Assertion to avoid TS 'never' error
+      const profile = data as { role?: string } | null;
+
+      if (error || !profile?.role) {
+        setRole("member");
+      } else {
+        const rawRole = profile.role.toLowerCase().trim() as Role;
+        setRole(VALID_ROLES.has(rawRole) ? rawRole : "member");
+      }
+    } catch {
+      if (isMounted.current) {
+        setRole("guest");
+        setUserId(null);
+      }
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
+    }
   }, []);
 
-  // 1. Role Mappings
-  const isStaff = useMemo(
-    () => role === "writer" || role === "security_admin" || role === "root",
-    [role]
-  );
-  const isGuest = useMemo(() => role === "guest", [role]);
+  useEffect(() => {
+    isMounted.current = true;
 
-  // 2. Blueprint Permission Helpers
-  const isDeveloper = useMemo(
-    () => role === "root" || role === "security_admin",
-    [role]
-  );
-  const isAdmin = useMemo(
-    () => role === "root" || role === "security_admin",
-    [role]
-  );
-  const isEditor = useMemo(() => role === "writer" || role === "root", [role]);
+    void fetchRole();
 
-  return {
-    profile,
-    role,
-    daily_credits: dailyCredits,
-    bonus_credits: bonusCredits,
-    isStaff,
-    isGuest,
-    isDeveloper,
-    isAdmin,
-    isEditor,
-    loading: isLoading,
-    isLoading,
-    error,
-    refresh: loadRole,
-  };
+    if (!isSupabaseConfigured) {
+      return () => {
+        isMounted.current = false;
+      };
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        if (isMounted.current) {
+          setRole("guest");
+          setUserId(null);
+          setLoading(false);
+        }
+      } else {
+        void fetchRole();
+      }
+    });
+
+    return () => {
+      isMounted.current = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchRole]);
+
+  // Derived Boolean Flags (Memoized for optimal render performance)
+  return useMemo(() => {
+    const isRoot = role === "root";
+    const isSecurityAdmin = role === "security_admin" || isRoot;
+    const isAdmin = role === "admin" || isRoot;
+    const isMarketer = role === "marketer" || isAdmin;
+    const isWriter = role === "writer" || isRoot;
+    const isMember = role === "member";
+    const isGuest = role === "guest";
+
+    // Tiered Capability Flags
+    const isStaff = ["writer", "marketer", "admin", "security_admin", "root"].includes(role);
+    const canManageUsers = ["admin", "security_admin", "root"].includes(role);
+    const canWriteContent = ["writer", "admin", "root"].includes(role);
+
+    return {
+      role,
+      userId,
+      loading,
+      isRoot,
+      isSecurityAdmin,
+      isAdmin,
+      isMarketer,
+      isWriter,
+      isMember,
+      isGuest,
+      isStaff,
+      canManageUsers,
+      canWriteContent,
+      refresh: fetchRole,
+    };
+  }, [role, userId, loading, fetchRole]);
 }

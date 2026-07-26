@@ -31,6 +31,7 @@ const requiredFiles = [
   'src/lib/i18n.tsx',
   'public/_redirects',
   'public/robots.txt',
+  'public/sitemap.xml',
   'vite.config.ts',
   'tsconfig.json',
 ];
@@ -86,9 +87,27 @@ if (fs.existsSync(redirectsPath)) {
 }
 
 // -----------------------------------------------------------------------------
-// 3. Verify `vite.config.ts` for Router Deduplication Rule
+// 3. Check `robots.txt` Sitemap Reference
 // -----------------------------------------------------------------------------
-console.log('\n--- 3. Vite Config Deduplication Check ---');
+console.log('\n--- 3. SEO Robots & Sitemap Reference Check ---');
+const robotsPath = path.join(rootDir, 'public/robots.txt');
+
+if (fs.existsSync(robotsPath)) {
+  const robotsContent = fs.readFileSync(robotsPath, 'utf-8');
+  if (robotsContent.includes('Sitemap: https://www.mizan.page/sitemap.xml')) {
+    reportSuccess('robots.txt properly points to https://www.mizan.page/sitemap.xml');
+  } else {
+    reportError(
+      'Invalid Sitemap in robots.txt',
+      'Ensure robots.txt contains "Sitemap: https://www.mizan.page/sitemap.xml"'
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4. Verify `vite.config.ts` for Router Deduplication Rule
+// -----------------------------------------------------------------------------
+console.log('\n--- 4. Vite Config Deduplication Check ---');
 const vitePath = path.join(rootDir, 'vite.config.ts');
 
 if (fs.existsSync(vitePath)) {

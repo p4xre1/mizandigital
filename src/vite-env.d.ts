@@ -5,47 +5,32 @@
  * Merges automatically with Vite's built-in client type definitions.
  */
 interface ImportMetaEnv {
-  /**
-   * Primary canonical site URL
-   * @example "https://www.mizan.page"
-   */
+  /** Primary canonical site URL */
   readonly VITE_SITE_URL?: string;
 
-  /**
-   * Google AdSense Client / Publisher ID
-   * @example "ca-pub-1749032173858747"
-   */
+  /** App specific URL (often same as SITE_URL) */
+  readonly VITE_APP_URL?: string;
+
+  /** Supabase Project Endpoint URL */
+  readonly VITE_SUPABASE_URL: string;
+
+  /** Supabase Anonymous / Publishable API Key */
+  readonly VITE_SUPABASE_ANON_KEY: string;
+
+  /** Google AdSense Client / Publisher ID */
   readonly VITE_GOOGLE_ADSENSE_CLIENT_ID?: string;
 
-  /**
-   * Google Tag Manager Container ID
-   * @example "GTM-PTT8P94G"
-   */
+  /** Google Tag Manager Container ID */
   readonly VITE_GTM_ID?: string;
 
-  /**
-   * Google Analytics 4 Measurement ID
-   * @example "G-XXXXXXXXXX"
-   */
-  readonly VITE_GA_MEASUREMENT_ID?: string;
+  /** Google Analytics 4 Measurement ID */
+  readonly VITE_GA_ID?: string; // تم التحديث ليتطابق مع VITE_GA_ID
 
-  /**
-   * Supabase Project Endpoint URL
-   * @example "https://rfhjmtdblmarhlfftlmg.supabase.co"
-   */
-  readonly VITE_SUPABASE_URL?: string;
-
-  /**
-   * Supabase Anonymous / Publishable API Key
-   * @example "sb_publishable_y0738q3ikStPOZMl9Ei_eg_2hDOUUe6"
-   */
-  readonly VITE_SUPABASE_ANON_KEY?: string;
-
-  /**
-   * Cloudflare Turnstile CAPTCHA Site Key
-   * @example "0x4AAAAAAD7kaEjAcOwwsXHc"
-   */
+  /** Cloudflare Turnstile CAPTCHA Site Key */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
+  
+  // ⚠️ تم استبعاد VITE_ADMIN_USER و VITE_ADMIN_PASS عمداً لأسباب أمنية
+  // يجب عليك إزالة VITE_ من أسمائها في ملف .env حتى لا تتسرب للعموم.
 }
 
 interface ImportMeta {
