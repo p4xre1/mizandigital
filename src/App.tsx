@@ -1,10 +1,11 @@
+import React from "react";
 import { RouterProvider } from "react-router-dom";
 import { router } from "@/routes";
 import { I18nProvider } from "@/lib/i18n";
 
 /**
  * Root Application Component for Mizan Digital (www.mizan.page)
- * Wraps the application with global state providers (I18n, Theme, Auth)
+ * Wraps the application with global state providers (I18n)
  * and renders the central client-side router.
  */
 export default function App(): React.JSX.Element {

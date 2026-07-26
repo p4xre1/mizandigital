@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { DeveloperBuilder } from "@/components/common/DeveloperBuilder";
@@ -7,10 +7,11 @@ import { useI18n, serifFont, sansFont, type Lang } from "@/lib/i18n";
 import { COURT_RULINGS_AND_DOCTRINE } from "@/data/courtRulingsData";
 import { Scale, BookOpen, ChevronRight, ArrowLeft } from "lucide-react";
 
-// Declare global adsbygoogle type for TypeScript safety
+// Declare global types for AdSense and Google Analytics (gtag)
 declare global {
   interface Window {
     adsbygoogle?: Array<Record<string, unknown>>;
+    gtag?: (...args: any[]) => void;
   }
 }
 
@@ -59,6 +60,7 @@ const txt = {
 
 export default function Home(): React.JSX.Element {
   const { lang, dir } = useI18n();
+  const adLoaded = useRef(false); // 🛡️ Security: Prevents double-injection in React 18 Strict Mode
 
   // 🚀 Update page title & description dynamically on language change
   useEffect(() => {
@@ -69,16 +71,30 @@ export default function Home(): React.JSX.Element {
     }
   }, [lang]);
 
-  // 💰 Push Google AdSense ad on mount safely
+  // 💰 Push Google AdSense ad safely (Anti-Injection & Crash Prevention)
   useEffect(() => {
+    if (adLoaded.current) return;
+    
     try {
-      if (typeof window !== "undefined") {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      if (typeof window !== "undefined" && window.adsbygoogle) {
+        window.adsbygoogle.push({});
+        adLoaded.current = true;
       }
     } catch (err) {
-      console.error("AdSense execution error:", err);
+      console.error("AdSense execution prevented:", err);
     }
   }, []);
+
+  // 📊 Analytics Tracking: Track when a user clicks a legal category
+  const handleCategoryClick = (categorySlug: string, categoryTitle: string) => {
+    if (typeof window !== "undefined" && window.gtag) {
+      window.gtag("event", "select_content", {
+        content_type: "legal_category",
+        item_id: String(categorySlug),
+        item_name: String(categoryTitle),
+      });
+    }
+  };
 
   return (
     <div
@@ -115,7 +131,7 @@ export default function Home(): React.JSX.Element {
                       className="text-base sm:text-lg font-semibold tracking-wide"
                       style={{ fontFamily: serifFont(lang) }}
                     >
-                      {section.title}
+                      {String(section.title)}
                     </h3>
                   </div>
 
@@ -124,6 +140,7 @@ export default function Home(): React.JSX.Element {
                       <Link
                         key={sub.id}
                         to={`/${lang}/category/${sub.slug}`}
+                        onClick={() => handleCategoryClick(sub.slug, sub.title)}
                         className="group flex items-start justify-between p-3 rounded-xl hover:bg-muted/60 transition-colors border border-transparent hover:border-border/40"
                       >
                         <div className="space-y-1">
@@ -131,10 +148,10 @@ export default function Home(): React.JSX.Element {
                             className="text-sm font-medium text-foreground group-hover:text-primary transition-colors"
                             style={{ fontFamily: sansFont(lang) }}
                           >
-                            {sub.title}
+                            {String(sub.title)}
                           </div>
                           <p className="text-xs text-muted-foreground line-clamp-1">
-                            {sub.description}
+                            {String(sub.description)}
                           </p>
                         </div>
                         {dir === "rtl" ? (
