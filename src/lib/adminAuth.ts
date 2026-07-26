@@ -1,9 +1,10 @@
 import { useSyncExternalStore } from "react";
+import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
 // ── SECURITY NOTICE ─────────────────────────────────────────────────────────────
-// Real access control and authorization are managed through Supabase Auth + RLS.
-// This module provides client-side auth state synchronization for UI components.
+// Real access control and authorization MUST be managed through Supabase Auth + RLS.
+// Client-side state strictly dictates UI navigation visibility.
 // ────────────────────────────────────────────────────────────────────────────────
 
 const getEnvVar = (viteKey: string, nextKey: string): string | undefined => {
@@ -16,11 +17,12 @@ const getEnvVar = (viteKey: string, nextKey: string): string | undefined => {
   return undefined;
 };
 
-const ADMIN_USER = getEnvVar("VITE_ADMIN_USER", "NEXT_PUBLIC_ADMIN_USER");
-const ADMIN_PASS = getEnvVar("VITE_ADMIN_PASS", "NEXT_PUBLIC_ADMIN_PASS");
+const IS_DEV = import.meta.env.DEV;
+const ADMIN_USER = IS_DEV ? getEnvVar("VITE_ADMIN_USER", "NEXT_PUBLIC_ADMIN_USER") : undefined;
+const ADMIN_PASS = IS_DEV ? getEnvVar("VITE_ADMIN_PASS", "NEXT_PUBLIC_ADMIN_PASS") : undefined;
+
 const SESSION_KEY = "mizan_admin_session";
 
-// ── Constant-Time String Comparison (Fallback Mitigation) ─────────────────
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let result = 0;
@@ -30,7 +32,6 @@ function timingSafeEqual(a: string, b: string): boolean {
   return result === 0;
 }
 
-// ── Internal State Management & Sync ───────────────────────────────────────────
 let isAuthenticated = false;
 const listeners = new Set<() => void>();
 
@@ -38,7 +39,30 @@ function notifyListeners(): void {
   listeners.forEach((listener) => listener());
 }
 
-// Initialize Auth State from SessionStorage or Supabase Session
+function isUserAdmin(user: User | null): boolean {
+  if (!user) return false;
+
+  // 🛡️ Strict Security Requirement: 
+  // Admin accounts MUST have a confirmed email via Resend/Supabase.
+  // This prevents unverified users from attempting to exploit admin roles.
+  if (!user.email_confirmed_at) {
+    console.warn("[adminAuth] Access denied: Admin email is not verified.");
+    return false;
+  }
+
+  const role = user.app_metadata?.role as string | undefined;
+  if (role === "admin" || role === "super_admin") {
+    return true;
+  }
+
+  const adminEmail = getEnvVar("VITE_ADMIN_USER", "NEXT_PUBLIC_ADMIN_USER");
+  if (adminEmail && user.email?.toLowerCase() === adminEmail.toLowerCase()) {
+    return true;
+  }
+
+  return false;
+}
+
 if (typeof window !== "undefined") {
   try {
     isAuthenticated = sessionStorage.getItem(SESSION_KEY) === "1";
@@ -46,27 +70,23 @@ if (typeof window !== "undefined") {
     isAuthenticated = false;
   }
 
-  // Subscribe to Supabase Auth state changes
-  supabase.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
+  supabase.auth.onAuthStateChange((_event, session) => {
+    const isAdmin = isUserAdmin(session?.user ?? null);
+
+    if (isAdmin) {
       isAuthenticated = true;
       try {
         sessionStorage.setItem(SESSION_KEY, "1");
-      } catch {
-        /* ignore storage errors */
-      }
-    } else if (event === "SIGNED_OUT") {
+      } catch { /* ignore */ }
+    } else {
       isAuthenticated = false;
       try {
         sessionStorage.removeItem(SESSION_KEY);
-      } catch {
-        /* ignore storage errors */
-      }
+      } catch { /* ignore */ }
     }
     notifyListeners();
   });
 
-  // Cross-tab sync for local session fallback
   window.addEventListener("storage", (e) => {
     if (e.key === SESSION_KEY) {
       isAuthenticated = e.newValue === "1";
@@ -75,43 +95,49 @@ if (typeof window !== "undefined") {
   });
 }
 
-// ── Public Auth API ─────────────────────────────────────────────────────────────
-
-/**
- * Attempts authentication with Supabase Auth first, falling back to 
- * static env credentials if offline or in local prototype mode.
- */
 export async function adminLoginAsync(user: string, pass: string): Promise<boolean> {
-  // 1. Try Supabase Authentication
+  // 🛡️ Local Brute-Force Throttle (3 seconds between attempts)
+  try {
+    const storageKey = "mizan_rl_admin_login";
+    const lastAttempt = Number(localStorage.getItem(storageKey) || 0);
+    if (Date.now() - lastAttempt < 3000) {
+      console.warn("[adminAuth] Login throttled to prevent spam.");
+      return false;
+    }
+    localStorage.setItem(storageKey, String(Date.now()));
+  } catch { /* ignore if localStorage is unavailable */ }
+
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email: user,
       password: pass,
     });
 
-    if (!error && data.session) {
+    if (!error && data.session && isUserAdmin(data.session.user)) {
       isAuthenticated = true;
       try {
         sessionStorage.setItem(SESSION_KEY, "1");
-      } catch {
-        /* ignore storage errors */
-      }
+      } catch { /* ignore */ }
       notifyListeners();
       return true;
+    } else if (data.session && !isUserAdmin(data.session.user)) {
+      // 🛡️ Immediate sign out if they authenticate successfully but aren't an admin/verified
+      await supabase.auth.signOut();
     }
   } catch (err) {
-    console.warn("[adminAuth] Supabase Auth sign-in error, trying fallback:", err);
+    console.warn("[adminAuth] Supabase Auth sign-in error:", err);
   }
 
-  // 2. Synchronous Fallback (Environment Prototype Credentials)
-  return adminLogin(user, pass);
+  // Fallback to DEV environment variables if configured
+  if (IS_DEV) {
+    return adminLogin(user, pass);
+  }
+
+  return false;
 }
 
-/**
- * Synchronous local login fallback
- */
 export function adminLogin(user: string, pass: string): boolean {
-  if (!ADMIN_USER || !ADMIN_PASS) return false;
+  if (!IS_DEV || !ADMIN_USER || !ADMIN_PASS) return false;
 
   const normalizedUser = user.trim().toLowerCase();
   const targetUser = ADMIN_USER.trim().toLowerCase();
@@ -123,9 +149,7 @@ export function adminLogin(user: string, pass: string): boolean {
     isAuthenticated = true;
     try {
       sessionStorage.setItem(SESSION_KEY, "1");
-    } catch {
-      /* ignore storage errors */
-    }
+    } catch { /* ignore */ }
     notifyListeners();
     return true;
   }
@@ -133,23 +157,15 @@ export function adminLogin(user: string, pass: string): boolean {
   return false;
 }
 
-/**
- * Signs out both Supabase session and local prototype state
- */
 export async function adminLogout(): Promise<void> {
   isAuthenticated = false;
   try {
     sessionStorage.removeItem(SESSION_KEY);
     await supabase.auth.signOut();
-  } catch {
-    /* ignore storage errors */
-  }
+  } catch { /* ignore */ }
   notifyListeners();
 }
 
-/**
- * React hook to subscribe to authentication state changes
- */
 export function useAdminAuth(): boolean {
   return useSyncExternalStore(
     (callback) => {

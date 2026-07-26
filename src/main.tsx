@@ -41,14 +41,16 @@ function injectWebSiteSchema(): void {
       {
         "@type": "WebPage",
         name: "Court Rulings - الاجتهادات القضائية",
-        description: "Court of Cassation, Courts of Appeal, and Administrative Courts judgments."
+        description:
+          "Court of Cassation, Courts of Appeal, and Administrative Courts judgments.",
       },
       {
         "@type": "WebPage",
         name: "Legal Doctrine - الدراسات الفقهية",
-        description: "Academic Articles, Case Commentaries, and Comparative Studies."
-      }
-    ]
+        description:
+          "Academic Articles, Case Commentaries, and Comparative Studies.",
+      },
+    ],
   };
 
   const script = document.createElement("script");
@@ -99,7 +101,7 @@ injectWebSiteSchema();
 // 2. Enable offline PWA capabilities
 registerServiceWorker();
 
-// 3. Mount React Root securely
+// 3. Mount React Root safely
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {

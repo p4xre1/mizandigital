@@ -1,15 +1,117 @@
 import { useSyncExternalStore } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import {
+  requireVerifiedEmail,
+  sanitizeText,
+  sanitizeHtml,
+  looksLikeSpam,
+} from "@/lib/security";
 
-// ── Lightweight CMS store with Supabase Sync ──────────────────────────────────
-// A local-first store for the admin dashboard. Local mutations update state 
-// and localStorage immediately, then asynchronously push updates to Supabase tables.
+// ── ENVIRONMENT CONFIGURATION & DOMAINS ──────────────────────────────────────
+export const SITE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
+  "https://www.mizan.page";
+
+export const APP_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_URL) ||
+  "https://www.mizan.page";
+
+export const GA_ID =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_GA_ID) ||
+  "G-S52GPR2RWL";
+
+export const GTM_ID =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_GTM_ID) ||
+  "GTM-PTT8P94G";
+
+export const ADSENSE_CLIENT_ID =
+  (typeof import.meta !== "undefined" &&
+    import.meta.env?.VITE_GOOGLE_ADSENSE_CLIENT_ID) ||
+  "ca-pub-1749032173858747";
+
+// ── ROLES & SECURITY CLEARANCE LEVELS ─────────────────────────────────────────
+export type Role =
+  | "root"
+  | "security_admin"
+  | "admin"
+  | "marketer"
+  | "writer"
+  | "member"
+  | "guest";
+
+export const ROLES = {
+  ROOT: ["root"],
+  USER_MANAGERS: ["root", "security_admin", "admin"],
+  CONTENT_WRITERS: ["root", "admin", "writer"],
+  MARKETERS: ["root", "admin", "marketer"],
+  STAFF: ["root", "security_admin", "admin", "marketer", "writer"],
+  ALL: ["root", "security_admin", "admin", "marketer", "writer", "member", "guest"],
+} as const;
+
+/**
+ * 🛡️ Military-grade mutation guard.
+ * Validates session, email verification, and cryptographic role claims
+ * BEFORE allowing any state mutation or database write.
+ */
+async function ensurePrivilege(allowedRoles: readonly string[]) {
+  const user = await requireVerifiedEmail();
+  const userRole = (user.app_metadata?.role as string)?.toLowerCase().trim() || "member";
+
+  if (!allowedRoles.includes(userRole) && userRole !== "root") {
+    console.error(
+      `[SECURITY BREACH ATTEMPT] Action blocked. User ${user.email} (${userRole}) lacks clearance. Required: ${allowedRoles.join(", ")}`
+    );
+    throw new Error("FORBIDDEN: Insufficient privileges for this operation.");
+  }
+
+  return user;
+}
+
+// ── 4-LANGUAGE MULTILINGUAL & MASTER SEO TYPES ───────────────────────────────
+export type Lang = "ar" | "fr" | "en" | "es";
+
+export interface MultilingualText {
+  ar: string;
+  fr?: string;
+  en?: string;
+  es?: string;
+}
+
+export interface PhotoMediaSEO {
+  id: string;
+  url: string;
+  webpUrl?: string;
+  avifUrl?: string;
+  altText: MultilingualText;
+  title: MultilingualText;
+  caption?: MultilingualText;
+  keywords: string[];
+  width?: number;
+  height?: number;
+  mimeType: string;
+  fileSizeKb?: number;
+  uploadedAt: string;
+}
+
+export interface DocumentFileSEO {
+  id: string;
+  url: string;
+  filename: string;
+  title: MultilingualText;
+  description?: MultilingualText;
+  keywords: string[];
+  fileType: "pdf" | "docx" | "xlsx" | "zip" | "other";
+  fileSizeKb?: number;
+  uploadedAt: string;
+}
+
+// ── DATA ENTITIES ─────────────────────────────────────────────────────────────
 
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: "admin" | "editor" | "student";
+  role: Role;
   status: "active" | "banned";
   joined: string;
 }
@@ -18,15 +120,16 @@ export interface LegalText {
   id: string;
   title: string;
   slug: string;
-  domain: string; // قانون الأسرة / الشغل / الجنائي / التجاري / المدني...
+  domain: string;
   status: "published" | "draft";
-  content?: string; // sanitised rich HTML (full text)
-  reference?: string; // رقم الظهير / رقم القانون (e.g. "ظهير 1.04.22")
-  officialGazetteNumber?: string; // رقم الجريدة الرسمية
-  effectiveDate?: string; // تاريخ النفاذ
-  lastAmendedDate?: string; // تاريخ آخر تعديل
+  content?: string;
+  reference?: string;
+  officialGazetteNumber?: string;
+  effectiveDate?: string;
+  lastAmendedDate?: string;
   accessTier?: "free" | "premium" | "enterprise";
-  attachmentUrl?: string; // PDF of official text, if any
+  attachmentUrl?: string;
+  attachmentSeo?: DocumentFileSEO;
   tags?: string[];
   updated: string;
 }
@@ -42,18 +145,20 @@ export interface AdminArticle {
   views: number;
   updated: string;
   updatedAt?: string;
-  content?: string; // sanitised rich HTML
+  content?: string;
   excerpt?: string;
-  keyword?: string; // focus keyword
+  keyword?: string;
   metaTitle?: string;
   metaDescription?: string;
   tags?: string[];
   commentsEnabled?: boolean;
   allowComments?: boolean;
   coverImage?: string;
+  coverImageSeo?: PhotoMediaSEO;
+  multilingualTitle?: MultilingualText;
+  multilingualExcerpt?: MultilingualText;
 }
 
-// Type alias for compatibility with ArticleEditor
 export type Article = AdminArticle;
 
 export interface Comment {
@@ -80,6 +185,7 @@ export interface AdminPage {
   slug: string;
   status: "published" | "draft";
   updated: string;
+  multilingualTitle?: MultilingualText;
 }
 
 export interface SeoKeyword {
@@ -88,6 +194,7 @@ export interface SeoKeyword {
   clicks: number;
   impressions: number;
   position: number;
+  lang?: Lang;
 }
 
 export interface SecurityEvent {
@@ -98,7 +205,7 @@ export interface SecurityEvent {
   at: string;
 }
 
-interface CmsState {
+export interface CmsState {
   users: AdminUser[];
   articles: AdminArticle[];
   legalTexts: LegalText[];
@@ -107,70 +214,75 @@ interface CmsState {
   security: SecurityEvent[];
   comments: Comment[];
   traffic: TrafficHit[];
+  photosSeo: PhotoMediaSEO[];
+  documentsSeo: DocumentFileSEO[];
 }
 
 const KEY = "mizan_cms_v1";
 
 const SEED: CmsState = {
   users: [
-    { id: "u1", name: "أمين البقالي", email: "amine@mizan.ma", role: "admin", status: "active", joined: "2025-11-02" },
-    { id: "u2", name: "سلمى الفاسي", email: "salma@mizan.ma", role: "editor", status: "active", joined: "2026-01-14" },
-    { id: "u3", name: "يوسف الإدريسي", email: "youssef@um5.ac.ma", role: "student", status: "active", joined: "2026-03-21" },
-    { id: "u4", name: "نادية بنعلي", email: "nadia@uh2.ac.ma", role: "student", status: "banned", joined: "2026-02-08" },
-    { id: "u5", name: "Karim Alaoui", email: "karim@uca.ma", role: "student", status: "active", joined: "2026-05-30" },
+    { id: "u1", name: "أمين البقالي", email: "amine@mizan.ma", role: "root", status: "active", joined: "2025-11-02" },
+    { id: "u2", name: "سلمى الفاسي", email: "salma@mizan.ma", role: "admin", status: "active", joined: "2026-01-14" },
+    { id: "u3", name: "يوسف الإدريسي", email: "youssef@um5.ac.ma", role: "writer", status: "active", joined: "2026-03-21" },
+    { id: "u4", name: "نادية بنعلي", email: "nadia@uh2.ac.ma", role: "member", status: "banned", joined: "2026-02-08" },
+    { id: "u5", name: "Karim Alaoui", email: "karim@uca.ma", role: "guest", status: "active", joined: "2026-05-30" },
   ],
   articles: [
-    { id: "a1", title: "أسئلة وأجوبة امتحان قانون الأسرة S1", slug: "family-law-s1-2026", category: "قانون الأسرة", status: "published", published: true, author: "سلمى الفاسي", views: 4200, updated: "2026-07-13", commentsEnabled: true, allowComments: true, tags: ["S1", "2026", "مدوّنة الأسرة"], excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة.", metaDescription: "نماذج إجابات شاملة لامتحان قانون الأسرة S1 بالمغرب 2026: الزواج، الطلاق، النسب والحضانة.", keyword: "قانون الأسرة" },
-    { id: "a2", title: "مستجدات قانون المسطرة الجنائية 2025", slug: "criminal-procedure-2025", category: "القانون الجنائي", status: "published", published: true, author: "أمين البقالي", views: 2800, updated: "2026-07-12", commentsEnabled: true, allowComments: true, tags: ["مسطرة جنائية", "2025"] },
-    { id: "a3", title: "عقد الشركة وأحكام محكمة النقض", slug: "company-contract-cassation", category: "القانون التجاري", status: "draft", published: false, author: "سلمى الفاسي", views: 0, updated: "2026-07-09", commentsEnabled: false, allowComments: false, tags: ["شركات"] },
+    {
+      id: "a1",
+      title: "أسئلة وأجوبة امتحان قانون الأسرة S1",
+      slug: "family-law-s1-2026",
+      category: "قانون الأسرة",
+      status: "published",
+      published: true,
+      author: "سلمى الفاسي",
+      views: 4200,
+      updated: "2026-07-13",
+      commentsEnabled: true,
+      allowComments: true,
+      tags: ["S1", "2026", "مدوّنة الأسرة"],
+      excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة.",
+      keyword: "قانون الأسرة",
+      multilingualTitle: {
+        ar: "أسئلة وأجوبة امتحان قانون الأسرة S1",
+        fr: "Questions & Réponses Examen Droit de la Famille S1",
+        en: "Family Law S1 Exam Questions & Answers",
+        es: "Examen de Derecho de Familia S1 Preguntas y Respuestas",
+      },
+    },
+    {
+      id: "a2",
+      title: "مستجدات قانون المسطرة الجنائية 2025",
+      slug: "criminal-procedure-2025",
+      category: "القانون الجنائي",
+      status: "published",
+      published: true,
+      author: "أمين البقالي",
+      views: 2800,
+      updated: "2026-07-12",
+      commentsEnabled: true,
+      allowComments: true,
+      tags: ["مسطرة جنائية", "2025"],
+    },
   ],
   legalTexts: [
-    {
-      id: "lt1",
-      title: "مدونة الأسرة - القانون رقم 70.03",
-      slug: "moudawana-family-code",
-      domain: "قانون الأسرة",
-      status: "published",
-      reference: "ظهير شريف رقم 1.04.22",
-      officialGazetteNumber: "5184",
-      effectiveDate: "2004-02-05",
-      accessTier: "free",
-      updated: "2026-06-10",
-      tags: ["الأسرة", "الزواج", "الحضانة"],
-    },
+    { id: "lt1", title: "مدونة الأسرة - القانون رقم 70.03", slug: "moudawana-family-code", domain: "قانون الأسرة", status: "published", updated: "2026-06-10" },
   ],
   pages: [
     { id: "p1", title: "عن المنصة", slug: "about", status: "published", updated: "2026-06-01" },
-    { id: "p2", title: "سياسة الخصوصية", slug: "legal/privacy", status: "published", updated: "2026-06-01" },
-    { id: "p3", title: "شروط الاستخدام", slug: "legal/terms", status: "published", updated: "2026-06-01" },
-    { id: "p4", title: "اتصل بنا", slug: "contact", status: "published", updated: "2026-06-01" },
   ],
-  keywords: [
-    { id: "k1", keyword: "مدونة الأسرة المغربية", clicks: 3120, impressions: 48200, position: 2.4 },
-    { id: "k2", keyword: "امتحانات القانون S1", clicks: 2140, impressions: 31900, position: 3.1 },
-    { id: "k3", keyword: "قانون المسطرة الجنائية", clicks: 1780, impressions: 27400, position: 4.8 },
-    { id: "k4", keyword: "law schools morocco", clicks: 940, impressions: 15600, position: 5.2 },
-    { id: "k5", keyword: "jurisprudence marocaine", clicks: 610, impressions: 12100, position: 6.7 },
-  ],
-  security: [
-    { id: "s1", type: "auth", detail: "5 محاولات دخول فاشلة من IP 41.xx.xx.12", severity: "warning", at: "2026-07-15 09:22" },
-    { id: "s2", type: "rate_limit", detail: "تم حظر إرسال نموذج التواصل (كشف رسائل مزعجة)", severity: "info", at: "2026-07-15 08:10" },
-    { id: "s3", type: "injection", detail: "تم تحييد محاولة حقن في بحث المقالات", severity: "critical", at: "2026-07-14 21:47" },
-    { id: "s4", type: "auth", detail: "تسجيل دخول ناجح للمدير أمين البقالي", severity: "info", at: "2026-07-14 18:03" },
-  ],
+  keywords: [],
+  security: [],
   comments: [
-    { id: "c1", articleId: "a1", name: "طالب مجتهد", body: "شرح ممتاز، شكراً جزيلاً على المجهود!", at: "2026-07-14 12:20" },
-    { id: "c2", articleId: "a1", name: "Fatima", body: "هل يمكن إضافة نماذج امتحانات S2؟", at: "2026-07-14 15:44" },
+    { id: "c1", articleId: "a1", name: "محمد العلمي", body: "شرح ممتاز ودقيق للامتحان، شكراً لكم.", at: "2026-07-20 14:30" },
   ],
-  traffic: [
-    { id: "t1", path: "/article/family-law-s1-2026", source: "google", medium: "organic", campaign: "", referrer: "https://www.google.com/", at: "2026-07-15 08:00" },
-    { id: "t2", path: "/article/family-law-s1-2026", source: "facebook", medium: "social", campaign: "share", referrer: "https://facebook.com/", at: "2026-07-15 09:12" },
-    { id: "t3", path: "/schools", source: "whatsapp", medium: "share", campaign: "school", referrer: "", at: "2026-07-15 10:03" },
-    { id: "t4", path: "/", source: "direct", medium: "none", campaign: "", referrer: "", at: "2026-07-15 10:30" },
-    { id: "t5", path: "/article/criminal-procedure-2025", source: "twitter", medium: "social", campaign: "share", referrer: "https://t.co/", at: "2026-07-15 11:15" },
-  ],
+  traffic: [],
+  photosSeo: [],
+  documentsSeo: [],
 };
 
+// ── STORE READ/WRITE UTILITIES ────────────────────────────────────────────────
 function read(): CmsState {
   if (typeof window === "undefined") return SEED;
   try {
@@ -180,11 +292,13 @@ function read(): CmsState {
       return {
         ...SEED,
         ...parsed,
-        legalTexts: parsed.legalTexts || SEED.legalTexts,
+        comments: parsed.comments || SEED.comments,
+        photosSeo: parsed.photosSeo || SEED.photosSeo,
+        documentsSeo: parsed.documentsSeo || SEED.documentsSeo,
       };
     }
   } catch {
-    /* ignore parse errors */
+    /* Safe fallback */
   }
   return structuredClone(SEED);
 }
@@ -198,13 +312,12 @@ function commit(next: CmsState) {
     try {
       localStorage.setItem(KEY, JSON.stringify(next));
     } catch {
-      /* ignore storage errors */
+      /* Safe fallback */
     }
   }
   listeners.forEach((l) => l());
 }
 
-// Cross-tab synchronization
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
     if (e.key === KEY) {
@@ -220,11 +333,7 @@ function subscribe(cb: () => void) {
 }
 
 export function useCms(): CmsState {
-  return useSyncExternalStore(
-    subscribe,
-    () => state,
-    () => SEED
-  );
+  return useSyncExternalStore(subscribe, () => state, () => SEED);
 }
 
 const uid = () =>
@@ -234,37 +343,62 @@ const uid = () =>
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-// ── Users ─────────────────────────────────────────────────────────────────────
+// ── GOOGLE ANALYTICS & EVENT TRACKER ──────────────────────────────────────────
+export function trackGoogleEvent(eventName: string, params: Record<string, any> = {}) {
+  if (typeof window !== "undefined") {
+    const dataLayer = (window as any).dataLayer || [];
+    dataLayer.push({
+      event: eventName,
+      ga_id: GA_ID,
+      gtm_id: GTM_ID,
+      site_domain: SITE_URL,
+      timestamp: new Date().toISOString(),
+      ...params,
+    });
+  }
+}
+
+// ── USER MANAGEMENT ──────────────────────────────────────────────────────────
 export const setUserStatus = async (id: string, status: AdminUser["status"]) => {
+  await ensurePrivilege(ROLES.USER_MANAGERS);
   commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, status } : u)) });
-  await supabase
-    .from("profiles")
-    .update({ is_frozen: status === "banned" })
-    .eq("id", id);
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("profiles") as any).update({ is_frozen: status === "banned" }).eq("id", id);
+  }
 };
 
 export const setUserRole = async (id: string, role: AdminUser["role"]) => {
+  await ensurePrivilege(ROLES.ROOT); // ONLY Root can escalate privileges
   commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, role } : u)) });
-  await supabase
-    .from("profiles")
-    .update({ role })
-    .eq("id", id);
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("profiles") as any).update({ role }).eq("id", id);
+  }
 };
 
 export const deleteUser = async (id: string) => {
+  await ensurePrivilege(ROLES.ROOT); // ONLY Root can permanently delete
   commit({ ...state, users: state.users.filter((u) => u.id !== id) });
-  await supabase.from("profiles").delete().eq("id", id);
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("profiles") as any).delete().eq("id", id);
+  }
 };
 
-// ── Articles ──────────────────────────────────────────────────────────────────
-export const getArticleById = (cmsState: CmsState, id: string): AdminArticle | undefined => {
-  return cmsState.articles.find((a) => a.id === id);
-};
-
+// ── ARTICLE MANAGEMENT ────────────────────────────────────────────────────────
 export const saveArticle = async (a: Partial<AdminArticle> & { id?: string }) => {
+  await ensurePrivilege(ROLES.CONTENT_WRITERS);
+
   const isExisting = a.id && state.articles.some((x) => x.id === a.id);
-  const targetId = a.id || uid();
-  const isPublished = a.published ?? (a.status === "published");
+  const targetId = sanitizeText(a.id || uid(), 50);
+  const isPublished = a.published ?? a.status === "published";
+
+  const sanitizedTitle = sanitizeText(a.title || "");
+  const sanitizedSlug = sanitizeText(a.slug || targetId);
+  const sanitizedCategory = sanitizeText(a.category || "General");
+  const sanitizedExcerpt = sanitizeText(a.excerpt || "", 500);
+  const sanitizedContent = sanitizeHtml(a.content || "");
 
   if (isExisting) {
     commit({
@@ -274,10 +408,13 @@ export const saveArticle = async (a: Partial<AdminArticle> & { id?: string }) =>
           ? ({
               ...x,
               ...a,
+              title: sanitizedTitle,
+              slug: sanitizedSlug,
+              content: sanitizedContent,
+              excerpt: sanitizedExcerpt,
               status: isPublished ? "published" : "draft",
               published: isPublished,
               allowComments: a.allowComments ?? x.allowComments ?? x.commentsEnabled ?? true,
-              commentsEnabled: a.allowComments ?? x.commentsEnabled ?? true,
               updated: today(),
               updatedAt: new Date().toISOString(),
             } as AdminArticle)
@@ -287,64 +424,137 @@ export const saveArticle = async (a: Partial<AdminArticle> & { id?: string }) =>
   } else {
     const na: AdminArticle = {
       id: targetId,
-      title: a.title || "",
-      slug: a.slug || targetId,
-      category: a.category || "Uncategorized",
+      title: sanitizedTitle,
+      slug: sanitizedSlug,
+      category: sanitizedCategory,
       status: isPublished ? "published" : "draft",
       published: isPublished,
-      author: a.author || "Admin",
+      author: sanitizeText(a.author || "Mizan Editor"),
       views: 0,
       updated: today(),
       updatedAt: new Date().toISOString(),
-      excerpt: a.excerpt || "",
-      content: a.content || "",
-      coverImage: a.coverImage || "",
+      excerpt: sanitizedExcerpt,
+      content: sanitizedContent,
+      coverImage: sanitizeText(a.coverImage || "", 1000),
       allowComments: a.allowComments ?? true,
       commentsEnabled: a.allowComments ?? true,
     };
     commit({ ...state, articles: [na, ...state.articles] });
   }
 
-  await supabase.from("articles").upsert({
-    id: targetId,
-    title: a.title,
-    slug: a.slug,
-    category: a.category,
-    status: isPublished ? "published" : "draft",
-    author: a.author,
-    excerpt: a.excerpt,
-    content: a.content,
-    cover_image: a.coverImage,
-    allow_comments: a.allowComments,
-    updated_at: new Date().toISOString(),
-  });
-};
+  trackGoogleEvent("article_saved", { article_id: targetId, slug: sanitizedSlug });
 
-export const upsertArticle = saveArticle;
+  if (isSupabaseConfigured) {
+    await (supabase.from("articles") as any).upsert({
+      id: targetId,
+      title: sanitizedTitle,
+      slug: sanitizedSlug,
+      category: sanitizedCategory,
+      status: isPublished ? "published" : "draft",
+      author: a.author,
+      excerpt: sanitizedExcerpt,
+      content: sanitizedContent,
+      cover_image: a.coverImage,
+      allow_comments: a.allowComments,
+      updated_at: new Date().toISOString(),
+    });
+  }
+};
 
 export const deleteArticle = async (id: string) => {
+  await ensurePrivilege(["root", "admin"]);
   commit({ ...state, articles: state.articles.filter((a) => a.id !== id) });
-  await supabase.from("articles").delete().eq("id", id);
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("articles") as any).delete().eq("id", id);
+  }
 };
 
-// ── Legal Texts ───────────────────────────────────────────────────────────────
+// ── COMMENTS MANAGEMENT ───────────────────────────────────────────────────────
+export const addComment = async (
+  articleId: string,
+  authorName: string,
+  bodyText: string
+): Promise<Comment> => {
+  const cleanName = sanitizeText(authorName, 60) || "Guest";
+  const cleanBody = sanitizeText(bodyText, 1000);
+
+  if (cleanBody.length < 3) {
+    throw new Error("Comment is too short.");
+  }
+
+  if (looksLikeSpam(`${cleanName} ${cleanBody}`)) {
+    throw new Error("Comment rejected by security spam filter.");
+  }
+
+  const newComment: Comment = {
+    id: `c_${uid()}`,
+    articleId,
+    name: cleanName,
+    body: cleanBody,
+    at: new Date().toISOString().replace("T", " ").slice(0, 16),
+  };
+
+  commit({
+    ...state,
+    comments: [newComment, ...state.comments],
+  });
+
+  trackGoogleEvent("comment_created", { article_id: articleId, comment_id: newComment.id });
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("comments") as any).insert({
+      id: newComment.id,
+      article_id: articleId,
+      author_name: cleanName,
+      body: cleanBody,
+      created_at: new Date().toISOString(),
+    });
+  }
+
+  return newComment;
+};
+
+export const deleteComment = async (commentId: string): Promise<void> => {
+  await ensurePrivilege(ROLES.STAFF);
+
+  commit({
+    ...state,
+    comments: state.comments.filter((c) => c.id !== commentId),
+  });
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("comments") as any).delete().eq("id", commentId);
+  }
+};
+
+// ── LEGAL TEXTS MANAGEMENT ────────────────────────────────────────────────────
 export const upsertLegalText = async (lt: Partial<LegalText> & { id?: string }) => {
+  await ensurePrivilege(ROLES.CONTENT_WRITERS);
+
   const isExisting = lt.id && state.legalTexts.some((x) => x.id === lt.id);
-  const targetId = lt.id || uid();
+  const targetId = sanitizeText(lt.id || uid(), 50);
+  const cleanTitle = sanitizeText(lt.title || "");
+  const cleanSlug = sanitizeText(lt.slug || targetId);
+  const cleanDomain = sanitizeText(lt.domain || "General");
+  const cleanContent = sanitizeHtml(lt.content || "");
 
   if (isExisting) {
     commit({
       ...state,
       legalTexts: state.legalTexts.map((x) =>
-        x.id === targetId ? ({ ...x, ...lt, updated: today() } as LegalText) : x
+        x.id === targetId
+          ? ({ ...x, ...lt, title: cleanTitle, slug: cleanSlug, content: cleanContent, updated: today() } as LegalText)
+          : x
       ),
     });
   } else {
     const nlt: LegalText = {
       id: targetId,
-      title: lt.title || "",
-      slug: lt.slug || targetId,
-      domain: lt.domain || "عام",
+      title: cleanTitle,
+      slug: cleanSlug,
+      domain: cleanDomain,
+      content: cleanContent,
       status: lt.status || "draft",
       accessTier: lt.accessTier || "free",
       updated: today(),
@@ -352,103 +562,97 @@ export const upsertLegalText = async (lt: Partial<LegalText> & { id?: string }) 
     commit({ ...state, legalTexts: [nlt, ...state.legalTexts] });
   }
 
-  await supabase.from("legal_texts").upsert({
-    id: targetId,
-    title: lt.title,
-    slug: lt.slug,
-    domain: lt.domain,
-    status: lt.status,
-    access_tier: lt.accessTier,
-    updated_at: new Date().toISOString(),
-  });
+  if (isSupabaseConfigured) {
+    await (supabase.from("legal_texts") as any).upsert({
+      id: targetId,
+      title: cleanTitle,
+      slug: cleanSlug,
+      domain: cleanDomain,
+      content: cleanContent,
+      status: lt.status,
+      access_tier: lt.accessTier,
+      updated_at: new Date().toISOString(),
+    });
+  }
 };
 
 export const deleteLegalText = async (id: string) => {
+  await ensurePrivilege(["root", "admin"]);
   commit({ ...state, legalTexts: state.legalTexts.filter((lt) => lt.id !== id) });
-  await supabase.from("legal_texts").delete().eq("id", id);
+
+  if (isSupabaseConfigured) {
+    await (supabase.from("legal_texts") as any).delete().eq("id", id);
+  }
 };
 
-// ── Pages ─────────────────────────────────────────────────────────────────────
+// ── PAGES MANAGEMENT ──────────────────────────────────────────────────────────
 export const upsertPage = async (p: Partial<AdminPage> & { id?: string }) => {
+  await ensurePrivilege(["root", "admin"]);
   const isExisting = p.id && state.pages.some((x) => x.id === p.id);
-  const targetId = p.id || uid();
+  const targetId = sanitizeText(p.id || uid(), 50);
+  const cleanTitle = sanitizeText(p.title || "");
+  const cleanSlug = sanitizeText(p.slug || targetId);
 
   if (isExisting) {
     commit({
       ...state,
       pages: state.pages.map((x) =>
-        x.id === targetId ? ({ ...x, ...p, updated: today() } as AdminPage) : x
+        x.id === targetId
+          ? ({ ...x, ...p, title: cleanTitle, slug: cleanSlug, updated: today() } as AdminPage)
+          : x
       ),
     });
   } else {
-    const np: AdminPage = {
-      id: targetId,
-      title: p.title || "",
-      slug: p.slug || targetId,
-      status: p.status || "draft",
-      updated: today(),
-    };
-    commit({ ...state, pages: [np, ...state.pages] });
+    commit({
+      ...state,
+      pages: [
+        { id: targetId, title: cleanTitle, slug: cleanSlug, status: p.status || "draft", updated: today() },
+        ...state.pages,
+      ],
+    });
   }
-
-  await supabase.from("pages").upsert({
-    id: targetId,
-    title: p.title,
-    slug: p.slug,
-    status: p.status,
-    updated_at: new Date().toISOString(),
-  });
 };
 
 export const deletePage = async (id: string) => {
+  await ensurePrivilege(ROLES.ROOT);
   commit({ ...state, pages: state.pages.filter((p) => p.id !== id) });
-  await supabase.from("pages").delete().eq("id", id);
 };
 
-// ── Comments ──────────────────────────────────────────────────────────────────
-export const addComment = async (articleId: string, name: string, body: string) => {
-  const c: Comment = {
-    id: uid(),
-    articleId,
-    name,
-    body,
-    at: new Date().toISOString().slice(0, 16).replace("T", " "),
-  };
-  commit({ ...state, comments: [...state.comments, c] });
+// ── PHOTO & FILE MASTER SEO MANAGEMENT ───────────────────────────────────────
+export const upsertPhotoSEO = async (photo: PhotoMediaSEO) => {
+  await ensurePrivilege(ROLES.CONTENT_WRITERS);
 
-  await supabase.from("comments").insert({
-    id: c.id,
-    article_id: articleId,
-    name,
-    body,
-    created_at: new Date().toISOString(),
-  });
+  const exists = state.photosSeo.some((p) => p.id === photo.id);
+  const updatedList = exists
+    ? state.photosSeo.map((p) => (p.id === photo.id ? photo : p))
+    : [photo, ...state.photosSeo];
 
-  return c;
+  commit({ ...state, photosSeo: updatedList });
 };
 
-export const deleteComment = async (id: string) => {
-  commit({ ...state, comments: state.comments.filter((c) => c.id !== id) });
-  await supabase.from("comments").delete().eq("id", id);
+export const deletePhotoSEO = async (id: string) => {
+  await ensurePrivilege(["root", "admin"]);
+  commit({ ...state, photosSeo: state.photosSeo.filter((p) => p.id !== id) });
 };
 
-export const getComments = (articleId: string) =>
-  state.comments.filter((c) => c.articleId === articleId);
+export const upsertDocumentSEO = async (doc: DocumentFileSEO) => {
+  await ensurePrivilege(ROLES.CONTENT_WRITERS);
 
-// ── Traffic / Referral Tracking ───────────────────────────────────────────────
-export const logTraffic = async (hit: Omit<TrafficHit, "id" | "at">) => {
-  const h: TrafficHit = {
-    ...hit,
-    id: uid(),
-    at: new Date().toISOString().slice(0, 16).replace("T", " "),
-  };
-  commit({ ...state, traffic: [h, ...state.traffic].slice(0, 200) });
+  const exists = state.documentsSeo.some((d) => d.id === doc.id);
+  const updatedList = exists
+    ? state.documentsSeo.map((d) => (d.id === doc.id ? doc : d))
+    : [doc, ...state.documentsSeo];
 
-  await supabase.from("traffic_logs").insert({
-    path: hit.path,
-    source: hit.source,
-    medium: hit.medium,
-    campaign: hit.campaign,
-    referrer: hit.referrer,
-  });
+  commit({ ...state, documentsSeo: updatedList });
 };
+
+export const deleteDocumentSEO = async (id: string) => {
+  await ensurePrivilege(["root", "admin"]);
+  commit({ ...state, documentsSeo: state.documentsSeo.filter((d) => d.id !== id) });
+};
+
+// ── UTILITIES & HELPER EXPORTS ────────────────────────────────────────────────
+export const getArticleById = (cmsState: CmsState, id: string) =>
+  cmsState.articles.find((a) => a.id === id);
+
+export const upsertArticle = saveArticle;
