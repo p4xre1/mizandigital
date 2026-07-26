@@ -1,16 +1,23 @@
 // ── Schema.org JSON-LD Injection Helper ─────────────────────────────────────────
 // Injects structured data into <head> for SEO. SSR-safe and Google Rich Result compliant.
 
-const DEFAULT_ORIGIN = "https://www.mizan.page";
+const PRIMARY_ORIGIN = "https://www.mizan.page";
 
 /**
- * Resolves the full canonical origin safely across client and SSR environments.
+ * Resolves the canonical origin for Google SEO schema generation.
  */
 function getOrigin(): string {
-  if (typeof window !== "undefined" && window.location.origin) {
-    return window.location.origin;
-  }
-  return DEFAULT_ORIGIN;
+  return PRIMARY_ORIGIN;
+}
+
+/**
+ * Helper to map language code to standard locale
+ */
+function getLocaleCode(lang?: string): string {
+  if (!lang || lang === "ar") return "ar-MA";
+  if (lang === "fr") return "fr-MA";
+  if (lang === "es") return "es-ES";
+  return "en";
 }
 
 /**
@@ -93,7 +100,7 @@ export function setWebSiteSchema() {
       name: "Mizan Platform",
       url: site,
     },
-    inLanguage: ["ar-MA", "fr-MA", "en", "es"],
+    inLanguage: ["ar-MA", "fr-MA", "en", "es-ES"],
     potentialAction: {
       "@type": "SearchAction",
       target: normalizeUrl(`/ar/search?q={search_term_string}`),
@@ -121,7 +128,7 @@ export function setLegalArticleSchema(a: LegalArticleSchemaProps) {
     headline: a.headline,
     description: a.description,
     url: fullUrl,
-    inLanguage: a.lang === "ar" || !a.lang ? "ar-MA" : `${a.lang}-MA`,
+    inLanguage: getLocaleCode(a.lang),
     author: {
       "@type": "Person",
       name: "Mizan Editorial",
@@ -168,7 +175,7 @@ export function setArticleSchema(a: ArticleSchemaProps) {
     headline: a.title,
     description: a.description,
     url: fullUrl,
-    inLanguage: a.lang === "ar" || !a.lang ? "ar-MA" : `${a.lang}-MA`,
+    inLanguage: getLocaleCode(a.lang),
     articleSection: a.category,
     author: { "@type": "Person", name: a.author || "Mizan Editorial" },
     publisher: { "@type": "Organization", name: "Mizan Platform", url: getOrigin() },
@@ -181,10 +188,10 @@ export function setArticleSchema(a: ArticleSchemaProps) {
 
   // 🔒 Google Rich Result Compliant Gated Content / Paywall Schema
   if (a.requiresPaidAccess) {
-    data.isAccessibleForFree = false; // Strictly boolean
+    data.isAccessibleForFree = false;
     data.hasPart = {
       "@type": "WebPageElement",
-      isAccessibleForFree: false, // Strictly boolean
+      isAccessibleForFree: false,
       cssSelector: a.lockedCssSelector || ".premium-content-section",
     };
   } else {
