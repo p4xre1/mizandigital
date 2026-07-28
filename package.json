@@ -86,12 +86,12 @@
     "autoprefixer": "^10.5.4",
     "tailwindcss": "4.1.12",
     "typescript": "^7.0.2",
-    "vite": "6.3.5",
+    "vite": "^6.4.3",
     "wrangler": "^4.112.0"
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.5"
+      "vite": "^6.4.0"
     },
     "onlyBuiltDependencies": [
       "@tailwindcss/oxide",

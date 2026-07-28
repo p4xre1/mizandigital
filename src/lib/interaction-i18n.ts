@@ -1,17 +1,12 @@
+// noinspection SpellCheckingInspection
 // Mizan Platform — interaction & account UI payload (4-language, RTL/LTR aware)
 // Sync targets: Supabase tables `interaction_ui_elements`, `account_management_elements`
 
 export type Lang = "ar" | "fr" | "en" | "es";
 
-export const LANG_DIR: Record<Lang, "rtl" | "ltr"> = {
-  ar: "rtl",
-  fr: "ltr",
-  en: "ltr",
-  es: "ltr",
-};
-
 export type LocalizedText = Record<Lang, string>;
 
+// noinspection SpellCheckingInspection
 export const interactionUIElements = {
   article_actions: {
     like_active: { ar: "إلغاء الإعجاب", fr: "Aimé", en: "Liked", es: "Me Gusta" },
@@ -22,6 +17,7 @@ export const interactionUIElements = {
   },
 } as const satisfies Record<string, Record<string, LocalizedText>>;
 
+// noinspection SpellCheckingInspection
 export const accountManagementElements = {
   edit_profile_modal: {
     edit_username_label: { ar: "اسم المستخدم", fr: "Nom d'utilisateur", en: "Username", es: "Nombre de usuario" },
@@ -44,29 +40,6 @@ export const accountManagementElements = {
   },
 } as const satisfies Record<string, Record<string, LocalizedText>>;
 
-// 🚀 NEW: Role and Permission Management UI Elements based on `useRole` hook
-export const roleManagementElements = {
-  role_badges: {
-    root: { ar: "المدير العام", fr: "Super Administrateur", en: "Root Admin", es: "Super Administrador" },
-    security_admin: { ar: "مدير الأمن", fr: "Admin Sécurité", en: "Security Admin", es: "Admin de Seguridad" },
-    admin: { ar: "مدير", fr: "Administrateur", en: "Admin", es: "Administrador" },
-    marketer: { ar: "مسوق", fr: "Marketeur", en: "Marketer", es: "Especialista en Marketing" },
-    writer: { ar: "كاتب", fr: "Rédacteur", en: "Writer", es: "Escritor" },
-    member: { ar: "عضو", fr: "Membre", en: "Member", es: "Miembro" },
-    guest: { ar: "زائر", fr: "Invité", en: "Guest", es: "Invitado" },
-  },
-  permissions: {
-    is_staff: { ar: "طاقم العمل", fr: "Équipe", en: "Staff", es: "Equipo" },
-    can_manage_users: { ar: "إدارة المستخدمين", fr: "Gérer les utilisateurs", en: "Manage Users", es: "Gestionar usuarios" },
-    can_write_content: { ar: "إدارة المحتوى", fr: "Gérer le contenu", en: "Manage Content", es: "Gestionar contenido" },
-  }
-} as const satisfies Record<string, Record<string, LocalizedText>>;
-
-export const backendActionTriggers = {
-  supabase_storage_bucket: "profile-pictures",
-  supabase_edge_function_trigger: "deleteUserAccount Cascade",
-} as const;
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
@@ -74,40 +47,9 @@ export const backendActionTriggers = {
  * Fallbacks to Arabic, then English if the requested language is completely missing.
  */
 export function getInteractionText(
-  item: LocalizedText | { readonly [K in Lang]: string } | undefined,
-  lang: Lang
+    item: LocalizedText | { readonly [K in Lang]: string } | undefined,
+    lang: Lang
 ): string {
   if (!item) return "";
   return item[lang] || item["ar"] || item["en"] || "";
-}
-
-/**
- * Safely resolves dot-notation paths (e.g. "role_badges.root" or "article_actions.like_active")
- * Returns the path itself if the translation is not found.
- */
-export function getInteractionKey(path: string, lang: Lang): string {
-  if (!path || typeof path !== "string") return "";
-
-  const parts = path.split(".");
-  if (parts.length !== 2) return path;
-
-  const [category, key] = parts;
-
-  // Type assertion since we know the structure of these objects
-  const interactionScope = interactionUIElements as Record<string, Record<string, LocalizedText>>;
-  const accountScope = accountManagementElements as Record<string, Record<string, LocalizedText>>;
-  const roleScope = roleManagementElements as Record<string, Record<string, LocalizedText>>; // 👈 Added Role Scope
-
-  // Search across all scopes
-  const target = 
-    interactionScope[category]?.[key] || 
-    accountScope[category]?.[key] || 
-    roleScope[category]?.[key]; // 👈 Integrated Role Scope
-
-  if (target) {
-    return getInteractionText(target, lang);
-  }
-
-  // Fallback: return the requested path so the developer spots the missing key
-  return path;
 }

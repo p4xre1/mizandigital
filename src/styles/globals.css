@@ -99,7 +99,7 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-sans);
+    font-family: var(--font-sans), sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
     text-rendering: optimizeLegibility;
@@ -109,12 +109,12 @@
 
   /* Automatic font enforcement based on document language */
   [lang="ar"] {
-    font-family: var(--font-arabic);
+    font-family: var(--font-arabic), sans-serif;
   }
 
   [lang="en"],
   [lang="fr"],
   [lang="es"] {
-    font-family: var(--font-latin);
+    font-family: var(--font-latin), sans-serif;
   }
 }
