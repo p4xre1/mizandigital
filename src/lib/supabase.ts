@@ -1,14 +1,11 @@
+// noinspection SpellCheckingInspection
 import { createClient } from "@supabase/supabase-js";
 import type { Database, Json } from "@/types/database.types";
 
 // ── ENVIRONMENT CONFIGURATION ────────────────────────────────────────────────
 export const SITE_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
-  "https://www.mizan.page";
-
-export const APP_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_URL) ||
-  "https://www.mizan.page";
+    (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
+    "https://www.mizan.page";
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
@@ -17,21 +14,21 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
  * Validates whether Supabase credentials are configured correctly.
  */
 export const isSupabaseConfigured = Boolean(
-  supabaseUrl &&
-  supabaseAnonKey &&
-  supabaseUrl !== "https://your-supabase-id.supabase.co" &&
-  supabaseAnonKey !== "your-supabase-anon-key"
+    supabaseUrl &&
+    supabaseAnonKey &&
+    supabaseUrl !== "https://your-supabase-id.supabase.co" &&
+    supabaseAnonKey !== "your-supabase-anon-key"
 );
 
 const safeUrl = isSupabaseConfigured
-  ? supabaseUrl
-  : "https://placeholder-project.supabase.co";
+    ? supabaseUrl
+    : "https://placeholder-project.supabase.co";
 
 const safeAnonKey = isSupabaseConfigured
-  ? supabaseAnonKey
-  : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder";
+    ? supabaseAnonKey
+    : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder";
 
-// ── MILITARY-GRADE SUPABASE CLIENT CONFIGURATION ─────────────────────────────
+// ── SUPABASE CLIENT CONFIGURATION ───────────────────────────────────────────
 export const supabase = createClient<Database>(safeUrl, safeAnonKey, {
   auth: {
     persistSession: true,
@@ -47,67 +44,7 @@ export const supabase = createClient<Database>(safeUrl, safeAnonKey, {
   },
 });
 
-// ── Fast Phone-First & Google Authentication Helpers ─────────────────────────
-
-/**
- * Instant Google OAuth Login with secured redirect target
- */
-export async function signInWithGoogle(redirectTo?: string) {
-  if (!isSupabaseConfigured) throw new Error("Supabase is not configured.");
-  const redirectTarget = `${APP_URL}${redirectTo || "/auth/callback"}`;
-
-  return await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: redirectTarget,
-      queryParams: {
-        access_type: "offline",
-        prompt: "consent",
-      },
-    },
-  });
-}
-
-/**
- * Phone-First OTP Sign-In (SMS authentication)
- */
-export async function signInWithPhone(phoneNumber: string) {
-  if (!isSupabaseConfigured) throw new Error("Supabase is not configured.");
-
-  return await supabase.auth.signInWithOtp({
-    phone: phoneNumber,
-    options: {
-      shouldCreateUser: true,
-    },
-  });
-}
-
-/**
- * Phone OTP Verification
- */
-export async function verifyPhoneOtp(phoneNumber: string, token: string) {
-  if (!isSupabaseConfigured) throw new Error("Supabase is not configured.");
-
-  return await supabase.auth.verifyOtp({
-    phone: phoneNumber,
-    token,
-    type: "sms",
-  });
-}
-
-/**
- * High-security logout with session purging
- */
-export async function signOutSecurely() {
-  if (!isSupabaseConfigured) return;
-  await supabase.auth.signOut();
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("mizan_secure_auth_token");
-    sessionStorage.clear();
-  }
-}
-
-// ── 🌐 4-Language System Types & Resolvers (`ar`, `fr`, `en`, `es`) ─────────
+// ── 🌐 4-Language System Types ──────────────────────────────────────────────
 export type SupportedLang = "ar" | "fr" | "en" | "es";
 
 export interface MultilingualField {
@@ -117,36 +54,87 @@ export interface MultilingualField {
   es?: string | null;
 }
 
-/**
- * Resolves local translation strings from the `ui_translations` database table
- */
-export async function fetchUiTranslations(
-  domain?: string
-): Promise<Record<string, Record<SupportedLang, string>>> {
-  if (!isSupabaseConfigured) return {};
+// ── 📰 Articles & Content Query Helpers ─────────────────────────────────────
 
-  let query = supabase.from("ui_translations").select("key, domain, ar, fr, en, es");
-  if (domain) query = query.eq("domain", domain);
-
-  const { data, error } = await query;
-  if (error || !data) return {};
-
-  type UiTranslationRow = Database["public"]["Tables"]["ui_translations"]["Row"];
-  const rows = data as unknown as UiTranslationRow[];
-
-  return rows.reduce((acc, row) => {
-    if (!row?.key) return acc;
-    acc[row.key] = {
-      ar: row.ar || "",
-      fr: row.fr || row.ar || "",
-      en: row.en || row.ar || "",
-      es: row.es || row.ar || "",
-    };
-    return acc;
-  }, {} as Record<string, Record<SupportedLang, string>>);
+export interface GetArticlesOptions {
+  limit?: number;
+  offset?: number;
+  category?: string;
+  lang?: SupportedLang;
+  featured?: boolean;
+  searchQuery?: string;
 }
 
-// ── 🔍 Master SEO & Keyword Utilities (Text, Photos, Files) ───────────────────
+/**
+ * Fetches articles from Supabase with flexible filters (Category, Language, Search)
+ */
+export async function getArticles(options: GetArticlesOptions = {}) {
+  if (!isSupabaseConfigured) {
+    return { data: [], count: 0, error: null };
+  }
+
+  try {
+    let query = supabase
+        .from("articles")
+        .select("*", { count: "exact" });
+
+    if (options.category) {
+      query = query.eq("category", options.category);
+    }
+
+    if (options.lang) {
+      query = query.eq("language", options.lang);
+    }
+
+    if (options.featured !== undefined) {
+      query = query.eq("is_featured", options.featured);
+    }
+
+    if (options.searchQuery) {
+      query = query.or(
+          `title.ilike.%${options.searchQuery}%,summary.ilike.%${options.searchQuery}%`
+      );
+    }
+
+    query = query.order("created_at", { ascending: false });
+
+    if (options.limit) {
+      const from = options.offset || 0;
+      const to = from + options.limit - 1;
+      query = query.range(from, to);
+    }
+
+    const { data, count, error } = await query;
+    return { data: data || [], count: count || 0, error };
+  } catch (err) {
+    console.error("[SUPABASE GET_ARTICLES ERROR]", err);
+    return { data: [], count: 0, error: err };
+  }
+}
+
+/**
+ * Fetches a single article by its unique slug
+ */
+export async function getArticleBySlug(slug: string) {
+  if (!isSupabaseConfigured) {
+    return { data: null, error: null };
+  }
+
+  try {
+    const { data, error } = await supabase
+        .from("articles")
+        .select("*")
+        .eq("slug", slug)
+        .maybeSingle();
+
+    return { data, error };
+  } catch (err) {
+    console.error("[SUPABASE GET_ARTICLE_BY_SLUG ERROR]", err);
+    return { data: null, error: err };
+  }
+}
+
+// ── 🔍 SEO & Keyword Utilities (Text, Photos, Files) ─────────────────────────
 
 export interface PhotoSeoMetadata {
   url: string;
@@ -208,16 +196,15 @@ export function generateDocumentSeoSchema(doc: DocumentSeoMetadata, lang: Suppor
 // ── 🛡️ Security Audit & Analytics Helper ────────────────────────────────────
 
 export async function logAuditEvent(
-  action: string,
-  tableName: string,
-  oldData?: Record<string, any>,
-  newData?: Record<string, any>
+    action: string,
+    tableName: string,
+    oldData?: Record<string, any>,
+    newData?: Record<string, any>
 ) {
   if (!isSupabaseConfigured) return;
   try {
     const { data: { session } } = await supabase.auth.getSession();
 
-    // Type definition prevents any 'never' or missing 'user_id' build errors
     type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];
 
     const auditPayload: AuditLogInsert = {
@@ -228,10 +215,7 @@ export async function logAuditEvent(
       new_data: newData ? (newData as Json) : null,
     };
 
-    // 🚀 Look, ma! No 'as any'! The client naturally validates 'auditPayload'
-   // 🛡️ Bypasses the strict union evaluation bug while keeping the rest of the app typed
-await supabase.from("audit_logs").insert(auditPayload as never);
-    
+    await supabase.from("audit_logs").insert(auditPayload as never);
   } catch (err) {
     console.error("[SECURITY LOG ERROR]", err);
   }
