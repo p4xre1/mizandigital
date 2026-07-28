@@ -30,7 +30,7 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /help                           /ar/contact      302
 /support                        /ar/contact      302
 
-# ── 4️⃣ Footer & Navbar Unlinked / Placeholder Fallbacks ─────────────────────
+# ── 4️⃣ Footer & Navbar Shortcuts (Aligned with Router) ─────────────────────────
 /privacy-policy                 /ar/privacy      301
 /cookie-policy                  /ar/privacy      301
 /cookies                        /ar/privacy      301
@@ -40,9 +40,9 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /disclaimer                     /ar/terms        301
 /careers                        /ar/about        302
 /jobs                           /ar/about        302
-/blog                           /ar/search       302
-/articles                       /ar/search       302
-/news                           /ar/search       302
+/blog                           /ar/news         301
+/articles                       /ar/news         301
+/news                           /ar/news         301
 /docs                           /ar/contact      302
 /api                            /ar/contact      302
 /developers                     /ar/contact      302
@@ -53,7 +53,7 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /search                         /ar/search       302
 /laws                           /ar/laws         302
 /jurisprudence                  /ar/laws         301
-/bo                             /ar/laws         301
+/bo                              /ar/laws         301
 /bulletin-officiel              /ar/laws         301
 /gazette                        /ar/laws         301
 /law-schools                    /ar/law-schools  301
@@ -118,6 +118,9 @@ https://mizan.page/*            https://www.mizan.page/:splat   301!
 /sitemap                        /sitemap.xml     301
 /rss                            /feed.xml        301
 
-# ── 1️⃣1️⃣ SPA Fallback Handler (React Router) ───────────────────────────────────
-# ⚠️ CRITICAL: This wildcard rule MUST ALWAYS remain at the very end.
+# ── 1️⃣1️⃣ Asset Protection & SPA Fallback Handler ──────────────────────────────
+# Prevent missing JS/CSS/asset files from serving index.html (Fixes MIME type error)
+/assets/*                       /assets/:splat   404
+
+# ⚠️ CRITICAL: SPA Fallback rule MUST stay at the very end
 /*                              /index.html      200

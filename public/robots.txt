@@ -4,16 +4,14 @@
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# 1. GLOBAL CRAWLER RULES
+# 1. GLOBAL SEARCH CRAWLER RULES (Google, Bing, DuckDuckGo, Yandex)
 # ------------------------------------------------------------------------------
 User-agent: *
 
 # 🚫 Admin & Dashboard Interfaces
 Disallow: /admin
-Disallow: /admin/
 Disallow: /*/admin
 Disallow: /dashboard
-Disallow: /dashboard/
 Disallow: /*/dashboard
 
 # 🚫 Auth & Private User Pages
@@ -21,8 +19,6 @@ Disallow: /login
 Disallow: /register
 Disallow: /profile
 Disallow: /settings
-Disallow: /es/iniciar-sesion
-Disallow: /es/registro
 Disallow: /*/login
 Disallow: /*/register
 Disallow: /*/profile
@@ -31,12 +27,13 @@ Disallow: /*/settings
 # 🚫 Internal APIs & Private Data
 Disallow: /api/
 
-# 🚫 Prevent crawling duplicate internal search parameters
+# 🚫 Prevent crawling duplicate internal search & filter parameters
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
+Disallow: /*?*sort=
 
-# ✅ Allow essential static assets & pages
+# ✅ Allow essential static assets for SPA Rendering & PWA
 Allow: /
 Allow: /*.css$
 Allow: /*.js$
@@ -50,7 +47,18 @@ Allow: /*.woff2$
 Allow: /manifest.json
 
 # ------------------------------------------------------------------------------
-# 2. SITEMAPS & DOMAIN SPECIFICATION
+# 2. AI & LLM DATA SCRAPING RULES (Optional - Block training bots if needed)
+# ------------------------------------------------------------------------------
+# Block AI Training Crawlers (Uncomment below if you want to block dataset scraping)
+# User-agent: GPTBot
+# User-agent: ChatGPT-User
+# User-agent: ClaudeBot
+# User-agent: Bytespider
+# User-agent: CCBot
+# Disallow: /
+
+# ------------------------------------------------------------------------------
+# 3. SITEMAPS & DOMAIN SPECIFICATION
 # ------------------------------------------------------------------------------
 Host: www.mizan.page
 Sitemap: https://www.mizan.page/sitemap.xml

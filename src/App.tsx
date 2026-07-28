@@ -11,51 +11,54 @@ import { trackPageView, trackScrollDepth } from "@/lib/analytics";
  * and renders the central client-side router.
  */
 export default function App(): React.JSX.Element {
-    // 1. Auto-track Page Navigation via React Router Subscription
-    useEffect(() => {
-        // Initial page view load
-        trackPageView(window.location.pathname);
+  // 1. Auto-track Page Navigation & Scroll Milestones
+  useEffect(() => {
+    // Keep track of scroll depths for the current active page
+    let trackedDepths = new Set<number>();
 
-        // Subscribe to client-side route changes
-        const unsubscribe = router.subscribe((state) => {
-            if (state.navigation.state === "idle" && state.location) {
-                trackPageView(state.location.pathname);
-            }
-        });
+    // Track initial load
+    trackPageView(window.location.pathname);
 
-        return () => {
-            unsubscribe();
-        };
-    }, []);
+    // Subscribe to client-side route transitions
+    const unsubscribe = router.subscribe((state) => {
+      if (state.navigation.state === "idle" && state.location) {
+        // Track new page view
+        trackPageView(state.location.pathname);
+        
+        // Reset scroll milestones for the new route
+        trackedDepths = new Set<number>();
+      }
+    });
 
     // 2. Auto-track Scroll Depth Milestones (25%, 50%, 75%, 100%)
-    useEffect(() => {
-        const trackedDepths = new Set<number>();
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) return;
 
-        const handleScroll = () => {
-            const scrollTop = window.scrollY;
-            const docHeight =
-                document.documentElement.scrollHeight - window.innerHeight;
-            if (docHeight <= 0) return;
+      const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+      const milestones: (25 | 50 | 75 | 100)[] = [25, 50, 75, 100];
 
-            const scrollPercent = Math.round((scrollTop / docHeight) * 100);
-            const milestones: (25 | 50 | 75 | 100)[] = [25, 50, 75, 100];
+      milestones.forEach((depth) => {
+        if (scrollPercent >= depth && !trackedDepths.has(depth)) {
+          trackedDepths.add(depth);
+          trackScrollDepth(depth, window.location.pathname);
+        }
+      });
+    };
 
-            milestones.forEach((depth) => {
-                if (scrollPercent >= depth && !trackedDepths.has(depth)) {
-                    trackedDepths.add(depth);
-                    trackScrollDepth(depth, window.location.pathname);
-                }
-            });
-        };
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
-        window.addEventListener("scroll", handleScroll, { passive: true });
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
-    return (
-        <I18nProvider>
-            <RouterProvider router={router} />
-        </I18nProvider>
-    );
+  return (
+    <I18nProvider>
+      <RouterProvider router={router} />
+    </I18nProvider>
+  );
 }
