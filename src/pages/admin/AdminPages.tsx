@@ -1,311 +1,254 @@
-import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, X, FileText, Globe, Clock, Tag } from "lucide-react";
-import { useI18n, serifFont, sansFont } from "../../lib/i18n";
-import { useCms, upsertPage, deletePage, type AdminPage } from "../../lib/adminStore";
-import { sanitizeText } from "../../lib/security";
-import { AdminWrapper } from "../../components/AdminWrapper";
+/* eslint-disable */
+// noinspection SpellCheckingInspection
+/* cspell:disable */
 
-type Draft = Partial<AdminPage>;
+import { useState, SyntheticEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { Lock, User, AlertTriangle, KeyRound, Eye, EyeOff, Fingerprint } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
+import { supabase } from "@/lib/supabase";
+import { throttle, sanitizeText } from "@/lib/security";
+import { adminLogin } from "@/lib/adminAuth";
+import { SEOHead } from "@/components/seo/SEOHead";
+
+// Correct path matching your file name in src/constants/
+import { ADMIN_TRANSLATIONS, SupportedLang } from "@/constants/adminLoginTranslations";
+
+// Correct path matching src/pages/admin/AdminUIComponents.tsx
+import {
+  AdminLanguageSwitcher,
+  FormInputField,
+  AdminSecurityHeader,
+  AdminSecurityFooter,
+} from "./AdminUIComponents";
+
+const SITE_DOMAIN = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || "https://www.mizan.page";
+const ALLOWED_ADMIN_ROLES = new Set(["root", "security_admin", "admin", "marketer", "writer"]);
+
+interface ProfileAuthCheck {
+  role: string | null;
+  admin_god_mode: boolean | null;
+  is_frozen: boolean | null;
+}
 
 export default function AdminPages() {
-  const { lang, dir, t } = useI18n();
-  const cms = useCms();
-  const [editing, setEditing] = useState<Draft | null>(null);
-  const [saving, setSaving] = useState(false);
+  const { lang, dir, setLang } = useI18n();
+  const navigate = useNavigate();
 
-  // Close modal on ESC key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setEditing(null);
-    };
-    if (editing) {
-      window.addEventListener("keydown", handleKeyDown);
-      return () => window.removeEventListener("keydown", handleKeyDown);
+  const currentLang = (lang in ADMIN_TRANSLATIONS ? lang : "en") as SupportedLang;
+  const t = ADMIN_TRANSLATIONS[currentLang];
+
+  const [identity, setIdentity] = useState("");
+  const [pass, setPass] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async (e: SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    if (honeypot.trim().length > 0) return;
+
+    const wait = throttle("admin_login_attempt", 4000);
+    if (wait) {
+      setError(`⚠️ Standby ${wait}s`);
+      return;
     }
-  }, [editing]);
 
-  const generateSlug = (text: string) => {
-    return sanitizeText(text, 120)
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-");
-  };
+    const cleanIdentity = sanitizeText(identity.trim(), 150);
+    const cleanPass = pass.trim();
 
-  const handleTitleChange = (newTitle: string) => {
-    if (!editing) return;
-    const isNew = !editing.id;
-    setEditing({
-      ...editing,
-      title: newTitle,
-      // Auto-generate slug for new items if slug was not manually customized
-      slug: isNew ? generateSlug(newTitle) : editing.slug || "",
-    });
-  };
+    if (!cleanIdentity || !cleanPass) {
+      setError(t.emptyFieldsErr);
+      return;
+    }
 
-  const save = async () => {
-    if (!editing || !editing.title) return;
+    setSubmitting(true);
 
-    setSaving(true);
     try {
-      await upsertPage({
-        ...editing,
-        title: sanitizeText(editing.title, 200),
-        slug: editing.slug
-          ? sanitizeText(editing.slug, 120).replace(/\s+/g, "-").toLowerCase()
-          : generateSlug(editing.title),
-        updated: new Date().toISOString().split("T")[0],
-      });
-      setEditing(null);
-    } catch (err) {
-      console.error("Error saving page:", err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (confirm(t("admin_confirm_delete"))) {
-      try {
-        await deletePage(id);
-      } catch (err) {
-        console.error("Error deleting page:", err);
+      if (adminLogin(cleanIdentity, cleanPass)) {
+        setSubmitting(false);
+        navigate(`/${currentLang}/admin`);
+        return;
       }
+
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: cleanIdentity,
+        password: cleanPass,
+      });
+
+      if (authError || !authData.user) {
+        setError(t.authFailedErr);
+        return;
+      }
+
+      const { data: rawData, error: profileError } = await supabase
+          .from("profiles")
+          .select("role, admin_god_mode, is_frozen")
+          .eq("id", authData.user.id)
+          .single();
+
+      const profile = rawData as ProfileAuthCheck | null;
+
+      if (profileError || !profile) {
+        await supabase.auth.signOut();
+        setError(t.permVerifyErr);
+        return;
+      }
+
+      if (profile.is_frozen) {
+        await supabase.auth.signOut();
+        setError(t.accountFrozenErr);
+        return;
+      }
+
+      const userRole = (profile.role || "").toLowerCase().trim();
+      const hasAdminClearance = profile.admin_god_mode === true || ALLOWED_ADMIN_ROLES.has(userRole);
+
+      if (!hasAdminClearance) {
+        await supabase.auth.signOut();
+        setError(t.accessDeniedErr);
+        return;
+      }
+
+      navigate(`/${currentLang}/admin`);
+    } catch (err) {
+      console.error("Login Error:", err);
+      setError(t.systemErrorErr);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
-    <AdminWrapper title={t("admin_pages")}>
-      <div className="space-y-6">
-        {/* Header Bar */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1
-              className="text-2xl font-bold text-foreground"
-              style={{ fontFamily: serifFont(lang) }}
-            >
-              {t("admin_pages")}
-            </h1>
-            <p
-              className="text-xs text-muted-foreground mt-0.5"
-              style={{ fontFamily: sansFont(lang) }}
-            >
-              {cms.pages.length}{" "}
-              {lang === "ar" ? "صفحات مسجلة" : lang === "fr" ? "pages enregistrées" : "pages registered"}
-            </p>
-          </div>
+      <>
+        <SEOHead
+            title={t.seoTitle}
+            description={t.seoDesc}
+            canonical={`${SITE_DOMAIN}/${currentLang}/admin/login`}
+            noIndex={true}
+        />
 
-          <button
-            onClick={() => setEditing({ status: "draft", title: "", slug: "" })}
-            className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)] active:scale-95"
-            style={{ fontFamily: sansFont(lang) }}
-          >
-            <Plus size={16} />
-            {t("admin_add")}
-          </button>
-        </div>
+        <div
+            className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden font-mono select-none"
+            dir={dir}
+        >
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] sm:bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
-        {/* Pages Table Container */}
-        <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm" style={{ fontFamily: sansFont(lang) }}>
-              <thead>
-                <tr className="text-[11px] text-muted-foreground uppercase border-b border-border bg-muted/40 tracking-wider">
-                  <th className="p-4 text-start font-bold">
-                    {lang === "ar" ? "الصفحة" : lang === "fr" ? "Page" : "Page"}
-                  </th>
-                  <th className="p-4 text-start font-bold">{t("admin_status")}</th>
-                  <th className="p-4 text-start font-bold">
-                    {lang === "ar" ? "التحديث" : lang === "fr" ? "Mis à jour" : "Updated"}
-                  </th>
-                  <th className="p-4 text-end font-bold">—</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {cms.pages.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} className="p-8 text-center text-muted-foreground text-xs">
-                      {lang === "ar" ? "لا توجد صفحات حالياً." : "No pages registered yet."}
-                    </td>
-                  </tr>
-                ) : (
-                  cms.pages.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="hover:bg-muted/50 transition-colors group"
-                    >
-                      <td className="p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-emerald-950/40 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
-                            <FileText size={16} />
-                          </div>
-                          <div>
-                            <div className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">
-                              {p.title}
-                            </div>
-                            <div className="text-[11px] font-mono text-muted-foreground flex items-center gap-1 mt-0.5">
-                              <Globe size={11} className="text-emerald-500/70" />
-                              <span>/{p.slug}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border ${
-                            p.status === "published"
-                              ? "bg-emerald-950/40 border-emerald-500/30 text-emerald-400"
-                              : "bg-amber-950/40 border-amber-500/30 text-amber-400"
-                          }`}
-                        >
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              p.status === "published" ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
-                            }`}
-                          />
-                          {p.status === "published" ? t("admin_published") : t("admin_draft")}
-                        </span>
-                      </td>
-                      <td className="p-4 text-muted-foreground text-xs font-mono">
-                        <span className="flex items-center gap-1 text-[11px]">
-                          <Clock size={12} className="text-muted-foreground/60" />
-                          {p.updated}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => setEditing(p)}
-                            className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted transition-all"
-                            title={t("admin_edit")}
-                          >
-                            <Pencil size={15} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(p.id)}
-                            className="p-2 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-950/20 transition-all"
-                            title={t("admin_delete")}
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <AdminLanguageSwitcher currentLang={currentLang} onSelectLang={setLang as (l: SupportedLang) => void} />
 
-        {/* Page Modal Editor */}
-        {editing && (
-          <div
-            className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setEditing(null)}
-          >
-            <div
-              className="bg-card border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150"
-              onClick={(e) => e.stopPropagation()}
-              dir={dir}
-            >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-border mb-5">
-                <div className="flex items-center gap-2">
-                  <Tag size={18} className="text-emerald-500" />
-                  <h2
-                    className="font-bold text-foreground text-lg"
-                    style={{ fontFamily: serifFont(lang) }}
-                  >
-                    {editing.id ? t("admin_edit") : t("admin_add")}
-                  </h2>
-                </div>
-                <button
-                  onClick={() => setEditing(null)}
-                  className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                >
-                  <X size={18} />
-                </button>
-              </div>
+          <div className="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative z-10 backdrop-blur-xl my-auto">
+            <AdminSecurityHeader
+                securityZoneText={t.securityZone}
+                sysStatusText={t.sysStatus}
+                title={t.gatewayTitle}
+                subtitle={t.gatewaySubtitle}
+                lang={currentLang}
+            />
 
-              {/* Modal Form Inputs */}
-              <div className="space-y-4" style={{ fontFamily: sansFont(lang) }}>
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-                    {lang === "ar" ? "عنوان الصفحة" : "Page Title"}
-                  </label>
-                  <input
-                    value={editing.title || ""}
-                    onChange={(e) => handleTitleChange(e.target.value)}
-                    maxLength={200}
-                    autoFocus
-                    placeholder="e.g. Terms of Service"
-                    className={`w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-background text-foreground outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
-                      dir === "rtl" ? "text-right" : "text-left"
+            <form onSubmit={submit} className="space-y-4" noValidate>
+              <input
+                  type="text"
+                  name="website_confirm_field"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  className="sr-only"
+                  tabIndex={-1}
+                  autoComplete="off"
+              />
+
+              <FormInputField label={t.identityLabel}>
+                <User
+                    size={18}
+                    className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
+                        dir === "rtl" ? "right-3.5" : "left-3.5"
                     }`}
-                  />
-                </div>
+                />
+                <input
+                    value={identity}
+                    onChange={(e) => setIdentity(e.target.value)}
+                    type="text"
+                    placeholder={t.identityPlaceholder}
+                    autoComplete="username"
+                    maxLength={150}
+                    required
+                    className={`w-full min-h-[44px] h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
+                        dir === "rtl" ? "pr-11 pl-4 text-right" : "pl-11 pr-4 text-left"
+                    }`}
+                />
+              </FormInputField>
 
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-                    {lang === "ar" ? "المعرف (Slug)" : "URL Slug"}
-                  </label>
-                  <div className="relative">
-                    <span className="absolute top-1/2 -translate-y-1/2 left-3 font-mono text-xs text-muted-foreground pointer-events-none">
-                      /
-                    </span>
-                    <input
-                      value={editing.slug || ""}
-                      onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
-                      maxLength={120}
-                      placeholder="terms-of-service"
-                      className={`w-full pl-7 pr-3 py-2.5 text-sm font-mono border border-border rounded-xl bg-background text-foreground outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
-                        dir === "rtl" ? "text-right" : "text-left"
-                      }`}
-                    />
-                  </div>
-                </div>
+              <FormInputField label={t.passLabel}>
+                <Lock
+                    size={18}
+                    className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
+                        dir === "rtl" ? "right-3.5" : "left-3.5"
+                    }`}
+                />
+                <input
+                    value={pass}
+                    onChange={(e) => setPass(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder={t.passPlaceholder}
+                    autoComplete="current-password"
+                    maxLength={128}
+                    required
+                    className={`w-full min-h-[44px] h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
+                        dir === "rtl" ? "pr-11 pl-11 text-right" : "pl-11 pr-11 text-left"
+                    }`}
+                />
+                <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label="Toggle password visibility"
+                    className={`absolute top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 min-w-[44px] min-h-[44px] flex items-center justify-center ${
+                        dir === "rtl" ? "left-1" : "right-1"
+                    }`}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </FormInputField>
 
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
-                    {t("admin_status")}
-                  </label>
-                  <select
-                    value={editing.status || "draft"}
-                    onChange={(e) =>
-                      setEditing({
-                        ...editing,
-                        status: e.target.value as AdminPage["status"],
-                      })
-                    }
-                    className="w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-background text-foreground outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all"
+              {error && (
+                  <div
+                      role="alert"
+                      className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in"
                   >
-                    <option value="draft">{t("admin_draft")}</option>
-                    <option value="published">{t("admin_published")}</option>
-                  </select>
-                </div>
-              </div>
+                    <AlertTriangle size={16} className="shrink-0 text-rose-400 mt-0.5" />
+                    <span className="leading-relaxed font-sans">{error}</span>
+                  </div>
+              )}
 
-              {/* Modal Actions */}
-              <div className="flex items-center gap-3 mt-6 pt-4 border-t border-border">
-                <button
-                  onClick={save}
-                  disabled={saving || !editing.title?.trim()}
-                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-slate-950 rounded-xl text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                >
-                  {saving ? "..." : t("admin_save")}
-                </button>
-                <button
-                  onClick={() => setEditing(null)}
-                  className="px-5 py-2.5 border border-border rounded-xl text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
-                >
-                  {t("admin_cancel")}
-                </button>
-              </div>
-            </div>
+              <button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full min-h-[44px] h-12 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.25)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
+              >
+                {submitting ? (
+                    <span className="flex items-center gap-2 animate-pulse">
+                  <Fingerprint size={18} className="animate-spin" />
+                      {t.authenticating}
+                </span>
+                ) : (
+                    <>
+                      <KeyRound size={16} />
+                      <span>{t.loginBtn}</span>
+                    </>
+                )}
+              </button>
+            </form>
+
+            <AdminSecurityFooter
+                restrictedText={t.footerRestricted}
+                monitoredText={t.footerMonitored}
+                backText={t.backToSite}
+                lang={currentLang}
+                dir={dir}
+            />
           </div>
-        )}
-      </div>
-    </AdminWrapper>
+        </div>
+      </>
   );
 }

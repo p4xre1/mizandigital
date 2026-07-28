@@ -1,26 +1,28 @@
+// noinspection JSUnusedGlobalSymbols, SpellCheckingInspection
+
 /**
  * Utility type for JSON/JSONB fields in Supabase
  */
 export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+    | string
+    | number
+    | boolean
+    | null
+    | { [key: string]: Json | undefined }
+    | Json[];
 
 /**
  * User Authorization Roles across Mizan Digital Platform
  * Synced with useRole hook & SQL user_role enum
  */
 export type Role =
-  | "root"
-  | "security_admin"
-  | "admin"
-  | "marketer"
-  | "writer"
-  | "member"
-  | "guest";
+    | "root"
+    | "security_admin"
+    | "admin"
+    | "marketer"
+    | "writer"
+    | "member"
+    | "guest";
 
 /**
  * Status Types
@@ -28,17 +30,6 @@ export type Role =
 export type ContentStatus = "draft" | "published" | "archived";
 export type QuestionStatus = "pending" | "answered" | "closed";
 export type InteractionType = "like" | "save";
-
-/**
- * Categories (For reference if needed in UI)
- */
-export type CourtRulingCategory = "court-of-cassation" | "courts-of-appeal" | "administrative-courts";
-export type DoctrineCategory = "academic-articles" | "case-commentaries" | "comparative-studies";
-
-/**
- * Academic Progress mapping (Semesters S1 through S6)
- */
-export type AcademicProgress = Record<`S${1 | 2 | 3 | 4 | 5 | 6}`, number>;
 
 // ── Tables Interfaces (Row Definitions matching SQL exactly) ───────────────
 

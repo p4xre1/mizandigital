@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { trackUserRoleInteraction } from "@/lib/analytics";
 
 export type Role =
-  | "root"
-  | "security_admin"
-  | "admin"
-  | "marketer"
-  | "writer"
-  | "member"
-  | "guest";
+    | "root"
+    | "security_admin"
+    | "admin"
+    | "marketer"
+    | "writer"
+    | "member"
+    | "guest";
 
 const VALID_ROLES = new Set<Role>([
   "root",
@@ -33,9 +34,9 @@ export interface UseRoleResult {
   isMember: boolean;
   isGuest: boolean;
   // Tiered Permissions
-  isStaff: boolean;        // Writers, Marketers, Admins, Security, Root
-  canManageUsers: boolean; // Security, Admin, Root
-  canWriteContent: boolean;// Writer, Admin, Root
+  isStaff: boolean;
+  canManageUsers: boolean;
+  canWriteContent: boolean;
   refresh: () => Promise<void>;
 }
 
@@ -44,7 +45,6 @@ export function useRole(): UseRoleResult {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Track mount status to avoid state updates on unmounted components
   const isMounted = useRef<boolean>(true);
 
   const fetchRole = useCallback(async () => {
@@ -68,6 +68,7 @@ export function useRole(): UseRoleResult {
         if (isMounted.current) {
           setRole("guest");
           setUserId(null);
+          trackUserRoleInteraction("guest", "session_unauthenticated");
         }
         return;
       }
@@ -76,28 +77,31 @@ export function useRole(): UseRoleResult {
         setUserId(session.user.id);
       }
 
-      // Fetch user role from Supabase 'profiles' table
       const { data, error } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .maybeSingle();
+          .from("profiles")
+          .select("role")
+          .eq("id", session.user.id)
+          .maybeSingle();
 
       if (!isMounted.current) return;
 
-      // Safe Type Assertion to avoid TS 'never' error
       const profile = data as { role?: string } | null;
+      let resolvedRole: Role = "member";
 
-      if (error || !profile?.role) {
-        setRole("member");
-      } else {
+      if (!error && profile?.role) {
         const rawRole = profile.role.toLowerCase().trim() as Role;
-        setRole(VALID_ROLES.has(rawRole) ? rawRole : "member");
+        if (VALID_ROLES.has(rawRole)) {
+          resolvedRole = rawRole;
+        }
       }
+
+      setRole(resolvedRole);
+      trackUserRoleInteraction(resolvedRole, "role_loaded");
     } catch {
       if (isMounted.current) {
         setRole("guest");
         setUserId(null);
+        trackUserRoleInteraction("guest", "fetch_error");
       }
     } finally {
       if (isMounted.current) {
@@ -109,20 +113,22 @@ export function useRole(): UseRoleResult {
   useEffect(() => {
     isMounted.current = true;
 
-    void fetchRole();
-
     if (!isSupabaseConfigured) {
+      setLoading(false);
       return () => {
         isMounted.current = false;
       };
     }
 
+    // onAuthStateChange fires an initial event immediately upon subscription,
+    // handling both initial load and subsequent auth state changes.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
         if (isMounted.current) {
           setRole("guest");
           setUserId(null);
           setLoading(false);
+          trackUserRoleInteraction("guest", "auth_sign_out");
         }
       } else {
         void fetchRole();
@@ -135,17 +141,15 @@ export function useRole(): UseRoleResult {
     };
   }, [fetchRole]);
 
-  // Derived Boolean Flags (Memoized for optimal render performance)
   return useMemo(() => {
     const isRoot = role === "root";
     const isSecurityAdmin = role === "security_admin" || isRoot;
-    const isAdmin = role === "admin" || isRoot;
+    const isAdmin = role === "admin" || isSecurityAdmin;
     const isMarketer = role === "marketer" || isAdmin;
     const isWriter = role === "writer" || isRoot;
     const isMember = role === "member";
     const isGuest = role === "guest";
 
-    // Tiered Capability Flags
     const isStaff = ["writer", "marketer", "admin", "security_admin", "root"].includes(role);
     const canManageUsers = ["admin", "security_admin", "root"].includes(role);
     const canWriteContent = ["writer", "admin", "root"].includes(role);
