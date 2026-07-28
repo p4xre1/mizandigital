@@ -4,7 +4,6 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // 1. CRITICAL: Absolute root path ensures scripts load correctly on dynamic routes (e.g. /ar/news/schools)
   base: '/',
 
   plugins: [react()],
@@ -13,11 +12,9 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
-    // Force Vite to deduplicate core React packages across chunks
     dedupe: ['react', 'react-dom', 'react-router', 'react-router-dom'],
   },
 
-  // 2. Production console stripping
   esbuild: {
     drop: process.env.NODE_ENV === 'production' ? ['console', 'debugger'] : [],
   },
@@ -25,33 +22,16 @@ export default defineConfig({
   build: {
     target: 'es2020',
     cssCodeSplit: true,
-    // Ensures clean manifest generation for PWA & asset tracking
     manifest: true,
     rollupOptions: {
       output: {
-        // Standardize output file naming for predictable server caching
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        
+        // ⚡ SAFE CHUNKING: Isolates React core while letting Rollup resolve vendor TDZ dependencies safely
         manualChunks(id) {
-          if (id.includes('node_modules')) {
-            // Group core React framework modules safely
-            if (
-              id.includes('react/') ||
-              id.includes('react-dom/') ||
-              id.includes('react-router') ||
-              id.includes('react-router-dom')
-            ) {
-              return 'framework';
-            }
-            if (id.includes('@supabase')) {
-              return 'supabase';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons';
-            }
-            return 'vendor';
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router')) {
+            return 'react-core';
           }
         },
       },
