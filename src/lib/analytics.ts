@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, no-unused-vars */
 /**
  * Mizan Digital - Enterprise Analytics Engine
- * Path: /workspaces/mizandigital/src/lib/analytics.ts
- * 
+ * Path: /src/lib/analytics.ts
+ *
  * Features:
  * - Phone-First & Low-Bandwidth Optimizations (Navigator Beacon, Mobile Network Detection)
  * - Military-Grade Security (PII Sanitization, XSS Redaction, Strict Cookie/IP Protection)
  * - Complete Google Suite Ecosystem Integration (GA4, GTM, Google Ads Conversions, AdSense)
  * - Master SEO & Keyword Tracking for Images, Documents, and Articles
  * - Full 4-Language Localization Support (AR, FR, EN, ES)
+ * - Safe Ad-Blocker Handling (Brave, uBlock, AdGuard)
  */
 
 export type SupportedLang = "ar" | "fr" | "en" | "es";
@@ -34,14 +36,14 @@ function sanitizeValue(value: unknown): unknown {
   if (typeof value !== "string") return value;
 
   return value
-    // Redact Emails
-    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[REDACTED_EMAIL]")
-    // Redact Bearer / API / Auth Tokens
-    .replace(/(bearer|token|auth|key|secret|password)=([^\s&]+)/gi, "$1=[REDACTED]")
-    // Redact Moroccan/International Phone Numbers
-    .replace(/(?:\+?212|0)[5-7]\d{8}/g, "[REDACTED_PHONE]")
-    // Strip inline script injection
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+      // Redact Emails
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[REDACTED_EMAIL]")
+      // Redact Bearer / API / Auth Tokens
+      .replace(/(bearer|token|auth|key|secret|password)=([^\s&]+)/gi, "$1=[REDACTED]")
+      // Redact Moroccan/International Phone Numbers
+      .replace(/(?:\+?212|0)[5-7]\d{8}/g, "[REDACTED_PHONE]")
+      // Strip inline script injection
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
 }
 
 /**
@@ -92,46 +94,50 @@ export function getDeviceTelemetry() {
 export function initGA(): void {
   if (typeof window === "undefined") return;
 
-  window.dataLayer = window.dataLayer || [];
+  try {
+    window.dataLayer = window.dataLayer || [];
 
-  if (!window.gtag) {
-    window.gtag = function () {
-      // eslint-disable-next-line prefer-rest-params
-      window.dataLayer.push(arguments as unknown as Record<string, unknown>);
-    };
-  }
+    if (!window.gtag) {
+      window.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        window.dataLayer.push(arguments as unknown as Record<string, unknown>);
+      };
+    }
 
-  if (GA_ID && !document.getElementById("ga-script")) {
-    window.gtag("js", new Date());
+    if (GA_ID && !document.getElementById("ga-script")) {
+      window.gtag("js", new Date());
 
-    // Security & Privacy Flags for GA4
-    window.gtag("config", GA_ID, {
-      send_page_view: false, // Handled manually by router
-      anonymize_ip: true,
-      allow_google_signals: true,
-      allow_ad_personalization_signals: false,
-      cookie_flags: "SameSite=None;Secure",
-      site_domain: SITE_URL,
-    });
+      // Security & Privacy Flags for GA4
+      window.gtag("config", GA_ID, {
+        send_page_view: false, // Handled manually by router
+        anonymize_ip: true,
+        allow_google_signals: true,
+        allow_ad_personalization_signals: false,
+        cookie_flags: "SameSite=None;Secure",
+        site_domain: SITE_URL,
+      });
 
-    const script = document.createElement("script");
-    script.id = "ga-script";
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-    document.head.appendChild(script);
-  }
+      const script = document.createElement("script");
+      script.id = "ga-script";
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+      document.head.appendChild(script);
+    }
 
-  // Google Tag Manager Setup
-  if (GTM_ID && !document.getElementById("gtm-script")) {
-    const gtmScript = document.createElement("script");
-    gtmScript.id = "gtm-script";
-    gtmScript.async = true;
-    gtmScript.innerHTML = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','${GTM_ID}');`;
-    document.head.appendChild(gtmScript);
+    // Google Tag Manager Setup
+    if (GTM_ID && !document.getElementById("gtm-script")) {
+      const gtmScript = document.createElement("script");
+      gtmScript.id = "gtm-script";
+      gtmScript.async = true;
+      gtmScript.innerHTML = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${GTM_ID}');`;
+      document.head.appendChild(gtmScript);
+    }
+  } catch {
+    // Gracefully handle browser security exceptions or blocked script injection
   }
 }
 
@@ -142,41 +148,71 @@ export function initGA(): void {
 export function trackEvent(eventName: string, params?: Record<string, unknown>): void {
   if (typeof window === "undefined") return;
 
-  const sanitizedParams = sanitizePayload({
-    ...params,
-    ...getDeviceTelemetry(),
-    timestamp: new Date().toISOString(),
-  });
-
-  // 1. GA4 Dispatch
-  if (typeof window.gtag === "function") {
-    window.gtag("event", eventName, sanitizedParams);
-  }
-
-  // 2. GTM DataLayer Push
-  if (Array.isArray(window.dataLayer)) {
-    window.dataLayer.push({
-      event: eventName,
-      ...sanitizedParams,
+  try {
+    const sanitizedParams = sanitizePayload({
+      ...params,
+      ...getDeviceTelemetry(),
+      timestamp: new Date().toISOString(),
     });
-  }
 
-  // 3. Low-latency beacon fallback for mobile off-loading
-  if (navigator.sendBeacon && sanitizedParams.critical === true) {
-    const blob = new Blob([JSON.stringify({ eventName, ...sanitizedParams })], {
-      type: "application/json",
-    });
-    navigator.sendBeacon(`${SITE_URL}/api/analytics`, blob);
+    // 1. GA4 Dispatch
+    if (typeof window.gtag === "function") {
+      window.gtag("event", eventName, sanitizedParams);
+    }
+
+    // 2. GTM DataLayer Push
+    if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push({
+        event: eventName,
+        ...sanitizedParams,
+      });
+    }
+
+    // 3. Low-latency beacon fallback for mobile off-loading
+    if (navigator.sendBeacon && sanitizedParams.critical === true) {
+      try {
+        const blob = new Blob([JSON.stringify({ eventName, ...sanitizedParams })], {
+          type: "application/json",
+        });
+        navigator.sendBeacon(`${SITE_URL}/api/analytics`, blob);
+      } catch {
+        // Silently swallow beacon errors
+      }
+    }
+  } catch {
+    // Silently handle exceptions caused by ad-blockers (e.g. Brave, uBlock)
   }
 }
 
 export function trackPageView(path: string, title?: string, lang: SupportedLang = "ar"): void {
   trackEvent("page_view", {
     page_path: path,
-    page_title: title || document.title,
-    page_location: window.location.href,
+    page_title: title || (typeof document !== "undefined" ? document.title : ""),
+    page_location: typeof window !== "undefined" ? window.location.href : "",
     language: lang,
     critical: true,
+  });
+}
+
+// ==========================================
+// 📰 ARTICLE & CONTENT TRACKING
+// ==========================================
+
+/**
+ * Tracks when a user views or reads an article
+ */
+export function trackArticleRead(
+    articleId: string | number,
+    title?: string,
+    category?: string,
+    lang: SupportedLang = "ar"
+): void {
+  trackEvent("article_read", {
+    article_id: articleId,
+    article_title: title,
+    article_category: category,
+    language: lang,
+    critical: false,
   });
 }
 
@@ -238,6 +274,15 @@ export function trackFileSEO(data: FileSEOMetadata): void {
   });
 }
 
+export function trackDownload(fileName: string, fileType?: string): void {
+  trackFileSEO({
+    fileName,
+    fileUrl: fileName,
+    fileType: (fileType as FileSEOMetadata["fileType"]) || "pdf",
+    keywords: [],
+  });
+}
+
 // ==========================================
 // 🔎 SEARCH & CONVERSION ANALYTICS
 // ==========================================
@@ -251,14 +296,25 @@ export function trackSearch(query: string, resultsCount: number, lang: Supported
 }
 
 export function trackConversion(
-  conversionType: "sign_up" | "contact_form" | "pdf_download" | "subscription",
-  value?: number,
-  currency: string = "MAD"
+    conversionType: "sign_up" | "contact_form" | "pdf_download" | "subscription",
+    value?: number,
+    currency: string = "MAD"
 ): void {
   trackEvent("conversion", {
     conversion_type: conversionType,
     value: value || 0,
     currency,
+    critical: true,
+  });
+}
+
+export function trackAuthEvent(
+    method: "google" | "phone" | "email",
+    action: "login" | "signup" | "logout"
+): void {
+  trackEvent("auth_event", {
+    auth_method: method,
+    auth_action: action,
     critical: true,
   });
 }

@@ -10,6 +10,8 @@ packages:
 allowBuilds:
   '@tailwindcss/oxide': true
   esbuild: true
+  sharp: true
+  workerd: true
 
 # 3. Configure cross-platform compilation & binary target overrides
 supportedArchitectures:

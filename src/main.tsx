@@ -3,117 +3,160 @@ import ReactDOM from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App";
 import "./styles/globals.css";
-
-// 🚀 Site Domain Configuration
-const SITE_URL = import.meta.env.VITE_SITE_URL || "https://www.mizan.page";
+import {
+    SITE_URL,
+    generatePhotoSeoSchema,
+    generateDocumentSeoSchema,
+} from "./lib/supabase";
+import { initGA } from "./lib/analytics";
 
 /**
- * Dynamically injects Schema.org WebSite JSON-LD for Google search engine indexing.
+ * 🛡️ Security Hardening & Console Protection for Production
  */
-function injectWebSiteSchema(): void {
-  if (typeof document === "undefined") return;
-
-  const SCRIPT_ID = "mizan-schema-website";
-  if (document.getElementById(SCRIPT_ID)) return;
-
-  const schemaData = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "منصة ميزان الرقمية - Mizan Digital",
-    alternateName: [
-      "منصة ميزان القانونية المغربية",
-      "Mizan Law Morocco",
-      "Plateforme Numérique Mizan Maroc",
-    ],
-    url: SITE_URL,
-    description:
-      "المرجع الأول للباحثين القانونيين والمحامين في المغرب - أرشيف قانوني شامل، الاجتهادات القضائية، محكمة النقض، محاكم الاستئناف، والدراسات الفقهية.",
-    inLanguage: ["ar-MA", "fr-MA", "ar", "fr", "en", "es"],
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/ar/archive?search={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-    hasPart: [
-      {
-        "@type": "WebPage",
-        name: "Court Rulings - الاجتهادات القضائية",
-        description:
-          "Court of Cassation, Courts of Appeal, and Administrative Courts judgments.",
-      },
-      {
-        "@type": "WebPage",
-        name: "Legal Doctrine - الدراسات الفقهية",
-        description:
-          "Academic Articles, Case Commentaries, and Comparative Studies.",
-      },
-    ],
-  };
-
-  const script = document.createElement("script");
-  script.id = SCRIPT_ID;
-  script.type = "application/ld+json";
-  script.textContent = JSON.stringify(schemaData);
-  document.head.appendChild(script);
+function applySecurityHardening(): void {
+    if (import.meta.env.PROD) {
+        const noop = () => {};
+        console.log = noop;
+        console.info = noop;
+        console.debug = noop;
+        console.warn = noop;
+    }
 }
 
 /**
- * Registers PWA Service Worker for zero-lag mobile loading and offline legal access.
+ * 🚀 Quad-Lingual Master SEO & Structured Data Injection
  */
-function registerServiceWorker(): void {
-  if ("serviceWorker" in navigator && import.meta.env.PROD) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((reg) => {
-          console.log("⚡ [Mizan PWA] Service Worker registered:", reg.scope);
+function injectMasterSeoSchema(): void {
+    if (typeof document === "undefined") return;
 
-          // Check for new updates on site load
-          reg.onupdatefound = () => {
-            const installingWorker = reg.installing;
-            if (installingWorker) {
-              installingWorker.onstatechange = () => {
-                if (
-                  installingWorker.state === "installed" &&
-                  navigator.serviceWorker.controller
-                ) {
-                  console.log(
-                    "🔄 [Mizan PWA] New version available! Refresh to update."
-                  );
-                }
-              };
-            }
-          };
-        })
-        .catch((err) => {
-          console.error("❌ [Mizan PWA] Service Worker registration failed:", err);
+    const SCRIPT_ID = "mizan-master-schema";
+    if (document.getElementById(SCRIPT_ID)) return;
+
+    // Utilize photo & document SEO schema generators for root static assets
+    const logoSchema = generatePhotoSeoSchema(
+        {
+            url: `${SITE_URL}/Logo.svg`,
+            altText: {
+                ar: "شعار منصة ميزان",
+                fr: "Logo Mizan",
+                en: "Mizan Logo",
+                es: "Logo Mizan",
+            },
+            title: {
+                ar: "ميزان الرقمية",
+                fr: "Mizan Digital",
+                en: "Mizan Digital",
+                es: "Mizan Digital",
+            },
+            keywords: ["mizan", "logo", "legal", "morocco"],
+            dimensions: { width: 512, height: 512 },
+        },
+        "ar"
+    );
+
+    const manifestDocSchema = generateDocumentSeoSchema(
+        {
+            fileUrl: `${SITE_URL}/manifest.json`,
+            filename: "manifest.json",
+            title: {
+                ar: "بيانات تطبيق ميزان",
+                fr: "Mizan PWA Manifest",
+                en: "Mizan PWA Manifest",
+                es: "Mizan PWA Manifest",
+            },
+            keywords: ["pwa", "manifest", "mizan"],
+        },
+        "ar"
+    );
+
+    const schemaData = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "WebSite",
+                "@id": `${SITE_URL}/#website`,
+                url: SITE_URL,
+                name: "منصة ميزان الرقمية | Mizan Law & Digital Platform",
+                alternateName: [
+                    "Mizan Morocco",
+                    "Plateforme Juridique Mizan",
+                    "Plataforma Legal Mizan",
+                    "ميزان المغرب",
+                ],
+                description:
+                    "المرجع الرقمي الأول للعلوم القانونية، الاجتهاد القضائي، والوثائق الرسمية بالمغرب (عربي، فرنسي، إنجليزي، إسباني).",
+                inLanguage: ["ar-MA", "fr-MA", "en-US", "es-ES"],
+                potentialAction: {
+                    "@type": "SearchAction",
+                    target: {
+                        "@type": "EntryPoint",
+                        urlTemplate: `${SITE_URL}/ar/archive?search={search_term_string}`,
+                    },
+                    "query-input": "required name=search_term_string",
+                },
+            },
+            logoSchema,
+            manifestDocSchema,
+        ],
+    };
+
+    const script = document.createElement("script");
+    script.id = SCRIPT_ID;
+    script.type = "application/ld+json";
+    script.textContent = JSON.stringify(schemaData);
+    document.head.appendChild(script);
+}
+
+/**
+ * 📱 Mobile-First PWA Registration & Mobile Touch Fix
+ */
+function registerPwaAndMobileOptimizations(): void {
+    if (typeof window === "undefined") return;
+
+    document.documentElement.style.touchAction = "manipulation";
+
+    if ("serviceWorker" in navigator && import.meta.env.PROD) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker
+                .register("/sw.js")
+                .then((registration) => {
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        if (installingWorker) {
+                            installingWorker.onstatechange = () => {
+                                if (
+                                    installingWorker.state === "installed" &&
+                                    navigator.serviceWorker.controller
+                                ) {
+                                    // SW Updated
+                                }
+                            };
+                        }
+                    };
+                })
+                .catch((err) => {
+                    console.error("❌ [PWA] Service Worker failed:", err);
+                });
         });
-    });
-  }
+    }
 }
 
-// 1. Inject structured SEO metadata
-injectWebSiteSchema();
+// 🚀 Startup Initializations
+initGA();
+applySecurityHardening();
+injectMasterSeoSchema();
+registerPwaAndMobileOptimizations();
 
-// 2. Enable offline PWA capabilities
-registerServiceWorker();
-
-// 3. Mount React Root safely
+// 🖥️ Mount React Application
 const rootElement = document.getElementById("root");
-
 if (!rootElement) {
-  throw new Error(
-    "Root container missing: Failed to find element with id 'root'. Check index.html."
-  );
+    throw new Error("Root element '#root' not found in index.html");
 }
 
 ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
-  </React.StrictMode>
+    <React.StrictMode>
+        <HelmetProvider>
+            <App />
+        </HelmetProvider>
+    </React.StrictMode>
 );
