@@ -6,14 +6,18 @@ packages:
   - 'packages/*'
   - '.'
 
-# 2. Allow post-install build scripts for native performance tools
+# 2. Dependency resolution overrides (moved from package.json)
+overrides:
+  vite: '^6.4.0'
+
+# 3. Allow post-install build scripts for native performance tools
 allowBuilds:
   '@tailwindcss/oxide': true
   esbuild: true
   sharp: true
   workerd: true
 
-# 3. Configure cross-platform compilation & binary target overrides
+# 4. Configure cross-platform compilation & binary target overrides
 supportedArchitectures:
   os:
     - linux
