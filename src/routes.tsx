@@ -57,34 +57,22 @@ function lazyNamed<T extends Record<string, any>>(
   exportName?: keyof T
 ) {
   return lazy(async () => {
-    try {
-      const module = await factory();
-      if (exportName && module[exportName]) {
-        return { default: module[exportName] as React.ComponentType<any> };
-      }
-      if (module.default) {
-        return { default: module.default };
-      }
-      const exportedComponent = Object.values(module).find(
-        (exp) =>
-          typeof exp === "function" ||
-          (typeof exp === "object" && exp !== null && "$$typeof" in exp)
-      );
-      if (exportedComponent) {
-        return { default: exportedComponent as React.ComponentType<any> };
-      }
-      throw new Error("No valid component export found in dynamic import.");
-    } catch (error) {
-      // Force page reload on dynamic chunk import failure
-      if (
-        error instanceof Error &&
-        (error.message.includes("Failed to fetch dynamically imported module") ||
-          error.message.includes("Importing a module script failed"))
-      ) {
-        window.location.reload();
-      }
-      throw error;
+    const module = await factory();
+    if (exportName && module[exportName]) {
+      return { default: module[exportName] as React.ComponentType<any> };
     }
+    if (module.default) {
+      return { default: module.default };
+    }
+    const exportedComponent = Object.values(module).find(
+      (exp) =>
+        typeof exp === "function" ||
+        (typeof exp === "object" && exp !== null && "$$typeof" in exp)
+    );
+    if (exportedComponent) {
+      return { default: exportedComponent as React.ComponentType<any> };
+    }
+    throw new Error("No valid component export found in dynamic import.");
   });
 }
 
@@ -383,7 +371,7 @@ export const router = createBrowserRouter([
   {
     path: "/:lang",
     element: <RootLayoutWrapper />,
-    errorElement: <RouteErrorFallback />, // <--- Added Route Error Boundary
+    errorElement: <RouteErrorFallback />,
     children: [
       // Home
       { index: true, element: <Home /> },
