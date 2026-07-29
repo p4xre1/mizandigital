@@ -43,7 +43,9 @@ self.addEventListener("fetch", (event) => {
   if (
     url.hostname.includes("googlesyndication.com") ||
     url.hostname.includes("googletagmanager.com") ||
-    url.hostname.includes("cloudflareinsights.com")
+    url.hostname.includes("cloudflareinsights.com") ||
+    url.hostname.includes("doubleclick.net") ||
+    url.hostname.includes("adtrafficquality.google")
   ) {
     return;
   }
@@ -51,7 +53,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache valid basic/opaque responses
+        // Cache valid basic/cors responses
         if (response.status === 200 && (response.type === "basic" || response.type === "cors")) {
           const responseClone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseClone));
@@ -59,13 +61,24 @@ self.addEventListener("fetch", (event) => {
         return response;
       })
       .catch(async () => {
+        // 1. Try exact match in cache
         const cachedResponse = await caches.match(event.request);
         if (cachedResponse) return cachedResponse;
 
-        // Fallback to index.html for client-side navigation offline
+        // 2. For navigations, fall back to cached index.html
         if (event.request.mode === "navigate") {
-          return caches.match("/index.html");
+          const indexFallback = await caches.match("/index.html");
+          if (indexFallback) return indexFallback;
         }
+
+        // 3. Absolute last resort — always return a valid Response,
+        //    never undefined (this is what was causing the
+        //    "Failed to convert value to 'Response'" error)
+        return new Response("Offline - resource not available", {
+          status: 503,
+          statusText: "Service Unavailable",
+          headers: { "Content-Type": "text/plain" },
+        });
       })
   );
 });
