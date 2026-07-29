@@ -29,6 +29,12 @@ export const ADSENSE_CLIENT_ID =
     import.meta.env?.VITE_GOOGLE_ADSENSE_CLIENT_ID) ||
   "ca-pub-1749032173858747";
 
+// ── STORAGE BUCKET NAMES (From Supabase Dashboard) ───────────────────────────
+export const STORAGE_BUCKETS = {
+  DOCUMENTS: "library-docs",
+  AVATARS: "avatars",
+} as const;
+
 // ── ROLES & SECURITY CLEARANCE LEVELS ─────────────────────────────────────────
 export type Role =
   | "root"
@@ -48,11 +54,6 @@ export const ROLES = {
   ALL: ["root", "security_admin", "admin", "marketer", "writer", "member", "guest"],
 } as const;
 
-/**
- * 🛡️ Military-grade mutation guard.
- * Validates session, email verification, and cryptographic role claims
- * BEFORE allowing any state mutation or database write.
- */
 async function ensurePrivilege(allowedRoles: readonly string[]) {
   const user = await requireVerifiedEmail();
   const userRole = (user.app_metadata?.role as string)?.toLowerCase().trim() || "member";
@@ -114,6 +115,7 @@ export interface AdminUser {
   role: Role;
   status: "active" | "banned";
   joined: string;
+  avatarUrl?: string;
 }
 
 export interface LegalText {
@@ -220,52 +222,10 @@ export interface CmsState {
 
 const KEY = "mizan_cms_v1";
 
+// ⚠️ SEED DATA CLEANED: No fake comments or mock reviews!
 const SEED: CmsState = {
-  users: [
-    { id: "u1", name: "أمين البقالي", email: "amine@mizan.ma", role: "root", status: "active", joined: "2025-11-02" },
-    { id: "u2", name: "سلمى الفاسي", email: "salma@mizan.ma", role: "admin", status: "active", joined: "2026-01-14" },
-    { id: "u3", name: "يوسف الإدريسي", email: "youssef@um5.ac.ma", role: "writer", status: "active", joined: "2026-03-21" },
-    { id: "u4", name: "نادية بنعلي", email: "nadia@uh2.ac.ma", role: "member", status: "banned", joined: "2026-02-08" },
-    { id: "u5", name: "Karim Alaoui", email: "karim@uca.ma", role: "guest", status: "active", joined: "2026-05-30" },
-  ],
-  articles: [
-    {
-      id: "a1",
-      title: "أسئلة وأجوبة امتحان قانون الأسرة S1",
-      slug: "family-law-s1-2026",
-      category: "قانون الأسرة",
-      status: "published",
-      published: true,
-      author: "سلمى الفاسي",
-      views: 4200,
-      updated: "2026-07-13",
-      commentsEnabled: true,
-      allowComments: true,
-      tags: ["S1", "2026", "مدوّنة الأسرة"],
-      excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة.",
-      keyword: "قانون الأسرة",
-      multilingualTitle: {
-        ar: "أسئلة وأجوبة امتحان قانون الأسرة S1",
-        fr: "Questions & Réponses Examen Droit de la Famille S1",
-        en: "Family Law S1 Exam Questions & Answers",
-        es: "Examen de Derecho de Familia S1 Preguntas y Respuestas",
-      },
-    },
-    {
-      id: "a2",
-      title: "مستجدات قانون المسطرة الجنائية 2025",
-      slug: "criminal-procedure-2025",
-      category: "القانون الجنائي",
-      status: "published",
-      published: true,
-      author: "أمين البقالي",
-      views: 2800,
-      updated: "2026-07-12",
-      commentsEnabled: true,
-      allowComments: true,
-      tags: ["مسطرة جنائية", "2025"],
-    },
-  ],
+  users: [],
+  articles: [],
   legalTexts: [
     { id: "lt1", title: "مدونة الأسرة - القانون رقم 70.03", slug: "moudawana-family-code", domain: "قانون الأسرة", status: "published", updated: "2026-06-10" },
   ],
@@ -274,9 +234,7 @@ const SEED: CmsState = {
   ],
   keywords: [],
   security: [],
-  comments: [
-    { id: "c1", articleId: "a1", name: "محمد العلمي", body: "شرح ممتاز ودقيق للامتحان، شكراً لكم.", at: "2026-07-20 14:30" },
-  ],
+  comments: [], // 👈 CLEAN: Zero fake reviews
   traffic: [],
   photosSeo: [],
   documentsSeo: [],
@@ -292,9 +250,9 @@ function read(): CmsState {
       return {
         ...SEED,
         ...parsed,
-        comments: parsed.comments || SEED.comments,
-        photosSeo: parsed.photosSeo || SEED.photosSeo,
-        documentsSeo: parsed.documentsSeo || SEED.documentsSeo,
+        comments: parsed.comments || [],
+        photosSeo: parsed.photosSeo || [],
+        documentsSeo: parsed.documentsSeo || [],
       };
     }
   } catch {
@@ -343,6 +301,62 @@ const uid = () =>
 
 const today = () => new Date().toISOString().slice(0, 10);
 
+// ── DYNAMIC STORAGE MANAGEMENT (Supabase Storage / Cloudflare R2) ─────────────
+
+/**
+ * Uploads legal PDFs or office documents directly to Supabase `library-docs` bucket.
+ * Returns the public CDN URL to attach to articles or legal texts.
+ */
+export async function uploadLibraryDocument(file: File): Promise<string> {
+  await ensurePrivilege(ROLES.CONTENT_WRITERS);
+
+  if (!isSupabaseConfigured) {
+    throw new Error("Supabase is not configured. Cannot upload to cloud storage.");
+  }
+
+  const fileExt = file.name.split(".").pop();
+  const filePath = `${Date.now()}_${uid()}.${fileExt}`;
+
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKETS.DOCUMENTS)
+    .upload(filePath, file, { cacheControl: "3600", upsert: false });
+
+  if (error) {
+    console.error("[STORAGE ERROR]", error.message);
+    throw error;
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from(STORAGE_BUCKETS.DOCUMENTS)
+    .getPublicUrl(data.path);
+
+  return publicUrlData.publicUrl;
+}
+
+/**
+ * Uploads user avatars directly to Supabase `avatars` bucket.
+ */
+export async function uploadUserAvatar(file: File, userId: string): Promise<string> {
+  if (!isSupabaseConfigured) {
+    throw new Error("Supabase is not configured. Cannot upload avatar.");
+  }
+
+  const fileExt = file.name.split(".").pop();
+  const filePath = `avatar_${userId}_${Date.now()}.${fileExt}`;
+
+  const { data, error } = await supabase.storage
+    .from(STORAGE_BUCKETS.AVATARS)
+    .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+  if (error) throw error;
+
+  const { data: publicUrlData } = supabase.storage
+    .from(STORAGE_BUCKETS.AVATARS)
+    .getPublicUrl(data.path);
+
+  return publicUrlData.publicUrl;
+}
+
 // ── GOOGLE ANALYTICS & EVENT TRACKER ──────────────────────────────────────────
 export function trackGoogleEvent(eventName: string, params: Record<string, any> = {}) {
   if (typeof window !== "undefined") {
@@ -369,7 +383,7 @@ export const setUserStatus = async (id: string, status: AdminUser["status"]) => 
 };
 
 export const setUserRole = async (id: string, role: AdminUser["role"]) => {
-  await ensurePrivilege(ROLES.ROOT); // ONLY Root can escalate privileges
+  await ensurePrivilege(ROLES.ROOT);
   commit({ ...state, users: state.users.map((u) => (u.id === id ? { ...u, role } : u)) });
 
   if (isSupabaseConfigured) {
@@ -378,7 +392,7 @@ export const setUserRole = async (id: string, role: AdminUser["role"]) => {
 };
 
 export const deleteUser = async (id: string) => {
-  await ensurePrivilege(ROLES.ROOT); // ONLY Root can permanently delete
+  await ensurePrivilege(ROLES.ROOT);
   commit({ ...state, users: state.users.filter((u) => u.id !== id) });
 
   if (isSupabaseConfigured) {
@@ -470,7 +484,7 @@ export const deleteArticle = async (id: string) => {
   }
 };
 
-// ── COMMENTS MANAGEMENT ───────────────────────────────────────────────────────
+// ── COMMENTS MANAGEMENT (100% REAL & DYNAMIC) ──────────────────────────────
 export const addComment = async (
   articleId: string,
   authorName: string,
