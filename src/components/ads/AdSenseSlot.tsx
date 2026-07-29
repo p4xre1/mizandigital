@@ -1,60 +1,130 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
-interface AdSenseProps {
+// Extend global Window type for AdSense script
+declare global {
+  interface Window {
+    adsbygoogle: Array<Record<string, unknown>>;
+  }
+}
+
+// Default constants preventing ReferenceErrors
+const DEFAULT_CLIENT_ID =
+  import.meta.env.VITE_ADSENSE_CLIENT_ID || "ca-pub-1749032173858747";
+
+const TEST_SLOT_IDS = new Set<string>([
+  "1234567890",
+  "0000000000",
+  "xxxxxxxxxx",
+]);
+
+export interface AdSenseProps {
   slotId: string;
-  format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical';
+  adClient?: string;
+  format?: string;
   responsive?: boolean;
   className?: string;
 }
 
 export const AdSenseSlot = ({
   slotId,
-  format = 'auto',
+  adClient = DEFAULT_CLIENT_ID,
+  format = "auto",
   responsive = true,
-  className = '',
+  className = "",
 }: AdSenseProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const isInitialized = useRef(false);
+  const prevSlotId = useRef(slotId);
 
-  // 1. الفحص التلقائي لبيئة التطوير أو المعرفات التجريبية
   const isDevEnv =
-    typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' ||
-      window.location.hostname.includes('github.dev') ||
-      window.location.hostname.includes('127.0.0.1') ||
-      ['1234567890', '0987654321', '3344556677', '8899001122'].includes(slotId));
+    import.meta.env.DEV ||
+    (typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname.includes("github.dev") ||
+        window.location.hostname.includes("127.0.0.1") ||
+        TEST_SLOT_IDS.has(slotId)));
+
+  // Synchronously reset the initialization flag on slot change
+  if (prevSlotId.current !== slotId) {
+    isInitialized.current = false;
+    prevSlotId.current = slotId;
+  }
 
   useEffect(() => {
-    // عدم إرسال أي طلبات إعلانية في بيئة التطوير أو عند التهيئة المسبقة
     if (isDevEnv || isInitialized.current) return;
 
-    try {
-      if (typeof window !== 'undefined' && adRef.current) {
-        // @ts-ignore
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        isInitialized.current = true;
-      }
-    } catch (err) {
-      console.error('AdSense Push Error:', err);
-    }
-  }, [slotId, isDevEnv]);
+    let rafId: number;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 50; // ~50 frames (~0.8s at 60fps) before giving up
 
-  // 2. إلغاء عرض المكون نهائياً في بيئة التطوير لتجنب أي مساحات بيضاء أو أخطاء 400
+    const pushAd = () => {
+      if (!adRef.current || isInitialized.current) return;
+
+      if (adRef.current.offsetWidth === 0) {
+        if (attempts++ < MAX_ATTEMPTS) {
+          rafId = requestAnimationFrame(pushAd);
+        } else {
+          console.warn(
+            `[AdSenseSlot] Slot "${slotId}" never gained width, skipping push.`
+          );
+        }
+        return;
+      }
+
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({});
+        isInitialized.current = true;
+      } catch (err) {
+        console.warn("[AdSenseSlot] AdSense push error intercepted:", err);
+      }
+    };
+
+    const ensureScriptAndPush = () => {
+      const scriptSrc = "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+      const existingScript = document.querySelector<HTMLScriptElement>(
+        `script[src*="${scriptSrc}"]`
+      );
+
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.src = `https://${scriptSrc}?client=${adClient}`;
+        script.async = true;
+        script.defer = true;
+        script.crossOrigin = "anonymous";
+        script.onload = () => pushAd();
+        script.onerror = () =>
+          console.warn("[AdSenseSlot] Failed to load AdSense script.");
+        document.head.appendChild(script);
+      } else {
+        pushAd();
+      }
+    };
+
+    ensureScriptAndPush();
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [slotId, adClient, isDevEnv]);
+
   if (isDevEnv) {
     return null;
   }
 
   return (
-    // 3. إزالة min-h-[90px] واستبدال my-4 بـ empty:hidden لمنع حجز مساحة إذا كان فارغاً
-    <div className={`adsense-container w-full text-center overflow-hidden empty:hidden ${className}`}>
+    <div
+      className={`adsense-container w-full text-center overflow-hidden empty:hidden ${className}`}
+    >
       <ins
+        key={slotId}
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: 'block' }}
-        data-ad-client="ca-pub-1749032173858747"
+        style={{ display: "block" }}
+        data-ad-client={adClient}
         data-ad-slot={slotId}
         data-ad-format={format}
-        data-full-width-responsive={responsive ? 'true' : 'false'}
+        data-full-width-responsive={responsive ? "true" : "false"}
       />
     </div>
   );
