@@ -24,11 +24,27 @@ interface ImportMetaEnv {
   readonly VITE_GTM_ID?: string;
 
   /** Google Analytics 4 Measurement ID */
-  readonly VITE_GA_ID?: string; // تم التحديث ليتطابق مع VITE_GA_ID
+  readonly VITE_GA_ID?: string;
 
   /** Cloudflare Turnstile CAPTCHA Site Key */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
-  
+
+  // ── Cloudflare R2 Storage Configuration ──────────────────────────────────
+  /** Cloudflare Account ID for R2 S3 Client Endpoint */
+  readonly VITE_R2_ACCOUNT_ID?: string;
+
+  /** Cloudflare R2 Access Key ID */
+  readonly VITE_R2_ACCESS_KEY_ID?: string;
+
+  /** Cloudflare R2 Secret Access Key */
+  readonly VITE_R2_SECRET_ACCESS_KEY?: string;
+
+  /** Custom Domain or Public URL for R2 objects (e.g., https://cdn.mizan.page) */
+  readonly VITE_R2_PUBLIC_URL?: string;
+
+  /** Target Cloudflare R2 Bucket Name (e.g., mizan-storage) */
+  readonly VITE_R2_BUCKET_NAME?: string;
+
   // ⚠️ تم استبعاد VITE_ADMIN_USER و VITE_ADMIN_PASS عمداً لأسباب أمنية
   // يجب عليك إزالة VITE_ من أسمائها في ملف .env حتى لا تتسرب للعموم.
 }
