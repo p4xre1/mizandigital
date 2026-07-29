@@ -8,16 +8,19 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="format-detection" content="telephone=no" />
-
-  <!-- 🛡️ Security & Compatibility -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-  <!-- 🚀 Fast Network Connections -->
+  <!-- 💰 Google AdSense Account Verification -->
+  <meta name="google-adsense-account" content="ca-pub-1749032173858747" />
+
+  <!-- 🚀 Fast Network Connections & Arabic Font Loading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-  <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  
+  <!-- Modern Arabic Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
 
   <!-- 🔍 Primary SEO Meta Tags -->
   <title>Mizan Digital | ميزان الرقمية</title>
@@ -26,13 +29,33 @@
   <meta name="author" content="Mizan Digital" />
   <meta name="robots" content="index, follow" />
 
-  <!-- 📱 Favicons & Icons (Ensure files exist in /public folder) -->
+  <!-- 🌐 Open Graph / Facebook / WhatsApp Previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.mizan.page/ar" />
+  <meta property="og:title" content="Mizan Digital | ميزان الرقمية" />
+  <meta property="og:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
+  <meta property="og:image" content="https://www.mizan.page/og-image.jpg" />
+
+  <!-- 🐦 Twitter Previews -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://www.mizan.page/ar" />
+  <meta name="twitter:title" content="Mizan Digital | ميزان الرقمية" />
+  <meta name="twitter:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
+  <meta name="twitter:image" content="https://www.mizan.page/og-image.jpg" />
+
   <!-- 📱 Favicons & Icons -->
   <link rel="icon" type="image/svg+xml" href="/Logo.svg" />
   <link rel="apple-touch-icon" href="/Logo.svg" />
   <link rel="manifest" href="/manifest.json" />
 
-  <!-- 📈 Google Tag Manager (Updated to modern ES6 syntax) -->
+  <!-- 💰 Google AdSense Main Script -->
+  <script
+    async
+    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1749032173858747"
+    crossorigin="anonymous">
+  </script>
+
+  <!-- 📈 Google Tag Manager -->
   <script>
     (function(w,d,s,l,i){
       w[l]=w[l]||[];
@@ -47,12 +70,12 @@
   </script>
 </head>
 
-<body class="bg-background text-foreground antialiased">
-<noscript>
-  <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PTT8P94G" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-</noscript>
+<body class="bg-background text-foreground antialiased font-sans">
+  <noscript>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PTT8P94G" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+  </noscript>
 
-<div id="root"></div>
-<script type="module" src="/src/main.tsx"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
