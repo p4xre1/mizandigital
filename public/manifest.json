@@ -50,9 +50,9 @@
       "url": "/ar/laws",
       "icons": [
         {
-          "src": "/Logo.svg",
-          "type": "image/svg+xml",
-          "sizes": "any"
+          "src": "/pwa-192x192.png",
+          "type": "image/png",
+          "sizes": "192x192"
         }
       ]
     },
@@ -63,9 +63,9 @@
       "url": "/ar/exams/qcm-practice",
       "icons": [
         {
-          "src": "/Logo.svg",
-          "type": "image/svg+xml",
-          "sizes": "any"
+          "src": "/pwa-192x192.png",
+          "type": "image/png",
+          "sizes": "192x192"
         }
       ]
     }
