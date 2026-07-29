@@ -1,56 +1,73 @@
 # ==============================================================================
-# Mizan Digital (ميزان) — Official Search & AI Crawler Rules
+# Mizan Digital (ميزان) — Official Search Engine & AI Crawler Rules
 # Primary Host: www.mizan.page
+# Platform: Legal & Academic Intelligence Database (AR | FR | EN | ES)
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# 1. GLOBAL CRAWLER RULES
+# 1. GLOBAL CRAWLER RULES (Search Engines & General Web Crawlers)
 # ------------------------------------------------------------------------------
 User-agent: *
 
+# ✅ Allow full access to public content & AI discovery protocols
+Allow: /
+Allow: /.well-known/
+Allow: /sitemap.xml
+
 # 🚫 Admin & Dashboard Interfaces
 Disallow: /admin
-Disallow: /admin/
 Disallow: /*/admin
 Disallow: /dashboard
-Disallow: /dashboard/
 Disallow: /*/dashboard
 
-# 🚫 Auth & Private User Pages
+# 🚫 Authentication & User Account Pages
 Disallow: /login
 Disallow: /register
 Disallow: /profile
 Disallow: /settings
-Disallow: /es/iniciar-sesion
-Disallow: /es/registro
 Disallow: /*/login
 Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# 🚫 Internal APIs & Private Data
+# 🚫 Internal APIs & Private Backend Endpoints
 Disallow: /api/
+Disallow: /*/api/
 
-# 🚫 Prevent crawling duplicate internal search parameters
+# 🚫 Prevent indexing of dynamic query parameters & duplicate search URLs
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
+Disallow: /*?*sort=
 
-# ✅ Allow essential static assets & pages
+# ------------------------------------------------------------------------------
+# 2. AI AGENTS & GENERATIVE ENGINE OPTIMIZATION (GEO)
+# (Permit AI Search & LLM assistants to discover and reference public legal data)
+# ------------------------------------------------------------------------------
+User-agent: GPTBot
 Allow: /
-Allow: /*.css$
-Allow: /*.js$
-Allow: /*.svg$
-Allow: /*.webp$
-Allow: /*.png$
-Allow: /*.jpg$
-Allow: /*.jpeg$
-Allow: /*.ico$
-Allow: /*.woff2$
-Allow: /manifest.json
+Allow: /.well-known/
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /.well-known/
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
 
 # ------------------------------------------------------------------------------
-# 2. SITEMAPS & DOMAIN SPECIFICATION
+# 3. SITEMAPS
 # ------------------------------------------------------------------------------
-Host: www.mizan.page
 Sitemap: https://www.mizan.page/sitemap.xml
