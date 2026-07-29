@@ -1,46 +1,57 @@
+// src/pages/ArticlesList.tsx
 import React, { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import {
-  Plus,
   Search,
-  Edit2,
-  Trash2,
   Eye,
-  MessageSquare,
-  FileText,
-  Filter,
-  Globe,
   Calendar,
-  CheckCircle2,
-  Clock,
+  GraduationCap,
+  Landmark,
+  Scale,
+  ArrowLeft,
+  ArrowRight,
+  Newspaper,
+  Tag,
 } from "lucide-react";
 import { useI18n, serifFont, sansFont, type Lang } from "../lib/i18n";
-import {
-  useCms,
-  deleteArticle,
-  saveArticle,
-  type AdminArticle,
-} from "../lib/adminStore";
+import { useCms } from "../lib/adminStore";
+
+type CategorySlug = "all" | "schools" | "government" | "general";
+
+const CATEGORIES = [
+  {
+    id: "all",
+    path: "",
+    label: { ar: "جميع الأخبار", fr: "Toutes les Actualités", en: "All News", es: "Todas las Noticias" },
+    icon: Newspaper,
+  },
+  {
+    id: "schools",
+    path: "schools",
+    label: { ar: "أخبار الكليات والجامعات", fr: "Actualités Universitaires", en: "University & Law Schools", es: "Noticias Universitarias" },
+    icon: GraduationCap,
+  },
+  {
+    id: "government",
+    path: "government",
+    label: { ar: "المستجدات التشريعية والحكومية", fr: "Mises à jour Législatives", en: "Government & Legal Updates", es: "Novedades Legislativas" },
+    icon: Landmark,
+  },
+  {
+    id: "general",
+    path: "general",
+    label: { ar: "أخبار قانونية عامة", fr: "Actualités Juridiques Générales", en: "General Legal News", es: "Noticias Jurídicas Generales" },
+    icon: Scale,
+  },
+] as const;
 
 const LABELS = {
-  title: { ar: "إدارة المقالات", fr: "Gestion des articles", en: "Articles Management", es: "Gestión de artículos" },
-  subTitle: { ar: "عرض وتعديل وإنشاء المقالات في منصة ميزان", fr: "Consulter, éditer et créer des articles", en: "View, edit, and create articles", es: "Ver, editar y crear artículos" },
-  newArticle: { ar: "مقال جديد", fr: "Nouvel article", en: "New Article", es: "Nuevo artículo" },
-  searchPlaceholder: { ar: "البحث في المقالات...", fr: "Rechercher des articles...", en: "Search articles...", es: "Buscar artículos..." },
-  filterAll: { ar: "الكل", fr: "Tous", en: "All", es: "Todos" },
-  filterPublished: { ar: "منشور", fr: "Publié", en: "Published", es: "Publicado" },
-  filterDraft: { ar: "مسودة", fr: "Brouillon", en: "Draft", es: "Borrador" },
-  colArticle: { ar: "المقال", fr: "Article", en: "Article", es: "Artículo" },
-  colCategory: { ar: "التصنيف", fr: "Catégorie", en: "Category", es: "Categoría" },
-  colStatus: { ar: "الحالة", fr: "Statut", en: "Status", es: "Estado" },
-  colViews: { ar: "المشاهدات", fr: "Vues", en: "Views", es: "Vistas" },
-  colUpdated: { ar: "آخر تحديث", fr: "Dernière مise à jour", en: "Last Updated", es: "Última actualización" },
-  colActions: { ar: "إجراءات", fr: "Actions", en: "Actions", es: "Acciones" },
-  empty: { ar: "لم يتم العثور على مقالات.", fr: "Aucun article trouvé.", en: "No articles found.", es: "No se encontraron artículos." },
-  deleteConfirm: { ar: "هل أنت ألكيد من رغبتك في حذف هذا المقال؟", fr: "Êtes-vous sûr de vouloir supprimer cet article ?", en: "Are you sure you want to delete this article?", es: "¿Estás seguro de que deseas eliminar este artículo?" },
-  togglePublish: { ar: "تغيير حالة النشر", fr: "Changer le statut", en: "Toggle Status", es: "Cambiar estado" },
-  edit: { ar: "تعديل", fr: "Éditer", en: "Edit", es: "Editar" },
-  delete: { ar: "حذف", fr: "Supprimer", en: "Delete", es: "Eliminar" },
+  title: { ar: "مركز الأخبار والمستجدات", fr: "Centre d'Actualités", en: "News & Updates Center", es: "Centro de Noticias" },
+  subtitle: { ar: "تصفح أحدث الأخبار الجامعية، والمستجدات التشريعية، والقضايا القانونية", fr: "Parcourez les dernières actualités universitaires et législatives", en: "Browse the latest academic, legislative, and legal developments", es: "Explore las últimas novedades académicas y legislativas" },
+  searchPlaceholder: { ar: "البحث في الأخبار والمقالات...", fr: "Rechercher des articles...", en: "Search news & articles...", es: "Buscar noticias..." },
+  noArticles: { ar: "لا توجد مقالات متاحة حالياً في هذا التصنيف.", fr: "Aucun article disponible dans cette catégorie.", en: "No articles available in this category.", es: "No hay artículos disponibles en esta categoría." },
+  readMore: { ar: "اقرأ المزيد", fr: "Lire la suite", en: "Read More", es: "Leer más" },
+  uncategorized: { ar: "عام", fr: "Général", en: "General", es: "General" }
 } as const;
 
 function getLabel(key: keyof typeof LABELS, lang: Lang): string {
@@ -48,233 +59,189 @@ function getLabel(key: keyof typeof LABELS, lang: Lang): string {
 }
 
 export default function ArticlesList() {
-  const navigate = useNavigate();
   const { lang, dir } = useI18n();
   const cms = useCms();
+  const navigate = useNavigate();
+  const { category: currentCategoryParam } = useParams<{ category?: string }>();
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const articles = cms?.articles || [];
+  // Determine active category from route param (/news/schools -> "schools")
+  const activeCategory: CategorySlug = useMemo(() => {
+    const cat = (currentCategoryParam || "all").toLowerCase();
+    if (["schools", "government", "general"].includes(cat)) {
+      return cat as CategorySlug;
+    }
+    return "all";
+  }, [currentCategoryParam]);
 
-  // Filtered Articles based on Search & Status
-  const filteredArticles = useMemo(() => {
-    return articles.filter((article) => {
-      const matchesSearch =
-        article.title.toLowerCase().includes(search.toLowerCase()) ||
-        article.category.toLowerCase().includes(search.toLowerCase()) ||
-        article.author.toLowerCase().includes(search.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === "all" || article.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [articles, search, statusFilter]);
-
-  const handleToggleStatus = async (article: AdminArticle) => {
-    const nextStatus = article.status === "published" ? "draft" : "published";
-    await saveArticle({
-      ...article,
-      status: nextStatus,
-      published: nextStatus === "published",
-    });
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm(getLabel("deleteConfirm", lang))) {
-      await deleteArticle(id);
+  // Navigate when clicking tabs
+  const handleCategoryClick = (catId: CategorySlug) => {
+    if (catId === "all") {
+      navigate(`/${lang}/news`);
+    } else {
+      navigate(`/${lang}/news/${catId}`);
     }
   };
 
+  const articles = cms?.articles || [];
+
+  // Filter published articles matching Category + Search
+  const filteredArticles = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+
+    return articles.filter((article) => {
+      const isPublished = article.status === "published";
+      const artCat = (article.category || "").toLowerCase();
+
+      // Flexible Category Matcher
+      const matchesCategory =
+        activeCategory === "all" ||
+        artCat.includes(activeCategory) ||
+        (activeCategory === "schools" && (artCat.includes("جامع") || artCat.includes("كلي") || artCat.includes("school") || artCat.includes("univ"))) ||
+        (activeCategory === "government" && (artCat.includes("تشريع") || artCat.includes("حكوم") || artCat.includes("gov") || artCat.includes("law"))) ||
+        (activeCategory === "general" && (artCat.includes("عام") || artCat.includes("general")));
+
+      // Guard against null/undefined fields during search match
+      const titleMatch = (article.title || "").toLowerCase().includes(query);
+      const categoryMatch = artCat.includes(query);
+      const authorMatch = (article.author || "").toLowerCase().includes(query);
+
+      const matchesSearch = !query || titleMatch || categoryMatch || authorMatch;
+
+      return isPublished && matchesCategory && matchesSearch;
+    });
+  }, [articles, activeCategory, searchQuery]);
+
   return (
     <div
-      className="min-h-screen bg-background text-foreground p-4 sm:p-8 max-w-7xl mx-auto space-y-6"
+      className="min-h-screen bg-background text-foreground py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8"
       dir={dir}
       style={{ fontFamily: sansFont(lang) }}
     >
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-        <div>
-          <h1
-            className="text-2xl sm:text-3xl font-extrabold flex items-center gap-2"
-            style={{ fontFamily: serifFont(lang) }}
-          >
-            <FileText className="text-primary w-7 h-7" />
-            <span>{getLabel("title", lang)}</span>
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-            {getLabel("subTitle", lang)}
-          </p>
-        </div>
-
-        <button
-          onClick={() => navigate("/admin/articles/new")}
-          className="px-4 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-2 shrink-0 shadow-sm"
+      {/* Header */}
+      <div className="text-center space-y-3 max-w-3xl mx-auto">
+        <h1
+          className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight"
+          style={{ fontFamily: serifFont(lang) }}
         >
-          <Plus size={18} />
-          <span>{getLabel("newArticle", lang)}</span>
-        </button>
+          {getLabel("title", lang)}
+        </h1>
+        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+          {getLabel("subtitle", lang)}
+        </p>
       </div>
 
-      {/* Control Bar: Search & Filters */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-card p-4 rounded-2xl border border-border">
-        {/* Search Field */}
-        <div className="relative w-full md:w-96">
-          <Search
-            size={18}
-            className="absolute top-1/2 -translate-y-1/2 ltr:left-3.5 rtl:right-3.5 text-muted-foreground pointer-events-none"
-          />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={getLabel("searchPlaceholder", lang)}
-            className="w-full text-sm ltr:pl-10 rtl:pr-10 ltr:pr-4 rtl:pl-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-          />
-        </div>
-
-        {/* Filter Buttons */}
-        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          <Filter size={16} className="text-muted-foreground shrink-0 ltr:mr-1 rtl:ml-1" />
-          {(["all", "published", "draft"] as const).map((st) => (
+      {/* Category Tabs */}
+      <div className="flex items-center justify-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        {CATEGORIES.map((cat) => {
+          const Icon = cat.icon;
+          const isActive = activeCategory === cat.id;
+          return (
             <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all whitespace-nowrap ${
-                statusFilter === st
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted/60 text-muted-foreground hover:bg-muted"
+              key={cat.id}
+              onClick={() => handleCategoryClick(cat.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                isActive
+                  ? "bg-primary text-primary-foreground shadow-md scale-[1.02]"
+                  : "bg-card text-muted-foreground border border-border hover:bg-muted hover:text-foreground"
               }`}
             >
-              {st === "all"
-                ? getLabel("filterAll", lang)
-                : st === "published"
-                ? getLabel("filterPublished", lang)
-                : getLabel("filterDraft", lang)}
+              <Icon size={16} />
+              <span>{cat.label[lang as Lang] || cat.label.en}</span>
             </button>
+          );
+        })}
+      </div>
+
+      {/* Search Input using Logical Utilities */}
+      <div className="max-w-md mx-auto relative">
+        <Search
+          size={18}
+          className="absolute top-1/2 -translate-y-1/2 start-4 text-muted-foreground pointer-events-none"
+        />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={getLabel("searchPlaceholder", lang)}
+          className="w-full text-sm ps-11 pe-4 py-3 rounded-2xl border border-border bg-card text-foreground shadow-xs outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+        />
+      </div>
+
+      {/* Articles Grid */}
+      {filteredArticles.length === 0 ? (
+        <div className="text-center py-16 bg-card rounded-2xl border border-border">
+          <p className="text-muted-foreground text-sm font-medium">
+            {getLabel("noArticles", lang)}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredArticles.map((article) => (
+            <Link
+              key={article.id}
+              to={`/${lang}/article/${article.slug || article.id}`}
+              className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div>
+                {/* Cover Image */}
+                {article.coverImage && (
+                  <div className="h-48 w-full overflow-hidden bg-muted relative">
+                    <img
+                      src={article.coverImage}
+                      alt={article.imageAlt || article.title || "Article Image"}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                )}
+
+                <div className="p-5 space-y-3">
+                  {/* Category Tag */}
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-semibold">
+                    <Tag size={12} />
+                    <span>{article.category || getLabel("uncategorized", lang)}</span>
+                  </div>
+
+                  {/* Title */}
+                  <h2
+                    className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug"
+                    style={{ fontFamily: serifFont(lang) }}
+                  >
+                    {article.title}
+                  </h2>
+
+                  {/* Excerpt */}
+                  {article.excerpt && (
+                    <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Meta Footer */}
+              <div className="p-5 pt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground font-mono">
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1">
+                    <Calendar size={13} />
+                    {article.updated || "2026"}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Eye size={13} />
+                    {(article.views || 0).toLocaleString()}
+                  </span>
+                </div>
+
+                <span className="flex items-center gap-1 text-primary font-sans font-semibold group-hover:underline">
+                  <span>{getLabel("readMore", lang)}</span>
+                  {dir === "rtl" ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
+                </span>
+              </div>
+            </Link>
           ))}
         </div>
-      </div>
-
-      {/* Table Section */}
-      <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm ltr:text-left rtl:text-right border-collapse">
-            <thead>
-              <tr className="border-b border-border bg-muted/40 text-muted-foreground text-xs uppercase font-bold">
-                <th className="p-4">{getLabel("colArticle", lang)}</th>
-                <th className="p-4">{getLabel("colCategory", lang)}</th>
-                <th className="p-4">{getLabel("colStatus", lang)}</th>
-                <th className="p-4">{getLabel("colViews", lang)}</th>
-                <th className="p-4">{getLabel("colUpdated", lang)}</th>
-                <th className="p-4 text-center">{getLabel("colActions", lang)}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filteredArticles.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground italic">
-                    {getLabel("empty", lang)}
-                  </td>
-                </tr>
-              ) : (
-                filteredArticles.map((article) => {
-                  const isPublished = article.status === "published";
-                  return (
-                    <tr
-                      key={article.id}
-                      className="hover:bg-muted/30 transition-colors group"
-                    >
-                      {/* Title & Author */}
-                      <td className="p-4 max-w-xs sm:max-w-md">
-                        <div className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                          {article.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
-                          <span>{article.author || "—"}</span>
-                          {article.commentsEnabled && (
-                            <span className="flex items-center gap-0.5 text-[11px] text-primary/80">
-                              <MessageSquare size={12} />
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Category */}
-                      <td className="p-4 whitespace-nowrap">
-                        <span className="px-2.5 py-1 rounded-lg text-xs font-medium bg-muted text-foreground border border-border">
-                          {article.category || "—"}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="p-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleToggleStatus(article)}
-                          title={getLabel("togglePublish", lang)}
-                          className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 border transition-all ${
-                            isPublished
-                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20"
-                              : "bg-amber-500/10 text-amber-600 border-amber-500/20 hover:bg-amber-500/20"
-                          }`}
-                        >
-                          {isPublished ? (
-                            <CheckCircle2 size={12} />
-                          ) : (
-                            <Clock size={12} />
-                          )}
-                          <span>
-                            {isPublished
-                              ? getLabel("filterPublished", lang)
-                              : getLabel("filterDraft", lang)}
-                          </span>
-                        </button>
-                      </td>
-
-                      {/* Views */}
-                      <td className="p-4 whitespace-nowrap text-muted-foreground font-mono text-xs">
-                        <div className="flex items-center gap-1">
-                          <Eye size={14} className="text-muted-foreground/70" />
-                          <span>{(article.views || 0).toLocaleString()}</span>
-                        </div>
-                      </td>
-
-                      {/* Updated Date */}
-                      <td className="p-4 whitespace-nowrap text-muted-foreground font-mono text-xs">
-                        <div className="flex items-center gap-1">
-                          <Calendar size={13} className="text-muted-foreground/70" />
-                          <span>{article.updated || "—"}</span>
-                        </div>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="p-4 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => navigate(`/admin/articles/edit/${article.id}`)}
-                            title={getLabel("edit", lang)}
-                            className="p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(article.id)}
-                            title={getLabel("delete", lang)}
-                            className="p-2 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
