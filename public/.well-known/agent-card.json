@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "Mizan Digital",
+  "alternate_name": "ميزان",
+  "url": "https://www.mizan.page",
+  "description": "Moroccan Legal & Academic Intelligence Platform providing structured access to legal codes (Moudawana, Code Pénal, Code du Travail), jurisprudence, law faculty directories, and legal dictionaries.",
+  "version": "1.0.0",
+  "provider": {
+    "name": "Mizan Digital Platform",
+    "url": "https://www.mizan.page"
+  },
+  "languages_supported": ["ar", "fr", "en", "es"],
+  "default_language": "ar",
+  "authentication": {
+    "type": "none",
+    "public_access": true
+  },
+  "capabilities": {
+    "legal_search": {
+      "description": "Search across Moroccan statutes, codes, and legal terms",
+      "endpoint_template": "https://www.mizan.page/{lang}/search?q={query}",
+      "parameters": {
+        "lang": ["ar", "fr", "en", "es"],
+        "query": "string"
+      }
+    },
+    "key_databases": {
+      "moudawana": "https://www.mizan.page/ar/laws/code-de-la-famille",
+      "code_penal": "https://www.mizan.page/ar/laws/code-penal",
+      "code_du_travail": "https://www.mizan.page/ar/laws/code-du-travail",
+      "code_de_commerce": "https://www.mizan.page/ar/laws/code-de-commerce",
+      "procedure_civile": "https://www.mizan.page/ar/laws/procedure-civile",
+      "procedure_penale": "https://www.mizan.page/ar/laws/procedure-penale"
+    },
+    "directories": {
+      "law_schools": "https://www.mizan.page/ar/law-schools",
+      "legal_dictionary": "https://www.mizan.page/ar/dictionary",
+      "archive": "https://www.mizan.page/ar/archive"
+    }
+  },
+  "protocols_supported": ["A2A", "HTTPS", "Sitemap-v0.9"],
+  "contact": {
+    "email": "support@mizan.page",
+    "url": "https://www.mizan.page/ar/contact"
+  }
+}

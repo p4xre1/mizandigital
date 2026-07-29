@@ -8,6 +8,17 @@ export default defineConfig({
 
   plugins: [react()],
 
+  // ⚡ CORS PROXY: Routes local /api requests to production without CORS errors
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://www.mizan.page',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
+
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -30,7 +41,11 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]',
         // ⚡ SAFE CHUNKING: Isolates React core while letting Rollup resolve vendor TDZ dependencies safely
         manualChunks(id) {
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router')) {
+          if (
+            id.includes('node_modules/react') ||
+            id.includes('node_modules/react-dom') ||
+            id.includes('node_modules/react-router')
+          ) {
             return 'react-core';
           }
         },

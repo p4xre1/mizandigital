@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useRole, type Role } from "@/hooks/useRole";
 import { AdminGuard } from "@/components/AdminGuard";
@@ -40,7 +41,7 @@ const ADMIN_I18N = {
   ar: {
     dashboard: "لوحة التحكم",
     articles: "إدارة المقالات",
-    users: "المستخدمون والصلحيات",
+    users: "المستخدمون والصلاحيات",
     seo: "محركات البحث SEO",
     security: "الأمن والرقابة",
     traffic: "الزيارات والتحليلات",
@@ -179,6 +180,15 @@ export function AdminWrapper({
   const { role, isRoot, isSecurityAdmin, isAdmin, canManageUsers, canWriteContent } = useRole();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
+  // Safely capture router path for reactive active tab matching
+  let currentPath = "";
+  try {
+    const location = useLocation();
+    currentPath = location.pathname;
+  } catch {
+    currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+  }
+
   const strings = useMemo(() => ADMIN_I18N[lang as Lang] || ADMIN_I18N.en, [lang]);
   const pageTitle = title || strings.dashboard;
 
@@ -191,6 +201,17 @@ export function AdminWrapper({
       }
     }
   }, [lang]);
+
+  // Close mobile drawer on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileMenuOpen(false);
+    };
+    if (mobileMenuOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
 
   // Navigation Links Filtered by Permissions
   const navItems = useMemo(() => {
@@ -249,7 +270,7 @@ export function AdminWrapper({
     return items.filter((item) => item.show);
   }, [lang, strings, canWriteContent, isAdmin, isRoot, canManageUsers, isSecurityAdmin]);
 
-  // Structured Data Schema for Master SEO (Photo & Document Search Engines)
+  // Structured Data Schema for Master SEO
   const adminSchemaGraph = useMemo(() => {
     return {
       "@context": "https://schema.org",
@@ -309,7 +330,7 @@ export function AdminWrapper({
 
       <div
         dir={dir}
-        className="min-h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-primary selection:text-primary-foreground"
+        className="min-h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-primary selection:text-primary-foreground select-none"
       >
         {/* TOP MOBILE & DESKTOP HEADER */}
         <header className="sticky top-0 z-40 w-full bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-lg">
@@ -335,7 +356,10 @@ export function AdminWrapper({
                   </div>
                 </div>
                 <span className="font-bold text-base sm:text-lg tracking-tight hidden sm:inline-block">
-                  ميزان <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">Admin</span>
+                  ميزان{" "}
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    Admin
+                  </span>
                 </span>
               </a>
             </div>
@@ -386,7 +410,7 @@ export function AdminWrapper({
               </p>
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const active = typeof window !== "undefined" && window.location.pathname === item.href;
+                const active = currentPath === item.href;
                 return (
                   <a
                     key={item.href}
@@ -424,6 +448,7 @@ export function AdminWrapper({
                       <span className="font-bold text-sm text-slate-100">ميزان Admin</span>
                     </div>
                     <button
+                      type="button"
                       onClick={() => setMobileMenuOpen(false)}
                       className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-white rounded-lg bg-slate-800/50"
                     >
@@ -435,7 +460,7 @@ export function AdminWrapper({
                   <nav className="space-y-1.5">
                     {navItems.map((item) => {
                       const Icon = item.icon;
-                      const active = typeof window !== "undefined" && window.location.pathname === item.href;
+                      const active = currentPath === item.href;
                       return (
                         <a
                           key={item.href}
@@ -451,7 +476,11 @@ export function AdminWrapper({
                             <Icon className="w-4 h-4" />
                             <span>{item.label}</span>
                           </div>
-                          {dir === "rtl" ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                          {dir === "rtl" ? (
+                            <ChevronLeft className="w-4 h-4" />
+                          ) : (
+                            <ChevronRight className="w-4 h-4" />
+                          )}
                         </a>
                       );
                     })}
@@ -466,6 +495,7 @@ export function AdminWrapper({
                   </div>
 
                   <button
+                    type="button"
                     onClick={handleLogout}
                     className="w-full min-h-[44px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-destructive/20 text-destructive border border-destructive/30 font-bold text-xs hover:bg-destructive hover:text-white transition-all"
                   >
@@ -488,7 +518,7 @@ export function AdminWrapper({
           <div className="flex items-center justify-around max-w-md mx-auto">
             {navItems.slice(0, 4).map((item) => {
               const Icon = item.icon;
-              const active = typeof window !== "undefined" && window.location.pathname === item.href;
+              const active = currentPath === item.href;
               return (
                 <a
                   key={item.href}

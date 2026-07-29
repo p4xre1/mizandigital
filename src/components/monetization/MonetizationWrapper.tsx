@@ -81,7 +81,7 @@ export default function MonetizationWrapper({
   className = "",
 }: MonetizationWrapperProps) {
   const { lang, dir } = useI18n();
-  const { isStaff, isAdmin, isRoot } = useRole();
+  const { isAdmin, isRoot } = useRole();
 
   const adPushedRef = useRef(false);
   const [isAdBlocked, setIsAdBlocked] = useState(false);
@@ -93,24 +93,30 @@ export default function MonetizationWrapper({
   }, [isRoot, isAdmin]);
 
   // --------------------------------------------------------------------
-  // 4. Military-Grade AdSense Loader & Protection Engine
+  // 4. AdSense Loader & Protection Engine
   // --------------------------------------------------------------------
   useEffect(() => {
-    if (!showAd || isExempt || adPushedRef.current || typeof window === "undefined") {
+    let isMounted = true;
+
+    if (!showAd || isExempt || typeof window === "undefined") {
       return;
     }
 
+    // Reset reference state when slot parameters change
+    adPushedRef.current = false;
+
     // Secure execution wrapper for Google Ads push
     const executeAdPush = () => {
+      if (adPushedRef.current) return;
       try {
         const win = window as unknown as { adsbygoogle?: unknown[] };
         win.adsbygoogle = win.adsbygoogle || [];
         win.adsbygoogle.push({});
         adPushedRef.current = true;
-        setIsLoaded(true);
+        if (isMounted) setIsLoaded(true);
       } catch (err) {
         console.warn("[Mizan Security/AdSense] Script push intercepted or blocked:", err);
-        setIsAdBlocked(true);
+        if (isMounted) setIsAdBlocked(true);
       }
     };
 
@@ -134,7 +140,7 @@ export default function MonetizationWrapper({
 
       script.onload = () => executeAdPush();
       script.onerror = () => {
-        setIsAdBlocked(true);
+        if (isMounted) setIsAdBlocked(true);
         console.warn("[Mizan Protection] AdBlocker or Network security active.");
       };
 
@@ -152,50 +158,63 @@ export default function MonetizationWrapper({
 
     if (typeof win.requestIdleCallback === "function") {
       const idleId = win.requestIdleCallback(injectAdsenseScript, { timeout: 1500 });
-      return () => win.cancelIdleCallback?.(idleId);
+      return () => {
+        isMounted = false;
+        win.cancelIdleCallback?.(idleId);
+      };
     } else {
       const timeoutId = window.setTimeout(injectAdsenseScript, 1000);
-      return () => window.clearTimeout(timeoutId);
+      return () => {
+        isMounted = false;
+        window.clearTimeout(timeoutId);
+      };
     }
-  }, [showAd, isExempt]);
+  }, [showAd, isExempt, adSlot, format]);
 
   // --------------------------------------------------------------------
-  // 5. Master SEO Structured Data (JSON-LD) for Search Console & Images
+  // 5. Master SEO Structured Data (JSON-LD) with Safe Script Escaping
   // --------------------------------------------------------------------
   const masterSeoSchema = useMemo(() => {
     const defaultImg = `${VITE_SITE_URL}/Logo.svg`;
-    const targetImg = featuredImage ? (featuredImage.startsWith("http") ? featuredImage : `${VITE_SITE_URL}${featuredImage}`) : defaultImg;
+    const targetImg = featuredImage
+      ? featuredImage.startsWith("http")
+        ? featuredImage
+        : `${VITE_SITE_URL}${featuredImage}`
+      : defaultImg;
 
-    return JSON.stringify({
+    const rawSchema = JSON.stringify({
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "WebPage",
           "@id": `${VITE_APP_URL}/#webpage`,
-          "url": VITE_APP_URL,
-          "name": "Mizan Digital Legal Platform | منصة ميزان الرقمية",
-          "inLanguage": lang,
-          "publisher": {
+          url: VITE_APP_URL,
+          name: "Mizan Digital Legal Platform | منصة ميزان الرقمية",
+          inLanguage: lang,
+          publisher: {
             "@type": "Organization",
-            "name": "Mizan Page",
-            "url": VITE_SITE_URL,
-            "logo": {
+            name: "Mizan Page",
+            url: VITE_SITE_URL,
+            logo: {
               "@type": "ImageObject",
-              "url": `${VITE_SITE_URL}/Logo.svg`
-            }
-          }
+              url: `${VITE_SITE_URL}/Logo.svg`,
+            },
+          },
         },
         {
           "@type": "ImageObject",
           "@id": `${targetImg}#primaryimage`,
-          "url": targetImg,
-          "contentUrl": targetImg,
-          "caption": imageAlt || dict.adTitle[lang],
-          "inLanguage": lang,
-          "creditText": "Mizan Legal Media"
-        }
-      ]
+          url: targetImg,
+          contentUrl: targetImg,
+          caption: imageAlt || dict.adTitle[lang],
+          inLanguage: lang,
+          creditText: "Mizan Legal Media",
+        },
+      ],
     });
+
+    // Escape < characters to prevent XSS script breakouts
+    return rawSchema.replace(/</g, "\\u003c");
   }, [lang, featuredImage, imageAlt]);
 
   return (
@@ -210,7 +229,7 @@ export default function MonetizationWrapper({
       <div className="w-full relative z-0">{children}</div>
 
       {/* --------------------------------------------------------------------
-          6. Mobile-First Responsive Ad Container (Phones First UX/UI)
+          6. Mobile-First Responsive Ad Container
          -------------------------------------------------------------------- */}
       {showAd && !isExempt && (
         <aside
@@ -234,18 +253,25 @@ export default function MonetizationWrapper({
           {/* Ad Slot & Visual Frame */}
           <div className="flex flex-col items-center justify-center min-h-[100px] sm:min-h-[120px] w-full relative">
             {!isAdBlocked ? (
-              <ins
-                className="adsbygoogle block w-full mx-auto"
-                style={{
-                  display: "block",
-                  minHeight: "90px",
-                  overflow: "hidden",
-                }}
-                data-ad-client={AD_CLIENT_ID}
-                data-ad-slot={adSlot}
-                data-ad-format={format}
-                data-full-width-responsive="true"
-              />
+              <>
+                {!isLoaded && (
+                  <div className="absolute inset-0 bg-slate-200/50 dark:bg-slate-800/50 rounded-xl animate-pulse flex items-center justify-center">
+                    <span className="text-[11px] text-slate-400">Loading ad...</span>
+                  </div>
+                )}
+                <ins
+                  className="adsbygoogle block w-full mx-auto"
+                  style={{
+                    display: "block",
+                    minHeight: "90px",
+                    overflow: "hidden",
+                  }}
+                  data-ad-client={AD_CLIENT_ID}
+                  data-ad-slot={adSlot}
+                  data-ad-format={format}
+                  data-full-width-responsive="true"
+                />
+              </>
             ) : (
               /* Fallback UI when AdBlocker is active to prevent CLS layout collapse */
               <div className="py-4 px-3 text-center text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">

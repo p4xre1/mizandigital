@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useRole, type Role } from "@/hooks/useRole";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -72,6 +72,8 @@ const GUARD_I18N = {
   },
 } as const;
 
+const CAPTCHA_SESSION_KEY = "mizan_admin_captcha_verified";
+
 export function AdminGuard({
   children,
   allowedRoles,
@@ -80,39 +82,84 @@ export function AdminGuard({
 }: AdminGuardProps) {
   const { lang, dir } = useI18n();
   const { role, loading, isStaff, canManageUsers, canWriteContent, isGuest } = useRole();
-  const [turnstileVerified, setTurnstileVerified] = useState<boolean>(false);
+
+  // Session-cached captcha verification state to prevent repeating Turnstile on every route transition
+  const [turnstileVerified, setTurnstileVerified] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return sessionStorage.getItem(CAPTCHA_SESSION_KEY) === "true";
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
 
   const strings = useMemo(() => GUARD_I18N[lang as Lang] || GUARD_I18N.en, [lang]);
 
-  // Fast Memoized Evaluation of Role Capabilities
+  // Robust Evaluation of Role Capabilities & Requirements
   const hasAuthorizedRole = useMemo(() => {
     if (isGuest) return false;
-    
-    // Explicit role checks if array provided
+
+    // 1. Check specific capability requirements first
+    if (requireUserManagement && !canManageUsers) return false;
+    if (requireContentWriting && !canWriteContent) return false;
+
+    // 2. Check explicit role restrictions if passed
     if (allowedRoles && allowedRoles.length > 0) {
       return allowedRoles.includes(role);
     }
 
-    if (requireUserManagement && !canManageUsers) return false;
-    if (requireContentWriting && !canWriteContent) return false;
-
-    // Default: Must be staff member (writer, marketer, admin, security_admin, root)
+    // 3. Default requirement: Must be a staff member
     return isStaff;
-  }, [role, isGuest, allowedRoles, requireUserManagement, canManageUsers, requireContentWriting, canWriteContent, isStaff]);
+  }, [
+    isGuest,
+    role,
+    allowedRoles,
+    requireUserManagement,
+    canManageUsers,
+    requireContentWriting,
+    canWriteContent,
+    isStaff,
+  ]);
 
+  // Redirect unauthenticated guests to login page
   useEffect(() => {
-    // Hard redirect to login for unauthenticated guest users
     if (!loading && isGuest && typeof window !== "undefined") {
       window.location.replace(`/${lang}/admin/login`);
     }
   }, [loading, isGuest, lang]);
 
+  const handleTurnstileVerify = useCallback((token: string | null) => {
+    if (token) {
+      setTurnstileVerified(true);
+      if (typeof window !== "undefined") {
+        try {
+          sessionStorage.setItem(CAPTCHA_SESSION_KEY, "true");
+        } catch {
+          // Fallback for storage restrictions
+        }
+      }
+    }
+  }, []);
+
+  const handleTurnstileReset = useCallback(() => {
+    setTurnstileVerified(false);
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.removeItem(CAPTCHA_SESSION_KEY);
+      } catch {
+        // Fallback for storage restrictions
+      }
+    }
+  }, []);
+
   // ---------------------------------------------------------------------------
-  // 1. Loading State (Fast render, Phones-First viewport & Security Meta)
+  // 1. Loading & Guest Redirect State (Prevents 403 Flash)
   // ---------------------------------------------------------------------------
-  if (loading) {
+  if (loading || isGuest) {
     return (
-      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-background text-foreground p-4 sm:p-6 transition-all duration-300">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-background text-foreground p-4 sm:p-6 transition-all duration-300 select-none">
         <SEOHead
           title={strings.title}
           description={strings.description}
@@ -147,7 +194,7 @@ export function AdminGuard({
   // ---------------------------------------------------------------------------
   if (!hasAuthorizedRole) {
     return (
-      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-background text-foreground p-4 sm:p-6">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-background text-foreground p-4 sm:p-6 select-none">
         <SEOHead
           title={`${strings.deniedTitle} | Mizan`}
           description={strings.deniedDesc}
@@ -176,9 +223,13 @@ export function AdminGuard({
 
           <a
             href={`/${lang}`}
-            className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs sm:text-sm hover:opacity-95 transition-all shadow-md active:scale-95"
+            className="w-full min-h-[44px] inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs sm:text-sm hover:opacity-95 transition-all shadow-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            {dir === "rtl" ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
+            {dir === "rtl" ? (
+              <ArrowRight className="w-4 h-4" />
+            ) : (
+              <ArrowLeft className="w-4 h-4" />
+            )}
             <span>{strings.backHome}</span>
           </a>
         </div>
@@ -187,11 +238,11 @@ export function AdminGuard({
   }
 
   // ---------------------------------------------------------------------------
-  // 3. Cloudflare Turnstile Captcha Security Challenge
+  // 3. Turnstile Captcha Security Challenge State
   // ---------------------------------------------------------------------------
   if (!turnstileVerified) {
     return (
-      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-background text-foreground p-4 sm:p-6">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center bg-background text-foreground p-4 sm:p-6 select-none">
         <SEOHead
           title={`${strings.securityTitle} | Mizan Portal`}
           description={strings.securityDesc}
@@ -223,11 +274,9 @@ export function AdminGuard({
 
           <div className="flex items-center justify-center pt-2 pb-1 overflow-x-auto min-h-[65px]">
             <TurnstileCaptcha
-              onVerify={(token) => {
-                if (token) setTurnstileVerified(true);
-              }}
-              onError={() => setTurnstileVerified(false)}
-              onExpire={() => setTurnstileVerified(false)}
+              onVerify={handleTurnstileVerify}
+              onError={handleTurnstileReset}
+              onExpire={handleTurnstileReset}
             />
           </div>
         </div>
@@ -236,19 +285,7 @@ export function AdminGuard({
   }
 
   // ---------------------------------------------------------------------------
-  // 4. Authenticated, Authorized, and Captcha-Verified Render
+  // 4. Fully Authenticated, Authorized, and Captcha-Verified Render
   // ---------------------------------------------------------------------------
-  return (
-    <>
-      <SEOHead
-        title={strings.title}
-        description={strings.description}
-        canonical={`${SITE_URL}/${lang}/admin`}
-        noIndex={true}
-        ogImage={`${SITE_URL}/Logo.svg`}
-        ogImageAlt="Mizan Admin Dashboard"
-      />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

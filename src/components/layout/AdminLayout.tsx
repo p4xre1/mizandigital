@@ -16,13 +16,10 @@ import {
   LogOut,
   Activity,
   User,
-  Settings,
   Sparkles,
   CheckCircle2,
   ChevronDown,
   Lock,
-  Globe2,
-  Database,
   type LucideIcon,
 } from "lucide-react";
 
@@ -89,7 +86,7 @@ const NAV: NavItem[] = [
     to: "/admin/security",
     icon: ShieldCheck,
     key: "admin_security",
-    // Strictly restricted to Security Admins and Root Users
+    // Restricted strictly to Security Admins and Root Users
     isAllowed: ({ isSecurityAdmin, isRoot }) => isSecurityAdmin || isRoot,
   },
 ];
@@ -140,33 +137,45 @@ export function AdminLayout() {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
-  
+
   const authed = useAdminAuth();
   const roleFlags = useRole();
 
   // SEO Guardrail 🛡️: noindex hides internal CMS / Admin panels from indexing engines
-  useSeo({ title: `${t("admin_panel") || "CMS Admin Portal"} — Mizan Digital`, noindex: true, path: "/admin" }, [lang]);
+  useSeo(
+    {
+      title: `${t("admin_panel") || "CMS Admin Portal"} — Mizan Digital`,
+      noindex: true,
+      path: "/admin",
+    },
+    [lang]
+  );
 
-  // Safe Google AdSense & Tag Manager Loader for CMS Admin Ads
+  // Safe Google AdSense Loader for CMS Admin Ads
   useEffect(() => {
     try {
-      if (typeof window !== "undefined") {
-        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      if (typeof window !== "undefined" && (window as any).adsbygoogle) {
+        ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push(
+          {}
+        );
       }
     } catch (err) {
-      console.warn("Google Ads initialization safely handled in Admin Panel:", err);
+      console.warn(
+        "Google Ads initialization safely handled in Admin Panel:",
+        err
+      );
     }
   }, []);
 
-  // Security & Mobile UX: Lock body scroll when mobile drawer is active
+  // Lock body scroll when mobile drawer is active
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (!open) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = originalOverflow;
     };
   }, [open]);
 
@@ -182,10 +191,13 @@ export function AdminLayout() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
 
-  // Military-Grade Security: Close profile dropdown on outside click
+  // Security: Close profile dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
         setProfileOpen(false);
       }
     };
@@ -215,12 +227,13 @@ export function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/40 text-foreground flex flex-col font-sans" dir={dir}>
-      
+    <div
+      className="min-h-screen bg-muted/40 text-foreground flex flex-col font-sans"
+      dir={dir}
+    >
       {/* ================= TOP NAVIGATION HEADER ================= */}
       <header className="bg-card/95 backdrop-blur-md border-b border-border sticky top-0 z-40 shadow-xs">
         <div className="max-w-[1600px] mx-auto px-3 sm:px-6 h-16 flex items-center justify-between gap-2">
-          
           {/* Left Section: Mobile Drawer Trigger + Brand Logo */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
@@ -230,7 +243,11 @@ export function AdminLayout() {
               aria-controls="admin-sidebar"
               aria-label={open ? "Close menu" : "Open menu"}
             >
-              {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
+              {open ? (
+                <X size={20} aria-hidden="true" />
+              ) : (
+                <Menu size={20} aria-hidden="true" />
+              )}
             </button>
 
             <Link
@@ -260,7 +277,6 @@ export function AdminLayout() {
 
           {/* Right Section: Back to Site + Authenticated Profile Icon */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            
             {/* Quick Link back to Public Website */}
             <Link
               to={localizedPath("/")}
@@ -301,7 +317,10 @@ export function AdminLayout() {
                   </span>
                 </div>
 
-                <ChevronDown size={14} className="text-muted-foreground shrink-0 mx-0.5" />
+                <ChevronDown
+                  size={14}
+                  className="text-muted-foreground shrink-0 mx-0.5"
+                />
               </button>
 
               {/* Profile Dropdown Popover */}
@@ -312,34 +331,43 @@ export function AdminLayout() {
                 >
                   {/* Account Summary Header */}
                   <div className="px-4 py-2.5 border-b border-border/80">
-                    <p className="text-xs font-bold text-foreground">Authenticated Member</p>
-                    <p className="text-[11px] text-muted-foreground truncate">admin@mizandigital.com</p>
+                    <p className="text-xs font-bold text-foreground">
+                      Authenticated Member
+                    </p>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      admin@mizandigital.com
+                    </p>
                     <div className="mt-2 inline-flex items-center gap-1.5 text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-semibold px-2 py-0.5 rounded-md border border-emerald-500/20">
                       <Lock size={10} />
                       {getUserRoleLabel()}
                     </div>
                   </div>
 
-                  {/* Quick Action Links */}
+                  {/* Quick Action Links with RBAC checks */}
                   <div className="py-1">
-                    <Link
-                      to="/admin/seo"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-foreground/80 hover:text-foreground hover:bg-muted transition-colors min-h-[40px] touch-manipulation"
-                      role="menuitem"
-                    >
-                      <Sparkles size={15} className="text-amber-500" />
-                      <span>CMS SEO & Keywords</span>
-                    </Link>
-                    <Link
-                      to="/admin/security"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-foreground/80 hover:text-foreground hover:bg-muted transition-colors min-h-[40px] touch-manipulation"
-                      role="menuitem"
-                    >
-                      <ShieldCheck size={15} className="text-emerald-500" />
-                      <span>Security Dashboard</span>
-                    </Link>
+                    {(roleFlags.canManageUsers || roleFlags.isMarketer) && (
+                      <Link
+                        to="/admin/seo"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-foreground/80 hover:text-foreground hover:bg-muted transition-colors min-h-[40px] touch-manipulation"
+                        role="menuitem"
+                      >
+                        <Sparkles size={15} className="text-amber-500" />
+                        <span>CMS SEO & Keywords</span>
+                      </Link>
+                    )}
+
+                    {(roleFlags.isSecurityAdmin || roleFlags.isRoot) && (
+                      <Link
+                        to="/admin/security"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-foreground/80 hover:text-foreground hover:bg-muted transition-colors min-h-[40px] touch-manipulation"
+                        role="menuitem"
+                      >
+                        <ShieldCheck size={15} className="text-emerald-500" />
+                        <span>Security Dashboard</span>
+                      </Link>
+                    )}
                   </div>
 
                   {/* Logout Button */}
@@ -356,14 +384,12 @@ export function AdminLayout() {
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </header>
 
       {/* ================= MAIN CMS DASHBOARD BODY ================= */}
       <div className="flex flex-1 max-w-[1600px] w-full mx-auto">
-        
         {/* Desktop Sidebar Navigation */}
         <aside className="hidden lg:block w-64 shrink-0 border-e border-border bg-card p-4 space-y-6">
           <SideLinks lang={lang} t={t} />
@@ -427,7 +453,11 @@ export function AdminLayout() {
 
               {/* Drawer Links */}
               <div className="flex-1 overflow-y-auto space-y-4">
-                <SideLinks onLinkClick={() => setOpen(false)} lang={lang} t={t} />
+                <SideLinks
+                  onLinkClick={() => setOpen(false)}
+                  lang={lang}
+                  t={t}
+                />
               </div>
 
               {/* Mobile Drawer Footer Status */}
@@ -453,10 +483,8 @@ export function AdminLayout() {
           <Outlet />
         </main>
       </div>
-
     </div>
   );
 }
 
-// Ensure both Default and Named exports for CMS compatibility
 export default AdminLayout;

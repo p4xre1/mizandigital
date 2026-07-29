@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { COURT_RULINGS_AND_DOCTRINE } from "@/data/courtRulingsData";
-import { useI18n, sansFont, type Lang } from "@/lib/i18n";
+import { useI18n, useLocalizedPath, sansFont, type Lang } from "@/lib/i18n";
 import { useRole } from "@/hooks/useRole";
 import {
   Accordion,
@@ -85,14 +85,20 @@ const dict = {
     "View all court rulings",
     "Ver todas las decisiones"
   ),
-  fileCount: t4("وثائق وقرارات", "Documents & Arrêts", "Documents & Files", "Documentos y Archivos"),
+  fileCount: t4(
+    "وثائق وقرارات",
+    "Documents & Arrêts",
+    "Documents & Files",
+    "Documentos y Archivos"
+  ),
 };
 
 // ----------------------------------------------------------------------
-// 3. Security Helper (Input Sanitization)
+// 3. Security Helper (Input Sanitization without breaking space bar)
 // ----------------------------------------------------------------------
 function sanitizeSearchQuery(query: string): string {
-  return query.replace(/[^\w\s\u0600-\u06FF\u00C0-\u024F-]/gi, "").trim();
+  // Strip control and potentially dangerous characters while retaining spaces
+  return query.replace(/[^\w\s\u0600-\u06FF\u00C0-\u024F-]/gi, "");
 }
 
 // ----------------------------------------------------------------------
@@ -113,10 +119,14 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
   className = "",
 }): React.JSX.Element => {
   const { lang, dir } = useI18n();
+  const localizedPath = useLocalizedPath();
   const { isStaff, canWriteContent } = useRole();
   const [searchQuery, setSearchQuery] = useState("");
+  const [accordionValues, setAccordionValues] = useState<string[]>(() =>
+    COURT_RULINGS_AND_DOCTRINE.map((s) => s.id)
+  );
 
-  // Clean search input to prevent injection
+  // Clean search input while preserving spaces
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const sanitized = sanitizeSearchQuery(e.target.value);
@@ -131,66 +141,80 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
 
   // Client-Side Search Filter across sections & subcategories
   const filteredCourtData = useMemo(() => {
-    if (!searchQuery.trim()) return COURT_RULINGS_AND_DOCTRINE;
+    const trimmedQuery = searchQuery.trim().toLowerCase();
+    if (!trimmedQuery) return COURT_RULINGS_AND_DOCTRINE;
 
-    const lowerQuery = searchQuery.toLowerCase();
     return COURT_RULINGS_AND_DOCTRINE.map((section) => {
+      const sectionMatches = section.title.toLowerCase().includes(trimmedQuery);
       const matchingSubs = section.subcategories.filter((sub) => {
         return (
-          sub.title.toLowerCase().includes(lowerQuery) ||
-          (sub.description && sub.description.toLowerCase().includes(lowerQuery)) ||
-          sub.slug.toLowerCase().includes(lowerQuery)
+          sub.title.toLowerCase().includes(trimmedQuery) ||
+          (sub.description &&
+            sub.description.toLowerCase().includes(trimmedQuery)) ||
+          sub.slug.toLowerCase().includes(trimmedQuery)
         );
       });
 
+      // If section title matches directly, keep all subcategories if sub-filters are empty
+      const finalSubs =
+        sectionMatches && matchingSubs.length === 0
+          ? section.subcategories
+          : matchingSubs;
+
       return {
         ...section,
-        subcategories: matchingSubs,
+        subcategories: finalSubs,
       };
-    }).filter(
-      (section) =>
-        section.title.toLowerCase().includes(lowerQuery) ||
-        section.subcategories.length > 0
-    );
+    }).filter((section) => section.subcategories.length > 0);
   }, [searchQuery]);
 
-  // Master SEO Structured Data (JSON-LD) for Navigation & Documents/Photos
+  // Active expanded accordion items (auto-expand during active search)
+  const activeAccordionValues = useMemo(() => {
+    if (searchQuery.trim()) {
+      return filteredCourtData.map((s) => s.id);
+    }
+    return accordionValues;
+  }, [searchQuery, filteredCourtData, accordionValues]);
+
+  // Master SEO Structured Data (JSON-LD)
   const masterSeoSchema = useMemo(() => {
     const defaultThumbnail = `${VITE_SITE_URL}/Logo.svg`;
 
     const navItems = COURT_RULINGS_AND_DOCTRINE.flatMap((section) =>
       section.subcategories.map((sub) => ({
         "@type": "SiteNavigationElement",
-        "name": sub.title,
-        "description": sub.description,
-        "url": `${VITE_APP_URL}/category/${sub.slug}`,
-        "image": defaultThumbnail,
+        name: sub.title,
+        description: sub.description,
+        url: `${VITE_APP_URL}/category/${sub.slug}`,
+        image: defaultThumbnail,
       }))
     );
 
-    return JSON.stringify({
+    const rawSchema = JSON.stringify({
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "ItemList",
           "@id": `${VITE_APP_URL}/#court-navigation-list`,
-          "name": dict.drawerTitle[lang],
-          "numberOfItems": navItems.length,
-          "itemListElement": navItems.map((item, index) => ({
+          name: dict.drawerTitle[lang],
+          numberOfItems: navItems.length,
+          itemListElement: navItems.map((item, index) => ({
             "@type": "ListItem",
-            "position": index + 1,
-            "item": item,
+            position: index + 1,
+            item: item,
           })),
         },
         {
           "@type": "ImageObject",
           "@id": `${defaultThumbnail}#court-media-logo`,
-          "url": defaultThumbnail,
-          "caption": "Mizan Legal Platform Rulings & Court Files",
-          "inLanguage": lang,
+          url: defaultThumbnail,
+          caption: "Mizan Legal Platform Rulings & Court Files",
+          inLanguage: lang,
         },
       ],
     });
+
+    return rawSchema.replace(/</g, "\\u003c");
   }, [lang]);
 
   const ArrowIcon = dir === "rtl" ? ChevronLeft : ChevronRight;
@@ -202,14 +226,14 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
       dir={dir}
       style={{ fontFamily: sansFont(lang) }}
     >
-      {/* Master Navigation & Photo SEO Injector */}
+      {/* Master Navigation & SEO Injector */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: masterSeoSchema }}
       />
 
       {/* --------------------------------------------------------------------
-          Header & Security / Role Status (Mobile Optimized Header)
+          Header & Security / Role Status
          -------------------------------------------------------------------- */}
       <div className="p-4 border-b border-border/60 bg-muted/30 sticky top-0 z-10 backdrop-blur-md">
         <div className="flex items-center justify-between mb-3">
@@ -241,19 +265,19 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
 
         {/* Instant Mobile Filter Search Input */}
         <div className="relative w-full mt-2">
-          <Search className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <Input
             type="text"
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder={dict.searchPlaceholder[lang]}
-            className="w-full h-10 text-xs ltr:pl-9 ltr:pr-8 rtl:pr-9 rtl:pl-8 rounded-xl bg-background border-border/80 focus-visible:ring-1 focus-visible:ring-primary shadow-inner"
+            className="w-full h-10 text-xs ps-9 pe-8 rounded-xl bg-background border-border/80 focus-visible:ring-1 focus-visible:ring-primary shadow-inner"
             aria-label={dict.searchPlaceholder[lang]}
           />
           {searchQuery && (
             <button
               onClick={clearSearch}
-              className="absolute ltr:right-2.5 rtl:left-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted"
+              className="absolute end-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
               aria-label="Clear Search"
             >
               <X className="size-3.5" />
@@ -263,13 +287,14 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
       </div>
 
       {/* --------------------------------------------------------------------
-          Main Accordion Body (Phones First Touch Targets)
+          Main Accordion Body
          -------------------------------------------------------------------- */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
         {filteredCourtData.length > 0 ? (
           <Accordion
             type="multiple"
-            defaultValue={COURT_RULINGS_AND_DOCTRINE.map((s) => s.id)}
+            value={activeAccordionValues}
+            onValueChange={setAccordionValues}
             className="w-full space-y-2"
           >
             {filteredCourtData.map((section) => (
@@ -303,11 +328,11 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
                     {section.subcategories.map((sub) => (
                       <Link
                         key={sub.id}
-                        to={`/${lang}/category/${sub.slug}`}
+                        to={localizedPath(`/category/${sub.slug}`)}
                         onClick={onSelect}
                         className="group flex items-center justify-between p-2.5 rounded-xl text-xs text-muted-foreground hover:bg-muted/80 hover:text-foreground transition-all active:scale-[0.98] border border-transparent hover:border-border/60"
                       >
-                        <div className="flex items-start gap-2.5 min-w-0 pr-2 rtl:pr-0 rtl:pl-2">
+                        <div className="flex items-start gap-2.5 min-w-0 pe-2">
                           <FileText className="size-4 text-primary/70 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
                           <div className="min-w-0">
                             <div className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
@@ -337,7 +362,7 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
             </p>
             <button
               onClick={clearSearch}
-              className="mt-3 text-xs font-bold text-primary hover:underline"
+              className="mt-3 text-xs font-bold text-primary hover:underline cursor-pointer"
             >
               {dict.viewAll[lang]}
             </button>
@@ -351,7 +376,7 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
       {canWriteContent && (
         <div className="p-3 border-t border-border/60 bg-muted/20">
           <Link
-            to={`/${lang}/writer/editor`}
+            to={localizedPath("/writer/editor")}
             onClick={onSelect}
             className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-sm hover:opacity-95 active:scale-[0.98] transition-all"
           >
