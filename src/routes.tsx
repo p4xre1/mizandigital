@@ -4,9 +4,11 @@ import {
   Navigate,
   useParams,
   useLocation,
+  useRouteError,
+  isRouteErrorResponse,
 } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
-import { Loader2, ShieldAlert } from "lucide-react";
+import { Loader2, ShieldAlert, RefreshCw, AlertTriangle } from "lucide-react";
 
 // ----------------------------------------------------------------------
 // CONFIGURATION & SEO CONSTANTS
@@ -55,22 +57,34 @@ function lazyNamed<T extends Record<string, any>>(
   exportName?: keyof T
 ) {
   return lazy(async () => {
-    const module = await factory();
-    if (exportName && module[exportName]) {
-      return { default: module[exportName] as React.ComponentType<any> };
+    try {
+      const module = await factory();
+      if (exportName && module[exportName]) {
+        return { default: module[exportName] as React.ComponentType<any> };
+      }
+      if (module.default) {
+        return { default: module.default };
+      }
+      const exportedComponent = Object.values(module).find(
+        (exp) =>
+          typeof exp === "function" ||
+          (typeof exp === "object" && exp !== null && "$$typeof" in exp)
+      );
+      if (exportedComponent) {
+        return { default: exportedComponent as React.ComponentType<any> };
+      }
+      throw new Error("No valid component export found in dynamic import.");
+    } catch (error) {
+      // Force page reload on dynamic chunk import failure
+      if (
+        error instanceof Error &&
+        (error.message.includes("Failed to fetch dynamically imported module") ||
+          error.message.includes("Importing a module script failed"))
+      ) {
+        window.location.reload();
+      }
+      throw error;
     }
-    if (module.default) {
-      return { default: module.default };
-    }
-    const exportedComponent = Object.values(module).find(
-      (exp) =>
-        typeof exp === "function" ||
-        (typeof exp === "object" && exp !== null && "$$typeof" in exp)
-    );
-    if (exportedComponent) {
-      return { default: exportedComponent as React.ComponentType<any> };
-    }
-    throw new Error("No valid component export found in dynamic import.");
   });
 }
 
@@ -147,7 +161,7 @@ function getValidLang(langParam?: string): Language {
 }
 
 // ----------------------------------------------------------------------
-// FALLBACK SUSPENSE COMPONENT
+// FALLBACK SUSPENSE & ERROR BOUNDARY COMPONENTS
 // ----------------------------------------------------------------------
 function PageLoadingFallback() {
   return (
@@ -159,6 +173,42 @@ function PageLoadingFallback() {
       <p className="text-xs font-semibold text-muted-foreground animate-pulse tracking-wide uppercase">
         Loading Mizan Page...
       </p>
+    </div>
+  );
+}
+
+/** 🛡️ Graceful React Router Error Element */
+function RouteErrorFallback() {
+  const error = useRouteError();
+  console.error("Route Error Caught:", error);
+
+  const isChunkError =
+    error instanceof Error &&
+    (error.message.includes("Failed to fetch dynamically imported module") ||
+      error.message.includes("Importing a module script failed"));
+
+  return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-6 text-center bg-background text-foreground space-y-4">
+      <div className="p-4 rounded-full bg-destructive/10 text-destructive">
+        <AlertTriangle className="w-10 h-10" />
+      </div>
+      <h1 className="text-2xl font-bold tracking-tight">
+        {isChunkError ? "System Update Available" : "Something went wrong"}
+      </h1>
+      <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
+        {isChunkError
+          ? "A new version of Mizan Digital was deployed. Please refresh the page to load the latest features."
+          : isRouteErrorResponse(error)
+          ? `${error.status} ${error.statusText}`
+          : "An unexpected error occurred while loading this section."}
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold text-sm rounded-xl shadow-md hover:opacity-90 transition-all cursor-pointer"
+      >
+        <RefreshCw className="w-4 h-4" />
+        <span>Reload Page</span>
+      </button>
     </div>
   );
 }
@@ -333,6 +383,7 @@ export const router = createBrowserRouter([
   {
     path: "/:lang",
     element: <RootLayoutWrapper />,
+    errorElement: <RouteErrorFallback />, // <--- Added Route Error Boundary
     children: [
       // Home
       { index: true, element: <Home /> },
