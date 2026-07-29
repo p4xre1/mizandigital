@@ -18,49 +18,64 @@ type Language = (typeof SUPPORTED_LANGS)[number];
 const DEFAULT_LANG: Language = "ar";
 
 const SEO_TRANSLATIONS: Record<
-    Language,
-    { title: string; description: string; dir: "rtl" | "ltr" }
+  Language,
+  { title: string; description: string; dir: "rtl" | "ltr" }
 > = {
   ar: {
     title: "منصة ميزان الرقمية | المرجع القانوني والأكاديمي الأول",
-    description: "منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية والأخبار الجامعية.",
+    description:
+      "منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية والأخبار الجامعية.",
     dir: "rtl",
   },
   fr: {
     title: "Mizan Page | Plateforme Juridique et Académique",
-    description: "Plateforme digitale pour les services juridiques, la jurisprudence et les actualités universitaires.",
+    description:
+      "Plateforme digitale pour les services juridiques, la jurisprudence et les actualités universitaires.",
     dir: "ltr",
   },
   en: {
     title: "Mizan Digital Platform | Leading Legal & Academic Portal",
-    description: "Digital platform for legal research, court rulings, jurisprudence, and university news.",
+    description:
+      "Digital platform for legal research, court rulings, jurisprudence, and university news.",
     dir: "ltr",
   },
   es: {
     title: "Mizan Digital | Portal Jurídico y Académico",
-    description: "Plataforma digital para servicios jurídicos, jurisprudencia y noticias universitarias.",
+    description:
+      "Plataforma digital para servicios jurídicos, jurisprudence y noticias universitarias.",
     dir: "ltr",
   },
 };
 
 // ----------------------------------------------------------------------
-// LAZY IMPORT HELPER (Supports both Default & Named Exports)
+// LAZY IMPORT HELPER (Type-Safe Export Resolver)
 // ----------------------------------------------------------------------
 function lazyNamed<T extends Record<string, any>>(
-    factory: () => Promise<T>,
-    exportName?: keyof T
+  factory: () => Promise<T>,
+  exportName?: keyof T
 ) {
   return lazy(async () => {
     const module = await factory();
-    const component = exportName
-        ? module[exportName]
-        : module.default || Object.values(module)[0];
-    return { default: component };
+    if (exportName && module[exportName]) {
+      return { default: module[exportName] as React.ComponentType<any> };
+    }
+    if (module.default) {
+      return { default: module.default };
+    }
+    const exportedComponent = Object.values(module).find(
+      (exp) =>
+        typeof exp === "function" ||
+        (typeof exp === "object" && exp !== null && "$$typeof" in exp)
+    );
+    if (exportedComponent) {
+      return { default: exportedComponent as React.ComponentType<any> };
+    }
+    throw new Error("No valid component export found in dynamic import.");
   });
 }
 
 // ----------------------------------------------------------------------
-// LAZY-LOADED COMPONENTS (Performance Optimization)
+// LAZY-LOADED COMPONENTS
 // ----------------------------------------------------------------------
 const Layout = lazyNamed(() => import("@/components/layout/Layout"));
 const AdminLayout = lazyNamed(() => import("@/components/layout/AdminLayout"));
@@ -74,21 +89,33 @@ const Library = lazyNamed(() => import("@/pages/Library"));
 const Archive = lazyNamed(() => import("@/pages/Archive"));
 const Login = lazyNamed(() => import("@/pages/Login"));
 const Profile = lazyNamed(() => import("@/pages/Profile"));
-const CourtRulingsCategory = lazyNamed(() => import("@/pages/CourtRulingsCategory"));
+const CourtRulingsCategory = lazyNamed(
+  () => import("@/pages/CourtRulingsCategory")
+);
 const NotFound = lazyNamed(() => import("@/pages/NotFound"));
 
 // Fields
-const AdministrativeLaw = lazyNamed(() => import("@/pages/fields/AdministrativeLaw"));
+const AdministrativeLaw = lazyNamed(
+  () => import("@/pages/fields/AdministrativeLaw")
+);
 const CommercialLaw = lazyNamed(() => import("@/pages/fields/CommercialLaw"));
-const ConstitutionalLaw = lazyNamed(() => import("@/pages/fields/ConstitutionalLaw"));
+const ConstitutionalLaw = lazyNamed(
+  () => import("@/pages/fields/ConstitutionalLaw")
+);
 const CriminalLaw = lazyNamed(() => import("@/pages/fields/CriminalLaw"));
 const FamilyLaw = lazyNamed(() => import("@/pages/fields/FamilyLaw"));
 
 // Documents
-const CassationRulings = lazyNamed(() => import("@/pages/documents/CassationRulings"));
+const CassationRulings = lazyNamed(
+  () => import("@/pages/documents/CassationRulings")
+);
 const LegalTexts = lazyNamed(() => import("@/pages/documents/LegalTexts"));
-const MinisterialDecrees = lazyNamed(() => import("@/pages/documents/MinisterialDecrees"));
-const OfficialJournals = lazyNamed(() => import("@/pages/documents/OfficialJournals"));
+const MinisterialDecrees = lazyNamed(
+  () => import("@/pages/documents/MinisterialDecrees")
+);
+const OfficialJournals = lazyNamed(
+  () => import("@/pages/documents/OfficialJournals")
+);
 
 // Schools
 const SchoolPage = lazyNamed(() => import("@/pages/schools/SchoolPage"));
@@ -107,27 +134,32 @@ const AdminPages = lazyNamed(() => import("@/pages/admin/AdminPages"));
 const AdminLogin = lazyNamed(() => import("@/pages/admin/AdminLogin"));
 
 // ----------------------------------------------------------------------
-// UTILITY & SECURITY SANITIZER
+// UTILITY HELPERS
 // ----------------------------------------------------------------------
 function sanitizeParam(input?: string): string {
   if (!input) return "";
   return input.replace(/[^\w\s-]/gi, "").trim();
 }
 
+function getValidLang(langParam?: string): Language {
+  const cleanLang = sanitizeParam(langParam) as Language;
+  return SUPPORTED_LANGS.includes(cleanLang) ? cleanLang : DEFAULT_LANG;
+}
+
 // ----------------------------------------------------------------------
-// FALLBACK SUSPENSE COMPONENT (Mobile First)
+// FALLBACK SUSPENSE COMPONENT
 // ----------------------------------------------------------------------
 function PageLoadingFallback() {
   return (
-      <div className="min-h-[60vh] w-full flex flex-col items-center justify-center p-6 space-y-4">
-        <div className="relative flex items-center justify-center">
-          <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
-          <Loader2 className="w-5 h-5 text-primary absolute animate-pulse" />
-        </div>
-        <p className="text-xs font-semibold text-muted-foreground animate-pulse tracking-wide uppercase">
-          Loading Mizan Page...
-        </p>
+    <div className="min-h-[60vh] w-full flex flex-col items-center justify-center p-6 space-y-4">
+      <div className="relative flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+        <Loader2 className="w-5 h-5 text-primary absolute animate-pulse" />
       </div>
+      <p className="text-xs font-semibold text-muted-foreground animate-pulse tracking-wide uppercase">
+        Loading Mizan Page...
+      </p>
+    </div>
   );
 }
 
@@ -139,8 +171,7 @@ function RootLayoutWrapper() {
   const location = useLocation();
 
   const currentLang = useMemo<Language>(() => {
-    const cleanLang = sanitizeParam(lang) as Language;
-    return SUPPORTED_LANGS.includes(cleanLang) ? cleanLang : DEFAULT_LANG;
+    return getValidLang(lang);
   }, [lang]);
 
   useEffect(() => {
@@ -153,7 +184,9 @@ function RootLayoutWrapper() {
 
     // 2. Canonical Link Injection
     const canonicalUrl = `${SITE_URL}${location.pathname}`;
-    let canonicalElement = document.querySelector<HTMLLinkElement>("link[rel='canonical']");
+    let canonicalElement = document.querySelector<HTMLLinkElement>(
+      "link[rel='canonical']"
+    );
     if (!canonicalElement) {
       canonicalElement = document.createElement("link");
       canonicalElement.setAttribute("rel", "canonical");
@@ -165,25 +198,29 @@ function RootLayoutWrapper() {
     const jsonLdData = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Mizan Digital Platform",
-      "alternateName": ["ميزان الرقمية", "Mizan Page"],
-      "url": SITE_URL,
-      "inLanguage": currentLang,
-      "potentialAction": {
+      name: "Mizan Digital Platform",
+      alternateName: ["ميزان الرقمية", "Mizan Page"],
+      url: SITE_URL,
+      inLanguage: currentLang,
+      potentialAction: {
         "@type": "SearchAction",
-        "target": `${SITE_URL}/${currentLang}/news?q={search_term_string}`,
+        target: `${SITE_URL}/${currentLang}/news?q={search_term_string}`,
         "query-input": "required name=search_term_string",
       },
     };
 
-    let scriptElement = document.querySelector<HTMLScriptElement>("#mizan-jsonld");
+    let scriptElement =
+      document.querySelector<HTMLScriptElement>("#mizan-jsonld");
     if (!scriptElement) {
       scriptElement = document.createElement("script");
       scriptElement.id = "mizan-jsonld";
       scriptElement.type = "application/ld+json";
       document.head.appendChild(scriptElement);
     }
-    scriptElement.text = JSON.stringify(jsonLdData);
+    scriptElement.textContent = JSON.stringify(jsonLdData).replace(
+      /</g,
+      "\\u003c"
+    );
   }, [currentLang, location.pathname]);
 
   if (lang && !SUPPORTED_LANGS.includes(lang as Language)) {
@@ -191,26 +228,33 @@ function RootLayoutWrapper() {
   }
 
   return (
-      <Suspense fallback={<PageLoadingFallback />}>
-        <Layout />
-      </Suspense>
+    <Suspense fallback={<PageLoadingFallback />}>
+      <Layout />
+    </Suspense>
   );
 }
 
 // ----------------------------------------------------------------------
-// MILITARY-GRADE SECURITY ROUTE GUARDS
+// SECURITY ROUTE GUARDS
 // ----------------------------------------------------------------------
 
 /** Requires logged-in user */
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isGuest, loading } = useRole();
   const location = useLocation();
-  const { lang = DEFAULT_LANG } = useParams();
+  const { lang } = useParams();
+  const currentLang = getValidLang(lang);
 
   if (loading) return <PageLoadingFallback />;
 
   if (isGuest) {
-    return <Navigate to={`/${lang}/login`} state={{ from: location.pathname }} replace />;
+    return (
+      <Navigate
+        to={`/${currentLang}/login`}
+        state={{ from: location.pathname }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;
@@ -224,13 +268,15 @@ function WriterGuard({ children }: { children: React.ReactNode }) {
 
   if (!canWriteContent) {
     return (
-        <div className="max-w-md mx-auto my-12 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl text-center space-y-4">
-          <ShieldAlert className="w-12 h-12 text-destructive mx-auto" />
-          <h2 className="text-lg font-bold text-foreground">Access Denied / غير مصرح</h2>
-          <p className="text-xs text-muted-foreground">
-            You lack the required permissions to access the content editor.
-          </p>
-        </div>
+      <div className="max-w-md mx-auto my-12 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl text-center space-y-4">
+        <ShieldAlert className="w-12 h-12 text-destructive mx-auto" />
+        <h2 className="text-lg font-bold text-foreground">
+          Access Denied / غير مصرح
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          You lack the required permissions to access the content editor.
+        </p>
+      </div>
     );
   }
 
@@ -240,12 +286,13 @@ function WriterGuard({ children }: { children: React.ReactNode }) {
 /** Requires Staff / Admin / Security access */
 function AdminAccessGuard({ children }: { children: React.ReactNode }) {
   const { isStaff, loading } = useRole();
-  const { lang = DEFAULT_LANG } = useParams();
+  const { lang } = useParams();
+  const currentLang = getValidLang(lang);
 
   if (loading) return <PageLoadingFallback />;
 
   if (!isStaff) {
-    return <Navigate to={`/${lang}/admin/login`} replace />;
+    return <Navigate to={`/${currentLang}/admin/login`} replace />;
   }
 
   return <>{children}</>;
@@ -259,13 +306,13 @@ function UserManagementGuard({ children }: { children: React.ReactNode }) {
 
   if (!canManageUsers) {
     return (
-        <div className="p-8 text-center space-y-2">
-          <ShieldAlert className="w-10 h-10 text-amber-500 mx-auto" />
-          <h3 className="font-bold text-foreground">Restricted Module</h3>
-          <p className="text-xs text-muted-foreground">
-            User Management is restricted to Security Admins and System Root.
-          </p>
-        </div>
+      <div className="p-8 text-center space-y-2">
+        <ShieldAlert className="w-10 h-10 text-amber-500 mx-auto" />
+        <h3 className="font-bold text-foreground">Restricted Module</h3>
+        <p className="text-xs text-muted-foreground">
+          User Management is restricted to Security Admins and System Root.
+        </p>
+      </div>
     );
   }
 
@@ -298,9 +345,9 @@ export const router = createBrowserRouter([
       {
         path: "profile",
         element: (
-            <AuthGuard>
-              <Profile />
-            </AuthGuard>
+          <AuthGuard>
+            <Profile />
+          </AuthGuard>
         ),
       },
 
@@ -309,9 +356,10 @@ export const router = createBrowserRouter([
       { path: "news/:category", element: <ArticlesList /> },
       { path: "article/:slug", element: <ArticleDetail /> },
 
-      // Legal Library & Archives
+      // Legal Library, Archives & Categories
       { path: "library", element: <Library /> },
       { path: "archive", element: <Archive /> },
+      { path: "category/:slug", element: <CourtRulingsCategory /> },
       { path: "court-rulings/:category", element: <CourtRulingsCategory /> },
 
       // Specialized Legal Fields
@@ -335,17 +383,17 @@ export const router = createBrowserRouter([
       {
         path: "writer/editor",
         element: (
-            <WriterGuard>
-              <ArticleEditor />
-            </WriterGuard>
+          <WriterGuard>
+            <ArticleEditor />
+          </WriterGuard>
         ),
       },
       {
         path: "writer/editor/:id",
         element: (
-            <WriterGuard>
-              <ArticleEditor />
-            </WriterGuard>
+          <WriterGuard>
+            <ArticleEditor />
+          </WriterGuard>
         ),
       },
 
@@ -356,11 +404,11 @@ export const router = createBrowserRouter([
       {
         path: "admin",
         element: (
-            <AdminAccessGuard>
-              <Suspense fallback={<PageLoadingFallback />}>
-                <AdminLayout />
-              </Suspense>
-            </AdminAccessGuard>
+          <AdminAccessGuard>
+            <Suspense fallback={<PageLoadingFallback />}>
+              <AdminLayout />
+            </Suspense>
+          </AdminAccessGuard>
         ),
         children: [
           { index: true, element: <Dashboard /> },
@@ -372,9 +420,9 @@ export const router = createBrowserRouter([
           {
             path: "users",
             element: (
-                <UserManagementGuard>
-                  <AdminUsers />
-                </UserManagementGuard>
+              <UserManagementGuard>
+                <AdminUsers />
+              </UserManagementGuard>
             ),
           },
         ],
