@@ -89,15 +89,6 @@
     "vite": "^6.4.3",
     "wrangler": "^4.112.0"
   },
-  "pnpm": {
-    "overrides": {
-      "vite": "^6.4.0"
-    },
-    "onlyBuiltDependencies": [
-      "@tailwindcss/oxide",
-      "esbuild"
-    ]
-  },
   "allowScripts": {
     "@tailwindcss/oxide@4.1.12": true,
     "esbuild@0.25.12": true
