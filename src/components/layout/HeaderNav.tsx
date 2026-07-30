@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
-import { useRole } from "../../hooks/useRole";
+import { useRole } from "@/hooks/useRole";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { LAW_SCHOOLS } from "@/data/lawSchools";
 import { LEGAL_FIELDS, DOCUMENT_TYPES } from "@/lib/navigation";
@@ -39,8 +39,8 @@ export function HeaderNav() {
 
   const dir = lang === "ar" ? "rtl" : "ltr";
 
-  // Role Hook Integration
-  const { role, isStaff, canManageUsers, isRoot } = useRole();
+  // Role Hook Integration (Safe destructure)
+  const { role = "", isStaff = false, canManageUsers = false, isRoot = false } = useRole() || {};
 
   // Navigation Dropdowns & Drawers States
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -134,7 +134,6 @@ export function HeaderNav() {
     login: { ar: "تسجيل الدخول", fr: "Connexion", en: "Sign In", es: "Iniciar Sesión" },
     logout: { ar: "تسجيل الخروج", fr: "Déconnexion", en: "Log Out", es: "Cerrar Sesión" },
     profile: { ar: "الملف الشخصي", fr: "Mon Profil", en: "My Profile", es: "Mi Perfil" },
-    settings: { ar: "الإعدادات", fr: "Paramètres", en: "Settings", es: "Configuración" },
     roleLabel: { ar: "الصلاحية", fr: "Rôle", en: "Role", es: "Rol" },
   };
 
@@ -145,12 +144,15 @@ export function HeaderNav() {
     return name.slice(0, 2).toUpperCase();
   };
 
+  const formattedRole = (role || "").replace("_", " ");
+  const upperRole = (role || "").toUpperCase();
+
   return (
     <header className="w-full font-sans border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 transition-colors" dir={dir}>
       {/* Main Navbar */}
       <div className="px-3 sm:px-6 py-2 max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Brand Logo */}
-        <Link to={`/${lang}`} className="flex items-center gap-2.5 active:scale-98 transition-transform">
+        <Link to={`/${lang}`} className="flex items-center gap-2.5 active:scale-95 transition-transform">
           <div className="w-10 h-10 bg-primary text-primary-foreground rounded-xl flex items-center justify-center font-black text-xl shadow-md shrink-0">
             <Scale size={22} />
           </div>
@@ -181,6 +183,7 @@ export function HeaderNav() {
             onMouseLeave={() => setDesktopLibraryOpen(false)}
           >
             <button
+              type="button"
               onClick={() => setDesktopLibraryOpen((prev) => !prev)}
               aria-expanded={desktopLibraryOpen}
               aria-haspopup="true"
@@ -210,7 +213,7 @@ export function HeaderNav() {
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{cat.title[lang as keyof typeof cat.title] || cat.title.ar}</span>
+                        <span>{(cat.title as Record<string, string>)[lang] || cat.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -230,7 +233,7 @@ export function HeaderNav() {
                         className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted text-xs font-medium transition-colors"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{doc.title[lang as keyof typeof doc.title] || doc.title.ar}</span>
+                        <span>{(doc.title as Record<string, string>)[lang] || doc.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -296,18 +299,21 @@ export function HeaderNav() {
           {user ? (
             <div ref={userMenuRef} className="relative">
               <button
+                type="button"
                 onClick={() => setDesktopUserMenuOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl bg-muted/80 hover:bg-muted border border-border transition active:scale-95 cursor-pointer shadow-xs"
+                className="flex items-center gap-2.5 p-1.5 pr-3 rounded-2xl bg-muted/80 hover:bg-muted border border-border transition active:scale-95 cursor-pointer shadow-sm"
               >
                 <div className="w-8 h-8 rounded-xl bg-primary text-primary-foreground font-black text-xs flex items-center justify-center shadow-sm">
                   {getUserInitials(user.name)}
                 </div>
                 <div className="flex flex-col text-start rtl:text-right">
                   <span className="text-xs font-bold leading-tight max-w-[110px] truncate">{user.name}</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-0.5">
-                    <CheckCircle2 size={10} />
-                    <span>{role.replace("_", " ")}</span>
-                  </span>
+                  {formattedRole && (
+                    <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-0.5">
+                      <CheckCircle2 size={10} />
+                      <span>{formattedRole}</span>
+                    </span>
+                  )}
                 </div>
                 <ChevronDown
                   size={14}
@@ -322,10 +328,12 @@ export function HeaderNav() {
                   <div className="p-3 bg-muted/50 rounded-xl space-y-1 border border-border/50">
                     <p className="text-xs font-bold text-foreground truncate">{user.name}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{user.email}</p>
-                    <div className="pt-1 flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                      <Shield size={12} />
-                      <span>{labels.roleLabel[lang]}: {role.toUpperCase()}</span>
-                    </div>
+                    {upperRole && (
+                      <div className="pt-1 flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                        <Shield size={12} />
+                        <span>{labels.roleLabel[lang]}: {upperRole}</span>
+                      </div>
+                    )}
                   </div>
 
                   <Link
@@ -350,6 +358,7 @@ export function HeaderNav() {
 
                   <div className="pt-1 border-t border-border">
                     <button
+                      type="button"
                       onClick={handleLogout}
                       className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
                     >
@@ -362,6 +371,7 @@ export function HeaderNav() {
             </div>
           ) : (
             <button
+              type="button"
               onClick={() => setIsAuthOpen(true)}
               className="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1.5 min-h-[40px]"
             >
@@ -381,10 +391,13 @@ export function HeaderNav() {
               <div className="w-6 h-6 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[10px]">
                 {getUserInitials(user.name)}
               </div>
-              <span className="max-w-[70px] truncate text-[11px]">{user.name.split(" ")[0]}</span>
+              <span className="max-w-[70px] truncate text-[11px]">
+                {user.name ? user.name.split(" ")[0] : ""}
+              </span>
             </Link>
           ) : (
             <button
+              type="button"
               onClick={() => setIsAuthOpen(true)}
               className="px-3.5 py-2 text-xs font-bold bg-amber-600 text-white rounded-xl min-h-[44px] flex items-center gap-1 active:scale-95 transition"
             >
@@ -394,6 +407,7 @@ export function HeaderNav() {
           )}
 
           <button
+            type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle navigation menu"
             className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl bg-muted text-foreground border border-border active:scale-95 transition cursor-pointer"
@@ -430,9 +444,10 @@ export function HeaderNav() {
               <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-[11px]">
                 <span className="flex items-center gap-1 text-emerald-400 font-semibold">
                   <ShieldCheck size={14} />
-                  <span>{role.toUpperCase()}</span>
+                  <span>{upperRole}</span>
                 </span>
                 <button
+                  type="button"
                   onClick={handleLogout}
                   className="text-xs font-bold text-rose-400 hover:text-rose-300 flex items-center gap-1 py-1 px-2 rounded-lg bg-rose-500/10"
                 >
@@ -456,6 +471,7 @@ export function HeaderNav() {
             {/* Mobile Library Accordion */}
             <div className="border border-border rounded-2xl overflow-hidden">
               <button
+                type="button"
                 onClick={() => setMobileLibraryOpen(!mobileLibraryOpen)}
                 className="w-full flex items-center justify-between min-h-[48px] px-3 font-semibold text-sm bg-card hover:bg-muted active:bg-muted cursor-pointer"
               >
@@ -480,7 +496,7 @@ export function HeaderNav() {
                         className="flex items-center gap-2 min-h-[40px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{cat.title[lang as keyof typeof cat.title] || cat.title.ar}</span>
+                        <span>{(cat.title as Record<string, string>)[lang] || cat.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -497,7 +513,7 @@ export function HeaderNav() {
                         className="flex items-center gap-2 min-h-[40px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card"
                       >
                         <FileText size={14} className="text-muted-foreground shrink-0" />
-                        <span>{doc.title[lang as keyof typeof doc.title] || doc.title.ar}</span>
+                        <span>{(doc.title as Record<string, string>)[lang] || doc.title.ar}</span>
                       </Link>
                     ))}
                   </div>
@@ -508,6 +524,7 @@ export function HeaderNav() {
             {/* Mobile Schools Accordion */}
             <div className="border border-border rounded-2xl overflow-hidden">
               <button
+                type="button"
                 onClick={() => setMobileSchoolsOpen(!mobileSchoolsOpen)}
                 className="w-full flex items-center justify-between min-h-[48px] px-3 font-semibold text-sm bg-card hover:bg-muted active:bg-muted cursor-pointer"
               >
