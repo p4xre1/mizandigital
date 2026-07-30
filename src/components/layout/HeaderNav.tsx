@@ -21,48 +21,12 @@ import {
   FolderTree,
   Archive,
   Wrench,
-  Settings,
   LayoutDashboard,
-  Sparkles,
-  ShieldCheck,
   CheckCircle2,
+  ShieldCheck,
 } from "lucide-react";
 
-// AdSense Client Configuration
-const ADSENSE_CLIENT_ID = import.meta.env.VITE_ADSENSE_CLIENT_ID || "ca-pub-0000000000000000";
-
-/**
- * High-Speed Header Micro Sponsor/Ad Banner (Zero CLS)
- */
-function HeaderMicroBanner() {
-  const [adFailed, setAdFailed] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
-        // @ts-ignore
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    } catch {
-      setAdFailed(true);
-    }
-  }, []);
-
-  if (adFailed) return null;
-
-  return (
-    <div className="hidden lg:flex items-center justify-center overflow-hidden max-h-[36px] px-2 py-0.5 bg-slate-900/40 border border-slate-800 rounded-lg text-xs">
-      <ins
-        className="adsbygoogle"
-        style={{ display: "inline-block", width: "250px", height: "28px" }}
-        data-ad-client={ADSENSE_CLIENT_ID}
-        data-ad-slot="1234567890"
-      />
-    </div>
-  );
-}
-
-export function Navbar() {
+export function HeaderNav() {
   const { lang: rawLang = "ar" } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -76,7 +40,7 @@ export function Navbar() {
   const dir = lang === "ar" ? "rtl" : "ltr";
 
   // Role Hook Integration
-  const { role, loading, isStaff, canManageUsers, isRoot } = useRole();
+  const { role, isStaff, canManageUsers, isRoot } = useRole();
 
   // Navigation Dropdowns & Drawers States
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -155,12 +119,6 @@ export function Navbar() {
 
   // Translations Map
   const labels = {
-    disclaimer: {
-      ar: "⚠️ تنبيه أكاديمي: محتوى المنصة تثقيفي وتوثيقي موحد للباحثين والجامعات.",
-      fr: "⚠️ Note: Contenu académique et éducatif destiné aux chercheurs et universités.",
-      en: "⚠️ Academic Notice: Content is strictly educational and institutional.",
-      es: "⚠️ Aviso Académico: El contenido es estrictamente educativo e institucional.",
-    },
     brandSub: {
       ar: "الأرشيف والمكتبة الرقمية",
       fr: "Bibliothèque Juridique",
@@ -189,12 +147,6 @@ export function Navbar() {
 
   return (
     <header className="w-full font-sans border-b border-border bg-card/95 backdrop-blur-md sticky top-0 z-50 transition-colors" dir={dir}>
-      {/* Top Academic Disclaimer & Sponsor Ticker */}
-      <div className="bg-amber-500/10 border-b border-amber-500/20 px-3 py-1 text-center text-[11px] sm:text-xs text-amber-950 dark:text-amber-200 font-medium flex items-center justify-between max-w-7xl mx-auto">
-        <span className="truncate">{labels.disclaimer[lang]}</span>
-        <HeaderMicroBanner />
-      </div>
-
       {/* Main Navbar */}
       <div className="px-3 sm:px-6 py-2 max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Brand Logo */}
@@ -339,10 +291,9 @@ export function Navbar() {
           )}
         </nav>
 
-        {/* ================= DESKTOP USER CONTROLS ================= */}
+        {/* DESKTOP USER CONTROLS */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
-            /* USER LOGGED IN -> Show Profile Dropdown Avatar Button */
             <div ref={userMenuRef} className="relative">
               <button
                 onClick={() => setDesktopUserMenuOpen((prev) => !prev)}
@@ -366,7 +317,6 @@ export function Navbar() {
                 />
               </button>
 
-              {/* Desktop Profile Dropdown Box */}
               {desktopUserMenuOpen && (
                 <div className="absolute top-full rtl:left-0 ltr:right-0 mt-2 w-64 bg-card border border-border rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in-50 zoom-in-95 space-y-1">
                   <div className="p-3 bg-muted/50 rounded-xl space-y-1 border border-border/50">
@@ -411,7 +361,6 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            /* USER NOT LOGGED IN -> Show Log In Button */
             <button
               onClick={() => setIsAuthOpen(true)}
               className="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1.5 min-h-[40px]"
@@ -422,10 +371,9 @@ export function Navbar() {
           )}
         </div>
 
-        {/* ================= MOBILE CONTROLS & PROFILE ICON ================= */}
+        {/* MOBILE CONTROLS & PROFILE ICON */}
         <div className="flex items-center gap-2 md:hidden">
           {user ? (
-            /* Mobile Logged In Profile Button */
             <Link
               to={`/${lang}/profile`}
               className="min-h-[44px] min-w-[44px] px-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary font-black text-xs flex items-center justify-center gap-1.5 active:scale-95 transition"
@@ -436,7 +384,6 @@ export function Navbar() {
               <span className="max-w-[70px] truncate text-[11px]">{user.name.split(" ")[0]}</span>
             </Link>
           ) : (
-            /* Mobile Log In Button */
             <button
               onClick={() => setIsAuthOpen(true)}
               className="px-3.5 py-2 text-xs font-bold bg-amber-600 text-white rounded-xl min-h-[44px] flex items-center gap-1 active:scale-95 transition"
@@ -446,7 +393,6 @@ export function Navbar() {
             </button>
           )}
 
-          {/* Drawer Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle navigation menu"
@@ -457,11 +403,9 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* ================= MOBILE DRAWER MENU ================= */}
+      {/* MOBILE DRAWER MENU */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-card border-t border-border px-4 py-4 space-y-3 animate-in slide-in-from-top-2 duration-200 max-h-[85vh] overflow-y-auto">
-          
-          {/* Mobile Profile Card Header */}
           {user && (
             <div className="p-3 bg-slate-900 text-white rounded-2xl border border-slate-800 space-y-3 shadow-lg">
               <div className="flex items-center justify-between">
@@ -499,7 +443,6 @@ export function Navbar() {
             </div>
           )}
 
-          {/* Navigation Links */}
           <div className="space-y-1 pt-1">
             <Link
               to={`/${lang}`}
@@ -598,7 +541,6 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Mobile Admin Link */}
             {isStaff && (
               <Link
                 to={`/${lang}/admin`}
