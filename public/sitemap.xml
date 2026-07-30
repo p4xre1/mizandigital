@@ -1,244 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-        xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 https://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-  <!-- ==================== 🏠 HOME PAGES ==================== -->
-  <!-- Arabic Home -->
+
+  <!-- ==================== HOME PAGES ==================== -->
   <url>
     <loc>https://www.mizan.page/ar</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
   </url>
 
-  <!-- French Home -->
   <url>
     <loc>https://www.mizan.page/fr</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
   </url>
 
-  <!-- English Home -->
   <url>
     <loc>https://www.mizan.page/en</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
   </url>
 
-  <!-- Spanish Home -->
   <url>
     <loc>https://www.mizan.page/es</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
   </url>
 
-  <!-- ==================== 📄 ABOUT PAGES ==================== -->
+  <!-- ==================== STATIC PAGES ==================== -->
+  <!-- About -->
   <url>
     <loc>https://www.mizan.page/ar/about</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/about" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/about" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/about" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/about" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/about" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/fr/about</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/about" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/about" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/about" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/about" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/about" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/en/about</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/about" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/about" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/about" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/about" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/about" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/es/about</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/about" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/about" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/about" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/about" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/about" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
   </url>
 
-  <!-- ==================== 📁 ARCHIVE PAGES ==================== -->
+  <!-- Archive -->
   <url>
     <loc>https://www.mizan.page/ar/archive</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/fr/archive</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/en/archive</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/es/archive</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/archive" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/archive" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/archive" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/archive" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/archive" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
   </url>
 
-  <!-- ==================== 📚 LIBRARY PAGES ==================== -->
+  <!-- Library -->
   <url>
     <loc>https://www.mizan.page/ar/library</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/library" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/library" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/library" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/library" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/library" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/fr/library</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/library" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/library" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/library" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/library" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/library" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/en/library</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/library" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/library" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/library" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/library" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/library" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/es/library</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/library" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/library" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/library" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/library" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/library" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
   </url>
 
-  <!-- ==================== 🏫 SCHOOLS PAGES ==================== -->
+  <!-- Schools -->
   <url>
     <loc>https://www.mizan.page/ar/schools</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
     <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/schools" />
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/schools" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/schools" />
     <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/schools" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/schools" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
   </url>
-  <url>
-    <loc>https://www.mizan.page/fr/schools</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/schools" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/schools" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/schools" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/schools" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/schools" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/en/schools</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/schools" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/schools" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/schools" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/schools" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/schools" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://www.mizan.page/es/schools</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar/schools" />
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr/schools" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.mizan.page/en/schools" />
-    <xhtml:link rel="alternate" hreflang="es" href="https://www.mizan.page/es/schools" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar/schools" />
-    <lastmod>2026-07-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
+
+  <!-- Add more important pages here (Contact, Legal Notice, etc.) -->
 
 </urlset>
