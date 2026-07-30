@@ -2,58 +2,51 @@
 # Mizan Digital (ميزان) — Official Search Engine & AI Crawler Rules
 # Primary Host: www.mizan.page
 # Platform: Legal & Academic Intelligence Database (AR | FR | EN | ES)
+# Last updated: 2026-07-30
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# 1. GLOBAL CRAWLER RULES (Search Engines & General Web Crawlers)
+# 1. GLOBAL RULES (All Crawlers)
 # ------------------------------------------------------------------------------
 User-agent: *
 
-# ✅ Allow full access to public content & AI discovery protocols
+# ✅ Full access for public legal content
 Allow: /
 Allow: /.well-known/
 Allow: /sitemap.xml
+Allow: /sitemaps/
 
-# 🚫 Admin & Dashboard Interfaces
+# 🚫 Protect sensitive areas
 Disallow: /admin
-Disallow: /*/admin
 Disallow: /dashboard
-Disallow: /*/dashboard
-
-# 🚫 Authentication & User Account Pages
 Disallow: /login
 Disallow: /register
 Disallow: /profile
 Disallow: /settings
+Disallow: /api/private/
+Disallow: /*/admin/
+Disallow: /*/dashboard/
 Disallow: /*/login
 Disallow: /*/register
-Disallow: /*/profile
-Disallow: /*/settings
 
-# 🚫 Internal APIs & Private Backend Endpoints
-Disallow: /api/
-Disallow: /*/api/
-
-# 🚫 Prevent indexing of dynamic query parameters & duplicate search URLs
+# 🚫 Avoid duplicate content from query parameters
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
 Disallow: /*?*sort=
+Disallow: /*?*page=  # optional
 
 # ------------------------------------------------------------------------------
-# 2. AI AGENTS & GENERATIVE ENGINE OPTIMIZATION (GEO)
-# (Permit AI Search & LLM assistants to discover and reference public legal data)
+# 2. AI & Generative Engines (Explicitly Allowed)
 # ------------------------------------------------------------------------------
 User-agent: GPTBot
 Allow: /
-Allow: /.well-known/
 
 User-agent: ChatGPT-User
 Allow: /
 
 User-agent: ClaudeBot
 Allow: /
-Allow: /.well-known/
 
 User-agent: PerplexityBot
 Allow: /
@@ -67,7 +60,11 @@ Allow: /
 User-agent: Meta-ExternalAgent
 Allow: /
 
+# Optional: Block heavy training scrapers if you prefer
+# User-agent: Bytespider
+# Disallow: /
+
 # ------------------------------------------------------------------------------
-# 3. SITEMAPS
+# 3. Sitemaps
 # ------------------------------------------------------------------------------
 Sitemap: https://www.mizan.page/sitemap.xml
