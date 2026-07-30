@@ -1,81 +1,425 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#052e16" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="format-detection" content="telephone=no" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
-  <!-- 💰 Google AdSense Account Verification -->
-  <meta name="google-adsense-account" content="ca-pub-1749032173858747" />
+<!-- ⚠️ Keep this page OFF the index while the real site is being built -->
+<meta name="robots" content="noindex, nofollow">
 
-  <!-- 🚀 Fast Network Connections & Arabic Font Loading -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-  <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-  
-  <!-- Modern Arabic Typography -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+<title>Mizan Digital — قريبًا / Bientôt / Coming Soon / Próximamente</title>
+<meta name="description" content="Mizan Digital — منصة القانون والتعليم الجامعي بالمغرب. قريبًا.">
 
-  <!-- 🔍 Primary SEO Meta Tags -->
-  <title>Mizan Digital | ميزان الرقمية</title>
-  <meta name="title" content="Mizan Digital | ميزان الرقمية" />
-  <meta name="description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
-  <meta name="author" content="Mizan Digital" />
-  <meta name="robots" content="index, follow" />
+<!-- Open Graph (for when you do share the link privately) -->
+<meta property="og:title" content="Mizan Digital">
+<meta property="og:description" content="حيث يلتقي القانون بالمعرفة الجامعية — قريبًا">
+<meta property="og:type" content="website">
 
-  <!-- 🌐 Open Graph / Facebook / WhatsApp Previews -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.mizan.page/ar" />
-  <meta property="og:title" content="Mizan Digital | ميزان الرقمية" />
-  <meta property="og:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
-  <meta property="og:image" content="https://www.mizan.page/og-image.jpg" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">
 
-  <!-- 🐦 Twitter Previews -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:url" content="https://www.mizan.page/ar" />
-  <meta name="twitter:title" content="Mizan Digital | ميزان الرقمية" />
-  <meta name="twitter:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
-  <meta name="twitter:image" content="https://www.mizan.page/og-image.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,500&family=Inter:wght@400;500;600&family=Amiri:wght@400;700&family=Cairo:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- 📱 Favicons & Icons -->
-  <link rel="icon" type="image/svg+xml" href="/Logo.svg" />
-  <link rel="apple-touch-icon" href="/Logo.svg" />
-  <link rel="manifest" href="/manifest.json" />
+<style>
+  :root{
+    --bg: #0B1220;
+    --bg-elevated: #121B2E;
+    --brass: #C9A227;
+    --brass-soft: #E4C660;
+    --emerald: #1F5C43;
+    --ink: #F2EDE1;
+    --ink-muted: #9AA3B5;
+    --rule: rgba(201,162,39,0.28);
+    --font-display-latin: 'Fraunces', serif;
+    --font-body-latin: 'Inter', sans-serif;
+    --font-display-ar: 'Amiri', serif;
+    --font-body-ar: 'Cairo', sans-serif;
+  }
 
-  <!-- 💰 Google AdSense Main Script -->
-  <script
-    async
-    src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1749032173858747"
-    crossorigin="anonymous">
-  </script>
+  *{ box-sizing: border-box; }
 
-  <!-- 📈 Google Tag Manager -->
-  <script>
-    (function(w,d,s,l,i){
-      w[l]=w[l]||[];
-      w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-      const f=d.getElementsByTagName(s)[0];
-      const j=d.createElement(s);
-      const dl=l !== 'dataLayer' ? '&l='+l : '';
-      j.async=true;
-      j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-      f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-PTT8P94G');
-  </script>
+  html, body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  body{
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px 28px;
+    font-family: var(--font-body-latin);
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,162,39,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 100%, rgba(31,92,67,0.18), transparent 60%),
+      var(--bg);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  html[dir="rtl"] body,
+  html[dir="rtl"] .font-body{ font-family: var(--font-body-ar); }
+  html[dir="rtl"] .wordmark{ font-family: var(--font-display-ar); }
+  html[dir="ltr"] .wordmark{ font-family: var(--font-display-latin); }
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 20px 0;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .mark{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+  }
+  .mark svg{ width: 18px; height: 18px; opacity: 0.85; }
+
+  .langswitch{
+    display: flex;
+    gap: 2px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .langswitch button{
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--ink-muted);
+    font-family: var(--font-body-latin);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    padding: 7px 11px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .langswitch button:hover{ color: var(--ink); }
+  .langswitch button:focus-visible{
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+  }
+  .langswitch button[aria-pressed="true"]{
+    background: var(--brass);
+    color: #1a1400;
+  }
+
+  /* ---------- signature: the balance ---------- */
+  .balance-wrap{
+    width: 168px;
+    max-width: 50vw;
+    margin: 0 auto 6px;
+  }
+  .balance-wrap svg{ width: 100%; height: auto; display: block; }
+
+  #beam{
+    transform-origin: 100px 30px;
+    animation:
+      settle 2.6s cubic-bezier(.2,.9,.25,1) both,
+      sway 7s ease-in-out 2.6s infinite;
+  }
+  @keyframes settle{
+    0%   { transform: rotate(-14deg); }
+    45%  { transform: rotate(7deg); }
+    70%  { transform: rotate(-3deg); }
+    100% { transform: rotate(0deg); }
+  }
+  @keyframes sway{
+    0%, 100% { transform: rotate(0deg); }
+    50%      { transform: rotate(1.4deg); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    #beam{ animation: none; }
+  }
+
+  /* ---------- content ---------- */
+  .content{
+    max-width: 560px;
+    width: 100%;
+    text-align: center;
+    margin-top: 44px;
+  }
+
+  .eyebrow{
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brass-soft);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 6px 14px;
+    margin-bottom: 22px;
+    font-family: var(--font-body-latin);
+  }
+
+  .wordmark{
+    font-size: clamp(2.4rem, 9vw, 3.6rem);
+    line-height: 1.05;
+    font-weight: 500;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  html[dir="ltr"] .wordmark{ font-style: italic; }
+  .wordmark .dot{ color: var(--brass); }
+
+  .tagline{
+    font-size: clamp(1rem, 3.4vw, 1.2rem);
+    line-height: 1.6;
+    color: var(--ink-muted);
+    max-width: 42ch;
+    margin: 0 auto 30px;
+    font-weight: 400;
+  }
+
+  .rule{
+    width: 64px;
+    height: 1px;
+    background: var(--rule);
+    margin: 0 auto 26px;
+  }
+
+  .status{
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 34px;
+  }
+  .status .dot-pulse{
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--emerald);
+    box-shadow: 0 0 0 0 rgba(31,92,67,0.6);
+    animation: pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%   { box-shadow: 0 0 0 0 rgba(31,92,67,0.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(31,92,67,0); }
+    100% { box-shadow: 0 0 0 0 rgba(31,92,67,0); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .dot-pulse{ animation: none; }
+  }
+
+  .contact{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--brass-soft);
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    padding: 12px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    font-family: var(--font-body-latin);
+  }
+  .contact:hover{
+    border-color: var(--brass);
+    background: rgba(201,162,39,0.06);
+    color: var(--brass-soft);
+  }
+  .contact:focus-visible{
+    outline: 2px solid var(--brass);
+    outline-offset: 3px;
+  }
+
+  footer{
+    margin-top: 40px;
+    font-size: 11px;
+    color: var(--ink-muted);
+    opacity: 0.7;
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 380px){
+    .topbar{ padding: 16px 16px 0; }
+    .content{ margin-top: 38px; }
+  }
+</style>
 </head>
+<body>
 
-<body class="bg-background text-foreground antialiased font-sans">
-  <noscript>
-    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PTT8P94G" height="0" width="0" style="display:none;visibility:hidden"></iframe>
-  </noscript>
+  <div class="topbar">
+    <div class="mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M12 2v20M4 8h16M8 8l-4 6h8l-4-6zM16 8l-4 6h8l-4-6z" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="font-body" data-i18n="brandnote">ميزان ديجيتال</span>
+    </div>
 
-  <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+    <div class="langswitch" role="group" aria-label="Language / اللغة">
+      <button type="button" data-lang="ar" aria-pressed="true">AR</button>
+      <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+  </div>
+
+  <main class="content">
+
+    <div class="balance-wrap" aria-hidden="true">
+      <svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg">
+        <!-- base -->
+        <path d="M85 138 L115 138 L108 128 L92 128 Z" fill="#C9A227" opacity="0.9"/>
+        <rect x="97" y="30" width="6" height="98" rx="3" fill="#C9A227"/>
+        <circle cx="100" cy="24" r="7" fill="#C9A227"/>
+
+        <g id="beam">
+          <rect x="34" y="27" width="132" height="4" rx="2" fill="#C9A227"/>
+
+          <!-- left pan: law -->
+          <line x1="40" y1="30" x2="40" y2="68" stroke="#C9A227" stroke-width="1.4" opacity="0.7"/>
+          <ellipse cx="40" cy="72" rx="24" ry="7" fill="none" stroke="#C9A227" stroke-width="2"/>
+          <ellipse cx="40" cy="70" rx="24" ry="7" fill="#121B2E" stroke="#C9A227" stroke-width="2"/>
+          <g transform="translate(40,66)">
+            <rect x="-8" y="2" width="16" height="3" rx="1.5" fill="#E4C660"/>
+            <rect x="-1.5" y="-9" width="3" height="11" rx="1.5" fill="#E4C660"/>
+            <circle cx="-6" cy="-9" r="3.2" fill="#E4C660"/>
+          </g>
+
+          <!-- right pan: university -->
+          <line x1="160" y1="30" x2="160" y2="68" stroke="#C9A227" stroke-width="1.4" opacity="0.7"/>
+          <ellipse cx="160" cy="72" rx="24" ry="7" fill="none" stroke="#C9A227" stroke-width="2"/>
+          <ellipse cx="160" cy="70" rx="24" ry="7" fill="#121B2E" stroke="#C9A227" stroke-width="2"/>
+          <g transform="translate(160,67)">
+            <path d="M-11 0 L0 -6 L11 0 L0 6 Z" fill="#E4C660"/>
+            <line x1="9" y1="0.5" x2="9" y2="8" stroke="#E4C660" stroke-width="1.4"/>
+            <circle cx="9" cy="9" r="1.4" fill="#E4C660"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <span class="eyebrow" data-i18n="eyebrow">Mizan Digital</span>
+
+    <h1 class="wordmark" data-i18n="headline">ميزان<span class="dot"> · </span>ديجيتال</h1>
+
+    <p class="tagline" data-i18n="tagline">حيث يلتقي القانون بالمعرفة الجامعية — نبني المنصة بعناية قبل أن نفتح أبوابها.</p>
+
+    <div class="rule"></div>
+
+    <div class="status">
+      <span class="dot-pulse" aria-hidden="true"></span>
+      <span data-i18n="status">قيد الإنشاء — الإطلاق قريبًا</span>
+    </div>
+    <br>
+
+    <a class="contact" href="mailto:hello@mizan.digital" data-i18n="contact">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:0.85">
+        <path d="M4 6h16v12H4z" stroke-linejoin="round"/>
+        <path d="M4 7l8 6 8-6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span data-i18n="contact-label">راسلنا</span>
+    </a>
+
+  </main>
+
+  <footer data-i18n="footer">© 2026 Mizan Digital — العربية · Français · English · Español</footer>
+
+<script>
+  const STRINGS = {
+    ar: {
+      dir: "rtl",
+      brandnote: "ميزان ديجيتال",
+      eyebrow: "ميزان ديجيتال",
+      headline: 'ميزان<span class="dot"> · </span>ديجيتال',
+      tagline: "حيث يلتقي القانون بالمعرفة الجامعية — نبني المنصة بعناية قبل أن نفتح أبوابها.",
+      status: "قيد الإنشاء — الإطلاق قريبًا",
+      contactLabel: "راسلنا",
+      footer: "© 2026 Mizan Digital — العربية · Français · English · Español"
+    },
+    fr: {
+      dir: "ltr",
+      brandnote: "Mizan Digital",
+      eyebrow: "Mizan Digital",
+      headline: 'Mizan<span class="dot"> · </span>Digital',
+      tagline: "Où le droit rencontre le savoir universitaire — nous construisons la plateforme avec soin avant l'ouverture.",
+      status: "En construction — lancement prochain",
+      contactLabel: "Nous écrire",
+      footer: "© 2026 Mizan Digital — العربية · Français · English · Español"
+    },
+    en: {
+      dir: "ltr",
+      brandnote: "Mizan Digital",
+      eyebrow: "Mizan Digital",
+      headline: 'Mizan<span class="dot"> · </span>Digital',
+      tagline: "Where law meets university knowledge — we're building it carefully before we open the doors.",
+      status: "Under construction — launching soon",
+      contactLabel: "Get in touch",
+      footer: "© 2026 Mizan Digital — العربية · Français · English · Español"
+    },
+    es: {
+      dir: "ltr",
+      brandnote: "Mizan Digital",
+      eyebrow: "Mizan Digital",
+      headline: 'Mizan<span class="dot"> · </span>Digital',
+      tagline: "Donde el derecho se encuentra con el saber universitario — lo estamos construyendo con cuidado antes de abrir.",
+      status: "En construcción — próximo lanzamiento",
+      contactLabel: "Escríbenos",
+      footer: "© 2026 Mizan Digital — العربية · Français · English · Español"
+    }
+  };
+
+  function applyLang(code){
+    const s = STRINGS[code];
+    if(!s) return;
+
+    document.documentElement.lang = code;
+    document.documentElement.dir = s.dir;
+
+    document.querySelector('[data-i18n="brandnote"]').textContent = s.brandnote;
+    document.querySelector('[data-i18n="eyebrow"]').textContent = s.eyebrow;
+    document.querySelector('[data-i18n="headline"]').innerHTML = s.headline;
+    document.querySelector('[data-i18n="tagline"]').textContent = s.tagline;
+    document.querySelector('[data-i18n="status"]').textContent = s.status;
+    document.querySelector('[data-i18n="contact-label"]').textContent = s.contactLabel;
+    document.querySelector('[data-i18n="footer"]').textContent = s.footer;
+
+    document.querySelectorAll('.langswitch button').forEach(btn => {
+      btn.setAttribute('aria-pressed', btn.dataset.lang === code ? 'true' : 'false');
+    });
+
+    try { sessionStorage.setItem('mizan_coming_soon_lang', code); } catch(e) {}
+  }
+
+  document.querySelectorAll('.langswitch button').forEach(btn => {
+    btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+  });
+
+  // Restore last choice within the session, default to Arabic
+  let initial = 'ar';
+  try {
+    const saved = sessionStorage.getItem('mizan_coming_soon_lang');
+    if (saved && STRINGS[saved]) initial = saved;
+  } catch(e) {}
+  applyLang(initial);
+</script>
+
 </body>
 </html>
