@@ -1,76 +1,155 @@
-import { writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from 'fs';
+import path from 'path';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const OUTPUT = join(__dirname, '../public/sitemap.xml');
+// ==========================================
+// ⚙️ CONFIGURATION & ENV SETUP
+// ==========================================
+const BASE_URL = 'https://www.mizan.page';
+const LANGUAGES = ['ar', 'en', 'fr', 'es'];
+const DEFAULT_LANG = 'ar'; // Legal default for Morocco
 
-// 🌐 Single Canonical Primary Domain
-const DOMAIN = 'https://www.mizan.page';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
-const LANGS = ['ar', 'fr', 'en', 'es'];
-
-// 📚 Clean public routes matching router.tsx (NO /login)
-const PATHS = [
-  '',
-  '/about',
-  '/archive',
-  '/library',
-  '/schools'
+// Static routes matching Mizan's architecture
+const STATIC_ROUTES = [
+  { path: '', priority: '1.0', changefreq: 'daily' },
+  { path: '/fields/administrative', priority: '0.9', changefreq: 'weekly' },
+  { path: '/fields/commercial', priority: '0.9', changefreq: 'weekly' },
+  { path: '/fields/civil', priority: '0.9', changefreq: 'weekly' },
+  { path: '/fields/criminal', priority: '0.9', changefreq: 'weekly' },
+  { path: '/fields/family', priority: '0.9', changefreq: 'weekly' },
+  { path: '/documents/cassation', priority: '0.8', changefreq: 'daily' },
+  { path: '/documents/decrees', priority: '0.8', changefreq: 'weekly' },
+  { path: '/documents/journals', priority: '0.8', changefreq: 'weekly' },
+  { path: '/schools/rabat-agdal', priority: '0.7', changefreq: 'weekly' },
+  { path: '/schools/casablanca-ain-chock', priority: '0.7', changefreq: 'weekly' },
+  { path: '/schools/oujda', priority: '0.7', changefreq: 'weekly' },
+  { path: '/schools/marrakech-cadi-ayyad', priority: '0.7', changefreq: 'weekly' },
+  { path: '/privacy', priority: '0.3', changefreq: 'monthly' },
+  { path: '/terms', priority: '0.3', changefreq: 'monthly' },
 ];
 
-const TODAY = new Date().toISOString().split('T')[0];
+// ==========================================
+// 📥 SUPABASE DYNAMIC DATA FETCHING
+// ==========================================
+async function fetchDynamicRoutes() {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    console.warn('⚠️ Supabase credentials missing. Generating sitemap with static routes only.');
+    return [];
+  }
 
-function buildAlternateLinks(path) {
-  const links = LANGS.map((lang) => {
-    const href = `${DOMAIN}/${lang}${path}`;
-    return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`;
-  });
+  const dynamicRoutes = [];
 
-  // x-default points to default Arabic localized path
-  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${DOMAIN}/ar${path}" />`);
+  try {
+    // 1. Fetch Legal Documents & Cassation Rulings
+    const docsResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/documents?select=id,slug,updated_at&limit=2000`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+      }
+    );
 
-  return links.join('\n');
+    if (docsResponse.ok) {
+      const documents = await docsResponse.json();
+      documents.forEach((doc) => {
+        const identifier = doc.slug || doc.id;
+        dynamicRoutes.push({
+          path: `/documents/${identifier}`,
+          priority: '0.8',
+          changefreq: 'weekly',
+          lastmod: doc.updated_at ? new Date(doc.updated_at).toISOString() : new Date().toISOString(),
+        });
+      });
+      console.log(`✅ Retrieved ${documents.length} dynamic legal documents from Supabase.`);
+    }
+
+    // 2. Fetch University Archives / Exams
+    const schoolsResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/school_documents?select=id,school_slug,semester,updated_at&limit=2000`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+      }
+    );
+
+    if (schoolsResponse.ok) {
+      const schoolDocs = await schoolsResponse.json();
+      schoolDocs.forEach((doc) => {
+        if (doc.school_slug && doc.semester) {
+          dynamicRoutes.push({
+            path: `/schools/${doc.school_slug}/${doc.semester}`,
+            priority: '0.7',
+            changefreq: 'monthly',
+            lastmod: doc.updated_at ? new Date(doc.updated_at).toISOString() : new Date().toISOString(),
+          });
+        }
+      });
+      console.log(`✅ Retrieved ${schoolDocs.length} university archive routes from Supabase.`);
+    }
+  } catch (error) {
+    console.error('❌ Error fetching dynamic routes from Supabase:', error.message);
+  }
+
+  return dynamicRoutes;
 }
 
-function generateSitemapEntries() {
-  const entries = [];
+// ==========================================
+// 🏗️ XML GENERATION WITH HREFLANG
+// ==========================================
+function generateUrlEntry(route) {
+  const lastmodDate = route.lastmod || new Date().toISOString();
 
-  // 1. Root Domain Entry (https://www.mizan.page/)
-  entries.push(`  <url>
-    <loc>${DOMAIN}/</loc>
-${buildAlternateLinks('')}
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>`);
+  // Generate an entry for every language with reciprocal hreflang links
+  return LANGUAGES.map((lang) => {
+    const pageUrl = `${BASE_URL}/${lang}${route.path}`;
 
-  // 2. Localized Pages
-  PATHS.forEach((path) => {
-    LANGS.forEach((lang) => {
-      const loc = `${DOMAIN}/${lang}${path}`;
-      const isHome = path === '';
-      const priority = isHome ? '1.0' : (path === '/about' ? '0.8' : '0.9');
-      const changefreq = isHome || path === '/archive' ? 'daily' : 'weekly';
+    const hreflangLinks = LANGUAGES.map(
+      (altLang) =>
+        `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${BASE_URL}/${altLang}${route.path}" />`
+    ).join('\n');
 
-      entries.push(`  <url>
-    <loc>${loc}</loc>
-${buildAlternateLinks(path)}
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`);
-    });
-  });
+    const defaultHreflang = `    <xhtml:link rel="alternate" hreflang="x-default" href="${BASE_URL}/${DEFAULT_LANG}${route.path}" />`;
 
-  return entries.join('\n');
+    return `  <url>
+    <loc>${pageUrl}</loc>
+    <lastmod>${lastmodDate}</lastmod>
+    <changefreq>${route.changefreq}</changefreq>
+    <priority>${route.priority}</priority>
+${hreflangLinks}
+${defaultHreflang}
+  </url>`;
+  }).join('\n');
 }
 
-const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${generateSitemapEntries()}
-</urlset>
-`;
+async function buildSitemap() {
+  console.log('🚀 Starting Military-Grade Sitemap Generation...');
 
-await writeFile(OUTPUT, xml, 'utf8');
-console.log('✅ Master clean sitemap.xml generated successfully at:', OUTPUT);
+  const dynamicRoutes = await fetchDynamicRoutes();
+  const allRoutes = [...STATIC_ROUTES, ...dynamicRoutes];
+
+  const xmlEntries = allRoutes.map(generateUrlEntry).join('\n');
+
+  const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${xmlEntries}
+</urlset>`;
+
+  const outputPath = path.resolve('public/sitemap.xml');
+  fs.writeFileSync(outputPath, xmlContent.trim());
+
+  const totalUrls = allRoutes.length * LANGUAGES.length;
+  console.log(`🎉 Sitemap successfully generated at public/sitemap.xml! Total indexed URLs: ${totalUrls}`);
+}
+
+buildSitemap().catch((err) => {
+  console.error('Fatal error during sitemap generation:', err);
+  process.exit(1);
+});
