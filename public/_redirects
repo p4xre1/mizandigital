@@ -1,123 +1,83 @@
 # ==============================================================================
-# Cloudflare Pages — Single Page Application (SPA) Routing Configuration
-# Platform: Mizan Digital (https://www.mizan.page)
-# Languages: ar (Arabic) | fr (French) | en (English) | es (Spanish)
+# Mizan Digital — Cloudflare Pages _redirects
+# Platform: Legal & Academic Intelligence (AR | FR | EN | ES)
+# Last updated: 2026-07-30
 # ==============================================================================
 
-# ── 1️⃣ Canonical Domain Enforcement ─────────────────────────────────────────
+# ── 1. Canonical Domain + HTTPS Enforcement ───────────────────────────────
 https://mizan.page/*            https://www.mizan.page/:splat   301!
 
-# ── 2️⃣ Auth & Account Shortcuts ──────────────────────────────────────────────
+# ── 2. Language & Auth Shortcuts ───────────────────────────────────────────
 /login                          /ar/login        302
 /signin                         /ar/login        301
 /signup                         /ar/register     301
 /register                       /ar/register     301
 /forgot-password                /ar/login        302
 
-/:lang/signin                    /:lang/login     301
-/:lang/signup                    /:lang/register  301
+/:lang/signin                   /:lang/login     301
+/:lang/signup                   /:lang/register  301
 
-# ── 3️⃣ Main Section & Dashboard Shortcuts ────────────────────────────────────
+# ── 3. Main Navigation & Static Pages ──────────────────────────────────────
+/about                          /ar/about        301
+/contact                        /ar/contact      301
+/privacy                        /ar/privacy      301
+/privacy-policy                 /ar/privacy      301
+/terms                          /ar/terms        301
+/terms-of-service               /ar/terms        301
+/legal                          /ar/terms        301
+
 /admin                          /ar/admin        302
 /dashboard                      /ar/dashboard    302
 /profile                        /ar/dashboard    302
 /settings                       /ar/dashboard    302
-/about                          /ar/about        301
-/contact                        /ar/contact      301
-/privacy                        /ar/privacy      301
-/terms                          /ar/terms        301
-/faq                            /ar/contact      302
-/help                           /ar/contact      302
-/support                        /ar/contact      302
 
-# ── 4️⃣ Footer & Navbar Unlinked / Placeholder Fallbacks ─────────────────────
-/privacy-policy                 /ar/privacy      301
-/cookie-policy                  /ar/privacy      301
-/cookies                        /ar/privacy      301
-/terms-of-service               /ar/terms        301
-/terms-of-use                   /ar/terms        301
-/legal                          /ar/terms        301
-/disclaimer                     /ar/terms        301
-/careers                        /ar/about        302
-/jobs                           /ar/about        302
-/blog                           /ar/search       302
-/articles                       /ar/search       302
-/news                           /ar/search       302
-/docs                           /ar/contact      302
-/api                            /ar/contact      302
-/developers                     /ar/contact      302
-/status                         /ar/about        302
-/partners                       /ar/contact      302
-
-# ── 5️⃣ Legal & Academic Database Aliases ────────────────────────────────────
+# ── 4. Legal Database & Popular Shortcuts ─────────────────────────────────
 /search                         /ar/search       302
 /laws                           /ar/laws         302
 /jurisprudence                  /ar/laws         301
 /bo                             /ar/laws         301
 /bulletin-officiel              /ar/laws         301
-/gazette                        /ar/laws         301
-/law-schools                    /ar/law-schools  301
-/schools                        /ar/law-schools  301
-/faculties                      /ar/law-schools  301
 
-# ── 6️⃣ High-Traffic Moroccan Legal Keyword Shortcuts (SEO Power-ups) ───────
 /moudawana                      /ar/laws/code-de-la-famille        301
-/doc                            /ar/laws/doc-obligations-contrats  301
 /code-penal                     /ar/laws/code-penal                301
 /code-du-travail                /ar/laws/code-du-travail           301
 /code-de-commerce               /ar/laws/code-de-commerce          301
-/procedure-civile               /ar/laws/procedure-civile          301
-/procedure-penale               /ar/laws/procedure-penale          301
-/avocats                        /ar/exams/bar-exam                 301
-/qcm                            /ar/exams/qcm-practice             301
-/fsjes                          /ar/law-schools                    301
-/dictionary                     /ar/dictionary                     301
 
-# ── 7️⃣ Moroccan Law Faculties Direct Quick Links ──────────────────────────────
+/schools                        /ar/law-schools  301
+/law-schools                    /ar/law-schools  301
+
+# ── 5. Faculty Quick Links ────────────────────────────────────────────────
 /agdal                          /ar/law-schools/um5-rabat-agdal            301
 /ain-chock                      /ar/law-schools/uh2-casablanca-ain-chock   301
 /marrakech                      /ar/law-schools/uqa-marrakech              301
-/oujda                          /ar/law-schools/umo-oujda                  301
 /fes                            /ar/law-schools/usmba-fes                  301
-/tanger                         /ar/law-schools/uae-tangier                301
-/settat                         /ar/law-schools/uh1-settat                 301
-/agadir                         /ar/law-schools/uiz-agadir                 301
 
-# ── 8️⃣ Social Media & Community Channels ──────────────────────────────────────
+# ── 6. Social & External Redirects ────────────────────────────────────────
 /facebook                       https://www.facebook.com/mizandigital               302
-/twitter                        https://www.twitter.com/mizandigital                302
-/x                              https://www.twitter.com/mizandigital                302
+/twitter                        https://twitter.com/mizandigital                    302
+/x                              https://twitter.com/mizandigital                    302
 /linkedin                       https://www.linkedin.com/company/mizandigital       302
-/whatsapp                       https://wa.me/?text=Mizan%20Platform                302
+/whatsapp                       https://wa.me/?text=Mizan%20Digital%20Platform     302
 /telegram                       https://t.me/mizandigital                           302
 
-# ── 9️⃣ Expanded Localized Multilingual Aliases ──────────────────────────────
-# 🇫🇷 French (Français)
+# ── 7. Localized Aliases (French + Spanish) ───────────────────────────────
 /fr/connexion                   /fr/login        301
 /fr/inscription                 /fr/register     301
 /fr/a-propos                    /fr/about        301
 /fr/contactez-nous              /fr/contact      301
-/fr/facultes                    /fr/law-schools  301
 /fr/lois                        /fr/laws         301
 /fr/recherche                   /fr/search       302
-/fr/confidentialite             /fr/privacy      301
-/fr/conditions                  /fr/terms        301
 
-# 🇪🇸 Spanish (Español)
 /es/iniciar-sesion              /es/login        301
 /es/registro                    /es/register     301
 /es/sobre-nosotros              /es/about        301
 /es/contacto                    /es/contact      301
-/es/facultades                  /es/law-schools  301
 /es/leyes                       /es/laws         301
 /es/buscar                      /es/search       302
-/es/privacidad                  /es/privacy      301
-/es/terminos                    /es/terms        301
 
-# ── 🔟 SEO System Routes ──────────────────────────────────────────────────────
+# ── 8. Utility Routes ─────────────────────────────────────────────────────
 /sitemap                        /sitemap.xml     301
 /rss                            /feed.xml        301
 
-# ── 1️⃣1️⃣ SPA Fallback Handler (React Router) ───────────────────────────────────
-# ⚠️ CRITICAL: This wildcard rule MUST ALWAYS remain at the very end.
+# ── 9. SPA Fallback (MUST be the LAST rule) ───────────────────────────────
 /*                              /index.html      200
