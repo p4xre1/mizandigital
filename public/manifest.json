@@ -1,73 +1,25 @@
 {
-  "id": "/?source=pwa",
-  "short_name": "ميزان - Mizan",
   "name": "منصة ميزان الرقمية للقانون المغربي",
-  "description": "الموسوعة القانونية المغربية الإلكترونية - النصوص القانونية، مدونة الأسرة، قانون الشغل، واجتهادات المحاكم المغربية",
-  "start_url": "/?source=pwa",
+  "short_name": "ميزان",
+  "description": "الموسوعة القانونية المغربية الإلكترونية",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "dir": "rtl",
   "lang": "ar-MA",
   "background_color": "#052e16",
   "theme_color": "#052e16",
-  "categories": [
-    "education",
-    "utilities",
-    "reference"
-  ],
   "icons": [
-    {
-      "src": "/Logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
-      "purpose": "any"
-    },
     {
       "src": "/pwa-192x192.png",
       "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
+      "sizes": "192x192"
     },
     {
       "src": "/pwa-512x512.png",
       "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "القوانين والمدونات",
-      "short_name": "القوانين",
-      "description": "تصفح القوانين المغربية",
-      "url": "/ar/laws",
-      "icons": [
-        {
-          "src": "/pwa-192x192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "مباريات المحاماة والقضاء",
-      "short_name": "المباريات",
-      "description": "نماذج واسئلة QCM",
-      "url": "/ar/exams/qcm-practice",
-      "icons": [
-        {
-          "src": "/pwa-192x192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        }
-      ]
+      "purpose": "any maskable"
     }
   ]
 }
