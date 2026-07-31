@@ -27,7 +27,8 @@ import {
   LayoutDashboard,
   Sparkles,
   Search,
-  Check
+  Check,
+  Mail
 } from "lucide-react";
 
 // Security Whitelist for supported languages
@@ -507,7 +508,7 @@ export function Navbar() {
                 : "hover:bg-muted hover:text-primary text-foreground"
             }`}
           >
-            <MailIcon size={16} />
+            <Mail size={16} />
             <span>{lang === "ar" ? "اتصل" : "Contact"}</span>
           </Link>
 
@@ -978,7 +979,7 @@ export function Navbar() {
             </div>
           </div>
         </div>
-      />
+      )}
     </header>
   );
 }
