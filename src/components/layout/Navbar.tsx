@@ -488,42 +488,6 @@ export function Navbar() {
             )}
           </div>
 
-          <Link
-            to={`/${lang}/glossary`}
-            className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 ${
-              isActiveRoute("/glossary")
-                ? "bg-primary/10 text-primary font-bold"
-                : "hover:bg-muted hover:text-primary text-foreground"
-            }`}
-          >
-            <BookOpen size={16} />
-            <span>{lang === "ar" ? "المعجم" : "Glossary"}</span>
-          </Link>
-
-          <Link
-            to={`/${lang}/contact`}
-            className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 ${
-              isActiveRoute("/contact")
-                ? "bg-primary/10 text-primary font-bold"
-                : "hover:bg-muted hover:text-primary text-foreground"
-            }`}
-          >
-            <Mail size={16} />
-            <span>{lang === "ar" ? "اتصل" : "Contact"}</span>
-          </Link>
-
-          <Link
-            to={`/${lang}/legal`}
-            className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 ${
-              isActiveRoute("/legal")
-                ? "bg-primary/10 text-primary font-bold"
-                : "hover:bg-muted hover:text-primary text-foreground"
-            }`}
-          >
-            <Shield size={16} />
-            <span>{lang === "ar" ? "القانونية" : "Legal"}</span>
-          </Link>
-
           {/* Role Protected Badges & Editors */}
           {canWriteContent && (
             <Link
@@ -937,42 +901,6 @@ export function Navbar() {
                 <div className="flex items-center gap-3">
                   <Users size={18} className="text-primary" />
                   <span>{lang === "ar" ? "عن منصة ميزان" : "About Mizan"}</span>
-                </div>
-                {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
-              </Link>
-
-              <Link
-                to={`/${lang}/glossary`}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-between min-h-[48px] px-4 rounded-2xl font-bold text-sm bg-card border border-border/80 text-foreground active:bg-muted transition"
-              >
-                <div className="flex items-center gap-3">
-                  <BookOpen size={18} className="text-primary" />
-                  <span>{lang === "ar" ? "المعجم" : "Glossary"}</span>
-                </div>
-                {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
-              </Link>
-
-              <Link
-                to={`/${lang}/contact`}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-between min-h-[48px] px-4 rounded-2xl font-bold text-sm bg-card border border-border/80 text-foreground active:bg-muted transition"
-              >
-                <div className="flex items-center gap-3">
-                  <LogIn size={18} className="text-primary" />
-                  <span>{lang === "ar" ? "اتصل بنا" : "Contact"}</span>
-                </div>
-                {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
-              </Link>
-
-              <Link
-                to={`/${lang}/legal`}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center justify-between min-h-[48px] px-4 rounded-2xl font-bold text-sm bg-card border border-border/80 text-foreground active:bg-muted transition"
-              >
-                <div className="flex items-center gap-3">
-                  <Shield size={18} className="text-primary" />
-                  <span>{lang === "ar" ? "الصفحات القانونية" : "Legal"}</span>
                 </div>
                 {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
               </Link>

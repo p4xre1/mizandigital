@@ -7,10 +7,7 @@ import {
   GraduationCap,
   Archive,
   Info,
-  Mail,
-  FileText,
   Lock,
-  Cookie,
   ChevronUp,
   Sparkles,
   Server,
@@ -37,8 +34,9 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
   const safeLang = ALLOWED_LANGS.includes(lang) ? lang : "ar";
 
   // Localized route builder
+  // NOTE: every in-app route lives under the /:lang segment (see routes.tsx),
+  // including Arabic — there is no un-prefixed "/" route. Always prefix.
   const l = (path: string) => {
-    if (safeLang === "ar") return path;
     return `/${safeLang}${path === "/" ? "" : path}`;
   };
 
@@ -66,7 +64,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
         "كافة المواد والأحكام المذكورة على منصة ميزان هي لأغراض الأرشيف والبحث الأكاديمي فقط. لا تُعتبر هذه المحتويات استشارة قانونية مهنية ولا تحل محل الاستعانة بمحامٍ أو مستشار قانوني مرخص.",
       menuTitle: "التصفح السريع",
       topicsTitle: "التخصصات القانونية",
-      policiesTitle: "السياسات والامتثال",
       techTitle: "البنية التحتية والتقنيات",
       techDesc:
         "منظومة موثقة معززة بصلاحيات Row Level Security وموزعة عبر شبكة خوادم سحابية طرفية ذات أداء فائق.",
@@ -75,10 +72,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       schools: "كليات الحقوق (FSJES)",
       archive: "الأرشيف الجامعي",
       about: "عن منصة ميزان",
-      contact: "اتصل بنا",
-      privacy: "حماية البيانات والخصوصية",
-      terms: "شروط الاستخدام والاستغلال",
-      cookies: "ملفات الكوكيز والإشعار Legal Notice",
       backToTop: "للأعلى",
       seoKeywords: [
         "القانون المغربي",
@@ -100,7 +93,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
         "Tous les contenus et jurisprudences publiés sur la plateforme Mizan sont destinés exclusivement à la recherche académique et éducative. Ils ne constituent en aucun cas un conseil juridique formel.",
       menuTitle: "Navigation Principale",
       topicsTitle: "Domaines du Droit",
-      policiesTitle: "Politiques & Conformité",
       techTitle: "Infrastructure Technique",
       techDesc:
         "Système sécurisé par des règles RLS Supabase et distribué à travers un réseau mondial Edge ultrarapide.",
@@ -109,10 +101,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       schools: "Facultés de Droit (FSJES)",
       archive: "Archives Universitaires",
       about: "À propos de Mizan",
-      contact: "Contactez-nous",
-      privacy: "Politique de Confidentialité",
-      terms: "Conditions Générales d'Utilisation",
-      cookies: "Mentions Légales & Cookies",
       backToTop: "Haut de page",
       seoKeywords: [
         "Droit Marocain",
@@ -134,7 +122,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
         "All materials and judicial precedents on Mizan Platform are provided solely for academic research and educational purposes. They do not constitute formal legal advice or substitute licensed legal counsel.",
       menuTitle: "Main Navigation",
       topicsTitle: "Legal Domains",
-      policiesTitle: "Policies & Compliance",
       techTitle: "Tech Stack & Infrastructure",
       techDesc:
         "Secured with Supabase Row Level Security (RLS) and accelerated via Cloudflare Global Edge CDN.",
@@ -143,10 +130,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       schools: "Law Faculties (FSJES)",
       archive: "Academic Archive",
       about: "About Mizan",
-      contact: "Contact Us",
-      privacy: "Privacy & Data Protection",
-      terms: "Terms of Service",
-      cookies: "Legal Notice & Cookies",
       backToTop: "Back to top",
       seoKeywords: [
         "Moroccan Law",
@@ -168,7 +151,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
         "Todo el contenido y jurisprudencia publicados en la plataforma Mizan tienen únicamente fines educativos e investigación académica. No constituyen asesoramiento legal formal ni sustituyen a un abogado.",
       menuTitle: "Navegación Principal",
       topicsTitle: "Especialidades Legales",
-      policiesTitle: "Políticas y Cumplimiento",
       techTitle: "Infraestructura Técnica",
       techDesc:
         "Asegurado con políticas RLS de Supabase y distribuido a través de una red global Edge.",
@@ -177,10 +159,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
       schools: "Facultades de Derecho",
       archive: "Archivo Académico",
       about: "Acerca de Mizan",
-      contact: "Contacto",
-      privacy: "Política de Privacidad",
-      terms: "Términos del Servicio",
-      cookies: "Aviso Legal y Cookies",
       backToTop: "Volver arriba",
       seoKeywords: [
         "Derecho Marroquí",
@@ -354,15 +332,6 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
                     <span>{t.about}</span>
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    to={l("/contact")}
-                    className="min-h-[44px] text-slate-300 hover:text-white hover:bg-slate-900/80 px-2.5 rounded-xl transition-all flex items-center gap-2.5 active:scale-95 touch-manipulation text-xs font-semibold"
-                  >
-                    <Mail size={14} className="text-slate-400" />
-                    <span>{t.contact}</span>
-                  </Link>
-                </li>
               </ul>
             </nav>
           </div>
@@ -394,67 +363,28 @@ export function Footer({ lang = "ar", dir = "rtl" }: FooterProps) {
             </ul>
           </div>
 
-          {/* Column 4: Compliance & Policies */}
+          {/* Column 4: Tech Stack & Infrastructure */}
           <div className="space-y-3">
             <h2 className="text-white font-bold text-sm tracking-wide flex items-center gap-2">
               <Lock size={16} className="text-primary" />
-              <span>{t.policiesTitle}</span>
+              <span>{t.techTitle}</span>
             </h2>
-            <nav aria-label={t.policiesTitle}>
-              <ul className="space-y-1">
-                <li>
-                  <Link
-                    to={l("/legal#privacy")}
-                    className="min-h-[44px] text-slate-300 hover:text-white hover:bg-slate-900/80 px-2.5 rounded-xl transition-all flex items-center gap-2.5 active:scale-95 touch-manipulation text-xs font-semibold"
-                  >
-                    <Lock size={14} className="text-emerald-400" />
-                    <span>{t.privacy}</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to={l("/legal#terms")}
-                    className="min-h-[44px] text-slate-300 hover:text-white hover:bg-slate-900/80 px-2.5 rounded-xl transition-all flex items-center gap-2.5 active:scale-95 touch-manipulation text-xs font-semibold"
-                  >
-                    <FileText size={14} className="text-blue-400" />
-                    <span>{t.terms}</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to={l("/legal#cookies")}
-                    className="min-h-[44px] text-slate-300 hover:text-white hover:bg-slate-900/80 px-2.5 rounded-xl transition-all flex items-center gap-2.5 active:scale-95 touch-manipulation text-xs font-semibold"
-                  >
-                    <Cookie size={14} className="text-amber-400" />
-                    <span>{t.cookies}</span>
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-
-            {/* Infrastructure & Security Badges */}
-            <div className="pt-2 space-y-2">
-              <h3 className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-                <Server size={14} className="text-primary" />
-                <span>{t.techTitle}</span>
-              </h3>
-              <p className="text-[11px] text-slate-400 leading-normal">
-                {t.techDesc}
-              </p>
-              <div className="flex flex-wrap gap-1 pt-1">
-                <span className="bg-slate-900 text-slate-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
-                  React 18 / Vite
-                </span>
-                <span className="bg-slate-900 text-emerald-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
-                  Supabase RLS
-                </span>
-                <span className="bg-slate-900 text-amber-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
-                  Cloudflare Edge
-                </span>
-                <span className="bg-slate-900 text-blue-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
-                  TLS 1.3 Strict
-                </span>
-              </div>
+            <p className="text-[11px] text-slate-400 leading-normal">
+              {t.techDesc}
+            </p>
+            <div className="flex flex-wrap gap-1 pt-1">
+              <span className="bg-slate-900 text-slate-300 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
+                React 18 / Vite
+              </span>
+              <span className="bg-slate-900 text-emerald-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
+                Supabase RLS
+              </span>
+              <span className="bg-slate-900 text-amber-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
+                Cloudflare Edge
+              </span>
+              <span className="bg-slate-900 text-blue-400 text-[10px] px-2 py-0.5 rounded-md border border-slate-800 font-mono">
+                TLS 1.3 Strict
+              </span>
             </div>
           </div>
 

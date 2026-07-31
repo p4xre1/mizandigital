@@ -3,8 +3,6 @@
 ### Public Routes
 - `/<lang>` home page for each supported language.
 - `/<lang>/about` about page.
-- `/<lang>/contact` contact page.
-- `/<lang>/legal` legal policy page with privacy, terms, and cookies anchors.
 - `/<lang>/news` news index.
 - `/<lang>/news/:category` categorized news listings.
 - `/<lang>/article/:slug` article detail pages.
@@ -12,8 +10,6 @@
 - `/<lang>/archive` archive resources.
 - `/<lang>/schools` law school directory.
 - `/<lang>/schools/:schoolSlug` school profile pages.
-- `/<lang>/glossary` glossary index.
-- `/<lang>/glossary/:term` term definition pages.
 
 ### Discovery Files
 - `/robots.txt`
@@ -25,4 +21,3 @@
 ### Canonical Guidance
 - Prefer the `www.mizan.page` host.
 - Prefer localized URLs under `ar`, `fr`, `en`, and `es`.
-- Use `/legal` for privacy and terms references.

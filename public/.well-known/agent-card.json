@@ -3,7 +3,7 @@
   "name": "Mizan Digital",
   "alternate_name": "ميزان",
   "url": "https://www.mizan.page",
-  "description": "Moroccan Legal & Academic Intelligence Platform providing structured access to legal codes, jurisprudence, law school directories, public news, and the legal glossary.",
+  "description": "Moroccan Legal & Academic Intelligence Platform providing structured access to legal codes, jurisprudence, law school directories, and public legal news.",
   "version": "1.0.0",
   "provider": {
     "name": "Mizan Digital Platform",
@@ -17,8 +17,8 @@
   },
   "capabilities": {
     "legal_search": {
-      "description": "Search across Moroccan statutes, codes, and legal terms",
-      "endpoint_template": "https://www.mizan.page/{lang}/search?q={query}",
+      "description": "Search across Moroccan statutes, codes, and legal news",
+      "endpoint_template": "https://www.mizan.page/{lang}/news?q={query}",
       "parameters": {
         "lang": ["ar", "fr", "en", "es"],
         "query": "string"
@@ -34,13 +34,11 @@
     },
     "directories": {
       "law_schools": "https://www.mizan.page/ar/schools",
-      "legal_dictionary": "https://www.mizan.page/ar/glossary",
       "archive": "https://www.mizan.page/ar/archive"
     }
   },
   "protocols_supported": ["A2A", "HTTPS", "Sitemap-v0.9"],
   "contact": {
-    "email": "support@mizan.page",
-    "url": "https://www.mizan.page/ar/contact"
+    "email": "support@mizan.page"
   }
 }

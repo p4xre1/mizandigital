@@ -7,11 +7,6 @@ import {
   X,
   Megaphone,
   Lock,
-  Search,
-  FileText,
-  Image as ImageIcon,
-  CheckCircle2,
-  Sparkles,
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { Navbar } from "./Navbar";
@@ -154,7 +149,6 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
         es: "Acceso rápido y seguro a tesis de máster y resoluciones judiciales en PDF e imágenes de alta definición.",
       },
       browse_archive: { ar: "تصفح الأرشيف", fr: "Explorer l'Archive", en: "Browse Archive", es: "Explorar Archivos" },
-      contact_us: { ar: "اتصل بنا", fr: "Contactez-nous", en: "Contact Us", es: "Contáctenos" },
     };
     return dict[key]?.[lang] || key;
   };
@@ -231,15 +225,8 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
       heading: { ar: "المنصة والمؤسسة", fr: "Plateforme & Institution", en: "Platform & Institution", es: "Plataforma e Institución" },
       links: [
         { href: "/about", label: { ar: "عن منصة ميزان", fr: "À Propos de Mizan", en: "About Mizan", es: "Acerca de Mizan" } },
-        { href: "/contact", label: { ar: "تواصل معنا", fr: "Contactez-nous", en: "Contact Us", es: "Contacto" } },
       ],
     },
-  ];
-
-  const legalLinks = [
-    { href: "/legal#privacy", label: { ar: "سياسة الخصوصية", fr: "Confidentialité", en: "Privacy Policy", es: "Privacidad" } },
-    { href: "/legal#terms", label: { ar: "شروط الاستخدام", fr: "Conditions d'Utilisation", en: "Terms of Use", es: "Términos" } },
-    { href: "/legal#cookies", label: { ar: "ملفات الكوكيز", fr: "Cookies", en: "Cookie Policy", es: "Cookies" } },
   ];
 
   return (
@@ -361,12 +348,6 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
               >
                 {t("browse_archive")}
               </Link>
-              <Link
-                to={localizedPath("/contact")}
-                className="flex-1 sm:flex-none min-h-[48px] px-5 py-2.5 flex items-center justify-center text-xs font-bold text-slate-300 hover:text-white bg-slate-800/90 hover:bg-slate-800 rounded-xl border border-slate-700 active:scale-95 transition"
-              >
-                {t("contact_us")}
-              </Link>
             </div>
           </div>
 
@@ -413,22 +394,11 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
             ))}
           </div>
 
-          {/* Copyright & Legal Bar */}
+          {/* Copyright Bar */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2">
               <Lock size={13} className="text-slate-400" />
               <span>&copy; {new Date().getFullYear()} Mizan Page ({SITE_URL}). All rights reserved.</span>
-            </div>
-            <div className="flex flex-wrap items-center gap-4">
-              {legalLinks.map((lnk) => (
-                <Link
-                  key={lnk.href}
-                  to={localizedPath(lnk.href)}
-                  className="hover:text-primary transition-colors"
-                >
-                  {lnk.label[lang]}
-                </Link>
-              ))}
             </div>
           </div>
         </div>

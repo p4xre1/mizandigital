@@ -39,10 +39,10 @@
       ]
     },
     {
-      "name": "المعجم",
-      "short_name": "المعجم",
-      "description": "المصطلحات والتعاريف القانونية",
-      "url": "/ar/glossary",
+      "name": "الأخبار والمستجدات",
+      "short_name": "الأخبار",
+      "description": "آخر المستجدات التشريعية والقضائية",
+      "url": "/ar/news",
       "icons": [
         {
           "src": "/Logo.svg",

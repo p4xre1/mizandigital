@@ -20,13 +20,10 @@ test("sitemap.xml only lists current public route families", () => {
 
   for (const route of [
     "https://www.mizan.page/ar/about",
-    "https://www.mizan.page/ar/contact",
-    "https://www.mizan.page/ar/legal",
     "https://www.mizan.page/ar/news",
     "https://www.mizan.page/ar/library",
     "https://www.mizan.page/ar/archive",
     "https://www.mizan.page/ar/schools",
-    "https://www.mizan.page/ar/glossary",
   ]) {
     assert.ok(sitemap.includes(route), `Expected sitemap to include ${route}`);
   }
@@ -36,6 +33,9 @@ test("sitemap.xml only lists current public route families", () => {
     "/ar/laws",
     "/ar/exams/qcm-practice",
     "/ar/dictionary",
+    "/ar/glossary",
+    "/ar/contact",
+    "/ar/legal",
   ]) {
     assert.ok(!sitemap.includes(legacyRoute), `Expected sitemap to exclude ${legacyRoute}`);
   }
@@ -46,6 +46,16 @@ test("_redirects points old aliases to current routes", () => {
 
   assert.match(redirects, /^\/laws\s+\/ar\/library\s+302$/m);
   assert.match(redirects, /^\/law-schools\s+\/ar\/schools\s+301$/m);
-  assert.match(redirects, /^\/dictionary\s+\/ar\/glossary\s+301$/m);
   assert.match(redirects, /^\/rss\s+\/feed\.xml\s+301$/m);
+});
+
+test("_redirects no longer references removed contact/legal/glossary pages", () => {
+  const redirects = readText("public/_redirects");
+
+  for (const deadTarget of ["/ar/contact", "/ar/legal", "/ar/glossary"]) {
+    assert.ok(
+      !redirects.includes(deadTarget),
+      `Expected _redirects to no longer point at removed route ${deadTarget}`
+    );
+  }
 });

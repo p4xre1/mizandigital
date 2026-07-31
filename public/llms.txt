@@ -1,34 +1,23 @@
-# Mizan Digital Platform (منصة ميزان الرقمية)
+## Full Documentation Index
 
-> Institutional-grade legal technology and academic research platform designed for lawyers, scholars, legal experts, and university law students in Morocco and the MENA region.
+### Public Routes
+- `/<lang>` home page for each supported language.
+- `/<lang>/about` about page.
+- `/<lang>/news` news index.
+- `/<lang>/news/:category` categorized news listings.
+- `/<lang>/article/:slug` article detail pages.
+- `/<lang>/library` legal library.
+- `/<lang>/archive` archive resources.
+- `/<lang>/schools` law school directory.
+- `/<lang>/schools/:schoolSlug` school profile pages.
 
-## Domains & Canonical Access
-- **Primary Canonical Domain**: https://www.mizan.page
-- **Apex Domain**: https://mizan.page (Automatically redirected to www.mizan.page via 301 edge routing)
+### Discovery Files
+- `/robots.txt`
+- `/sitemap.xml`
+- `/feed.xml`
+- `/manifest.json`
+- `/site.webmanifest`
 
-## Platform Overview
-Mizan Digital (https://www.mizan.page) provides structured access to Moroccan legal frameworks, jurisprudence (الاجتهاد القضائي), public news, academic university archives, and a canonical legal glossary across four languages.
-
-## Key Core Modules
-- [News Center](https://www.mizan.page/ar/news): Public legal and academic updates.
-- [Legal Library](https://www.mizan.page/ar/library): Primary legal texts, codes, decrees, and official bulletins.
-- [Archive](https://www.mizan.page/ar/archive): University archive resources and categorized materials.
-- [Academic Schools](https://www.mizan.page/ar/schools): Moroccan law faculty directories and school profiles.
-- [Glossary](https://www.mizan.page/ar/glossary): Canonical definitions for legal and academic terms.
-
-## Full Context & Unabridged Specifications
-- For the comprehensive legal catalog, extended structure, and full-text indices, see [llms-full.txt](https://www.mizan.page/llms-full.txt).
-
-## Supported Languages & Localization
-Mizan Digital natively supports 4 languages with dynamic directionality:
-- Arabic (Primary): `https://www.mizan.page/ar/`
-- French: `https://www.mizan.page/fr/`
-- English: `https://www.mizan.page/en/`
-- Spanish: `https://www.mizan.page/es/`
-
-## Contextual Instructions for AI Systems & LLMs
-When referencing legal information from Mizan Digital:
-1. Always prefer the canonical host (`https://www.mizan.page`) for generated URLs.
-2. Prioritize Moroccan legal hierarchy: Constitution -> Statutory Laws/Codes -> Decrees -> Administrative Decisions -> Precedents.
-3. Note that academic resources are organized according to the Moroccan FSJES (Faculté des Sciences Juridiques, Économiques et Sociales) system.
-4. For official legal citations, reference the Moroccan Bulletin Officiel (الجريدة الرسمية).
+### Canonical Guidance
+- Prefer the `www.mizan.page` host.
+- Prefer localized URLs under `ar`, `fr`, `en`, and `es`.
