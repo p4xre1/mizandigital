@@ -21,7 +21,7 @@
 
 | Category | Technologies Used |
 | :--- | :--- |
-| **Official Domain** | [https://www.mizan.page](https://www.mizan.page) |
+| **Official Domain** | [https://www.mizan.page](https://www.mizan.page) |     
 | **Repository** | [https://github.com/p4xre1/mizandigital](https://github.com/p4xre1/mizandigital) |
 | **Frontend Framework** | React 19, Vite, React Router v6 |
 | **Language & Types** | TypeScript 5 (Strict Mode enabled) |
