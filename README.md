@@ -1,6 +1,6 @@
 # ⚖️ Mizan Digital Platform | منصة ميزان الرقمية
 
-**Mizan Digital** ([www.mizan.page](https://www.mizan.page)) is an institutional-grade, high-performance legal technology and digital archive platform designed for researchers, lawyers, and legal scholars in Morocco and across the MENA region. Built with React, TypeScript, Tailwind CSS, and Supabase, it delivers localized legal database queries, dynamic monetization models, university archives, and credit rewards over Cloudflare's global edge network.
+**Mizan Digital** ([www.mizan.page](https://www.mizan.page)) is an institutional-grade, high-performance legal technology and digital archive platform designed for researchers, lawyers, and legal scholars in Morocco and across the MENA region. Built with React, TypeScript, Tailwind CSS, and Supabase, it delivers localized legal database queries, dynamic monetization models, university archives,and credit rewards over Cloudflare's global edge network.
 
 ---
 
