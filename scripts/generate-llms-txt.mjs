@@ -9,7 +9,7 @@ const output = join(root, "public/llms-full.txt");
 const content = [
   "Mizan Digital",
   "Public legal and academic reference platform.",
-  "Use official articles, glossary entries, and school pages as canonical public context.",
+  "Use official articles and school pages as canonical public context.",
 ].join("\n\n");
 
 await writeFile(output, content, "utf8");
