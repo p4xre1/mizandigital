@@ -260,7 +260,7 @@ export function OfflineIndicator() {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await fetch(`${VITE_SITE_URL}/favicon.ico?cache=${Date.now()}`, {
+      const response = await fetch(`${VITE_SITE_URL}/Logo.svg?cache=${Date.now()}`, {
         method: "HEAD",
         mode: "no-cors",
         signal: controller.signal,

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Mizan Digital Feed</title>
+    <link>https://www.mizan.page/ar/news</link>
+    <description>Public news and legal updates from Mizan Digital.</description>
+    <language>ar-MA</language>
+    <lastBuildDate>Thu, 31 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <item>
+      <title>Mizan Digital</title>
+      <link>https://www.mizan.page/ar</link>
+      <description>Canonical public landing page for the platform.</description>
+    </item>
+  </channel>
+</rss>

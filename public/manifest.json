@@ -22,24 +22,6 @@
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
-    },
-    {
-      "src": "/pwa-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -47,25 +29,25 @@
       "name": "القوانين والمدونات",
       "short_name": "القوانين",
       "description": "تصفح القوانين المغربية",
-      "url": "/ar/laws",
+      "url": "/ar/library",
       "icons": [
         {
-          "src": "/pwa-192x192.png",
-          "type": "image/png",
-          "sizes": "192x192"
+          "src": "/Logo.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
         }
       ]
     },
     {
-      "name": "مباريات المحاماة والقضاء",
-      "short_name": "المباريات",
-      "description": "نماذج واسئلة QCM",
-      "url": "/ar/exams/qcm-practice",
+      "name": "المعجم",
+      "short_name": "المعجم",
+      "description": "المصطلحات والتعاريف القانونية",
+      "url": "/ar/glossary",
       "icons": [
         {
-          "src": "/pwa-192x192.png",
-          "type": "image/png",
-          "sizes": "192x192"
+          "src": "/Logo.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
         }
       ]
     }

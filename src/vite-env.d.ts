@@ -17,8 +17,8 @@ interface ImportMetaEnv {
   /** Supabase Anonymous / Publishable API Key */
   readonly VITE_SUPABASE_ANON_KEY: string;
 
-  /** Google AdSense Client / Publisher ID */
-  readonly VITE_GOOGLE_ADSENSE_CLIENT_ID?: string;
+  /** Google AdSense Client / Publisher ID (e.g. ca-pub-1749032173858747) */
+  readonly VITE_ADSENSE_CLIENT_ID?: string;
 
   /** Google Tag Manager Container ID */
   readonly VITE_GTM_ID?: string;
@@ -29,24 +29,15 @@ interface ImportMetaEnv {
   /** Cloudflare Turnstile CAPTCHA Site Key */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
 
-  // ── Cloudflare R2 Storage Configuration ──────────────────────────────────
-  /** Cloudflare Account ID for R2 S3 Client Endpoint */
-  readonly VITE_R2_ACCOUNT_ID?: string;
-
-  /** Cloudflare R2 Access Key ID */
-  readonly VITE_R2_ACCESS_KEY_ID?: string;
-
-  /** Cloudflare R2 Secret Access Key */
-  readonly VITE_R2_SECRET_ACCESS_KEY?: string;
-
+  // ── Cloudflare R2 Public Configuration ──────────────────────────────────
   /** Custom Domain or Public URL for R2 objects (e.g., https://cdn.mizan.page) */
   readonly VITE_R2_PUBLIC_URL?: string;
 
   /** Target Cloudflare R2 Bucket Name (e.g., mizan-storage) */
   readonly VITE_R2_BUCKET_NAME?: string;
 
-  // ⚠️ تم استبعاد VITE_ADMIN_USER و VITE_ADMIN_PASS عمداً لأسباب أمنية
-  // يجب عليك إزالة VITE_ من أسمائها في ملف .env حتى لا تتسرب للعموم.
+  // ⚠️ تم استبعاد VITE_ADMIN_USER و VITE_ADMIN_PASS و R2_SECRET_ACCESS_KEY عمداً لأسباب أمنية.
+  // لا تقم بوضع VITE_ قبل مفاتيح Secret Key أو Admin حتى لا تتسرب لمتصفح المستخدم.
 }
 
 interface ImportMeta {

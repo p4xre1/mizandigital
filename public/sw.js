@@ -2,8 +2,8 @@ const CACHE_NAME = "mizan-pwa-v3";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
+  "/manifest.json",
   "/site.webmanifest",
-  "/favicon.ico",
   "/Logo.svg"
 ];
 

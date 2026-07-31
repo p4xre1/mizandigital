@@ -221,7 +221,7 @@ export default function ArticlesList() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
                     <Calendar size={13} />
-                    {article.updated || "2026"}
+                    {article.updated_at ? new Date(article.updated_at).getFullYear() : new Date(article.created_at).getFullYear()}
                   </span>
                   <span className="flex items-center gap-1">
                     <Eye size={13} />

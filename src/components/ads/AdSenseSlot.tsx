@@ -1,3 +1,30 @@
+import React, { useEffect, useRef } from "react";
+
+// Extend global Window type for AdSense script
+declare global {
+  interface Window {
+    adsbygoogle: Array<Record<string, unknown>>;
+  }
+}
+
+// Default constants preventing ReferenceErrors
+const DEFAULT_CLIENT_ID =
+  import.meta.env.VITE_ADSENSE_CLIENT_ID || "ca-pub-1749032173858747";
+
+const TEST_SLOT_IDS = new Set<string>([
+  "1234567890",
+  "0000000000",
+  "xxxxxxxxxx",
+]);
+
+export interface AdSenseProps {
+  slotId: string;
+  adClient?: string;
+  format?: string;
+  responsive?: boolean;
+  className?: string;
+}
+
 export const AdSenseSlot = ({
   slotId,
   adClient = DEFAULT_CLIENT_ID,
@@ -17,8 +44,7 @@ export const AdSenseSlot = ({
         window.location.hostname.includes("127.0.0.1") ||
         TEST_SLOT_IDS.has(slotId)));
 
-  // Reset initialization flag synchronously (before render commits/paints)
-  // whenever slotId changes, so the push effect below sees the fresh value.
+  // Synchronously reset the initialization flag on slot change
   if (prevSlotId.current !== slotId) {
     isInitialized.current = false;
     prevSlotId.current = slotId;

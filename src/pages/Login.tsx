@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Scale, Mail, ShieldAlert, Sparkles } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "../lib/supabase";
 import { useI18n, useLocalizedPath, serifFont, sansFont } from "../lib/i18n";
@@ -18,9 +18,11 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { lang, dir, t } = useI18n();
   const localizedPath = useLocalizedPath();
+  const isRegisterRoute = location.pathname.endsWith("/register");
 
   const titleKeyMap: Record<AuthTab, string> = {
     login: "login",
@@ -33,10 +35,10 @@ export default function Login() {
     {
       title: t(titleKeyMap[tab]),
       description: "منصة ميزان — المجلة القانونية الرقمية",
-      path: "/login",
+      path: location.pathname,
       lang,
     },
-    [lang, tab, t]
+    [lang, tab, t, location.pathname]
   );
 
   // Clear messages when switching tabs
@@ -45,6 +47,12 @@ export default function Login() {
     setSuccess("");
   }, [tab]);
 
+  useEffect(() => {
+    if (isRegisterRoute) {
+      setTab("signup");
+    }
+  }, [isRegisterRoute]);
+
   // Auth State Listener & Automatic Redirect
   useEffect(() => {
     if (!isSupabaseConfigured) return;
@@ -52,7 +60,7 @@ export default function Login() {
     // Check existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate(localizedPath("/dashboard"));
+        navigate(localizedPath("/profile"));
       }
     });
 
@@ -65,7 +73,7 @@ export default function Login() {
         setError("");
         setSuccess("");
       } else if (event === "SIGNED_IN" && session) {
-        navigate(localizedPath("/dashboard"));
+        navigate(localizedPath("/profile"));
       }
     });
 
@@ -296,14 +304,14 @@ export default function Login() {
             <>
               بالمتابعة، توافق على{" "}
               <Link
-                to={localizedPath("/legal/terms")}
+                to={localizedPath("/legal#terms")}
                 className="text-primary hover:underline font-medium"
               >
                 شروط الاستخدام
               </Link>{" "}
               و{" "}
               <Link
-                to={localizedPath("/legal/privacy")}
+                to={localizedPath("/legal#privacy")}
                 className="text-primary hover:underline font-medium"
               >
                 سياسة الخصوصية
@@ -314,14 +322,14 @@ export default function Login() {
             <>
               En continuant, vous acceptez nos{" "}
               <Link
-                to={localizedPath("/legal/terms")}
+                to={localizedPath("/legal#terms")}
                 className="text-primary hover:underline font-medium"
               >
                 Conditions d'utilisation
               </Link>{" "}
               et notre{" "}
               <Link
-                to={localizedPath("/legal/privacy")}
+                to={localizedPath("/legal#privacy")}
                 className="text-primary hover:underline font-medium"
               >
                 Politique de confidentialité
@@ -332,14 +340,14 @@ export default function Login() {
             <>
               By continuing, you agree to our{" "}
               <Link
-                to={localizedPath("/legal/terms")}
+                to={localizedPath("/legal#terms")}
                 className="text-primary hover:underline font-medium"
               >
                 Terms of Use
               </Link>{" "}
               and{" "}
               <Link
-                to={localizedPath("/legal/privacy")}
+                to={localizedPath("/legal#privacy")}
                 className="text-primary hover:underline font-medium"
               >
                 Privacy Policy
@@ -350,14 +358,14 @@ export default function Login() {
             <>
               Al continuar, acepta nuestros{" "}
               <Link
-                to={localizedPath("/legal/terms")}
+                to={localizedPath("/legal#terms")}
                 className="text-primary hover:underline font-medium"
               >
                 Términos de uso
               </Link>{" "}
               y nuestra{" "}
               <Link
-                to={localizedPath("/legal/privacy")}
+                to={localizedPath("/legal#privacy")}
                 className="text-primary hover:underline font-medium"
               >
                 Política de privacidad

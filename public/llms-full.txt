@@ -1,2 +1,28 @@
 ## Full Documentation Index
-For the complete index of legal modules, legal terminology, and system mappings, see [llms-full.txt](https://www.mizan.page/llms-full.txt).
+
+### Public Routes
+- `/<lang>` home page for each supported language.
+- `/<lang>/about` about page.
+- `/<lang>/contact` contact page.
+- `/<lang>/legal` legal policy page with privacy, terms, and cookies anchors.
+- `/<lang>/news` news index.
+- `/<lang>/news/:category` categorized news listings.
+- `/<lang>/article/:slug` article detail pages.
+- `/<lang>/library` legal library.
+- `/<lang>/archive` archive resources.
+- `/<lang>/schools` law school directory.
+- `/<lang>/schools/:schoolSlug` school profile pages.
+- `/<lang>/glossary` glossary index.
+- `/<lang>/glossary/:term` term definition pages.
+
+### Discovery Files
+- `/robots.txt`
+- `/sitemap.xml`
+- `/feed.xml`
+- `/manifest.json`
+- `/site.webmanifest`
+
+### Canonical Guidance
+- Prefer the `www.mizan.page` host.
+- Prefer localized URLs under `ar`, `fr`, `en`, and `es`.
+- Use `/legal` for privacy and terms references.

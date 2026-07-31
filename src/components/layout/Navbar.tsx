@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
-import { AuthModal } from "@/components/auth/AuthModal";
 import type { Lang } from "@/lib/i18n";
 import {
   User,
@@ -95,8 +94,6 @@ export function Navbar() {
 
   const langRef = useRef<HTMLDivElement>(null);
 
-  // Authentication State
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string; avatar?: string } | null>(null);
 
   // Safe Google AdSense Initializer (Military-Grade Fault Tolerance)
@@ -490,6 +487,42 @@ export function Navbar() {
             )}
           </div>
 
+          <Link
+            to={`/${lang}/glossary`}
+            className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 ${
+              isActiveRoute("/glossary")
+                ? "bg-primary/10 text-primary font-bold"
+                : "hover:bg-muted hover:text-primary text-foreground"
+            }`}
+          >
+            <BookOpen size={16} />
+            <span>{lang === "ar" ? "المعجم" : "Glossary"}</span>
+          </Link>
+
+          <Link
+            to={`/${lang}/contact`}
+            className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 ${
+              isActiveRoute("/contact")
+                ? "bg-primary/10 text-primary font-bold"
+                : "hover:bg-muted hover:text-primary text-foreground"
+            }`}
+          >
+            <MailIcon size={16} />
+            <span>{lang === "ar" ? "اتصل" : "Contact"}</span>
+          </Link>
+
+          <Link
+            to={`/${lang}/legal`}
+            className={`px-3 py-2 rounded-xl transition-colors flex items-center gap-1.5 ${
+              isActiveRoute("/legal")
+                ? "bg-primary/10 text-primary font-bold"
+                : "hover:bg-muted hover:text-primary text-foreground"
+            }`}
+          >
+            <Shield size={16} />
+            <span>{lang === "ar" ? "القانونية" : "Legal"}</span>
+          </Link>
+
           {/* Role Protected Badges & Editors */}
           {canWriteContent && (
             <Link
@@ -585,13 +618,22 @@ export function Navbar() {
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => setIsAuthOpen(true)}
-              className="px-4 py-2 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
-            >
-              <LogIn size={14} />
-              <span>{lang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to={`/${lang}/register`}
+                className="px-4 py-2 text-xs font-bold bg-muted hover:bg-muted/80 text-foreground rounded-xl border border-border transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <User size={14} />
+                <span>{lang === "ar" ? "حساب جديد" : "Register"}</span>
+              </Link>
+              <Link
+                to={`/${lang}/login`}
+                className="px-4 py-2 text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl shadow-xs transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+              >
+                <LogIn size={14} />
+                <span>{lang === "ar" ? "تسجيل الدخول" : "Sign In"}</span>
+              </Link>
+            </div>
           )}
         </div>
 
@@ -618,13 +660,22 @@ export function Navbar() {
               <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full ring-2 ring-background" />
             </Link>
           ) : (
-            <button
-              onClick={() => setIsAuthOpen(true)}
-              className="min-h-[44px] px-3.5 text-xs font-bold bg-primary text-primary-foreground rounded-xl active:scale-95 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
-            >
-              <LogIn size={15} />
-              <span>{lang === "ar" ? "دخول" : "Sign In"}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                to={`/${lang}/register`}
+                className="min-h-[44px] px-3.5 text-xs font-bold bg-muted text-foreground rounded-xl border border-border active:scale-95 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <User size={15} />
+                <span>{lang === "ar" ? "جديد" : "Register"}</span>
+              </Link>
+              <Link
+                to={`/${lang}/login`}
+                className="min-h-[44px] px-3.5 text-xs font-bold bg-primary text-primary-foreground rounded-xl active:scale-95 transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <LogIn size={15} />
+                <span>{lang === "ar" ? "دخول" : "Sign In"}</span>
+              </Link>
+            </div>
           )}
 
           {/* Mobile Menu Drawer Toggle */}
@@ -888,18 +939,45 @@ export function Navbar() {
                 </div>
                 {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
               </Link>
+
+              <Link
+                to={`/${lang}/glossary`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-between min-h-[48px] px-4 rounded-2xl font-bold text-sm bg-card border border-border/80 text-foreground active:bg-muted transition"
+              >
+                <div className="flex items-center gap-3">
+                  <BookOpen size={18} className="text-primary" />
+                  <span>{lang === "ar" ? "المعجم" : "Glossary"}</span>
+                </div>
+                {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
+              </Link>
+
+              <Link
+                to={`/${lang}/contact`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-between min-h-[48px] px-4 rounded-2xl font-bold text-sm bg-card border border-border/80 text-foreground active:bg-muted transition"
+              >
+                <div className="flex items-center gap-3">
+                  <LogIn size={18} className="text-primary" />
+                  <span>{lang === "ar" ? "اتصل بنا" : "Contact"}</span>
+                </div>
+                {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
+              </Link>
+
+              <Link
+                to={`/${lang}/legal`}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-between min-h-[48px] px-4 rounded-2xl font-bold text-sm bg-card border border-border/80 text-foreground active:bg-muted transition"
+              >
+                <div className="flex items-center gap-3">
+                  <Shield size={18} className="text-primary" />
+                  <span>{lang === "ar" ? "الصفحات القانونية" : "Legal"}</span>
+                </div>
+                {dir === "rtl" ? <ArrowLeft size={16} className="text-muted-foreground" /> : <ArrowRight size={16} className="text-muted-foreground" />}
+              </Link>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Auth Modal Modal Component */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        lang={lang}
-        dir={dir}
-        onSuccess={loadUser}
       />
     </header>
   );

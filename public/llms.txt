@@ -7,13 +7,14 @@
 - **Apex Domain**: https://mizan.page (Automatically redirected to www.mizan.page via 301 edge routing)
 
 ## Platform Overview
-Mizan Digital (https://www.mizan.page) provides structured access to Moroccan legal frameworks, jurisprudence (الاجتهاد القضائي), official gazettes (الجريدة الرسمية), and academic university archives across all 6 semesters (S1–S6).
+Mizan Digital (https://www.mizan.page) provides structured access to Moroccan legal frameworks, jurisprudence (الاجتهاد القضائي), public news, academic university archives, and a canonical legal glossary across four languages.
 
 ## Key Core Modules
-- [Academic Archive](https://www.mizan.page/ar/law-schools): Moroccan law faculty archives (FSJES) categorized by university, semester (S1 to S6), and module.
-- [Legal Library](https://www.mizan.page/ar/laws): Primary legal texts, codes (Moudawana, Code Pénal, DOC), decrees, and official bulletins.
-- [Jurisprudence & Rulings](https://www.mizan.page/ar/jurisprudence): Supreme Court decisions, appellate rulings, and precedent legal cases in Morocco.
-- [Legal Exams & Practice](https://www.mizan.page/ar/exams/qcm-practice): QCM training modules for the Bar Exam (الأهلية لممارسة المحاماة) and judicial competitions.
+- [News Center](https://www.mizan.page/ar/news): Public legal and academic updates.
+- [Legal Library](https://www.mizan.page/ar/library): Primary legal texts, codes, decrees, and official bulletins.
+- [Archive](https://www.mizan.page/ar/archive): University archive resources and categorized materials.
+- [Academic Schools](https://www.mizan.page/ar/schools): Moroccan law faculty directories and school profiles.
+- [Glossary](https://www.mizan.page/ar/glossary): Canonical definitions for legal and academic terms.
 
 ## Full Context & Unabridged Specifications
 - For the comprehensive legal catalog, extended structure, and full-text indices, see [llms-full.txt](https://www.mizan.page/llms-full.txt).

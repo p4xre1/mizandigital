@@ -88,10 +88,14 @@ const ArticleDetail = lazyNamed(() => import("@/pages/ArticleDetail"));
 const Library = lazyNamed(() => import("@/pages/Library"));
 const Archive = lazyNamed(() => import("@/pages/Archive"));
 const Login = lazyNamed(() => import("@/pages/Login"));
+const Contact = lazyNamed(() => import("@/pages/Contact"));
+const Legal = lazyNamed(() => import("@/pages/Legal"));
 const Profile = lazyNamed(() => import("@/pages/Profile"));
 const CourtRulingsCategory = lazyNamed(
   () => import("@/pages/CourtRulingsCategory")
 );
+const GlossaryIndex = lazyNamed(() => import("@/pages/glossary/index"));
+const GlossaryTermPage = lazyNamed(() => import("@/pages/glossary/[term]"));
 const NotFound = lazyNamed(() => import("@/pages/NotFound"));
 
 // Fields
@@ -339,7 +343,10 @@ export const router = createBrowserRouter([
 
       // Static Public Pages
       { path: "about", element: <About /> },
+      { path: "contact", element: <Contact /> },
+      { path: "legal", element: <Legal /> },
       { path: "login", element: <Login /> },
+      { path: "register", element: <Login /> },
 
       // User Profile (Protected)
       {
@@ -355,6 +362,10 @@ export const router = createBrowserRouter([
       { path: "news", element: <ArticlesList /> },
       { path: "news/:category", element: <ArticlesList /> },
       { path: "article/:slug", element: <ArticleDetail /> },
+
+      // Glossary
+      { path: "glossary", element: <GlossaryIndex /> },
+      { path: "glossary/:term", element: <GlossaryTermPage /> },
 
       // Legal Library, Archives & Categories
       { path: "library", element: <Library /> },

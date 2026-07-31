@@ -1,0 +1,11 @@
+name: geo-audit
+
+on:
+  pull_request:
+
+jobs:
+  geo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/generate-llms-txt.mjs

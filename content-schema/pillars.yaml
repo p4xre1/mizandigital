@@ -1,0 +1,8 @@
+version: 1
+pillars:
+  - slug: schools-law
+    label: Schools and Law
+  - slug: school-directory
+    label: School Directory
+  - slug: news-legal
+    label: Legal News

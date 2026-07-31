@@ -283,7 +283,7 @@ export const COURT_RULINGS_AND_DOCTRINE: SectionCategory[] = [
             en: ["Court of Cassation photo", "Moroccan Judicial emblem", "Official legal records"],
             es: ["Foto Tribunal de Casación", "Emblema judicial de Marruecos", "Archivos legales oficiales"],
           },
-          license: "https://www.mizan.page/terms/media-license",
+          license: `${VITE_SITE_URL}/legal#terms`,
         },
         sampleFiles: [
           {
@@ -358,7 +358,7 @@ export const COURT_RULINGS_AND_DOCTRINE: SectionCategory[] = [
             en: ["Appellate decisions", "Judicial circuits", "Court of appeal photo"],
             es: ["Fallos de apelación", "Distritos judiciales", "Foto tribunal de apelación"],
           },
-          license: "https://www.mizan.page/terms/media-license",
+          license: `${VITE_SITE_URL}/legal#terms`,
         },
         sampleFiles: [
           {
@@ -433,7 +433,7 @@ export const COURT_RULINGS_AND_DOCTRINE: SectionCategory[] = [
             en: ["Administrative Court photo", "Administrative litigation Morocco", "State disputes"],
             es: ["Foto Tribunal Administrativo", "Litigio administrativo Marruecos", "Disputas del Estado"],
           },
-          license: "https://www.mizan.page/terms/media-license",
+          license: `${VITE_SITE_URL}/legal#terms`,
         },
         sampleFiles: [
           {
@@ -529,7 +529,7 @@ export const COURT_RULINGS_AND_DOCTRINE: SectionCategory[] = [
             en: ["Legal research", "Academic paper", "Law study photo"],
             es: ["Investigación jurídica", "Artículo académico", "Foto estudio de derecho"],
           },
-          license: "https://www.mizan.page/terms/media-license",
+          license: `${VITE_SITE_URL}/legal#terms`,
         },
         sampleFiles: [
           {
@@ -604,7 +604,7 @@ export const COURT_RULINGS_AND_DOCTRINE: SectionCategory[] = [
             en: ["Case breakdown", "Ruling analysis", "Law commentary photo"],
             es: ["Análisis de sentencia", "Comentario judicial", "Foto análisis legal"],
           },
-          license: "https://www.mizan.page/terms/media-license",
+          license: `${VITE_SITE_URL}/legal#terms`,
         },
         sampleFiles: [
           {
@@ -679,7 +679,7 @@ export const COURT_RULINGS_AND_DOCTRINE: SectionCategory[] = [
             en: ["Comparative law", "International research", "Comparative law photo"],
             es: ["Derecho comparado", "Estudios internacionales", "Foto derecho comparado"],
           },
-          license: "https://www.mizan.page/terms/media-license",
+          license: `${VITE_SITE_URL}/legal#terms`,
         },
         sampleFiles: [
           {
@@ -802,7 +802,7 @@ export function generateCourtMasterSeoJSONLD(lang: SupportedLang = "ar"): string
     "description": sub.image.alt[safeLang],
     "keywords": sub.image.keywords[safeLang].join(", "),
     "license": sub.image.license,
-    "acquireLicensePage": `${VITE_SITE_URL}/terms/licensing`,
+    "acquireLicensePage": `${VITE_SITE_URL}/legal#terms`,
   }));
 
   // 2. Document Schemas for Google PDF / Document Search

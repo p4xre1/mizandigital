@@ -13,6 +13,8 @@ User-agent: *
 Allow: /
 Allow: /.well-known/
 Allow: /sitemap.xml
+Allow: /feed.xml
+Allow: /manifest.json
 
 # 🚫 Admin & Dashboard Interfaces
 Disallow: /admin

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, User, ShieldAlert } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { trackEvent } from "@/lib/analytics";
@@ -436,13 +437,13 @@ export function SignupForm({
               className="text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none"
           >
             {t.termsAgree}
-            <a href={localizedPath("/about")} className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+            <Link to={localizedPath("/legal#terms")} className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
               {t.terms}
-            </a>
+            </Link>
             {t.and}
-            <a href={localizedPath("/about")} className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+            <Link to={localizedPath("/legal#privacy")} className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
               {t.privacy}
-            </a>
+            </Link>
             .
           </label>
         </div>

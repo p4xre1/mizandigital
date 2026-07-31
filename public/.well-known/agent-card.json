@@ -3,7 +3,7 @@
   "name": "Mizan Digital",
   "alternate_name": "ميزان",
   "url": "https://www.mizan.page",
-  "description": "Moroccan Legal & Academic Intelligence Platform providing structured access to legal codes (Moudawana, Code Pénal, Code du Travail), jurisprudence, law faculty directories, and legal dictionaries.",
+  "description": "Moroccan Legal & Academic Intelligence Platform providing structured access to legal codes, jurisprudence, law school directories, public news, and the legal glossary.",
   "version": "1.0.0",
   "provider": {
     "name": "Mizan Digital Platform",
@@ -25,16 +25,16 @@
       }
     },
     "key_databases": {
-      "moudawana": "https://www.mizan.page/ar/laws/code-de-la-famille",
-      "code_penal": "https://www.mizan.page/ar/laws/code-penal",
-      "code_du_travail": "https://www.mizan.page/ar/laws/code-du-travail",
-      "code_de_commerce": "https://www.mizan.page/ar/laws/code-de-commerce",
-      "procedure_civile": "https://www.mizan.page/ar/laws/procedure-civile",
-      "procedure_penale": "https://www.mizan.page/ar/laws/procedure-penale"
+      "moudawana": "https://www.mizan.page/ar/library",
+      "code_penal": "https://www.mizan.page/ar/library",
+      "code_du_travail": "https://www.mizan.page/ar/library",
+      "code_de_commerce": "https://www.mizan.page/ar/library",
+      "procedure_civile": "https://www.mizan.page/ar/library",
+      "procedure_penale": "https://www.mizan.page/ar/library"
     },
     "directories": {
-      "law_schools": "https://www.mizan.page/ar/law-schools",
-      "legal_dictionary": "https://www.mizan.page/ar/dictionary",
+      "law_schools": "https://www.mizan.page/ar/schools",
+      "legal_dictionary": "https://www.mizan.page/ar/glossary",
       "archive": "https://www.mizan.page/ar/archive"
     }
   },

@@ -1,0 +1,12 @@
+name: dependency-audit
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pnpm audit --prod

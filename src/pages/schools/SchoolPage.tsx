@@ -82,7 +82,7 @@ export default function SchoolPage() {
       <SEOHead
         title={`${schoolName} | ميزان الرقمية`}
         description={schoolDesc}
-        canonical={`https://mizandigital.ma/${currentLang}/schools/${school.slug}`}
+        canonical={`https://www.mizan.page/${currentLang}/schools/${school.slug}`}
       />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
