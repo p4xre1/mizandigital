@@ -197,11 +197,17 @@ export default function AdminLogin() {
     setSubmitting(true);
 
     try {
-      // 4. Check Environment Fallback Credentials
-      const envAuthSuccess = adminLogin(cleanIdentity, cleanPass);
-      if (envAuthSuccess) {
+      // 4. Accept the local CMS admin credentials before trying Supabase.
+      // This avoids sending the built-in username/password to the password grant endpoint.
+      const localAuthSuccess = adminLogin(cleanIdentity, cleanPass);
+      if (localAuthSuccess) {
         setSubmitting(false);
         navigate(`/${lang}/admin`);
+        return;
+      }
+
+      if (!cleanIdentity.includes("@")) {
+        setError(t.authFailedErr);
         return;
       }
 
