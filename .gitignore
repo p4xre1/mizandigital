@@ -17,9 +17,23 @@ out/
 # ── 🔐 Environment & Secret Files ──
 .env
 .env.local
+.env.*
 .env.development.local
 .env.test.local
 .env.production.local
+.envrc
+.envrc.local
+.env.bak
+.env.backup
+.env.old
+*.env
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+.secrets/
 !.env.example
 
 # ── 📋 Logs & Temporary Files ──

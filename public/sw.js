@@ -1,10 +1,13 @@
-const CACHE_NAME = "mizan-pwa-v3";
+const CACHE_NAME = "mizan-pwa-v4";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
   "/manifest.json",
   "/site.webmanifest",
-  "/Logo.svg"
+  "/Logo.svg",
+  "/robots.txt",
+  "/feed.xml",
+  "/sitemap.xml"
 ];
 
 // Install Service Worker

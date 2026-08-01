@@ -39,6 +39,7 @@ function getLabel(key: keyof typeof LABELS, lang: Lang): string {
 export default function ArticleEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const localizedAdminPath = useI18n().getLocalizedPath?.();
   const { lang, dir } = useI18n();
   const cms = useCms();
 
@@ -110,7 +111,7 @@ export default function ArticleEditor() {
       await saveArticle(articleData);
       setStatusMsg({ type: "success", text: getLabel("savedSuccess", lang) });
       setTimeout(() => {
-        navigate("/admin/articles");
+        navigate(`/${lang}/admin/articles`);
       }, 1200);
     } catch {
       setStatusMsg({ type: "error", text: "Failed to save article." });
@@ -200,10 +201,11 @@ export default function ArticleEditor() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Title */}
             <div className="md:col-span-2 space-y-2">
-              <label className="text-xs font-bold uppercase text-muted-foreground">
+              <label htmlFor="article-title" className="text-xs font-bold uppercase text-muted-foreground">
                 {getLabel("articleTitle", lang)} *
               </label>
               <input
+                id="article-title"
                 type="text"
                 value={title}
                 onChange={handleTitleChange}
@@ -214,10 +216,11 @@ export default function ArticleEditor() {
 
             {/* Category */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-muted-foreground">
+              <label htmlFor="article-category" className="text-xs font-bold uppercase text-muted-foreground">
                 {getLabel("category", lang)}
               </label>
               <input
+                id="article-category"
                 type="text"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -229,11 +232,12 @@ export default function ArticleEditor() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Slug */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-1">
+              <label htmlFor="article-slug" className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-1">
                 <Globe size={14} />
                 {getLabel("slug", lang)}
               </label>
               <input
+                id="article-slug"
                 type="text"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
@@ -243,11 +247,12 @@ export default function ArticleEditor() {
 
             {/* Cover Image */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-1">
+              <label htmlFor="article-cover-image" className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-1">
                 <ImageIcon size={14} />
                 {getLabel("coverImage", lang)}
               </label>
               <input
+                id="article-cover-image"
                 type="url"
                 value={coverImage}
                 onChange={(e) => setCoverImage(e.target.value)}
@@ -259,10 +264,11 @@ export default function ArticleEditor() {
 
           {/* Excerpt */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase text-muted-foreground">
+            <label htmlFor="article-excerpt" className="text-xs font-bold uppercase text-muted-foreground">
               {getLabel("excerpt", lang)}
             </label>
             <textarea
+              id="article-excerpt"
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               rows={2}
@@ -273,10 +279,11 @@ export default function ArticleEditor() {
 
           {/* Body Content */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase text-muted-foreground">
+            <label htmlFor="article-content" className="text-xs font-bold uppercase text-muted-foreground">
               {getLabel("content", lang)}
             </label>
             <textarea
+              id="article-content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={14}

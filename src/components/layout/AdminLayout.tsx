@@ -95,15 +95,16 @@ interface SideLinksProps {
   onLinkClick?: () => void;
   lang: Lang;
   t: (key: string) => string;
+  localizedPath: ReturnType<typeof useLocalizedPath>;
 }
 
-function SideLinks({ onLinkClick, lang, t }: SideLinksProps) {
+function SideLinks({ onLinkClick, lang, t, localizedPath }: SideLinksProps) {
   const roleFlags = useRole();
 
   // Filter navigation items based on current role permissions
   const visibleNav = NAV.filter(
     (item) => !item.isAllowed || item.isAllowed(roleFlags)
-  );
+  ).map((item) => ({ ...item, to: localizedPath(item.to) }));
 
   return (
     <nav aria-label="Admin Navigation" className="space-y-1.5 select-none">
@@ -251,7 +252,7 @@ export function AdminLayout() {
             </button>
 
             <Link
-              to="/admin"
+                to={localizedPath("/admin")}
               className="flex items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-primary rounded-xl p-1 shrink-0 active:scale-98 transition-transform"
             >
               <div
@@ -347,7 +348,7 @@ export function AdminLayout() {
                   <div className="py-1">
                     {(roleFlags.canManageUsers || roleFlags.isMarketer) && (
                       <Link
-                        to="/admin/seo"
+                        to={localizedPath("/admin/seo")}
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-foreground/80 hover:text-foreground hover:bg-muted transition-colors min-h-[40px] touch-manipulation"
                         role="menuitem"
@@ -359,7 +360,7 @@ export function AdminLayout() {
 
                     {(roleFlags.isSecurityAdmin || roleFlags.isRoot) && (
                       <Link
-                        to="/admin/security"
+                        to={localizedPath("/admin/security")}
                         onClick={() => setProfileOpen(false)}
                         className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-foreground/80 hover:text-foreground hover:bg-muted transition-colors min-h-[40px] touch-manipulation"
                         role="menuitem"
@@ -392,7 +393,7 @@ export function AdminLayout() {
       <div className="flex flex-1 max-w-[1600px] w-full mx-auto">
         {/* Desktop Sidebar Navigation */}
         <aside className="hidden lg:block w-64 shrink-0 border-e border-border bg-card p-4 space-y-6">
-          <SideLinks lang={lang} t={t} />
+          <SideLinks lang={lang} t={t} localizedPath={localizedPath} />
 
           {/* CMS Google AdSense Ad Slot Placeholder */}
           <div className="pt-4 border-t border-border/80">
@@ -457,6 +458,7 @@ export function AdminLayout() {
                   onLinkClick={() => setOpen(false)}
                   lang={lang}
                   t={t}
+                  localizedPath={localizedPath}
                 />
               </div>
 

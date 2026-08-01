@@ -1,23 +1,51 @@
 {
   "id": "/?source=pwa",
-  "short_name": "ميزان - Mizan",
-  "name": "منصة ميزان الرقمية للقانون المغربي",
-  "description": "الموسوعة القانونية المغربية الإلكترونية - النصوص القانونية، مدونة الأسرة، قانون الشغل، واجتهادات المحاكم المغربية",
+  "short_name": "ميزان",
+  "name": "منصة ميزان الرقمية",
+  "description": "منصة قانونية وأكاديمية متعددة اللغات للنصوص القانونية والاجتهادات القضائية والمحتوى التحريري المغربي.",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
-  "dir": "rtl",
+  "orientation": "portrait-primary",
+  "dir": "auto",
   "lang": "ar-MA",
   "background_color": "#052e16",
   "theme_color": "#052e16",
-  "categories": ["education", "utilities", "reference"],
+  "categories": ["education", "reference", "news"],
   "icons": [
     {
       "src": "/Logo.svg",
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "القوانين والمدونات",
+      "short_name": "القوانين",
+      "description": "تصفح المكتبة القانونية",
+      "url": "/ar/library",
+      "icons": [
+        {
+          "src": "/Logo.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "الأخبار والمستجدات",
+      "short_name": "الأخبار",
+      "description": "اطلع على آخر المستجدات القانونية",
+      "url": "/ar/news",
+      "icons": [
+        {
+          "src": "/Logo.svg",
+          "type": "image/svg+xml",
+          "sizes": "any"
+        }
+      ]
     }
   ]
 }

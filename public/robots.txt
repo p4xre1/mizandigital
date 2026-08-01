@@ -1,28 +1,17 @@
-# ==============================================================================
-# Mizan Digital (ميزان) — Official Search Engine & AI Crawler Rules
-# Primary Host: www.mizan.page
-# Platform: Legal & Academic Intelligence Database (AR | FR | EN | ES)
-# ==============================================================================
-
-# ------------------------------------------------------------------------------
-# 1. GLOBAL CRAWLER RULES (Search Engines & General Web Crawlers)
-# ------------------------------------------------------------------------------
 User-agent: *
 
-# ✅ Allow full access to public content & AI discovery protocols
 Allow: /
 Allow: /.well-known/
 Allow: /sitemap.xml
 Allow: /feed.xml
 Allow: /manifest.json
+Allow: /site.webmanifest
 
-# 🚫 Admin & Dashboard Interfaces
 Disallow: /admin
 Disallow: /*/admin
 Disallow: /dashboard
 Disallow: /*/dashboard
 
-# 🚫 Authentication & User Account Pages
 Disallow: /login
 Disallow: /register
 Disallow: /profile
@@ -32,30 +21,22 @@ Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# 🚫 Internal APIs & Private Backend Endpoints
 Disallow: /api/
 Disallow: /*/api/
 
-# 🚫 Prevent indexing of dynamic query parameters & duplicate search URLs
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
 Disallow: /*?*sort=
 
-# ------------------------------------------------------------------------------
-# 2. AI AGENTS & GENERATIVE ENGINE OPTIMIZATION (GEO)
-# (Permit AI Search & LLM assistants to discover and reference public legal data)
-# ------------------------------------------------------------------------------
 User-agent: GPTBot
 Allow: /
-Allow: /.well-known/
 
 User-agent: ChatGPT-User
 Allow: /
 
 User-agent: ClaudeBot
 Allow: /
-Allow: /.well-known/
 
 User-agent: PerplexityBot
 Allow: /
@@ -69,7 +50,4 @@ Allow: /
 User-agent: Meta-ExternalAgent
 Allow: /
 
-# ------------------------------------------------------------------------------
-# 3. SITEMAPS
-# ------------------------------------------------------------------------------
 Sitemap: https://www.mizan.page/sitemap.xml

@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { router } from "@/routes";
 import { I18nProvider } from "@/lib/i18n";
 import { trackPageView, trackScrollDepth } from "@/lib/analytics";
+import { queryClient } from "@/lib/query-client";
 
 /**
  * Root Application Component for Mizan Digital (www.mizan.page)
@@ -57,8 +59,10 @@ export default function App(): React.JSX.Element {
   }, []);
 
   return (
-    <I18nProvider>
-      <RouterProvider router={router} />
-    </I18nProvider>
+    <QueryClientProvider client={queryClient}>
+      <I18nProvider>
+        <RouterProvider router={router} />
+      </I18nProvider>
+    </QueryClientProvider>
   );
 }

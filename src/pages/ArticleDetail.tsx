@@ -682,6 +682,7 @@ export default function ArticleDetail() {
               <button
                   onClick={toggleLike}
                   aria-pressed={liked}
+                  aria-label={liked ? "Liked article" : "Like article"}
                   className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] cursor-pointer ${
                       liked
                           ? "bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
@@ -699,6 +700,7 @@ export default function ArticleDetail() {
               <button
                   onClick={toggleSave}
                   aria-pressed={saved}
+                  aria-label={saved ? "Saved article" : "Save article"}
                   className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] cursor-pointer ${
                       saved
                           ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200"

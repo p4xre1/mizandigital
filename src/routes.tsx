@@ -83,6 +83,7 @@ const AdminLayout = lazyNamed(() => import("@/components/layout/AdminLayout"));
 // Public Pages
 const Home = lazyNamed(() => import("@/pages/Home"));
 const About = lazyNamed(() => import("@/pages/About"));
+const Legal = lazyNamed(() => import("@/pages/Legal"));
 const ArticlesList = lazyNamed(() => import("@/pages/ArticlesList"));
 const ArticleDetail = lazyNamed(() => import("@/pages/ArticleDetail"));
 const Library = lazyNamed(() => import("@/pages/Library"));
@@ -339,6 +340,7 @@ export const router = createBrowserRouter([
 
       // Static Public Pages
       { path: "about", element: <About /> },
+      { path: "legal", element: <Legal /> },
       { path: "login", element: <Login /> },
       { path: "register", element: <Login /> },
 
