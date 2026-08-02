@@ -9,7 +9,7 @@ import { queryClient } from "@/lib/query-client";
 /**
  * Root Application Component for Mizan Digital (www.mizan.page)
  * Wraps the application with global state providers (I18n),
- * auto-tracks route navigation & scroll depth telemetry,
+ * auto-tracks route navigation & scroll depth telemetry with RAF throttling,
  * and renders the central client-side router.
  */
 export default function App(): React.JSX.Element {
@@ -17,6 +17,7 @@ export default function App(): React.JSX.Element {
   useEffect(() => {
     // Keep track of scroll depths for the current active page
     let trackedDepths = new Set<number>();
+    let ticking = false;
 
     // Track initial load
     trackPageView(window.location.pathname);
@@ -32,22 +33,31 @@ export default function App(): React.JSX.Element {
       }
     });
 
-    // 2. Auto-track Scroll Depth Milestones (25%, 50%, 75%, 100%)
+    // 2. Auto-track Scroll Depth Milestones with requestAnimationFrame (Prevents Reflow Thrashing)
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight =
-        document.documentElement.scrollHeight - window.innerHeight;
-      if (docHeight <= 0) return;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollTop = window.scrollY;
+          const docHeight =
+            document.documentElement.scrollHeight - window.innerHeight;
 
-      const scrollPercent = Math.round((scrollTop / docHeight) * 100);
-      const milestones: (25 | 50 | 75 | 100)[] = [25, 50, 75, 100];
+          if (docHeight > 0) {
+            const scrollPercent = Math.round((scrollTop / docHeight) * 100);
+            const milestones: (25 | 50 | 75 | 100)[] = [25, 50, 75, 100];
 
-      milestones.forEach((depth) => {
-        if (scrollPercent >= depth && !trackedDepths.has(depth)) {
-          trackedDepths.add(depth);
-          trackScrollDepth(depth, window.location.pathname);
-        }
-      });
+            milestones.forEach((depth) => {
+              if (scrollPercent >= depth && !trackedDepths.has(depth)) {
+                trackedDepths.add(depth);
+                trackScrollDepth(depth, window.location.pathname);
+              }
+            });
+          }
+
+          ticking = false;
+        });
+
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });

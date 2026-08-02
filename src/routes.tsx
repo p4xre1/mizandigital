@@ -56,7 +56,7 @@ const SEO_TRANSLATIONS: Record<
 };
 
 // ----------------------------------------------------------------------
-// LAZY IMPORT HELPER (Type-Safe Export Resolver)
+// LAZY IMPORT HELPER (Type-Safe Dynamic Export Resolver)
 // ----------------------------------------------------------------------
 function lazyNamed<T extends Record<string, unknown>>(
   factory: () => Promise<T>,
@@ -78,12 +78,12 @@ function lazyNamed<T extends Record<string, unknown>>(
     if (exportedComponent) {
       return { default: exportedComponent as React.ComponentType<unknown> };
     }
-    throw new Error("No valid component export found in dynamic import.");
+    throw new Error("No valid React component export found in module bundle.");
   });
 }
 
 // ----------------------------------------------------------------------
-// LAZY-LOADED COMPONENTS
+// LAZY-LOADED COMPONENTS (Code Splitting)
 // ----------------------------------------------------------------------
 const Layout = lazyNamed(() => import("@/components/layout/Layout"));
 const AdminLayout = lazyNamed(() => import("@/components/layout/AdminLayout"));
@@ -103,7 +103,7 @@ const CourtRulingsCategory = lazyNamed(
 );
 const NotFound = lazyNamed(() => import("@/pages/NotFound"));
 
-// Fields
+// Legal Fields
 const AdministrativeLaw = lazyNamed(
   () => import("@/pages/fields/AdministrativeLaw")
 );
@@ -114,7 +114,7 @@ const ConstitutionalLaw = lazyNamed(
 const CriminalLaw = lazyNamed(() => import("@/pages/fields/CriminalLaw"));
 const FamilyLaw = lazyNamed(() => import("@/pages/fields/FamilyLaw"));
 
-// Documents
+// Legal Documents
 const CassationRulings = lazyNamed(
   () => import("@/pages/documents/CassationRulings")
 );
@@ -126,7 +126,7 @@ const OfficialJournals = lazyNamed(
   () => import("@/pages/documents/OfficialJournals")
 );
 
-// Schools
+// Schools & Universities
 const SchoolPage = lazyNamed(() => import("@/pages/schools/SchoolPage"));
 
 // Content Editing
@@ -212,7 +212,22 @@ function RootLayoutWrapper() {
     }
     ogLocale.content = LOCALE_MAP[currentLang];
 
-    // 3. Canonical Link Injection
+    // 3. Dynamic Hreflang Tags Injection for Multilingual SEO
+    SUPPORTED_LANGS.forEach((l) => {
+      let hreflangTag = document.querySelector<HTMLLinkElement>(
+        `link[hreflang='${l}']`
+      );
+      if (!hreflangTag) {
+        hreflangTag = document.createElement("link");
+        hreflangTag.setAttribute("rel", "alternate");
+        hreflangTag.setAttribute("hreflang", l);
+        document.head.appendChild(hreflangTag);
+      }
+      const rawPath = location.pathname.replace(new RegExp(`^/${currentLang}`), "");
+      hreflangTag.setAttribute("href", `${SITE_URL}/${l}${rawPath}`);
+    });
+
+    // 4. Canonical Link Injection
     const canonicalUrl = `${SITE_URL}${location.pathname}`;
     let canonicalElement = document.querySelector<HTMLLinkElement>(
       "link[rel='canonical']"
@@ -224,7 +239,7 @@ function RootLayoutWrapper() {
     }
     canonicalElement.setAttribute("href", canonicalUrl);
 
-    // 4. Inject Master JSON-LD Schema (Google & AI Search Agents)
+    // 5. Inject Master JSON-LD Schema (Google & AI Search Agents)
     const jsonLdData = {
       "@context": "https://schema.org",
       "@type": "WebSite",

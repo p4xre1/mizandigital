@@ -31,22 +31,27 @@ export default defineConfig({
   },
 
   build: {
-    target: 'es2020',
+    target: 'es2022',
     cssCodeSplit: true,
     manifest: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]',
-        // ⚡ SAFE CHUNKING: Isolates React core while letting Rollup resolve vendor TDZ dependencies safely
+        // ⚡ OPTIMIZED CHUNKING: Isolates React core and UI icon library to minimize TBT
         manualChunks(id) {
           if (
-            id.includes('node_modules/react') ||
-            id.includes('node_modules/react-dom') ||
-            id.includes('node_modules/react-router')
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router/') ||
+            id.includes('node_modules/react-router-dom/')
           ) {
             return 'react-core';
+          }
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'lucide-icons';
           }
         },
       },

@@ -303,17 +303,28 @@ export default function Page(): React.JSX.Element {
   }, [currentLang, t]);
 
   // --------------------------------------------------------------------
-  // GOOGLE ADSENSE (Double-Injection Protected)
+  // GOOGLE ADSENSE (Idle-Deferred Execution to protect TBT & INP)
   // --------------------------------------------------------------------
   useEffect(() => {
     if (adLoaded.current) return;
-    try {
-      if (typeof window !== "undefined" && window.adsbygoogle) {
-        window.adsbygoogle.push({});
-        adLoaded.current = true;
+
+    const pushAd = () => {
+      try {
+        if (typeof window !== "undefined" && window.adsbygoogle) {
+          window.adsbygoogle.push({});
+          adLoaded.current = true;
+        }
+      } catch (err) {
+        console.warn("AdSense push safely managed:", err);
       }
-    } catch (err) {
-      console.warn("AdSense push safely managed:", err);
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(pushAd, { timeout: 2000 });
+      return () => window.cancelIdleCallback(idleId);
+    } else {
+      const timerId = setTimeout(pushAd, 1000);
+      return () => clearTimeout(timerId);
     }
   }, []);
 
@@ -541,11 +552,11 @@ export default function Page(): React.JSX.Element {
           </div>
         </section>
 
-        {/* GOOGLE ADSENSE BANNER SLOT */}
-        <section className="min-h-[100px] w-full bg-muted/30 border border-border/60 rounded-2xl overflow-hidden flex items-center justify-center p-2 text-center">
+        {/* GOOGLE ADSENSE BANNER SLOT (Min-height reserved to prevent CLS) */}
+        <section className="min-h-[280px] sm:min-h-[100px] w-full bg-muted/30 border border-border/60 rounded-2xl overflow-hidden flex items-center justify-center p-2 text-center">
           <ins
             className="adsbygoogle"
-            style={{ display: "block", width: "100%" }}
+            style={{ display: "block", width: "100%", minHeight: "250px" }}
             data-ad-client="ca-pub-1749032173858747"
             data-ad-slot="auto"
             data-ad-format="auto"
@@ -553,7 +564,7 @@ export default function Page(): React.JSX.Element {
           />
         </section>
 
-        {/* FEATURED LEGAL DOCUMENTS & FILES (Photos & Files Master SEO) */}
+        {/* FEATURED LEGAL DOCUMENTS & FILES (Optimized LCP & Aspect Ratios) */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
@@ -570,20 +581,23 @@ export default function Page(): React.JSX.Element {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {FEATURED_DOCUMENTS.map((doc) => (
+            {FEATURED_DOCUMENTS.map((doc, index) => (
               <article
                 key={doc.id}
                 className="group bg-card border border-border/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div>
-                  {/* Photo SEO Optimized Container */}
+                  {/* Photo SEO & Priority Optimized Container */}
                   <div className="relative h-44 w-full overflow-hidden bg-muted">
                     <img
                       src={doc.coverImg}
                       alt={doc.coverAlt}
                       title={doc.title}
-                      loading="lazy"
-                      decoding="async"
+                      loading={index === 0 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : "low"}
+                      width={800}
+                      height={450}
+                      decoding={index === 0 ? "sync" : "async"}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <span className="absolute top-3 ltr:left-3 rtl:right-3 bg-background/90 backdrop-blur-md text-foreground text-[11px] font-bold px-2.5 py-1 rounded-lg border border-border/50">
