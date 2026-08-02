@@ -36,14 +36,14 @@ function sanitizeValue(value: unknown): unknown {
   if (typeof value !== "string") return value;
 
   return value
-      // Redact Emails
-      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[REDACTED_EMAIL]")
-      // Redact Bearer / API / Auth Tokens
-      .replace(/(bearer|token|auth|key|secret|password)=([^\s&]+)/gi, "$1=[REDACTED]")
-      // Redact Moroccan/International Phone Numbers
-      .replace(/(?:\+?212|0)[5-7]\d{8}/g, "[REDACTED_PHONE]")
-      // Strip inline script injection
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+    // Redact Emails
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[REDACTED_EMAIL]")
+    // Redact Bearer / API / Auth Tokens
+    .replace(/(bearer|token|auth|key|secret|password)=([^\s&]+)/gi, "$1=[REDACTED]")
+    // Redact Moroccan/International Phone Numbers
+    .replace(/(?:\+?212|0)[5-7]\d{8}/g, "[REDACTED_PHONE]")
+    // Strip inline script injection
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
 }
 
 /**
@@ -202,10 +202,10 @@ export function trackPageView(path: string, title?: string, lang: SupportedLang 
  * Tracks when a user views or reads an article
  */
 export function trackArticleRead(
-    articleId: string | number,
-    title?: string,
-    category?: string,
-    lang: SupportedLang = "ar"
+  articleId: string | number,
+  title?: string,
+  category?: string,
+  lang: SupportedLang = "ar"
 ): void {
   trackEvent("article_read", {
     article_id: articleId,
@@ -296,9 +296,9 @@ export function trackSearch(query: string, resultsCount: number, lang: Supported
 }
 
 export function trackConversion(
-    conversionType: "sign_up" | "contact_form" | "pdf_download" | "subscription",
-    value?: number,
-    currency: string = "MAD"
+  conversionType: "sign_up" | "contact_form" | "pdf_download" | "subscription",
+  value?: number,
+  currency: string = "MAD"
 ): void {
   trackEvent("conversion", {
     conversion_type: conversionType,
@@ -309,8 +309,8 @@ export function trackConversion(
 }
 
 export function trackAuthEvent(
-    method: "google" | "phone" | "email",
-    action: "login" | "signup" | "logout"
+  method: "google" | "phone" | "email",
+  action: "login" | "signup" | "logout" | "forgot" | "reset"
 ): void {
   trackEvent("auth_event", {
     auth_method: method,

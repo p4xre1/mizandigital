@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { createClient } from "@supabase/supabase-js";
 import {
   MessageSquare,
   Send,
@@ -12,13 +13,10 @@ import {
   Lock,
   UserCheck,
   AlertTriangle,
-  FileText,
 } from "lucide-react";
 import { useI18n, serifFont, sansFont, type Lang } from "../../lib/i18n";
-import { useCms, addComment, deleteComment } from "../../lib/adminStore";
 import { sanitizeText, looksLikeSpam, throttle } from "../../lib/security";
 import { useRole } from "@/hooks/useRole";
-import { ImageWithFallback } from "./ImageWithFallback";
 
 // Environment Configuration with Fallbacks
 const SITE_URL =
@@ -37,6 +35,25 @@ const GTM_ID =
 const GA_ID =
   (typeof import.meta !== "undefined" && import.meta.env?.VITE_GA_ID) ||
   "G-S52GPR2RWL";
+
+// Supabase Client Initialization
+const SUPABASE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) || "";
+const SUPABASE_ANON_KEY =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_ANON_KEY) || "";
+
+const supabase =
+  SUPABASE_URL && SUPABASE_ANON_KEY
+    ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+interface CommentItem {
+  id: string;
+  articleId: string;
+  name: string;
+  body: string;
+  at: string;
+}
 
 // Multilingual Labels Matrix (AR, FR, EN, ES)
 const LABELS = {
@@ -85,7 +102,7 @@ const LABELS = {
   tooShort: {
     ar: "التعليق قصير جداً (المطلوب 3 أحرف على الأقل).",
     fr: "Le commentaire est trop court (min. 3 caractères).",
-    en: "Comment is too short (min. 3 characters).",
+    en: "Comment is too short (min. 3 caractères).",
     es: "El comentario es demasiado corto (mín. 3 caracteres).",
   },
   guest: {
@@ -128,10 +145,8 @@ const LABELS = {
 
 function getLabel(key: keyof typeof LABELS, lang: Lang): string {
   const currentLang = (lang as string).toLowerCase();
-  if (currentLang === "fr") return LABELS[key]?.fr || LABELS[key]?.en;
-  if (currentLang === "es") return LABELS[key]?.es || LABELS[key]?.en;
-  if (currentLang === "en") return LABELS[key]?.en;
-  return LABELS[key]?.ar || LABELS[key]?.en;
+  const entry = LABELS[key] as Record<string, string>;
+  return entry[currentLang] || entry["ar"] || entry["en"] || "";
 }
 
 function safeIsoDate(dateStr: string): string {
@@ -155,8 +170,10 @@ export default function ArticleComments({
   enabled,
 }: ArticleCommentsProps) {
   const { lang, dir } = useI18n();
-  const cms = useCms();
   const { isStaff, canManageUsers } = useRole();
+
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [name, setName] = useState("");
   const [body, setBody] = useState("");
@@ -167,11 +184,53 @@ export default function ArticleComments({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isMounted = useRef(true);
 
-  // Filter comments for current article
-  const comments = useMemo(
-    () => (cms?.comments || []).filter((c) => c.articleId === articleId),
-    [cms?.comments, articleId]
-  );
+  // Fetch comments from Supabase
+  const fetchComments = useCallback(async () => {
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .select("id, article_id, name, body, created_at")
+        .eq("article_id", articleId)
+        .eq("is_approved", true)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error loading comments from Supabase:", error.message);
+        return;
+      }
+
+      if (data && isMounted.current) {
+        const formatted: CommentItem[] = data.map((item) => ({
+          id: item.id,
+          articleId: item.article_id,
+          name: item.name,
+          body: item.body,
+          at: new Date(item.created_at).toLocaleDateString(
+            lang === "ar" ? "ar-MA" : "fr-FR",
+            { year: "numeric", month: "short", day: "numeric" }
+          ),
+        }));
+        setComments(formatted);
+      }
+    } catch (error) {
+      console.error("Failed to fetch comments:", error);
+    } finally {
+      if (isMounted.current) setIsLoading(false);
+    }
+  }, [articleId, lang]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    fetchComments();
+    return () => {
+      isMounted.current = false;
+    };
+  }, [fetchComments]);
 
   // Safe Google AdSense Script Injection
   useEffect(() => {
@@ -184,19 +243,12 @@ export default function ArticleComments({
     }
   }, []);
 
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  // Handle Comment Submission with Security Checks
+  // Handle Comment Submission
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr("");
 
-    // Honeypot check: Silent rejection if invisible field was populated by a bot
+    // Honeypot check
     if (botTrap) return;
 
     const trimmedBody = sanitizeText(body, 1000);
@@ -222,9 +274,31 @@ export default function ArticleComments({
 
     setIsSubmitting(true);
     try {
-      await addComment(articleId, authorName, trimmedBody);
+      if (supabase) {
+        const { error } = await supabase.from("comments").insert([
+          {
+            article_id: articleId,
+            name: authorName,
+            body: trimmedBody,
+            is_approved: true,
+          },
+        ]);
 
-      // Google Analytics 4 & Tag Manager Event Tracking
+        if (error) throw error;
+        await fetchComments();
+      } else {
+        // Fallback local state if Supabase is not yet configured
+        const newComment: CommentItem = {
+          id: Date.now().toString(),
+          articleId,
+          name: authorName,
+          body: trimmedBody,
+          at: new Date().toLocaleDateString(),
+        };
+        setComments((prev) => [newComment, ...prev]);
+      }
+
+      // Tracking Event
       if (typeof window !== "undefined") {
         const dataLayer = (window as any).dataLayer || [];
         dataLayer.push({
@@ -242,7 +316,8 @@ export default function ArticleComments({
         setBody("");
         setName("");
       }
-    } catch {
+    } catch (error) {
+      console.error("Submission failed:", error);
       if (isMounted.current) {
         setErr(getLabel("spam", lang));
       }
@@ -256,8 +331,13 @@ export default function ArticleComments({
   // Staff Moderation Delete Handler
   const handleDeleteComment = async (commentId: string) => {
     if (!canManageUsers && !isStaff) return;
+
     try {
-      await deleteComment(commentId);
+      if (supabase) {
+        const { error } = await supabase.from("comments").delete().eq("id", commentId);
+        if (error) throw error;
+      }
+      setComments((prev) => prev.filter((c) => c.id !== commentId));
     } catch (error) {
       console.error("Failed to delete comment:", error);
     }
@@ -315,7 +395,6 @@ export default function ArticleComments({
       dir={dir}
       aria-labelledby="comments-heading"
     >
-      {/* JSON-LD Structured Data for Google Search Indexing */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(commentsSchema) }}
@@ -340,7 +419,7 @@ export default function ArticleComments({
         </div>
       </div>
 
-      {/* Comment Input Form - Phone First Touch Optimized */}
+      {/* Comment Input Form */}
       <form
         onSubmit={submit}
         className="space-y-3 bg-card border border-border p-4 sm:p-5 rounded-3xl shadow-xs"
@@ -361,7 +440,7 @@ export default function ArticleComments({
           />
         </div>
 
-        {/* Anti-Spam Honeypot Input Field - Hidden from Screen Readers */}
+        {/* Anti-Spam Honeypot Field */}
         <input
           type="text"
           name="website_url_trap"
@@ -421,7 +500,7 @@ export default function ArticleComments({
         </div>
       </form>
 
-      {/* Google AdSense Sponsored Section */}
+      {/* Sponsored Section */}
       <div className="w-full bg-card border border-border rounded-2xl p-3 text-center overflow-hidden shadow-xs">
         <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1 px-1 font-mono">
           <span className="flex items-center gap-1 text-primary font-bold">
@@ -442,9 +521,15 @@ export default function ArticleComments({
         </div>
       </div>
 
-      {/* Comments List Feed */}
-      <div className="space-y-3" role="feed" aria-busy={isSubmitting}>
-        {comments.length === 0 && (
+      {/* Comments List */}
+      <div className="space-y-3" role="feed" aria-busy={isLoading || isSubmitting}>
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <Loader2 size={24} className="animate-spin text-primary" />
+          </div>
+        )}
+
+        {!isLoading && comments.length === 0 && (
           <div className="text-center py-8 bg-card border border-dashed border-border rounded-3xl p-6">
             <MessageSquare size={32} className="mx-auto text-muted-foreground/40 mb-2" />
             <p
@@ -456,80 +541,71 @@ export default function ArticleComments({
           </div>
         )}
 
-        {comments.map((c) => {
-          const authorInitial = Array.from(c.name.trim())[0] || "?";
-          const avatarAlt = `${c.name} - ${articleTitle} | Mizan Digital`;
-          const avatarKeywords = `${c.name}, تعليق قانوني, منصة ميزان, Droit Marocain`;
+        {!isLoading &&
+          comments.map((c) => {
+            const authorInitial = Array.from(c.name.trim())[0] || "?";
 
-          return (
-            <article
-              key={c.id}
-              className="group relative flex gap-3 p-4 sm:p-5 rounded-3xl border border-border bg-card hover:border-primary/40 transition-all shadow-xs"
-            >
-              {/* Author Avatar with SEO Image Optimization */}
-              <div className="shrink-0">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center text-sm font-black uppercase select-none shadow-xs">
-                  {authorInitial}
+            return (
+              <article
+                key={c.id}
+                className="group relative flex gap-3 p-4 sm:p-5 rounded-3xl border border-border bg-card hover:border-primary/40 transition-all shadow-xs"
+              >
+                <div className="shrink-0">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center text-sm font-black uppercase select-none shadow-xs">
+                    {authorInitial}
+                  </div>
                 </div>
-              </div>
 
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <header className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="text-xs sm:text-sm font-bold text-foreground truncate"
-                      style={{ fontFamily: sansFont(lang) }}
-                    >
-                      {c.name}
-                    </span>
-
-                    {/* Staff Moderation Badge */}
-                    {(isStaff || canManageUsers) && (
-                      <span className="text-[9px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                        <UserCheck size={10} />
-                        <span>{getLabel("staffBadge", lang)}</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <time
-                      dateTime={safeIsoDate(c.at)}
-                      className="text-[10px] sm:text-[11px] text-muted-foreground font-mono"
-                    >
-                      {c.at}
-                    </time>
-
-                    {/* Staff Comment Deletion Control */}
-                    {(isStaff || canManageUsers) && (
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteComment(c.id)}
-                        className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                        title={getLabel("delete", lang)}
-                        aria-label={getLabel("delete", lang)}
+                <div className="min-w-0 flex-1 space-y-1.5">
+                  <header className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-xs sm:text-sm font-bold text-foreground truncate"
+                        style={{ fontFamily: sansFont(lang) }}
                       >
-                        <Trash2 size={13} />
-                      </button>
-                    )}
-                  </div>
-                </header>
+                        {c.name}
+                      </span>
 
-                <p
-                  className="text-xs sm:text-sm text-foreground/90 leading-relaxed break-words"
-                  style={{ fontFamily: sansFont(lang) }}
-                >
-                  {c.body}
-                </p>
+                      {(isStaff || canManageUsers) && (
+                        <span className="text-[9px] font-mono bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <UserCheck size={10} />
+                          <span>{getLabel("staffBadge", lang)}</span>
+                        </span>
+                      )}
+                    </div>
 
-                {/* Hidden Microdata for Search Engines */}
-                <span className="sr-only" itemProp="caption">
-                  {avatarAlt} - {avatarKeywords}
-                </span>
-              </div>
-            </article>
-          );
-        })}
+                    <div className="flex items-center gap-2">
+                      <time
+                        dateTime={safeIsoDate(c.at)}
+                        className="text-[10px] sm:text-[11px] text-muted-foreground font-mono"
+                      >
+                        {c.at}
+                      </time>
+
+                      {(isStaff || canManageUsers) && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteComment(c.id)}
+                          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                          title={getLabel("delete", lang)}
+                          aria-label={getLabel("delete", lang)}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </header>
+
+                  <p
+                    className="text-xs sm:text-sm text-foreground/90 leading-relaxed break-words"
+                    style={{ fontFamily: sansFont(lang) }}
+                  >
+                    {c.body}
+                  </p>
+                </div>
+              </article>
+            );
+          })}
       </div>
     </section>
   );

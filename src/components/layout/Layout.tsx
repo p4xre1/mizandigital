@@ -32,10 +32,12 @@ function AdSlot({
   slotId,
   format = "auto",
   className = "",
+  ariaLabel = "إعلان - Advertisement",
 }: {
   slotId: string;
   format?: "auto" | "rectangle" | "horizontal";
   className?: string;
+  ariaLabel?: string;
 }) {
   const [adFailed, setAdFailed] = useState(false);
 
@@ -53,7 +55,10 @@ function AdSlot({
   if (adFailed) return null;
 
   return (
-    <div className={`w-full overflow-hidden flex flex-col items-center justify-center my-3 ${className}`}>
+    <aside
+      aria-label={ariaLabel}
+      className={`w-full overflow-hidden flex flex-col items-center justify-center my-3 ${className}`}
+    >
       <span className="text-[9px] font-bold tracking-widest text-muted-foreground uppercase mb-1 opacity-50 select-none">
         إعلان - Advertisement
       </span>
@@ -67,7 +72,7 @@ function AdSlot({
           data-full-width-responsive="true"
         />
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -149,6 +154,8 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
         es: "Acceso rápido y seguro a tesis de máster y resoluciones judiciales en PDF e imágenes de alta definición.",
       },
       browse_archive: { ar: "تصفح الأرشيف", fr: "Explorer l'Archive", en: "Browse Archive", es: "Explorar Archivos" },
+      close_ad: { ar: "إغلاق الإعلان", fr: "Fermer l'annonce", en: "Close advertisement", es: "Cerrar anuncio" },
+      top_banner_ad: { ar: "إعلان أعلى الصفحة", fr: "Bannière publicitaire supérieure", en: "Top Banner Advertisement", es: "Anuncio superior" },
     };
     return dict[key]?.[lang] || key;
   };
@@ -298,23 +305,23 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
         />
       </Helmet>
 
-      {/* Primary Sticky Header Nav */}
+      {/* Primary Header Nav Landmark */}
       <Navbar />
 
       {/* Top Universal Banner Ad Slot */}
-      <header className="max-w-7xl mx-auto px-3 sm:px-6 w-full pt-3">
-        <AdSlot slotId="1020304050" format="horizontal" className="max-h-[100px]" />
-      </header>
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 w-full pt-3">
+        <AdSlot slotId="1020304050" format="horizontal" ariaLabel={t("top_banner_ad")} className="max-h-[100px]" />
+      </div>
 
       {/* Main Page Dynamic Outlet Content */}
-      <main className="flex-1 w-full relative">
+      <main id="main-content" tabIndex={-1} className="flex-1 w-full relative outline-none">
         <Outlet />
       </main>
 
       {/* Mid-Content Ad Unit */}
-      <section className="max-w-7xl mx-auto px-3 sm:px-6 w-full my-6">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 w-full my-6">
         <AdSlot slotId="6070809001" format="auto" />
-      </section>
+      </div>
 
       {/* Main Footer Section */}
       <footer className="w-full bg-slate-100 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 pt-10 pb-28 sm:pb-12 transition-colors">
@@ -334,9 +341,9 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
                   </span>
                 )}
               </div>
-              <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
+              <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
                 {t("sponsor_title")}
-              </h4>
+              </h2>
               <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
                 {t("sponsor_desc")}
               </p>
@@ -375,9 +382,9 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
 
             {footerCols.map((col, idx) => (
               <div key={idx} className="space-y-3">
-                <p className="text-xs font-extrabold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
+                <h3 className="text-xs font-extrabold text-slate-900 dark:text-slate-200 tracking-wider uppercase">
                   {col.heading[lang]}
-                </p>
+                </h3>
                 <ul className="space-y-2">
                   {col.links.map((lnk) => (
                     <li key={lnk.href}>
@@ -410,7 +417,7 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          aria-label="Scroll to top"
+          aria-label={lang === "ar" ? "الرجوع إلى أعلى الصفحة" : "Scroll to top"}
           className="fixed bottom-20 sm:bottom-8 rtl:left-4 ltr:right-4 z-40 min-h-[48px] min-w-[48px] bg-primary text-primary-foreground rounded-2xl shadow-xl border border-primary/20 flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer"
         >
           <ArrowUp size={20} />
@@ -419,20 +426,24 @@ export function Layout({ lang: propLang, dir: propDir }: LayoutProps) {
 
       {/* Mobile Sticky Bottom Floating Ad Sheet */}
       {showMobileStickyAd && (
-        <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border shadow-2xl p-1.5 flex flex-col items-center animate-in slide-in-from-bottom duration-300">
+        <aside
+          aria-label={t("sponsor_title")}
+          className="sm:hidden fixed bottom-0 inset-x-0 z-40 bg-background/95 backdrop-blur-md border-t border-border shadow-2xl p-1.5 flex flex-col items-center animate-in slide-in-from-bottom duration-300"
+        >
           <div className="w-full flex items-center justify-between px-2 pb-1">
             <span className="text-[9px] font-bold text-muted-foreground uppercase">إعلان راعي - Sponsor</span>
             <button
               onClick={() => setShowMobileStickyAd(false)}
+              aria-label={t("close_ad")}
               className="p-1 min-h-[32px] min-w-[32px] rounded-lg text-muted-foreground hover:bg-muted active:scale-95 transition flex items-center justify-center"
             >
               <X size={14} />
             </button>
           </div>
           <div className="w-full max-h-[60px] flex items-center justify-center overflow-hidden">
-            <AdSlot slotId="9988776655" format="horizontal" className="my-0" />
+            <AdSlot slotId="9988776655" format="horizontal" ariaLabel="Mobile Sticky Advertisement" className="my-0" />
           </div>
-        </div>
+        </aside>
       )}
 
       {/* Authentication Modal */}

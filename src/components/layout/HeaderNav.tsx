@@ -159,7 +159,7 @@ export function Navbar() {
       ar: "⚠️ تنبيه أكاديمي: محتوى المنصة تثقيفي وتوثيقي موحد للباحثين والجامعات.",
       fr: "⚠️ Note: Contenu académique et éducatif destiné aux chercheurs et universités.",
       en: "⚠️ Academic Notice: Content is strictly educational and institutional.",
-      es: "⚠️ Aviso Académico: El contenido es estrictamente educativo e institucional.",
+      es: "⚠️ Aviso Académico: El contenido es strictly educativo e institucional.",
     },
     brandSub: {
       ar: "الأرشيف والمكتبة الرقمية",
@@ -297,7 +297,7 @@ export function Navbar() {
                         to={`/${lang}/schools/${school.slug}`}
                         className="block p-2 rounded-lg hover:bg-muted text-xs font-medium truncate transition-colors"
                       >
-                        {(school.name as Record<string, string>)[lang] || school.name.ar}
+                        {school.name[lang as keyof typeof school.name] || school.name.ar}
                       </Link>
                     ))}
                   </div>
@@ -584,7 +584,7 @@ export function Navbar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center min-h-[44px] px-3 rounded-lg text-xs font-medium hover:bg-card active:bg-card truncate"
                     >
-                      {(school.name as Record<string, string>)[lang] || school.name.ar}
+                      {school.name[lang as keyof typeof school.name] || school.name.ar}
                     </Link>
                   ))}
                   <Link

@@ -48,7 +48,7 @@ export function NewsCategoriesGrid({ lang = "ar", onSelectCategory }: Props) {
 
   return (
     <section className="space-y-6 font-sans">
-      {/* القسم الرئيسي / Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border pb-4">
         <div>
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-primary flex items-center gap-1.5">
@@ -67,15 +67,16 @@ export function NewsCategoriesGrid({ lang = "ar", onSelectCategory }: Props) {
         </div>
       </div>
 
-      {/* شبكة البطاقات الثلاث / Categories Grid */}
+      {/* Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
         {NEWS_CATEGORIES.map((cat) => {
-          // Safe lookup handling unsupported languages like 'es'
-          const titles = cat.title as Record<string, string>;
-          const subtitles = cat.subtitle as Record<string, string>;
-
-          const title = titles[lang] || titles.ar;
-          const subtitle = subtitles[lang] || subtitles.ar;
+          // Type-safe localized property lookups
+          const title = cat.title[lang as keyof typeof cat.title] || cat.title.ar;
+          const subtitle = cat.subtitle[lang as keyof typeof cat.subtitle] || cat.subtitle.ar;
+          
+          // Access array from LocalizedKeywords type
+          const keywordsList =
+            (cat.keywords[lang as keyof typeof cat.keywords] || cat.keywords.ar || []) as string[];
 
           return (
             <div
@@ -98,10 +99,10 @@ export function NewsCategoriesGrid({ lang = "ar", onSelectCategory }: Props) {
                 </div>
               </div>
 
-              {/* الكلمات المفتاحية والسهم / Keywords & Arrow */}
+              {/* Keywords & Arrow */}
               <div className="pt-4 mt-3 border-t border-border/60 flex items-center justify-between">
                 <div className="flex flex-wrap gap-1">
-                  {cat.keywords.slice(0, 2).map((kw, i) => (
+                  {keywordsList.slice(0, 2).map((kw: string, i: number) => (
                     <span
                       key={i}
                       className="text-[9px] font-mono bg-muted px-2 py-0.5 rounded-md text-muted-foreground"
@@ -122,7 +123,7 @@ export function NewsCategoriesGrid({ lang = "ar", onSelectCategory }: Props) {
         })}
       </div>
 
-      {/* إعلان Google AdSense / Google AdSense Banner */}
+      {/* Google AdSense Banner */}
       <div className="w-full bg-card border border-border rounded-2xl p-3 text-center overflow-hidden shadow-xs">
         <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-1.5 px-1 font-mono">
           <span className="flex items-center gap-1 text-primary font-bold">
