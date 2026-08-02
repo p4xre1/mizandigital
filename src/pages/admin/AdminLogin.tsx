@@ -42,6 +42,10 @@ interface ProfileAuthCheck {
   is_frozen: boolean | null;
 }
 
+interface ProfileEmailLookup {
+  email: string;
+}
+
 // Helper for dynamic rate-limit error message
 function getRateLimitMessage(lang: string, sec: number): string {
   switch (lang) {
@@ -65,7 +69,7 @@ const TRANSLATIONS = {
     sysStatus: "النظام محمي",
     gatewayTitle: "لوحة تحكم الإدارة",
     gatewaySubtitle: "بوابة ميزان المشفرة لإدارة المحتوى والأمن",
-    identityPlaceholder: "معرف المشغل / البريد / اسم المستخدم",
+    identityPlaceholder: "اسم المستخدم أو البريد الإلكتروني",
     identityLabel: "اسم المستخدم أو البريد الإلكتروني",
     passPlaceholder: "مفتاح المرور المشفر",
     passLabel: "كلمة المرور",
@@ -88,8 +92,8 @@ const TRANSLATIONS = {
     sysStatus: "SYS_OK",
     gatewayTitle: "Panneau d'Administration",
     gatewaySubtitle: "PASSERELLE CMS CHIFFRÉE MIZAN",
-    identityPlaceholder: "ID OPÉRATEUR / EMAIL / USERNAME",
-    identityLabel: "Identifiant ou E-mail",
+    identityPlaceholder: "Nom d'utilisateur ou E-mail",
+    identityLabel: "Nom d'utilisateur ou E-mail",
     passPlaceholder: "CLÉ D'ACCÈS / MOT DE PASSE",
     passLabel: "Mot de passe",
     loginBtn: "CONNEXION SÉCURISÉE",
@@ -111,7 +115,7 @@ const TRANSLATIONS = {
     sysStatus: "SYS_OK",
     gatewayTitle: "Admin Control Center",
     gatewaySubtitle: "MIZAN ENCRYPTED CMS GATEWAY",
-    identityPlaceholder: "OPERATOR_ID / EMAIL / USERNAME",
+    identityPlaceholder: "Username or Email",
     identityLabel: "Username or Email",
     passPlaceholder: "ACCESS_KEY / PASSWORD",
     passLabel: "Password",
@@ -134,7 +138,7 @@ const TRANSLATIONS = {
     sysStatus: "SISTEMA_OK",
     gatewayTitle: "Panel de Administración",
     gatewaySubtitle: "PASARELA CMS CIFRADA MIZAN",
-    identityPlaceholder: "ID OPERADOR / CORREO / USUARIO",
+    identityPlaceholder: "Nombre de usuario o Correo",
     identityLabel: "Usuario o Correo Electrónico",
     passPlaceholder: "CLAVE DE ACCESO / CONTRASEÑA",
     passLabel: "Contraseña",
@@ -156,18 +160,18 @@ export default function AdminLogin() {
   const { lang, dir, setLang } = useI18n();
   const navigate = useNavigate();
 
-  // Selected language translation set fallback to EN or AR
   const t = TRANSLATIONS[lang as keyof typeof TRANSLATIONS] || TRANSLATIONS.en;
 
   // Form State
   const [identity, setIdentity] = useState("");
   const [pass, setPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [honeypot, setHoneypot] = useState(""); // Anti-bot Trap
+  const [honeypot, setHoneypot] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
-  // Submit Handler with High-Grade Security Verification
+  // Submit Handler
   const submit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -185,11 +189,11 @@ export default function AdminLogin() {
       return;
     }
 
-    // 3. Input Sanitization
+    // 3. Input Sanitization (Keep exact password intact)
     const cleanIdentity = sanitizeText(identity.trim(), 150);
-    const cleanPass = pass.trim();
+    const rawPass = pass;
 
-    if (!cleanIdentity || !cleanPass) {
+    if (!cleanIdentity || !rawPass) {
       setError(t.emptyFieldsErr);
       return;
     }
@@ -197,43 +201,60 @@ export default function AdminLogin() {
     setSubmitting(true);
 
     try {
-      // 4. Accept the local CMS admin credentials before trying Supabase.
-      // This avoids sending the built-in username/password to the password grant endpoint.
-      const localAuthSuccess = adminLogin(cleanIdentity, cleanPass);
+      // 4. Local CMS fallback check
+      const localAuthSuccess = adminLogin(cleanIdentity, rawPass);
       if (localAuthSuccess) {
         setSubmitting(false);
         navigate(`/${lang}/admin`);
         return;
       }
 
+      // 5. Username to Email Resolution
+      let targetEmail = cleanIdentity;
+
       if (!cleanIdentity.includes("@")) {
-        setError(t.authFailedErr);
-        return;
+        const { data: rawUserProfile, error: lookupError } = await supabase
+          .from("profiles")
+          .select("email")
+          .eq("username", cleanIdentity)
+          .maybeSingle();
+
+        const userProfile = rawUserProfile as ProfileEmailLookup | null;
+
+        if (lookupError || !userProfile?.email) {
+          setError(t.authFailedErr);
+          setSubmitting(false);
+          return;
+        }
+
+        targetEmail = userProfile.email;
       }
 
-      // 5. Authenticate via Supabase Auth Engine
+      // 6. Authenticate via Supabase Auth Engine using resolved email
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: cleanIdentity,
-        password: cleanPass,
+        email: targetEmail,
+        password: rawPass,
       });
 
       if (authError || !authData.user) {
         setError(t.authFailedErr);
+        setSubmitting(false);
         return;
       }
 
-      // 6. Role & Account Freeze Verification
+      // 7. Role & Account Freeze Verification
       const { data: rawData, error: profileError } = await supabase
-          .from("profiles")
-          .select("role, admin_god_mode, is_frozen")
-          .eq("id", authData.user.id)
-          .single();
+        .from("profiles")
+        .select("role, admin_god_mode, is_frozen")
+        .eq("id", authData.user.id)
+        .single();
 
       const profile = rawData as ProfileAuthCheck | null;
 
       if (profileError || !profile) {
         await supabase.auth.signOut();
         setError(t.permVerifyErr);
+        setSubmitting(false);
         return;
       }
 
@@ -241,17 +262,19 @@ export default function AdminLogin() {
       if (profile.is_frozen) {
         await supabase.auth.signOut();
         setError(t.accountFrozenErr);
+        setSubmitting(false);
         return;
       }
 
       // Multi-tier Role Check
       const userRole = (profile.role || "").toLowerCase().trim();
       const hasAdminClearance =
-          profile.admin_god_mode === true || ALLOWED_ADMIN_ROLES.has(userRole);
+        profile.admin_god_mode === true || ALLOWED_ADMIN_ROLES.has(userRole);
 
       if (!hasAdminClearance) {
         await supabase.auth.signOut();
         setError(t.accessDeniedErr);
+        setSubmitting(false);
         return;
       }
 
@@ -266,239 +289,223 @@ export default function AdminLogin() {
   };
 
   return (
-      <>
-        {/* Master SEO Head with Strict No-Index for Security Gateway */}
-        <SEOHead
-            title={t.seoTitle}
-            description={t.seoDesc}
-            canonical={`${SITE_DOMAIN}/${lang}/admin/login`}
-            noIndex={true}
-        />
+    <>
+      <SEOHead
+        title={t.seoTitle}
+        description={t.seoDesc}
+        canonical={`${SITE_DOMAIN}/${lang}/admin/login`}
+        noIndex={true}
+      />
 
-        <div
-            className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden font-mono select-none"
-            dir={dir}
-        >
-          {/* Background Military Tactical Grid Overlay */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] sm:bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
+      <div
+        className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden font-mono select-none"
+        dir={dir}
+      >
+        {/* Background Grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] sm:bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
-          {/* Military Radar Scan Effect */}
-          <div className="absolute w-[500px] h-[500px] sm:w-[800px] sm:h-[800px] rounded-full border border-emerald-500/10 animate-ping pointer-events-none opacity-20" />
+        {/* Radar Effect */}
+        <div className="absolute w-[500px] h-[500px] sm:w-[800px] sm:h-[800px] rounded-full border border-emerald-500/10 animate-ping pointer-events-none opacity-20" />
 
-          {/* Top Language Switcher Pill */}
-          <div className="absolute top-3 sm:top-6 z-20 flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-full px-2 py-1 shadow-md text-xs">
-            <Globe size={14} className="text-emerald-400 ml-1 rtl:mr-1" />
-            {(["ar", "fr", "en", "es"] as const).map((l) => (
-                <button
-                    key={l}
-                    type="button"
-                    onClick={() => setLang(l)}
-                    className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase transition-all ${
-                        lang === l
-                            ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
-                            : "text-slate-400 hover:text-slate-100"
-                    }`}
-                >
-                  {l}
-                </button>
-            ))}
-          </div>
+        {/* Language Switcher */}
+        <div className="absolute top-3 sm:top-6 z-20 flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-full px-2 py-1 shadow-md text-xs">
+          <Globe size={14} className="text-emerald-400 ml-1 rtl:mr-1" />
+          {(["ar", "fr", "en", "es"] as const).map((l) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => setLang(l)}
+              className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase transition-all ${
+                lang === l
+                  ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
+                  : "text-slate-400 hover:text-slate-100"
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
 
-          {/* Login Security Gateway Card */}
-          <div className="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative z-10 backdrop-blur-xl my-auto transition-all">
-
-            {/* Security Status Header */}
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-6 text-[10px] sm:text-[11px] tracking-wider text-emerald-500 uppercase font-bold">
+        {/* Login Card */}
+        <div className="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative z-10 backdrop-blur-xl my-auto transition-all">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-6 text-[10px] sm:text-[11px] tracking-wider text-emerald-500 uppercase font-bold">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               {t.securityZone}
             </span>
-              <span className="text-slate-500 flex items-center gap-1">
+            <span className="text-slate-500 flex items-center gap-1">
               <Terminal size={12} /> {t.sysStatus}
             </span>
-            </div>
+          </div>
 
-            {/* Platform Identity & Security Badge */}
-            <div className="flex flex-col items-center mb-6 text-center">
-              <div className="w-16 h-16 sm:w-18 sm:h-18 bg-emerald-950/80 border border-emerald-500/40 rounded-2xl flex items-center justify-center mb-3 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+          <div className="flex flex-col items-center mb-6 text-center">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 bg-emerald-950/80 border border-emerald-500/40 rounded-2xl flex items-center justify-center mb-3 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+              {!logoError ? (
                 <img
-                    src="/Logo.svg"
-                    alt={
-                      lang === "ar"
-                          ? "شعار منصة ميزان القانونية المشفرة"
-                          : "Mizan Encrypted Digital Platform Logo"
-                    }
-                    width={40}
-                    height={40}
-                    className="w-10 h-10 object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
-                    loading="eager"
-                    decoding="async"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
+                  src="/Logo.svg"
+                  alt="Mizan Logo"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                  loading="eager"
+                  decoding="async"
+                  onError={() => setLogoError(true)}
                 />
-                <ShieldCheck size={32} className="hidden only:block" />
-              </div>
-
-              <h1
-                  className="font-extrabold text-slate-100 text-xl sm:text-2xl tracking-tight"
-                  style={{ fontFamily: serifFont(lang) }}
-              >
-                {t.gatewayTitle}
-              </h1>
-
-              <p
-                  className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider flex items-center justify-center gap-1"
-                  style={{ fontFamily: sansFont(lang) }}
-              >
-                <Activity size={12} className="text-emerald-500 shrink-0" />
-                <span>{t.gatewaySubtitle}</span>
-              </p>
-            </div>
-
-            {/* Secure Login Form */}
-            <form onSubmit={submit} className="space-y-4" noValidate>
-              {/* Anti-Bot Honeypot Field */}
-              <input
-                  type="text"
-                  name="website_confirm_field"
-                  value={honeypot}
-                  onChange={(e) => setHoneypot(e.target.value)}
-                  className="sr-only"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-              />
-
-              {/* Identity Field */}
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
-                  {t.identityLabel}
-                </label>
-                <div className="relative">
-                  <User
-                      size={18}
-                      className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
-                          dir === "rtl" ? "right-3.5" : "left-3.5"
-                      }`}
-                  />
-                  <input
-                      value={identity}
-                      onChange={(e) => setIdentity(e.target.value)}
-                      type="text"
-                      placeholder={t.identityPlaceholder}
-                      autoComplete="username"
-                      maxLength={150}
-                      required
-                      className={`w-full h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
-                          dir === "rtl" ? "pr-11 pl-4 text-right" : "pl-11 pr-4 text-left"
-                      }`}
-                  />
-                </div>
-              </div>
-
-              {/* Password Field */}
-              <div className="space-y-1">
-                <label className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
-                  {t.passLabel}
-                </label>
-                <div className="relative">
-                  <Lock
-                      size={18}
-                      className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
-                          dir === "rtl" ? "right-3.5" : "left-3.5"
-                      }`}
-                  />
-                  <input
-                      value={pass}
-                      onChange={(e) => setPass(e.target.value)}
-                      type={showPassword ? "text" : "password"}
-                      placeholder={t.passPlaceholder}
-                      autoComplete="current-password"
-                      maxLength={128}
-                      required
-                      className={`w-full h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
-                          dir === "rtl" ? "pr-11 pl-11 text-right" : "pl-11 pr-11 text-left"
-                      }`}
-                  />
-                  <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label="Toggle password visibility"
-                      className={`absolute top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center ${
-                          dir === "rtl" ? "left-1" : "right-1"
-                      }`}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Error Banner */}
-              {error && (
-                  <div
-                      role="alert"
-                      className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in zoom-in-95 duration-150"
-                  >
-                    <AlertTriangle size={16} className="shrink-0 text-rose-400 mt-0.5" />
-                    <span className="leading-relaxed font-sans">{error}</span>
-                  </div>
+              ) : (
+                <ShieldCheck size={32} />
               )}
+            </div>
 
-              {/* Submit Button */}
-              <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full h-12 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.25)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
-              >
-                {submitting ? (
-                    <span className="flex items-center gap-2 animate-pulse">
-                  <Fingerprint size={18} className="animate-spin" />
-                      {t.authenticating}
-                </span>
-                ) : (
-                    <>
-                      <KeyRound size={16} />
-                      <span>{t.loginBtn}</span>
-                    </>
-                )}
-              </button>
-            </form>
+            <h1
+              className="font-extrabold text-slate-100 text-xl sm:text-2xl tracking-tight"
+              style={{ fontFamily: serifFont(lang) }}
+            >
+              {t.gatewayTitle}
+            </h1>
 
-            {/* Quick Metrics & System Status */}
-            <div className="mt-6 pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[10px] text-slate-400">
-              <div className="flex items-center gap-1.5 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
-                <Cpu size={12} className="text-emerald-400 shrink-0" />
-                <span className="truncate">TLS 1.3 · AES-256</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
-                <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
-                <span className="truncate">Zero-Trust Active</span>
+            <p
+              className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider flex items-center justify-center gap-1"
+              style={{ fontFamily: sansFont(lang) }}
+            >
+              <Activity size={12} className="text-emerald-500 shrink-0" />
+              <span>{t.gatewaySubtitle}</span>
+            </p>
+          </div>
+
+          <form onSubmit={submit} className="space-y-4" noValidate>
+            <input
+              type="text"
+              name="website_confirm_field"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              className="sr-only"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+            />
+
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                {t.identityLabel}
+              </label>
+              <div className="relative">
+                <User
+                  size={18}
+                  className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
+                    dir === "rtl" ? "right-3.5" : "left-3.5"
+                  }`}
+                />
+                <input
+                  value={identity}
+                  onChange={(e) => setIdentity(e.target.value)}
+                  type="text"
+                  placeholder={t.identityPlaceholder}
+                  autoComplete="username"
+                  maxLength={150}
+                  required
+                  className={`w-full h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
+                    dir === "rtl" ? "pr-11 pl-4 text-right" : "pl-11 pr-4 text-left"
+                  }`}
+                />
               </div>
             </div>
 
-            {/* Footer Warning & Navigation */}
-            <div className="mt-4 text-center space-y-2">
-              <p className="text-[10px] text-slate-500 uppercase tracking-tight">
-                {t.footerRestricted}
-              </p>
-              <p className="text-[9px] text-slate-600">
-                {t.footerMonitored}
-              </p>
-
-              <div className="pt-2">
-                <Link
-                    to={`/${lang}`}
-                    className="inline-flex items-center gap-1 text-[11px] text-emerald-400/80 hover:text-emerald-300 transition-colors font-sans"
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+                {t.passLabel}
+              </label>
+              <div className="relative">
+                <Lock
+                  size={18}
+                  className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
+                    dir === "rtl" ? "right-3.5" : "left-3.5"
+                  }`}
+                />
+                <input
+                  value={pass}
+                  onChange={(e) => setPass(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t.passPlaceholder}
+                  autoComplete="current-password"
+                  maxLength={128}
+                  required
+                  className={`w-full h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
+                    dir === "rtl" ? "pr-11 pl-11 text-right" : "pl-11 pr-11 text-left"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                  className={`absolute top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center ${
+                    dir === "rtl" ? "left-1" : "right-1"
+                  }`}
                 >
-                  {dir === "rtl" ? <ArrowRight size={12} /> : <ArrowLeft size={12} />}
-                  <span>{t.backToSite}</span>
-                </Link>
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
+            {error && (
+              <div
+                role="alert"
+                className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in zoom-in-95 duration-150"
+              >
+                <AlertTriangle size={16} className="shrink-0 text-rose-400 mt-0.5" />
+                <span className="leading-relaxed font-sans">{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-12 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.25)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
+            >
+              {submitting ? (
+                <span className="flex items-center gap-2 animate-pulse">
+                  <Fingerprint size={18} className="animate-spin" />
+                  {t.authenticating}
+                </span>
+              ) : (
+                <>
+                  <KeyRound size={16} />
+                  <span>{t.loginBtn}</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[10px] text-slate-400">
+            <div className="flex items-center gap-1.5 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+              <Cpu size={12} className="text-emerald-400 shrink-0" />
+              <span className="truncate">TLS 1.3 · AES-256</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+              <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+              <span className="truncate">Zero-Trust Active</span>
+            </div>
+          </div>
+
+          <div className="mt-4 text-center space-y-2">
+            <p className="text-[10px] text-slate-500 uppercase tracking-tight">
+              {t.footerRestricted}
+            </p>
+            <p className="text-[9px] text-slate-600">
+              {t.footerMonitored}
+            </p>
+
+            <div className="pt-2">
+              <Link
+                to={`/${lang}`}
+                className="inline-flex items-center gap-1 text-[11px] text-emerald-400/80 hover:text-emerald-300 transition-colors font-sans"
+              >
+                {dir === "rtl" ? <ArrowRight size={12} /> : <ArrowLeft size={12} />}
+                <span>{t.backToSite}</span>
+              </Link>
+            </div>
           </div>
         </div>
-      </>
+      </div>
+    </>
   );
 }
