@@ -3,11 +3,17 @@
   "name": "Mizan Digital",
   "alternate_name": "ميزان",
   "url": "https://www.mizan.page",
+  "icon": "https://www.mizan.page/Logo.svg",
   "description": "Moroccan Legal & Academic Intelligence Platform providing structured access to legal codes, jurisprudence, law school directories, and public legal news.",
   "version": "1.0.0",
   "provider": {
     "name": "Mizan Digital Platform",
-    "url": "https://www.mizan.page"
+    "url": "https://www.mizan.page",
+    "contact_email": "support@mizan.page"
+  },
+  "legal": {
+    "privacy_policy": "https://www.mizan.page/ar/about",
+    "terms_of_service": "https://www.mizan.page/ar/about"
   },
   "languages_supported": ["ar", "fr", "en", "es"],
   "default_language": "ar",
@@ -20,25 +26,31 @@
       "description": "Search across Moroccan statutes, codes, and legal news",
       "endpoint_template": "https://www.mizan.page/{lang}/news?q={query}",
       "parameters": {
-        "lang": ["ar", "fr", "en", "es"],
-        "query": "string"
+        "lang": {
+          "type": "string",
+          "enum": ["ar", "fr", "en", "es"],
+          "default": "ar"
+        },
+        "query": {
+          "type": "string",
+          "description": "Legal topic, law number, or keyword"
+        }
       }
     },
     "key_databases": {
-      "moudawana": "https://www.mizan.page/ar/library",
-      "code_penal": "https://www.mizan.page/ar/library",
-      "code_du_travail": "https://www.mizan.page/ar/library",
-      "code_de_commerce": "https://www.mizan.page/ar/library",
-      "procedure_civile": "https://www.mizan.page/ar/library",
-      "procedure_penale": "https://www.mizan.page/ar/library"
+      "moudawana": "https://www.mizan.page/{lang}/library",
+      "code_penal": "https://www.mizan.page/{lang}/library",
+      "code_du_travail": "https://www.mizan.page/{lang}/library",
+      "code_de_commerce": "https://www.mizan.page/{lang}/library",
+      "procedure_civile": "https://www.mizan.page/{lang}/library",
+      "procedure_penale": "https://www.mizan.page/{lang}/library"
     },
     "directories": {
-      "law_schools": "https://www.mizan.page/ar/schools",
-      "archive": "https://www.mizan.page/ar/archive"
+      "law_schools": "https://www.mizan.page/{lang}/schools",
+      "archive": "https://www.mizan.page/{lang}/archive"
     }
   },
   "protocols_supported": ["A2A", "HTTPS", "Sitemap-v0.9"],
-  "contact": {
-    "email": "support@mizan.page"
-  }
+  "sitemap_url": "https://www.mizan.page/sitemap.xml",
+  "rss_feed": "https://www.mizan.page/feed.xml"
 }

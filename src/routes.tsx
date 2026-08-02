@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import {
   createBrowserRouter,
   Navigate,
+  Outlet,
   useParams,
   useLocation,
 } from "react-router-dom";
@@ -17,6 +18,13 @@ type Language = (typeof SUPPORTED_LANGS)[number];
 
 const DEFAULT_LANG: Language = "ar";
 
+const LOCALE_MAP: Record<Language, string> = {
+  ar: "ar_MA",
+  fr: "fr_FR",
+  en: "en_US",
+  es: "es_ES",
+};
+
 const SEO_TRANSLATIONS: Record<
   Language,
   { title: string; description: string; dir: "rtl" | "ltr" }
@@ -28,7 +36,7 @@ const SEO_TRANSLATIONS: Record<
     dir: "rtl",
   },
   fr: {
-    title: "Mizan Page | Plateforme Juridique et Académique",
+    title: "Mizan Digital | Plateforme Juridique et Académique",
     description:
       "Plateforme digitale pour les services juridiques, la jurisprudence et les actualités universitaires.",
     dir: "ltr",
@@ -42,7 +50,7 @@ const SEO_TRANSLATIONS: Record<
   es: {
     title: "Mizan Digital | Portal Jurídico y Académico",
     description:
-      "Plataforma digital para servicios jurídicos, jurisprudence y noticias universitarias.",
+      "Plataforma digital para servicios jurídicos, jurisprudencia y noticias universitarias.",
     dir: "ltr",
   },
 };
@@ -50,17 +58,17 @@ const SEO_TRANSLATIONS: Record<
 // ----------------------------------------------------------------------
 // LAZY IMPORT HELPER (Type-Safe Export Resolver)
 // ----------------------------------------------------------------------
-function lazyNamed<T extends Record<string, any>>(
+function lazyNamed<T extends Record<string, unknown>>(
   factory: () => Promise<T>,
   exportName?: keyof T
 ) {
   return lazy(async () => {
     const module = await factory();
     if (exportName && module[exportName]) {
-      return { default: module[exportName] as React.ComponentType<any> };
+      return { default: module[exportName] as React.ComponentType<unknown> };
     }
     if (module.default) {
-      return { default: module.default };
+      return { default: module.default as React.ComponentType<unknown> };
     }
     const exportedComponent = Object.values(module).find(
       (exp) =>
@@ -68,7 +76,7 @@ function lazyNamed<T extends Record<string, any>>(
         (typeof exp === "object" && exp !== null && "$$typeof" in exp)
     );
     if (exportedComponent) {
-      return { default: exportedComponent as React.ComponentType<any> };
+      return { default: exportedComponent as React.ComponentType<unknown> };
     }
     throw new Error("No valid component export found in dynamic import.");
   });
@@ -178,12 +186,33 @@ function RootLayoutWrapper() {
   useEffect(() => {
     const config = SEO_TRANSLATIONS[currentLang];
 
-    // 1. Update HTML document direction & language
+    // 1. Update HTML direction & language attributes
     document.documentElement.lang = currentLang;
     document.documentElement.dir = config.dir;
     document.title = config.title;
 
-    // 2. Canonical Link Injection
+    // 2. Update Description & Open Graph Locales
+    let metaDesc = document.querySelector<HTMLMetaElement>(
+      "meta[name='description']"
+    );
+    if (!metaDesc) {
+      metaDesc = document.createElement("meta");
+      metaDesc.name = "description";
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = config.description;
+
+    let ogLocale = document.querySelector<HTMLMetaElement>(
+      "meta[property='og:locale']"
+    );
+    if (!ogLocale) {
+      ogLocale = document.createElement("meta");
+      ogLocale.setAttribute("property", "og:locale");
+      document.head.appendChild(ogLocale);
+    }
+    ogLocale.content = LOCALE_MAP[currentLang];
+
+    // 3. Canonical Link Injection
     const canonicalUrl = `${SITE_URL}${location.pathname}`;
     let canonicalElement = document.querySelector<HTMLLinkElement>(
       "link[rel='canonical']"
@@ -195,7 +224,7 @@ function RootLayoutWrapper() {
     }
     canonicalElement.setAttribute("href", canonicalUrl);
 
-    // 3. Inject Master JSON-LD Schema (Google SEO)
+    // 4. Inject Master JSON-LD Schema (Google & AI Search Agents)
     const jsonLdData = {
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -285,7 +314,7 @@ function WriterGuard({ children }: { children: React.ReactNode }) {
 }
 
 /** Requires Staff / Admin / Security access */
-function AdminAccessGuard({ children }: { children: React.ReactNode }) {
+function AdminAccessGuard() {
   const { isStaff, loading } = useRole();
   const { lang } = useParams();
   const currentLang = getValidLang(lang);
@@ -296,7 +325,11 @@ function AdminAccessGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to={`/${currentLang}/admin/login`} replace />;
   }
 
-  return <>{children}</>;
+  return (
+    <Suspense fallback={<PageLoadingFallback />}>
+      <AdminLayout />
+    </Suspense>
+  );
 }
 
 /** Requires User Management capability (Admin, Security Admin, Root) */
@@ -406,13 +439,7 @@ export const router = createBrowserRouter([
       // Protected Admin Section
       {
         path: "admin",
-        element: (
-          <AdminAccessGuard>
-            <Suspense fallback={<PageLoadingFallback />}>
-              <AdminLayout />
-            </Suspense>
-          </AdminAccessGuard>
-        ),
+        element: <AdminAccessGuard />,
         children: [
           { index: true, element: <Dashboard /> },
           { path: "articles", element: <AdminArticles /> },

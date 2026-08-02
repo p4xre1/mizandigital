@@ -1,13 +1,10 @@
-const CACHE_NAME = "mizan-pwa-v4";
+const CACHE_NAME = "mizan-pwa-v5";
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
   "/manifest.json",
   "/site.webmanifest",
-  "/Logo.svg",
-  "/robots.txt",
-  "/feed.xml",
-  "/sitemap.xml"
+  "/Logo.svg"
 ];
 
 // Install Service Worker
@@ -38,9 +35,18 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
 
-  // 🚨 CRITICAL FIX: Only allow standard http and https requests.
-  // This completely ignores chrome-extension://, moz-extension://, etc.
+  // 🚨 Only allow standard http and https requests.
   if (!url.protocol.startsWith("http")) return;
+
+  // 🌐 BYPASS SERVICE WORKER: Let the browser/network natively handle SEO files and API calls
+  if (
+    url.pathname === "/sitemap.xml" ||
+    url.pathname === "/robots.txt" ||
+    url.pathname === "/feed.xml" ||
+    url.pathname.startsWith("/api/")
+  ) {
+    return;
+  }
 
   // Skip caching for external ads and analytics tracking
   if (
@@ -74,9 +80,7 @@ self.addEventListener("fetch", (event) => {
           if (indexFallback) return indexFallback;
         }
 
-        // 3. Absolute last resort — always return a valid Response,
-        //    never undefined (this is what was causing the
-        //    "Failed to convert value to 'Response'" error)
+        // 3. Absolute last resort — always return a valid Response
         return new Response("Offline - resource not available", {
           status: 503,
           statusText: "Service Unavailable",

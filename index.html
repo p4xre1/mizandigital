@@ -13,7 +13,7 @@
   <!-- 💰 Google AdSense Account Verification -->
   <meta name="google-adsense-account" content="ca-pub-1749032173858747" />
 
-  <!-- 🚀 Fast Network Connections & Arabic Font Loading -->
+  <!-- 🚀 Fast Network Connections & Font Preloading -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
@@ -22,31 +22,62 @@
   <!-- Modern Arabic Typography -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- 🔍 Primary SEO Meta Tags -->
+  <!-- 🔍 Primary SEO & Canonical Meta -->
   <title>Mizan Digital | ميزان الرقمية</title>
   <meta name="title" content="Mizan Digital | ميزان الرقمية" />
-  <meta name="description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
+  <meta name="description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية بالمغرب." />
   <meta name="author" content="Mizan Digital" />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href="https://www.mizan.page/ar" />
+
+  <!-- 🤖 Machine Discovery: Sitemap & RSS Feed -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="https://www.mizan.page/sitemap.xml" />
+  <link rel="alternate" type="application/rss+xml" title="Mizan Digital Feed" href="https://www.mizan.page/feed.xml" />
+
+  <!-- 🌐 Multilingual Hreflang Alternate Routing -->
+  <link rel="alternate" hreflang="ar" href="https://www.mizan.page/ar" />
+  <link rel="alternate" hreflang="fr" href="https://www.mizan.page/fr" />
+  <link rel="alternate" hreflang="en" href="https://www.mizan.page/en" />
+  <link rel="alternate" hreflang="es" href="https://www.mizan.page/es" />
+  <link rel="alternate" hreflang="x-default" href="https://www.mizan.page/ar" />
 
   <!-- 🌐 Open Graph / Facebook / WhatsApp Previews -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.mizan.page/ar" />
   <meta property="og:title" content="Mizan Digital | ميزان الرقمية" />
-  <meta property="og:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
+  <meta property="og:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية بالمغرب." />
   <meta property="og:image" content="https://www.mizan.page/og-image.jpg" />
+  <meta property="og:site_name" content="Mizan Digital" />
+  <meta property="og:locale" content="ar_MA" />
 
   <!-- 🐦 Twitter Previews -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:url" content="https://www.mizan.page/ar" />
   <meta name="twitter:title" content="Mizan Digital | ميزان الرقمية" />
-  <meta name="twitter:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية." />
+  <meta name="twitter:description" content="منصة ميزان الرقمية للخدمات والبحوث القانونية والاجتهادات القضائية بالمغرب." />
   <meta name="twitter:image" content="https://www.mizan.page/og-image.jpg" />
 
-  <!-- 📱 Favicons & Icons -->
+  <!-- 📱 Favicons & Web Manifest -->
   <link rel="icon" type="image/svg+xml" href="/Logo.svg" />
   <link rel="apple-touch-icon" href="/Logo.svg" />
   <link rel="manifest" href="/manifest.json" />
+
+  <!-- 🤖 Structured Data (JSON-LD Schema for Google & AI Engines) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Mizan Digital",
+    "alternateName": "ميزان الرقمية",
+    "url": "https://www.mizan.page",
+    "inLanguage": ["ar", "fr", "en", "es"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.mizan.page/ar/news?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 
   <!-- 💰 Google AdSense Main Script -->
   <script

@@ -33,7 +33,7 @@ const DEFAULT_LANG: Language = "ar";
 
 declare global {
   interface Window {
-    adsbygoogle?: Array<Record<string, unknown>>;
+    adsbygoogle: Record<string, unknown>[];
     gtag?: (...args: unknown[]) => void;
   }
 }
@@ -49,25 +49,25 @@ function sanitizeInput(str: string): string {
 // MULTI-LANGUAGE KEYWORDS & SEO DICTIONARY
 // ----------------------------------------------------------------------
 const TRANSLATIONS: Record<
-    Language,
-    {
-      dir: "rtl" | "ltr";
-      metaTitle: string;
-      metaDesc: string;
-      searchPlaceholder: string;
-      quickCategories: Array<{ id: string; name: string; slug: string }>;
-      heroHeading: string;
-      heroSubheading: string;
-      featureTitle: string;
-      docsTitle: string;
-      newsTitle: string;
-      schoolsTitle: string;
-      downloadDoc: string;
-      views: string;
-      writerAction: string;
-      adminAction: string;
-      verifiedBadge: string;
-    }
+  Language,
+  {
+    dir: "rtl" | "ltr";
+    metaTitle: string;
+    metaDesc: string;
+    searchPlaceholder: string;
+    quickCategories: Array<{ id: string; name: string; slug: string }>;
+    heroHeading: string;
+    heroSubheading: string;
+    featureTitle: string;
+    docsTitle: string;
+    newsTitle: string;
+    schoolsTitle: string;
+    downloadDoc: string;
+    views: string;
+    writerAction: string;
+    adminAction: string;
+    verifiedBadge: string;
+  }
 > = {
   ar: {
     dir: "rtl",
@@ -222,8 +222,8 @@ export default function Page(): React.JSX.Element {
   const currentLang = useMemo<Language>(() => {
     const clean = paramLang ? sanitizeInput(paramLang).toLowerCase() : "";
     return SUPPORTED_LANGS.includes(clean as Language)
-        ? (clean as Language)
-        : DEFAULT_LANG;
+      ? (clean as Language)
+      : DEFAULT_LANG;
   }, [paramLang]);
 
   const t = TRANSLATIONS[currentLang];
@@ -341,334 +341,334 @@ export default function Page(): React.JSX.Element {
   };
 
   return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col justify-between selection:bg-primary/20 selection:text-primary">
-        {/* HEADER NAVBAR */}
-        <Navbar />
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-between selection:bg-primary/20 selection:text-primary">
+      {/* HEADER NAVBAR */}
+      <Navbar />
 
-        {/* STAFF & ROLE CONTROLS BANNER */}
-        {isStaff && (
-            <div className="bg-primary/10 border-b border-primary/20 py-2 px-4">
-              <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-semibold">
-                <div className="flex items-center gap-2 text-primary">
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>
+      {/* STAFF & ROLE CONTROLS BANNER */}
+      {isStaff && (
+        <div className="bg-primary/10 border-b border-primary/20 py-2 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-xs font-semibold">
+            <div className="flex items-center gap-2 text-primary">
+              <ShieldCheck className="w-4 h-4" />
+              <span>
                 {currentLang === "ar"
-                    ? `أهلاً بك! صلاحية الحساب الحالي: ${role.toUpperCase()}`
-                    : `Active Role: ${role.toUpperCase()}`}
+                  ? `أهلاً بك! صلاحية الحساب الحالي: ${role.toUpperCase()}`
+                  : `Active Role: ${role.toUpperCase()}`}
               </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  {canWriteContent && (
-                      <Link
-                          to={`/${currentLang}/writer/editor`}
-                          className="flex items-center gap-1 text-primary hover:underline"
-                      >
-                        <PlusCircle className="w-3.5 h-3.5" />
-                        <span>{t.writerAction}</span>
-                      </Link>
-                  )}
-                  <Link
-                      to={`/${currentLang}/admin`}
-                      className="flex items-center gap-1 text-foreground hover:text-primary font-bold"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>{t.adminAction}</span>
-                  </Link>
-                </div>
-              </div>
             </div>
-        )}
-
-        {/* MAIN CONTAINER */}
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 sm:space-y-12">
-
-          {/* HERO SECTION (Mobile-First Layout) */}
-          <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-card via-card/80 to-background border border-border/80 p-6 sm:p-10 lg:p-12 shadow-sm text-center sm:text-start">
-            {/* Ambient Decorative Blurs */}
-            <div className="absolute -top-24 ltr:-right-24 rtl:-left-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 ltr:-left-24 rtl:-right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="relative z-10 max-w-3xl space-y-4 sm:space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wide">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{t.verifiedBadge}</span>
-              </div>
-
-              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight">
-                {t.heroHeading}
-              </h1>
-
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                {t.heroSubheading}
-              </p>
-
-              {/* SEARCH FORM (Mobile Optimized Tap Target) */}
-              <form
-                  onSubmit={handleSearchSubmit}
-                  className="relative max-w-2xl flex items-center mt-4"
-              >
-                <Search className="absolute ltr:left-4 rtl:right-4 w-5 h-5 text-muted-foreground pointer-events-none" />
-                <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t.searchPlaceholder}
-                    className="w-full h-13 sm:h-14 ltr:pl-12 ltr:pr-28 rtl:pr-12 rtl:pl-28 rounded-2xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all shadow-inner"
-                />
-                <button
-                    type="submit"
-                    className="absolute ltr:right-2 rtl:left-2 h-9 sm:h-10 px-4 sm:px-6 bg-primary text-primary-foreground font-bold text-xs sm:text-sm rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center"
+            <div className="flex items-center gap-3">
+              {canWriteContent && (
+                <Link
+                  to={`/${currentLang}/writer/editor`}
+                  className="flex items-center gap-1 text-primary hover:underline"
                 >
-                  {currentLang === "ar" ? "بحث" : "Search"}
-                </button>
-              </form>
+                  <PlusCircle className="w-3.5 h-3.5" />
+                  <span>{t.writerAction}</span>
+                </Link>
+              )}
+              <Link
+                to={`/${currentLang}/admin`}
+                className="flex items-center gap-1 text-foreground hover:text-primary font-bold"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>{t.adminAction}</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
-              {/* HORIZONTAL SWIPEABLE CATEGORY CHIPS (Mobile First) */}
-              <div className="pt-2">
-                <p className="text-xs font-semibold text-muted-foreground mb-2 sm:hidden">
-                  {currentLang === "ar" ? "التخصصات الأكثر طلباً:" : "Top Categories:"}
-                </p>
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2">
-                  {t.quickCategories.map((cat) => (
-                      <Link
-                          key={cat.id}
-                          to={`/${currentLang}/fields/${cat.slug}`}
-                          className="shrink-0 px-3.5 py-1.5 rounded-xl bg-muted/80 hover:bg-primary/10 hover:text-primary border border-border/60 text-xs font-medium transition-colors"
-                      >
-                        {cat.name}
-                      </Link>
-                  ))}
-                </div>
+      {/* MAIN CONTAINER */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 sm:space-y-12">
+
+        {/* HERO SECTION (Mobile-First Layout) */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-card via-card/80 to-background border border-border/80 p-6 sm:p-10 lg:p-12 shadow-sm text-center sm:text-start">
+          {/* Ambient Decorative Blurs */}
+          <div className="absolute -top-24 ltr:-right-24 rtl:-left-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-24 ltr:-left-24 rtl:-right-24 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-3xl space-y-4 sm:space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wide">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t.verifiedBadge}</span>
+            </div>
+
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-tight">
+              {t.heroHeading}
+            </h1>
+
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              {t.heroSubheading}
+            </p>
+
+            {/* SEARCH FORM (Mobile Optimized Tap Target) */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="relative max-w-2xl flex items-center mt-4"
+            >
+              <Search className="absolute ltr:left-4 rtl:right-4 w-5 h-5 text-muted-foreground pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t.searchPlaceholder}
+                className="w-full h-13 sm:h-14 ltr:pl-12 ltr:pr-28 rtl:pr-12 rtl:pl-28 rounded-2xl bg-background border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm transition-all shadow-inner"
+              />
+              <button
+                type="submit"
+                className="absolute ltr:right-2 rtl:left-2 h-9 sm:h-10 px-4 sm:px-6 bg-primary text-primary-foreground font-bold text-xs sm:text-sm rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center"
+              >
+                {currentLang === "ar" ? "بحث" : "Search"}
+              </button>
+            </form>
+
+            {/* HORIZONTAL SWIPEABLE CATEGORY CHIPS (Mobile First) */}
+            <div className="pt-2">
+              <p className="text-xs font-semibold text-muted-foreground mb-2 sm:hidden">
+                {currentLang === "ar" ? "التخصصات الأكثر طلباً:" : "Top Categories:"}
+              </p>
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-2 px-2">
+                {t.quickCategories.map((cat) => (
+                  <Link
+                    key={cat.id}
+                    to={`/${currentLang}/fields/${cat.slug}`}
+                    className="shrink-0 px-3.5 py-1.5 rounded-xl bg-muted/80 hover:bg-primary/10 hover:text-primary border border-border/60 text-xs font-medium transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* DEVELOPER BUILDER COMPONENT */}
-          <DeveloperBuilder />
+        {/* DEVELOPER BUILDER COMPONENT */}
+        <DeveloperBuilder />
 
-          {/* CORE LEGAL SPECIALTIES GRID */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                <Scale className="w-5 h-5 text-primary" />
-                <span>{t.featureTitle}</span>
-              </h2>
-              <Link
-                  to={`/${currentLang}/library`}
-                  className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+        {/* CORE LEGAL SPECIALTIES GRID */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <Scale className="w-5 h-5 text-primary" />
+              <span>{t.featureTitle}</span>
+            </h2>
+            <Link
+              to={`/${currentLang}/library`}
+              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+            >
+              <span>{currentLang === "ar" ? "عرض الكل" : "View All"}</span>
+              {t.dir === "rtl" ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Link
+              to={`/${currentLang}/fields/family-law`}
+              className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                  {currentLang === "ar" ? "قانون الأسرة والميراث" : "Family & Inheritance Law"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {currentLang === "ar"
+                    ? "أحكام مدونة الأسرة، قضايا الزواج، الطلاق، والتركات."
+                    : "Family code, marriage regulations, and inheritance rules."}
+                </p>
+              </div>
+            </Link>
+
+            <Link
+              to={`/${currentLang}/fields/criminal-law`}
+              className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                  {currentLang === "ar" ? "القانون الجنائي والمسطرة" : "Criminal Law & Procedure"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {currentLang === "ar"
+                    ? "مجموع القوانين الجنائية، الجنح، والجنايات وإجراءات المحاكمة."
+                    : "Penal codes, procedures, and criminal court jurisprudence."}
+                </p>
+              </div>
+            </Link>
+
+            <Link
+              to={`/${currentLang}/fields/commercial-law`}
+              className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Landmark className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                  {currentLang === "ar" ? "القانون التجاري والأعمال" : "Commercial & Business Law"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {currentLang === "ar"
+                    ? "مدونة التجارة، العقود التجارية، الشركات، والعقود."
+                    : "Commercial codes, business regulations, and corporate law."}
+                </p>
+              </div>
+            </Link>
+
+            <Link
+              to={`/${currentLang}/fields/administrative-law`}
+              className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Globe2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                  {currentLang === "ar" ? "القانون الإداري والنزاعات" : "Administrative Law"}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {currentLang === "ar"
+                    ? "الصفقات العمومية، القرارات الإدارية، والمحاكم الإدارية."
+                    : "Public contracts, administrative rulings, and disputes."}
+                </p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        {/* GOOGLE ADSENSE BANNER SLOT */}
+        <section className="min-h-[100px] w-full bg-muted/30 border border-border/60 rounded-2xl overflow-hidden flex items-center justify-center p-2 text-center">
+          <ins
+            className="adsbygoogle"
+            style={{ display: "block", width: "100%" }}
+            data-ad-client="ca-pub-1749032173858747"
+            data-ad-slot="auto"
+            data-ad-format="auto"
+            data-full-width-responsive="true"
+          />
+        </section>
+
+        {/* FEATURED LEGAL DOCUMENTS & FILES (Photos & Files Master SEO) */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <FileCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <span>{t.docsTitle}</span>
+            </h2>
+            <Link
+              to={`/${currentLang}/archive`}
+              className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
+            >
+              <span>{currentLang === "ar" ? "الأرشيف الكامل" : "Full Archive"}</span>
+              {t.dir === "rtl" ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {FEATURED_DOCUMENTS.map((doc) => (
+              <article
+                key={doc.id}
+                className="group bg-card border border-border/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
               >
-                <span>{currentLang === "ar" ? "عرض الكل" : "View All"}</span>
-                {t.dir === "rtl" ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <Link
-                  to={`/${currentLang}/fields/family-law`}
-                  className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
-              >
-                <div className="w-10 h-10 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <BookOpen className="w-5 h-5" />
-                </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
-                    {currentLang === "ar" ? "قانون الأسرة والميراث" : "Family & Inheritance Law"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {currentLang === "ar"
-                        ? "أحكام مدونة الأسرة، قضايا الزواج، الطلاق، والتركات."
-                        : "Family code, marriage regulations, and inheritance rules."}
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                  to={`/${currentLang}/fields/criminal-law`}
-                  className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
-              >
-                <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
-                    {currentLang === "ar" ? "القانون الجنائي والمسطرة" : "Criminal Law & Procedure"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {currentLang === "ar"
-                        ? "مجموع القوانين الجنائية، الجنح، والجنايات وإجراءات المحاكمة."
-                        : "Penal codes, procedures, and criminal court jurisprudence."}
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                  to={`/${currentLang}/fields/commercial-law`}
-                  className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
-              >
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Landmark className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
-                    {currentLang === "ar" ? "القانون التجاري والأعمال" : "Commercial & Business Law"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {currentLang === "ar"
-                        ? "مدونة التجارة، العقود التجارية، الشركات، والعقود."
-                        : "Commercial codes, business regulations, and corporate law."}
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                  to={`/${currentLang}/fields/administrative-law`}
-                  className="group p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/50 transition-all hover:shadow-md space-y-3"
-              >
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Globe2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground group-hover:text-primary transition-colors">
-                    {currentLang === "ar" ? "القانون الإداري والنزاعات" : "Administrative Law"}
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                    {currentLang === "ar"
-                        ? "الصفقات العمومية، القرارات الإدارية، والمحاكم الإدارية."
-                        : "Public contracts, administrative rulings, and disputes."}
-                  </p>
-                </div>
-              </Link>
-            </div>
-          </section>
-
-          {/* GOOGLE ADSENSE BANNER SLOT */}
-          <section className="min-h-[100px] w-full bg-muted/30 border border-border/60 rounded-2xl overflow-hidden flex items-center justify-center p-2 text-center">
-            <ins
-                className="adsbygoogle"
-                style={{ display: "block", width: "100%" }}
-                data-ad-client="ca-pub-1749032173858747"
-                data-ad-slot="auto"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-            />
-          </section>
-
-          {/* FEATURED LEGAL DOCUMENTS & FILES (Photos & Files Master SEO) */}
-          <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                <FileCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                <span>{t.docsTitle}</span>
-              </h2>
-              <Link
-                  to={`/${currentLang}/archive`}
-                  className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
-              >
-                <span>{currentLang === "ar" ? "الأرشيف الكامل" : "Full Archive"}</span>
-                {t.dir === "rtl" ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {FEATURED_DOCUMENTS.map((doc) => (
-                  <article
-                      key={doc.id}
-                      className="group bg-card border border-border/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-                  >
-                    <div>
-                      {/* Photo SEO Optimized Container */}
-                      <div className="relative h-44 w-full overflow-hidden bg-muted">
-                        <img
-                            src={doc.coverImg}
-                            alt={doc.coverAlt}
-                            title={doc.title}
-                            loading="lazy"
-                            decoding="async"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <span className="absolute top-3 ltr:left-3 rtl:right-3 bg-background/90 backdrop-blur-md text-foreground text-[11px] font-bold px-2.5 py-1 rounded-lg border border-border/50">
+                  {/* Photo SEO Optimized Container */}
+                  <div className="relative h-44 w-full overflow-hidden bg-muted">
+                    <img
+                      src={doc.coverImg}
+                      alt={doc.coverAlt}
+                      title={doc.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <span className="absolute top-3 ltr:left-3 rtl:right-3 bg-background/90 backdrop-blur-md text-foreground text-[11px] font-bold px-2.5 py-1 rounded-lg border border-border/50">
                       {doc.category}
                     </span>
-                      </div>
+                  </div>
 
-                      <div className="p-4 space-y-2">
-                        <h3 className="font-bold text-sm text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
-                          {doc.title}
-                        </h3>
+                  <div className="p-4 space-y-2">
+                    <h3 className="font-bold text-sm text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                      {doc.title}
+                    </h3>
 
-                        <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-1">
-                          <span>{doc.size}</span>
-                          <span>•</span>
-                          <span>
+                    <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-1">
+                      <span>{doc.size}</span>
+                      <span>•</span>
+                      <span>
                         {doc.downloads} {t.views}
                       </span>
-                        </div>
-                      </div>
                     </div>
+                  </div>
+                </div>
 
-                    {/* File Download Action */}
-                    <div className="p-4 pt-0">
-                      <a
-                          href={doc.fileUrl}
-                          onClick={() => handleDocumentDownload(doc.title)}
-                          download
-                          className="w-full py-2.5 px-4 bg-muted hover:bg-primary hover:text-primary-foreground text-foreground text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
-                      >
-                        <Download className="w-4 h-4" />
-                        <span>{t.downloadDoc}</span>
-                      </a>
-                    </div>
-                  </article>
-              ))}
-            </div>
-          </section>
+                {/* File Download Action */}
+                <div className="p-4 pt-0">
+                  <a
+                    href={doc.fileUrl}
+                    onClick={() => handleDocumentDownload(doc.title)}
+                    download
+                    className="w-full py-2.5 px-4 bg-muted hover:bg-primary hover:text-primary-foreground text-foreground text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>{t.downloadDoc}</span>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
 
-          {/* LAW SCHOOLS & DIRECTORY */}
-          <section className="bg-card/60 backdrop-blur-md rounded-2xl border border-border/80 p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-                <GraduationCap className="w-5 h-5 text-primary" />
-                <span>{t.schoolsTitle}</span>
-              </h2>
-              <Link
-                  to={`/${currentLang}/schools`}
-                  className="text-xs font-bold text-primary hover:underline"
-              >
-                {currentLang === "ar" ? "دليل الكليات" : "Faculties Directory"}
-              </Link>
-            </div>
+        {/* LAW SCHOOLS & DIRECTORY */}
+        <section className="bg-card/60 backdrop-blur-md rounded-2xl border border-border/80 p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+              <GraduationCap className="w-5 h-5 text-primary" />
+              <span>{t.schoolsTitle}</span>
+            </h2>
+            <Link
+              to={`/${currentLang}/schools`}
+              className="text-xs font-bold text-primary hover:underline"
+            >
+              {currentLang === "ar" ? "دليل الكليات" : "Faculties Directory"}
+            </Link>
+          </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-              <Link
-                  to={`/${currentLang}/schools/rabat`}
-                  className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
-              >
-                FSJES Rabat - السويسي
-              </Link>
-              <Link
-                  to={`/${currentLang}/schools/casablanca`}
-                  className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
-              >
-                FSJES Casablanca - عين الشق
-              </Link>
-              <Link
-                  to={`/${currentLang}/schools/fes`}
-                  className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
-              >
-                FSJES Fès - ظهر المهراز
-              </Link>
-              <Link
-                  to={`/${currentLang}/schools/marrakech`}
-                  className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
-              >
-                FSJES Marrakech - القاضي عياض
-              </Link>
-            </div>
-          </section>
-        </main>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <Link
+              to={`/${currentLang}/schools/rabat`}
+              className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
+            >
+              FSJES Rabat - السويسي
+            </Link>
+            <Link
+              to={`/${currentLang}/schools/casablanca`}
+              className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
+            >
+              FSJES Casablanca - عين الشق
+            </Link>
+            <Link
+              to={`/${currentLang}/schools/fes`}
+              className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
+            >
+              FSJES Fès - ظهر المهراز
+            </Link>
+            <Link
+              to={`/${currentLang}/schools/marrakech`}
+              className="p-3 rounded-xl bg-background border border-border/60 hover:border-primary transition-colors text-xs font-semibold text-foreground"
+            >
+              FSJES Marrakech - القاضي عياض
+            </Link>
+          </div>
+        </section>
+      </main>
 
-        {/* FOOTER */}
-        <Footer />
-      </div>
+      {/* FOOTER */}
+      <Footer />
+    </div>
   );
 }
