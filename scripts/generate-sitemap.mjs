@@ -10,12 +10,13 @@ const DOMAIN = 'https://www.mizan.page';
 
 const LANGS = ['ar', 'fr', 'en', 'es'];
 
-// 📚 Clean public routes matching router.tsx (NO /login)
+// 📚 Clean public routes matching router.tsx
 const PATHS = [
   '',
   '/about',
   '/archive',
   '/library',
+  '/news',
   '/schools'
 ];
 
@@ -36,22 +37,14 @@ function buildAlternateLinks(path) {
 function generateSitemapEntries() {
   const entries = [];
 
-  // 1. Root Domain Entry (https://www.mizan.page/)
-  entries.push(`  <url>
-    <loc>${DOMAIN}/</loc>
-${buildAlternateLinks('')}
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>`);
-
-  // 2. Localized Pages
   PATHS.forEach((path) => {
     LANGS.forEach((lang) => {
       const loc = `${DOMAIN}/${lang}${path}`;
       const isHome = path === '';
-      const priority = isHome ? '1.0' : (path === '/about' ? '0.8' : '0.9');
-      const changefreq = isHome || path === '/archive' ? 'daily' : 'weekly';
+      const isNews = path === '/news';
+      
+      const priority = isHome ? '1.0' : (isNews ? '0.95' : path === '/about' ? '0.8' : '0.9');
+      const changefreq = isHome || isNews || path === '/archive' ? 'daily' : 'weekly';
 
       entries.push(`  <url>
     <loc>${loc}</loc>
