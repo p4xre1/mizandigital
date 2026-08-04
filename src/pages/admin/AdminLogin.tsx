@@ -22,6 +22,7 @@ import { supabase } from "@/lib/supabase";
 import { throttle, sanitizeText } from "@/lib/security";
 import { adminLogin } from "@/lib/adminAuth";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { TurnstileCaptcha } from "@/components/auth/TurnstileCaptcha";
 
 // Platform domain reference
 const SITE_DOMAIN = import.meta.env.VITE_SITE_URL || "https://www.mizan.page";
@@ -83,6 +84,7 @@ const TRANSLATIONS = {
     accountFrozenErr: "هذا الحساب مجمد حالياً. يرجى مراجعة مسؤول الأمن السيبراني.",
     accessDeniedErr: "عذراً، لا تملك الصلاحيات الإدارية المطلوبة للوصول.",
     systemErrorErr: "حدث خطأ غير متوقع في النظام. حاول لاحقاً.",
+    captchaErr: "يرجى إكمال اختبار التحقق الأمني.",
     footerRestricted: "وصول مقيد · للأشخاص المصرح لهم فقط",
     footerMonitored: "جميع محاولات الدخول مسجلة ومراقبة بأعلى درجات التشفير",
     backToSite: "العودة للموقع الرئيسي",
@@ -106,6 +108,7 @@ const TRANSLATIONS = {
     accountFrozenErr: "Le compte est suspendu. Contactez le support système.",
     accessDeniedErr: "Accès refusé. Privilèges administratifs requis.",
     systemErrorErr: "Une erreur système inattendue s'est produite.",
+    captchaErr: "Veuillez vérifier le test de sécurité.",
     footerRestricted: "ACCÈS RESTREINT · PERSONNEL AUTORISÉ UNIQUEMENT",
     footerMonitored: "TOUTES LES TENTATIVES DE CONNEXION SONT ENREGISTRÉES",
     backToSite: "Retour au site principal",
@@ -129,6 +132,7 @@ const TRANSLATIONS = {
     accountFrozenErr: "Account is frozen. Contact system administrator.",
     accessDeniedErr: "Access denied. Administrative privileges required.",
     systemErrorErr: "An unexpected system error occurred.",
+    captchaErr: "Please complete the security verification.",
     footerRestricted: "RESTRICTED ACCESS · AUTHORIZED PERSONNEL ONLY",
     footerMonitored: "ALL LOGIN ATTEMPTS ARE LOGGED & MONITORED",
     backToSite: "Back to main site",
@@ -152,6 +156,7 @@ const TRANSLATIONS = {
     accountFrozenErr: "Cuenta congelada. Contacte al administrador del sistema.",
     accessDeniedErr: "Acceso denegado. Se requieren privilegios administrativos.",
     systemErrorErr: "Ocurrió un error inesperado en el sistema.",
+    captchaErr: "Por favor complete la verificación de seguridad.",
     footerRestricted: "ACCESO RESTRINGIDO · SÓLO PERSONAL AUTORIZADO",
     footerMonitored: "TODOS LOS INTENTOS SON REGISTRADOS Y MONITOREADOS",
     backToSite: "Volver al sitio principal",
@@ -169,6 +174,7 @@ export default function AdminLogin() {
   const [pass, setPass] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [honeypot, setHoneypot] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
@@ -232,10 +238,11 @@ export default function AdminLogin() {
         targetEmail = userProfile.email;
       }
 
-      // 6. Authenticate via Supabase Auth Engine using resolved email
+      // 6. Authenticate via Supabase Auth Engine with Turnstile token
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: targetEmail,
         password: rawPass,
+        options: captchaToken ? { captchaToken } : undefined,
       });
 
       if (authError || !authData.user) {
@@ -471,6 +478,15 @@ export default function AdminLogin() {
                 </button>
               </div>
             </div>
+
+            {/* Cloudflare Turnstile Verification */}
+            <TurnstileCaptcha
+              onVerify={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken(null)}
+              onError={() => setCaptchaToken(null)}
+              theme="dark"
+              size="normal"
+            />
 
             {error && (
               <div
