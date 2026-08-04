@@ -7,7 +7,7 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "dir": "auto",
+  "dir": "rtl",
   "lang": "ar-MA",
   "background_color": "#052e16",
   "theme_color": "#052e16",
@@ -22,34 +22,6 @@
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "القوانين والمدونات",
-      "short_name": "القوانين",
-      "description": "تصفح المكتبة القانونية",
-      "url": "/ar/library",
-      "icons": [
-        {
-          "src": "/Logo.svg",
-          "type": "image/svg+xml",
-          "sizes": "any"
-        }
-      ]
-    },
-    {
-      "name": "الأخبار والمستجدات",
-      "short_name": "الأخبار",
-      "description": "اطلع على آخر المستجدات القانونية",
-      "url": "/ar/news",
-      "icons": [
-        {
-          "src": "/Logo.svg",
-          "type": "image/svg+xml",
-          "sizes": "any"
-        }
-      ]
     }
   ]
 }
