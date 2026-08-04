@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useImperativeHandle,
+} from "react";
 
 // Official Cloudflare Turnstile API Types
 interface TurnstileRenderOptions {
@@ -36,181 +43,200 @@ interface TurnstileProps {
   size?: "normal" | "compact" | "flexible";
 }
 
-export function TurnstileCaptcha({
-  onVerify,
-  onError,
-  onExpire,
-  theme = "auto",
-  size = "normal",
-}: TurnstileProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [loadFailed, setLoadFailed] = useState<boolean>(false);
-  const [retryCount, setRetryCount] = useState<number>(0);
+// Handle exposed to parent components via ref
+export interface TurnstileCaptchaHandle {
+  reset: () => void;
+}
 
-  // Keep callback references synchronized without triggering effect re-renders
-  const onVerifyRef = useRef(onVerify);
-  const onErrorRef = useRef(onError);
-  const onExpireRef = useRef(onExpire);
+export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProps>(
+  function TurnstileCaptcha(
+    { onVerify, onError, onExpire, theme = "auto", size = "normal" },
+    ref
+  ) {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const widgetIdRef = useRef<string | null>(null);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+    const [loadFailed, setLoadFailed] = useState<boolean>(false);
+    const [retryCount, setRetryCount] = useState<number>(0);
 
-  useEffect(() => {
-    onVerifyRef.current = onVerify;
-    onErrorRef.current = onError;
-    onExpireRef.current = onExpire;
-  }, [onVerify, onError, onExpire]);
+    // Keep callback references synchronized without triggering effect re-renders
+    const onVerifyRef = useRef(onVerify);
+    const onErrorRef = useRef(onError);
+    const onExpireRef = useRef(onExpire);
 
-  // Safe Environment Key Extraction (Supports Vite, Next.js, and process.env safely)
-  const getSiteKey = useCallback((): string | undefined => {
-    const viteKey =
-      import.meta.env?.VITE_CLOUDFLARE_SITE_KEY ||
-      import.meta.env?.VITE_TURNSTILE_SITE_KEY;
-    if (viteKey) return viteKey;
+    useEffect(() => {
+      onVerifyRef.current = onVerify;
+      onErrorRef.current = onError;
+      onExpireRef.current = onExpire;
+    }, [onVerify, onError, onExpire]);
 
-    if (typeof process !== "undefined" && process.env) {
-      return (
-        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
-        process.env.VITE_CLOUDFLARE_SITE_KEY ||
-        process.env.VITE_TURNSTILE_SITE_KEY
-      );
-    }
-    return undefined;
-  }, []);
-
-  const handleRetry = () => {
-    setLoadFailed(false);
-    setIsLoaded(false);
-    setRetryCount((prev) => prev + 1);
-  };
-
-  useEffect(() => {
-    const siteKey = getSiteKey();
-
-    if (!siteKey) {
-      console.error(
-        "Turnstile Error: Missing Site Key in environment variables! " +
-          "Ensure VITE_CLOUDFLARE_SITE_KEY or VITE_TURNSTILE_SITE_KEY is configured."
-      );
-      setLoadFailed(true);
-      return;
-    }
-
-    let isMounted = true;
-
-    // Render Turnstile widget into container
-    const renderWidget = () => {
-      if (!isMounted || !containerRef.current || !window.turnstile) return;
-      if (widgetIdRef.current) return; // Prevent duplicate renders
-
-      try {
-        widgetIdRef.current = window.turnstile.render(containerRef.current, {
-          sitekey: siteKey,
-          theme,
-          size,
-          callback: (token: string) => {
-            if (isMounted) onVerifyRef.current(token);
-          },
-          "error-callback": () => {
-            if (isMounted && onErrorRef.current) onErrorRef.current();
-          },
-          "expired-callback": () => {
-            if (isMounted && onExpireRef.current) onExpireRef.current();
-          },
-        });
-
-        if (isMounted) {
-          setIsLoaded(true);
-          setLoadFailed(false);
+    // Expose an imperative reset() so parent forms can force a fresh token
+    // after a failed submission (Turnstile tokens are single-use).
+    useImperativeHandle(ref, () => ({
+      reset: () => {
+        if (widgetIdRef.current && window.turnstile) {
+          try {
+            window.turnstile.reset(widgetIdRef.current);
+          } catch (err) {
+            console.error("Turnstile reset error:", err);
+          }
         }
-      } catch (err) {
-        console.error("Cloudflare Turnstile render error:", err);
-        if (isMounted) setLoadFailed(true);
+      },
+    }));
+
+    // Safe Environment Key Extraction (Supports Vite, Next.js, and process.env safely)
+    const getSiteKey = useCallback((): string | undefined => {
+      const viteKey =
+        import.meta.env?.VITE_CLOUDFLARE_SITE_KEY ||
+        import.meta.env?.VITE_TURNSTILE_SITE_KEY;
+      if (viteKey) return viteKey;
+
+      if (typeof process !== "undefined" && process.env) {
+        return (
+          process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ||
+          process.env.VITE_CLOUDFLARE_SITE_KEY ||
+          process.env.VITE_TURNSTILE_SITE_KEY
+        );
       }
+      return undefined;
+    }, []);
+
+    const handleRetry = () => {
+      setLoadFailed(false);
+      setIsLoaded(false);
+      widgetIdRef.current = null;
+      setRetryCount((prev) => prev + 1);
     };
 
-    const SCRIPT_ID = "cf-turnstile-script";
+    useEffect(() => {
+      const siteKey = getSiteKey();
 
-    if (window.turnstile) {
-      renderWidget();
-    } else {
-      let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
+      if (!siteKey) {
+        console.error(
+          "Turnstile Error: Missing Site Key in environment variables! " +
+            "Ensure VITE_CLOUDFLARE_SITE_KEY or VITE_TURNSTILE_SITE_KEY is configured."
+        );
+        setLoadFailed(true);
+        return;
+      }
 
-      window.onloadTurnstileCallback = () => {
-        if (isMounted) renderWidget();
+      let isMounted = true;
+
+      // Render Turnstile widget into container
+      const renderWidget = () => {
+        if (!isMounted || !containerRef.current || !window.turnstile) return;
+        if (widgetIdRef.current) return; // Prevent duplicate renders
+
+        try {
+          widgetIdRef.current = window.turnstile.render(containerRef.current, {
+            sitekey: siteKey,
+            theme,
+            size,
+            callback: (token: string) => {
+              if (isMounted) onVerifyRef.current(token);
+            },
+            "error-callback": () => {
+              if (isMounted && onErrorRef.current) onErrorRef.current();
+            },
+            "expired-callback": () => {
+              if (isMounted && onExpireRef.current) onExpireRef.current();
+            },
+          });
+
+          if (isMounted) {
+            setIsLoaded(true);
+            setLoadFailed(false);
+          }
+        } catch (err) {
+          console.error("Cloudflare Turnstile render error:", err);
+          if (isMounted) setLoadFailed(true);
+        }
       };
 
-      if (!script) {
-        script = document.createElement("script");
-        script.id = SCRIPT_ID;
-        script.src =
-          "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit";
-        script.async = true;
-        script.defer = true;
-        script.onerror = () => {
-          console.error(
-            "Cloudflare Turnstile script failed to load (blocked by network or client extension)."
-          );
-          if (isMounted) setLoadFailed(true);
-        };
-        document.head.appendChild(script);
+      const SCRIPT_ID = "cf-turnstile-script";
+
+      if (window.turnstile) {
+        renderWidget();
       } else {
-        // Script already exists in document, poll briefly as fallback
-        const checkInterval = setInterval(() => {
-          if (window.turnstile) {
+        let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
+
+        window.onloadTurnstileCallback = () => {
+          if (isMounted) renderWidget();
+        };
+
+        if (!script) {
+          script = document.createElement("script");
+          script.id = SCRIPT_ID;
+          script.src =
+            "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit";
+          script.async = true;
+          script.defer = true;
+          script.onerror = () => {
+            console.error(
+              "Cloudflare Turnstile script failed to load (blocked by network or client extension)."
+            );
+            if (isMounted) setLoadFailed(true);
+          };
+          document.head.appendChild(script);
+        } else {
+          // Script already exists in document, poll briefly as fallback
+          const checkInterval = setInterval(() => {
+            if (window.turnstile) {
+              clearInterval(checkInterval);
+              if (isMounted) renderWidget();
+            }
+          }, 100);
+
+          setTimeout(() => {
             clearInterval(checkInterval);
-            if (isMounted) renderWidget();
-          }
-        }, 100);
-
-        setTimeout(() => {
-          clearInterval(checkInterval);
-          if (isMounted && !window.turnstile) setLoadFailed(true);
-        }, 5000);
-      }
-    }
-
-    return () => {
-      isMounted = false;
-      if (widgetIdRef.current && window.turnstile) {
-        try {
-          window.turnstile.remove(widgetIdRef.current);
-        } catch {
-          // Ignore cleanup errors on unmount
+            if (isMounted && !window.turnstile) setLoadFailed(true);
+          }, 5000);
         }
-        widgetIdRef.current = null;
       }
-    };
-  }, [theme, size, retryCount, getSiteKey]);
 
-  return (
-    <div className="my-3 w-full flex flex-col items-center justify-center min-h-[65px] overflow-hidden select-none touch-manipulation">
-      {!isLoaded && !loadFailed && (
-        <div className="w-[300px] h-[65px] rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 animate-pulse flex items-center justify-center text-xs text-slate-400 font-medium">
-          🔒 Verifying connection...
-        </div>
-      )}
+      return () => {
+        isMounted = false;
+        if (widgetIdRef.current && window.turnstile) {
+          try {
+            window.turnstile.remove(widgetIdRef.current);
+          } catch {
+            // Ignore cleanup errors on unmount
+          }
+          widgetIdRef.current = null;
+        }
+      };
+    }, [theme, size, retryCount, getSiteKey]);
 
-      {loadFailed && (
-        <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-center max-w-sm">
-          <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-            ⚠️ Security verification unavailable. Please check your connection or disable ad blockers.
-          </p>
-          <button
-            type="button"
-            onClick={handleRetry}
-            className="px-3 py-1 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 active:scale-95"
-          >
-            Retry Verification
-          </button>
-        </div>
-      )}
+    return (
+      <div className="my-3 w-full flex flex-col items-center justify-center min-h-[65px] overflow-hidden select-none touch-manipulation">
+        {!isLoaded && !loadFailed && (
+          <div className="w-[300px] h-[65px] rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 animate-pulse flex items-center justify-center text-xs text-slate-400 font-medium">
+            🔒 Verifying connection...
+          </div>
+        )}
 
-      <div
-        ref={containerRef}
-        className={`transition-opacity duration-300 ${
-          isLoaded && !loadFailed ? "opacity-100 block" : "opacity-0 h-0 overflow-hidden"
-        }`}
-      />
-    </div>
-  );
-}
+        {loadFailed && (
+          <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-center max-w-sm">
+            <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+              ⚠️ Security verification unavailable. Please check your connection or disable ad blockers.
+            </p>
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="px-3 py-1 text-xs font-semibold rounded-lg bg-amber-600 hover:bg-amber-700 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 active:scale-95"
+            >
+              Retry Verification
+            </button>
+          </div>
+        )}
+
+        <div
+          ref={containerRef}
+          className={`transition-opacity duration-300 ${
+            isLoaded && !loadFailed ? "opacity-100 block" : "opacity-0 h-0 overflow-hidden"
+          }`}
+        />
+      </div>
+    );
+  }
+);

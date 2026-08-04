@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   ShieldCheck,
@@ -22,7 +22,7 @@ import { supabase } from "@/lib/supabase";
 import { throttle, sanitizeText } from "@/lib/security";
 import { adminLogin } from "@/lib/adminAuth";
 import { SEOHead } from "@/components/seo/SEOHead";
-import { TurnstileCaptcha } from "@/components/auth/TurnstileCaptcha";
+import { TurnstileCaptcha, TurnstileCaptchaHandle } from "@/components/auth/TurnstileCaptcha";
 
 // Platform domain reference
 const SITE_DOMAIN = import.meta.env.VITE_SITE_URL || "https://www.mizan.page";
@@ -38,7 +38,6 @@ const ALLOWED_ADMIN_ROLES = new Set([
   "superadmin",
 ]);
 
-// Supabase Profile query shape
 interface ProfileAuthCheck {
   role: string | null;
   admin_god_mode?: boolean | null;
@@ -49,7 +48,6 @@ interface ProfileEmailLookup {
   email: string;
 }
 
-// Helper for dynamic rate-limit error message
 function getRateLimitMessage(lang: string, sec: number): string {
   switch (lang) {
     case "ar":
@@ -63,7 +61,6 @@ function getRateLimitMessage(lang: string, sec: number): string {
   }
 }
 
-// Master 4-Language Dictionary for Admin Gateway
 const TRANSLATIONS = {
   ar: {
     seoTitle: "بوابة الإدارة المشفرة | منصة ميزان القانونية",
@@ -179,6 +176,18 @@ export default function AdminLogin() {
   const [submitting, setSubmitting] = useState(false);
   const [logoError, setLogoError] = useState(false);
 
+  // Ref to force-reset the Turnstile widget after a failed attempt
+  // (Turnstile tokens are single-use — reusing one after a failed
+  // submission causes every subsequent attempt to be rejected).
+  const turnstileRef = useRef<TurnstileCaptchaHandle>(null);
+
+  const failAttempt = (message: string) => {
+    setError(message);
+    setCaptchaToken(null);
+    turnstileRef.current?.reset();
+    setSubmitting(false);
+  };
+
   // Submit Handler
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -206,6 +215,12 @@ export default function AdminLogin() {
       return;
     }
 
+    // 3b. Require completed Turnstile challenge before hitting Supabase
+    if (!captchaToken) {
+      setError(t.captchaErr);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -230,24 +245,25 @@ export default function AdminLogin() {
         const userProfile = rawUserProfile as ProfileEmailLookup | null;
 
         if (lookupError || !userProfile?.email) {
-          setError(t.authFailedErr);
-          setSubmitting(false);
+          failAttempt(t.authFailedErr);
           return;
         }
 
         targetEmail = userProfile.email;
       }
 
-      // 6. Authenticate via Supabase Auth Engine with optional Turnstile token
+      // 6. Authenticate via Supabase Auth Engine with Turnstile token
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: targetEmail,
         password: rawPass,
-        options: captchaToken ? { captchaToken } : undefined,
+        options: { captchaToken },
       });
 
       if (authError || !authData.user) {
-        setError(t.authFailedErr);
-        setSubmitting(false);
+        // Log the real reason during development/debugging — remove or
+        // gate behind an env flag before shipping to production.
+        console.error("Supabase auth error:", authError);
+        failAttempt(t.authFailedErr);
         return;
       }
 
@@ -278,8 +294,7 @@ export default function AdminLogin() {
       // Account Suspension Check
       if (profile?.is_frozen) {
         await supabase.auth.signOut();
-        setError(t.accountFrozenErr);
-        setSubmitting(false);
+        failAttempt(t.accountFrozenErr);
         return;
       }
 
@@ -298,8 +313,7 @@ export default function AdminLogin() {
 
       if (!hasAdminClearance) {
         await supabase.auth.signOut();
-        setError(t.accessDeniedErr);
-        setSubmitting(false);
+        failAttempt(t.accessDeniedErr);
         return;
       }
 
@@ -307,7 +321,7 @@ export default function AdminLogin() {
       navigate(`/${lang}/admin`);
     } catch (err) {
       console.error("Critical Login Exception:", err);
-      setError(t.systemErrorErr);
+      failAttempt(t.systemErrorErr);
     } finally {
       setSubmitting(false);
     }
@@ -326,13 +340,10 @@ export default function AdminLogin() {
         className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden font-mono select-none"
         dir={dir}
       >
-        {/* Background Grid */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] sm:bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
 
-        {/* Radar Effect */}
         <div className="absolute w-[500px] h-[500px] sm:w-[800px] sm:h-[800px] rounded-full border border-emerald-500/10 animate-ping pointer-events-none opacity-20" />
 
-        {/* Language Switcher */}
         <div className="absolute top-3 sm:top-6 z-20 flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-full px-2 py-1 shadow-md text-xs">
           <Globe size={14} className="text-emerald-400 ml-1 rtl:mr-1" />
           {(["ar", "fr", "en", "es"] as const).map((l) => (
@@ -351,7 +362,6 @@ export default function AdminLogin() {
           ))}
         </div>
 
-        {/* Login Card */}
         <div className="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative z-10 backdrop-blur-xl my-auto transition-all">
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-6 text-[10px] sm:text-[11px] tracking-wider text-emerald-500 uppercase font-bold">
             <span className="flex items-center gap-1.5">
@@ -481,6 +491,7 @@ export default function AdminLogin() {
 
             {/* Cloudflare Turnstile Verification */}
             <TurnstileCaptcha
+              ref={turnstileRef}
               onVerify={(token) => setCaptchaToken(token)}
               onExpire={() => setCaptchaToken(null)}
               onError={() => setCaptchaToken(null)}
