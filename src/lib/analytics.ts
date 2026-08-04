@@ -114,7 +114,7 @@ export function initGA(): void {
         allow_google_signals: true,
         allow_ad_personalization_signals: false,
         cookie_flags: "SameSite=None;Secure",
-        site_domain: SITE_URL,
+        site_domain: window.location.hostname || SITE_URL,
       });
 
       const script = document.createElement("script");
@@ -168,13 +168,13 @@ export function trackEvent(eventName: string, params?: Record<string, unknown>):
       });
     }
 
-    // 3. Low-latency beacon fallback for mobile off-loading
+    // 3. Low-latency beacon fallback using relative URI to prevent CORS errors across subdomains
     if (navigator.sendBeacon && sanitizedParams.critical === true) {
       try {
         const blob = new Blob([JSON.stringify({ eventName, ...sanitizedParams })], {
           type: "application/json",
         });
-        navigator.sendBeacon(`${SITE_URL}/api/analytics`, blob);
+        navigator.sendBeacon("/api/analytics", blob);
       } catch {
         // Silently swallow beacon errors
       }

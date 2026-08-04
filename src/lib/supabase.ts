@@ -4,29 +4,50 @@ import type { Database, Json } from "@/types/database.types";
 
 // ── ENVIRONMENT CONFIGURATION ────────────────────────────────────────────────
 export const SITE_URL =
-    (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
-    "https://www.mizan.page";
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_URL) ||
+  "https://www.mizan.page";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+const rawUrl =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) ||
+  "";
+const rawAnonKey =
+  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_ANON_KEY) ||
+  "";
+
+/**
+ * Validates whether a given string is a valid HTTP/HTTPS URL.
+ */
+function isValidHttpUrl(urlString: string): boolean {
+  if (!urlString) return false;
+  try {
+    const url = new URL(urlString);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Validates whether Supabase credentials are configured correctly.
  */
 export const isSupabaseConfigured = Boolean(
-    supabaseUrl &&
-    supabaseAnonKey &&
-    supabaseUrl !== "https://your-supabase-id.supabase.co" &&
-    supabaseAnonKey !== "your-supabase-anon-key"
+  rawUrl &&
+  rawAnonKey &&
+  isValidHttpUrl(rawUrl) &&
+  rawUrl !== "https://your-supabase-id.supabase.co" &&
+  rawUrl !== "https://your-project-ref.supabase.co" &&
+  rawAnonKey !== "your-supabase-anon-key" &&
+  rawAnonKey !== "your-actual-anon-key"
 );
 
 const safeUrl = isSupabaseConfigured
-    ? supabaseUrl
-    : "https://placeholder-project.supabase.co";
+  ? rawUrl
+  : "https://placeholder-project.supabase.co";
 
 const safeAnonKey = isSupabaseConfigured
-    ? supabaseAnonKey
-    : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder";
+  ? rawAnonKey
+  : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder";
 
 // ── SUPABASE CLIENT CONFIGURATION ───────────────────────────────────────────
 export const supabase = createClient<Database>(safeUrl, safeAnonKey, {
@@ -75,8 +96,8 @@ export async function getArticles(options: GetArticlesOptions = {}) {
 
   try {
     let query = supabase
-        .from("articles")
-        .select("*", { count: "exact" });
+      .from("articles")
+      .select("*", { count: "exact" });
 
     if (options.category) {
       query = query.eq("category", options.category);
@@ -92,7 +113,7 @@ export async function getArticles(options: GetArticlesOptions = {}) {
 
     if (options.searchQuery) {
       query = query.or(
-          `title.ilike.%${options.searchQuery}%,summary.ilike.%${options.searchQuery}%`
+        `title.ilike.%${options.searchQuery}%,summary.ilike.%${options.searchQuery}%`
       );
     }
 
@@ -122,10 +143,10 @@ export async function getArticleBySlug(slug: string) {
 
   try {
     const { data, error } = await supabase
-        .from("articles")
-        .select("*")
-        .eq("slug", slug)
-        .maybeSingle();
+      .from("articles")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
 
     return { data, error };
   } catch (err) {
@@ -158,7 +179,10 @@ export interface DocumentSeoMetadata {
 /**
  * Generates SEO metadata and Schema.org ImageObject for visual assets
  */
-export function generatePhotoSeoSchema(photo: PhotoSeoMetadata, lang: SupportedLang = "ar") {
+export function generatePhotoSeoSchema(
+  photo: PhotoSeoMetadata,
+  lang: SupportedLang = "ar"
+) {
   const title = photo.title[lang] || photo.title.ar;
   const alt = photo.altText[lang] || photo.altText.ar;
 
@@ -171,16 +195,26 @@ export function generatePhotoSeoSchema(photo: PhotoSeoMetadata, lang: SupportedL
     description: alt,
     caption: photo.caption ? photo.caption[lang] || photo.caption.ar : title,
     keywords: photo.keywords.join(", "),
-    ...(photo.dimensions ? { width: `${photo.dimensions.width}px`, height: `${photo.dimensions.height}px` } : {}),
+    ...(photo.dimensions
+      ? {
+          width: `${photo.dimensions.width}px`,
+          height: `${photo.dimensions.height}px`,
+        }
+      : {}),
   };
 }
 
 /**
  * Generates SEO document download tags and metadata keywords for file assets
  */
-export function generateDocumentSeoSchema(doc: DocumentSeoMetadata, lang: SupportedLang = "ar") {
+export function generateDocumentSeoSchema(
+  doc: DocumentSeoMetadata,
+  lang: SupportedLang = "ar"
+) {
   const title = doc.title[lang] || doc.title.ar;
-  const description = doc.description ? doc.description[lang] || doc.description.ar : title;
+  const description = doc.description
+    ? doc.description[lang] || doc.description.ar
+    : title;
 
   return {
     "@context": "https://schema.org",
@@ -196,14 +230,16 @@ export function generateDocumentSeoSchema(doc: DocumentSeoMetadata, lang: Suppor
 // ── 🛡️ Security Audit & Analytics Helper ────────────────────────────────────
 
 export async function logAuditEvent(
-    action: string,
-    tableName: string,
-    oldData?: Record<string, any>,
-    newData?: Record<string, any>
+  action: string,
+  tableName: string,
+  oldData?: Record<string, unknown>,
+  newData?: Record<string, unknown>
 ) {
   if (!isSupabaseConfigured) return;
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
     type AuditLogInsert = Database["public"]["Tables"]["audit_logs"]["Insert"];
 

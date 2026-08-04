@@ -33,13 +33,15 @@ const ALLOWED_ADMIN_ROLES = new Set([
   "admin",
   "marketer",
   "writer",
+  "editor",
+  "superadmin",
 ]);
 
 // Supabase Profile query shape
 interface ProfileAuthCheck {
   role: string | null;
-  admin_god_mode: boolean | null;
-  is_frozen: boolean | null;
+  admin_god_mode?: boolean | null;
+  is_frozen?: boolean | null;
 }
 
 interface ProfileEmailLookup {
@@ -242,34 +244,50 @@ export default function AdminLogin() {
         return;
       }
 
-      // 7. Role & Account Freeze Verification
+      // 7. Role & Account Freeze Verification (Defensive multi-step query)
+      let profile: ProfileAuthCheck | null = null;
+
       const { data: rawData, error: profileError } = await supabase
         .from("profiles")
         .select("role, admin_god_mode, is_frozen")
         .eq("id", authData.user.id)
-        .single();
+        .maybeSingle();
 
-      const profile = rawData as ProfileAuthCheck | null;
+      if (profileError) {
+        // Safe Fallback: If custom schema columns (admin_god_mode/is_frozen) don't exist yet
+        const { data: basicData } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", authData.user.id)
+          .maybeSingle();
 
-      if (profileError || !profile) {
-        await supabase.auth.signOut();
-        setError(t.permVerifyErr);
-        setSubmitting(false);
-        return;
+        if (basicData) {
+          profile = basicData as ProfileAuthCheck;
+        }
+      } else {
+        profile = rawData as ProfileAuthCheck | null;
       }
 
       // Account Suspension Check
-      if (profile.is_frozen) {
+      if (profile?.is_frozen) {
         await supabase.auth.signOut();
         setError(t.accountFrozenErr);
         setSubmitting(false);
         return;
       }
 
-      // Multi-tier Role Check
-      const userRole = (profile.role || "").toLowerCase().trim();
+      // Multi-tier Role Clearance (Checks profile table + auth metadata)
+      const userRole = (
+        profile?.role ||
+        (authData.user.app_metadata?.role as string) ||
+        (authData.user.user_metadata?.role as string) ||
+        ""
+      )
+        .toLowerCase()
+        .trim();
+
       const hasAdminClearance =
-        profile.admin_god_mode === true || ALLOWED_ADMIN_ROLES.has(userRole);
+        profile?.admin_god_mode === true || ALLOWED_ADMIN_ROLES.has(userRole);
 
       if (!hasAdminClearance) {
         await supabase.auth.signOut();
@@ -385,7 +403,10 @@ export default function AdminLogin() {
             />
 
             <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+              <label
+                htmlFor="admin-identity"
+                className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block"
+              >
                 {t.identityLabel}
               </label>
               <div className="relative">
@@ -396,6 +417,7 @@ export default function AdminLogin() {
                   }`}
                 />
                 <input
+                  id="admin-identity"
                   value={identity}
                   onChange={(e) => setIdentity(e.target.value)}
                   type="text"
@@ -411,7 +433,10 @@ export default function AdminLogin() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
+              <label
+                htmlFor="admin-password"
+                className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block"
+              >
                 {t.passLabel}
               </label>
               <div className="relative">
@@ -422,6 +447,7 @@ export default function AdminLogin() {
                   }`}
                 />
                 <input
+                  id="admin-password"
                   value={pass}
                   onChange={(e) => setPass(e.target.value)}
                   type={showPassword ? "text" : "password"}
@@ -490,9 +516,7 @@ export default function AdminLogin() {
             <p className="text-[10px] text-slate-500 uppercase tracking-tight">
               {t.footerRestricted}
             </p>
-            <p className="text-[9px] text-slate-600">
-              {t.footerMonitored}
-            </p>
+            <p className="text-[9px] text-slate-600">{t.footerMonitored}</p>
 
             <div className="pt-2">
               <Link
