@@ -55,7 +55,7 @@ function getRateLimitMessage(lang: string, sec: number): string {
     case "ar":
       return `⚠️ تم تجاوز حد المحاولات. يرجى الانتظار ${sec} ثانية`;
     case "fr":
-      return `⚠️ Limite de tentatives dépassée. Attendez ${sec}s`;
+      return `⚠️ Limite de tentatives dépassée. Espérez ${sec}s`;
     case "es":
       return `⚠️ Límite de intentos superado. Espere ${sec}s`;
     default:
@@ -180,7 +180,7 @@ export default function AdminLogin() {
   const [logoError, setLogoError] = useState(false);
 
   // Submit Handler
-  const submit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -209,8 +209,8 @@ export default function AdminLogin() {
     setSubmitting(true);
 
     try {
-      // 4. Local CMS fallback check
-      const localAuthSuccess = adminLogin(cleanIdentity, rawPass);
+      // 4. Local CMS fallback check (Awaited to avoid Promise-truthiness bugs)
+      const localAuthSuccess = await adminLogin(cleanIdentity, rawPass);
       if (localAuthSuccess) {
         setSubmitting(false);
         navigate(`/${lang}/admin`);
@@ -238,7 +238,7 @@ export default function AdminLogin() {
         targetEmail = userProfile.email;
       }
 
-      // 6. Authenticate via Supabase Auth Engine with Turnstile token
+      // 6. Authenticate via Supabase Auth Engine with optional Turnstile token
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: targetEmail,
         password: rawPass,
@@ -261,7 +261,7 @@ export default function AdminLogin() {
         .maybeSingle();
 
       if (profileError) {
-        // Safe Fallback: If custom schema columns (admin_god_mode/is_frozen) don't exist yet
+        // Safe Fallback: If custom schema columns don't exist yet
         const { data: basicData } = await supabase
           .from("profiles")
           .select("role")

@@ -1,9 +1,9 @@
 {
-  "id": "/?source=pwa",
+  "id": "/ar?source=pwa",
   "short_name": "ميزان",
   "name": "منصة ميزان الرقمية",
   "description": "منصة قانونية وأكاديمية متعددة اللغات للنصوص القانونية والاجتهادات القضائية والمحتوى التحريري المغربي.",
-  "start_url": "/?source=pwa",
+  "start_url": "/ar?source=pwa",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -22,6 +22,24 @@
       "type": "image/svg+xml",
       "sizes": "any",
       "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ]
 }

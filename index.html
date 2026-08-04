@@ -10,6 +10,21 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
 
+  <!-- 🛡️ Content Security Policy (Fixes CSP, Font, Turnstile & AdSense Errors) -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.googletagmanager.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' data: https://fonts.gstatic.com;
+      img-src 'self' data: blob: https:;
+      frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://www.googletagmanager.com;
+      connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.google-analytics.com https://www.googletagmanager.com;
+      trusted-types default goog#html *;
+    "
+  />
+
   <!-- 💰 Google AdSense Account Verification -->
   <meta name="google-adsense-account" content="ca-pub-1749032173858747" />
 
@@ -17,9 +32,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://images.unsplash.com" />
+  <link rel="preconnect" href="https://challenges.cloudflare.com" />
   <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
   
   <!-- Modern Arabic Typography -->
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
@@ -62,7 +79,7 @@
   <!-- 📱 Favicons & Web Manifest -->
   <link rel="icon" type="image/svg+xml" href="/Logo.svg" />
   <link rel="apple-touch-icon" href="/Logo.svg" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
 
   <!-- 🤖 Structured Data (JSON-LD Schema for Google & AI Engines) -->
   <script type="application/ld+json">
