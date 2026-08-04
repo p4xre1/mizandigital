@@ -1,0 +1,9 @@
+# Prevent browser from caching index.html (fixes stale JS bundle mismatch)
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Allow Google Fonts, images, and scripts cleanly
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; font-src 'self' https://fonts.gstatic.com https: data:; style-src 'self' https://fonts.googleapis.com 'unsafe-inline' https:;
