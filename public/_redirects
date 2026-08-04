@@ -1,21 +1,12 @@
 # ==============================================================================
 # Cloudflare Pages — Single Page Application (SPA) Routing Configuration
 # Platform: Mizan Digital (https://www.mizan.page)
-# Languages: ar (Arabic) | fr (French) | en (English) | es (Spanish)
 # ==============================================================================
 
 # ── 1️⃣ Apex Domain to WWW Redirect ──────────────────────────────────────────
 https://mizan.page/*                 https://www.mizan.page/:splat   301
 
-# ── 2️⃣ Static Files & SEO Pass-through (Bypass SPA Fallback) ───────────────
-/robots.txt                          /robots.txt                      200
-/sitemap.xml                         /sitemap.xml                     200
-/feed.xml                            /feed.xml                        200
-/manifest.json                       /manifest.json                   200
-/site.webmanifest                    /site.webmanifest                200
-/.well-known/*                       /.well-known/:splat              200
-
-# ── 3️⃣ Auth & Account Shortcuts ──────────────────────────────────────────────
+# ── 2️⃣ Auth & Account Shortcuts ──────────────────────────────────────────────
 /login                               /ar/login                        302
 /signin                              /ar/login                        301
 /signup                              /ar/register                     301
@@ -25,7 +16,7 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /:lang/signin                        /:lang/login                     301
 /:lang/signup                        /:lang/register                  301
 
-# ── 4️⃣ Main Section & Public Pages ───────────────────────────────────────────
+# ── 3️⃣ Main Section & Public Pages ───────────────────────────────────────────
 /admin                               /ar/admin                        302
 /dashboard                           /ar/admin                        302
 /profile                             /ar/profile                      302
@@ -38,7 +29,7 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /articles                            /ar/news                         301
 /news                                /ar/news                         301
 
-# ── 5️⃣ Legal & Academic Database Aliases ────────────────────────────────────
+# ── 4️⃣ Legal & Academic Database Aliases ────────────────────────────────────
 /search                              /ar/news                         302
 /laws                                /ar/library                      302
 /droit                               /ar/library                      301
@@ -50,7 +41,7 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /schools                             /ar/schools                      301
 /faculties                           /ar/schools                      301
 
-# ── 6️⃣ High-Traffic Moroccan Legal Keyword Shortcuts ─────────────────────────
+# ── 5️⃣ Moroccan Legal Keyword Shortcuts ─────────────────────────────────────
 /moudawana                           /ar/library                      301
 /doc                                 /ar/library                      301
 /docr                                /ar/library                      301
@@ -66,7 +57,7 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /qcm                                 /ar/news                         301
 /fsjes                               /ar/schools                      301
 
-# ── 7️⃣ Moroccan Law Faculties Direct Quick Links ──────────────────────────────
+# ── 6️⃣ Moroccan Law Faculties Direct Quick Links ──────────────────────────────
 /agdal                               /ar/schools                      301
 /ain-chock                           /ar/schools                      301
 /marrakech                           /ar/schools                      301
@@ -76,7 +67,7 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /settat                              /ar/schools                      301
 /agadir                              /ar/schools                      301
 
-# ── 8️⃣ Social Media & Community Channels ──────────────────────────────────────
+# ── 7️⃣ Social Media & Community Channels ──────────────────────────────────────
 /facebook                            https://www.facebook.com/mizandigital        302
 /twitter                             https://www.twitter.com/mizandigital         302
 /x                                   https://www.twitter.com/mizandigital         302
@@ -84,13 +75,13 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /whatsapp                            https://wa.me/?text=Mizan%20Platform         302
 /telegram                            https://t.me/mizandigital                    302
 
-# ── 9️⃣ Multilingual Aliases ──────────────────────────────────────────────────
-# 🇬🇧 English
+# ── 8️⃣ Multilingual Aliases ──────────────────────────────────────────────────
+# English
 /en/sign-in                          /en/login                        301
 /en/sign-up                          /en/register                     301
 /en/about-us                         /en/about                        301
 
-# 🇫🇷 French
+# French
 /fr/connexion                        /fr/login                        301
 /fr/inscription                      /fr/register                     301
 /fr/s-inscrire                       /fr/register                     301
@@ -99,7 +90,7 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /fr/lois                             /fr/library                      301
 /fr/recherche                        /fr/news                         302
 
-# 🇪🇸 Spanish
+# Spanish
 /es/iniciar-sesion                   /es/login                        301
 /es/registro                         /es/register                     301
 /es/registrarse                      /es/register                     301
@@ -108,10 +99,5 @@ https://mizan.page/*                 https://www.mizan.page/:splat   301
 /es/leyes                            /es/library                      301
 /es/buscar                           /es/news                         302
 
-# ── 🔟 SEO System Shortcuts ──────────────────────────────────────────────────
-/sitemap                             /sitemap.xml                     301
-/rss                                 /feed.xml                        301
-
-# ── 1️⃣1️⃣ SPA Catch-All Fallback ──────────────────────────────────────────────
-# Routes all non-static page requests to index.html for client-side routing
+# ── 9️⃣ SPA Fallback ─────────────────────────────────────────────────────────
 /*                                   /index.html                      200
