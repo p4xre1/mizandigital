@@ -10,7 +10,7 @@
   <meta name="format-detection" content="telephone=no" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
 
-  <!-- 🛡️ Content Security Policy (Fixes CSP, Font, Turnstile & AdSense Errors) -->
+<!-- 🛡️ Content Security Policy (Fixed Trusted Types & GA4 Domains) -->
   <meta
     http-equiv="Content-Security-Policy"
     content="
@@ -20,8 +20,8 @@
       font-src 'self' data: https://fonts.gstatic.com;
       img-src 'self' data: blob: https:;
       frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://www.googletagmanager.com;
-      connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.google-analytics.com https://www.googletagmanager.com;
-      trusted-types default goog#html *;
+      connect-src 'self' https://*.supabase.co https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com;
+      trusted-types default goog#html * 'allow-duplicates';
     "
   />
 
