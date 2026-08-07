@@ -9,7 +9,7 @@ import {
   useImperativeHandle,
 } from "react";
 
-// Official Cloudflare Turnstile API Types
+// ─── Types ─────────────────────────────────────────────
 interface TurnstileRenderOptions {
   sitekey: string;
   theme?: "auto" | "light" | "dark";
@@ -31,7 +31,6 @@ interface TurnstileInstance {
 declare global {
   interface Window {
     turnstile?: TurnstileInstance;
-    onloadTurnstileCallback?: () => void;
   }
 }
 
@@ -43,11 +42,61 @@ interface TurnstileProps {
   size?: "normal" | "compact" | "flexible";
 }
 
-// Handle exposed to parent components via ref
 export interface TurnstileCaptchaHandle {
   reset: () => void;
 }
 
+// ─── Global Script Loader (shared across all instances) ──
+const SCRIPT_ID = "cf-turnstile-script";
+const SCRIPT_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+type LoadState = "idle" | "loading" | "loaded" | "error";
+
+let globalLoadState: LoadState = "idle";
+const globalQueue: Array<(success: boolean) => void> = [];
+
+function loadScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (globalLoadState === "loaded") {
+      resolve();
+      return;
+    }
+    if (globalLoadState === "loading") {
+      globalQueue.push((ok) => (ok ? resolve() : reject()));
+      return;
+    }
+    if (globalLoadState === "error") {
+      // Remove dead script so we can retry
+      const dead = document.getElementById(SCRIPT_ID);
+      if (dead) dead.remove();
+      globalLoadState = "idle";
+    }
+
+    globalLoadState = "loading";
+    globalQueue.push((ok) => (ok ? resolve() : reject()));
+
+    const script = document.createElement("script");
+    script.id = SCRIPT_ID;
+    script.src = SCRIPT_SRC;
+    script.async = true;
+
+    script.onload = () => {
+      globalLoadState = "loaded";
+      globalQueue.forEach((cb) => cb(true));
+      globalQueue.length = 0;
+    };
+
+    script.onerror = () => {
+      globalLoadState = "error";
+      globalQueue.forEach((cb) => cb(false));
+      globalQueue.length = 0;
+    };
+
+    document.head.appendChild(script);
+  });
+}
+
+// ─── Component ─────────────────────────────────────────
 export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProps>(
   function TurnstileCaptcha(
     { onVerify, onError, onExpire, theme = "auto", size = "normal" },
@@ -55,11 +104,11 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
   ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const widgetIdRef = useRef<string | null>(null);
-    const [isLoaded, setIsLoaded] = useState<boolean>(false);
-    const [loadFailed, setLoadFailed] = useState<boolean>(false);
-    const [retryCount, setRetryCount] = useState<number>(0);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [loadFailed, setLoadFailed] = useState(false);
+    const [retryTick, setRetryTick] = useState(0);
 
-    // Keep callback references synchronized without triggering effect re-renders
+    // Keep callbacks fresh without re-triggering effects
     const onVerifyRef = useRef(onVerify);
     const onErrorRef = useRef(onError);
     const onExpireRef = useRef(onExpire);
@@ -70,8 +119,7 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
       onExpireRef.current = onExpire;
     }, [onVerify, onError, onExpire]);
 
-    // Expose an imperative reset() so parent forms can force a fresh token
-    // after a failed submission (Turnstile tokens are single-use).
+    // Expose imperative reset
     useImperativeHandle(ref, () => ({
       reset: () => {
         if (widgetIdRef.current && window.turnstile) {
@@ -84,7 +132,6 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
       },
     }));
 
-    // Safe Environment Key Extraction (Supports Vite, Next.js, and process.env safely)
     const getSiteKey = useCallback((): string | undefined => {
       const viteKey =
         import.meta.env?.VITE_CLOUDFLARE_SITE_KEY ||
@@ -101,20 +148,19 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
       return undefined;
     }, []);
 
-    const handleRetry = () => {
+    const handleRetry = useCallback(() => {
       setLoadFailed(false);
       setIsLoaded(false);
       widgetIdRef.current = null;
-      setRetryCount((prev) => prev + 1);
-    };
+      setRetryTick((t) => t + 1);
+    }, []);
 
     useEffect(() => {
       const siteKey = getSiteKey();
-
       if (!siteKey) {
         console.error(
-          "Turnstile Error: Missing Site Key in environment variables! " +
-            "Ensure VITE_CLOUDFLARE_SITE_KEY or VITE_TURNSTILE_SITE_KEY is configured."
+          "Turnstile Error: Missing Site Key. " +
+            "Set VITE_CLOUDFLARE_SITE_KEY or NEXT_PUBLIC_TURNSTILE_SITE_KEY."
         );
         setLoadFailed(true);
         return;
@@ -122,77 +168,43 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
 
       let isMounted = true;
 
-      // Render Turnstile widget into container
       const renderWidget = () => {
         if (!isMounted || !containerRef.current || !window.turnstile) return;
-        if (widgetIdRef.current) return; // Prevent duplicate renders
+        if (widgetIdRef.current) return; // already rendered
 
         try {
-          widgetIdRef.current = window.turnstile.render(containerRef.current, {
-            sitekey: siteKey,
-            theme,
-            size,
-            callback: (token: string) => {
-              if (isMounted) onVerifyRef.current(token);
-            },
-            "error-callback": () => {
-              if (isMounted && onErrorRef.current) onErrorRef.current();
-            },
-            "expired-callback": () => {
-              if (isMounted && onExpireRef.current) onExpireRef.current();
-            },
-          });
+          widgetIdRef.current = window.turnstile.render(
+            containerRef.current,
+            {
+              sitekey: siteKey,
+              theme,
+              size,
+              callback: (token: string) => {
+                if (isMounted) onVerifyRef.current(token);
+              },
+              "error-callback": () => {
+                if (isMounted && onErrorRef.current) onErrorRef.current();
+              },
+              "expired-callback": () => {
+                if (isMounted && onExpireRef.current) onExpireRef.current();
+              },
+            }
+          );
 
-          if (isMounted) {
-            setIsLoaded(true);
-            setLoadFailed(false);
-          }
+          if (isMounted) setIsLoaded(true);
         } catch (err) {
-          console.error("Cloudflare Turnstile render error:", err);
+          console.error("Turnstile render error:", err);
           if (isMounted) setLoadFailed(true);
         }
       };
 
-      const SCRIPT_ID = "cf-turnstile-script";
-
-      if (window.turnstile) {
-        renderWidget();
-      } else {
-        let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
-
-        window.onloadTurnstileCallback = () => {
+      loadScript()
+        .then(() => {
           if (isMounted) renderWidget();
-        };
-
-        if (!script) {
-          script = document.createElement("script");
-          script.id = SCRIPT_ID;
-          script.src =
-            "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback&render=explicit";
-          script.async = true;
-          script.defer = true;
-          script.onerror = () => {
-            console.error(
-              "Cloudflare Turnstile script failed to load (blocked by network or client extension)."
-            );
-            if (isMounted) setLoadFailed(true);
-          };
-          document.head.appendChild(script);
-        } else {
-          // Script already exists in document, poll briefly as fallback
-          const checkInterval = setInterval(() => {
-            if (window.turnstile) {
-              clearInterval(checkInterval);
-              if (isMounted) renderWidget();
-            }
-          }, 100);
-
-          setTimeout(() => {
-            clearInterval(checkInterval);
-            if (isMounted && !window.turnstile) setLoadFailed(true);
-          }, 5000);
-        }
-      }
+        })
+        .catch(() => {
+          if (isMounted) setLoadFailed(true);
+        });
 
       return () => {
         isMounted = false;
@@ -200,12 +212,12 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
           try {
             window.turnstile.remove(widgetIdRef.current);
           } catch {
-            // Ignore cleanup errors on unmount
+            /* ignore */
           }
           widgetIdRef.current = null;
         }
       };
-    }, [theme, size, retryCount, getSiteKey]);
+    }, [theme, size, retryTick, getSiteKey]);
 
     return (
       <div className="my-3 w-full flex flex-col items-center justify-center min-h-[65px] overflow-hidden select-none touch-manipulation">
@@ -218,7 +230,8 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
         {loadFailed && (
           <div className="flex flex-col items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-center max-w-sm">
             <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-              ⚠️ Security verification unavailable. Please check your connection or disable ad blockers.
+              ⚠️ Security verification unavailable. Please check your connection
+              or disable ad blockers.
             </p>
             <button
               type="button"
@@ -233,7 +246,9 @@ export const TurnstileCaptcha = forwardRef<TurnstileCaptchaHandle, TurnstileProp
         <div
           ref={containerRef}
           className={`transition-opacity duration-300 ${
-            isLoaded && !loadFailed ? "opacity-100 block" : "opacity-0 h-0 overflow-hidden"
+            isLoaded && !loadFailed
+              ? "opacity-100 block"
+              : "opacity-0 h-0 overflow-hidden"
           }`}
         />
       </div>
