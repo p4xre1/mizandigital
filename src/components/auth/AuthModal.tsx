@@ -15,9 +15,7 @@ export interface AuthModalProps {
   onClose: () => void;
   lang: Lang;
   dir: "rtl" | "ltr";
-  /** Optional initial tab override */
   initialTab?: TabType;
-  /** Optional callback triggered on success */
   onSuccess?: () => void;
 }
 
@@ -91,6 +89,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onCloseRef = useRef(onClose);
+  const previousActiveElement = useRef<Element | null>(null);
 
   // Keep onCloseRef current
   useEffect(() => {
@@ -111,30 +110,65 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   }, [isOpen, initialTab]);
 
-  // Lock body scroll, manage keyboard events, and focus management
+  // ─── Body scroll lock + Focus management + Focus Trap ───
   useEffect(() => {
     if (!isOpen) return;
 
+    // حفظ العنصر الذي كان محل التركيز قبل فتح المودال
+    previousActiveElement.current = document.activeElement;
+    
     const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
     // Auto-focus the modal container for accessibility
-    setTimeout(() => {
+    const focusTimer = setTimeout(() => {
       modalRef.current?.focus();
     }, 50);
 
+    // 🔒 Focus Trap: احتفظ بالتركيز داخل المودال
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onCloseRef.current();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const modal = modalRef.current;
+      if (!modal) return;
+
+      const focusableElements = modal.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea, input[type="text"], input[type="email"], input[type="password"], select, [tabindex]:not([tabindex="-1"])'
+      );
+      
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      clearTimeout(focusTimer);
       document.body.style.overflow = originalOverflow;
       window.removeEventListener("keydown", handleKeyDown);
       if (timerRef.current) clearTimeout(timerRef.current);
+      
+      // إعادة التركيز للعنصر السابق عند الإغلاق
+      if (previousActiveElement.current instanceof HTMLElement) {
+        previousActiveElement.current.focus();
+      }
     };
   }, [isOpen]);
 
@@ -146,10 +180,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   }, []);
 
   const handleAuthSuccess = useCallback(() => {
-    // 📊 Track Authentication Event
+    // 📊 Track only actual authentication events
     if (activeTab === "login" || activeTab === "signup") {
-      trackAuthEvent("email", activeTab);
-    } else if (activeTab === "forgot" || activeTab === "reset") {
       trackAuthEvent("email", activeTab);
     }
 
@@ -184,7 +216,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       <div
         ref={modalRef}
         tabIndex={-1}
-        className="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 md:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 ease-out focus:outline-none"
+        className="relative w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-6 md:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-blue-500/50"
       >
         {/* Close (X) Button */}
         <button
@@ -219,16 +251,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Feedback Alerts */}
-        <div aria-live="polite" className="space-y-2">
+        <div aria-live="assertive" aria-atomic="true" className="space-y-2">
           {globalError && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
               <AlertCircle size={15} className="shrink-0" />
               <span>{globalError}</span>
             </div>
           )}
 
           {globalSuccess && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
               <CheckCircle2 size={15} className="shrink-0" />
               <span>{globalSuccess}</span>
             </div>
@@ -236,8 +268,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Active Auth Form Sub-Component */}
+        {/* 🔑 key={activeTab} يُعيد تهيئة النموذج بالكامل عند التبديل */}
         {activeTab === "login" && (
           <LoginForm
+            key="login-form"
             onSwitchTab={handleSwitchTab}
             onSuccess={handleAuthSuccess}
             setGlobalError={setGlobalError}
@@ -247,7 +281,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {activeTab === "signup" && (
           <SignupForm
+            key="signup-form"
             onSwitchTab={handleSwitchTab}
+            onSuccess={handleAuthSuccess}  // ← أضف هذا في SignupForm.tsx
             setGlobalError={setGlobalError}
             setGlobalSuccess={setGlobalSuccess}
           />
@@ -255,6 +291,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {activeTab === "forgot" && (
           <ForgotPasswordForm
+            key="forgot-form"
             onSwitchTab={handleSwitchTab}
             setGlobalError={setGlobalError}
             setGlobalSuccess={setGlobalSuccess}
@@ -263,6 +300,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {activeTab === "reset" && (
           <ResetPasswordForm
+            key="reset-form"
             onSuccessReset={handleAuthSuccess}
             setGlobalError={setGlobalError}
             setGlobalSuccess={setGlobalSuccess}

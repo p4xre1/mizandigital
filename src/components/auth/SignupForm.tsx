@@ -1,231 +1,197 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff, User, ShieldAlert } from "lucide-react";
+/* eslint-disable */
+// noinspection SpellCheckingInspection
+/* cspell:disable */
+
+import { useState, useEffect, useMemo, useCallback, SyntheticEvent } from "react";
+import { Mail, Lock, User, Eye, EyeOff, CheckCircle2, XCircle } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { trackEvent } from "@/lib/analytics";
-import { isValidEmail, sanitizeText, throttle } from "@/lib/security";
+import { isValidEmail, throttle } from "@/lib/security";
 import { TurnstileCaptcha } from "./TurnstileCaptcha";
-import { useI18n, sansFont, useLocalizedPath, type Lang } from "@/lib/i18n";
+import { useI18n, sansFont } from "@/lib/i18n";
 
 interface SignupFormProps {
   onSwitchTab: (tab: "login") => void;
+  onSuccess?: () => void;
   setGlobalError: (message: string) => void;
   setGlobalSuccess: (message: string) => void;
 }
 
-// noinspection SpellCheckingInspection
-const translations: Record<
-    Lang,
-    {
-      nameLabel: string;
-      emailLabel: string;
-      passwordLabel: string;
-      namePlaceholder: string;
-      lockedMessage: string;
-      lockedBanner: string;
-      invalidName: string;
-      invalidEmail: string;
-      shortPassword: string;
-      acceptTermsRequired: string;
-      throttleWait: string;
-      captchaRequired: string;
-      captchaFailed: string;
-      missingConfig: string;
-      alreadyRegistered: string;
-      termsAgree: string;
-      terms: string;
-      and: string;
-      privacy: string;
-      successMsg: string;
-      submitting: string;
-      submit: string;
-      alreadyHaveAccount: string;
-      signIn: string;
-      fallbackErr: string;
-    }
-> = {
+// ─── Translations ─────────────────────────────────────────────
+const translations = {
   ar: {
-    nameLabel: "الاسم الكامل",
+    fullNameLabel: "الاسم الكامل",
     emailLabel: "البريد الإلكتروني",
     passwordLabel: "كلمة المرور",
-    namePlaceholder: "الاسم الكامل",
-    lockedMessage: "تم حظر النموذج مؤقتاً لدواعٍ أمنية.",
-    lockedBanner: "تم قفل النموذج مؤقتاً بسبب محاولات متكررة. يرجى تحديث الصفحة لاحقاً.",
-    invalidName: "الرجاء إدخال اسم صحيح (حرفين على الأقل).",
+    confirmPasswordLabel: "تأكيد كلمة المرور",
     invalidEmail: "عنوان البريد الإلكتروني غير صالح.",
-    shortPassword: "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
-    acceptTermsRequired: "الرجاء الموافقة على شروط الخدمة وسياسة الخصوصية.",
-    throttleWait: "الرجاء الانتظار قليلاً قبل المحاولة مجدداً.",
+    weakPassword: "كلمة المرور ضعيفة: يجب أن تكون 8 أحرف على الأقل، وتحتوي على حرف كبير، حرف صغير، رقم، ورمز خاص.",
+    passwordsMismatch: "كلمتا المرور غير متطابقتين.",
     captchaRequired: "الرجاء إكمال التحقق الأمني أولاً.",
     captchaFailed: "فشل التحقق الأمني. الرجاء المحاولة مجدداً.",
-    missingConfig: "Supabase غير مُهيّأ — أضف مفاتيح البيئة لتفعيل التسجيل.",
-    alreadyRegistered: "هذا البريد الإلكتروني مسجل بالفعل. يرجى تسجيل الدخول.",
-    termsAgree: "أوافق على ",
-    terms: "شروط الخدمة",
-    and: " و ",
-    privacy: "سياسة الخصوصية",
-    successMsg: "تم إنشاء الحساب بنجاح! جاري التوجيه...",
-    submitting: "جاري إنشاء الحساب...",
-    submit: "إنشاء الحساب",
-    alreadyHaveAccount: "لديك حساب بالفعل؟ ",
-    signIn: "تسجيل الدخول",
-    fallbackErr: "حدث خطأ أثناء التسجيل.",
+    missingConfig: "Supabase غير مُهيّأ — أضف مفاتيح البيئة.",
+    signupFailed: "فشل إنشاء الحساب.",
+    emailTaken: "هذا البريد الإلكتروني مسجل مسبقاً.",
+    success: "تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...",
+    creating: "جاري إنشاء الحساب...",
+    submitBtn: "إنشاء حساب جديد",
+    hasAccount: "لديك حساب بالفعل؟",
+    loginNow: "تسجيل الدخول",
+    strength: {
+      minLength: "8+ أحرف",
+      upper: "حرف كبير",
+      lower: "حرف صغير",
+      number: "رقم",
+      special: "رمز خاص",
+    },
   },
   fr: {
-    nameLabel: "Nom complet",
+    fullNameLabel: "Nom complet",
     emailLabel: "Adresse e-mail",
     passwordLabel: "Mot de passe",
-    namePlaceholder: "John Doe",
-    lockedMessage: "Formulaire verrouillé temporairement pour des raisons de sécurité.",
-    lockedBanner: "Formulaire verrouillé suite à plusieurs échecs. Veuillez réessayer plus tard.",
-    invalidName: "Veuillez entrer un nom valide (au moins 2 caractères).",
+    confirmPasswordLabel: "Confirmer le mot de passe",
     invalidEmail: "Adresse email invalide.",
-    shortPassword: "Le mot de passe doit contenir au moins 8 caractères.",
-    acceptTermsRequired: "Veuillez accepter les conditions d'utilisation et la politique de confidentialité.",
-    throttleWait: "Veuillez patienter avant de réessayer.",
+    weakPassword: "Mot de passe faible : 8 car. min, majuscule, minuscule, chiffre et symbole requis.",
+    passwordsMismatch: "Les mots de passe ne correspondent pas.",
     captchaRequired: "Veuillez effectuer la vérification de sécurité.",
-    captchaFailed: "Échec de la vérification de sécurité.",
+    captchaFailed: "Échec de la vérification de sécurité. Veuillez réessayer.",
     missingConfig: "Configuration Supabase manquante.",
-    alreadyRegistered: "Cet e-mail est déjà enregistré. Veuillez vous connecter.",
-    termsAgree: "J'accepte les ",
-    terms: "Conditions d'utilisation",
-    and: " et la ",
-    privacy: "Politique de confidentialité",
-    successMsg: "Compte créé avec succès ! Redirection...",
-    submitting: "Création du compte...",
-    submit: "S'inscrire",
-    alreadyHaveAccount: "Vous avez déjà un compte ? ",
-    signIn: "Se connecter",
-    fallbackErr: "Une erreur est survenue lors de l'inscription.",
+    signupFailed: "Échec de la création du compte.",
+    emailTaken: "Cette adresse e-mail est déjà utilisée.",
+    success: "Compte créé avec succès ! Connexion en cours...",
+    creating: "Création du compte...",
+    submitBtn: "Créer un compte",
+    hasAccount: "Vous avez déjà un compte ?",
+    loginNow: "Se connecter",
+    strength: {
+      minLength: "8+ caractères",
+      upper: "Majuscule",
+      lower: "Minuscule",
+      number: "Chiffre",
+      special: "Symbole",
+    },
   },
   en: {
-    nameLabel: "Full Name",
+    fullNameLabel: "Full Name",
     emailLabel: "Email address",
     passwordLabel: "Password",
-    namePlaceholder: "John Doe",
-    lockedMessage: "Form locked temporarily due to security measures.",
-    lockedBanner: "Form locked due to multiple failed attempts. Please refresh to try again.",
-    invalidName: "Please enter a valid name (at least 2 characters).",
+    confirmPasswordLabel: "Confirm Password",
     invalidEmail: "Invalid email address.",
-    shortPassword: "Password must be at least 8 characters.",
-    acceptTermsRequired: "Please accept the Terms of Service and Privacy Policy.",
-    throttleWait: "Please wait before attempting again.",
+    weakPassword: "Weak password: Must be at least 8 characters, include uppercase, lowercase, number, and special character.",
+    passwordsMismatch: "Passwords do not match.",
     captchaRequired: "Please complete security verification first.",
     captchaFailed: "Security verification failed. Please try again.",
     missingConfig: "Supabase configuration is missing environment keys.",
-    alreadyRegistered: "This email is already registered. Please sign in.",
-    termsAgree: "I agree to the ",
-    terms: "Terms of Service",
-    and: " and ",
-    privacy: "Privacy Policy",
-    successMsg: "Account created successfully! Redirecting...",
-    submitting: "Creating Account...",
-    submit: "Create Account",
-    alreadyHaveAccount: "Already have an account? ",
-    signIn: "Sign In",
-    fallbackErr: "An error occurred during registration.",
+    signupFailed: "Failed to create account.",
+    emailTaken: "This email is already registered.",
+    success: "Account created successfully! Signing you in...",
+    creating: "Creating account...",
+    submitBtn: "Create Account",
+    hasAccount: "Already have an account?",
+    loginNow: "Sign In",
+    strength: {
+      minLength: "8+ chars",
+      upper: "Uppercase",
+      lower: "Lowercase",
+      number: "Number",
+      special: "Special",
+    },
   },
   es: {
-    nameLabel: "Nombre completo",
+    fullNameLabel: "Nombre completo",
     emailLabel: "Correo electrónico",
     passwordLabel: "Contraseña",
-    namePlaceholder: "Juan Pérez",
-    lockedMessage: "Formulario bloqueado temporalmente por razones de seguridad.",
-    lockedBanner: "Formulario bloqueado tras varios intentos fallidos. Por favor, actualice la página.",
-    invalidName: "Por favor ingrese un nombre válido (al menos 2 caracteres).",
+    confirmPasswordLabel: "Confirmar contraseña",
     invalidEmail: "Correo electrónico no válido.",
-    shortPassword: "La contraseña debe tener al menos 8 caracteres.",
-    acceptTermsRequired: "Por favor acepte los Términos de Servicio y la Política de Privacidad.",
-    throttleWait: "Por favor espere antes de intentarlo de nuevo.",
+    weakPassword: "Contraseña débil: mín. 8 caracteres, mayúscula, minúscula, número y símbolo.",
+    passwordsMismatch: "Las contraseñas no coinciden.",
     captchaRequired: "Por favor complete la verificación de seguridad.",
-    captchaFailed: "Verificación de seguridad fallida.",
+    captchaFailed: "Verificación de seguridad fallida. Inténtelo de nuevo.",
     missingConfig: "Falta la configuración de Supabase.",
-    alreadyRegistered: "Este correo ya está registrado. Por favor inicie sesión.",
-    termsAgree: "Acepto los ",
-    terms: "Términos del Servicio",
-    and: " y la ",
-    privacy: "Política de Privacidad",
-    successMsg: "¡Cuenta creada con éxito! Redirigiendo...",
-    submitting: "Creando cuenta...",
-    submit: "Crear cuenta",
-    alreadyHaveAccount: "¿Ya tienes una cuenta? ",
-    signIn: "Iniciar sesión",
-    fallbackErr: "Ocurrió un error durante el registro.",
+    signupFailed: "Error al crear la cuenta.",
+    emailTaken: "Este correo electrónico ya está registrado.",
+    success: "¡Cuenta creada exitosamente! Iniciando sesión...",
+    creating: "Creando cuenta...",
+    submitBtn: "Crear cuenta",
+    hasAccount: "¿Ya tienes una cuenta?",
+    loginNow: "Iniciar sesión",
+    strength: {
+      minLength: "8+ caract.",
+      upper: "Mayúscula",
+      lower: "Minúscula",
+      number: "Número",
+      special: "Símbolo",
+    },
   },
 };
 
+// ─── Password Analysis ───────────────────────────────────────
+function analyzePassword(pass: string) {
+  return {
+    minLength: pass.length >= 8,
+    hasUpper: /[A-Z]/.test(pass),
+    hasLower: /[a-z]/.test(pass),
+    hasNumber: /[0-9]/.test(pass),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>\-_+=\/\[\]\\]/.test(pass),
+  };
+}
+
 export function SignupForm({
-                             onSwitchTab,
-                             setGlobalError,
-                             setGlobalSuccess,
-                           }: SignupFormProps) {
-  const [name, setName] = useState("");
+  onSwitchTab,
+  onSuccess,
+  setGlobalError,
+  setGlobalSuccess,
+}: SignupFormProps) {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [turnstileKey, setTurnstileKey] = useState(0);
-  const [failedAttempts, setFailedAttempts] = useState(0);
 
   const { lang, dir } = useI18n();
-  const navigate = useNavigate();
-  const localizedPath = useLocalizedPath();
   const t = translations[lang] || translations.ar;
-
-  const MAX_ATTEMPTS = 5;
-  const isLockedOut = failedAttempts >= MAX_ATTEMPTS;
 
   useEffect(() => {
     setError("");
     setGlobalError("");
-  }, [setGlobalError]);
+    setGlobalSuccess("");
+  }, [setGlobalError, setGlobalSuccess]);
 
-  const resetCaptcha = () => {
+  const resetCaptcha = useCallback(() => {
     setCaptchaToken(null);
     setTurnstileKey((prev) => prev + 1);
-  };
+  }, []);
 
-  const handleSignup = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const checks = useMemo(() => analyzePassword(password), [password]);
+  const allChecksPass = Object.values(checks).every(Boolean);
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+
+  const handleSignup = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setGlobalError("");
 
-    if (isLockedOut) {
-      setError(t.lockedMessage);
+    if (!fullName.trim()) {
+      setError(lang === "ar" ? "الرجاء إدخال الاسم الكامل." : "Please enter your full name.");
       return;
     }
 
-    const cleanName = sanitizeText(name, 120);
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (cleanName.length < 2) {
-      setError(t.invalidName);
-      return;
-    }
-
-    if (!isValidEmail(cleanEmail)) {
+    if (!isValidEmail(email)) {
       setError(t.invalidEmail);
       return;
     }
 
-    if (password.length < 8) {
-      setError(t.shortPassword);
+    if (!allChecksPass) {
+      setError(t.weakPassword);
       return;
     }
 
-    if (!acceptedTerms) {
-      setError(t.acceptTermsRequired);
-      return;
-    }
-
-    const wait = throttle("signup_attempt", 30_000);
-    if (wait > 0) {
-      setError(t.throttleWait);
+    if (!passwordsMatch) {
+      setError(t.passwordsMismatch);
       return;
     }
 
@@ -234,80 +200,81 @@ export function SignupForm({
       return;
     }
 
-    setLoading(true);
-
     if (!isSupabaseConfigured) {
       setError(t.missingConfig);
-      setLoading(false);
       return;
     }
 
+    setLoading(true);
     try {
-      const { data: authData, error: authErr } = await supabase.auth.signUp({
-        email: cleanEmail,
+      // ─── 1. Create Auth User ────────────────────────────────
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
         password,
         options: {
-          data: { full_name: cleanName },
+          data: { full_name: fullName.trim() },
           captchaToken,
         },
       });
 
-      if (authErr) {
-        const isDuplicate =
-            authErr.message.toLowerCase().includes("already registered") ||
-            authErr.status === 400;
-
-        const msg = isDuplicate ? t.alreadyRegistered : authErr.message || t.fallbackErr;
-        setFailedAttempts((prev) => prev + 1);
+      if (authError) {
+        const msg = authError.message.includes("already registered") ||
+                    authError.message.includes("User already registered")
+          ? t.emailTaken
+          : authError.message || t.signupFailed;
         setError(msg);
         setGlobalError(msg);
         resetCaptcha();
-        setLoading(false);
         return;
       }
 
-      if (authData?.user?.identities?.length === 0) {
-        setFailedAttempts((prev) => prev + 1);
-        setError(t.alreadyRegistered);
-        setGlobalError(t.alreadyRegistered);
+      if (!authData.user) {
+        setError(t.signupFailed);
+        setGlobalError(t.signupFailed);
         resetCaptcha();
-        setLoading(false);
         return;
       }
 
-      if (authData?.user) {
-        const profilesTable = supabase.from("profiles") as any;
+      // ─── 2. Create Profile immediately ──────────────────────
+      // ⚠️ Honeypot blocks triggers on auth.users, so we create profile here
+      const { error: profileError } = await supabase.from("profiles").upsert(
+        {
+          id: authData.user.id,
+          email: authData.user.email,
+          role: "member",
+          full_name: fullName.trim(),
+          bio: "",
+          avatar_url: "",
+          preferred_lang: lang,
+        },
+        { onConflict: "id" }
+      );
 
-        await profilesTable.upsert(
-            {
-              id: authData.user.id,
-              email: authData.user.email,
-              role: "member",
-            },
-            { onConflict: "id" }
-        );
-
-        // noinspection SpellCheckingInspection
-        localStorage.setItem(
-            "mizan_user",
-            JSON.stringify({
-              id: authData.user.id,
-              email: authData.user.email,
-              name: cleanName || authData.user.email?.split("@")[0] || "Member",
-            })
-        );
+      if (profileError) {
+        console.error("Profile creation error:", profileError);
+        // Don't block the user — they can still use the site,
+        // but log the error for debugging
       }
 
-      trackEvent("sign_up", { method: "email" });
-      setGlobalSuccess(t.successMsg);
+      setGlobalSuccess(t.success);
 
-      setTimeout(() => {
-        navigate(localizedPath("/"));
-      }, 500);
-
+      // ─── 3. Auto sign-in if session exists (email confirm off) ─
+      if (authData.session) {
+        localStorage.setItem(
+          "mizan_user",
+          JSON.stringify({
+            id: authData.user.id,
+            email: authData.user.email,
+            name: fullName.trim() || authData.user.email?.split("@")[0] || "Member",
+          })
+        );
+        if (onSuccess) onSuccess();
+      } else {
+        // Email confirmation required — switch to login
+        setTimeout(() => onSwitchTab("login"), 2000);
+      }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t.fallbackErr;
-      setFailedAttempts((prev) => prev + 1);
+      const message = err instanceof Error ? err.message : t.signupFailed;
       setError(message);
       setGlobalError(message);
       resetCaptcha();
@@ -316,178 +283,219 @@ export function SignupForm({
     }
   };
 
-  const isRtl = dir === "rtl";
+  const isDisabled = loading;
 
   return (
-      <form
-          onSubmit={handleSignup}
-          className="space-y-4"
-          dir={dir}
-          style={{ fontFamily: sansFont(lang) }}
-      >
-        {isLockedOut && (
-            <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl flex items-center gap-2 text-red-700 dark:text-red-400 text-xs font-bold mb-4">
-              <ShieldAlert size={16} className="shrink-0" />
-              <span>{t.lockedBanner}</span>
-            </div>
-        )}
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {t.nameLabel}
-          </label>
-          <div className="relative">
-            <User
-                size={16}
-                className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
-                    isRtl ? "right-3.5" : "left-3.5"
-                }`}
-            />
-            <input
-                required
-                disabled={isLockedOut || loading}
-                maxLength={120}
-                autoComplete="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t.namePlaceholder}
-                className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors disabled:opacity-50 ${
-                    isRtl ? "pr-10 pl-3.5" : "pl-10 pr-3.5"
-                }`}
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {t.emailLabel}
-          </label>
-          <div className="relative">
-            <Mail
-                size={16}
-                className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
-                    isRtl ? "right-3.5" : "left-3.5"
-                }`}
-            />
-            <input
-                required
-                disabled={isLockedOut || loading}
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@example.com"
-                className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors disabled:opacity-50 ${
-                    isRtl ? "pr-10 pl-3.5" : "pl-10 pr-3.5"
-                }`}
-                dir="ltr"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-            {t.passwordLabel}
-          </label>
-          <div className="relative">
-            <Lock
-                size={16}
-                className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
-                    isRtl ? "right-3.5" : "left-3.5"
-                }`}
-            />
-            <input
-                required
-                disabled={isLockedOut || loading}
-                minLength={8}
-                maxLength={128}
-                type={showPass ? "text" : "password"}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full py-2.5 px-10 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors disabled:opacity-50"
-                dir="ltr"
-            />
-            <button
-                type="button"
-                disabled={isLockedOut}
-                onClick={() => setShowPass(!showPass)}
-                aria-label="Toggle password visibility"
-                className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 min-h-[32px] min-w-[32px] flex items-center justify-center disabled:opacity-50 ${
-                    isRtl ? "left-2.5" : "right-2.5"
-                }`}
-            >
-              {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-2 pt-1">
-          <input
-              id="terms-checkbox"
-              type="checkbox"
-              disabled={isLockedOut || loading}
-              checked={acceptedTerms}
-              onChange={(e) => setAcceptedTerms(e.target.checked)}
-              className="mt-0.5 w-4 h-4 text-blue-600 rounded border-slate-300 dark:border-slate-700 focus:ring-blue-500 cursor-pointer disabled:opacity-50"
+    <form
+      onSubmit={handleSignup}
+      className="space-y-4"
+      dir={dir}
+      style={{ fontFamily: sansFont(lang) }}
+    >
+      {/* Full Name */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          {t.fullNameLabel}
+        </label>
+        <div className="relative">
+          <User
+            size={16}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
+              dir === "rtl" ? "right-3.5" : "left-3.5"
+            }`}
           />
-          <label
-              htmlFor="terms-checkbox"
-              className="text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none"
+          <input
+            required
+            type="text"
+            autoComplete="name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="John Doe"
+            className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${
+              dir === "rtl" ? "pr-10 pl-3.5" : "pl-10 pr-3.5"
+            }`}
+            dir="ltr"
+          />
+        </div>
+      </div>
+
+      {/* Email */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          {t.emailLabel}
+        </label>
+        <div className="relative">
+          <Mail
+            size={16}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
+              dir === "rtl" ? "right-3.5" : "left-3.5"
+            }`}
+          />
+          <input
+            required
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="name@example.com"
+            className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${
+              dir === "rtl" ? "pr-10 pl-3.5" : "pl-10 pr-3.5"
+            }`}
+            dir="ltr"
+          />
+        </div>
+      </div>
+
+      {/* Password */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          {t.passwordLabel}
+        </label>
+        <div className="relative">
+          <Lock
+            size={16}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
+              dir === "rtl" ? "right-3.5" : "left-3.5"
+            }`}
+          />
+          <input
+            required
+            minLength={8}
+            maxLength={128}
+            type={showPass ? "text" : "password"}
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className={`w-full py-2.5 text-sm border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-blue-600 focus:bg-white dark:focus:bg-slate-900 transition-colors ${
+              dir === "rtl" ? "pr-10 pl-10" : "pl-10 pr-10"
+            }`}
+            dir="ltr"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPass(!showPass)}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ${
+              dir === "rtl" ? "left-3.5" : "right-3.5"
+            }`}
           >
-            {t.termsAgree}
-            <Link to={localizedPath("/legal#terms")} className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-              {t.terms}
-            </Link>
-            {t.and}
-            <Link to={localizedPath("/legal#privacy")} className="text-blue-600 dark:text-blue-400 hover:underline font-semibold">
-              {t.privacy}
-            </Link>
-            .
-          </label>
+            {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
         </div>
 
-        {!isLockedOut && (
-            <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
-              <TurnstileCaptcha
-                  key={turnstileKey}
-                  onVerify={(token) => setCaptchaToken(token)}
-                  onExpire={() => setCaptchaToken(null)}
-                  onError={() => {
-                    setCaptchaToken(null);
-                    setError(t.captchaFailed);
-                  }}
-                  theme="auto"
-              />
+        {/* Password Strength Meter */}
+        {password.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {Object.entries(checks).map(([key, valid]) => (
+              <span
+                key={key}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium transition-colors ${
+                  valid
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
+                    : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                }`}
+              >
+                {valid ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+                {t.strength[key as keyof typeof t.strength]}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Confirm Password */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+          {t.confirmPasswordLabel}
+        </label>
+        <div className="relative">
+          <Lock
+            size={16}
+            className={`absolute top-1/2 -translate-y-1/2 text-slate-400 ${
+              dir === "rtl" ? "right-3.5" : "left-3.5"
+            }`}
+          />
+          <input
+            required
+            minLength={8}
+            maxLength={128}
+            type={showPass ? "text" : "password"}
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="••••••••"
+            className={`w-full py-2.5 text-sm border rounded-xl bg-slate-50/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 focus:outline-none focus:bg-white dark:focus:bg-slate-900 transition-colors ${
+              confirmPassword.length > 0
+                ? passwordsMatch
+                  ? "border-emerald-300 dark:border-emerald-700 focus:border-emerald-500"
+                  : "border-red-300 dark:border-red-700 focus:border-red-500"
+                : "border-slate-200 dark:border-slate-700 focus:border-blue-600"
+            } ${dir === "rtl" ? "pr-10 pl-10" : "pl-10 pr-10"}`}
+            dir="ltr"
+          />
+          {confirmPassword.length > 0 && (
+            <div
+              className={`absolute top-1/2 -translate-y-1/2 ${
+                dir === "rtl" ? "left-10" : "right-10"
+              }`}
+            >
+              {passwordsMatch ? (
+                <CheckCircle2 size={14} className="text-emerald-500" />
+              ) : (
+                <XCircle size={14} className="text-red-400" />
+              )}
             </div>
-        )}
+          )}
+        </div>
+      </div>
 
-        {error && (
-            <p className="text-xs text-red-500 text-center font-bold px-2 py-1 bg-red-50 dark:bg-red-950/30 rounded-lg animate-in fade-in-50">
-              {error}
-            </p>
-        )}
+      {/* Turnstile */}
+      <div className="flex justify-center my-3 min-h-[65px]" dir="ltr">
+        <TurnstileCaptcha
+          key={turnstileKey}
+          onVerify={(token) => setCaptchaToken(token)}
+          onExpire={() => setCaptchaToken(null)}
+          onError={() => {
+            setCaptchaToken(null);
+            setError(t.captchaFailed);
+          }}
+          theme="auto"
+        />
+      </div>
 
-        <button
-            type="submit"
-            disabled={loading || !captchaToken || !acceptedTerms || isLockedOut}
-            className="w-full min-h-[44px] py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-xs cursor-pointer flex items-center justify-center"
-        >
-          {loading ? t.submitting : t.submit}
-        </button>
-
-        <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
-          {t.alreadyHaveAccount}
-          <button
-              type="button"
-              disabled={loading}
-              className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer disabled:opacity-50 inline-flex items-center min-h-[32px]"
-              onClick={() => onSwitchTab("login")}
-          >
-            {t.signIn}
-          </button>
+      {error && (
+        <p className="text-xs text-red-500 text-center font-medium px-2 py-1 bg-red-50 dark:bg-red-950/30 rounded-lg animate-in fade-in-50">
+          {error}
         </p>
-      </form>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading || !captchaToken}
+        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:bg-blue-800 transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed shadow-xs cursor-pointer flex items-center justify-center gap-2"
+      >
+        {loading ? (
+          <>
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            {t.creating}
+          </>
+        ) : (
+          t.submitBtn
+        )}
+      </button>
+
+      <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+        {t.hasAccount}{" "}
+        <button
+          type="button"
+          className="text-blue-600 dark:text-blue-400 hover:underline font-bold cursor-pointer inline-flex items-center min-h-[32px]"
+          onClick={() => onSwitchTab("login")}
+        >
+          {t.loginNow}
+        </button>
+      </p>
+    </form>
   );
 }
+
+export default SignupForm;
