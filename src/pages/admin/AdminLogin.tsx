@@ -302,7 +302,7 @@ export default function AdminLogin() {
       const userRole = (
         profile?.role ||
         (authData.user.app_metadata?.role as string) ||
-        (authData.user.user_metadata?.role as string) ||
+        
         ""
       )
         .toLowerCase()

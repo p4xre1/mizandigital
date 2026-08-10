@@ -14,8 +14,9 @@ interface TurnstileRenderOptions {
   sitekey: string;
   theme?: "auto" | "light" | "dark";
   size?: "normal" | "compact" | "flexible";
+  language?: "auto" | "ar" | "fr" | "en" | "es";
   callback?: (token: string) => void;
-  "error-callback"?: () => void;
+  "error-callback"?: (errorCode?: string) => void;
   "expired-callback"?: () => void;
 }
 
@@ -36,8 +37,9 @@ declare global {
 
 interface TurnstileProps {
   onVerify: (token: string) => void;
-  onError?: () => void;
+  onError?: (errorCode?: string) => void;
   onExpire?: () => void;
+  language?: "auto" | "ar" | "fr" | "en" | "es";
   theme?: "auto" | "light" | "dark";
   size?: "normal" | "compact" | "flexible";
 }
