@@ -141,32 +141,39 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
 
   // Client-Side Search Filter across sections & subcategories
   const filteredCourtData = useMemo(() => {
-    const trimmedQuery = searchQuery.trim().toLowerCase();
-    if (!trimmedQuery) return COURT_RULINGS_AND_DOCTRINE;
+  const trimmedQuery = searchQuery.trim().toLowerCase();
 
-    return COURT_RULINGS_AND_DOCTRINE.map((section) => {
-      const sectionMatches = section.title.toLowerCase().includes(trimmedQuery);
-      const matchingSubs = section.subcategories.filter((sub) => {
-        return (
-          sub.title.toLowerCase().includes(trimmedQuery) ||
-          (sub.description &&
-            sub.description.toLowerCase().includes(trimmedQuery)) ||
-          sub.slug.toLowerCase().includes(trimmedQuery)
-        );
-      });
+  if (!trimmedQuery) {
+    return COURT_RULINGS_AND_DOCTRINE;
+  }
 
-      // If section title matches directly, keep all subcategories if sub-filters are empty
-      const finalSubs =
-        sectionMatches && matchingSubs.length === 0
-          ? section.subcategories
-          : matchingSubs;
+  return COURT_RULINGS_AND_DOCTRINE.map((section) => {
+    const sectionTitle = section.title[lang].toLowerCase();
 
-      return {
-        ...section,
-        subcategories: finalSubs,
-      };
-    }).filter((section) => section.subcategories.length > 0);
-  }, [searchQuery]);
+    const sectionMatches = sectionTitle.includes(trimmedQuery);
+
+    const matchingSubs = section.subcategories.filter((sub) => {
+      const title = sub.title[lang].toLowerCase();
+      const description = sub.description?.[lang]?.toLowerCase() ?? "";
+
+      return (
+        title.includes(trimmedQuery) ||
+        description.includes(trimmedQuery) ||
+        sub.slug.toLowerCase().includes(trimmedQuery)
+      );
+    });
+
+    const finalSubs =
+      sectionMatches && matchingSubs.length === 0
+        ? section.subcategories
+        : matchingSubs;
+
+    return {
+      ...section,
+      subcategories: finalSubs,
+    };
+  }).filter((section) => section.subcategories.length > 0);
+}, [searchQuery, lang]);
 
   // Active expanded accordion items (auto-expand during active search)
   const activeAccordionValues = useMemo(() => {
@@ -183,8 +190,8 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
     const navItems = COURT_RULINGS_AND_DOCTRINE.flatMap((section) =>
       section.subcategories.map((sub) => ({
         "@type": "SiteNavigationElement",
-        name: sub.title,
-        description: sub.description,
+        name: sub.title[lang],
+        description: sub.description?.[lang],
         url: `${VITE_APP_URL}/category/${sub.slug}`,
         image: defaultThumbnail,
       }))
@@ -314,7 +321,7 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
                     </div>
                     <div>
                       <span className="text-xs sm:text-sm font-bold text-foreground block">
-                        {section.title}
+                        {section.title[lang]}
                       </span>
                       <span className="text-[10px] text-muted-foreground block font-normal mt-0.5">
                         {section.subcategories.length} {dict.fileCount[lang]}
@@ -336,11 +343,11 @@ export const CourtNavDrawer: React.FC<CourtNavDrawerProps> = ({
                           <FileText className="size-4 text-primary/70 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
                           <div className="min-w-0">
                             <div className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-                              {sub.title}
+                              {sub.title[lang]}
                             </div>
                             {sub.description && (
                               <div className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5 leading-snug">
-                                {sub.description}
+                                {sub.description?.[lang]}
                               </div>
                             )}
                           </div>

@@ -76,20 +76,30 @@ export interface MultilingualField {
 }
 
 // ── 📰 Articles & Content Query Helpers ─────────────────────────────────────
+export type Article =
+  Database["public"]["Tables"]["articles"]["Row"];
 
 export interface GetArticlesOptions {
   limit?: number;
   offset?: number;
   category?: string;
+  categoryId?: string;
+  schoolId?: string;
+  semester?: string;
   lang?: SupportedLang;
   featured?: boolean;
   searchQuery?: string;
 }
 
-/**
- * Fetches articles from Supabase with flexible filters (Category, Language, Search)
- */
-export async function getArticles(options: GetArticlesOptions = {}) {
+export interface GetArticlesResult {
+  data: Article[];
+  count: number;
+  error: unknown | null;
+}
+
+export async function getArticles(
+  options: GetArticlesOptions = {}
+): Promise<GetArticlesResult> {
   if (!isSupabaseConfigured) {
     return { data: [], count: 0, error: null };
   }
@@ -99,12 +109,18 @@ export async function getArticles(options: GetArticlesOptions = {}) {
       .from("articles")
       .select("*", { count: "exact" });
 
-    if (options.category) {
-      query = query.eq("category", options.category);
+    const categoryId = options.categoryId ?? options.category;
+
+    if (categoryId) {
+      query = query.eq("category_id", categoryId);
     }
 
-    if (options.lang) {
-      query = query.eq("language", options.lang);
+    if (options.schoolId) {
+      query = query.eq("school_id", options.schoolId);
+    }
+
+    if (options.semester) {
+      query = query.eq("semester", options.semester);
     }
 
     if (options.featured !== undefined) {
@@ -112,26 +128,40 @@ export async function getArticles(options: GetArticlesOptions = {}) {
     }
 
     if (options.searchQuery) {
-      query = query.or(
-        `title.ilike.%${options.searchQuery}%,summary.ilike.%${options.searchQuery}%`
-      );
+      const search = options.searchQuery
+        .replace(/[,%()]/g, " ")
+        .trim();
+
+      if (search) {
+        query = query.or(
+          `title.ilike.%${search}%,excerpt.ilike.%${search}%`
+        );
+      }
     }
 
     query = query.order("created_at", { ascending: false });
 
     if (options.limit) {
-      const from = options.offset || 0;
+      const from = options.offset ?? 0;
       const to = from + options.limit - 1;
       query = query.range(from, to);
     }
 
     const { data, count, error } = await query;
-    return { data: data || [], count: count || 0, error };
-  } catch (err) {
-    console.error("[SUPABASE GET_ARTICLES ERROR]", err);
-    return { data: [], count: 0, error: err };
+
+    return {
+      data: (data ?? []) as Article[],
+      count: count ?? 0,
+      error,
+    };
+  } catch (error) {
+    console.error("[SUPABASE GET_ARTICLES ERROR]", error);
+    return { data: [], count: 0, error };
   }
 }
+
+
+
 
 /**
  * Fetches a single article by its unique slug

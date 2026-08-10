@@ -129,7 +129,7 @@ const HeroAdBanner: React.FC<{ slotId?: string }> = ({ slotId = "1020304050" }) 
     if (!scriptReady) return;
 
     try {
-      // @ts-expect-error adsbygoogle is injected by external script
+      
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch {
       setAdBlocked(true);

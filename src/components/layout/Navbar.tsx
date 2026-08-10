@@ -30,7 +30,7 @@ import {
   LayoutDashboard,
   Sparkles,
 } from "lucide-react";
-import { AuthModal } from "./AuthModal"; // ← تأكد من المسار الصحيح
+import { AuthModal } from "../auth/AuthModal";// ← تأكد من المسار الصحيح
 import { supabase } from "@/lib/supabase";
 
 // Security Whitelist

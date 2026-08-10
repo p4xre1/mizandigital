@@ -6,6 +6,7 @@ export interface SEOProps {
   description: string;
   canonical?: string;
   keywords?: string | string[];
+  jsonLd?: object;
   ogImage?: string;
   ogImageAlt?: string;
   ogType?: "website" | "article" | "profile" | "document";
@@ -99,6 +100,7 @@ export function SEOHead({
   description,
   canonical,
   keywords,
+  jsonLd,
   ogImage = `${SITE_URL}/Logo.svg`,
   ogImageAlt,
   ogType = "website",
@@ -284,6 +286,12 @@ export function SEOHead({
     };
     setJsonLd("jsonld-image", imageSchema);
 
+    if (jsonLd) {
+
+    setJsonLd("jsonld-page", jsonLd);
+
+    }
+
     // C. Master File / Document Schema (for downloadable PDF/Docs)
     if (fileUrl) {
       const fullFileUrl = fileUrl.startsWith("http") ? fileUrl : `${SITE_URL}${fileUrl}`;
@@ -318,7 +326,7 @@ export function SEOHead({
 
     // Cleanup Schema scripts on unmount
     return () => {
-      ["jsonld-legislation", "jsonld-document"].forEach((id) => {
+      ["jsonld-legislation", "jsonld-document", "jsonld-page"].forEach((id) => {
         const el = document.getElementById(id);
         if (el) el.remove();
       });
@@ -328,6 +336,7 @@ export function SEOHead({
     description,
     canonical,
     keywords,
+    jsonLd,
     ogImage,
     ogImageAlt,
     ogType,

@@ -186,7 +186,7 @@ export default function ArticlesList() {
                   <div className="h-48 w-full overflow-hidden bg-muted relative">
                     <img
                       src={article.coverImage}
-                      alt={article.imageAlt || article.title}
+                      alt={article.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -221,7 +221,7 @@ export default function ArticlesList() {
                 <div className="flex items-center gap-3">
                   <span className="flex items-center gap-1">
                     <Calendar size={13} />
-                    {article.updated_at ? new Date(article.updated_at).getFullYear() : new Date(article.created_at).getFullYear()}
+                    {new Date(article.updatedAt ?? article.updated).getFullYear()}
                   </span>
                   <span className="flex items-center gap-1">
                     <Eye size={13} />

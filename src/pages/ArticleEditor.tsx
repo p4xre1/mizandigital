@@ -39,7 +39,6 @@ function getLabel(key: keyof typeof LABELS, lang: Lang): string {
 export default function ArticleEditor() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const localizedAdminPath = useI18n().getLocalizedPath?.();
   const { lang, dir } = useI18n();
   const cms = useCms();
 

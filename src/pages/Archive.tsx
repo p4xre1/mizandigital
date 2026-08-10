@@ -22,6 +22,19 @@ import AdSenseSlot from "../components/ads/AdSenseSlot";
 // Fix 2: Changed from default import to named import { SEOHead }
 import { SEOHead } from "../components/seo/SEOHead";
 
+type ArchiveArticle = Partial<Article> & {
+  id: string;
+  title: string;
+  slug: string;
+  category?: string | null;
+  university?: string | null;
+  semester?: string | null;
+  year?: number | null;
+  views?: number | null;
+  is_featured?: boolean | null;
+  pdf_url?: string | null;
+};
+
 // --- SECURITY HELPERS (Military-grade sanitization) ---
 const sanitizeInput = (str: string): string => {
   return str.replace(/[<>{}[\]]/g, "").trim();
@@ -207,7 +220,7 @@ const SEO_KEYWORDS: Record<SupportedLang, string> = {
 };
 
 // Fallback Mock Data for smooth experience
-const MOCK_DATA: Article[] = [
+const MOCK_DATA: ArchiveArticle[] = [
   {
     id: "1",
     title: "أسئلة وأجوبة امتحان قانون الأسرة S1 — المغرب 2026",
@@ -293,7 +306,7 @@ export default function Archive() {
 
   const { isStaff } = useRole();
 
-  const [articles, setArticles] = useState<Article[]>(MOCK_DATA);
+  const [articles, setArticles] = useState<ArchiveArticle[]>(MOCK_DATA);
   const [loading, setLoading] = useState<boolean>(false);
   const [rawSearchQuery, setRawSearchQuery] = useState<string>("");
 
@@ -326,17 +339,20 @@ export default function Archive() {
   // Data Fetching
   useEffect(() => {
     setLoading(true);
-    getArticles({
-      university: university !== "all" ? university : undefined,
-      semester: semester !== "all" ? semester : undefined,
-      limit: 40,
-    })
+     getArticles({
+  schoolId: university !== "all" ? university : undefined,
+  semester: semester !== "all" ? semester : undefined,
+  limit: 40,
+   })
       // Fix 3: Explicit parameter type annotation to solve 'implicit any'
-      .then((data: Article[]) => {
-        if (data && data.length > 0) {
-          setArticles(data);
-        }
-      })
+      .then(({ data, error }) => {
+      if (error) {
+       setArticles(MOCK_DATA);
+       return;
+      }
+
+       setArticles(data);
+       })
       .catch(() => {
         // Fallback to mock on network error
       })
@@ -407,11 +423,11 @@ export default function Archive() {
     <>
       {/* Master SEO Head */}
       <SEOHead
-        title={t.metaTitle}
-        description={t.metaDesc}
-        keywords={SEO_KEYWORDS[currentLang]}
-        canonicalUrl={canonicalUrl}
-        jsonLd={jsonLdSchema}
+      title={t.metaTitle}
+      description={t.metaDesc}
+      keywords={SEO_KEYWORDS[currentLang]}
+      canonical={canonicalUrl}
+      jsonLd={jsonLdSchema}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 text-foreground" dir={dir}>
@@ -612,7 +628,7 @@ export default function Archive() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             {filteredArticles.map((article, idx) => {
               const showAdHere = !isStaff && idx === 2;
-              const safePdfUrl = getSafePdfUrl(article.pdf_url);
+              const safePdfUrl = getSafePdfUrl(article.pdf_url ?? undefined);
 
               return (
                 <div key={article.id} className="contents">

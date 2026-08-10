@@ -690,7 +690,7 @@ export default function CourtRulingsCategory(): React.ReactElement {
 
                 {/* Monetization Slot */}
                 <MonetizationWrapper>
-                    <AdSenseSlot slot="court-rulings-top" />
+                    <AdSenseSlot slotId="court-rulings-top" />
                 </MonetizationWrapper>
 
                 {/* Sticky Search & Filter Toolbar */}
@@ -1056,7 +1056,7 @@ export default function CourtRulingsCategory(): React.ReactElement {
 
                 {/* Bottom Monetization Slot */}
                 <MonetizationWrapper>
-                    <AdSenseSlot slot="court-rulings-bottom" />
+                    <AdSenseSlot slotId="court-rulings-bottom" />
                 </MonetizationWrapper>
             </main>
         </div>

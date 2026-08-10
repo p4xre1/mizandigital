@@ -17,6 +17,7 @@ export interface Database {
         Row: {
           id: string;
           email: string;
+          username: string | null;
           role: UserRole;
           bonus_credits: number;
           referred_by: string | null;
@@ -41,6 +42,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["profiles"]["Row"]>;
+        Relationships: [];
       };
       articles: {
         Row: {
@@ -65,6 +67,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["articles"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["articles"]["Row"]>;
+        Relationships: [];
       };
       categories: {
         Row: {
@@ -78,6 +81,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["categories"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["categories"]["Row"]>;
+        Relationships: [];
       };
       ui_translations: {
         Row: {
@@ -90,8 +94,9 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["ui_translations"]["Row"]> & { key: string; domain: string };
         Update: Partial<Database["public"]["Tables"]["ui_translations"]["Row"]>;
+        Relationships: [];
       };
-      audit_logs: {
+            audit_logs: {
         Row: {
           id: string;
           user_id: string | null;
@@ -101,8 +106,23 @@ export interface Database {
           new_data: Json | null;
           created_at: string;
         };
-        Insert: Partial<Database["public"]["Tables"]["audit_logs"]["Row"]> & { action: string; table_name: string };
+        Insert: Partial<Database["public"]["Tables"]["audit_logs"]["Row"]> & {
+          action: string;
+          table_name: string;
+        };
         Update: Partial<Database["public"]["Tables"]["audit_logs"]["Row"]>;
+        Relationships: [];
+      };
+
+      security_logs: {
+        Row: {
+          id: string;
+          severity: string;
+          created_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["security_logs"]["Row"]>;
+        Update: Partial<Database["public"]["Tables"]["security_logs"]["Row"]>;
+        Relationships: [];
       };
       legal_texts: {
         Row: {
@@ -118,6 +138,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["legal_texts"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["legal_texts"]["Row"]>;
+        Relationships: [];
       };
       comments: {
         Row: {
@@ -129,6 +150,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["comments"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["comments"]["Row"]>;
+        Relationships: [];
       };
       user_interactions: {
         Row: {
@@ -140,6 +162,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["user_interactions"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["user_interactions"]["Row"]>;
+        Relationships: [];
       };
       documents_library: {
         Row: {
@@ -157,6 +180,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["documents_library"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["documents_library"]["Row"]>;
+        Relationships: [];
       };
       schools: {
         Row: {
@@ -170,6 +194,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["schools"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["schools"]["Row"]>;
+        Relationships: [];
       };
       news: {
         Row: {
@@ -189,6 +214,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["news"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["news"]["Row"]>;
+        Relationships: [];
       };
       tenants: {
         Row: {
@@ -200,6 +226,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["tenants"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["tenants"]["Row"]>;
+        Relationships: [];
       };
       contacts: {
         Row: {
@@ -212,6 +239,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["contacts"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["contacts"]["Row"]>;
+        Relationships: [];
       };
       analytics_events: {
         Row: {
@@ -231,6 +259,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["analytics_events"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["analytics_events"]["Row"]>;
+        Relationships: [];
       };
       site_legal_documents: {
         Row: {
@@ -249,6 +278,7 @@ export interface Database {
         };
         Insert: Partial<Database["public"]["Tables"]["site_legal_documents"]["Row"]>;
         Update: Partial<Database["public"]["Tables"]["site_legal_documents"]["Row"]>;
+        Relationships: [];
       };
     };
     Views: {
@@ -262,5 +292,6 @@ export interface Database {
       content_status: ContentStatus;
       question_status: QuestionStatus;
     };
+     CompositeTypes: {};
   };
 }

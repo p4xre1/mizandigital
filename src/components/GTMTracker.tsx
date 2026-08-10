@@ -7,7 +7,7 @@ import { ShieldCheck, Cookie, Check, X } from "lucide-react";
 declare global {
   interface Window {
     // Fixed: Matches 'any[]' declaration from analytics.ts to prevent TS conflict
-    dataLayer: any[];
+    dataLayer: Record<string, unknown>[];
     mizanTrackEvent?: (eventName: string, payload?: Record<string, unknown>) => void;
     mizanTrackMedia?: (mediaPayload: {
       type: "photo" | "file" | "document";
