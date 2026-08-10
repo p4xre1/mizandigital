@@ -1,5 +1,5 @@
 // src/pages/ArticlesList.tsx
-import React, { useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   Search,
@@ -14,7 +14,8 @@ import {
   Tag,
 } from "lucide-react";
 import { useI18n, serifFont, sansFont, type Lang } from "../lib/i18n";
-import { useCms } from "../lib/adminStore";
+import type { AdminArticle } from "../lib/adminStore";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 type CategorySlug = "all" | "schools" | "government" | "general";
 
@@ -60,31 +61,111 @@ function getLabel(key: keyof typeof LABELS, lang: Lang): string {
 
 export default function ArticlesList() {
   const { lang, dir } = useI18n();
-  const cms = useCms();
   const navigate = useNavigate();
-  const { category: currentCategoryParam } = useParams<{ category?: string }>();
+
+  const { categorySlug: currentCategoryParam } = useParams<{
+    categorySlug?: string;
+  }>();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [articles, setArticles] = useState<AdminArticle[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Determine active category from route param (/news/schools -> "schools")
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadArticles() {
+      if (!isSupabaseConfigured) {
+        setLoadError("Supabase is not configured.");
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await (supabase.from("articles") as any)
+        .select("*")
+        .eq("status", "published")
+        .order("updated_at", { ascending: false });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Articles load failed:", error);
+        setLoadError(error.message);
+        setArticles([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data: categories } = await (
+        supabase.from("categories") as any
+      ).select("id, slug, name");
+
+      const categoryMap = new Map(
+        (categories ?? []).map((category: any) => [
+          String(category.id),
+          String(category.slug || category.name || "general"),
+        ])
+      );
+
+      const mappedArticles: AdminArticle[] = (data ?? []).map(
+        (row: any) => {
+          const updatedAt = String(
+            row.updated_at || row.created_at || new Date().toISOString()
+          );
+
+          return {
+            id: String(row.id),
+            title: String(row.title || ""),
+            slug: String(row.slug || row.id),
+            category:
+              categoryMap.get(String(row.category_id)) ||
+              String(row.category || "general"),
+            status: "published",
+            published: true,
+            author: String(row.author || "Mizan Editor"),
+            views: Number(row.views || 0),
+            updated: updatedAt,
+            updatedAt,
+            excerpt: String(row.excerpt || ""),
+            content: String(row.content || ""),
+            coverImage: String(row.cover_image || ""),
+            allowComments: true,
+            commentsEnabled: true,
+          };
+        }
+      );
+
+      if (!cancelled) {
+        setArticles(mappedArticles);
+        setLoading(false);
+      }
+    }
+
+    void loadArticles();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const activeCategory: CategorySlug = useMemo(() => {
     const cat = (currentCategoryParam || "all").toLowerCase();
+
     if (["schools", "government", "general"].includes(cat)) {
       return cat as CategorySlug;
     }
+
     return "all";
   }, [currentCategoryParam]);
 
-  // Navigate when clicking tabs
   const handleCategoryClick = (catId: CategorySlug) => {
-    if (catId === "all") {
-      navigate(`/${lang}/news`);
-    } else {
-      navigate(`/${lang}/news/${catId}`);
-    }
+    navigate(
+      catId === "all"
+        ? `/${lang}/news`
+        : `/${lang}/news/category/${catId}`
+    );
   };
-
-  const articles = cms?.articles || [];
 
   // Filter published articles matching Category + Search
   const filteredArticles = useMemo(() => {
@@ -177,7 +258,7 @@ export default function ArticlesList() {
           {filteredArticles.map((article) => (
             <Link
               key={article.id}
-              to={`/${lang}/article/${article.slug || article.id}`}
+              to={`/${lang}/news/${article.slug || article.id}`}
               className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
             >
               <div>

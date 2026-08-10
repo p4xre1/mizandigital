@@ -260,14 +260,14 @@ export function Navbar() {
                 <div className="absolute top-full rtl:right-0 ltr:left-0 mt-1 w-[400px] bg-card border border-border rounded-2xl shadow-xl p-4 z-50">
                   {/* ... نفس محتوى الـ dropdown السابق ... */}
                   <div className="space-y-1">
-                    <Link to={`/${lang}/news/schools`} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted transition-colors">
+                    <Link to={`/${lang}/news/category/schools`} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted transition-colors">
                       <GraduationCap size={17} className="text-blue-500 shrink-0" />
                       <div>
                         <h4 className="text-xs font-bold">{lang === "ar" ? "أخبار الكليات" : "University News"}</h4>
                         <p className="text-[10px] text-muted-foreground">{lang === "ar" ? "مباريات ونتائج" : "Exams & Results"}</p>
                       </div>
                     </Link>
-                    <Link to={`/${lang}/news/government`} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted transition-colors">
+                    <Link to={`/${lang}/news/category/government`} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-muted transition-colors">
                       <Landmark size={17} className="text-amber-500 shrink-0" />
                       <div>
                         <h4 className="text-xs font-bold">{lang === "ar" ? "المستجدات التشريعية" : "Government Updates"}</h4>
@@ -290,11 +290,14 @@ export function Navbar() {
 
             {/* Archive Dropdown */}
             <div className="relative" onMouseEnter={() => setActiveDropdown("archive")} onMouseLeave={() => setActiveDropdown(null)}>
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-muted hover:text-primary transition-colors text-foreground">
+              <Link
+  to={`/${lang}/archive`}
+  className="flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-muted hover:text-primary transition-colors text-foreground"
+>
                 <Archive size={15} />
                 <span>{lang === "ar" ? "الأرشيف" : "Archive"}</span>
                 <ChevronDown size={13} className={`transition-transform ${activeDropdown === "archive" ? "rotate-180" : ""}`} />
-              </button>
+              </Link>
             </div>
 
             {/* RBAC Badges */}
@@ -471,7 +474,7 @@ export function Navbar() {
                   <BookOpen size={17} className="text-primary" />
                   {lang === "ar" ? "المكتبة" : "Library"}
                 </Link>
-                <Link to={`/${lang}/schools`} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 min-h-[44px] px-3 rounded-xl bg-card border border-border font-bold text-sm">
+                <Link to={`/${lang}/archive`} onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 min-h-[44px] px-3 rounded-xl bg-card border border-border font-bold text-sm">
                   <Archive size={17} className="text-primary" />
                   {lang === "ar" ? "الأرشيف" : "Archive"}
                 </Link>
