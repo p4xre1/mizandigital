@@ -401,78 +401,93 @@ export const deleteUser = async (id: string) => {
 };
 
 // ── ARTICLE MANAGEMENT ────────────────────────────────────────────────────────
-export const saveArticle = async (a: Partial<AdminArticle> & { id?: string }) => {
-  await ensurePrivilege(ROLES.CONTENT_WRITERS);
+export const saveArticle = async (
+  a: Partial<AdminArticle> & { id?: string }
+) => {
+  const user = await ensurePrivilege(ROLES.CONTENT_WRITERS);
 
-  const isExisting = a.id && state.articles.some((x) => x.id === a.id);
-  const targetId = sanitizeText(a.id || uid(), 50);
+  const existingId =
+    typeof a.id === "string" &&
+    state.articles.some((article) => article.id === a.id)
+      ? a.id
+      : undefined;
+
+  const localId = sanitizeText(existingId || uid(), 50);
   const isPublished = a.published ?? a.status === "published";
 
-  const sanitizedTitle = sanitizeText(a.title || "");
-  const sanitizedSlug = sanitizeText(a.slug || targetId);
-  const sanitizedCategory = sanitizeText(a.category || "General");
-  const sanitizedExcerpt = sanitizeText(a.excerpt || "", 500);
-  const sanitizedContent = sanitizeHtml(a.content || "");
+  const title = sanitizeText(a.title || "");
+  const slug = sanitizeText(a.slug || localId);
+  const excerpt = sanitizeText(a.excerpt || "", 500);
+  const content = sanitizeHtml(a.content || "");
+  const now = new Date().toISOString();
 
-  if (isExisting) {
-    commit({
-      ...state,
-      articles: state.articles.map((x) =>
-        x.id === targetId
-          ? ({
-              ...x,
-              ...a,
-              title: sanitizedTitle,
-              slug: sanitizedSlug,
-              content: sanitizedContent,
-              excerpt: sanitizedExcerpt,
-              status: isPublished ? "published" : "draft",
-              published: isPublished,
-              allowComments: a.allowComments ?? x.allowComments ?? x.commentsEnabled ?? true,
-              updated: today(),
-              updatedAt: new Date().toISOString(),
-            } as AdminArticle)
-          : x
-      ),
-    });
-  } else {
-    const na: AdminArticle = {
-      id: targetId,
-      title: sanitizedTitle,
-      slug: sanitizedSlug,
-      category: sanitizedCategory,
-      status: isPublished ? "published" : "draft",
-      published: isPublished,
-      author: sanitizeText(a.author || "Mizan Editor"),
-      views: 0,
-      updated: today(),
-      updatedAt: new Date().toISOString(),
-      excerpt: sanitizedExcerpt,
-      content: sanitizedContent,
-      coverImage: sanitizeText(a.coverImage || "", 1000),
-      allowComments: a.allowComments ?? true,
-      commentsEnabled: a.allowComments ?? true,
-    };
-    commit({ ...state, articles: [na, ...state.articles] });
-  }
-
-  trackGoogleEvent("article_saved", { article_id: targetId, slug: sanitizedSlug });
+  let savedId = localId;
 
   if (isSupabaseConfigured) {
-    await (supabase.from("articles") as any).upsert({
-      id: targetId,
-      title: sanitizedTitle,
-      slug: sanitizedSlug,
-      category: sanitizedCategory,
+    const payload = {
+      title,
+      slug,
+      excerpt: excerpt || null,
+      content,
       status: isPublished ? "published" : "draft",
-      author: a.author,
-      excerpt: sanitizedExcerpt,
-      content: sanitizedContent,
-      cover_image: a.coverImage,
-      allow_comments: a.allowComments,
-      updated_at: new Date().toISOString(),
-    });
+      
+      updated_at: now,
+      author_id: user.id,
+    };
+
+    const table = supabase.from("articles") as any;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(localId);
+
+    const result = isUuid
+      ? await table
+          .upsert({ id: localId, ...payload }, { onConflict: "id" })
+          .select("id")
+          .single()
+      : await table.insert(payload).select("id").single();
+
+    if (result.error) {
+      console.error("Article save failed:", result.error);
+      throw new Error(result.error.message);
+    }
+
+    savedId = result.data.id;
   }
+
+  const previous = existingId
+    ? state.articles.find((article) => article.id === existingId)
+    : undefined;
+
+  const article: AdminArticle = {
+    ...previous,
+    id: savedId,
+    title,
+    slug,
+    category: sanitizeText(a.category || "General"),
+    status: isPublished ? "published" : "draft",
+    published: isPublished,
+    author: sanitizeText(a.author || "Mizan Editor"),
+    views: previous?.views ?? 0,
+    updated: today(),
+    updatedAt: now,
+    excerpt,
+    content,
+    coverImage: sanitizeText(a.coverImage || "", 1000),
+    allowComments: a.allowComments ?? true,
+    commentsEnabled: a.allowComments ?? true,
+  };
+
+  const articles = existingId
+    ? state.articles.map((item) =>
+        item.id === existingId ? article : item
+      )
+    : [article, ...state.articles];
+
+  commit({ ...state, articles });
+
+  trackGoogleEvent("article_saved", {
+    article_id: savedId,
+    slug,
+  });
 };
 
 export const deleteArticle = async (id: string) => {
