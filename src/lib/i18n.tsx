@@ -7,8 +7,10 @@ import {
 } from "./interaction-i18n";
 
 // ── Environmental Constants & Domain Configuration ───────────────────────────
-export const SITE_URL = import.meta.env.VITE_SITE_URL || "https://www.mizan.page";
-export const APP_URL = import.meta.env.VITE_APP_URL || "https://www.mizan.page";
+const PRIMARY_SITE_URL = "https://www.mizan.page";
+
+export const SITE_URL = PRIMARY_SITE_URL;
+export const APP_URL = PRIMARY_SITE_URL;
 
 // ── Core Types ───────────────────────────────────────────────────────────────
 export type Lang = "ar" | "fr" | "en" | "es";
@@ -91,52 +93,67 @@ export function getPreferredBrowserLanguage(): Lang {
  * Safely updates or prepends the language segment while validating URL safety.
  */
 export function buildLocalizedPath(path: string, targetLang: Lang): string {
-  if (!isSafeUrl(path)) {
+  const rawPath = path.trim();
+
+  if (!isSafeUrl(rawPath)) {
     return `/${targetLang}`;
   }
 
+  // Keep external and special URLs unchanged.
   if (
-    !path ||
-    path.startsWith("http://") ||
-    path.startsWith("https://") ||
-    path.startsWith("//") ||
-    path.startsWith("#") ||
-    path.startsWith("mailto:") ||
-    path.startsWith("tel:")
+    rawPath.startsWith("http://") ||
+    rawPath.startsWith("https://") ||
+    rawPath.startsWith("//") ||
+    rawPath.startsWith("#") ||
+    rawPath.startsWith("mailto:") ||
+    rawPath.startsWith("tel:")
   ) {
-    return path;
+    return rawPath;
   }
 
-  const hashIndex = path.indexOf("#");
-  const searchIndex = path.indexOf("?");
-  
-  let pathname = path;
-  let suffix = "";
+  // Reject malformed internal URLs such as /https://mizan.page
+  if (/^\/+https?:\/\//i.test(rawPath)) {
+    return `/${targetLang}`;
+  }
+
+  const hashIndex = rawPath.indexOf("#");
+  const searchIndex = rawPath.indexOf("?");
 
   const cutIndex = Math.min(
     searchIndex === -1 ? Infinity : searchIndex,
     hashIndex === -1 ? Infinity : hashIndex
   );
 
-  if (cutIndex !== Infinity) {
-    pathname = path.substring(0, cutIndex);
-    suffix = path.substring(cutIndex);
-  }
+  const pathname =
+    cutIndex === Infinity ? rawPath : rawPath.slice(0, cutIndex);
+
+  const suffix =
+    cutIndex === Infinity ? "" : rawPath.slice(cutIndex);
 
   const segments = pathname
+    .replace(/\/+/g, "/")
     .split("/")
-    .filter(Boolean)
-    .filter((segment) => !SUPPORTED_LANGS.includes(segment as Lang));
+    .filter(Boolean);
 
-  const cleanPath = segments.length > 0 ? `/${segments.join("/")}` : "";
+  // Remove only the first language segment.
+  if (SUPPORTED_LANGS.includes(segments[0] as Lang)) {
+    segments.shift();
+  }
+
+  const cleanPath = segments.length
+    ? `/${segments.join("/")}`
+    : "";
+
   return `/${targetLang}${cleanPath}${suffix}`;
 }
-
 export function useLocalizedPath() {
   const { lang } = useI18n();
-  return useCallback((path: string) => buildLocalizedPath(path, lang), [lang]);
-}
 
+  return useCallback(
+    (path: string) => buildLocalizedPath(path, lang),
+    [lang]
+  );
+}
 // ── Master SEO & Metadata Engine ──────────────────────────────────────────────
 export interface SEOMetadata {
   title: string;
@@ -440,7 +457,13 @@ interface I18nCtx {
 
 const Ctx = createContext<I18nCtx | null>(null);
 
-export function I18nProvider({ children }: { children: ReactNode }) {
+export function I18nProvider({
+  children,
+  pathname,
+}: {
+  children: ReactNode;
+  pathname?: string;
+}) {
   const [lang, setLangState] = useState<Lang>(() => {
     if (typeof window !== "undefined") {
       const firstSegment = window.location.pathname.split("/").filter(Boolean)[0];
@@ -471,42 +494,60 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   });
 
   // Sync state with browser URL navigation dynamically
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+   // Sync language with React Router pathname
+useEffect(() => {
+  const syncLangFromPath = (currentPath: string) => {
+    const urlLang = currentPath.split("/").filter(Boolean)[0];
 
-    const syncLangFromUrl = () => {
-      const urlLang = window.location.pathname.split("/").filter(Boolean)[0];
-      if (SUPPORTED_LANGS.includes(urlLang as Lang) && urlLang !== lang) {
-        setLangState(urlLang as Lang);
-      }
-    };
-
-    syncLangFromUrl();
-    window.addEventListener("popstate", syncLangFromUrl);
-    return () => window.removeEventListener("popstate", syncLangFromUrl);
-  }, [lang]);
-
-  const dir = useMemo(() => LANGS.find((l) => l.code === lang)?.dir || "rtl", [lang]);
-
-  useEffect(() => {
-    document.documentElement.lang = lang;
-    document.documentElement.dir = dir;
-    try {
-      localStorage.setItem("mizan_lang", lang);
-    } catch {
-      /* ignore storage error */
+    if (SUPPORTED_LANGS.includes(urlLang as Lang)) {
+      setLangState(urlLang as Lang);
     }
-  }, [lang, dir]);
+  };
 
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    try {
-      localStorage.setItem("mizan_theme", theme);
-    } catch {
-      /* ignore storage error */
-    }
-  }, [theme]);
+  if (pathname) {
+    syncLangFromPath(pathname);
+    return;
+  }
 
+  if (typeof window === "undefined") return;
+
+  const syncFromBrowser = () => {
+    syncLangFromPath(window.location.pathname);
+  };
+
+  syncFromBrowser();
+  window.addEventListener("popstate", syncFromBrowser);
+
+  return () => {
+    window.removeEventListener("popstate", syncFromBrowser);
+  };
+}, [pathname]);
+
+useEffect(() => {
+  document.documentElement.classList.toggle("dark", theme === "dark");
+
+  try {
+    localStorage.setItem("mizan_theme", theme);
+  } catch {
+    /* ignore storage error */
+  }
+}, [theme]);
+
+const dir = useMemo(
+  () => LANGS.find((language) => language.code === lang)?.dir || "rtl",
+  [lang]
+);
+
+useEffect(() => {
+  document.documentElement.lang = lang;
+  document.documentElement.dir = dir;
+
+  try {
+    localStorage.setItem("mizan_lang", lang);
+  } catch {
+    /* ignore storage error */
+  }
+}, [lang, dir]);
   // Parameterized translation lookup with HTML sanitization
   const t = useCallback(
     (key: string, params?: Record<string, string | number>): string => {

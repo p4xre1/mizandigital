@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { router } from "@/routes";
@@ -6,58 +6,54 @@ import { I18nProvider } from "@/lib/i18n";
 import { trackPageView, trackScrollDepth } from "@/lib/analytics";
 import { queryClient } from "@/lib/query-client";
 
-/**
- * Root Application Component for Mizan Digital (www.mizan.page)
- * Wraps the application with global state providers (I18n),
- * auto-tracks route navigation & scroll depth telemetry with RAF throttling,
- * and renders the central client-side router.
- */
 export default function App(): React.JSX.Element {
-  // 1. Auto-track Page Navigation & Scroll Milestones
+  const [pathname, setPathname] = useState(
+    () => router.state.location.pathname
+  );
+
   useEffect(() => {
-    // Keep track of scroll depths for the current active page
     let trackedDepths = new Set<number>();
     let ticking = false;
 
-    // Track initial load
     trackPageView(window.location.pathname);
 
-    // Subscribe to client-side route transitions
     const unsubscribe = router.subscribe((state) => {
-      if (state.navigation.state === "idle" && state.location) {
-        // Track new page view
+      if (!state.location) return;
+
+      setPathname(state.location.pathname);
+
+      if (state.navigation.state === "idle") {
         trackPageView(state.location.pathname);
-        
-        // Reset scroll milestones for the new route
         trackedDepths = new Set<number>();
       }
     });
 
-    // 2. Auto-track Scroll Depth Milestones with requestAnimationFrame (Prevents Reflow Thrashing)
     const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const scrollTop = window.scrollY;
-          const docHeight =
-            document.documentElement.scrollHeight - window.innerHeight;
+      if (ticking) return;
 
-          if (docHeight > 0) {
-            const scrollPercent = Math.round((scrollTop / docHeight) * 100);
-            const milestones: (25 | 50 | 75 | 100)[] = [25, 50, 75, 100];
+      window.requestAnimationFrame(() => {
+        const docHeight =
+          document.documentElement.scrollHeight - window.innerHeight;
 
-            milestones.forEach((depth) => {
-              if (scrollPercent >= depth && !trackedDepths.has(depth)) {
-                trackedDepths.add(depth);
-                trackScrollDepth(depth, window.location.pathname);
-              }
-            });
-          }
+        if (docHeight > 0) {
+          const scrollPercent = Math.round(
+            (window.scrollY / docHeight) * 100
+          );
 
-          ticking = false;
-        });
+          const milestones: (25 | 50 | 75 | 100)[] = [25, 50, 75, 100];
 
-        ticking = true;
-      }
+          milestones.forEach((depth) => {
+            if (scrollPercent >= depth && !trackedDepths.has(depth)) {
+              trackedDepths.add(depth);
+              trackScrollDepth(depth, window.location.pathname);
+            }
+          });
+        }
+
+        ticking = false;
+      });
+
+      ticking = true;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -70,7 +66,7 @@ export default function App(): React.JSX.Element {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nProvider>
+      <I18nProvider pathname={pathname}>
         <RouterProvider router={router} />
       </I18nProvider>
     </QueryClientProvider>

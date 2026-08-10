@@ -11,16 +11,28 @@ const LANGS = ["ar", "fr", "en", "es"];
 const PATHS = [
   "",
   "/about",
+  "/legal",
   "/archive",
   "/library",
   "/news",
   "/schools",
+
+  "/fields/family-law",
+  "/fields/criminal-law",
+  "/fields/commercial-law",
+  "/fields/administrative-law",
+  "/fields/constitutional-law",
+
+  "/documents/cassation-rulings",
+  "/documents/legal-texts",
+  "/documents/ministerial-decrees",
+  "/documents/official-journals",
 ];
 
 const TODAY = new Date().toISOString().split("T")[0];
 
 function normalizePath(path = "") {
-  const normalized = `/${path}`
+  const normalized = `/${String(path).trim()}`
     .replace(/\/+/g, "/")
     .replace(/\/+$/, "");
 
@@ -32,7 +44,7 @@ function buildUrl(lang, path = "") {
 }
 
 function escapeXml(value) {
-  return value
+  return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -74,7 +86,9 @@ function generateSitemapEntries() {
             : "0.9";
 
       const changefreq =
-        isHome || isNews || path === "/archive" ? "daily" : "weekly";
+        isHome || isNews || path === "/archive"
+          ? "daily"
+          : "weekly";
 
       entries.push(`  <url>
     <loc>${loc}</loc>
@@ -99,4 +113,4 @@ ${generateSitemapEntries()}
 
 await writeFile(OUTPUT, xml, "utf8");
 
-console.log("✅ Master clean sitemap.xml generated successfully at:", OUTPUT);
+console.log("✅ Clean sitemap.xml generated successfully:", OUTPUT);
