@@ -406,6 +406,12 @@ export const saveArticle = async (
 ) => {
   const user = await ensurePrivilege(ROLES.CONTENT_WRITERS);
 
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      "Supabase is not configured. The article was not saved."
+    );
+  }
+
   const existingId =
     typeof a.id === "string" &&
     state.articles.some((article) => article.id === a.id)
@@ -416,42 +422,41 @@ export const saveArticle = async (
   const isPublished = a.published ?? a.status === "published";
 
   const title = sanitizeText(a.title || "");
-  const slug = sanitizeText(a.slug || localId);
+  const slug = sanitizeText(a.slug || localId, 200)
+    .trim()
+    .replace(/^\/+|\/+$/g, "")
+    .replace(/\s+/g, "-");
+
   const excerpt = sanitizeText(a.excerpt || "", 500);
   const content = sanitizeHtml(a.content || "");
   const now = new Date().toISOString();
 
-  let savedId = localId;
+  const payload = {
+    title,
+    slug,
+    excerpt: excerpt || null,
+    content,
+    status: isPublished ? "published" : "draft",
+    updated_at: now,
+    author_id: user.id,
+  };
 
-  if (isSupabaseConfigured) {
-    const payload = {
-      title,
-      slug,
-      excerpt: excerpt || null,
-      content,
-      status: isPublished ? "published" : "draft",
-      
-      updated_at: now,
-      author_id: user.id,
-    };
+  const table = supabase.from("articles") as any;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(localId);
 
-    const table = supabase.from("articles") as any;
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(localId);
+  const result = isUuid
+    ? await table
+        .upsert({ id: localId, ...payload }, { onConflict: "id" })
+        .select("id")
+        .single()
+    : await table.insert(payload).select("id").single();
 
-    const result = isUuid
-      ? await table
-          .upsert({ id: localId, ...payload }, { onConflict: "id" })
-          .select("id")
-          .single()
-      : await table.insert(payload).select("id").single();
-
-    if (result.error) {
-      console.error("Article save failed:", result.error);
-      throw new Error(result.error.message);
-    }
-
-    savedId = result.data.id;
+  if (result.error) {
+    console.error("Article save failed:", result.error);
+    throw new Error(result.error.message);
   }
+
+  const savedId = result.data.id;
 
   const previous = existingId
     ? state.articles.find((article) => article.id === existingId)
@@ -490,22 +495,40 @@ export const saveArticle = async (
   });
 };
 
-export const deleteArticle = async (id: string) => {
+export const deleteArticle = async (id: string): Promise<void> => {
   await ensurePrivilege(["root", "admin"]);
-  commit({ ...state, articles: state.articles.filter((a) => a.id !== id) });
 
-  if (isSupabaseConfigured) {
-    await (supabase.from("articles") as any).delete().eq("id", id);
+  if (!isSupabaseConfigured) {
+    throw new Error("Supabase is not configured.");
   }
+
+  const { error } = await (supabase.from("articles") as any)
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Article delete failed:", error);
+    throw new Error(error.message);
+  }
+
+  commit({
+    ...state,
+    articles: state.articles.filter((article) => article.id !== id),
+  });
 };
 
-// ── COMMENTS MANAGEMENT (100% REAL & DYNAMIC) ──────────────────────────────
 export const addComment = async (
   articleId: string,
   authorName: string,
   bodyText: string
 ): Promise<Comment> => {
-  const cleanName = sanitizeText(authorName, 60) || "Guest";
+  const user = await requireVerifiedEmail();
+
+  if (!isSupabaseConfigured) {
+    throw new Error("Supabase is not configured.");
+  }
+
+  const cleanName = sanitizeText(authorName, 60) || "User";
   const cleanBody = sanitizeText(bodyText, 1000);
 
   if (cleanBody.length < 3) {
@@ -516,12 +539,28 @@ export const addComment = async (
     throw new Error("Comment rejected by security spam filter.");
   }
 
+  const { data, error } = await (supabase.from("comments") as any)
+    .insert({
+      article_id: articleId,
+      user_id: user.id,
+      name: cleanName,
+      body: cleanBody,
+      is_approved: false,
+    })
+    .select("id, article_id, name, body, created_at")
+    .single();
+
+  if (error) {
+    console.error("Comment save failed:", error);
+    throw new Error(error.message);
+  }
+
   const newComment: Comment = {
-    id: `c_${uid()}`,
-    articleId,
-    name: cleanName,
-    body: cleanBody,
-    at: new Date().toISOString().replace("T", " ").slice(0, 16),
+    id: data.id,
+    articleId: data.article_id,
+    name: data.name,
+    body: data.body,
+    at: data.created_at,
   };
 
   commit({
@@ -529,34 +568,13 @@ export const addComment = async (
     comments: [newComment, ...state.comments],
   });
 
-  trackGoogleEvent("comment_created", { article_id: articleId, comment_id: newComment.id });
-
-  if (isSupabaseConfigured) {
-    await (supabase.from("comments") as any).insert({
-      id: newComment.id,
-      article_id: articleId,
-      author_name: cleanName,
-      body: cleanBody,
-      created_at: new Date().toISOString(),
-    });
-  }
+  trackGoogleEvent("comment_created", {
+    article_id: articleId,
+    comment_id: newComment.id,
+  });
 
   return newComment;
 };
-
-export const deleteComment = async (commentId: string): Promise<void> => {
-  await ensurePrivilege(ROLES.STAFF);
-
-  commit({
-    ...state,
-    comments: state.comments.filter((c) => c.id !== commentId),
-  });
-
-  if (isSupabaseConfigured) {
-    await (supabase.from("comments") as any).delete().eq("id", commentId);
-  }
-};
-
 // ── LEGAL TEXTS MANAGEMENT ────────────────────────────────────────────────────
 export const upsertLegalText = async (lt: Partial<LegalText> & { id?: string }) => {
   await ensurePrivilege(ROLES.CONTENT_WRITERS);
