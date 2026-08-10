@@ -1,10 +1,9 @@
 import { Link } from "react-router-dom";
 import { Scale, Search, Home } from "lucide-react";
-import { useLocalizedPath, useI18n, serifFont, sansFont } from "../lib/i18n";
+import { useI18n, serifFont, sansFont } from "../lib/i18n";
 import { useSeo } from "../lib/seo";
 
 export default function NotFound(): React.JSX.Element {
-  const localizedPath = useLocalizedPath();
   const { lang, dir } = useI18n();
 
   useSeo(
@@ -20,6 +19,7 @@ export default function NotFound(): React.JSX.Element {
       description: "منصة ميزان — المجلة القانونية الرقمية",
       path: "/404",
       lang,
+      noindex: true,
     },
     [lang]
   );
@@ -67,7 +67,7 @@ export default function NotFound(): React.JSX.Element {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            to={localizedPath("/")}
+            to={`/${lang}`}
             className="flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold rounded-xl hover:bg-primary/90 transition-colors text-sm shadow-sm min-h-[44px]"
             style={{ fontFamily: sansFont(lang) }}
           >
@@ -81,7 +81,7 @@ export default function NotFound(): React.JSX.Element {
           </Link>
 
           <Link
-            to={localizedPath("/archive")}
+            to={`/${lang}/archive`}
             className="flex items-center justify-center gap-2 px-5 py-2.5 border border-border text-foreground bg-card rounded-xl hover:border-primary hover:text-primary transition-colors text-sm min-h-[44px]"
             style={{ fontFamily: sansFont(lang) }}
           >
