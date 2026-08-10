@@ -15,7 +15,6 @@ export interface SEOProps {
   publishedTime?: string;
   modifiedTime?: string;
   author?: string;
-  // Master File & Photo SEO attributes
   fileUrl?: string;
   fileType?: string;
   fileSize?: number | string;
@@ -23,12 +22,12 @@ export interface SEOProps {
   googleSiteVerification?: string;
 }
 
-const BRAND_SUFFIX = {
+const BRAND_SUFFIX: Record<Lang, string> = {
   ar: "منصة ميزان القانونية المغربية - المرجع القانوني الأول",
   fr: "Plateforme Juridique Mizan Maroc - Référence Juridique",
   en: "Mizan Moroccan Legal Platform - Premier Legal Reference",
   es: "Plataforma Legal Mizan Marruecos - Referencia Legal",
-} as const;
+};
 
 const DEFAULT_KEYWORDS = [
   "القانون المغربي",
@@ -42,57 +41,140 @@ const DEFAULT_KEYWORDS = [
   "Moroccan Law",
 ];
 
-// Read environment variables or fallback to official domain
-const SITE_URL =
-  (import.meta.env.VITE_SITE_URL as string) ||
-  (import.meta.env.VITE_APP_URL as string) ||
-  "https://www.mizan.page";
+const SITE_URL = "https://www.mizan.page";
+const LANGUAGE_PREFIX = /^\/(ar|fr|en|es)(?=\/|$)/;
+
+const LOCALE_MAP: Record<Lang, string> = {
+  ar: "ar_MA",
+  fr: "fr_FR",
+  en: "en_US",
+  es: "es_ES",
+};
+
+function normalizePath(path: string): string {
+  const normalized = `/${path}`
+    .replace(/\/+/g, "/")
+    .replace(/\/+$/, "");
+
+  return normalized || "/";
+}
+
+function getNeutralPath(path: string): string {
+  return normalizePath(path).replace(LANGUAGE_PREFIX, "") || "/";
+}
+
+function buildLocalizedUrl(lang: Lang, path: string): string {
+  const neutralPath = getNeutralPath(path);
+
+  return neutralPath === "/"
+    ? `${SITE_URL}/${lang}`
+    : `${SITE_URL}/${lang}${neutralPath}`;
+}
+
+function buildCanonicalUrl(value: string, lang: Lang): string {
+  const repaired = value.trim().replace(/^\/+(?=https?:\/\/)/i, "");
+
+  if (/^https?:\/\//i.test(repaired)) {
+    try {
+      const url = new URL(repaired);
+
+      url.protocol = "https:";
+      url.hostname = "www.mizan.page";
+      url.port = "";
+      url.pathname = normalizePath(url.pathname);
+
+      return url.toString();
+    } catch {
+      return buildLocalizedUrl(lang, "/");
+    }
+  }
+
+  return buildLocalizedUrl(lang, repaired);
+}
+
+function buildAssetUrl(value: string): string {
+  const repaired = value.trim().replace(/^\/+(?=https?:\/\/)/i, "");
+
+  if (/^https?:\/\//i.test(repaired)) {
+    return repaired;
+  }
+
+  if (repaired.startsWith("//")) {
+    return `https:${repaired}`;
+  }
+
+  return `${SITE_URL}${normalizePath(repaired)}`;
+}
 
 function getBrandSuffix(lang: Lang): string {
   return BRAND_SUFFIX[lang] || BRAND_SUFFIX.en;
 }
 
-/** Helper: Set or update meta tags in document head */
-function setMetaTag(attributeName: "name" | "property", attributeValue: string, content: string) {
-  let el = document.querySelector(`meta[${attributeName}="${attributeValue}"]`);
-  if (!el) {
-    el = document.createElement("meta");
-    el.setAttribute(attributeName, attributeValue);
-    document.head.appendChild(el);
+function setMetaTag(
+  attributeName: "name" | "property" | "http-equiv",
+  attributeValue: string,
+  content: string
+): void {
+  let element = document.querySelector<HTMLMetaElement>(
+    `meta[${attributeName}="${attributeValue}"]`
+  );
+
+  if (!element) {
+    element = document.createElement("meta");
+    element.setAttribute(attributeName, attributeValue);
+    document.head.appendChild(element);
   }
-  el.setAttribute("content", content);
+
+  element.setAttribute("content", content);
 }
 
-/** Helper: Set or update link tags in document head */
-function setLinkTag(rel: string, href: string, hreflang?: string, extraProps?: Record<string, string>) {
-  const selector = hreflang
-    ? `link[rel="${rel}"][hreflang="${hreflang}"]`
-    : `link[rel="${rel}"][href="${href}"]`;
-  
-  let el = document.querySelector(selector);
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", rel);
-    if (hreflang) el.setAttribute("hreflang", hreflang);
-    document.head.appendChild(el);
+function setLinkTag(
+  rel: string,
+  href: string,
+  hreflang?: string,
+  extraProps?: Record<string, string>
+): void {
+  const links = Array.from(
+    document.querySelectorAll<HTMLLinkElement>(`link[rel="${rel}"]`)
+  );
+
+  let element: HTMLLinkElement | null = hreflang
+    ? links.find((link) => link.getAttribute("hreflang") === hreflang) || null
+    : rel === "canonical"
+      ? links[0] || null
+      : links.find((link) => link.getAttribute("href") === href) || null;
+
+  if (!element) {
+    element = document.createElement("link");
+    element.setAttribute("rel", rel);
+
+    if (hreflang) {
+      element.setAttribute("hreflang", hreflang);
+    }
+
+    document.head.appendChild(element);
   }
-  el.setAttribute("href", href);
+
+  element.setAttribute("href", href);
 
   if (extraProps) {
-    Object.entries(extraProps).forEach(([k, v]) => el?.setAttribute(k, v));
+    Object.entries(extraProps).forEach(([key, value]) => {
+      element?.setAttribute(key, value);
+    });
   }
 }
 
-/** Helper: Set or update JSON-LD Schema scripts */
-function setJsonLd(id: string, schemaData: object) {
+function setJsonLd(id: string, schemaData: object): void {
   let script = document.getElementById(id) as HTMLScriptElement | null;
+
   if (!script) {
     script = document.createElement("script");
     script.id = id;
     script.type = "application/ld+json";
     document.head.appendChild(script);
   }
-  script.text = JSON.stringify(schemaData);
+
+  script.text = JSON.stringify(schemaData).replace(/</g, "\\u003c");
 }
 
 export function SEOHead({
@@ -114,75 +196,60 @@ export function SEOHead({
   fileSize,
   noIndex = false,
   googleSiteVerification = import.meta.env.VITE_GOOGLE_SITE_VERIFICATION || "",
-}: SEOProps) {
+}: SEOProps): null {
   const { lang, dir } = useI18n();
 
   useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") {
+      return;
+    }
+
     const rawKeywords = Array.isArray(keywords)
       ? keywords.join(", ")
       : keywords || DEFAULT_KEYWORDS.join(", ");
 
-    const currentUrl =
-      canonical ||
-      (typeof window !== "undefined"
-        ? window.location.href
-        : `${SITE_URL}/${lang}`);
+    const rawPath =
+      canonical || window.location.pathname || `/${lang}`;
 
-    const fullOgImage = ogImage.startsWith("http")
-      ? ogImage
-      : `${SITE_URL}${ogImage.startsWith("/") ? "" : "/"}${ogImage}`;
+    const currentUrl = buildCanonicalUrl(rawPath, lang);
+    const pathWithoutLang = getNeutralPath(
+      new URL(currentUrl).pathname
+    );
+    const fullOgImage = buildAssetUrl(ogImage);
 
-    // Clean Path without current language prefix for hreflang links
-    const pathWithoutLang = typeof window !== "undefined"
-      ? window.location.pathname.replace(/^\/(ar|fr|en|es)/, "")
-      : "";
-
-    // -------------------------------------------------------------
-    // 1. Language, Direction, and Document Title
-    // -------------------------------------------------------------
     document.documentElement.lang = lang;
     document.documentElement.dir = dir;
+    document.title = `${title} | ${getBrandSuffix(lang)}`;
 
-    const fullTitle = `${title} | ${getBrandSuffix(lang)}`;
-    document.title = fullTitle;
-
-    // -------------------------------------------------------------
-    // 2. Google & Performance Resource Hints (DNS Prefetch & Preconnect)
-    // -------------------------------------------------------------
-    setLinkTag("preconnect", "https://fonts.googleapis.com");
-    setLinkTag("preconnect", "https://fonts.gstatic.com", undefined, { crossorigin: "anonymous" });
-    setLinkTag("preconnect", "https://www.googletagmanager.com");
-    setLinkTag("preconnect", "https://pagead2.googlesyndication.com");
-
-    // -------------------------------------------------------------
-    // 3. Mobile-First & UI/UX Meta Controls
-    // -------------------------------------------------------------
-    setMetaTag("name", "viewport", "width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover");
-    setMetaTag("name", "theme-color", "#0f172a");
-    setMetaTag("name", "mobile-web-app-capable", "yes");
-    setMetaTag("name", "apple-mobile-web-app-capable", "yes");
-    setMetaTag("name", "apple-mobile-web-app-status-bar-style", "black-translucent");
-    setMetaTag("name", "apple-mobile-web-app-title", "Mizan");
-    setMetaTag("name", "format-detection", "telephone=no, date=no, address=no, email=no");
-
-    // -------------------------------------------------------------
-    // 4. Security & Hardening Meta Headers
-    // -------------------------------------------------------------
-    setMetaTag("name", "referrer", "strict-origin-when-cross-origin");
-    setMetaTag("property", "X-Content-Type-Options", "nosniff");
-    setMetaTag("property", "X-UA-Compatible", "IE=edge");
-
-    // Google Search Engine Verification
-    if (googleSiteVerification) {
-      setMetaTag("name", "google-site-verification", googleSiteVerification);
-    }
-
-    // -------------------------------------------------------------
-    // 5. SEO Core Meta Tags & Search Crawler Directives
-    // -------------------------------------------------------------
     setMetaTag("name", "description", description);
     setMetaTag("name", "keywords", rawKeywords);
     setMetaTag("name", "author", author);
+    setMetaTag("name", "referrer", "strict-origin-when-cross-origin");
+    setMetaTag("name", "viewport", "width=device-width, initial-scale=1");
+    setMetaTag("name", "theme-color", "#0f172a");
+    setMetaTag("name", "mobile-web-app-capable", "yes");
+    setMetaTag("name", "apple-mobile-web-app-capable", "yes");
+    setMetaTag(
+      "name",
+      "apple-mobile-web-app-status-bar-style",
+      "black-translucent"
+    );
+    setMetaTag(
+      "name",
+      "format-detection",
+      "telephone=no, date=no, address=no, email=no"
+    );
+
+    setMetaTag("http-equiv", "X-Content-Type-Options", "nosniff");
+    setMetaTag("http-equiv", "X-UA-Compatible", "IE=edge");
+
+    if (googleSiteVerification) {
+      setMetaTag(
+        "name",
+        "google-site-verification",
+        googleSiteVerification
+      );
+    }
 
     if (noIndex) {
       setMetaTag("name", "robots", "noindex, nofollow");
@@ -200,135 +267,161 @@ export function SEOHead({
       );
     }
 
-    // Canonical Link
     setLinkTag("canonical", currentUrl);
 
-    // -------------------------------------------------------------
-    // 6. 4 Languages (ar, fr, en, es) Hreflang Alternates
-    // -------------------------------------------------------------
     const languages: Lang[] = ["ar", "fr", "en", "es"];
-    languages.forEach((l) => {
-      setLinkTag("alternate", `${SITE_URL}/${l}${pathWithoutLang}`, l);
-    });
-    // Default fallback language (ar)
-    setLinkTag("alternate", `${SITE_URL}/ar${pathWithoutLang}`, "x-default");
 
-    // -------------------------------------------------------------
-    // 7. Master Photo & Open Graph (OG) Meta Data
-    // -------------------------------------------------------------
+    languages.forEach((language) => {
+      setLinkTag(
+        "alternate",
+        buildLocalizedUrl(language, pathWithoutLang),
+        language
+      );
+    });
+
+    setLinkTag(
+      "alternate",
+      buildLocalizedUrl("ar", pathWithoutLang),
+      "x-default"
+    );
+
+    setLinkTag("preconnect", "https://fonts.googleapis.com");
+    setLinkTag(
+      "preconnect",
+      "https://fonts.gstatic.com",
+      undefined,
+      { crossorigin: "anonymous" }
+    );
+    setLinkTag("preconnect", "https://www.googletagmanager.com");
+    setLinkTag(
+      "preconnect",
+      "https://pagead2.googlesyndication.com"
+    );
+
+    const fullTitle = `${title} | ${getBrandSuffix(lang)}`;
+
     setMetaTag("property", "og:site_name", "Mizan");
     setMetaTag("property", "og:title", fullTitle);
     setMetaTag("property", "og:description", description);
     setMetaTag("property", "og:url", currentUrl);
     setMetaTag("property", "og:type", ogType);
-    setMetaTag("property", "og:locale", `${lang}_MA`);
+    setMetaTag("property", "og:locale", LOCALE_MAP[lang]);
     setMetaTag("property", "og:image", fullOgImage);
     setMetaTag("property", "og:image:secure_url", fullOgImage);
     setMetaTag("property", "og:image:alt", ogImageAlt || title);
 
-    if (publishedTime) {
-      setMetaTag("property", "article:published_time", publishedTime);
-    }
-    if (modifiedTime) {
-      setMetaTag("property", "article:modified_time", modifiedTime);
-    }
-
-    // Twitter Card Data
     setMetaTag("name", "twitter:card", "summary_large_image");
     setMetaTag("name", "twitter:site", "@MizanLegal");
     setMetaTag("name", "twitter:title", fullTitle);
     setMetaTag("name", "twitter:description", description);
     setMetaTag("name", "twitter:image", fullOgImage);
-    setMetaTag("name", "twitter:image:alt", ogImageAlt || title);
+    setMetaTag(
+      "name",
+      "twitter:image:alt",
+      ogImageAlt || title
+    );
 
-    // -------------------------------------------------------------
-    // 8. JSON-LD Schemas (Structured Data for Google)
-    // -------------------------------------------------------------
+    if (publishedTime) {
+      setMetaTag(
+        "property",
+        "article:published_time",
+        publishedTime
+      );
+    }
 
-    // A. Website & Organization Master Schema
+    if (modifiedTime) {
+      setMetaTag(
+        "property",
+        "article:modified_time",
+        modifiedTime
+      );
+    }
+
     const websiteSchema = {
       "@context": "https://schema.org",
       "@graph": [
         {
           "@type": "WebSite",
           "@id": `${SITE_URL}/#website`,
-          "url": SITE_URL,
-          "name": "Mizan Legal Platform",
-          "description": description,
-          "inLanguage": ["ar-MA", "fr-MA", "en-US", "es-ES"],
-          "publisher": { "@id": `${SITE_URL}/#organization` },
+          url: SITE_URL,
+          name: "Mizan Legal Platform",
+          description,
+          inLanguage: ["ar-MA", "fr-FR", "en-US", "es-ES"],
+          publisher: {
+            "@id": `${SITE_URL}/#organization`,
+          },
         },
         {
           "@type": "Organization",
           "@id": `${SITE_URL}/#organization`,
-          "name": "Mizan",
-          "url": SITE_URL,
-          "logo": {
+          name: "Mizan",
+          url: SITE_URL,
+          logo: {
             "@type": "ImageObject",
-            "url": `${SITE_URL}/Logo.svg`,
-            "caption": "Mizan Logo",
+            url: `${SITE_URL}/Logo.svg`,
+            caption: "Mizan Logo",
           },
         },
       ],
     };
+
     setJsonLd("jsonld-website", websiteSchema);
 
-    // B. Master Photo (ImageObject) Schema
     const imageSchema = {
       "@context": "https://schema.org",
       "@type": "ImageObject",
-      "contentUrl": fullOgImage,
-      "url": fullOgImage,
-      "caption": ogImageAlt || title,
-      "description": description,
-      "keywords": rawKeywords,
-      "inLanguage": lang,
+      contentUrl: fullOgImage,
+      url: fullOgImage,
+      caption: ogImageAlt || title,
+      description,
+      keywords: rawKeywords,
+      inLanguage: lang,
     };
+
     setJsonLd("jsonld-image", imageSchema);
 
     if (jsonLd) {
-
-    setJsonLd("jsonld-page", jsonLd);
-
+      setJsonLd("jsonld-page", jsonLd);
     }
 
-    // C. Master File / Document Schema (for downloadable PDF/Docs)
     if (fileUrl) {
-      const fullFileUrl = fileUrl.startsWith("http") ? fileUrl : `${SITE_URL}${fileUrl}`;
-      const fileSchema = {
+      const fullFileUrl = buildAssetUrl(fileUrl);
+
+      setJsonLd("jsonld-document", {
         "@context": "https://schema.org",
         "@type": "DigitalDocument",
-        "name": title,
-        "description": description,
-        "url": fullFileUrl,
-        "encodingFormat": fileType,
-        "fileSize": fileSize ? String(fileSize) : undefined,
-        "keywords": rawKeywords,
-        "inLanguage": lang,
-        "publisher": { "@id": `${SITE_URL}/#organization` },
-      };
-      setJsonLd("jsonld-document", fileSchema);
+        name: title,
+        description,
+        url: fullFileUrl,
+        encodingFormat: fileType,
+        fileSize: fileSize ? String(fileSize) : undefined,
+        keywords: rawKeywords,
+        inLanguage: lang,
+        publisher: {
+          "@id": `${SITE_URL}/#organization`,
+        },
+      });
     }
 
-    // D. Moroccan Legislation Schema (When inspecting legal codes/articles)
     if (articleNumber && codeName) {
-      const legislationSchema = {
+      setJsonLd("jsonld-legislation", {
         "@context": "https://schema.org",
         "@type": "Legislation",
-        "name": `الفصل ${articleNumber} - ${codeName}`,
-        "description": description,
-        "legislationJurisdiction": "MA",
-        "inLanguage": ["ar-MA", "fr-MA", "en-MA", "es-MA"],
-        "url": currentUrl,
-      };
-      setJsonLd("jsonld-legislation", legislationSchema);
+        name: `الفصل ${articleNumber} - ${codeName}`,
+        description,
+        legislationJurisdiction: "MA",
+        inLanguage: ["ar-MA", "fr-FR", "en-US", "es-ES"],
+        url: currentUrl,
+      });
     }
 
-    // Cleanup Schema scripts on unmount
     return () => {
-      ["jsonld-legislation", "jsonld-document", "jsonld-page"].forEach((id) => {
-        const el = document.getElementById(id);
-        if (el) el.remove();
+      [
+        "jsonld-legislation",
+        "jsonld-document",
+        "jsonld-page",
+      ].forEach((id) => {
+        document.getElementById(id)?.remove();
       });
     };
   }, [

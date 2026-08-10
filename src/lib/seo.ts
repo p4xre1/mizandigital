@@ -1,14 +1,9 @@
 import { useEffect } from "react";
 
 // ── ENVIRONMENT & DOMAIN CONFIGURATION ───────────────────────────────────────
-export const SITE_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_SITE_URL) ||
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_URL) ||
-  "https://www.mizan.page";
+export const SITE_URL = "https://www.mizan.page";
 
-export const APP_URL =
-  (typeof import.meta !== "undefined" && import.meta.env?.VITE_APP_URL) ||
-  "https://www.mizan.page";
+export const APP_URL = SITE_URL;
 
 // ── 🌐 4-LANGUAGE SYSTEM TYPES (`ar`, `fr`, `en`, `es`) ──────────────────────
 export type SupportedLang = "ar" | "fr" | "en" | "es";
@@ -19,7 +14,50 @@ export const LOCALE_MAP: Record<SupportedLang, string> = {
   en: "en_US",
   es: "es_ES",
 };
+const LANGUAGE_PREFIX = /^\/(ar|fr|en|es)(?=\/|$)/;
 
+function normalizePath(path: string): string {
+  const normalized = `/${path}`
+    .replace(/\/+/g, "/")
+    .replace(/\/+$/, "");
+
+  return normalized || "/";
+}
+
+function getNeutralPath(path: string): string {
+  return normalizePath(path).replace(LANGUAGE_PREFIX, "") || "/";
+}
+
+function buildLocalizedUrl(lang: SupportedLang, path: string): string {
+  const neutralPath = getNeutralPath(path);
+  return neutralPath === "/"
+    ? `${SITE_URL}/${lang}`
+    : `${SITE_URL}/${lang}${neutralPath}`;
+}
+
+function buildCanonicalUrl(
+  value: string,
+  lang: SupportedLang
+): string {
+  const repaired = value.trim().replace(/^\/+(?=https?:\/\/)/i, "");
+
+  if (/^https?:\/\//i.test(repaired)) {
+    try {
+      const url = new URL(repaired);
+
+      url.protocol = "https:";
+      url.hostname = "www.mizan.page";
+      url.port = "";
+      url.pathname = normalizePath(url.pathname);
+
+      return url.toString();
+    } catch {
+      return buildLocalizedUrl(lang, "/");
+    }
+  }
+
+  return buildLocalizedUrl(lang, repaired);
+}
 // ── MASTER PHOTO SEO INTERFACE ───────────────────────────────────────────────
 export interface SeoPhoto {
   url: string;
@@ -175,16 +213,17 @@ export function useSeo(config: SeoOptions, deps: React.DependencyList = []) {
       }
     }
 
-    // 8. 🌐 Canonical & 4-Language Hreflang System
+    // 8. Canonical & 4-Language Hreflang System
     const rawPath = config.path || window.location.pathname;
-    const cleanPath = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
-    const targetUrl = config.canonical || `${SITE_URL}${cleanPath}`;
+    const targetUrl = buildCanonicalUrl(
+      config.canonical || rawPath,
+      currentLang
+    );
 
     setLinkTag("canonical", targetUrl);
     setMetaTag("property", "og:url", targetUrl);
 
-    // Setup 4-Lang hreflangs (ar, fr, en, es) + x-default
-    setupHreflangTags(cleanPath);
+    setupHreflangTags(new URL(targetUrl).pathname);
 
     // 9. 🤖 Google Robots / Indexing Controls
     if (config.noindex) {
@@ -285,15 +324,21 @@ function setLinkTag(rel: string, href: string, hreflang?: string) {
  */
 function setupHreflangTags(path: string) {
   const langs: SupportedLang[] = ["ar", "fr", "en", "es"];
-  const cleanPath = path === "/" ? "" : path;
+  const neutralPath = getNeutralPath(path);
 
   langs.forEach((lang) => {
-    const langUrl = `${SITE_URL}/${lang}${cleanPath}`;
-    setLinkTag("alternate", langUrl, lang);
+    setLinkTag(
+      "alternate",
+      buildLocalizedUrl(lang, neutralPath),
+      lang
+    );
   });
 
-  // Default fallback (x-default)
-  setLinkTag("alternate", `${SITE_URL}${cleanPath}`, "x-default");
+  setLinkTag(
+    "alternate",
+    buildLocalizedUrl("ar", neutralPath),
+    "x-default"
+  );
 }
 
 /**
