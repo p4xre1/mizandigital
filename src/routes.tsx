@@ -2,9 +2,8 @@ import React, { Suspense, lazy, useEffect, useMemo } from "react";
 import {
   createBrowserRouter,
   Navigate,
-  Outlet,
-  useParams,
   useLocation,
+  useParams,
 } from "react-router-dom";
 import { useRole } from "@/hooks/useRole";
 import { Loader2, ShieldAlert } from "lucide-react";
@@ -183,7 +182,14 @@ function RootLayoutWrapper() {
     return getValidLang(lang);
   }, [lang]);
 
+  const isSupportedLang =
+  !lang || SUPPORTED_LANGS.includes(lang as Language);
+
+ 
+  
   useEffect(() => {
+    if (!isSupportedLang) return;
+
     const config = SEO_TRANSLATIONS[currentLang];
 
     // 1. Update HTML direction & language attributes
@@ -266,10 +272,15 @@ function RootLayoutWrapper() {
       /</g,
       "\\u003c"
     );
-  }, [currentLang, location.pathname]);
+  
+  }, [currentLang, location.pathname, isSupportedLang]);
 
-  if (lang && !SUPPORTED_LANGS.includes(lang as Language)) {
-    return <Navigate to={`/${DEFAULT_LANG}`} replace />;
+ if (!isSupportedLang) {
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <NotFound />
+      </Suspense>
+    );
   }
 
   return (
@@ -307,19 +318,30 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 
 /** Requires Content Writer, Admin, or Root permissions */
 function WriterGuard({ children }: { children: React.ReactNode }) {
-  const { canWriteContent, loading } = useRole();
+  const { isGuest, canWriteContent, loading } = useRole();
+  const location = useLocation();
+  const { lang } = useParams();
+  const currentLang = getValidLang(lang);
 
   if (loading) return <PageLoadingFallback />;
 
+  if (isGuest) {
+    return (
+      <Navigate
+        to={`/${currentLang}/login`}
+        state={{ from: location.pathname }}
+        replace
+      />
+    );
+  }
+
   if (!canWriteContent) {
     return (
-      <div className="max-w-md mx-auto my-12 p-6 bg-destructive/10 border border-destructive/20 rounded-2xl text-center space-y-4">
+      <div className="max-w-md mx-auto my-12 p-6 text-center">
         <ShieldAlert className="w-12 h-12 text-destructive mx-auto" />
-        <h2 className="text-lg font-bold text-foreground">
-          Access Denied / غير مصرح
-        </h2>
+        <h2 className="text-lg font-bold">Access Denied / غير مصرح</h2>
         <p className="text-xs text-muted-foreground">
-          You lack the required permissions to access the content editor.
+          You lack the required permissions.
         </p>
       </div>
     );
@@ -330,6 +352,7 @@ function WriterGuard({ children }: { children: React.ReactNode }) {
 
 /** Requires Staff / Admin / Security access */
 function AdminAccessGuard() {
+  const location = useLocation();
   const { isStaff, loading } = useRole();
   const { lang } = useParams();
   const currentLang = getValidLang(lang);
@@ -337,7 +360,13 @@ function AdminAccessGuard() {
   if (loading) return <PageLoadingFallback />;
 
   if (!isStaff) {
-    return <Navigate to={`/${currentLang}/admin/login`} replace />;
+    return (
+  <Navigate
+    to={`/${currentLang}/admin/login`}
+    state={{ from: location.pathname }}
+    replace
+  />
+);
   }
 
   return (
@@ -403,22 +432,30 @@ export const router = createBrowserRouter([
       },
 
       // News & Articles
+            // News list, categories, and individual articles
       { path: "news", element: <ArticlesList /> },
-      { path: "news/:category", element: <ArticlesList /> },
+      { path: "news/category/:categorySlug", element: <ArticlesList /> },
+      { path: "news/:slug", element: <ArticleDetail /> },
+
+      // Old article URL compatibility
       { path: "article/:slug", element: <ArticleDetail /> },
 
-      // Legal Library, Archives & Categories
+      // Library and unique category URLs
       { path: "library", element: <Library /> },
+      { path: "library/category/:categorySlug", element: <Library /> },
+
+      // Archive
       { path: "archive", element: <Archive /> },
+
       { path: "category/:slug", element: <CourtRulingsCategory /> },
       { path: "court-rulings/:category", element: <CourtRulingsCategory /> },
 
-      // Specialized Legal Fields
+            // Specialized Legal Fields
       { path: "fields/family-law", element: <FamilyLaw /> },
       { path: "fields/criminal-law", element: <CriminalLaw /> },
       { path: "fields/commercial-law", element: <CommercialLaw /> },
       { path: "fields/administrative-law", element: <AdministrativeLaw /> },
-      { path: "fields/constitutional-law", element: <ConstitutionalLaw /> },
+      { path: "fields/constitutional-law", element: <ConstitutionalLaw /> }, 
 
       // Official Legal Documents
       { path: "documents/cassation-rulings", element: <CassationRulings /> },

@@ -1,18 +1,11 @@
-// ── Schema.org JSON-LD Injection Helper ─────────────────────────────────────────
-// Injects structured data into <head> for SEO. SSR-safe and Google Rich Result compliant.
+// Schema.org JSON-LD helpers for SEO
 
 const PRIMARY_ORIGIN = "https://www.mizan.page";
 
-/**
- * Resolves the canonical origin for Google SEO schema generation.
- */
 function getOrigin(): string {
   return PRIMARY_ORIGIN;
 }
 
-/**
- * Helper to map language code to standard locale
- */
 function getLocaleCode(lang?: string): string {
   if (!lang || lang === "ar") return "ar-MA";
   if (lang === "fr") return "fr-MA";
@@ -20,64 +13,118 @@ function getLocaleCode(lang?: string): string {
   return "en";
 }
 
-/**
- * Builds clean URLs without double slashes (e.g. avoids //ar/path)
- */
 function normalizeUrl(pathOrUrl: string): string {
-  if (pathOrUrl.startsWith("http://") || pathOrUrl.startsWith("https://")) {
+  if (/^https?:\/\//i.test(pathOrUrl)) {
     return pathOrUrl;
   }
-  const origin = getOrigin();
-  const cleanPath = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
-  return `${origin}${cleanPath}`.replace(/([^:]\/)\/+/g, "$1");
+
+  const path = pathOrUrl.startsWith("/") ? pathOrUrl : `/${pathOrUrl}`;
+
+  return `${getOrigin()}${path}`.replace(/([^:]\/)\/+/g, "$1");
 }
 
-/**
- * Injects or updates a JSON-LD <script> element in <head>
- */
-function inject(id: string, data: object) {
-  if (typeof window === "undefined" || !document?.head) return;
+function normalizeImages(images?: string | string[]): string[] {
+  const values = Array.isArray(images) ? images : images ? [images] : [];
 
-  let el = document.getElementById(id) as HTMLScriptElement | null;
-  if (!el) {
-    el = document.createElement("script");
-    el.type = "application/ld+json";
-    el.id = id;
-    document.head.appendChild(el);
+  return [
+    ...new Set(
+      values
+        .map((image) => image.trim())
+        .filter(Boolean)
+        .map(normalizeUrl),
+    ),
+  ];
+}
+
+function buildAuthor(
+  name?: string,
+  type: "Person" | "Organization" = "Organization",
+  url?: string,
+): Record<string, unknown> {
+  const author: Record<string, unknown> = {
+    "@type": type,
+    name: name?.trim() || "ميزان الرقمية",
+  };
+
+  if (url) {
+    author.url = normalizeUrl(url);
   }
-  el.textContent = JSON.stringify(data);
+
+  return author;
 }
 
-/**
- * Removes a specific JSON-LD schema element from <head>
- */
-export function clearSchema(id: string) {
+function getPublisherSchema(): Record<string, unknown> {
+  const site = getOrigin();
+
+  return {
+    "@type": "Organization",
+    "@id": `${site}/#organization`,
+    name: "ميزان الرقمية",
+    alternateName: "Mizan Digital",
+    url: site,
+    logo: {
+      "@type": "ImageObject",
+      "@id": `${site}/#logo`,
+      url: `${site}/Logo.svg`,
+      contentUrl: `${site}/Logo.svg`,
+    },
+  };
+}
+
+function inject(id: string, data: object): void {
+  if (typeof window === "undefined" || !document.head) return;
+
+  let element = document.getElementById(id) as HTMLScriptElement | null;
+
+  if (!element) {
+    element = document.createElement("script");
+    element.type = "application/ld+json";
+    element.id = id;
+    document.head.appendChild(element);
+  }
+
+  element.textContent = JSON.stringify(data);
+}
+
+export function clearSchema(id: string): void {
   if (typeof window === "undefined") return;
   document.getElementById(id)?.remove();
 }
 
-/**
- * Clears all injected JSON-LD schema tags during route transitions
- */
-export function clearAllSchemas() {
+export function clearAllSchemas(): void {
   if (typeof window === "undefined") return;
-  const ids = ["ld-org", "ld-webpage", "ld-legal", "ld-article", "ld-breadcrumb"];
-  ids.forEach((id) => clearSchema(id));
+
+  [
+    "ld-org",
+    "ld-webpage",
+    "ld-legal",
+    "ld-article",
+    "ld-breadcrumb",
+  ].forEach(clearSchema);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────────
-// Schema Generators
-// ─────────────────────────────────────────────────────────────────────────────────
+// Organization schema
 
-export function setOrganizationSchema() {
+export function setOrganizationSchema(): void {
   const site = getOrigin();
+
   inject("ld-org", {
     "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    name: "Mizan Platform — منصة ميزان",
+    "@type": "Organization",
+    "@id": `${site}/#organization`,
+    name: "ميزان الرقمية",
+    alternateName: "Mizan Digital",
     url: site,
-    description: "Digital legal journal and academic archive for Moroccan law.",
-    logo: `${site}/Logo.svg`,
+    description:
+      "منصة رقمية للخدمات والبحوث القانونية والاجتهادات القضائية بالمغرب.",
+    logo: {
+      "@type": "ImageObject",
+      "@id": `${site}/#logo`,
+      url: `${site}/Logo.svg`,
+      contentUrl: `${site}/Logo.svg`,
+    },
+
+    // Keep these only if they are real, active Mizan profiles.
     sameAs: [
       "https://www.facebook.com/mizandigital",
       "https://www.twitter.com/mizandigital",
@@ -86,135 +133,195 @@ export function setOrganizationSchema() {
   });
 }
 
-export function setWebSiteSchema() {
+// Website schema
+
+export function setWebSiteSchema(): void {
   const site = getOrigin();
+
   inject("ld-webpage", {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Mizan Platform — منصة ميزان",
+    "@id": `${site}/#website`,
+    name: "ميزان الرقمية",
+    alternateName: "Mizan Digital",
     url: site,
     description:
-      "The leading Moroccan digital legal journal and academic archive for law students, researchers, and legal professionals.",
+      "منصة رقمية للخدمات والبحوث القانونية والاجتهادات القضائية بالمغرب.",
     publisher: {
-      "@type": "Organization",
-      name: "Mizan Platform",
-      url: site,
+      "@id": `${site}/#organization`,
     },
     inLanguage: ["ar-MA", "fr-MA", "en", "es-ES"],
-    potentialAction: {
-      "@type": "SearchAction",
-      target: normalizeUrl(`/ar/search?q={search_term_string}`),
-      "query-input": "required name=search_term_string",
-    },
   });
 }
+
+// Legal article schema
 
 export interface LegalArticleSchemaProps {
   headline: string;
   description: string;
   slug: string;
   lang?: string;
+  author?: string;
+  authorUrl?: string;
+  authorType?: "Person" | "Organization";
+  image?: string | string[];
   datePublished?: string;
+  dateModified?: string;
 }
 
-export function setLegalArticleSchema(a: LegalArticleSchemaProps) {
-  const path = a.slug.startsWith("/") ? a.slug : `/${a.slug}`;
-  const langPrefix = a.lang === "ar" || !a.lang ? "/ar" : `/${a.lang}`;
-  const fullUrl = normalizeUrl(`${langPrefix}${path}`);
+export function setLegalArticleSchema(
+  article: LegalArticleSchemaProps,
+): void {
+  const path = article.slug.startsWith("/")
+    ? article.slug
+    : `/${article.slug}`;
 
-  inject("ld-legal", {
+  const langPrefix =
+    article.lang === "ar" || !article.lang ? "/ar" : `/${article.lang}`;
+
+  const fullUrl = normalizeUrl(`${langPrefix}${path}`);
+  const images = normalizeImages(article.image);
+
+  const data: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "LegalArticle",
-    headline: a.headline,
-    description: a.description,
+    "@type": "Article",
+    headline: article.headline,
+    description: article.description,
     url: fullUrl,
-    inLanguage: getLocaleCode(a.lang),
-    author: {
-      "@type": "Person",
-      name: "Mizan Editorial",
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "Mizan Platform",
-      url: getOrigin(),
-    },
-    datePublished: a.datePublished,
+    inLanguage: getLocaleCode(article.lang),
+    author: buildAuthor(
+      article.author,
+      article.authorType || "Organization",
+      article.authorUrl,
+    ),
+    publisher: getPublisherSchema(),
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": fullUrl,
+      url: fullUrl,
     },
-  });
+  };
+
+  if (article.datePublished) {
+    data.datePublished = article.datePublished;
+  }
+
+  if (article.dateModified) {
+    data.dateModified = article.dateModified;
+  }
+
+  if (images.length > 0) {
+    data.image = images;
+  }
+
+  inject("ld-legal", data);
 }
+
+// General article schema
 
 export interface ArticleSchemaProps {
   title: string;
   description: string;
   slug: string;
   author?: string;
+  authorUrl?: string;
+  authorType?: "Person" | "Organization";
+  image?: string | string[];
   datePublished?: string;
+  dateModified?: string;
   category?: string;
-  schemaType?: "ScholarlyArticle" | "LegalArticle" | "NewsArticle" | string;
+
+  // Use Article, NewsArticle, or BlogPosting for Google Article results.
+  schemaType?: string;
+
   requiresPaidAccess?: boolean;
   lockedCssSelector?: string;
   lang?: string;
   path?: string;
 }
 
-export function setArticleSchema(a: ArticleSchemaProps) {
-  const pagePath = a.path
-    ? a.path.startsWith("/")
-      ? a.path
-      : `/${a.path}`
-    : `/article/${a.slug}`;
-  const langPrefix = a.lang === "ar" || !a.lang ? "/ar" : `/${a.lang}`;
+export function setArticleSchema(article: ArticleSchemaProps): void {
+  const pagePath = article.path
+    ? article.path.startsWith("/")
+      ? article.path
+      : `/${article.path}`
+    : `/article/${article.slug}`;
+
+  const langPrefix =
+    article.lang === "ar" || !article.lang ? "/ar" : `/${article.lang}`;
+
   const fullUrl = normalizeUrl(`${langPrefix}${pagePath}`);
+  const images = normalizeImages(article.image);
 
   const data: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": a.schemaType || "ScholarlyArticle",
-    headline: a.title,
-    description: a.description,
+    "@type": article.schemaType || "Article",
+    headline: article.title,
+    description: article.description,
     url: fullUrl,
-    inLanguage: getLocaleCode(a.lang),
-    articleSection: a.category,
-    author: { "@type": "Person", name: a.author || "Mizan Editorial" },
-    publisher: { "@type": "Organization", name: "Mizan Platform", url: getOrigin() },
-    datePublished: a.datePublished,
+    inLanguage: getLocaleCode(article.lang),
+
+    author: buildAuthor(
+      article.author,
+      article.authorType || "Organization",
+      article.authorUrl,
+    ),
+
+    publisher: getPublisherSchema(),
+
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": fullUrl,
+      url: fullUrl,
     },
+
+    isAccessibleForFree: !article.requiresPaidAccess,
   };
 
-  // 🔒 Google Rich Result Compliant Gated Content / Paywall Schema
-  if (a.requiresPaidAccess) {
-    data.isAccessibleForFree = false;
+  if (article.category?.trim()) {
+    data.articleSection = article.category.trim();
+  }
+
+  if (article.datePublished) {
+    data.datePublished = article.datePublished;
+  }
+
+  if (article.dateModified) {
+    data.dateModified = article.dateModified;
+  }
+
+  if (images.length > 0) {
+    data.image = images;
+  }
+
+  if (article.requiresPaidAccess) {
     data.hasPart = {
       "@type": "WebPageElement",
       isAccessibleForFree: false,
-      cssSelector: a.lockedCssSelector || ".premium-content-section",
+      cssSelector:
+        article.lockedCssSelector || ".premium-content-section",
     };
-  } else {
-    data.isAccessibleForFree = true;
   }
 
   inject("ld-article", data);
 }
+
+// Breadcrumb schema
 
 export interface BreadcrumbItem {
   name: string;
   url: string;
 }
 
-export function setBreadcrumbSchema(items: BreadcrumbItem[]) {
+export function setBreadcrumbSchema(items: BreadcrumbItem[]): void {
   inject("ld-breadcrumb", {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    itemListElement: items.map((it, i) => ({
+    itemListElement: items.map((item, index) => ({
       "@type": "ListItem",
-      position: i + 1,
-      name: it.name,
-      item: normalizeUrl(it.url),
+      position: index + 1,
+      name: item.name,
+      item: normalizeUrl(item.url),
     })),
   });
 }

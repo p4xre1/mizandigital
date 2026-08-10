@@ -23,7 +23,7 @@ import { useCms } from "@/lib/adminStore";
 import { useRole } from "@/hooks/useRole";
 
 import ArticleComments from "../components/common/ArticleComments";
-
+import { SEOHead } from "@/components/seo/SEOHead";
 // 📄 Explicitly defined Article interface to prevent TS2305 export mismatches
 export interface Article {
   id: string;
@@ -36,10 +36,16 @@ export interface Article {
   semester?: string;
   year?: number;
   pdf_url?: string;
+  image?: string;
+  image_url?: string;
+  cover_image?: string;
+  cover_image_url?: string;
+  author?: string;
+  author_url?: string;
+  author_type?: "Person" | "Organization";
+  tags?: string[];
   views: number;
   is_featured?: boolean;
-  author?: string;
-  tags?: string[];
   created_at: string;
   updated_at?: string;
 }
@@ -115,7 +121,19 @@ const MOCK: Article = {
   created_at: "2026-07-13T10:00:00Z",
   updated_at: "2026-07-13T10:00:00Z",
 };
+function getArticleImage(article: Article): string | undefined {
+  const images = [
+    article.image,
+    article.image_url,
+    article.cover_image,
+    article.cover_image_url,
+  ];
 
+  return images.find(
+    (value): value is string =>
+      typeof value === "string" && value.trim().length > 0,
+  )?.trim();
+}
 function renderContent(md: string, lang: Lang) {
   return md.split("\n").map((line, i) => {
     if (line.startsWith("## "))
@@ -336,22 +354,36 @@ export default function ArticleDetail() {
     setLoading(true);
 
     if (cmsArticle) {
-      setArticle({
-        ...MOCK,
-        id: cmsArticle.id,
-        title: cmsArticle.title,
-        slug: cmsArticle.slug,
-        category: cmsArticle.category,
-        excerpt: cmsArticle.excerpt || MOCK.excerpt,
-        content: cmsArticle.content || MOCK.content,
-        author: cmsArticle.author,
-        tags: cmsArticle.tags || MOCK.tags,
-        views: cmsArticle.views,
-      });
-      trackArticleRead(cmsArticle.id, cmsArticle.title, cmsArticle.category);
-      setLoading(false);
-      return;
-    }
+  const cmsData = cmsArticle as Partial<Article>;
+
+  setArticle({
+    ...MOCK,
+    ...cmsData,
+    id: cmsData.id ?? MOCK.id,
+    title: cmsData.title ?? MOCK.title,
+    slug: cmsData.slug ?? MOCK.slug,
+    category: cmsData.category ?? MOCK.category,
+    excerpt: cmsData.excerpt || MOCK.excerpt,
+    content: cmsData.content || MOCK.content,
+    author: cmsData.author ?? MOCK.author,
+    tags: cmsData.tags ?? MOCK.tags,
+    views: cmsData.views ?? MOCK.views,
+    created_at: cmsData.created_at ?? MOCK.created_at,
+    updated_at:
+      cmsData.updated_at ??
+      cmsData.created_at ??
+      MOCK.updated_at,
+  });
+
+  trackArticleRead(
+    cmsData.id ?? MOCK.id,
+    cmsData.title ?? MOCK.title,
+    cmsData.category ?? MOCK.category,
+  );
+
+  setLoading(false);
+  return;
+}
 
     // 🛠️ Resolves TS2339 by extracting data from either raw object or Supabase { data, error } wrapper
     getArticleBySlug(slug)
@@ -389,27 +421,63 @@ export default function ArticleDetail() {
   }, [article.content, article.excerpt]);
 
   useEffect(() => {
-    setArticleSchema({
-      title: article.title,
-      description: article.excerpt || article.title,
-      slug: article.slug,
-      author: article.author,
-      datePublished: article.created_at,
-      category: article.category,
-      schemaType: "LegalArticle",
-      lang,
-      path: `/article/${article.slug}`,
-    });
-    setBreadcrumbSchema([
-      { name: lang === "ar" ? "الرئيسية" : lang === "fr" ? "Accueil" : "Home", url: "/" },
-      { name: lang === "ar" ? "المكتبة" : lang === "fr" ? "Bibliothèque" : "Library", url: "/library" },
-      { name: article.title, url: `/article/${article.slug}` },
-    ]);
-    return () => {
-      clearSchema("ld-article");
-      clearSchema("ld-breadcrumb");
-    };
-  }, [article, lang]);
+  if (loading) {
+    clearSchema("ld-article");
+    clearSchema("ld-breadcrumb");
+    return;
+  }
+
+  const articleImage = getArticleImage(article);
+  const hasPaywalledContent = Boolean(contentFragments.locked);
+
+  setArticleSchema({
+    title: article.title,
+    description: article.excerpt || article.title,
+    slug: article.slug,
+    author: article.author,
+    authorUrl: article.author_url,
+    authorType: article.author_type || "Organization",
+    image: articleImage,
+    datePublished: article.created_at,
+    dateModified: article.updated_at || article.created_at,
+    category: article.category,
+    schemaType: "Article",
+    requiresPaidAccess: hasPaywalledContent,
+    lockedCssSelector: ".premium-content-section",
+    lang,
+    path: `/article/${article.slug}`,
+  });
+
+  setBreadcrumbSchema([
+    {
+      name:
+        lang === "ar"
+          ? "الرئيسية"
+          : lang === "fr"
+            ? "Accueil"
+            : "Home",
+      url: localizedPath("/"),
+    },
+    {
+      name:
+        lang === "ar"
+          ? "المكتبة"
+          : lang === "fr"
+            ? "Bibliothèque"
+            : "Library",
+      url: localizedPath("/library"),
+    },
+    {
+      name: article.title,
+      url: localizedPath(`/article/${article.slug}`),
+    },
+  ]);
+
+  return () => {
+    clearSchema("ld-article");
+    clearSchema("ld-breadcrumb");
+  };
+}, [article, contentFragments.locked, lang, loading, localizedPath]);
 
   const handlePDF = () => {
     if (article.pdf_url) {
@@ -419,21 +487,29 @@ export default function ArticleDetail() {
 
   const arrowFlip = dir === "rtl" ? "rotate-180" : "";
 
-  if (loading)
-    return (
-        <div className="max-w-4xl mx-auto px-6 py-10 space-y-4">
-          {[...Array(6)].map((_, i) => (
-              <div
-                  key={i}
-                  className={`h-6 rounded bg-slate-100 dark:bg-slate-800 animate-pulse ${
-                      i === 0 ? "w-3/4" : i === 1 ? "w-1/2" : "w-full"
-                  }`}
-              />
-          ))}
-        </div>
-    );
+
+   if (loading) {
+  return (
+    <div className="max-w-4xl mx-auto px-6 py-10 space-y-4">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className={`h-6 rounded bg-slate-100 dark:bg-slate-800 animate-pulse ${
+            i === 0 ? "w-3/4" : i === 1 ? "w-1/2" : "w-full"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
 
   return (
+     <>
+    <SEOHead
+      title={article.title}
+      description={article.excerpt || article.title}
+      canonical={`https://www.mizan.page/${lang}/article/${article.slug}`}
+    />
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid lg:grid-cols-[1fr_280px] gap-10" dir={dir}>
           <article>
@@ -788,5 +864,7 @@ export default function ArticleDetail() {
           </aside>
         </div>
       </div>
+        </>
+
   );
 }
