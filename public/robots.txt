@@ -1,17 +1,13 @@
-# Host & Domain
-Host: https://www.mizan.page
+# Mizan Digital robots.txt
 
-# Default Rules for All Search Engines & AI Crawlers
 User-agent: *
 Allow: /
 
-# Admin & Dashboard (Multi-language)
+# Private pages
 Disallow: /admin
 Disallow: /*/admin
 Disallow: /dashboard
 Disallow: /*/dashboard
-
-# Auth & User Routes
 Disallow: /login
 Disallow: /register
 Disallow: /profile
@@ -21,15 +17,14 @@ Disallow: /*/register
 Disallow: /*/profile
 Disallow: /*/settings
 
-# Backend API Endpoints
+# Backend endpoints
 Disallow: /api/
 Disallow: /*/api/
 
-# Dynamic Search & Filter URLs (Prevents Duplicate Content)
+# Duplicate search URLs
 Disallow: /*?*search=
 Disallow: /*?*q=
 Disallow: /*?*filter=
 Disallow: /*?*sort=
 
-# Sitemap Location
 Sitemap: https://www.mizan.page/sitemap.xml

@@ -1,5 +1,5 @@
 {
-  "id": "/?source=pwa",
+  "id": "/",
   "short_name": "ميزان",
   "name": "منصة ميزان الرقمية",
   "description": "منصة قانونية وأكاديمية متعددة اللغات للنصوص القانونية والاجتهادات القضائية والمحتوى التحريري المغربي.",
@@ -7,17 +7,33 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "dir": "auto",
+  "dir": "rtl",
   "lang": "ar-MA",
   "background_color": "#052e16",
   "theme_color": "#052e16",
-  "categories": ["education", "reference", "news"],
+  "categories": [
+    "education",
+    "reference",
+    "news"
+  ],
   "icons": [
     {
-      "src": "/Logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
       "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "shortcuts": [
@@ -28,9 +44,9 @@
       "url": "/ar/library",
       "icons": [
         {
-          "src": "/Logo.svg",
-          "type": "image/svg+xml",
-          "sizes": "any"
+          "src": "/pwa-192x192.png",
+          "type": "image/png",
+          "sizes": "192x192"
         }
       ]
     },
@@ -41,9 +57,9 @@
       "url": "/ar/news",
       "icons": [
         {
-          "src": "/Logo.svg",
-          "type": "image/svg+xml",
-          "sizes": "any"
+          "src": "/pwa-192x192.png",
+          "type": "image/png",
+          "sizes": "192x192"
         }
       ]
     }

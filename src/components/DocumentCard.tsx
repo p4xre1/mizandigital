@@ -116,13 +116,53 @@ type SupportedLang = keyof typeof CARD_I18N;
  */
 function sanitizeUrl(url?: string): string {
   if (!url) return "#";
-  const trimmed = url.trim();
-  if (/^(javascript|data|vbscript):/i.test(trimmed)) {
+
+  let value = url.trim();
+
+  // Fix malformed absolute URLs: /https://, //https://, ///https://
+  value = value.replace(/^\/+(?=https?:\/\/)/i, "");
+
+  // Convert protocol-relative URLs to HTTPS
+  if (value.startsWith("//")) {
+    value = `https:${value}`;
+  }
+
+  // Block dangerous URL schemes
+  if (/^(javascript|data|vbscript):/i.test(value)) {
     return "#";
   }
-  return trimmed;
-}
 
+  // Allow only HTTP(S), relative paths, hashes, and query strings
+  if (
+    /^[a-z][a-z0-9+.-]*:/i.test(value) &&
+    !/^https?:\/\//i.test(value)
+  ) {
+    return "#";
+  }
+
+  // Keep hash/query-only links unchanged
+  if (value.startsWith("#") || value.startsWith("?")) {
+    return value;
+  }
+
+  // Normalize internal paths
+  if (!/^https?:\/\//i.test(value) && !value.startsWith("/")) {
+    value = `/${value}`;
+  }
+
+  if (!/^https?:\/\//i.test(value)) {
+    const match = value.match(/^([^?#]*)([?#].*)?$/);
+    const path = match?.[1] || "/";
+    const suffix = match?.[2] || "";
+
+    const normalizedPath =
+      path === "/" ? "/" : path.replace(/\/+/g, "/").replace(/\/+$/, "");
+
+    value = `${normalizedPath || "/"}${suffix}`;
+  }
+
+  return value;
+}
 /**
  * File Icon Selector based on file extension/type
  */

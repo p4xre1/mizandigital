@@ -1,5 +1,5 @@
 {
-  "id": "/ar?source=pwa",
+  "id": "/ar",
   "short_name": "ميزان",
   "name": "منصة ميزان الرقمية",
   "description": "منصة قانونية وأكاديمية متعددة اللغات للنصوص القانونية والاجتهادات القضائية والمحتوى التحريري المغربي.",
@@ -17,12 +17,6 @@
     "news"
   ],
   "icons": [
-    {
-      "src": "/Logo.svg",
-      "type": "image/svg+xml",
-      "sizes": "any",
-      "purpose": "any"
-    },
     {
       "src": "/pwa-192x192.png",
       "type": "image/png",
