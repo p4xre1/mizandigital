@@ -22,8 +22,8 @@ function buildSecurityHeaders() {
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.gstatic.com https://fonts.googleapis.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.googletagmanager.com",
-      "connect-src 'self' https: wss: https://*.supabase.co https://challenges.cloudflare.com",
+      "script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://www.googletagmanager.com https://*.adtrafficquality.google",
+      "connect-src 'self' https: wss: https://*.supabase.co https://challenges.cloudflare.com https://*.adtrafficquality.google",
       "frame-src 'self' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://www.googletagmanager.com",
       "frame-ancestors 'self'",
     ].join("; ")

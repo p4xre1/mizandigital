@@ -1,873 +1,551 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
-import { useLocalizedPath, useI18n, serifFont, sansFont, type Lang } from "@/lib/i18n";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import {
-  ArrowRight,
-  Download,
-  Clock,
-  Eye,
-  Tag,
-  BookOpen,
-  GraduationCap,
-  Heart,
-  Bookmark,
   ShieldCheck,
-  UserPlus,
+  Lock,
+  User,
+  AlertTriangle,
+  Activity,
+  KeyRound,
+  Terminal,
+  Eye,
+  EyeOff,
+  Globe,
+  Fingerprint,
+  CheckCircle2,
+  Cpu,
+  ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
-
-import { getArticleBySlug } from "@/lib/supabase";
-import { trackArticleRead, trackDownload, trackEvent } from "@/lib/analytics";
-import { setArticleSchema, setBreadcrumbSchema, clearSchema } from "@/lib/jsonld";
-import { sanitizeHtml, isSearchEngineBot } from "@/lib/security";
-import { useRole } from "@/hooks/useRole";
-import NotFound from "@/pages/NotFound";
-
-import ArticleComments from "../components/common/ArticleComments";
+import { useI18n, serifFont, sansFont } from "@/lib/i18n";
+import { supabase } from "@/lib/supabase";
+import { throttle, sanitizeText } from "@/lib/security";
+import { adminLogin } from "@/lib/adminAuth";
 import { SEOHead } from "@/components/seo/SEOHead";
-// 📄 Explicitly defined Article interface to prevent TS2305 export mismatches
-export interface Article {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt?: string;
-  content?: string;
-  category: string;
-  university?: string;
-  semester?: string;
-  year?: number;
-  pdf_url?: string;
-  image?: string;
-  image_url?: string;
-  cover_image?: string;
-  cover_image_url?: string;
-  author?: string;
-  author_url?: string;
-  author_type?: "Person" | "Organization";
-  tags?: string[];
-  views: number;
-  is_featured?: boolean;
-  created_at: string;
-  updated_at?: string;
-}
+import { TurnstileCaptcha } from "@/components/auth/TurnstileCaptcha";
 
-const isHtml = (s: string) =>
-    /<(p|h[1-6]|div|ul|ol|li|img|iframe|strong|em|br|blockquote|span|font)[\s/>]/i.test(s);
+// Platform domain reference
+const SITE_DOMAIN = import.meta.env.VITE_SITE_URL || "https://www.mizan.page";
 
-const MOCK: Article = {
-  id: "1",
-  title: "أسئلة وأجوبة امتحان قانون الأسرة S1 — المغرب 2026",
-  slug: "family-law-s1-2026",
-  excerpt: "نماذج إجابات شاملة تغطي مدوّنة الأسرة: الزواج، الطلاق، النسب والحضانة.",
-  content: `
-## مقدمة في قانون الأسرة المغربي
-
-يُعدّ قانون الأسرة المغربي، المُجسَّد في مدوّنة الأسرة الصادرة عام 2004، من أبرز التشريعات المدنية في المنظومة القانونية المغربية. يُنظّم هذا القانون العلاقات الأسرية من زواج وطلاق ونسب وحضانة ونفقة وميراث.
-
-## أولاً: الزواج — الشروط والأركان
-
-**تعريف الزواج:** عقد يُفيد التوافق بين رجل وامرأة على وجه الإباحة والتأبيد، ويتضمن أهدافاً نبيلة من تكوين أسرة وتنمية المجتمع.
-
-**أركان الزواج:**
-1. الإيجاب والقبول
-2. أهلية الزوجين
-3. الولي (في حالة المرأة)
-4. الصداق
-5. الشاهدان العدلان
-
-**شروط صحة عقد الزواج:**
-- بلوغ الزوجين سن الرشد (18 سنة) أو الحصول على إذن القاضي
-- خلو كل منهما من موانع الزواج
-- توثيق العقد من قِبَل عدلين منتصبين لذلك
-
-## ثانياً: الطلاق والتطليق والخلع
-
-### الطلاق
-
-الطلاق حق يمارسه الزوج تحت إشراف القضاء، إذ لا يقع أي طلاق إلا بحكم قضائي.
-
-**شروط ممارسة حق الطلاق:**
-- تقديم طلب إلى المحكمة الابتدائية
-- محاولة الصلح من طرف القاضي
-- أداء جميع الحقوق المالية للزوجة والأطفال
-
-### التطليق
-
-حق يمارسه القاضي بطلب من الزوجة في حالات:
-- الضرر
-- الشقاق
-- الغياب
-- الإيلاء والهجر
-- عدم الإنفاق
-
-### الخلع
-
-حق تملكه الزوجة مقابل إعادة الصداق أو بذل مال للزوج للتخلص من عصمة الزواج.
-
-## ثالثاً: النسب والحضانة
-
-**النسب:** يثبت بالفراش أو بالإقرار أو بالبيّنة. للطفل حق في النسب من أبيه وأمه ويترتب عليه الإرث والنفقة.
-
-**الحضانة:** حق الطفل في التنشئة السليمة. تُعطى الأولوية للأم ما لم يكن في ذلك ضرر بالطفل.
-  `,
-  category: "قانون الأسرة",
-  university: "محمد الخامس — الرباط",
-  semester: "s1",
-  year: 2026,
-  pdf_url: "#",
-  views: 4200,
-  is_featured: true,
-  author: "هيئة تحرير ميزان",
-  tags: ["S1", "2026", "مدوّنة الأسرة", "الزواج", "الطلاق"],
-  created_at: "2026-07-13T10:00:00Z",
-  updated_at: "2026-07-13T10:00:00Z",
-};
-function getArticleImage(article: Article): string | undefined {
-  const images = [
-    article.image,
-    article.image_url,
-    article.cover_image,
-    article.cover_image_url,
-  ];
-
-  return images.find(
-    (value): value is string =>
-      typeof value === "string" && value.trim().length > 0,
-  )?.trim();
-}
-function renderContent(md: string, lang: Lang) {
-  return md.split("\n").map((line, i) => {
-    if (line.startsWith("## "))
-      return (
-          <h2
-              key={i}
-              className="text-xl font-bold text-foreground mt-8 mb-4"
-              style={{ fontFamily: serifFont(lang) }}
-          >
-            {line.slice(3)}
-          </h2>
-      );
-    if (line.startsWith("### "))
-      return (
-          <h3
-              key={i}
-              className="text-base font-bold text-foreground mt-6 mb-3"
-              style={{ fontFamily: serifFont(lang) }}
-          >
-            {line.slice(4)}
-          </h3>
-      );
-    if (line.startsWith("**") && line.endsWith("**"))
-      return (
-          <p
-              key={i}
-              className="font-bold text-foreground mt-4 mb-1"
-              style={{ fontFamily: sansFont(lang) }}
-          >
-            {line.slice(2, -2)}
-          </p>
-      );
-    if (line.startsWith("- "))
-      return (
-          <li
-              key={i}
-              className="text-slate-700 dark:text-slate-300 mb-1 mr-4"
-              style={{ fontFamily: sansFont(lang) }}
-          >
-            {line.slice(2)}
-          </li>
-      );
-    if (line.match(/^\d+\./))
-      return (
-          <li
-              key={i}
-              className="text-slate-700 dark:text-slate-300 mb-1 mr-4 list-decimal"
-              style={{ fontFamily: sansFont(lang) }}
-          >
-            {line.replace(/^\d+\.\s/, "")}
-          </li>
-      );
-    if (line.trim() === "") return <div key={i} className="h-2" />;
-
-    return (
-        <p
-            key={i}
-            className="text-slate-700 dark:text-slate-300 leading-relaxed mb-2"
-            style={{ fontFamily: sansFont(lang) }}
-        >
-          {line}
-        </p>
-    );
-  });
-}
-
-function serializeNode(node: ChildNode) {
-  if (node instanceof Element) return node.outerHTML;
-  return node.textContent || "";
-}
-
-function splitMarkdownContent(md: string) {
-  const paragraphs = md.split(/\n\s*\n/).filter(Boolean);
-  const previewCount = Math.max(3, Math.ceil(paragraphs.length * 0.3));
-  return {
-    preview: paragraphs.slice(0, previewCount).join("\n\n"),
-    locked: paragraphs.slice(previewCount).join("\n\n"),
-  };
-}
-
-function splitHtmlContent(html: string) {
-  if (typeof document === "undefined") {
-    return { preview: html, locked: "" };
-  }
-  const wrapper = document.createElement("div");
-  wrapper.innerHTML = html;
-  const nodes = Array.from(wrapper.childNodes);
-  const previewCount = Math.max(3, Math.ceil(nodes.length * 0.3));
-  return {
-    preview: nodes.slice(0, previewCount).map(serializeNode).join(""),
-    locked: nodes.slice(previewCount).map(serializeNode).join(""),
-  };
-}
-
-function renderHtmlSnippet(html: string) {
-  return <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }} />;
-}
-
-function SecuredAdBanner({
-                           slot,
-                           lang,
-                           isSidebar = false,
-                         }: {
-  slot: string;
-  lang: Lang;
-  isSidebar?: boolean;
-}) {
-  const localizedPath = useLocalizedPath();
-
-  const handleAdClick = (adId: string) => {
-    trackEvent("ad_click", { slot, ad_id: adId });
-  };
-
-  return (
-      <aside
-          aria-label="Advertisement"
-          className={`my-6 p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 text-center relative overflow-hidden transition-all ${
-              isSidebar ? "text-xs" : "text-sm"
-          }`}
-      >
-        <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-amber-200/50 dark:border-amber-800/30 text-[10px] uppercase font-bold tracking-wider text-amber-700 dark:text-amber-400">
-          <span>{lang === "ar" ? "إعلان ممول" : lang === "fr" ? "Sponsorisé" : "Sponsored"}</span>
-          <span className="flex items-center gap-1 opacity-80">
-          <ShieldCheck size={11} aria-hidden="true" />
-            {lang === "ar" ? "آمن" : "Secure"}
-        </span>
-        </div>
-
-        <div className="space-y-2 my-2">
-          <p className="font-bold text-amber-950 dark:text-amber-200 leading-snug">
-            {lang === "ar"
-                ? "انضم إلى مجتمع ميزان الرقمي وتابع أحدث البحوث والملخصات القانونية!"
-                : lang === "fr"
-                    ? "Rejoignez Mizan Digital et suivez les dernières publications juridiques !"
-                    : "Join Mizan Digital and get unlimited access to verified legal research!"}
-          </p>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-          <Link
-              to={localizedPath("/register")}
-              onClick={() => handleAdClick("register_promo")}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-600 text-white font-semibold text-xs hover:bg-amber-700 transition-colors shadow-sm"
-          >
-            <UserPlus size={13} aria-hidden="true" />
-            <span>
-            {lang === "ar"
-                ? "إنشاء حساب مجاني"
-                : lang === "fr"
-                    ? "Créer un compte"
-                    : "Create Free Account"}
-          </span>
-          </Link>
-        </div>
-      </aside>
-  );
-}
-
-export default function ArticleDetail() {
-  const { slug } = useParams<{ slug: string }>();
-  const localizedPath = useLocalizedPath();
-  const { lang, dir, t } = useI18n();
-  const { isStaff, isGuest } = useRole();
-
-  const [article, setArticle] = useState<Article>(MOCK);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [likes, setLikes] = useState(342);
-
-  const [isWaiting, setIsWaiting] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(20);
-  const [isReady, setIsReady] = useState(false);
-  const downloadRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isWaiting && timeLeft > 0) {
-      timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
-    } else if (isWaiting && timeLeft === 0) {
-      setIsReady(true);
-      setIsWaiting(false);
-    }
-    return () => clearTimeout(timer);
-  }, [isWaiting, timeLeft]);
-
-  const startDownloadTimer = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsWaiting(true);
-    if (downloadRef.current) {
-      downloadRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  };
-
-  const commentsEnabled = true;
-
-  const toggleLike = () => {
-    setLiked((v) => {
-      const next = !v;
-      setLikes((c) => c + (next ? 1 : -1));
-      trackEvent(next ? "article_like" : "article_unlike", { id: article.id });
-      return next;
-    });
-  };
-
-  const toggleSave = () => {
-    setSaved((v) => {
-      trackEvent(!v ? "article_save" : "article_unsave", { id: article.id });
-      return !v;
-    });
-  };
-
-  useEffect(() => {
-  let cancelled = false;
-
-  if (!slug) {
-    setNotFound(true);
-    setLoading(false);
-    return;
-  }
-
-  setLoading(true);
-  setNotFound(false);
-
-  getArticleBySlug(slug)
-    .then((res: unknown) => {
-      if (cancelled) return;
-
-      const response = res as
-  | { data?: Article | null; error?: unknown }
-  | Article
-  | null;
-
-const fetchedArticle: Article | null =
-  response &&
-  typeof response === "object" &&
-  "data" in response
-    ? response.data ?? null
-    : (response as Article | null);
-
-if (!fetchedArticle?.id) {
-  setNotFound(true);
-  return;
-}
-
-setArticle(fetchedArticle);
-
-trackArticleRead(
-  fetchedArticle.id,
-  fetchedArticle.title,
-  fetchedArticle.category
-);
-    })
-    .catch((error) => {
-      console.error("Article loading failed:", error);
-      if (!cancelled) setNotFound(true);
-    })
-    .finally(() => {
-      if (!cancelled) setLoading(false);
-    });
-
-  return () => {
-    cancelled = true;
-  };
-}, [slug]);
-
-  const isBot = isSearchEngineBot();
-  const isLocked = isGuest && !isBot;
-
-  const contentFragments = useMemo(() => {
-    const raw = article.content || article.excerpt || "";
-    if (!raw) return { preview: "", locked: "", isHtml: false };
-    if (isHtml(raw)) {
-      return { ...splitHtmlContent(raw), isHtml: true };
-    }
-    return { ...splitMarkdownContent(raw), isHtml: false };
-  }, [article.content, article.excerpt]);
-
-  useEffect(() => {
-  if (loading || notFound) {
-    clearSchema("ld-article");
-    clearSchema("ld-breadcrumb");
-    return;
-  }
-
-  const articleImage = getArticleImage(article);
-  const hasPaywalledContent = Boolean(contentFragments.locked);
-
-  setArticleSchema({
-    title: article.title,
-    description: article.excerpt || article.title,
-    slug: article.slug,
-    author: article.author,
-    authorUrl: article.author_url,
-    authorType: article.author_type || "Organization",
-    image: articleImage,
-    datePublished: article.created_at,
-    dateModified: article.updated_at || article.created_at,
-    category: article.category,
-    schemaType: "Article",
-    requiresPaidAccess: hasPaywalledContent,
-    lockedCssSelector: ".premium-content-section",
-    lang,
-    path: `/news/${article.slug}`,
-  });
-
-  setBreadcrumbSchema([
-    {
-      name:
-        lang === "ar"
-          ? "الرئيسية"
-          : lang === "fr"
-            ? "Accueil"
-            : "Home",
-      url: localizedPath("/"),
-    },
-    {
-      name:
-        lang === "ar"
-          ? "المكتبة"
-          : lang === "fr"
-            ? "Bibliothèque"
-            : "Library",
-      url: localizedPath("/library"),
-    },
-    {
-      name: article.title,
-      url: localizedPath(`/article/${article.slug}`),
-    },
-  ]);
-
-  return () => {
-    clearSchema("ld-article");
-    clearSchema("ld-breadcrumb");
-  };
-}, [
-  article,
-  contentFragments.locked,
-  lang,
-  loading,
-  notFound,
-  localizedPath,
+// Allowed staff roles for admin gateway clearance
+const ALLOWED_ADMIN_ROLES = new Set([
+  "root",
+  "security_admin",
+  "admin",
+  "marketer",
+  "writer",
+  "editor",
+  "superadmin",
 ]);
 
-  const handlePDF = () => {
-    if (article.pdf_url) {
-      trackDownload(article.title || "article-document.pdf", "pdf");
+// Supabase Profile query shape
+interface ProfileAuthCheck {
+  role: string | null;
+  admin_god_mode?: boolean | null;
+  is_frozen?: boolean | null;
+}
+
+interface ProfileEmailLookup {
+  email: string;
+}
+
+// Helper for dynamic rate-limit error message
+function getRateLimitMessage(lang: string, sec: number): string {
+  switch (lang) {
+    case "ar":
+      return `⚠️ تم تجاوز حد المحاولات. يرجى الانتظار ${sec} ثانية`;
+    case "fr":
+      return `⚠️ Limite de tentatives dépassée. Attendez ${sec}s`;
+    case "es":
+      return `⚠️ Límite de intentos superado. Espere ${sec}s`;
+    default:
+      return `⚠️ Rate limit exceeded. Standby ${sec}s`;
+  }
+}
+
+// Master 4-Language Dictionary for Admin Gateway
+const TRANSLATIONS = {
+  ar: {
+    seoTitle: "بوابة الإدارة المشفرة | منصة ميزان القانونية",
+    seoDesc: "بوابة الدخول الآمنة للوحة التحكم والإدارة لمنصة ميزان الرقمية.",
+    securityZone: "منطقة أمنية :: المستوى 4",
+    sysStatus: "النظام محمي",
+    gatewayTitle: "لوحة تحكم الإدارة",
+    gatewaySubtitle: "بوابة ميزان المشفرة لإدارة المحتوى والأمن",
+    identityPlaceholder: "اسم المستخدم أو البريد الإلكتروني",
+    identityLabel: "اسم المستخدم أو البريد الإلكتروني",
+    passPlaceholder: "مفتاح المرور المشفر",
+    passLabel: "كلمة المرور",
+    loginBtn: "تسجيل الدخول الآمن",
+    authenticating: "جاري المصادقة والتشفير...",
+    emptyFieldsErr: "يرجى تقديم بيانات الاعتماد كاملة والصالحة.",
+    authFailedErr: "فشل في المصادقة. البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+    permVerifyErr: "فشل في التحقق من صلاحيات المشغل.",
+    accountFrozenErr: "هذا الحساب مجمد حالياً. يرجى مراجعة مسؤول الأمن السيبراني.",
+    accessDeniedErr: "عذراً، لا تملك الصلاحيات الإدارية المطلوبة للوصول.",
+    systemErrorErr: "حدث خطأ غير متوقع في النظام. حاول لاحقاً.",
+    captchaErr: "يرجى إكمال اختبار التحقق الأمني.",
+    footerRestricted: "وصول مقيد · للأشخاص المصرح لهم فقط",
+    footerMonitored: "جميع محاولات الدخول مسجلة ومراقبة بأعلى درجات التشفير",
+    backToSite: "العودة للموقع الرئيسي",
+  },
+  fr: {
+    seoTitle: "Portail d'Administration Chiffré | Plateforme Mizan",
+    seoDesc: "Portail de connexion sécurisé pour le panneau d'administration Mizan.",
+    securityZone: "ZONE SEC :: NIVEAU-4",
+    sysStatus: "SYS_OK",
+    gatewayTitle: "Panneau d'Administration",
+    gatewaySubtitle: "PASSERELLE CMS CHIFFRÉE MIZAN",
+    identityPlaceholder: "Nom d'utilisateur ou E-mail",
+    identityLabel: "Nom d'utilisateur ou E-mail",
+    passPlaceholder: "CLÉ D'ACCÈS / MOT DE PASSE",
+    passLabel: "Mot de passe",
+    loginBtn: "CONNEXION SÉCURISÉE",
+    authenticating: "AUTHENTIFICATION EN COURS...",
+    emptyFieldsErr: "Veuillez fournir des identifiants valides.",
+    authFailedErr: "Échec d'authentification. Identifiants invalides.",
+    permVerifyErr: "Impossible de vérifier les autorisations du compte.",
+    accountFrozenErr: "Le compte est suspendu. Contactez le support système.",
+    accessDeniedErr: "Accès refusé. Privilèges administratifs requis.",
+    systemErrorErr: "Une erreur système inattendue s'est produite.",
+    captchaErr: "Veuillez vérifier le test de sécurité.",
+    footerRestricted: "ACCÈS RESTREINT · PERSONNEL AUTORISÉ UNIQUEMENT",
+    footerMonitored: "TOUTES LES TENTATIVES DE CONNEXION SONT ENREGISTRÉES",
+    backToSite: "Retour au site principal",
+  },
+  en: {
+    seoTitle: "Encrypted Admin Gateway | Mizan Legal Platform",
+    seoDesc: "Secure administrative login portal for Mizan Digital System.",
+    securityZone: "SEC-ZONE :: LEVEL-4",
+    sysStatus: "SYS_OK",
+    gatewayTitle: "Admin Control Center",
+    gatewaySubtitle: "MIZAN ENCRYPTED CMS GATEWAY",
+    identityPlaceholder: "Username or Email",
+    identityLabel: "Username or Email",
+    passPlaceholder: "ACCESS_KEY / PASSWORD",
+    passLabel: "Password",
+    loginBtn: "SECURE LOGIN",
+    authenticating: "AUTHENTICATING...",
+    emptyFieldsErr: "Please provide valid credentials.",
+    authFailedErr: "Authentication failure. Invalid credentials.",
+    permVerifyErr: "Failed to verify account permissions.",
+    accountFrozenErr: "Account is frozen. Contact system administrator.",
+    accessDeniedErr: "Access denied. Administrative privileges required.",
+    systemErrorErr: "An unexpected system error occurred.",
+    captchaErr: "Please complete the security verification.",
+    footerRestricted: "RESTRICTED ACCESS · AUTHORIZED PERSONNEL ONLY",
+    footerMonitored: "ALL LOGIN ATTEMPTS ARE LOGGED & MONITORED",
+    backToSite: "Back to main site",
+  },
+  es: {
+    seoTitle: "Portal de Administración Cifrado | Plataforma Mizan",
+    seoDesc: "Portal de inicio de sesión seguro para la administración de Mizan.",
+    securityZone: "ZONA-SEC :: NIVEL-4",
+    sysStatus: "SISTEMA_OK",
+    gatewayTitle: "Panel de Administración",
+    gatewaySubtitle: "PASARELA CMS CIFRADA MIZAN",
+    identityPlaceholder: "Nombre de usuario o Correo",
+    identityLabel: "Usuario o Correo Electrónico",
+    passPlaceholder: "CLAVE DE ACCESO / CONTRASEÑA",
+    passLabel: "Contraseña",
+    loginBtn: "INICIAR SESIÓN SEGURA",
+    authenticating: "AUTENTICANDO...",
+    emptyFieldsErr: "Por favor proporcione credenciales válidas.",
+    authFailedErr: "Fallo de autenticación. Credenciales inválidas.",
+    permVerifyErr: "No se pudieron verificar los permisos de la cuenta.",
+    accountFrozenErr: "Cuenta congelada. Contacte al administrador del sistema.",
+    accessDeniedErr: "Acceso denegado. Se requieren privilegios administrativos.",
+    systemErrorErr: "Ocurrió un error inesperado en el sistema.",
+    captchaErr: "Por favor complete la verificación de seguridad.",
+    footerRestricted: "ACCESO RESTRINGIDO · SÓLO PERSONAL AUTORIZADO",
+    footerMonitored: "TODOS LOS INTENTOS SON REGISTRADOS Y MONITOREADOS",
+    backToSite: "Volver al sitio principal",
+  },
+};
+
+export default function AdminLogin() {
+  const { lang, dir, setLang } = useI18n();
+  const navigate = useNavigate();
+
+  const t = TRANSLATIONS[lang as keyof typeof TRANSLATIONS] || TRANSLATIONS.en;
+
+  // Form State
+  const [identity, setIdentity] = useState("");
+  const [pass, setPass] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [logoError, setLogoError] = useState(false);
+
+  // Submit Handler
+  const submit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    // 1. Anti-Spam Bot Trap Check
+    if (honeypot.trim().length > 0) {
+      console.warn("Security Alert: Spam bot honeypot triggered.");
+      return;
+    }
+
+    // 2. Throttle Login Attempts (Rate Limiting)
+    const wait = throttle("admin_login_attempt", 4000);
+    if (wait) {
+      setError(getRateLimitMessage(lang, wait));
+      return;
+    }
+
+    // 3. Input Sanitization (Keep exact password intact)
+    const cleanIdentity = sanitizeText(identity.trim(), 150);
+    const rawPass = pass;
+
+    if (!cleanIdentity || !rawPass) {
+      setError(t.emptyFieldsErr);
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      // 4. Local CMS fallback check
+      const localAuthSuccess = adminLogin(cleanIdentity, rawPass);
+      if (localAuthSuccess) {
+        setSubmitting(false);
+        navigate(`/${lang}/admin`);
+        return;
+      }
+
+      // 5. Username to Email Resolution
+      let targetEmail = cleanIdentity;
+
+      if (!cleanIdentity.includes("@")) {
+        const { data: rawUserProfile, error: lookupError } = await supabase
+          .from("profiles")
+          .select("email")
+          .eq("username", cleanIdentity)
+          .maybeSingle();
+
+        const userProfile = rawUserProfile as ProfileEmailLookup | null;
+
+        if (lookupError || !userProfile?.email) {
+          setError(t.authFailedErr);
+          setSubmitting(false);
+          return;
+        }
+
+        targetEmail = userProfile.email;
+      }
+
+      // 6. Authenticate via Supabase Auth Engine with Turnstile token
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password: rawPass,
+        options: captchaToken ? { captchaToken } : undefined,
+      });
+
+      if (authError || !authData.user) {
+        setError(t.authFailedErr);
+        setSubmitting(false);
+        return;
+      }
+
+      // 7. Role & Account Freeze Verification (Defensive multi-step query)
+      let profile: ProfileAuthCheck | null = null;
+
+      const { data: rawData, error: profileError } = await supabase
+        .from("profiles")
+        .select("role, admin_god_mode, is_frozen")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        // Safe Fallback: If custom schema columns (admin_god_mode/is_frozen) don't exist yet
+        const { data: basicData } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", authData.user.id)
+          .maybeSingle();
+
+        if (basicData) {
+          profile = basicData as ProfileAuthCheck;
+        }
+      } else {
+        profile = rawData as ProfileAuthCheck | null;
+      }
+
+      // Account Suspension Check
+      if (profile?.is_frozen) {
+        await supabase.auth.signOut();
+        setError(t.accountFrozenErr);
+        setSubmitting(false);
+        return;
+      }
+
+      // Multi-tier Role Clearance (Checks profile table + auth metadata)
+      const userRole = (
+        profile?.role ||
+        (authData.user.app_metadata?.role as string) ||
+        (authData.user.user_metadata?.role as string) ||
+        ""
+      )
+        .toLowerCase()
+        .trim();
+
+      const hasAdminClearance =
+        profile?.admin_god_mode === true || ALLOWED_ADMIN_ROLES.has(userRole);
+
+      if (!hasAdminClearance) {
+        await supabase.auth.signOut();
+        setError(t.accessDeniedErr);
+        setSubmitting(false);
+        return;
+      }
+
+      // Clearance Granted -> Redirect to CMS Admin Suite
+      navigate(`/${lang}/admin`);
+    } catch (err) {
+      console.error("Critical Login Exception:", err);
+      setError(t.systemErrorErr);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const arrowFlip = dir === "rtl" ? "rotate-180" : "";
-
-
-   if (loading) {
   return (
-    <div className="max-w-4xl mx-auto px-6 py-10 space-y-4">
-      {[...Array(6)].map((_, i) => (
-        <div
-          key={i}
-          className={`h-6 rounded bg-slate-100 dark:bg-slate-800 animate-pulse ${
-            i === 0 ? "w-3/4" : i === 1 ? "w-1/2" : "w-full"
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
-if (notFound) {
-  return <NotFound />;
-}
+    <>
+      <SEOHead
+        title={t.seoTitle}
+        description={t.seoDesc}
+        canonical={`${SITE_DOMAIN}/${lang}/admin/login`}
+        noIndex={true}
+      />
 
-  return (
-     <>
-    <SEOHead
-      title={article.title}
-      description={article.excerpt || article.title}
-      canonical={`https://www.mizan.page/${lang}/news/${article.slug}`}
-    />
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid lg:grid-cols-[1fr_280px] gap-10" dir={dir}>
-          <article>
-            <nav
-                aria-label="Breadcrumb"
-                className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-6"
-                style={{ fontFamily: sansFont(lang) }}
+      <div
+        className="min-h-[100dvh] bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden font-mono select-none"
+        dir={dir}
+      >
+        {/* Background Grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] sm:bg-[size:2rem_2rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40 pointer-events-none" />
+
+        {/* Radar Effect */}
+        <div className="absolute w-[500px] h-[500px] sm:w-[800px] sm:h-[800px] rounded-full border border-emerald-500/10 animate-ping pointer-events-none opacity-20" />
+
+        {/* Language Switcher */}
+        <div className="absolute top-3 sm:top-6 z-20 flex items-center gap-1 bg-slate-900/90 border border-slate-800 rounded-full px-2 py-1 shadow-md text-xs">
+          <Globe size={14} className="text-emerald-400 ml-1 rtl:mr-1" />
+          {(["ar", "fr", "en", "es"] as const).map((l) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => setLang(l)}
+              className={`px-2 py-1 rounded-full text-[11px] font-bold uppercase transition-all ${
+                lang === l
+                  ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(16,185,129,0.4)]"
+                  : "text-slate-400 hover:text-slate-100"
+              }`}
             >
-              <Link to={localizedPath("/")} className="hover:text-primary transition-colors">
-                {lang === "ar" ? "الرئيسية" : lang === "fr" ? "Accueil" : "Home"}
-              </Link>
-              <ArrowRight size={11} className={arrowFlip} aria-hidden="true" />
-              <Link to={localizedPath("/library")} className="hover:text-primary transition-colors">
-                {lang === "ar" ? "المكتبة" : lang === "fr" ? "Bibliothèque" : "Library"}
-              </Link>
-              <ArrowRight size={11} className={arrowFlip} aria-hidden="true" />
-              <span className="text-foreground line-clamp-1">{article.title}</span>
-            </nav>
+              {l}
+            </button>
+          ))}
+        </div>
 
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <Link
-                  to={localizedPath("/news")}
-                  className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors"
-              >
-                {article.category}
-              </Link>
-              {article.semester && (
-                  <span className="text-xs font-mono border border-border px-2 py-0.5 rounded-full text-slate-600 dark:text-slate-300">
-                {article.semester.toUpperCase()}
-              </span>
-              )}
-              {article.year && (
-                  <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
-                {article.year}
-              </span>
+        {/* Login Card */}
+        <div className="w-full max-w-md bg-slate-900/95 border border-slate-800 rounded-2xl p-5 sm:p-8 shadow-2xl relative z-10 backdrop-blur-xl my-auto transition-all">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-3 mb-6 text-[10px] sm:text-[11px] tracking-wider text-emerald-500 uppercase font-bold">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              {t.securityZone}
+            </span>
+            <span className="text-slate-500 flex items-center gap-1">
+              <Terminal size={12} /> {t.sysStatus}
+            </span>
+          </div>
+
+          <div className="flex flex-col items-center mb-6 text-center">
+            <div className="w-16 h-16 sm:w-18 sm:h-18 bg-emerald-950/80 border border-emerald-500/40 rounded-2xl flex items-center justify-center mb-3 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+              {!logoError ? (
+                <img
+                  src="/Logo.svg"
+                  alt="Mizan Logo"
+                  width={40}
+                  height={40}
+                  className="w-10 h-10 object-contain filter drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                  loading="eager"
+                  decoding="async"
+                  onError={() => setLogoError(true)}
+                />
+              ) : (
+                <ShieldCheck size={32} />
               )}
             </div>
 
             <h1
-                className="text-2xl md:text-3xl font-bold text-foreground leading-tight mb-4"
-                style={{ fontFamily: serifFont(lang) }}
+              className="font-extrabold text-slate-100 text-xl sm:text-2xl tracking-tight"
+              style={{ fontFamily: serifFont(lang) }}
             >
-              {article.title}
+              {t.gatewayTitle}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mb-6 pb-6 border-b border-border">
-              {article.author && (
-                  <span className="flex items-center gap-1">
-                <BookOpen size={12} aria-hidden="true" />
-                    {article.author}
-              </span>
-              )}
-              {article.university && (
-                  <span className="flex items-center gap-1">
-                <GraduationCap size={12} aria-hidden="true" />
-                    {article.university}
-              </span>
-              )}
-              <span className="flex items-center gap-1">
-              <Clock size={12} aria-hidden="true" />
-                {new Date(article.created_at).toLocaleDateString(
-                    lang === "ar" ? "ar-MA" : "en-US"
-                )}
-            </span>
-              <span className="flex items-center gap-1">
-              <Eye size={12} aria-hidden="true" />
-                {article.views.toLocaleString()} {t("reads")}
-            </span>
-            </div>
+            <p
+              className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider flex items-center justify-center gap-1"
+              style={{ fontFamily: sansFont(lang) }}
+            >
+              <Activity size={12} className="text-emerald-500 shrink-0" />
+              <span>{t.gatewaySubtitle}</span>
+            </p>
+          </div>
 
-            <div className="prose-container rte-content leading-loose text-base">
-              {contentFragments.preview ? (
-                  contentFragments.isHtml ? (
-                      renderHtmlSnippet(contentFragments.preview)
-                  ) : (
-                      renderContent(contentFragments.preview, lang)
-                  )
-              ) : (
-                  <p
-                      className="text-slate-600 dark:text-slate-300"
-                      style={{ fontFamily: sansFont(lang) }}
-                  >
-                    {article.excerpt}
-                  </p>
-              )}
+          <form onSubmit={submit} className="space-y-4" noValidate>
+            <input
+              type="text"
+              name="website_confirm_field"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              className="sr-only"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+            />
 
-              {!isStaff && <SecuredAdBanner slot="in_article_preview" lang={lang} />}
-
-              {contentFragments.locked ? (
-                  <div className="premium-content-section relative mt-6">
-                    {isLocked ? (
-                        <>
-                          <div className="pointer-events-none select-none blur-sm">
-                            {contentFragments.isHtml
-                                ? renderHtmlSnippet(contentFragments.locked)
-                                : renderContent(contentFragments.locked, lang)}
-                          </div>
-                          <div className="absolute inset-0 flex items-center justify-center p-6 bg-gradient-to-t from-background/95 via-background/80 to-transparent">
-                            <div className="max-w-md rounded-3xl border border-border bg-card/95 p-6 shadow-xl text-center backdrop-blur-sm">
-                              <p
-                                  className="text-sm font-semibold text-foreground mb-4"
-                                  style={{ fontFamily: sansFont(lang) }}
-                              >
-                                {lang === "ar"
-                                    ? "المحتوى الكامل متاح للأعضاء. قم بتسجيل الدخول أو إنشاء حساب مجاني للوصول إلى بقية النص."
-                                    : lang === "fr"
-                                        ? "Le contenu complet est réservé aux membres. Connectez-vous ou créez un compte gratuit."
-                                        : "Full content is reserved for members. Sign in or create a free account to continue reading."}
-                              </p>
-                              <div className="flex flex-wrap items-center justify-center gap-3">
-                                <Link
-                                    to={localizedPath("/login")}
-                                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors min-h-[44px]"
-                                    style={{ fontFamily: sansFont(lang) }}
-                                >
-                                  {lang === "ar"
-                                      ? "تسجيل الدخول"
-                                      : lang === "fr"
-                                          ? "Se connecter"
-                                          : "Sign In"}
-                                </Link>
-                                <Link
-                                    to={localizedPath("/register")}
-                                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-border bg-card text-foreground text-sm font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-h-[44px]"
-                                    style={{ fontFamily: sansFont(lang) }}
-                                >
-                                  {lang === "ar"
-                                      ? "حساب جديد"
-                                      : lang === "fr"
-                                          ? "Créer un compte"
-                                          : "Register"}
-                                </Link>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                    ) : contentFragments.isHtml ? (
-                        renderHtmlSnippet(contentFragments.locked)
-                    ) : (
-                        renderContent(contentFragments.locked, lang)
-                    )}
-                  </div>
-              ) : null}
-            </div>
-
-            {/* 🛠️ Resolves TS7006 by typing parameter (tag: string) */}
-            {article.tags?.length ? (
-                <div className="flex flex-wrap items-center gap-2 mt-10 pt-6 border-t border-border">
-                  <Tag size={13} className="text-slate-500 dark:text-slate-400" aria-hidden="true" />
-                  {article.tags.map((tag: string) => (
-                      <Link
-                          key={tag}
-                          to={localizedPath("/news")}
-                          className="text-xs px-2.5 py-1 rounded-full border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-colors"
-                          style={{ fontFamily: sansFont(lang) }}
-                      >
-                        {tag}
-                      </Link>
-                  ))}
-                </div>
-            ) : null}
-
-            <ArticleComments articleId={article.id} enabled={commentsEnabled} />
-          </article>
-
-          <aside className="space-y-4 lg:sticky lg:top-24 self-start">
-            {article.pdf_url && (
-                <div
-                    ref={downloadRef}
-                    className="bg-card border border-border rounded-xl p-4 shadow-sm text-center transition-all"
-                >
-                  <h3
-                      className="text-sm font-bold mb-3 text-foreground"
-                      style={{ fontFamily: serifFont(lang) }}
-                  >
-                    {lang === "ar"
-                        ? "تحميل المرفقات"
-                        : lang === "fr"
-                            ? "Télécharger les pièces jointes"
-                            : "Download Attachments"}
-                  </h3>
-
-                  {!isWaiting && !isReady && (
-                      <button
-                          onClick={startDownloadTimer}
-                          className="flex items-center justify-center gap-2 w-full py-3 bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-all text-sm shadow-sm cursor-pointer"
-                          style={{ fontFamily: sansFont(lang) }}
-                      >
-                        <Download size={16} aria-hidden="true" />
-                        {lang === "ar"
-                            ? "تحميل PDF"
-                            : lang === "fr"
-                                ? "Télécharger PDF"
-                                : "Download PDF"}
-                      </button>
-                  )}
-
-                  {isWaiting && (
-                      <div className="w-full bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl p-4 animate-in fade-in">
-                        <Clock className="mx-auto text-amber-500 mb-2 animate-pulse" size={24} />
-                        <p
-                            className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-2"
-                            style={{ fontFamily: sansFont(lang) }}
-                        >
-                          {lang === "ar"
-                              ? "جاري تجهيز الرابط المباشر..."
-                              : lang === "fr"
-                                  ? "Préparation du lien..."
-                                  : "Preparing link..."}
-                        </p>
-                        <p className="text-4xl font-black text-amber-600 drop-shadow-sm">
-                          {timeLeft}
-                        </p>
-                      </div>
-                  )}
-
-                  {isReady && (
-                      <a
-                          href={article.pdf_url}
-                          onClick={handlePDF}
-                          download
-                          className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all text-sm shadow-md animate-in zoom-in"
-                          style={{ fontFamily: sansFont(lang) }}
-                      >
-                        <ShieldCheck size={16} aria-hidden="true" />
-                        {lang === "ar"
-                            ? "الرابط جاهز - اضغط للتحميل"
-                            : lang === "fr"
-                                ? "Lien prêt - Cliquez ici"
-                                : "Link ready - Click here"}
-                      </a>
-                  )}
-
-                  <div className="mt-4 w-full min-h-[250px] bg-slate-50 dark:bg-slate-800/50 rounded-lg border-2 border-dashed border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center relative overflow-hidden">
-                <span className="text-slate-400 text-[10px] uppercase absolute top-2 right-2">
-                  Ad
-                </span>
-                    <span className="text-slate-400/70 text-xs font-medium">
-                  Google AdSense Space
-                </span>
-                  </div>
-                </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                  onClick={toggleLike}
-                  aria-pressed={liked}
-                  aria-label={liked ? "Liked article" : "Like article"}
-                  className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] cursor-pointer ${
-                      liked
-                          ? "bg-red-50 dark:bg-red-950/60 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
-                          : "border-border text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary"
-                  }`}
-                  style={{ fontFamily: sansFont(lang) }}
+            <div className="space-y-1">
+              <label
+                htmlFor="admin-identity"
+                className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block"
               >
-                <Heart
-                    size={15}
-                    className={liked ? "fill-red-500 text-red-500" : ""}
-                    aria-hidden="true"
+                {t.identityLabel}
+              </label>
+              <div className="relative">
+                <User
+                  size={18}
+                  className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
+                    dir === "rtl" ? "right-3.5" : "left-3.5"
+                  }`}
                 />
-                <span>{likes.toLocaleString()}</span>
-              </button>
-              <button
-                  onClick={toggleSave}
-                  aria-pressed={saved}
-                  aria-label={saved ? "Saved article" : "Save article"}
-                  className={`flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-medium border transition-colors min-h-[44px] cursor-pointer ${
-                      saved
-                          ? "bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-200"
-                          : "border-border text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary"
-                  }`}
-                  style={{ fontFamily: sansFont(lang) }}
-              >
-                <Bookmark size={15} className={saved ? "fill-current" : ""} aria-hidden="true" />
-                <span>
-                {saved
-                    ? lang === "ar"
-                        ? "محفوظ"
-                        : lang === "fr"
-                            ? "Enregistré"
-                            : "Saved"
-                    : lang === "ar"
-                        ? "حفظ"
-                        : lang === "fr"
-                            ? "Enregistrer"
-                            : "Save"}
-              </span>
-              </button>
-            </div>
-
-            {!isStaff && <SecuredAdBanner slot="sidebar" lang={lang} isSidebar />}
-
-            <div className="bg-card border border-border rounded-xl p-4 shadow-sm">
-              <h2
-                  className="text-xs font-bold text-foreground mb-3 pb-2 border-b border-border"
-                  style={{ fontFamily: serifFont(lang) }}
-              >
-                {lang === "ar"
-                    ? "تفاصيل الوثيقة"
-                    : lang === "fr"
-                        ? "Détails du document"
-                        : "Document Details"}
-              </h2>
-              <dl className="space-y-2 text-xs" style={{ fontFamily: sansFont(lang) }}>
-                {[
-                  [lang === "ar" ? "الفئة" : lang === "fr" ? "Catégorie" : "Category", article.category],
-                  [lang === "ar" ? "الجامعة" : lang === "fr" ? "Université" : "University", article.university],
-                  [lang === "ar" ? "الفصل" : lang === "fr" ? "Semestre" : "Semester", article.semester?.toUpperCase()],
-                  [lang === "ar" ? "السنة" : lang === "fr" ? "Année" : "Year", article.year?.toString()],
-                ]
-                    .filter(([, v]) => v)
-                    .map(([k, v]) => (
-                        <div key={k} className="flex justify-between items-center">
-                          <dt className="text-slate-500 dark:text-slate-400">{k}</dt>
-                          <dd className="font-medium text-foreground">{v}</dd>
-                        </div>
-                    ))}
-              </dl>
-            </div>
-
-            <div className="bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 rounded-xl p-4 shadow-sm">
-              <h3
-                  className="text-xs font-bold text-blue-900 dark:text-blue-200 mb-2"
-                  style={{ fontFamily: serifFont(lang) }}
-              >
-                {t("newsletter_title")}
-              </h3>
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-2">
-                <label htmlFor="sidebar-newsletter-email" className="sr-only">
-                  {t("newsletter_email")}
-                </label>
                 <input
-                    id="sidebar-newsletter-email"
-                    type="email"
-                    placeholder={t("newsletter_email")}
-                    aria-label={t("newsletter_email")}
-                    className={`w-full text-xs px-3 py-2 rounded-lg border border-border bg-card text-foreground outline-none focus:ring-2 focus:ring-primary ${
-                        dir === "rtl" ? "text-right" : "text-left"
-                    }`}
-                    style={{ fontFamily: sansFont(lang) }}
+                  id="admin-identity"
+                  value={identity}
+                  onChange={(e) => setIdentity(e.target.value)}
+                  type="text"
+                  placeholder={t.identityPlaceholder}
+                  autoComplete="username"
+                  maxLength={150}
+                  required
+                  className={`w-full h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
+                    dir === "rtl" ? "pr-11 pl-4 text-right" : "pl-11 pr-4 text-left"
+                  }`}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label
+                htmlFor="admin-password"
+                className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block"
+              >
+                {t.passLabel}
+              </label>
+              <div className="relative">
+                <Lock
+                  size={18}
+                  className={`absolute top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none ${
+                    dir === "rtl" ? "right-3.5" : "left-3.5"
+                  }`}
+                />
+                <input
+                  id="admin-password"
+                  value={pass}
+                  onChange={(e) => setPass(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t.passPlaceholder}
+                  autoComplete="current-password"
+                  maxLength={128}
+                  required
+                  className={`w-full h-12 py-3 text-sm font-sans border border-slate-800 rounded-xl bg-slate-950/90 text-slate-100 placeholder:text-slate-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition-all ${
+                    dir === "rtl" ? "pr-11 pl-11 text-right" : "pl-11 pr-11 text-left"
+                  }`}
                 />
                 <button
-                    type="submit"
-                    className="w-full py-2 bg-blue-900 dark:bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-950 dark:hover:bg-blue-700 transition-colors min-h-[36px]"
-                    style={{ fontFamily: sansFont(lang) }}
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                  className={`absolute top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center ${
+                    dir === "rtl" ? "left-1" : "right-1"
+                  }`}
                 >
-                  {t("newsletter_cta")}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
-              </form>
+              </div>
             </div>
-          </aside>
+
+            {/* Cloudflare Turnstile Verification */}
+            <TurnstileCaptcha
+              onVerify={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken(null)}
+              onError={() => setCaptchaToken(null)}
+              theme="dark"
+              size="normal"
+            />
+
+            {error && (
+              <div
+                role="alert"
+                className="p-3 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in zoom-in-95 duration-150"
+              >
+                <AlertTriangle size={16} className="shrink-0 text-rose-400 mt-0.5" />
+                <span className="leading-relaxed font-sans">{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-12 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-black rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all shadow-[0_0_25px_rgba(16,185,129,0.25)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer touch-manipulation"
+            >
+              {submitting ? (
+                <span className="flex items-center gap-2 animate-pulse">
+                  <Fingerprint size={18} className="animate-spin" />
+                  {t.authenticating}
+                </span>
+              ) : (
+                <>
+                  <KeyRound size={16} />
+                  <span>{t.loginBtn}</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-[10px] text-slate-400">
+            <div className="flex items-center gap-1.5 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+              <Cpu size={12} className="text-emerald-400 shrink-0" />
+              <span className="truncate">TLS 1.3 · AES-256</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">
+              <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+              <span className="truncate">Zero-Trust Active</span>
+            </div>
+          </div>
+
+          <div className="mt-4 text-center space-y-2">
+            <p className="text-[10px] text-slate-500 uppercase tracking-tight">
+              {t.footerRestricted}
+            </p>
+            <p className="text-[9px] text-slate-600">{t.footerMonitored}</p>
+
+            <div className="pt-2">
+              <Link
+                to={`/${lang}`}
+                className="inline-flex items-center gap-1 text-[11px] text-emerald-400/80 hover:text-emerald-300 transition-colors font-sans"
+              >
+                {dir === "rtl" ? <ArrowRight size={12} /> : <ArrowLeft size={12} />}
+                <span>{t.backToSite}</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-        </>
-
+    </>
   );
 }
