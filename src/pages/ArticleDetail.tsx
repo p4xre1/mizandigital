@@ -19,8 +19,8 @@ import { getArticleBySlug } from "@/lib/supabase";
 import { trackArticleRead, trackDownload, trackEvent } from "@/lib/analytics";
 import { setArticleSchema, setBreadcrumbSchema, clearSchema } from "@/lib/jsonld";
 import { sanitizeHtml, isSearchEngineBot } from "@/lib/security";
-import { useCms } from "@/lib/adminStore";
 import { useRole } from "@/hooks/useRole";
+import NotFound from "@/pages/NotFound";
 
 import ArticleComments from "../components/common/ArticleComments";
 import { SEOHead } from "@/components/seo/SEOHead";
@@ -296,11 +296,11 @@ export default function ArticleDetail() {
   const { slug } = useParams<{ slug: string }>();
   const localizedPath = useLocalizedPath();
   const { lang, dir, t } = useI18n();
-  const cms = useCms();
   const { isStaff, isGuest } = useRole();
 
   const [article, setArticle] = useState<Article>(MOCK);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [likes, setLikes] = useState(342);
@@ -329,8 +329,7 @@ export default function ArticleDetail() {
     }
   };
 
-  const cmsArticle = cms.articles.find((a) => a.slug === slug);
-  const commentsEnabled = cmsArticle ? cmsArticle.commentsEnabled !== false : true;
+  const commentsEnabled = true;
 
   const toggleLike = () => {
     setLiked((v) => {
@@ -349,64 +348,58 @@ export default function ArticleDetail() {
   };
 
   useEffect(() => {
-    if (!slug) return;
+  let cancelled = false;
 
-    setLoading(true);
+  if (!slug) {
+    setNotFound(true);
+    setLoading(false);
+    return;
+  }
 
-    if (cmsArticle) {
-  const cmsData = cmsArticle as Partial<Article>;
+  setLoading(true);
+  setNotFound(false);
 
-  setArticle({
-    ...MOCK,
-    ...cmsData,
-    id: cmsData.id ?? MOCK.id,
-    title: cmsData.title ?? MOCK.title,
-    slug: cmsData.slug ?? MOCK.slug,
-    category: cmsData.category ?? MOCK.category,
-    excerpt: cmsData.excerpt || MOCK.excerpt,
-    content: cmsData.content || MOCK.content,
-    author: cmsData.author ?? MOCK.author,
-    tags: cmsData.tags ?? MOCK.tags,
-    views: cmsData.views ?? MOCK.views,
-    created_at: cmsData.created_at ?? MOCK.created_at,
-    updated_at:
-      cmsData.updated_at ??
-      cmsData.created_at ??
-      MOCK.updated_at,
-  });
+  getArticleBySlug(slug)
+    .then((res: unknown) => {
+      if (cancelled) return;
 
-  trackArticleRead(
-    cmsData.id ?? MOCK.id,
-    cmsData.title ?? MOCK.title,
-    cmsData.category ?? MOCK.category,
-  );
+      const response = res as
+  | { data?: Article | null; error?: unknown }
+  | Article
+  | null;
 
-  setLoading(false);
+const fetchedArticle: Article | null =
+  response &&
+  typeof response === "object" &&
+  "data" in response
+    ? response.data ?? null
+    : (response as Article | null);
+
+if (!fetchedArticle?.id) {
+  setNotFound(true);
   return;
 }
 
-    // 🛠️ Resolves TS2339 by extracting data from either raw object or Supabase { data, error } wrapper
-    getArticleBySlug(slug)
-        .then((res: unknown) => {
-          const responseObj = res as { data?: Article; error?: unknown } | Article | null;
-          const fetchedData =
-              responseObj && "data" in responseObj && responseObj.data
-                  ? responseObj.data
-                  : (responseObj as Article);
+setArticle(fetchedArticle);
 
-          if (fetchedData && fetchedData.id) {
-            setArticle(fetchedData);
-            trackArticleRead(fetchedData.id, fetchedData.title, fetchedData.category);
-          } else {
-            setArticle({ ...MOCK, slug: slug || MOCK.slug });
-          }
-        })
-        .catch(() => {
-          setArticle({ ...MOCK, slug: slug || MOCK.slug });
-        })
-        .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [slug, cmsArticle?.id]);
+trackArticleRead(
+  fetchedArticle.id,
+  fetchedArticle.title,
+  fetchedArticle.category
+);
+    })
+    .catch((error) => {
+      console.error("Article loading failed:", error);
+      if (!cancelled) setNotFound(true);
+    })
+    .finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+  return () => {
+    cancelled = true;
+  };
+}, [slug]);
 
   const isBot = isSearchEngineBot();
   const isLocked = isGuest && !isBot;
@@ -421,7 +414,7 @@ export default function ArticleDetail() {
   }, [article.content, article.excerpt]);
 
   useEffect(() => {
-  if (loading) {
+  if (loading || notFound) {
     clearSchema("ld-article");
     clearSchema("ld-breadcrumb");
     return;
@@ -445,7 +438,7 @@ export default function ArticleDetail() {
     requiresPaidAccess: hasPaywalledContent,
     lockedCssSelector: ".premium-content-section",
     lang,
-    path: `/article/${article.slug}`,
+    path: `/news/${article.slug}`,
   });
 
   setBreadcrumbSchema([
@@ -477,7 +470,14 @@ export default function ArticleDetail() {
     clearSchema("ld-article");
     clearSchema("ld-breadcrumb");
   };
-}, [article, contentFragments.locked, lang, loading, localizedPath]);
+}, [
+  article,
+  contentFragments.locked,
+  lang,
+  loading,
+  notFound,
+  localizedPath,
+]);
 
   const handlePDF = () => {
     if (article.pdf_url) {
@@ -502,13 +502,16 @@ export default function ArticleDetail() {
     </div>
   );
 }
+if (notFound) {
+  return <NotFound />;
+}
 
   return (
      <>
     <SEOHead
       title={article.title}
       description={article.excerpt || article.title}
-      canonical={`https://www.mizan.page/${lang}/article/${article.slug}`}
+      canonical={`https://www.mizan.page/${lang}/news/${article.slug}`}
     />
       <div className="max-w-7xl mx-auto px-6 py-10">
         <div className="grid lg:grid-cols-[1fr_280px] gap-10" dir={dir}>
@@ -531,7 +534,7 @@ export default function ArticleDetail() {
 
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <Link
-                  to={localizedPath(`/library?category=${encodeURIComponent(article.category)}`)}
+                  to={localizedPath("/news")}
                   className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors"
               >
                 {article.category}
@@ -662,7 +665,7 @@ export default function ArticleDetail() {
                   {article.tags.map((tag: string) => (
                       <Link
                           key={tag}
-                          to={localizedPath(`/search?q=${encodeURIComponent(tag)}`)}
+                          to={localizedPath("/news")}
                           className="text-xs px-2.5 py-1 rounded-full border border-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary transition-colors"
                           style={{ fontFamily: sansFont(lang) }}
                       >
