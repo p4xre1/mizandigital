@@ -1,39 +1,6 @@
-# Do not cache the SPA shell
-/index.html
-  Cache-Control: no-cache, no-store, must-revalidate
-  Pragma: no-cache
-  Expires: 0
-
-# Never index admin routes
-
-/ar/admin
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/ar/admin/*
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/fr/admin
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/fr/admin/*
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/en/admin
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/en/admin/*
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/es/admin
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-/es/admin/*
-  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
-
-# Global security headers
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://static.cloudflareinsights.com https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://challenges.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://*.adtrafficquality.google https://*.googlesyndication.com https://*.doubleclick.net; frame-src 'self' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.doubleclick.net; worker-src 'self' blob:; manifest-src 'self';
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://www.google-analytics.com; frame-src 'none'; worker-src 'self'; manifest-src 'self'

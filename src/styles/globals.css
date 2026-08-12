@@ -1,120 +1,133 @@
 @import "tailwindcss";
 
-/* ☀️ Force Tailwind v4 to recognize the .light class toggle */
+@variant dark (&:where(.dark, .dark *));
 @variant light (&:where(.light, .light *));
 
-/* 🌙 Force Tailwind v4 to toggle dark mode via the .dark class instead of OS system preferences */
-@variant dark (&:where(.dark, .dark *));
-
-/* 🏛️ Institutional Ivy League Light Palette (Default & Explicit .light) */
 :root,
 .light {
-  --background: 40 20% 98%;          /* Parchment Ivory #FAF9F6 */
-  --foreground: 220 40% 12%;         /* Deep Institutional Navy Black #101623 */
-  --card: 0 0% 100%;                 /* Pure Academic White #FFFFFF */
-  --card-foreground: 220 40% 12%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 220 40% 12%;
-  --primary: 218 68% 18%;            /* Institutional Navy Blue #0F2C59 */
-  --primary-foreground: 43 74% 94%;  /* Gold Parchment Tint */
-  --accent-gold: 43 74% 49%;         /* Academic Gold #D4AF37 */
-  --accent-gold-muted: 43 40% 88%;   /* Muted Gold Overlay */
-  --secondary: 220 14% 93%;          /* Muted Stone Gray */
-  --secondary-foreground: 220 40% 12%;
-  --muted: 220 14% 96%;
-  --muted-foreground: 215 16% 45%;
-  --destructive: 350 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 214 25% 88%;
-  --input: 214 25% 88%;
-  --ring: 218 68% 18%;
-  --radius: 0.5rem;
-
-  /* Modern Multilingual Typography Stack */
-  --font-arabic: 'Readex Pro', system-ui, sans-serif;
-  --font-latin: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-sans: 'Plus Jakarta Sans', 'Readex Pro', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --background: 210 33% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --primary: 222 73% 29%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 24% 94%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 22% 94%;
+  --muted-foreground: 215 16% 42%;
+  --border: 214 25% 86%;
+  --input: 214 25% 82%;
+  --ring: 222 73% 29%;
+  --accent-gold: 40 72% 49%;
+  --accent-gold-muted: 40 80% 92%;
+  --radius: 0.8rem;
+  --font-sans: "Cairo", system-ui, sans-serif;
+  --font-serif: "Amiri", Georgia, serif;
 }
 
 .dark {
-  /* 🏛️ Institutional Ivy League Dark Palette */
-  --background: 224 71% 4%;           /* Midnight Velvet Black #030712 */
-  --foreground: 210 20% 98%;          /* Soft Ivory White */
-  --card: 222 47% 7%;                 /* Deep Chamber Blue-Black #0A0F1D */
-  --card-foreground: 210 20% 98%;
-  --popover: 222 47% 7%;
-  --popover-foreground: 210 20% 98%;
-  --primary: 214 95% 36%;             /* Royal Institutional Blue #0550E6 */
-  --primary-foreground: 0 0% 100%;
-  --accent-gold: 43 74% 55%;          /* Amber Academic Gold */
-  --accent-gold-muted: 43 30% 18%;
-  --secondary: 217 33% 15%;
-  --secondary-foreground: 210 20% 98%;
-  --muted: 217 33% 12%;
-  --muted-foreground: 215 20% 65%;
-  --destructive: 350 62% 40%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 217 33% 18%;
-  --input: 217 33% 18%;
-  --ring: 43 74% 55%;
+  --background: 222 47% 7%;
+  --foreground: 210 40% 98%;
+  --card: 222 43% 10%;
+  --card-foreground: 210 40% 98%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 217 33% 16%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 14%;
+  --muted-foreground: 215 20% 68%;
+  --border: 217 30% 22%;
+  --input: 217 30% 25%;
+  --ring: 217 91% 60%;
+  --accent-gold: 43 92% 62%;
+  --accent-gold-muted: 43 45% 18%;
 }
 
-/* 🚀 Map CSS variables for Tailwind CSS v4 */
 @theme {
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
-  --color-accent-gold: hsl(var(--accent-gold));
-  --color-accent-gold-muted: hsl(var(--accent-gold-muted));
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-
+  --color-accent-gold: hsl(var(--accent-gold));
   --font-sans: var(--font-sans);
-  --font-arabic: var(--font-arabic);
-  --font-latin: var(--font-latin);
+  --font-serif: var(--font-serif);
 }
 
-/* 🌐 Global Base Layer Resets */
 @layer base {
-  * {
-    border-color: hsl(var(--border));
-  }
-
+  * { border-color: hsl(var(--border)); }
+  html { scroll-behavior: smooth; }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: var(--font-sans), sans-serif;
-    overflow-x: hidden;
+    min-width: 320px;
     min-height: 100vh;
+    overflow-x: hidden;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
+  button, a, input { -webkit-tap-highlight-color: transparent; }
+  button { cursor: pointer; }
+  ::selection { background: hsl(var(--primary) / 0.22); }
+}
 
-  /* Automatic font enforcement based on document language */
-  [lang="ar"] {
-    font-family: var(--font-arabic), sans-serif;
-  }
+@layer components {
+  .container-wide { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
+  .site-header { position: relative; z-index: 30; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.88); backdrop-filter: blur(14px); }
+  .brand-mark { display: grid; height: 40px; width: 40px; place-items: center; border: 1px solid hsl(var(--primary) / 0.25); border-radius: 13px; background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
+  .icon-button { display: grid; height: 40px; width: 40px; place-items: center; border: 1px solid hsl(var(--border)); border-radius: 12px; background: hsl(var(--card)); color: hsl(var(--foreground)); transition: 160ms ease; }
+  .icon-button:hover { border-color: hsl(var(--primary) / 0.5); color: hsl(var(--primary)); transform: translateY(-1px); }
+  .hero-section { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(circle at 75% 42%, hsl(var(--primary) / 0.13), transparent 30%), linear-gradient(180deg, hsl(var(--background)), hsl(var(--background) / 0.5)); }
+  .hero-section::before { position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(hsl(var(--border) / 0.25) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / 0.25) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, black, transparent); content: ""; opacity: 0.5; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: hsl(var(--primary)); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.02em; }
+  .eyebrow::before { display: block; height: 7px; width: 7px; border-radius: 999px; background: hsl(var(--accent-gold)); content: ""; box-shadow: 0 0 0 5px hsl(var(--accent-gold) / 0.14); }
+  .hero-visual { position: relative; min-height: 360px; display: grid; place-items: center; }
+  .hero-visual-glow { position: absolute; height: 280px; width: 280px; border-radius: 999px; background: hsl(var(--primary) / 0.16); filter: blur(50px); }
+  .hero-document-sheet { position: relative; width: min(100%, 360px); min-height: 300px; transform: rotate(3deg); border: 1px solid hsl(var(--border)); border-radius: 22px; padding: 28px; background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.75)); box-shadow: 0 35px 80px hsl(222 47% 5% / 0.25); }
+  .file-icon { display: grid; height: 46px; width: 46px; place-items: center; border: 1px solid hsl(var(--primary) / 0.2); border-radius: 14px; background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
+  .file-icon.small { height: 34px; width: 34px; border-radius: 10px; }
+  .search-panel { border: 1px solid hsl(var(--border)); border-radius: 20px; padding: 18px; background: hsl(var(--card) / 0.9); box-shadow: 0 18px 45px hsl(222 47% 5% / 0.08); }
+  .search-field { display: flex; min-height: 52px; align-items: center; gap: 12px; border: 1px solid hsl(var(--input)); border-radius: 14px; padding-inline: 16px; background: hsl(var(--background)); color: hsl(var(--primary)); transition: 160ms ease; }
+  .search-field:focus-within { border-color: hsl(var(--primary) / 0.7); box-shadow: 0 0 0 4px hsl(var(--primary) / 0.11); }
+  .search-field input { width: 100%; outline: none; background: transparent; color: hsl(var(--foreground)); font-size: 0.85rem; }
+  .search-field input::placeholder { color: hsl(var(--muted-foreground)); }
+  .search-field kbd { display: none; border: 1px solid hsl(var(--border)); border-radius: 7px; padding: 3px 7px; color: hsl(var(--muted-foreground)); font-size: 10px; white-space: nowrap; direction: ltr; }
+  .primary-button, .secondary-button, .light-button, .download-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 800; transition: 160ms ease; }
+  .primary-button { min-height: 46px; padding-inline: 18px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); box-shadow: 0 10px 22px hsl(var(--primary) / 0.22); }
+  .primary-button:hover, .download-button:hover { transform: translateY(-2px); filter: brightness(1.07); }
+  .secondary-button { min-height: 46px; border: 1px solid hsl(var(--border)); padding-inline: 18px; background: hsl(var(--card)); color: hsl(var(--foreground)); }
+  .secondary-button:hover { border-color: hsl(var(--primary) / 0.55); color: hsl(var(--primary)); }
+  .light-button { min-height: 44px; padding-inline: 18px; background: white; color: hsl(222 47% 11%); }
+  .semester-tile { display: flex; min-height: 118px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; border: 1px solid hsl(var(--border)); border-radius: 17px; padding: 16px; background: hsl(var(--card)); color: hsl(var(--muted-foreground)); text-align: start; transition: 160ms ease; }
+  .semester-tile span { color: hsl(var(--foreground)); font-size: 1.25rem; font-weight: 900; }
+  .semester-tile small { font-size: 10px; }
+  .semester-tile:hover, .semester-tile.active { border-color: hsl(var(--primary) / 0.5); background: hsl(var(--primary) / 0.08); color: hsl(var(--primary)); transform: translateY(-2px); }
+  .semester-tile.featured { border-color: hsl(var(--accent-gold) / 0.55); background: linear-gradient(145deg, hsl(var(--accent-gold) / 0.2), hsl(var(--card))); }
+  .semester-tile.featured.active { border-color: hsl(var(--accent-gold)); }
+  .semester-tile.featured small { color: hsl(var(--accent-gold)); font-weight: 800; }
+  .document-card, .lexicon-card { border: 1px solid hsl(var(--border)); border-radius: 18px; padding: 20px; background: hsl(var(--card)); transition: 180ms ease; }
+  .document-card:hover, .lexicon-card:hover { border-color: hsl(var(--primary) / 0.45); transform: translateY(-3px); box-shadow: 0 16px 35px hsl(222 47% 5% / 0.09); }
+  .badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 9px; font-size: 10px; font-weight: 800; white-space: nowrap; }
+  .badge-gold { background: hsl(var(--accent-gold-muted)); color: hsl(var(--accent-gold)); }
+  .light .badge-gold { color: hsl(35 80% 30%); }
+  .badge-muted { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
+  .download-button { min-height: 34px; padding-inline: 11px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-size: 0.7rem; }
+  .empty-state { display: grid; min-height: 210px; place-items: center; align-content: center; border: 1px dashed hsl(var(--border)); border-radius: 18px; background: hsl(var(--card) / 0.6); text-align: center; }
+  .feature-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; border-radius: 24px; padding: 28px; background: linear-gradient(120deg, hsl(222 73% 22%), hsl(217 70% 34%)); box-shadow: 0 20px 45px hsl(var(--primary) / 0.2); }
+  .page-intro { border-bottom: 1px solid hsl(var(--border)); padding-bottom: 34px; }
+  .filter-chip { display: inline-flex; min-height: 37px; align-items: center; gap: 6px; border: 1px solid hsl(var(--border)); border-radius: 999px; padding-inline: 13px; background: hsl(var(--card)); color: hsl(var(--muted-foreground)); font-size: 0.72rem; font-weight: 800; transition: 160ms ease; }
+  .filter-chip:hover, .filter-chip.active { border-color: hsl(var(--primary) / 0.45); background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
+}
 
-  [lang="en"],
-  [lang="fr"],
-  [lang="es"] {
-    font-family: var(--font-latin), sans-serif;
-  }
+@media (min-width: 640px) {
+  .search-field kbd { display: block; }
 }

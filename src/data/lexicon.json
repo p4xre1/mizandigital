@@ -1,0 +1,72 @@
+[
+  {
+    "id": "personne-morale",
+    "term_ar": "الشخص المعنوي",
+    "term_fr": "Personne morale",
+    "definition": "مجموعة من الأشخاص أو الأموال يمنحها القانون شخصية مستقلة وذمة مالية خاصة بها.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "obligation",
+    "term_ar": "الالتزام",
+    "term_fr": "Obligation",
+    "definition": "رابطة قانونية تفرض على المدين أداء عمل أو الامتناع عنه لفائدة الدائن.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "societe-anonyme",
+    "term_ar": "شركة المساهمة",
+    "term_fr": "Société anonyme",
+    "definition": "شركة تجارية يقسم رأسمالها إلى أسهم ويتحمل المساهمون الخسائر في حدود مساهماتهم.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "fonds-de-commerce",
+    "term_ar": "الأصل التجاري",
+    "term_fr": "Fonds de commerce",
+    "definition": "مجموع الأموال المنقولة المخصصة لممارسة نشاط تجاري واستقطاب الزبناء.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "juridiction",
+    "term_ar": "المحكمة",
+    "term_fr": "Juridiction",
+    "definition": "جهة قضائية تملك صلاحية النظر في النزاعات وإصدار الأحكام وفق القانون.",
+    "category": "تنظيم قضائي"
+  },
+  {
+    "id": "competence-territoriale",
+    "term_ar": "الاختصاص الترابي",
+    "term_fr": "Compétence territoriale",
+    "definition": "تحديد المحكمة المختصة بالنظر في الدعوى بحسب المكان الذي حدده القانون.",
+    "category": "تنظيم قضائي"
+  },
+  {
+    "id": "acte-administratif",
+    "term_ar": "القرار الإداري",
+    "term_fr": "Acte administratif",
+    "definition": "إفصاح الإدارة عن إرادتها المنفردة بقصد إحداث أثر قانوني معين.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "droit-reel",
+    "term_ar": "الحق العيني",
+    "term_fr": "Droit réel",
+    "definition": "سلطة مباشرة يقررها القانون لشخص على شيء معين، مثل حق الملكية أو الانتفاع.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "droits-de-lhomme",
+    "term_ar": "حقوق الإنسان",
+    "term_fr": "Droits de l'homme",
+    "definition": "حقوق وحريات أساسية تثبت لكل إنسان دون تمييز وتحميها القواعد الوطنية والدولية.",
+    "category": "حقوق الإنسان"
+  },
+  {
+    "id": "contrat-de-travail",
+    "term_ar": "عقد الشغل",
+    "term_fr": "Contrat de travail",
+    "definition": "اتفاق يلتزم بموجبه الأجير بالعمل تحت إدارة المشغل مقابل أجر.",
+    "category": "قانون الشغل"
+  }
+]

@@ -6,27 +6,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "../public/sitemap.xml");
 
 const DOMAIN = "https://www.mizan.page";
-const LANGS = ["ar", "fr", "en", "es"];
-
 const PATHS = [
   "",
-  "/about",
-  "/legal",
-  "/archive",
-  "/library",
-  "/news",
-  "/schools",
-
-  "/fields/family-law",
-  "/fields/criminal-law",
-  "/fields/commercial-law",
-  "/fields/administrative-law",
-  "/fields/constitutional-law",
-
-  "/documents/cassation-rulings",
-  "/documents/legal-texts",
-  "/documents/ministerial-decrees",
-  "/documents/official-journals",
+  "/s4",
+  "/lexicon",
 ];
 
 const TODAY = new Date().toISOString().split("T")[0];
@@ -39,10 +22,6 @@ function normalizePath(path = "") {
   return normalized === "/" ? "" : normalized;
 }
 
-function buildUrl(lang, path = "") {
-  return `${DOMAIN}/${lang}${normalizePath(path)}`;
-}
-
 function escapeXml(value) {
   return String(value)
     .replace(/&/g, "&amp;")
@@ -52,52 +31,18 @@ function escapeXml(value) {
     .replace(/'/g, "&apos;");
 }
 
-function buildAlternateLinks(path) {
-  const links = LANGS.map((lang) => {
-    const href = escapeXml(buildUrl(lang, path));
-
-    return `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`;
-  });
-
-  const defaultHref = escapeXml(buildUrl("ar", path));
-
-  links.push(
-    `    <xhtml:link rel="alternate" hreflang="x-default" href="${defaultHref}" />`
-  );
-
-  return links.join("\n");
-}
-
 function generateSitemapEntries() {
   const entries = [];
 
   for (const path of PATHS) {
-    for (const lang of LANGS) {
-      const loc = escapeXml(buildUrl(lang, path));
-      const isHome = path === "";
-      const isNews = path === "/news";
-
-      const priority = isHome
-        ? "1.0"
-        : isNews
-          ? "0.95"
-          : path === "/about"
-            ? "0.8"
-            : "0.9";
-
-      const changefreq =
-        isHome || isNews || path === "/archive"
-          ? "daily"
-          : "weekly";
-
-      entries.push(`  <url>
+    const loc = escapeXml(`${DOMAIN}${normalizePath(path)}`);
+    const isHome = path === "";
+    entries.push(`  <url>
     <loc>${loc}</loc>
-${buildAlternateLinks(path)}
     <lastmod>${TODAY}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
+    <changefreq>${isHome ? "daily" : "weekly"}</changefreq>
+    <priority>${isHome ? "1.0" : "0.9"}</priority>
   </url>`);
-    }
   }
 
   return entries.join("\n");

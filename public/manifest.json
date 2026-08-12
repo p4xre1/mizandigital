@@ -1,39 +1,16 @@
 {
-  "id": "/ar",
+  "id": "/",
   "short_name": "ميزان",
-  "name": "منصة ميزان الرقمية",
-  "description": "منصة قانونية وأكاديمية متعددة اللغات للنصوص القانونية والاجتهادات القضائية والمحتوى التحريري المغربي.",
-  "start_url": "/ar?source=pwa",
+  "name": "ميزان الرقمية",
+  "description": "منصة عربية سريعة لملخصات وموارد طلبة القانون بالمغرب.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "dir": "rtl",
   "lang": "ar-MA",
-  "background_color": "#052e16",
-  "theme_color": "#052e16",
-  "categories": [
-    "education",
-    "reference",
-    "news"
-  ],
-  "icons": [
-    {
-      "src": "/pwa-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-maskable-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
-    }
-  ]
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "categories": ["education", "reference"],
+  "icons": [{ "src": "/Logo.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }]
 }

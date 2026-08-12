@@ -1,67 +1,20 @@
 {
   "id": "/",
   "short_name": "ميزان",
-  "name": "منصة ميزان الرقمية",
-  "description": "منصة قانونية وأكاديمية متعددة اللغات للنصوص القانونية والاجتهادات القضائية والمحتوى التحريري المغربي.",
-  "start_url": "/?source=pwa",
+  "name": "ميزان الرقمية",
+  "description": "منصة عربية سريعة لملخصات وموارد طلبة القانون بالمغرب.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "dir": "rtl",
   "lang": "ar-MA",
-  "background_color": "#052e16",
-  "theme_color": "#052e16",
-  "categories": [
-    "education",
-    "reference",
-    "news"
-  ],
-  "icons": [
-    {
-      "src": "/pwa-192x192.png",
-      "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/pwa-maskable-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
-    }
-  ],
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "categories": ["education", "reference"],
+  "icons": [{ "src": "/Logo.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" }],
   "shortcuts": [
-    {
-      "name": "القوانين والمدونات",
-      "short_name": "القوانين",
-      "description": "تصفح المكتبة القانونية",
-      "url": "/ar/library",
-      "icons": [
-        {
-          "src": "/pwa-192x192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "الأخبار والمستجدات",
-      "short_name": "الأخبار",
-      "description": "اطلع على آخر المستجدات القانونية",
-      "url": "/ar/news",
-      "icons": [
-        {
-          "src": "/pwa-192x192.png",
-          "type": "image/png",
-          "sizes": "192x192"
-        }
-      ]
-    }
+    { "name": "مركز S4", "short_name": "S4", "url": "/s4", "icons": [{ "src": "/Logo.svg", "type": "image/svg+xml", "sizes": "any" }] },
+    { "name": "القاموس القانوني", "short_name": "القاموس", "url": "/lexicon", "icons": [{ "src": "/Logo.svg", "type": "image/svg+xml", "sizes": "any" }] }
   ]
 }

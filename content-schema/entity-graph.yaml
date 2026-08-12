@@ -1,7 +1,0 @@
-entities:
-  - slug: mizan-digital
-    type: organization
-  - slug: morocco
-    type: coverage-area
-  - slug: university
-    type: institution

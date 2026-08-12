@@ -43,6 +43,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 .cache/
+.npm-cache/
+.task-local/
 .turbo/
 
 # ── 💻 IDE & Editor Artifacts ──

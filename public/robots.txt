@@ -1,30 +1,5 @@
-# Mizan Digital robots.txt
-
 User-agent: *
 Allow: /
-
-# Private pages
-Disallow: /admin
-Disallow: /*/admin
-Disallow: /dashboard
-Disallow: /*/dashboard
-Disallow: /login
-Disallow: /register
-Disallow: /profile
-Disallow: /settings
-Disallow: /*/login
-Disallow: /*/register
-Disallow: /*/profile
-Disallow: /*/settings
-
-# Backend endpoints
 Disallow: /api/
-Disallow: /*/api/
-
-# Duplicate search URLs
-Disallow: /*?*search=
-Disallow: /*?*q=
-Disallow: /*?*filter=
-Disallow: /*?*sort=
 
 Sitemap: https://www.mizan.page/sitemap.xml

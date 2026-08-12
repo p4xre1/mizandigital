@@ -1,31 +1,7 @@
-# pnpm-workspace.yaml
-
-# 1. Register workspace packages so PNPM tracks packages/ and root app
 packages:
-  - 'apps/*'
-  - 'packages/*'
-  - '.'
-
-# 2. Dependency resolution overrides (moved from package.json)
-overrides:
-  vite: '^6.4.0'
-
-# 3. Allow post-install build scripts for native performance tools
+  - "."
 allowBuilds:
-  '@tailwindcss/oxide': true
-  esbuild: true
-  sharp: true
-  workerd: true
-
-# 4. Configure cross-platform compilation & binary target overrides
-supportedArchitectures:
-  os:
-    - linux
-    - current
-  cpu:
-    - x64
-    - arm64
-    - current
-  libc:
-    - glibc
-    - current
+  '@tailwindcss/oxide': set this to true or false
+  esbuild: set this to true or false
+  sharp: set this to true or false
+  workerd: set this to true or false

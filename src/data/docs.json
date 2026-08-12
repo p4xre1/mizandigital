@@ -1,0 +1,92 @@
+[
+  {
+    "id": "family-law-s1-2026",
+    "title": "أسئلة وأجوبة امتحان قانون الأسرة S1 — المغرب 2026",
+    "semester": "S1",
+    "module": "قانون الأسرة",
+    "professor": "كلية العلوم القانونية والاقتصادية والاجتماعية",
+    "fileUrl": "/docs/family-law-s1.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-07-13"
+  },
+  {
+    "id": "constitutional-law-s2-2025",
+    "title": "ملخص القانون الدستوري والأنظمة السياسية S2",
+    "semester": "S2",
+    "module": "القانون الدستوري",
+    "professor": "جامعة القاضي عياض — مراكش",
+    "fileUrl": "/docs/constitutional-s2-uqa-2025.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-07-09"
+  },
+  {
+    "id": "commercial-law-s3-2026",
+    "title": "امتحان القانون التجاري S3 — جامعة الحسن الثاني 2026",
+    "semester": "S3",
+    "module": "القانون التجاري",
+    "professor": "جامعة الحسن الثاني — الدار البيضاء",
+    "fileUrl": "/docs/commercial-s3.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-07-11"
+  },
+  {
+    "id": "judicial-organization-s4-2026",
+    "title": "ملخص التنظيم القضائي S4 — جامعة ابن طفيل",
+    "semester": "S4",
+    "module": "التنظيم القضائي",
+    "professor": "جامعة ابن طفيل — القنيطرة",
+    "fileUrl": "/docs/judicial-s4.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-07-05"
+  },
+  {
+    "id": "criminal-law-s4-2025",
+    "title": "أسئلة القانون الجنائي S4 — جامعة محمد الأول",
+    "semester": "S4",
+    "module": "القانون الجنائي",
+    "professor": "جامعة محمد الأول — وجدة",
+    "fileUrl": "/docs/criminal-s4.pdf",
+    "systemTag": "نظام قديم",
+    "updatedAt": "2026-07-07"
+  },
+  {
+    "id": "company-law-s4-2026",
+    "title": "مدخل إلى قانون الشركات S4",
+    "semester": "S4",
+    "module": "قانون الشركات",
+    "professor": "كلية العلوم القانونية والاقتصادية والاجتماعية",
+    "fileUrl": "/docs/company-law-s4.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-06-28"
+  },
+  {
+    "id": "administrative-law-s4-2026",
+    "title": "أساسيات القانون الإداري S4",
+    "semester": "S4",
+    "module": "القانون الإداري",
+    "professor": "كلية العلوم القانونية والاقتصادية والاجتماعية",
+    "fileUrl": "/docs/administrative-law-s4.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-06-22"
+  },
+  {
+    "id": "real-estate-law-s4-2026",
+    "title": "ملخص القانون العقاري S4",
+    "semester": "S4",
+    "module": "القانون العقاري",
+    "professor": "كلية العلوم القانونية والاقتصادية والاجتماعية",
+    "fileUrl": "/docs/real-estate-law-s4.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-06-18"
+  },
+  {
+    "id": "labour-law-s5-2026",
+    "title": "مراجعة مركزة في قانون الشغل S5",
+    "semester": "S5",
+    "module": "قانون الشغل",
+    "professor": "كلية العلوم القانونية والاقتصادية والاجتماعية",
+    "fileUrl": "/docs/labour-law-s5.pdf",
+    "systemTag": "نظام جديد",
+    "updatedAt": "2026-06-10"
+  }
+]
