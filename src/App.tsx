@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import * as Sentry from "@sentry/react";
 import {
   ArrowLeft,
   BookMarked,
@@ -36,6 +37,26 @@ import { Toast } from "@/components/Toast";
 import { supabase } from "@/lib/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 
+// Sentry Test Component
+function ErrorButton() {
+  return (
+    <button
+      className="rounded-lg bg-red-600 px-4 py-2 font-bold text-white shadow hover:bg-red-700"
+      onClick={() => {
+        // Send a log before throwing the error
+        Sentry.logger.info("User triggered test error", {
+          action: "test_error_button_click",
+        });
+        // Send a test metric before throwing the error
+        Sentry.metrics.count("test_counter", 1);
+        throw new Error("This is your first error!");
+      }}
+    >
+      Break the world
+    </button>
+  );
+}
+
 type Article = (typeof articles)[number];
 type Doc = (typeof documents)[number];
 type Event = (typeof events)[number];
@@ -63,20 +84,14 @@ type Route = {
   slug?: string;
   semester?: string;
   contentFilter?: ContentFilter;
-  // المسار الكامل داخل لوحة التحكم، مثال: "/admin/articles". يبقى "/admin" للوحة القيادة نفسها.
   adminPath?: string;
 };
 
-// 1. تحديث قائمة السداسيات لتشمل من S1 إلى S6
 const semesters = ["S1", "S2", "S3", "S4", "S5", "S6"] as const;
 const allLabel = "الكل";
 
-// اسم الحدث المستخدم لإطلاق إشعارات التحميل من أي مكان في الشجرة
 const DOWNLOAD_TOAST_EVENT = "mizan:toast";
 
-// ملاحظة: الملف يعرّف نوعاً محلياً باسم Event (بيانات الندوات)، وهو يُخفي نوع DOM
-// العام Event/CustomEvent. لذلك نستخدم globalThis.CustomEvent صراحةً هنا لتفادي التعارض،
-// ونوسّع WindowEventMap ليتعرف على اسم الحدث المخصص.
 declare global {
   interface WindowEventMap {
     [DOWNLOAD_TOAST_EVENT]: globalThis.CustomEvent<string>;
@@ -129,13 +144,10 @@ function routeFromLocation(): Route {
   if (!first) return { page: "home" };
   if (first === "login") return { page: "login" };
   if (first === "admin") {
-    // يلتقط أي مسار فرعي داخل لوحة التحكم، مثل /admin/articles أو /admin/library،
-    // بدلاً من الاكتفاء بمطابقة "/admin" فقط وتجاهل ما بعدها.
     const adminPath = segments.length > 1 ? `/${segments.join("/")}` : "/admin";
     return { page: "admin", adminPath };
   }
   
-  // 2. معالجة المسارات المباشرة لجميع السداسيات من s1 إلى s6
   if (/^s[1-6]$/i.test(first)) {
     return { page: "archive", semester: first.toUpperCase() };
   }
@@ -631,11 +643,8 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(() => window.localStorage.getItem("mizan-theme") === "light" ? "light" : "dark");
   const [menuOpen, setMenuOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  // undefined = جارٍ التحقق من الجلسة، null = غير مسجّل الدخول، وإلا الجلسة الفعلية
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
-  // 5. التحقق من جلسة Supabase عند التحميل، والاستماع لأي تغيير في حالة تسجيل الدخول
-  // (تسجيل دخول/خروج من تبويب آخر، انتهاء صلاحية الجلسة، إلخ) لحماية لوحة التحكم فعلياً
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
@@ -644,8 +653,6 @@ export default function App() {
     return () => subscription.subscription.unsubscribe();
   }, []);
 
-  // إعادة توجيه أي مسار /admin/* إلى صفحة الدخول إذا لم تكن هناك جلسة فعلية،
-  // مع الحفاظ على شريط العنوان متزامناً مع الصفحة المعروضة فعلياً
   useEffect(() => {
     if (route.page === "admin" && session === null) {
       window.history.replaceState({}, "", "/login");
@@ -657,7 +664,6 @@ export default function App() {
     }
   }, [route.page, session]);
 
-  // 3. إعادة توجيه العنوان في المتصفح إذا كانت النمطية تشير لمسارات السداسيات من S1 إلى S6
   useEffect(() => {
     const pathname = window.location.pathname.replace(/\/+$/, "").toLowerCase();
     const match = pathname.match(/^\/(s[1-6])$/);
@@ -681,7 +687,6 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  // 4. الاستماع لأحداث "تم تحميل الملف بنجاح" وعرضها كإشعار Toast مع إخفاء تلقائي بعد 3 ثوان
   useEffect(() => {
     let hideTimer: number | undefined;
     const handleDownloadToast = (event: globalThis.CustomEvent<string>) => {
@@ -718,19 +723,14 @@ export default function App() {
   else if (route.page === "login") page = <LoginPage onNavigate={navigate} />;
   else if (route.page === "admin") {
     if (session === undefined) {
-      // جارٍ التحقق من الجلسة — لا نعرض لوحة التحكم ولا نرمي المستخدم لصفحة الدخول قبل أن نتأكد
       page = (
         <div className="flex min-h-screen items-center justify-center" dir="rtl">
           <p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p>
         </div>
       );
     } else if (session === null) {
-      // سيتم تحويل شريط العنوان إلى /login عبر useEffect أعلاه؛ نعرض صفحة الدخول فوراً
-      // في هذا العرض لتفادي وميض لوحة التحكم قبل اكتمال إعادة التوجيه
       page = <LoginPage onNavigate={navigate} />;
     } else {
-      // لا يوجد حالياً سوى DashboardPage فعلياً؛ نمرر adminPath لتمييز العنصر النشط
-      // في القائمة الجانبية إلى حين إضافة صفحات فرعية مخصصة لكل قسم (articles, library...)
       page = <DashboardPage onNavigate={navigate} currentPath={route.adminPath ?? "/admin"} />;
     }
   }
@@ -747,6 +747,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Sentry Test Error Banner */}
+      <div className="flex justify-center border-b border-red-500/20 bg-red-500/10 p-3">
+        <ErrorButton />
+      </div>
+
       {!isAdminOrLogin && (
         <Header
           route={route}
