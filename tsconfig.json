@@ -15,7 +15,7 @@
     "jsx": "react-jsx",
     "allowJs": true,
 
-    /* ⚡ Modern Path Aliases (No baseUrl needed) */
+    /* ⚡ Modern Path Aliases */
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -31,6 +31,7 @@
   },
   "include": [
     "src/**/*",
+    "tests/**/*",
     "scripts/**/*",
     "vite.config.ts",
     "vitest.config.ts"

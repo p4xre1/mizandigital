@@ -8,27 +8,38 @@
     <meta name="description" content="ميزان الرقمية: منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
 
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
+    <!-- SEO & Metadata -->
     <title>ميزان الرقمية | ملخصات وموارد طلبة القانون</title>
     <link rel="canonical" href="https://www.mizan.page/" />
     <link rel="alternate" hreflang="ar" href="https://www.mizan.page/" />
     <link rel="alternate" hreflang="x-default" href="https://www.mizan.page/" />
 
+    <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://www.mizan.page/" />
     <meta property="og:title" content="ميزان الرقمية | ملخصات وموارد طلبة القانون" />
     <meta property="og:description" content="منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب." />
+    <meta property="og:image" content="https://www.mizan.page/og-image.png" />
     <meta property="og:site_name" content="ميزان الرقمية" />
     <meta property="og:locale" content="ar_MA" />
-    <meta name="twitter:card" content="summary" />
 
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ميزان الرقمية | ملخصات وموارد طلبة القانون" />
+    <meta name="twitter:description" content="منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب." />
+    <meta name="twitter:image" content="https://www.mizan.page/og-image.png" />
+
+    <!-- Favicon & PWA -->
     <link rel="icon" type="image/svg+xml" href="/Logo.svg" />
     <link rel="apple-touch-icon" href="/Logo.svg" />
     <link rel="manifest" href="/manifest.json" />
 
+    <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -70,11 +81,11 @@
       }
     </script>
 
-    <!-- GA4 placeholder: set VITE_GA_ID to your real G-XXXXXXXXXX value before enabling. -->
+    <!-- Google Analytics (GA4) Script using Vite HTML Replacement -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      window.mizanGaMeasurementId = "G-XXXXXXXXXX";
-      if (window.mizanGaMeasurementId !== "G-XXXXXXXXXX") {
+      window.mizanGaMeasurementId = "%VITE_GA_ID%";
+      if (window.mizanGaMeasurementId && !window.mizanGaMeasurementId.startsWith("%")) {
         window.gtag = function () { window.dataLayer.push(arguments); };
         window.gtag("js", new Date());
         window.gtag("config", window.mizanGaMeasurementId, { anonymize_ip: true });

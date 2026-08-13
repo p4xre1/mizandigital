@@ -30,6 +30,11 @@ import documents from "@/data/docs.json";
 import events from "@/data/events.json";
 import lexicon from "@/data/lexicon.json";
 import schools from "@/data/schools.json";
+import LoginPage from "@/pages/auth/LoginPage";
+import DashboardPage from "@/pages/admin/DashboardPage";
+import { Toast } from "@/components/Toast";
+import { supabase } from "@/lib/supabase/client";
+import type { Session } from "@supabase/supabase-js";
 
 type Article = (typeof articles)[number];
 type Doc = (typeof documents)[number];
@@ -38,17 +43,53 @@ type School = (typeof schools)[number];
 type Term = (typeof lexicon)[number];
 type Theme = "light" | "dark";
 type ContentFilter = "all" | "article" | "news";
-type Page = "home" | "archive" | "news" | "article" | "events" | "event" | "schools" | "school" | "lexicon" | "term" | "not-found";
+type Page =
+  | "home"
+  | "archive"
+  | "news"
+  | "article"
+  | "events"
+  | "event"
+  | "schools"
+  | "school"
+  | "lexicon"
+  | "term"
+  | "login"
+  | "admin"
+  | "not-found";
 
 type Route = {
   page: Page;
   slug?: string;
   semester?: string;
   contentFilter?: ContentFilter;
+  // المسار الكامل داخل لوحة التحكم، مثال: "/admin/articles". يبقى "/admin" للوحة القيادة نفسها.
+  adminPath?: string;
 };
 
-const semesters = ["S1", "S2", "S3", "S4", "S5"] as const;
+// 1. تحديث قائمة السداسيات لتشمل من S1 إلى S6
+const semesters = ["S1", "S2", "S3", "S4", "S5", "S6"] as const;
 const allLabel = "الكل";
+
+// اسم الحدث المستخدم لإطلاق إشعارات التحميل من أي مكان في الشجرة
+const DOWNLOAD_TOAST_EVENT = "mizan:toast";
+
+// ملاحظة: الملف يعرّف نوعاً محلياً باسم Event (بيانات الندوات)، وهو يُخفي نوع DOM
+// العام Event/CustomEvent. لذلك نستخدم globalThis.CustomEvent صراحةً هنا لتفادي التعارض،
+// ونوسّع WindowEventMap ليتعرف على اسم الحدث المخصص.
+declare global {
+  interface WindowEventMap {
+    [DOWNLOAD_TOAST_EVENT]: globalThis.CustomEvent<string>;
+  }
+}
+
+function dispatchDownloadToast(title: string) {
+  window.dispatchEvent(
+    new globalThis.CustomEvent<string>(DOWNLOAD_TOAST_EVENT, {
+      detail: `تم تحميل "${title}" بنجاح`,
+    }),
+  );
+}
 
 const categoryColors: Record<string, string> = {
   "قانون مدني": "bg-sky-500/10 text-sky-700 dark:text-sky-300",
@@ -86,7 +127,19 @@ function routeFromLocation(): Route {
   const slug = segments[1];
 
   if (!first) return { page: "home" };
-  if (first === "s4") return { page: "archive", semester: "S4" };
+  if (first === "login") return { page: "login" };
+  if (first === "admin") {
+    // يلتقط أي مسار فرعي داخل لوحة التحكم، مثل /admin/articles أو /admin/library،
+    // بدلاً من الاكتفاء بمطابقة "/admin" فقط وتجاهل ما بعدها.
+    const adminPath = segments.length > 1 ? `/${segments.join("/")}` : "/admin";
+    return { page: "admin", adminPath };
+  }
+  
+  // 2. معالجة المسارات المباشرة لجميع السداسيات من s1 إلى s6
+  if (/^s[1-6]$/i.test(first)) {
+    return { page: "archive", semester: first.toUpperCase() };
+  }
+
   if (first === "archive") return { page: "archive", semester: search.get("semester") ?? undefined };
   if (first === "news" && slug) return { page: "article", slug };
   if (first === "news") return { page: "news", contentFilter: "all" };
@@ -273,7 +326,16 @@ function DocumentCard({ doc }: { doc: Doc }) {
           <span className="badge badge-muted">{doc.systemTag}</span>
           <time dateTime={doc.updatedAt}>آخر تحديث: {formatDate(doc.updatedAt)}</time>
         </div>
-        <a href={doc.fileUrl} download className="download-button" aria-label={`تحميل ${doc.title}`}><Download size={15} /><span>تحميل PDF</span></a>
+        <a
+          href={doc.fileUrl}
+          download
+          className="download-button"
+          aria-label={`تحميل ${doc.title}`}
+          onClick={() => dispatchDownloadToast(doc.title)}
+        >
+          <Download size={15} />
+          <span>تحميل PDF</span>
+        </a>
       </div>
     </article>
   );
@@ -390,9 +452,9 @@ function HomePage({ onNavigate }: { onNavigate: (to: string) => void }) {
       </section>
 
       <section className="container-wide py-16">
-        <SectionHeading eyebrow="المسارات الدراسية" title="الأرشيف حسب السداسي" description="انتقل مباشرة إلى مواد السداسي الذي تدرسه، ثم صفِّ النتائج بحسب الوحدة أو الأستاذ." />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {semesters.map((semester) => <AppLink key={semester} to={`/archive?semester=${semester}`} onNavigate={onNavigate} className={`semester-tile ${semester === "S4" ? "featured" : ""}`}><GraduationCap size={20} /><span>{semester}</span><small>{documents.filter((doc) => doc.semester === semester).length} ملفات</small></AppLink>)}
+        <SectionHeading eyebrow="المسارات الدراسية" title="الأرشيف حسب السداسي" description="انتقل مباشرة إلى مواد السداسي الذي تدرسه، ثم صفِّ النتائج بحسب الوحدة أو الأستاذ." />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+          {semesters.map((semester) => <AppLink key={semester} to={`/archive?semester=${semester}`} onNavigate={onNavigate} className="semester-tile"><GraduationCap size={20} /><span>{semester}</span><small>{documents.filter((doc) => doc.semester === semester).length} ملفات</small></AppLink>)}
         </div>
       </section>
 
@@ -437,7 +499,7 @@ function ArchivePage({ initialSemester }: { initialSemester?: string }) {
       <div className="page-intro"><span className="badge badge-gold">المكتبة والملخصات</span><h1 className="mt-4 text-4xl font-black tracking-tight text-foreground md:text-5xl">الأرشيف الدراسي</h1><p className="mt-4 max-w-2xl text-base leading-8 text-muted-foreground">تصفح الملخصات ونماذج الامتحانات حسب السداسي والوحدة والأستاذ، مع تحميل مباشر للملفات المتاحة.</p></div>
       <div className="mt-9 search-panel"><SearchField value={query} onChange={setQuery} placeholder="ابحث داخل الأرشيف حسب العنوان أو الوحدة أو الأستاذ..." /></div>
       <section className="mt-10"><SectionHeading eyebrow="السداسيات" title="اختر السداسي" /><div className="flex flex-wrap gap-2"><button type="button" onClick={() => setSemester(allLabel)} className={`filter-chip ${semester === allLabel ? "active" : ""}`}>{semester === allLabel && <Check size={14} />}{allLabel}</button>{semesters.map((item) => <button type="button" key={item} onClick={() => setSemester(item)} className={`filter-chip ${semester === item ? "active" : ""}`}>{semester === item && <Check size={14} />}{item}</button>)}</div></section>
-      <section className="mt-10"><SectionHeading eyebrow="الوحدات" title="صفِّ حسب الوحدة" /><div className="flex flex-wrap gap-2">{modules.map((item) => <button type="button" key={item} onClick={() => setModule(item)} className={`filter-chip ${module === item ? "active" : ""}`}>{module === item && <Check size={14} />}{item}</button>)}</div></section>
+      <section className="mt-10"><SectionHeading eyebrow="الوحدات" title="صفِّ حسب الوحدة" /><div className="flex flex-wrap gap-2">{modules.map((item) => <button type="button" key={item} onClick={() => setModule(item)} className={`filter-chip ${module === item ? "active" : ""}`}>{module === item && <Check size={14} />}{item}</button>)}</div></section>
       <section className="mt-14"><div className="mb-6 flex items-end justify-between gap-4"><SectionHeading eyebrow="نتائج الأرشيف" title="الملخصات والنماذج" /><span className="mb-7 text-xs text-muted-foreground">{filteredDocs.length} ملفات</span></div>{filteredDocs.length > 0 ? <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{filteredDocs.map((doc) => <DocumentCard key={doc.id} doc={doc} />)}</div> : <EmptyState message="لا توجد ملفات مطابقة لهذه المرشحات" />}</section>
     </main>
   );
@@ -558,6 +620,8 @@ function pageMetadata(route: Route) {
     events: { title: "الندوات واللقاءات | ميزان الرقمية", description: "أرشيف للندوات والأنشطة القانونية مع روابط مصادرها الرسمية." },
     schools: { title: "كليات الحقوق بالمغرب | ميزان الرقمية", description: "دليل كليات العلوم القانونية والاقتصادية والاجتماعية وروابطها الرسمية." },
     lexicon: { title: "القاموس القانوني | ميزان الرقمية", description: "مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة." },
+    login: { title: "تسجيل الدخول | ميزان الرقمية", description: "تسجيل الدخول إلى لوحة التحكم." },
+    admin: { title: "لوحة التحكم | ميزان الرقمية", description: "لوحة تحكم المشرفين على المنصة." },
   };
   return metadata[route.page] ?? { title: "ميزان الرقمية", description: "المعرفة القانونية للطلبة." };
 }
@@ -566,10 +630,40 @@ export default function App() {
   const [route, setRoute] = useState<Route>(() => routeFromLocation());
   const [theme, setTheme] = useState<Theme>(() => window.localStorage.getItem("mizan-theme") === "light" ? "light" : "dark");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  // undefined = جارٍ التحقق من الجلسة، null = غير مسجّل الدخول، وإلا الجلسة الفعلية
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
 
+  // 5. التحقق من جلسة Supabase عند التحميل، والاستماع لأي تغيير في حالة تسجيل الدخول
+  // (تسجيل دخول/خروج من تبويب آخر، انتهاء صلاحية الجلسة، إلخ) لحماية لوحة التحكم فعلياً
   useEffect(() => {
-    if (window.location.pathname === "/s4") {
-      window.history.replaceState({}, "", "/archive?semester=S4");
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      setSession(nextSession);
+    });
+    return () => subscription.subscription.unsubscribe();
+  }, []);
+
+  // إعادة توجيه أي مسار /admin/* إلى صفحة الدخول إذا لم تكن هناك جلسة فعلية،
+  // مع الحفاظ على شريط العنوان متزامناً مع الصفحة المعروضة فعلياً
+  useEffect(() => {
+    if (route.page === "admin" && session === null) {
+      window.history.replaceState({}, "", "/login");
+      setRoute(routeFromLocation());
+    }
+    if (route.page === "login" && session) {
+      window.history.replaceState({}, "", "/admin");
+      setRoute(routeFromLocation());
+    }
+  }, [route.page, session]);
+
+  // 3. إعادة توجيه العنوان في المتصفح إذا كانت النمطية تشير لمسارات السداسيات من S1 إلى S6
+  useEffect(() => {
+    const pathname = window.location.pathname.replace(/\/+$/, "").toLowerCase();
+    const match = pathname.match(/^\/(s[1-6])$/);
+    if (match) {
+      const sem = match[1].toUpperCase();
+      window.history.replaceState({}, "", `/archive?semester=${sem}`);
       setRoute(routeFromLocation());
     }
   }, []);
@@ -587,6 +681,21 @@ export default function App() {
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
+  // 4. الاستماع لأحداث "تم تحميل الملف بنجاح" وعرضها كإشعار Toast مع إخفاء تلقائي بعد 3 ثوان
+  useEffect(() => {
+    let hideTimer: number | undefined;
+    const handleDownloadToast = (event: globalThis.CustomEvent<string>) => {
+      setToastMessage(event.detail);
+      if (hideTimer) window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => setToastMessage(null), 3000);
+    };
+    window.addEventListener(DOWNLOAD_TOAST_EVENT, handleDownloadToast);
+    return () => {
+      window.removeEventListener(DOWNLOAD_TOAST_EVENT, handleDownloadToast);
+      if (hideTimer) window.clearTimeout(hideTimer);
+    };
+  }, []);
+
   useEffect(() => {
     const metadata = pageMetadata(route);
     document.title = metadata.title;
@@ -602,8 +711,29 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const isAdminOrLogin = route.page === "admin" || route.page === "login";
+
   let page: ReactNode;
   if (route.page === "home") page = <HomePage onNavigate={navigate} />;
+  else if (route.page === "login") page = <LoginPage onNavigate={navigate} />;
+  else if (route.page === "admin") {
+    if (session === undefined) {
+      // جارٍ التحقق من الجلسة — لا نعرض لوحة التحكم ولا نرمي المستخدم لصفحة الدخول قبل أن نتأكد
+      page = (
+        <div className="flex min-h-screen items-center justify-center" dir="rtl">
+          <p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p>
+        </div>
+      );
+    } else if (session === null) {
+      // سيتم تحويل شريط العنوان إلى /login عبر useEffect أعلاه؛ نعرض صفحة الدخول فوراً
+      // في هذا العرض لتفادي وميض لوحة التحكم قبل اكتمال إعادة التوجيه
+      page = <LoginPage onNavigate={navigate} />;
+    } else {
+      // لا يوجد حالياً سوى DashboardPage فعلياً؛ نمرر adminPath لتمييز العنصر النشط
+      // في القائمة الجانبية إلى حين إضافة صفحات فرعية مخصصة لكل قسم (articles, library...)
+      page = <DashboardPage onNavigate={navigate} currentPath={route.adminPath ?? "/admin"} />;
+    }
+  }
   else if (route.page === "archive") page = <ArchivePage initialSemester={route.semester} />;
   else if (route.page === "news") page = <NewsPage initialFilter={route.contentFilter} onNavigate={navigate} />;
   else if (route.page === "article") page = <ArticlePage slug={route.slug} onNavigate={navigate} />;
@@ -615,5 +745,25 @@ export default function App() {
   else if (route.page === "term") page = <TermPage slug={route.slug} onNavigate={navigate} />;
   else page = <NotFound onNavigate={navigate} />;
 
-  return <div className="min-h-screen bg-background text-foreground"><Header route={route} theme={theme} menuOpen={menuOpen} onNavigate={navigate} onToggleTheme={() => setTheme((current) => current === "dark" ? "light" : "dark")} onToggleMenu={() => setMenuOpen((open) => !open)} />{page}<Footer onNavigate={navigate} /></div>;
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {!isAdminOrLogin && (
+        <Header
+          route={route}
+          theme={theme}
+          menuOpen={menuOpen}
+          onNavigate={navigate}
+          onToggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+          onToggleMenu={() => setMenuOpen((open) => !open)}
+        />
+      )}
+      {page}
+      {!isAdminOrLogin && <Footer onNavigate={navigate} />}
+      <Toast
+        message={toastMessage ?? ""}
+        isVisible={toastMessage !== null}
+        onClose={() => setToastMessage(null)}
+      />
+    </div>
+  );
 }

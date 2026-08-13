@@ -23,6 +23,12 @@ const staticEntries = [
   { path: "/events", changefreq: "weekly", priority: "0.8" },
   { path: "/schools", changefreq: "monthly", priority: "0.8" },
   { path: "/lexicon", changefreq: "weekly", priority: "0.9" },
+  { path: "/s1", changefreq: "weekly", priority: "0.9" },
+  { path: "/s2", changefreq: "weekly", priority: "0.9" },
+  { path: "/s3", changefreq: "weekly", priority: "0.9" },
+  { path: "/s4", changefreq: "weekly", priority: "0.9" },
+  { path: "/s5", changefreq: "weekly", priority: "0.9" },
+  { path: "/s6", changefreq: "weekly", priority: "0.9" },
 ];
 
 const dynamicEntries = [

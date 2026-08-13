@@ -1,5 +1,71 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# OpenAI (ChatGPT) — تصفح مباشر عند الرد على المستخدم
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# OpenAI (ChatGPT) — الزحف لتدريب النماذج
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# Google Gemini / Bard
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# Googlebot (بحث Google العادي، يشمل الفهرسة الأساسية)
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# Anthropic (Claude)
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+# Common Crawl (يُستخدم كمصدر بيانات من عدة نماذج ذكاء اصطناعي)
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
 
 Sitemap: https://www.mizan.page/sitemap.xml

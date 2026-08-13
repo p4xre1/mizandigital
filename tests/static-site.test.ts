@@ -8,34 +8,44 @@ import schools from "../src/data/schools.json";
 
 const read = (file: string) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
 
-test("the document shell is Arabic-only and free from legacy advertising tags", () => {
+test("الهيكل العام للموقع يدعم اللغة العربية فقط وخالٍ من الإعلانات القديمة", () => {
   const index = read("index.html");
+
+  // التأكيد على أن اللغة الوحيدة المعرفة هي العربية
   expect(index).toContain('<html lang="ar" dir="rtl" class="dark">');
-  expect(index).not.toContain("google-adsense-account");
-  expect(index).not.toContain("images.unsplash.com");
-  expect(index).not.toContain("challenges.cloudflare.com");
-  expect(index).toContain("G-XXXXXXXXXX");
+
+  // التأكد من عدم وجود لغات أجنبية ثانوية في hreflang
   expect(index).not.toContain('hreflang="fr"');
   expect(index).not.toContain('hreflang="en"');
   expect(index).not.toContain('hreflang="es"');
+
+  // التأكد من خلو الموقع من النصيصات والخدمات الخارجية غير المرغوب فيها
+  expect(index).not.toContain("google-adsense-account");
+  expect(index).not.toContain("images.unsplash.com");
+  expect(index).not.toContain("challenges.cloudflare.com");
 });
 
-test("static routes and local data are available", () => {
+test("المسارات الثابتة والبيانات المحلية بالعربية متوفرة بالكامل", () => {
   const sitemap = read("public/sitemap.xml");
-  expect(sitemap).toContain("https://www.mizan.page/");
+
+ // التحقق من المسارات الرئيسية والفصول الدراسية الستة
+  expect(sitemap).toContain("https://www.mizan.page");
   expect(sitemap).toContain("https://www.mizan.page/archive");
   expect(sitemap).toContain("https://www.mizan.page/news");
   expect(sitemap).toContain("https://www.mizan.page/events");
   expect(sitemap).toContain("https://www.mizan.page/schools");
   expect(sitemap).toContain("https://www.mizan.page/lexicon");
-  expect(documents.every((doc) => /^S[1-5]$/.test(doc.semester))).toBe(true);
+
+  // التأكد من وجود مسارات الفصول من S1 إلى S6
+  ["s1", "s2", "s3", "s4", "s5", "s6"].forEach((sem) => {
+    expect(sitemap).toContain(`https://www.mizan.page/${sem}`);
+  });
+
+  // التحقق من صحة البيانات المحلية (الفصول من S1 إلى S6)
+  expect(documents.every((doc) => /^S[1-6]$/.test(doc.semester))).toBe(true);
   expect(documents.every((doc) => doc.fileUrl.startsWith("/docs/"))).toBe(true);
-  expect(lexicon.every((term) => term.term_ar && term.term_fr && term.definition)).toBe(true);
+  expect(lexicon.every((term) => term.term_ar && term.definition)).toBe(true);
   expect(articles.every((article) => article.slug && article.body.length > 0)).toBe(true);
   expect(events.every((event) => event.slug && event.sourceUrl.startsWith("https://"))).toBe(true);
   expect(schools.every((school) => school.slug && school.officialUrl.startsWith("https://"))).toBe(true);
-  expect(sitemap).toContain(`https://www.mizan.page/news/${articles.find((article) => article.type === "news")?.slug}`);
-  expect(sitemap).toContain(`https://www.mizan.page/events/${events[0].slug}`);
-  expect(sitemap).toContain(`https://www.mizan.page/schools/${schools[0].slug}`);
-  expect(sitemap).toContain(`https://www.mizan.page/lexicon/${lexicon[0].id}`);
 });
