@@ -1,0 +1,91 @@
+import { useEffect } from "react"
+import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
+import { SchemaOrg } from "./SchemaOrg"
+
+export interface SEOHeadProps {
+  title: string
+  description: string
+  canonicalUrl?: string
+  ogType?: "website" | "article"
+  ogImage?: string
+  publishedTime?: string
+  keywords?: string[]
+  schema?: Record<string, any> | Record<string, any>[]
+}
+
+export function SEOHead({
+  title,
+  description,
+  canonicalUrl,
+  ogType = "website",
+  ogImage = "https://www.mizan.page/og-default.jpg",
+  publishedTime,
+  keywords = [],
+  schema,
+}: SEOHeadProps) {
+  const fullTitle = `${title} | منصة الميزان الرقمية - القانون المغربي`
+
+  const allKeywords = Array.from(
+    new Set([...(DEFAULT_KEYWORDS || []), ...keywords])
+  ).join(", ")
+
+  const url =
+    canonicalUrl ||
+    (typeof window !== "undefined"
+      ? window.location.href
+      : "https://www.mizan.page")
+
+  useEffect(() => {
+    // Document Title
+    document.title = fullTitle
+
+    // Helper to set or update meta tag
+    const setMeta = (
+      name: string,
+      content: string,
+      attr: "name" | "property" = "name"
+    ) => {
+      let element = document.querySelector(`meta[${attr}="${name}"]`)
+      if (!element) {
+        element = document.createElement("meta")
+        element.setAttribute(attr, name)
+        document.head.appendChild(element)
+      }
+      element.setAttribute("content", content)
+    }
+
+    setMeta("description", description)
+    setMeta("keywords", allKeywords)
+
+    // OpenGraph
+    setMeta("og:site_name", "الميزان الرقمي", "property")
+    setMeta("og:title", fullTitle, "property")
+    setMeta("og:description", description, "property")
+    setMeta("og:type", ogType, "property")
+    setMeta("og:url", url, "property")
+    setMeta("og:image", ogImage, "property")
+    setMeta("og:locale", "ar_MA", "property")
+
+    // Published time for articles
+    if (publishedTime && ogType === "article") {
+      setMeta("article:published_time", publishedTime, "property")
+    }
+
+    // Twitter Card
+    setMeta("twitter:card", "summary_large_image")
+    setMeta("twitter:title", fullTitle)
+    setMeta("twitter:description", description)
+    setMeta("twitter:image", ogImage)
+
+    // Canonical link
+    let canonical = document.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement("link")
+      canonical.setAttribute("rel", "canonical")
+      document.head.appendChild(canonical)
+    }
+    canonical.setAttribute("href", url)
+  }, [fullTitle, description, allKeywords, url, ogType, ogImage, publishedTime])
+
+  return schema ? <SchemaOrg schema={schema} /> : null
+}

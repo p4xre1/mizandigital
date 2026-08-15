@@ -18,20 +18,26 @@ import EmptyState from "../../../components/ui/EmptyState"
 import { supabase } from "../../../lib/supabase/client"
 import type { Article, ArticleStatus } from "../../../types/cms"
 
+// المقال مع العلاقات المرفقة (تصنيف وكلية) القادمة من الـ join
+type ArticleWithRelations = Article & {
+  category?: { id: string; name: string; name_fr?: string | null; slug: string } | null
+  faculty?: { id: string; name: string; city: string; slug: string } | null
+}
+
 interface ArticlesPageProps {
   onNavigate?: (path: string) => void
   onEditArticle?: (id: string) => void
 }
 
 export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPageProps) {
-  const [articles, setArticles] = useState<Article[]>([])
+  const [articles, setArticles] = useState<ArticleWithRelations[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
 
   // حالة النوافذ المنبثقة
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
-  const [articleToDelete, setArticleToDelete] = useState<Article | null>(null)
+  const [articleToDelete, setArticleToDelete] = useState<ArticleWithRelations | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
 
   useEffect(() => {
@@ -45,13 +51,13 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
         .from("articles")
         .select(`
           *,
-          category:categories(id, name_ar, name_fr, slug),
-          faculty:faculties(id, name_ar, name_fr, city, slug)
+          category:categories(id, name, name_fr, slug),
+          faculty:faculties(id, name, city, slug)
         `)
         .order("created_at", { ascending: false })
 
       if (error) throw error
-      if (data) setArticles(data as unknown as Article[])
+      if (data) setArticles(data as unknown as ArticleWithRelations[])
     } catch (err) {
       console.error("خطأ في جلب المقالات:", err)
     } finally {
@@ -216,14 +222,16 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
                         </div>
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground">
-                        {article.category?.name_ar || "—"}
+                        {article.category?.name || "—"}
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground">
-                        {article.faculty?.name_ar || "—"}
+                        {article.faculty?.name || "—"}
                       </td>
                       <td className="px-4 py-3.5">{renderStatusBadge(article.status)}</td>
                       <td className="px-4 py-3.5 text-muted-foreground">
-                        {new Date(article.created_at).toLocaleDateString("ar-MA")}
+                        {article.created_at
+                          ? new Date(article.created_at).toLocaleDateString("ar-MA")
+                          : "—"}
                       </td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center justify-center gap-1">

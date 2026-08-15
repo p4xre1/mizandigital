@@ -26,9 +26,9 @@
 }
 
 .dark {
-  --background: 222 47% 7%;
+  --background: 222 47% 6%;
   --foreground: 210 40% 98%;
-  --card: 222 43% 10%;
+  --card: 222 43% 9%;
   --card-foreground: 210 40% 98%;
   --primary: 217 91% 60%;
   --primary-foreground: 222 47% 11%;
@@ -36,8 +36,8 @@
   --secondary-foreground: 210 40% 98%;
   --muted: 217 33% 14%;
   --muted-foreground: 215 20% 68%;
-  --border: 217 30% 22%;
-  --input: 217 30% 25%;
+  --border: 217 30% 20%;
+  --input: 217 30% 24%;
   --ring: 217 91% 60%;
   --accent-gold: 43 92% 62%;
   --accent-gold-muted: 43 45% 18%;
@@ -69,7 +69,13 @@
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    background: hsl(var(--background));
+    background-color: hsl(var(--background));
+    /* Rich ambient background lighting & texture */
+    background-image: 
+      radial-gradient(at 10% 15%, hsl(var(--primary) / 0.12) 0px, transparent 45%),
+      radial-gradient(at 90% 85%, hsl(var(--accent-gold) / 0.08) 0px, transparent 45%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4));
+    background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
@@ -77,71 +83,40 @@
   }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   button { cursor: pointer; }
-  ::selection { background: hsl(var(--primary) / 0.22); }
+  ::selection { background: hsl(var(--primary) / 0.25); }
 }
 
 @layer components {
   .container-wide { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
-  .site-header { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.88); backdrop-filter: blur(14px); }
-  .brand-mark { display: grid; height: 40px; width: 40px; place-items: center; border: 1px solid hsl(var(--primary) / 0.25); border-radius: 13px; background: hsl(var(--primary) / 0.12); color: hsl(var(--primary)); }
-  .icon-button { display: grid; height: 40px; width: 40px; place-items: center; border: 1px solid hsl(var(--border)); border-radius: 12px; background: hsl(var(--card)); color: hsl(var(--foreground)); transition: 160ms ease; }
-  .icon-button:hover { border-color: hsl(var(--primary) / 0.5); color: hsl(var(--primary)); transform: translateY(-1px); }
-  .hero-section { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(circle at 75% 42%, hsl(var(--primary) / 0.13), transparent 30%), linear-gradient(180deg, hsl(var(--background)), hsl(var(--background) / 0.5)); }
-  .hero-section::before { position: absolute; inset: 0; z-index: -1; background-image: linear-gradient(hsl(var(--border) / 0.25) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / 0.25) 1px, transparent 1px); background-size: 48px 48px; mask-image: linear-gradient(to bottom, black, transparent); content: ""; opacity: 0.5; }
-  .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: hsl(var(--primary)); font-size: 0.74rem; font-weight: 800; letter-spacing: 0.02em; }
-  .eyebrow::before { display: block; height: 7px; width: 7px; border-radius: 999px; background: hsl(var(--accent-gold)); content: ""; box-shadow: 0 0 0 5px hsl(var(--accent-gold) / 0.14); }
-  .hero-visual { position: relative; min-height: 360px; display: grid; place-items: center; }
-  .hero-visual-glow { position: absolute; height: 280px; width: 280px; border-radius: 999px; background: hsl(var(--primary) / 0.16); filter: blur(50px); }
-  .hero-document-sheet { position: relative; width: min(100%, 360px); min-height: 300px; transform: rotate(3deg); border: 1px solid hsl(var(--border)); border-radius: 22px; padding: 28px; background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.75)); box-shadow: 0 35px 80px hsl(222 47% 5% / 0.25); }
-  .file-icon { display: grid; height: 46px; width: 46px; place-items: center; border: 1px solid hsl(var(--primary) / 0.2); border-radius: 14px; background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
-  .file-icon.small { height: 34px; width: 34px; border-radius: 10px; }
-  .search-panel { border: 1px solid hsl(var(--border)); border-radius: 20px; padding: 18px; background: hsl(var(--card) / 0.9); box-shadow: 0 18px 45px hsl(222 47% 5% / 0.08); }
-  .search-field { display: flex; min-height: 52px; align-items: center; gap: 12px; border: 1px solid hsl(var(--input)); border-radius: 14px; padding-inline: 16px; background: hsl(var(--background)); color: hsl(var(--primary)); transition: 160ms ease; }
-  .search-field:focus-within { border-color: hsl(var(--primary) / 0.7); box-shadow: 0 0 0 4px hsl(var(--primary) / 0.11); }
-  .search-field input { width: 100%; outline: none; background: transparent; color: hsl(var(--foreground)); font-size: 0.85rem; }
-  .search-field input::placeholder { color: hsl(var(--muted-foreground)); }
-  .search-field kbd { display: none; border: 1px solid hsl(var(--border)); border-radius: 7px; padding: 3px 7px; color: hsl(var(--muted-foreground)); font-size: 10px; white-space: nowrap; direction: ltr; }
-  .primary-button, .secondary-button, .light-button, .download-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 800; transition: 160ms ease; }
-  .primary-button { min-height: 46px; padding-inline: 18px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); box-shadow: 0 10px 22px hsl(var(--primary) / 0.22); }
-  .primary-button:hover, .download-button:hover { transform: translateY(-2px); filter: brightness(1.07); }
-  .secondary-button { min-height: 46px; border: 1px solid hsl(var(--border)); padding-inline: 18px; background: hsl(var(--card)); color: hsl(var(--foreground)); }
-  .secondary-button:hover { border-color: hsl(var(--primary) / 0.55); color: hsl(var(--primary)); }
-  .light-button { min-height: 44px; padding-inline: 18px; background: white; color: hsl(222 47% 11%); }
-  .semester-tile { display: flex; min-height: 118px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; border: 1px solid hsl(var(--border)); border-radius: 17px; padding: 16px; background: hsl(var(--card)); color: hsl(var(--muted-foreground)); text-align: start; transition: 160ms ease; }
-  .semester-tile span { color: hsl(var(--foreground)); font-size: 1.25rem; font-weight: 900; }
-  .semester-tile small { font-size: 10px; }
-  .semester-tile:hover, .semester-tile.active { border-color: hsl(var(--primary) / 0.5); background: hsl(var(--primary) / 0.08); color: hsl(var(--primary)); transform: translateY(-2px); }
-  .semester-tile.featured { border-color: hsl(var(--accent-gold) / 0.55); background: linear-gradient(145deg, hsl(var(--accent-gold) / 0.2), hsl(var(--card))); }
-  .semester-tile.featured.active { border-color: hsl(var(--accent-gold)); }
-  .semester-tile.featured small { color: hsl(var(--accent-gold)); font-weight: 800; }
-  .document-card, .lexicon-card { border: 1px solid hsl(var(--border)); border-radius: 18px; padding: 20px; background: hsl(var(--card)); transition: 180ms ease; }
-  .document-card:hover, .lexicon-card:hover { border-color: hsl(var(--primary) / 0.45); transform: translateY(-3px); box-shadow: 0 16px 35px hsl(222 47% 5% / 0.09); }
-  .badge { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 5px 9px; font-size: 10px; font-weight: 800; white-space: nowrap; }
-  .badge-gold { background: hsl(var(--accent-gold-muted)); color: hsl(var(--accent-gold)); }
-  .light .badge-gold { color: hsl(35 80% 30%); }
-  .badge-muted { background: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
-  .download-button { min-height: 34px; padding-inline: 11px; background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); font-size: 0.7rem; }
-  .empty-state { display: grid; min-height: 210px; place-items: center; align-content: center; border: 1px dashed hsl(var(--border)); border-radius: 18px; background: hsl(var(--card) / 0.6); text-align: center; }
-  .feature-banner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px; border-radius: 24px; padding: 28px; background: linear-gradient(120deg, hsl(222 73% 22%), hsl(217 70% 34%)); box-shadow: 0 20px 45px hsl(var(--primary) / 0.2); }
-  .page-intro { border-bottom: 1px solid hsl(var(--border)); padding-bottom: 34px; }
-  .filter-chip { display: inline-flex; min-height: 37px; align-items: center; gap: 6px; border: 1px solid hsl(var(--border)); border-radius: 999px; padding-inline: 13px; background: hsl(var(--card)); color: hsl(var(--muted-foreground)); font-size: 0.72rem; font-weight: 800; transition: 160ms ease; }
-  .filter-chip:hover, .filter-chip.active { border-color: hsl(var(--primary) / 0.45); background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); }
-  .content-card { display: flex; min-height: 100%; flex-direction: column; border: 1px solid hsl(var(--border)); border-radius: 18px; padding: 20px; background: hsl(var(--card)); transition: 180ms ease; }
-  .content-card:hover { border-color: hsl(var(--primary) / 0.45); transform: translateY(-3px); box-shadow: 0 16px 35px hsl(222 47% 5% / 0.09); }
-  .content-card > :last-child { margin-top: auto; }
-  .event-card { background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--primary) / 0.045)); }
-  .school-card { background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--accent-gold) / 0.055)); }
-  .container-reading { width: min(820px, calc(100% - 2rem)); margin-inline: auto; }
-  .reading-card { border: 1px solid hsl(var(--border)); border-radius: 24px; padding: clamp(1.25rem, 4vw, 3rem); background: hsl(var(--card)); box-shadow: 0 20px 48px hsl(222 47% 5% / 0.07); }
-  .prose-law { max-width: 68ch; }
-  .prose-law p { margin-block: 1.35rem; color: hsl(var(--muted-foreground)); font-size: 1rem; line-height: 2.05; }
-  .reading-aside { border: 1px solid hsl(var(--primary) / 0.2); border-radius: 18px; padding: 20px; background: hsl(var(--primary) / 0.07); }
-  .reading-aside h2 { color: hsl(var(--foreground)); font-size: 0.9rem; font-weight: 900; }
-  .reading-aside ul { display: grid; gap: 10px; margin-top: 14px; color: hsl(var(--muted-foreground)); font-size: 0.85rem; }
-  .reading-aside li { display: flex; align-items: flex-start; gap: 9px; line-height: 1.8; }
-  .reading-aside svg { flex: 0 0 auto; margin-top: 4px; color: hsl(var(--primary)); }
-  .detail-chip { display: inline-flex; min-height: 36px; align-items: center; gap: 7px; border: 1px solid hsl(var(--border)); border-radius: 999px; padding-inline: 12px; background: hsl(var(--secondary) / 0.5); color: hsl(var(--muted-foreground)); font-size: 0.75rem; font-weight: 700; }
-  .term-definition { max-width: 60ch; }
+  .site-header { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.85); backdrop-filter: blur(16px); }
+  .brand-mark { display: grid; height: 40px; width: 40px; place-items: center; border: 1px solid hsl(var(--primary) / 0.3); border-radius: 13px; background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05)); color: hsl(var(--primary)); box-shadow: 0 0 15px hsl(var(--primary) / 0.15); }
+  
+  /* Explorer view toggle buttons */
+  .view-mode-button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; transition: 160ms ease; color: hsl(var(--muted-foreground)); border: 1px solid transparent; }
+  .view-mode-button.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); box-shadow: 0 4px 12px hsl(var(--primary) / 0.3); }
+  .view-mode-button:not(.active):hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+
+  .document-card, .lexicon-card, .content-card { 
+    border: 1px solid hsl(var(--border)); 
+    border-radius: 18px; 
+    padding: 20px; 
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.25)); 
+    transition: all 200ms ease; 
+    position: relative;
+    overflow: hidden;
+  }
+  .document-card::after, .lexicon-card::after, .content-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, hsl(var(--primary) / 0.06), transparent 60%);
+    pointer-events: none;
+  }
+  .document-card:hover, .lexicon-card:hover, .content-card:hover { 
+    border-color: hsl(var(--primary) / 0.5); 
+    transform: translateY(-3px); 
+    box-shadow: 0 20px 40px hsl(222 47% 4% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.2); 
+  }
 }
 
 @media (min-width: 640px) {

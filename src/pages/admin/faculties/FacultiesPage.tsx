@@ -75,8 +75,8 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
   const handleOpenEditModal = (faculty: Faculty) => {
     setEditingFaculty(faculty)
-    setNameAr(faculty.name_ar)
-    setNameFr(faculty.name_fr)
+    setNameAr(faculty.name_ar ?? faculty.name ?? "")
+    setNameFr(faculty.name_fr ?? "")
     setCity(faculty.city)
     setSlug(faculty.slug)
     setFormModalOpen(true)
@@ -84,14 +84,13 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
   const handleSaveFaculty = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!nameAr || !nameFr || !city) return
+    if (!nameAr || !city) return
 
     setSaving(true)
     const finalSlug = slug || generateSlug(nameFr || nameAr)
 
     const payload = {
-      name_ar: nameAr,
-      name_fr: nameFr,
+      name: nameAr,
       city,
       slug: finalSlug,
     }
@@ -140,11 +139,13 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
   }
 
   const filteredFaculties = useMemo(() => {
+    const query = searchQuery.toLowerCase()
     return faculties.filter(
       (fac) =>
-        fac.name_ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fac.name_fr.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        fac.city.toLowerCase().includes(searchQuery.toLowerCase())
+        fac.name_ar?.toLowerCase().includes(query) ||
+        fac.name_fr?.toLowerCase().includes(query) ||
+        fac.name?.toLowerCase().includes(query) ||
+        fac.city.toLowerCase().includes(query)
     )
   }, [faculties, searchQuery])
 
@@ -233,10 +234,14 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
                   </div>
 
                   <div>
-                    <h3 className="text-sm font-bold text-foreground">{faculty.name_ar}</h3>
-                    <p className="text-xs font-semibold text-muted-foreground dir-ltr text-right">
-                      {faculty.name_fr}
-                    </p>
+                    <h3 className="text-sm font-bold text-foreground">
+                      {faculty.name_ar || faculty.name}
+                    </h3>
+                    {faculty.name_fr && (
+                      <p className="text-xs font-semibold text-muted-foreground dir-ltr text-right">
+                        {faculty.name_fr}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -254,7 +259,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
           </div>
         )}
 
-        {/* Modal الإضافة والتديل */}
+        {/* Modal الإضافة والتعديل */}
         {formModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
             <div className="w-full max-w-md space-y-4 rounded-2xl border border-border bg-card p-6 shadow-xl">
@@ -292,11 +297,10 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground">
-                    اسم الكلية (بالفرنسية) *
+                    اسم الكلية (بالفرنسية)
                   </label>
                   <input
                     type="text"
-                    required
                     value={nameFr}
                     onChange={(e) => setNameFr(e.target.value)}
                     placeholder="FSJES Agdal"
@@ -357,7 +361,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
         <ConfirmDeleteModal
           isOpen={deleteModalOpen}
           title="حذف كلية"
-          description={`هل أنت تأكد من رغبتك في حذف "${facultyToDelete?.name_ar}"؟`}
+          description={`هل أنت تأكد من رغبتك في حذف "${facultyToDelete?.name_ar || facultyToDelete?.name || ""}"؟`}
           isLoading={deleting}
           onConfirm={handleDeleteConfirm}
           onClose={() => {

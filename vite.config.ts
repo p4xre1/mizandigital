@@ -15,7 +15,7 @@ export default defineConfig({
         manualChunks(id: string) {
           if (id.includes("node_modules")) {
             if (id.includes("@supabase")) return "vendor-supabase";
-            if (id.includes("@sentry")) return "vendor-sentry";
+            
             if (
               id.includes("react") ||
               id.includes("react-dom") ||

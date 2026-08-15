@@ -1,3 +1,5 @@
+import React from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   FileText,
@@ -24,15 +26,18 @@ function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(" ")
 }
 
-// ملاحظة: هذه المسارات يجب أن تبقى متطابقة مع مجلدات src/pages/admin/
-// (articles, library, lexicon, seminars, faculties) ومع المسارات المستخدمة
-// في DashboardPage.tsx كي لا يتكرر خطأ عدم توافق الروابط.
 export default function AdminSidebar({
   collapsed = false,
   onToggleCollapse,
-  currentPath = "/admin",
+  currentPath: customPath,
   onNavigate,
 }: AdminSidebarProps) {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  // تحديد المسار الحالي تلقائياً إذا لم يُمرر عبر الـ Props
+  const activePath = customPath || location.pathname
+
   const menuItems = [
     { label: "لوحة القيادة", path: "/admin", icon: LayoutDashboard },
     { label: "المقالات والبحوث", path: "/admin/articles", icon: FileText },
@@ -43,9 +48,17 @@ export default function AdminSidebar({
     { label: "الإعدادات", path: "/admin/settings", icon: Settings },
   ]
 
+  const handleNav = (path: string) => {
+    if (onNavigate) {
+      onNavigate(path)
+    } else {
+      navigate(path)
+    }
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    onNavigate?.("/login")
+    handleNav("/login")
   }
 
   return (
@@ -59,7 +72,7 @@ export default function AdminSidebar({
       {/* شعار الموقع */}
       <div className="flex h-16 items-center justify-between border-b border-border px-4">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground font-black">
+          <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary font-black text-primary-foreground">
             <Scale className="size-5" />
           </div>
           {!collapsed && (
@@ -72,15 +85,17 @@ export default function AdminSidebar({
       </div>
 
       {/* عناصر القائمة */}
-      <nav className="flex-1 space-y-1.5 p-3 overflow-y-auto">
+      <nav className="flex-1 space-y-1.5 overflow-y-auto p-3">
         {menuItems.map((item) => {
           const Icon = item.icon
-          const isActive = currentPath === item.path
+          const isActive =
+            activePath === item.path ||
+            (item.path !== "/admin" && activePath.startsWith(item.path))
 
           return (
             <button
               key={item.path}
-              onClick={() => onNavigate?.(item.path)}
+              onClick={() => handleNav(item.path)}
               className={cn(
                 "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition",
                 isActive
@@ -97,7 +112,7 @@ export default function AdminSidebar({
       </nav>
 
       {/* تسجيل الخروج + زر الطي */}
-      <div className="border-t border-border p-3 space-y-2">
+      <div className="space-y-2 border-t border-border p-3">
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-destructive transition hover:bg-destructive/10"

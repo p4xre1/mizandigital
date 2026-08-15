@@ -1,0 +1,497 @@
+import { useState, useMemo } from "react"
+import { useParams, Link } from "react-router-dom"
+import { SEOHead } from "../../components/seo/SEOHead"
+import {
+  FolderDown,
+  BookOpen,
+  Search,
+  Filter,
+  FileText,
+  GraduationCap,
+  Download,
+  CheckCircle2,
+  Sparkles,
+  Tag,
+  ArrowLeft,
+  AlertCircle,
+  FileSpreadsheet,
+  Award,
+  Layers,
+  LayoutGrid,
+  List
+} from "lucide-react"
+
+interface ArchivePageProps {
+  initialSemester?: string
+}
+
+// Academic archive mock catalog for FSJES Law Faculties (S1 - S6)
+const ARCHIVE_CATALOG = [
+  {
+    id: "s1-droit-intro",
+    semester: "S1",
+    module: "المدخل لدراسة القانون",
+    title: "ملخص شامل ومبسط لنظرية الحق ونظرية القانون",
+    type: "ملخصات",
+    branch: "القانون العام والخاص",
+    author: "د. أستاذ المادة - كلية أكدال",
+    fileSize: "2.4 MB",
+    fileFormat: "PDF",
+    downloads: 1420,
+    downloadUrl: "#",
+    date: "2026-01-10"
+  },
+  {
+    id: "s1-sharia-intro",
+    semester: "S1",
+    module: "المدخل لدراسة الشريعة الإسلامية",
+    title: "محاضرات الشريعة الإسلامية ومقاصد التشريع",
+    type: "محاضرات",
+    branch: "القانون العام والخاص",
+    author: "دليل الطالب القانوني",
+    fileSize: "1.8 MB",
+    fileFormat: "PDF",
+    downloads: 980,
+    downloadUrl: "#",
+    date: "2026-01-15"
+  },
+  {
+    id: "s2-obligations-1",
+    semester: "S2",
+    module: "نظرية الالتزامات والعقود",
+    title: "تلخيص مصادر الالتزام الإرادية وغير الإرادية",
+    type: "ملخصات",
+    branch: "القانون الخاص",
+    author: "شبكة الميزان الرقمية",
+    fileSize: "3.1 MB",
+    fileFormat: "PDF",
+    downloads: 2150,
+    downloadUrl: "#",
+    date: "2026-02-20"
+  },
+  {
+    id: "s2-penal-general",
+    semester: "S2",
+    module: "القانون الجنائي العام",
+    title: "نماذج امتحانات الجنائي العام مع عناصر الإجابة النموذجية",
+    type: "امتحانات",
+    branch: "القانون الخاص",
+    author: "كلية السويسي الرباط",
+    fileSize: "4.5 MB",
+    fileFormat: "PDF",
+    downloads: 1890,
+    downloadUrl: "#",
+    date: "2026-02-28"
+  },
+  {
+    id: "s3-commercial-law",
+    semester: "S3",
+    module: "القانون التجاري",
+    title: "محاضرات التاجر والأعمال التجارية والأصل التجاري",
+    type: "محاضرات",
+    branch: "القانون الخاص",
+    author: "د. عبد الرحيم السليماني",
+    fileSize: "2.9 MB",
+    fileFormat: "PDF",
+    downloads: 1640,
+    downloadUrl: "#",
+    date: "2026-03-12"
+  },
+  {
+    id: "s3-family-law",
+    semester: "S3",
+    module: "قانون الأسرة",
+    title: "دليل أحكام الزواج والطلاق والإنحلال في مدونة الأسرة",
+    type: "ملخصات",
+    branch: "القانون الخاص",
+    author: "الأرشيف القانوني",
+    fileSize: "1.9 MB",
+    fileFormat: "PDF",
+    downloads: 1320,
+    downloadUrl: "#",
+    date: "2026-03-18"
+  },
+  {
+    id: "s4-civil-proc",
+    semester: "S4",
+    module: "التنظيم القضائي والمسطرة المدنية",
+    title: "تلخيص التنظيم القضائي الجديد للمملكة والمساطر القضائية",
+    type: "ملخصات",
+    branch: "القانون الخاص",
+    author: "فريق الميزان",
+    fileSize: "3.8 MB",
+    fileFormat: "PDF",
+    downloads: 2800,
+    downloadUrl: "#",
+    date: "2026-04-05"
+  },
+  {
+    id: "s4-labor-law",
+    semester: "S4",
+    module: "قانون الشغل (مدونة الشغل 65.99)",
+    title: "نماذج امتحانات قانون الشغل وعقد الشغل الفردي",
+    type: "امتحانات",
+    branch: "القانون الخاص",
+    author: "كلية عين الشق الدار البيضاء",
+    fileSize: "2.1 MB",
+    fileFormat: "PDF",
+    downloads: 2410,
+    downloadUrl: "#",
+    date: "2026-04-14"
+  },
+  {
+    id: "s5-real-estate",
+    semester: "S5",
+    module: "الحقوق العينية والتحفيظ العقاري",
+    title: "محاضرات التحفيظ العقاري والحقوق العينية الأصلية والتبعية",
+    type: "محاضرات",
+    branch: "القانون الخاص",
+    author: "د. الأستاذ المحاضر",
+    fileSize: "4.1 MB",
+    fileFormat: "PDF",
+    downloads: 1750,
+    downloadUrl: "#",
+    date: "2026-05-02"
+  },
+  {
+    id: "s6-penal-proc",
+    semester: "S6",
+    module: "المسطرة الجنائية وصعوبات المقاولة",
+    title: "دليل البحث العلمي والتخرج في القانون الخاص",
+    type: "بحوث",
+    branch: "القانون الخاص",
+    author: "مجموعة الباحثين القانونيين",
+    fileSize: "5.2 MB",
+    fileFormat: "PDF",
+    downloads: 1120,
+    downloadUrl: "#",
+    date: "2026-05-20"
+  }
+]
+
+const SEMESTERS = [
+  { id: "all", label: "جميع الفصول" },
+  { id: "S1", label: "الفصل S1" },
+  { id: "S2", label: "الفصل S2" },
+  { id: "S3", label: "الفصل S3" },
+  { id: "S4", label: "الفصل S4" },
+  { id: "S5", label: "الفصل S5" },
+  { id: "S6", label: "الفصل S6" }
+]
+
+const RESOURCE_TYPES = ["الكل", "ملخصات", "محاضرات", "امتحانات", "بحوث"]
+
+export function ArchivePage({ initialSemester }: ArchivePageProps) {
+  const params = useParams<{ semester?: string }>()
+  const activeSemesterParam = initialSemester || params.semester || "all"
+
+  const [selectedSemester, setSelectedSemester] = useState<string>(activeSemesterParam)
+  const [selectedType, setSelectedType] = useState<string>("الكل")
+  const [searchQuery, setSearchQuery] = useState<string>("")
+  
+  // File Explorer view mode state ('grid' or 'list')
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+
+  // Filter items based on Semester, Resource Type, and Search Query
+  const filteredCatalog = useMemo(() => {
+    return ARCHIVE_CATALOG.filter((item) => {
+      // Semester Filter
+      if (selectedSemester !== "all" && item.semester !== selectedSemester) {
+        return false
+      }
+
+      // Type Filter
+      if (selectedType !== "الكل" && item.type !== selectedType) {
+        return false
+      }
+
+      // Search Query Filter
+      if (!searchQuery.trim()) return true
+
+      const query = searchQuery.toLowerCase()
+      return (
+        item.module.toLowerCase().includes(query) ||
+        item.title.toLowerCase().includes(query) ||
+        item.branch.toLowerCase().includes(query) ||
+        item.author.toLowerCase().includes(query)
+      )
+    })
+  }, [selectedSemester, selectedType, searchQuery])
+
+  // Schema.org Structured Data for Archive Collection
+  const archiveSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "الأرشيف الدراسي الأكاديمي لكليات الحقوق بالمغرب",
+    "description": "تصفح وحمل ملخصات ومحاضرات ونماذج امتحانات العلوم القانونية بكليات الحقوق المغربية للفصول S1 إلى S6.",
+    "url": "https://www.mizan.page/archive",
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": filteredCatalog.length,
+      "itemListElement": filteredCatalog.map((item, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": `${item.module} - ${item.title}`,
+        "description": `مادة ${item.module} - ${item.type} (${item.semester})`
+      }))
+    }
+  }
+
+  return (
+    <>
+      <SEOHead
+        title={`الأرشيف الدراسي ${selectedSemester !== "all" ? `- الفصل ${selectedSemester}` : "الشامل"}`}
+        description="تصفح وحمّل مجاناً أفضل ملخصات، محاضرات، ونماذج امتحانات كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب لجميع السداسيات (S1 - S6)."
+        keywords={[
+          "الأرشيف الدراسي القانوني",
+          "ملخصات القانون المغربي",
+          "امتحانات FSJES",
+          "دروس S1 S2 S3 S4 S5 S6",
+          "القانون الخاص والعام بالمغرب"
+        ]}
+        schema={archiveSchema}
+      />
+
+      <main className="min-h-screen bg-background text-foreground" dir="rtl">
+        <div className="container mx-auto max-w-6xl px-4 py-10">
+          {/* Header Section */}
+          <header className="mb-8 text-center md:text-right">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
+              <FolderDown size={16} />
+              <span>المرفق الأكاديمي الموحد</span>
+            </div>
+            <h1 className="text-3xl font-black text-foreground md:text-4xl">
+              الأرشيف الدراسي لكليات الحقوق
+              {selectedSemester !== "all" && (
+                <span className="text-primary"> ({selectedSemester})</span>
+              )}
+            </h1>
+            <p className="mt-2 text-base text-muted-foreground max-w-2xl">
+              تصفح وحمّل المراجع العلمية، المحاضرات المكتوبة، الملخصات الممركزة، ونماذج الامتحانات المرفقة بعناصر الإجابة لجميع السداسيات.
+            </p>
+          </header>
+
+          {/* Search & Filters Controls */}
+          <div className="mb-6 flex flex-col gap-4 bg-card p-4 md:p-6 rounded-2xl border border-border shadow-sm">
+            {/* Top Controls: Search Input & Semester Tabs */}
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+              {/* Search Bar */}
+              <div className="relative w-full md:w-80">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+                <input
+                  type="text"
+                  placeholder="ابحث عن وحدة دراسية (مثلاً: المسطرة المدنية)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-background pr-10 pl-4 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition"
+                />
+              </div>
+
+              {/* Semester Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+                {SEMESTERS.map((sem) => (
+                  <button
+                    key={sem.id}
+                    type="button"
+                    onClick={() => setSelectedSemester(sem.id)}
+                    className={`rounded-xl px-3.5 py-2 text-xs font-bold transition shrink-0 ${
+                      selectedSemester === sem.id
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {sem.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Resource Type Sub-Filters */}
+            <div className="flex items-center gap-2 pt-3 border-t border-border/60 overflow-x-auto">
+              <span className="text-xs font-semibold text-muted-foreground shrink-0 flex items-center gap-1">
+                <Filter size={13} />
+                نوع الملف:
+              </span>
+              {RESOURCE_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setSelectedType(type)}
+                  className={`rounded-lg px-3 py-1 text-xs font-bold transition shrink-0 ${
+                    selectedType === type
+                      ? "bg-primary/15 text-primary border border-primary/30"
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* View Mode Switcher Toolbar (File Explorer Style) */}
+          <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
+            <span className="text-xs font-bold text-muted-foreground">
+              عدد النتائج المعروضة: <span className="text-primary">{filteredCatalog.length} عنصر</span>
+            </span>
+
+            <div className="flex items-center gap-1 bg-background p-1 rounded-xl border border-border">
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "grid"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                title="عرض شبكي (Grid View)"
+              >
+                <LayoutGrid size={15} />
+                <span>شبكة</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  viewMode === "list"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                title="قائمة مفصلة (File Explorer View)"
+              >
+                <List size={15} />
+                <span>قائمة تفصيلية</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Catalog Container (Adapts dynamically to Grid or List view) */}
+          {filteredCatalog.length > 0 ? (
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  : "flex flex-col space-y-3"
+              }
+            >
+              {filteredCatalog.map((item) => (
+                <article
+                  key={item.id}
+                  className={`group rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md ${
+                    viewMode === "list"
+                      ? "!flex !flex-row !items-center !justify-between !py-4 gap-4"
+                      : "flex flex-col justify-between"
+                  }`}
+                >
+                  <div className={viewMode === "list" ? "space-y-1 flex-1" : "space-y-2"}>
+                    {/* Card Top Badges (Hidden or compact in list view) */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary border border-primary/20">
+                        <Layers size={12} />
+                        {item.semester}
+                      </span>
+
+                      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        <Tag size={11} />
+                        {item.type}
+                      </span>
+                    </div>
+
+                    {/* Module Name */}
+                    <span className="block text-xs font-extrabold text-primary">
+                      {item.module}
+                    </span>
+
+                    {/* File Title */}
+                    <h3 className="text-base font-bold text-foreground group-hover:text-primary transition leading-snug">
+                      {item.title}
+                    </h3>
+
+                    {/* Metadata Specs (Shown fully in grid, simplified in list) */}
+                    {viewMode === "grid" && (
+                      <div className="space-y-1.5 pt-3 border-t border-border/60 text-xs text-muted-foreground mt-3">
+                        <div className="flex items-center justify-between">
+                          <span>المؤلف / المصدر:</span>
+                          <span className="font-semibold text-foreground truncate max-w-[150px]">
+                            {item.author}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span>الشعبة:</span>
+                          <span className="font-medium text-foreground">{item.branch}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span>الحجم والصيغة:</span>
+                          <span className="font-mono text-foreground font-semibold">
+                            {item.fileSize} ({item.fileFormat})
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Action Footer */}
+                  <div
+                    className={
+                      viewMode === "list"
+                        ? "shrink-0 flex items-center gap-4"
+                        : "mt-5 pt-3 border-t border-border flex items-center justify-between"
+                    }
+                  >
+                    {viewMode === "grid" ? (
+                      <span className="text-[11px] text-muted-foreground font-medium">
+                        {item.downloads} تحميل
+                      </span>
+                    ) : (
+                      <div className="hidden sm:flex flex-col text-left text-xs text-muted-foreground">
+                        <span className="font-mono font-semibold text-foreground">{item.fileSize}</span>
+                        <span>{item.downloads} تحميل</span>
+                      </div>
+                    )}
+
+                    <a
+                      href={item.downloadUrl}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 shrink-0"
+                      onClick={(e) => {
+                        if (item.downloadUrl === "#") {
+                          e.preventDefault()
+                          alert(`جاري تجهيز رابط تحميل: ${item.title}`)
+                        }
+                      }}
+                    >
+                      <Download size={14} />
+                      <span>تحميل الملف</span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            /* Empty Search State */
+            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
+              <AlertCircle size={44} className="mx-auto text-muted-foreground mb-3" />
+              <h3 className="text-lg font-bold text-foreground">لم يتم العثور على أي ملفات</h3>
+              <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
+                لم نجد نتائج تطابق خيارات البحث الحالية. حاول تغيير الفصول أو إعادة ضبط الفلاتر.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedSemester("all")
+                  setSelectedType("الكل")
+                  setSearchQuery("")
+                }}
+                className="mt-4 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:opacity-90"
+              >
+                إعادة ضبط جميع الفلاتر
+              </button>
+            </div>
+          )}
+        </div>
+      </main>
+    </>
+  )
+}

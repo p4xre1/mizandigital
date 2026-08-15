@@ -8,12 +8,22 @@ const DATA = join(__dirname, "../src/data");
 const DOMAIN = "https://www.mizan.page";
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
-const [articles, events, schools, lexicon] = await Promise.all([
+const [articles, events, schools, lexicon, news] = await Promise.all([
   readJson("articles.json"),
   readJson("events.json"),
   readJson("schools.json"),
   readJson("lexicon.json"),
+  readJson("news.json"),
 ]);
+
+const generateSlug = (text = "") => {
+  return String(text)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\/\\_]+/g, "-")
+    .replace(/[^\w\u0600-\u06FF\-]+/g, "")
+    .replace(/\-+$/, "");
+};
 
 const staticEntries = [
   { path: "", changefreq: "weekly", priority: "1.0" },
@@ -32,15 +42,51 @@ const staticEntries = [
 ];
 
 const dynamicEntries = [
-  ...articles.map((item) => ({
-    path: `${item.type === "news" ? "/news" : "/articles"}/${item.slug}`,
-    lastmod: item.updatedAt,
-    changefreq: "monthly",
-    priority: "0.8",
-  })),
-  ...events.map((item) => ({ path: `/events/${item.slug}`, lastmod: item.eventDate, changefreq: "monthly", priority: "0.7" })),
-  ...schools.map((item) => ({ path: `/schools/${item.slug}`, lastmod: item.verifiedAt, changefreq: "monthly", priority: "0.7" })),
-  ...lexicon.map((item) => ({ path: `/lexicon/${item.id}`, changefreq: "monthly", priority: "0.7" })),
+  ...articles.map((item) => {
+    const slug = item.slug || generateSlug(item.title);
+    const prefix = item.type === "news" ? "/news" : "/articles";
+    return {
+      path: `${prefix}/${slug}`,
+      lastmod: item.updatedAt,
+      changefreq: "monthly",
+      priority: "0.8",
+    };
+  }),
+  ...news.map((item) => {
+    const slug = item.slug || generateSlug(item.title);
+    return {
+      path: `/news/${slug}`,
+      lastmod: item.date || item.updatedAt,
+      changefreq: "monthly",
+      priority: "0.8",
+    };
+  }),
+  ...events.map((item) => {
+    const slug = item.slug || generateSlug(item.title);
+    return { 
+      path: `/events/${slug}`, 
+      lastmod: item.eventDate, 
+      changefreq: "monthly", 
+      priority: "0.7" 
+    };
+  }),
+  ...schools.map((item) => {
+    const slug = item.slug || generateSlug(item.name);
+    return { 
+      path: `/schools/${slug}`, 
+      lastmod: item.verifiedAt, 
+      changefreq: "monthly", 
+      priority: "0.7" 
+    };
+  }),
+  ...lexicon.map((item) => {
+    const slug = generateSlug(item.term_ar) || item.id;
+    return {
+      path: `/lexicon/${slug}`,
+      changefreq: "monthly",
+      priority: "0.7",
+    };
+  }),
 ];
 
 const today = new Date().toISOString().slice(0, 10);

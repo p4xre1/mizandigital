@@ -29,7 +29,7 @@ export const PdfDropzone: React.FC<PdfDropzoneProps> = ({
           const result = await upload(selectedFile)
           onUploadComplete(result)
         } catch {
-          // Handled by hook
+          // Upload error is handled by useR2Upload hook state
         }
       }
     },
@@ -110,5 +110,3 @@ export const PdfDropzone: React.FC<PdfDropzoneProps> = ({
     </div>
   )
 }
-
-export default PdfDropzone

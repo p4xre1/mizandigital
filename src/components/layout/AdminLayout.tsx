@@ -1,20 +1,27 @@
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { Outlet, useLocation } from "react-router-dom"
 import AdminSidebar from "./AdminSidebar"
 import AdminHeader from "./AdminHeader"
 
-interface AdminLayoutProps {
-  children: React.ReactNode
+export interface AdminLayoutProps {
+  children?: React.ReactNode
   currentPath?: string
   onNavigate?: (path: string) => void
 }
 
 export default function AdminLayout({
   children,
-  currentPath = "/dashboard",
+  currentPath,
   onNavigate,
 }: AdminLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const location = useLocation()
+
+  // Automatically close mobile menu when navigating to a new page
+  useEffect(() => {
+    setMobileSidebarOpen(false)
+  }, [location.pathname])
 
   return (
     <div className="flex min-h-screen bg-background font-sans text-foreground antialiased" dir="rtl">
@@ -23,8 +30,6 @@ export default function AdminLayout({
         <AdminSidebar
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-          currentPath={currentPath}
-          onNavigate={onNavigate}
         />
       </div>
 
@@ -36,14 +41,7 @@ export default function AdminLayout({
             onClick={() => setMobileSidebarOpen(false)}
           />
           <div className="relative z-10 w-64 bg-card">
-            <AdminSidebar
-              collapsed={false}
-              currentPath={currentPath}
-              onNavigate={(path) => {
-                onNavigate?.(path)
-                setMobileSidebarOpen(false)
-              }}
-            />
+            <AdminSidebar collapsed={false} />
           </div>
         </div>
       )}
@@ -52,7 +50,8 @@ export default function AdminLayout({
       <div className="flex flex-1 flex-col min-w-0">
         <AdminHeader onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
-          {children}
+          {/* يعرض children إذا تم تمريره، أو يعود للـ Outlet الخاصة بـ React Router */}
+          {children ?? <Outlet />}
         </main>
       </div>
     </div>

@@ -1,89 +1,58 @@
-export type ArticleStatus = "draft" | "published" | "archived" | "under_review"
-
-export type UserRole = "super_admin" | "editor" | "author" | "viewer"
-
-export interface UserProfile {
-  id: string
-  email: string
-  full_name: string
-  avatar_url?: string
-  role: UserRole
-  permissions: string[]
-  created_at: string
-}
+export type ArticleStatus = "draft" | "under_review" | "published" | "archived"
 
 export interface Category {
   id: string
-  name_ar: string
-  name_fr: string
+  name: string
+  name_ar?: string // Optional alias for backward compatibility
+  name_fr?: string | null
   slug: string
-  description?: string
-  created_at?: string
+  description?: string | null
+  icon?: string | null
+  count?: number | null
 }
 
 export interface Faculty {
   id: string
-  name_ar: string
-  name_fr: string
+  name: string
+  name_ar?: string // Optional alias for backward compatibility
+  name_fr?: string | null
   city: string
   slug: string
-  created_at?: string
+  founded_year?: number | null
+  logo_url?: string | null
+  description?: string | null
+  created_at?: string | null
 }
 
 export interface Article {
   id: string
   title: string
+  title_fr?: string | null
   slug: string
   content: string
-  excerpt?: string
-  cover_image?: string
-  category_id?: string
-  faculty_id?: string
-  author_id?: string
+  excerpt?: string | null
+  cover_image?: string | null
+  category_id?: string | null
+  faculty_id?: string | null
+  semester?: string | null
   status: ArticleStatus
-  published_at?: string
-  views_count?: number
-  seo_title?: string
-  seo_description?: string
-  focus_keyword?: string
-  created_at: string
-  updated_at: string
-  // العلاقات المرتبطة
-  category?: Category
-  faculty?: Faculty
-  author?: UserProfile
+  target_keyword?: string | null
+  meta_title?: string | null
+  meta_description?: string | null
+  canonical_url?: string | null
+  is_featured?: boolean | null
+  author_id?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+  published_at?: string | null
 }
 
-export interface DictionaryTerm {
+export interface LexiconTerm {
   id: string
   term_ar: string
   term_fr: string
-  definition_ar: string
-  definition_fr?: string
-  slug: string
-  category_id?: string
-  created_at: string
-  category?: Category
-}
-
-export interface Seminar {
-  id: string
-  title: string
-  slug: string
-  description?: string
-  speaker_name: string
-  video_url?: string
-  event_date: string
-  location?: string
-  faculty_id?: string
-  created_at: string
-  faculty?: Faculty
-}
-
-export interface SeoMetadata {
-  title: string
-  description: string
-  focusKeyword?: string
-  ogImage?: string
-  canonicalUrl?: string
+  definition: string
+  category: string
+  created_at?: string | null
+  updated_at?: string | null
 }

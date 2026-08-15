@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState, useRef, useCallback, useMemo } from "react"
 import {
   Bold,
   Italic,
@@ -6,14 +6,17 @@ import {
   ListOrdered,
   Heading1,
   Heading2,
+  Heading3,
   Link as LinkIcon,
   Eye,
   Edit3,
-  AlignRight,
-  AlignCenter,
-  AlignLeft,
   Quote,
   Code,
+  Image as ImageIcon,
+  Minus,
+  Table,
+  FileText,
+  Clock,
 } from "lucide-react"
 
 interface RichTextEditorProps {
@@ -22,6 +25,8 @@ interface RichTextEditorProps {
   placeholder?: string
   label?: string
   minHeight?: string
+  disabled?: boolean
+  id?: string
 }
 
 function cn(...classes: (string | boolean | undefined | null)[]) {
@@ -31,62 +36,133 @@ function cn(...classes: (string | boolean | undefined | null)[]) {
 export default function RichTextEditor({
   value,
   onChange,
-  placeholder = "اكتب المحتوى النصي هنا...",
+  placeholder = "اكتب المحتوى النصي هنا بأسلوب Markdown...",
   label,
-  minHeight = "260px",
+  minHeight = "280px",
+  disabled = false,
+  id,
 }: RichTextEditorProps) {
   const [isPreview, setIsPreview] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const insertFormatting = (prefix: string, suffix: string = "") => {
-    const textarea = document.getElementById("rich-textarea") as HTMLTextAreaElement
-    if (!textarea) return
+  // إدراج التنسيقات النصية بناءً على تحديد النص الحاضر
+  const insertFormatting = useCallback(
+    (prefix: string, suffix: string = "", defaultText: string = "نص") => {
+      const textarea = textareaRef.current
+      if (!textarea) return
 
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const selectedText = value.substring(start, end) || "نص"
-    const replacement = `${prefix}${selectedText}${suffix}`
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const selectedText = value.substring(start, end) || defaultText
+      const replacement = `${prefix}${selectedText}${suffix}`
 
-    const newValue = value.substring(0, start) + replacement + value.substring(end)
-    onChange(newValue)
+      const newValue = value.substring(0, start) + replacement + value.substring(end)
+      onChange(newValue)
 
-    setTimeout(() => {
-      textarea.focus()
-      textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length)
-    }, 0)
+      // إعادة التركيز وتحديد النص داخل التنسيق
+      requestAnimationFrame(() => {
+        textarea.focus()
+        textarea.setSelectionRange(
+          start + prefix.length,
+          start + prefix.length + selectedText.length
+        )
+      })
+    },
+    [value, onChange]
+  )
+
+  // إدراج رابط إلكتروني
+  const handleInsertLink = () => {
+    const url = prompt("أدخل الرابط الإلكتروني (URL):", "https://")
+    if (url && url !== "https://") {
+      insertFormatting("[", `](${url})`, "عنوان الرابط")
+    }
   }
 
+  // إدراج صورة
+  const handleInsertImage = () => {
+    const url = prompt("أدخل رابط الصورة (URL):", "https://")
+    if (url && url !== "https://") {
+      const altText = prompt("وصف الصورة (Alt Text):", "وصف الصورة") || "صورة"
+      insertFormatting(`![${altText}](`, `)`, url)
+    }
+  }
+
+  // إدراج جدول
+  const handleInsertTable = () => {
+    const tableTemplate =
+      "\n| العنوان 1 | العنوان 2 |\n| --------- | --------- |\n| عنصر 1   | عنصر 2   |\n"
+    insertFormatting(tableTemplate, "", "")
+  }
+
+  // معالجة اختصارات لوحة المفاتيح
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === "b" || e.key === "B") {
+        e.preventDefault()
+        insertFormatting("**", "**")
+      } else if (e.key === "i" || e.key === "I") {
+        e.preventDefault()
+        insertFormatting("*", "*")
+      } else if (e.key === "k" || e.key === "K") {
+        e.preventDefault()
+        handleInsertLink()
+      }
+    }
+  }
+
+  // إحصائيات النص
+  const stats = useMemo(() => {
+    const charCount = value.length
+    const trimmed = value.trim()
+    const wordCount = trimmed ? trimmed.split(/\s+/).length : 0
+    const readingTime = Math.max(1, Math.ceil(wordCount / 180)) // معدل قراءة 180 كلمة/دقيقة
+
+    return { charCount, wordCount, readingTime }
+  }, [value])
+
   const toolbarButtons = [
-    { icon: Bold, title: "عريض", action: () => insertFormatting("**", "**") },
-    { icon: Italic, title: "مائل", action: () => insertFormatting("*", "*") },
-    { icon: Heading1, title: "عنوان رئيسي", action: () => insertFormatting("\n# ") },
-    { icon: Heading2, title: "عنوان فرعي", action: () => insertFormatting("\n## ") },
-    { icon: List, title: "قائمة نقطية", action: () => insertFormatting("\n* ") },
-    { icon: ListOrdered, title: "قائمة رقمية", action: () => insertFormatting("\n1. ") },
-    { icon: Quote, title: "اقتباس", action: () => insertFormatting("\n> ") },
-    { icon: Code, title: "كود", action: () => insertFormatting("`", "`") },
-    {
-      icon: LinkIcon,
-      title: "رابط",
-      action: () => {
-        const url = prompt("أدخل الرابط الإلكتروني:")
-        if (url) insertFormatting("[", `](${url})`)
-      },
-    },
+    { icon: Bold, title: "عريض (Ctrl+B)", action: () => insertFormatting("**", "**") },
+    { icon: Italic, title: "مائل (Ctrl+I)", action: () => insertFormatting("*", "*") },
+    { icon: Heading1, title: "عنوان رئيسي (H1)", action: () => insertFormatting("\n# ", "", "عنوان رئيسي") },
+    { icon: Heading2, title: "عنوان فرعي (H2)", action: () => insertFormatting("\n## ", "", "عنوان فرعي") },
+    { icon: Heading3, title: "عنوان جزئي (H3)", action: () => insertFormatting("\n### ", "", "عنوان جزئي") },
+    { icon: List, title: "قائمة نقطية", action: () => insertFormatting("\n* ", "", "عنصر القائمة") },
+    { icon: ListOrdered, title: "قائمة رقمية", action: () => insertFormatting("\n1. ", "", "عنصر رقمي") },
+    { icon: Quote, title: "اقتباس قانوني", action: () => insertFormatting("\n> ", "", "نص الاقتباس...") },
+    { icon: Code, title: "كود برمجي", action: () => insertFormatting("`", "`", "code") },
+    { icon: LinkIcon, title: "إدراج رابط (Ctrl+K)", action: handleInsertLink },
+    { icon: ImageIcon, title: "إدراج صورة", action: handleInsertImage },
+    { icon: Table, title: "إدراج جدول", action: handleInsertTable },
+    { icon: Minus, title: "فاصل أفقي", action: () => insertFormatting("\n\n---\n\n", "", "") },
   ]
 
   return (
     <div className="space-y-1.5" dir="rtl">
+      {/* الترويسة والعدادات */}
       {label && (
-        <div className="flex items-center justify-between">
-          <label className="block text-xs font-semibold text-muted-foreground">{label}</label>
-          <span className="text-[10px] text-muted-foreground">{value.length} حرف</span>
+        <div className="flex items-center justify-between px-0.5">
+          <label htmlFor={id} className="block text-xs font-bold text-foreground">
+            {label}
+          </label>
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <FileText className="size-3" />
+              {stats.wordCount} كلمة ({stats.charCount} حرف)
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="size-3" />
+              ~{stats.readingTime} د قراءة
+            </span>
+          </div>
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-focus-within focus-within:border-primary">
+      {/* صندوق المحرر الرئيسي */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20">
         {/* شريط الأدوات */}
-        <div className="flex flex-wrap items-center justify-between gap-1 border-b border-border bg-muted/40 px-3 py-2">
-          <div className="flex flex-wrap items-center gap-1">
+        <div className="flex flex-wrap items-center justify-between gap-1 border-b border-border bg-muted/30 px-3 py-1.5">
+          <div className="flex flex-wrap items-center gap-0.5">
             {toolbarButtons.map((btn, i) => {
               const Icon = btn.icon
               return (
@@ -94,9 +170,9 @@ export default function RichTextEditor({
                   key={i}
                   type="button"
                   onClick={btn.action}
-                  disabled={isPreview}
+                  disabled={isPreview || disabled}
                   title={btn.title}
-                  className="grid size-8 place-items-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-40"
+                  className="grid size-8 place-items-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:opacity-30"
                 >
                   <Icon className="size-4" />
                 </button>
@@ -104,43 +180,48 @@ export default function RichTextEditor({
             })}
           </div>
 
+          {/* تبديل التحرير المعاينة */}
           <div className="flex items-center gap-1 border-r border-border pr-2">
             <button
               type="button"
               onClick={() => setIsPreview(!isPreview)}
+              disabled={disabled}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold transition",
+                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition",
                 isPreview
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-background text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-background text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
               {isPreview ? <Edit3 className="size-3.5" /> : <Eye className="size-3.5" />}
-              {isPreview ? "تحرير" : "معاينة"}
+              <span>{isPreview ? "تحرير النص" : "معاينة المحتوى"}</span>
             </button>
           </div>
         </div>
 
-        {/* حقل الإدخال أو المعاينة */}
+        {/* حقل الإدخال أو وضع المعاينة */}
         {isPreview ? (
           <div
-            className="prose dark:prose-invert max-w-none p-4 text-sm text-foreground"
+            className="prose dark:prose-invert max-w-none p-4 text-xs leading-relaxed text-foreground sm:text-sm"
             style={{ minHeight }}
           >
             {value ? (
-              <div className="whitespace-pre-wrap">{value}</div>
+              <div className="whitespace-pre-wrap font-sans leading-relaxed">{value}</div>
             ) : (
-              <p className="text-xs italic text-muted-foreground">لا يوجد محتوى للمعاينة...</p>
+              <p className="text-xs italic text-muted-foreground">لا يوجد محتوى للمعاينة حالياً...</p>
             )}
           </div>
         ) : (
           <textarea
-            id="rich-textarea"
+            id={id}
+            ref={textareaRef}
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder={placeholder}
+            disabled={disabled}
             style={{ minHeight }}
-            className="w-full resize-y bg-transparent p-4 text-sm text-foreground outline-none placeholder:text-muted-foreground/60"
+            className="w-full resize-y bg-transparent p-4 font-mono text-xs leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50 sm:text-sm disabled:cursor-not-allowed disabled:opacity-50"
           />
         )}
       </div>

@@ -12,7 +12,6 @@ import {
   ExternalLink,
   Download,
   UploadCloud,
-  Tag,
   GraduationCap,
 } from "lucide-react"
 import AdminLayout from "../../../components/layout/AdminLayout"
@@ -20,20 +19,25 @@ import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
 import { ProgressBar } from "../../../components/ui/ProgressBar"
 import { PdfDropzone } from "../../../components/features/PdfDropzone"
+import { generateSlug } from "../../../lib/utils/generateSlug"
 import { supabase } from "../../../lib/supabase/client"
-import type { Category, Faculty } from "../../../types/cms"
+import type { Faculty } from "../../../types/cms"
+
+const SEMESTERS = ["S1", "S2", "S3", "S4", "S5", "S6"] as const
 
 export interface PdfDocument {
   id: string
   title: string
-  description?: string
+  slug: string
+  description?: string | null
+  semester: string
+  professor?: string | null
+  faculty_id?: string | null
   file_url: string
-  file_size?: string
-  category_id?: string
-  faculty_id?: string
-  created_at: string
-  category?: Category
-  faculty?: Faculty
+  file_size_bytes?: number | null
+  download_count?: number | null
+  created_at?: string | null
+  faculty?: Faculty | null
 }
 
 interface LibraryPageProps {
@@ -68,11 +72,10 @@ async function uploadDocumentFile(
 
 export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const [documents, setDocuments] = useState<PdfDocument[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [faculties, setFaculties] = useState<Faculty[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
+  const [semesterFilter, setSemesterFilter] = useState<string>("all")
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   // حالة Modal التأكيد والحذف
@@ -88,7 +91,8 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   // حقول النموذج
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
-  const [categoryId, setCategoryId] = useState<string>("")
+  const [semester, setSemester] = useState<string>("S1")
+  const [professor, setProfessor] = useState<string>("")
   const [facultyId, setFacultyId] = useState<string>("")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -99,21 +103,18 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [docsRes, catsRes, facsRes] = await Promise.all([
+      const [docsRes, facsRes] = await Promise.all([
         supabase
-          .from("documents")
+          .from("pdf_summaries")
           .select(`
             *,
-            category:categories(id, name_ar, name_fr, slug),
-            faculty:faculties(id, name_ar, name_fr, city, slug)
+            faculty:faculties(id, name, city, slug)
           `)
           .order("created_at", { ascending: false }),
-        supabase.from("categories").select("*"),
         supabase.from("faculties").select("*"),
       ])
 
       if (docsRes.data) setDocuments(docsRes.data as unknown as PdfDocument[])
-      if (catsRes.data) setCategories(catsRes.data as Category[])
       if (facsRes.data) setFaculties(facsRes.data as Faculty[])
     } catch (err) {
       console.error("خطأ أثناء جلب المستندات:", err)
@@ -125,7 +126,8 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const handleOpenUploadModal = () => {
     setTitle("")
     setDescription("")
-    setCategoryId("")
+    setSemester("S1")
+    setProfessor("")
     setFacultyId("")
     setSelectedFile(null)
     setUploadProgress(0)
@@ -145,20 +147,22 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
         setUploadProgress(Math.round(progress))
       })
 
-      // 2. حساب حجم الملف
-      const sizeMB = (selectedFile.size / (1024 * 1024)).toFixed(2) + " MB"
+      // 2. حساب حجم الملف بالبايت
+      const fileSizeBytes = selectedFile.size
 
       // 3. حفظ بيانات المستند في قاعدة البيانات
       const payload = {
         title,
-        description,
+        slug: generateSlug(title),
+        description: description || null,
+        semester,
+        professor: professor || null,
         file_url: fileUrl,
-        file_size: sizeMB,
-        category_id: categoryId || null,
+        file_size_bytes: fileSizeBytes,
         faculty_id: facultyId || null,
       }
 
-      const { error } = await supabase.from("documents").insert([payload])
+      const { error } = await supabase.from("pdf_summaries").insert([payload])
       if (error) throw error
 
       await fetchData()
@@ -175,7 +179,7 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
     setDeleting(true)
     try {
       const { error } = await supabase
-        .from("documents")
+        .from("pdf_summaries")
         .delete()
         .eq("id", docToDelete.id)
 
@@ -197,18 +201,24 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
+  const formatFileSize = (bytes?: number | null) => {
+    if (!bytes) return "PDF Document"
+    const mb = bytes / (1024 * 1024)
+    return `${mb.toFixed(2)} MB`
+  }
+
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) => {
       const matchesSearch =
         doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (doc.description && doc.description.toLowerCase().includes(searchQuery.toLowerCase()))
 
-      const matchesCategory =
-        categoryFilter === "all" || doc.category_id === categoryFilter
+      const matchesSemester =
+        semesterFilter === "all" || doc.semester === semesterFilter
 
-      return matchesSearch && matchesCategory
+      return matchesSearch && matchesSemester
     })
-  }, [documents, searchQuery, categoryFilter])
+  }, [documents, searchQuery, semesterFilter])
 
   return (
     <AdminLayout currentPath="/library" onNavigate={onNavigate}>
@@ -246,14 +256,14 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
           <div className="flex items-center gap-2">
             <Filter className="size-4 text-muted-foreground" />
             <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              value={semesterFilter}
+              onChange={(e) => setSemesterFilter(e.target.value)}
               className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary"
             >
-              <option value="all">جميع التصنيفات</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name_ar}
+              <option value="all">جميع السداسيات</option>
+              {SEMESTERS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
                 </option>
               ))}
             </select>
@@ -270,7 +280,7 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
             icon={FileText}
             title="لا توجد مستندات قانونية"
             description={
-              searchQuery || categoryFilter !== "all"
+              searchQuery || semesterFilter !== "all"
                 ? "لم يتم العثور على أي ملف يطابق خيارات البحث."
                 : "لم تقم برفع أي ملفات أو وثائق PDF حتى الآن."
             }
@@ -338,23 +348,20 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    {doc.category && (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                        <Tag className="size-3" />
-                        {doc.category.name_ar}
-                      </span>
-                    )}
+                    <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                      {doc.semester}
+                    </span>
                     {doc.faculty && (
                       <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                         <GraduationCap className="size-3" />
-                        {doc.faculty.name_ar}
+                        {doc.faculty.name}
                       </span>
                     )}
                   </div>
                 </div>
 
                 <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
-                  <span>{doc.file_size || "PDF Document"}</span>
+                  <span>{formatFileSize(doc.file_size_bytes)}</span>
                   <a
                     href={doc.file_url}
                     download
@@ -408,16 +415,16 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-foreground">التصنيف</label>
+                    <label className="text-xs font-bold text-foreground">السداسي *</label>
                     <select
-                      value={categoryId}
-                      onChange={(e) => setCategoryId(e.target.value)}
+                      required
+                      value={semester}
+                      onChange={(e) => setSemester(e.target.value)}
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                     >
-                      <option value="">اختر التصنيف...</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name_ar}
+                      {SEMESTERS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
                         </option>
                       ))}
                     </select>
@@ -433,11 +440,22 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
                       <option value="">اختر الكلية...</option>
                       {faculties.map((fac) => (
                         <option key={fac.id} value={fac.id}>
-                          {fac.name_ar}
+                          {fac.name}
                         </option>
                       ))}
                     </select>
                   </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">الأستاذ (اختياري)</label>
+                  <input
+                    type="text"
+                    value={professor}
+                    onChange={(e) => setProfessor(e.target.value)}
+                    placeholder="اسم الأستاذ المحاضر..."
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground outline-none focus:border-primary"
+                  />
                 </div>
 
                 {/* مكون إسقاط واختيار الملف */}

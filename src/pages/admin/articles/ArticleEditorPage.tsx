@@ -2,7 +2,6 @@ import { useState, useEffect } from "react"
 import {
   Save,
   ArrowRight,
-  Eye,
   Globe,
   Image as ImageIcon,
   Loader2,
@@ -10,6 +9,7 @@ import {
   Tag,
   GraduationCap,
   Sparkles,
+  AlertCircle,
 } from "lucide-react"
 import AdminLayout from "../../../components/layout/AdminLayout"
 import RichTextEditor from "../../../components/features/RichTextEditor"
@@ -25,13 +25,15 @@ interface ArticleEditorPageProps {
 }
 
 export default function ArticleEditorPage({
-  articleId,
+  articleId: initialArticleId,
   onBack,
   onNavigate,
 }: ArticleEditorPageProps) {
+  const [currentArticleId, setCurrentArticleId] = useState<string | undefined>(initialArticleId)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [successMsg, setSuccessMsg] = useState("")
+  const [errorMsg, setErrorMsg] = useState("")
 
   // البيانات
   const [title, setTitle] = useState("")
@@ -43,20 +45,25 @@ export default function ArticleEditorPage({
   const [status, setStatus] = useState<ArticleStatus>("draft")
   const [categoryId, setCategoryId] = useState("")
   const [facultyId, setFacultyId] = useState("")
-  const [focusKeyword, setFocusKeyword] = useState("")
-  const [seoTitle, setSeoTitle] = useState("")
-  const [seoDescription, setSeoDescription] = useState("")
+  const [targetKeyword, setTargetKeyword] = useState("")
+  const [metaTitle, setMetaTitle] = useState("")
+  const [metaDescription, setMetaDescription] = useState("")
+  const [publishedAt, setPublishedAt] = useState<string | null>(null)
 
   // القوائم المنسدلة
   const [categories, setCategories] = useState<Category[]>([])
   const [faculties, setFaculties] = useState<Faculty[]>([])
 
   useEffect(() => {
+    setCurrentArticleId(initialArticleId)
+  }, [initialArticleId])
+
+  useEffect(() => {
     fetchMetadata()
-    if (articleId) {
-      fetchArticle(articleId)
+    if (currentArticleId) {
+      fetchArticle(currentArticleId)
     }
-  }, [articleId])
+  }, [currentArticleId])
 
   // تحديث الرابط التلقائي عند تغيير العنوان
   const handleTitleChange = (value: string) => {
@@ -73,16 +80,20 @@ export default function ArticleEditorPage({
         supabase.from("categories").select("*"),
         supabase.from("faculties").select("*"),
       ])
+      if (catsRes.error) console.error("خطأ في التصنيفات:", catsRes.error)
+      if (facsRes.error) console.error("خطأ في الكليات:", facsRes.error)
+
       if (catsRes.data) setCategories(catsRes.data)
       if (facsRes.data) setFaculties(facsRes.data)
     } catch (err) {
-      console.error("خطأ أثناء جلب البيانات:", err)
+      console.error("خطأ أثناء جلب البيانات الأساسية:", err)
     }
   }
 
   // جلب المقال المختار في حالة التعديل
   const fetchArticle = async (id: string) => {
     setLoading(true)
+    setErrorMsg("")
     try {
       const { data, error } = await supabase
         .from("articles")
@@ -100,13 +111,15 @@ export default function ArticleEditorPage({
         setStatus(data.status || "draft")
         setCategoryId(data.category_id || "")
         setFacultyId(data.faculty_id || "")
-        setFocusKeyword(data.focus_keyword || "")
-        setSeoTitle(data.seo_title || "")
-        setSeoDescription(data.seo_description || "")
+        setTargetKeyword(data.target_keyword || "")
+        setMetaTitle(data.meta_title || "")
+        setMetaDescription(data.meta_description || "")
+        setPublishedAt(data.published_at || null)
         setAutoSlug(false)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ في جلب بيانات المقال:", err)
+      setErrorMsg("حدث خطأ أثناء تحميل بيانات المقال.")
     } finally {
       setLoading(false)
     }
@@ -116,8 +129,16 @@ export default function ArticleEditorPage({
   const handleSave = async (targetStatus?: ArticleStatus) => {
     setSaving(true)
     setSuccessMsg("")
+    setErrorMsg("")
 
     const finalStatus = targetStatus || status
+    const nowIso = new Date().toISOString()
+
+    let newPublishedAt = publishedAt
+    if (finalStatus === "published" && !publishedAt) {
+      newPublishedAt = nowIso
+    }
+
     const articlePayload = {
       title,
       slug: slug || generateSlug(title),
@@ -127,35 +148,44 @@ export default function ArticleEditorPage({
       status: finalStatus,
       category_id: categoryId || null,
       faculty_id: facultyId || null,
-      focus_keyword: focusKeyword,
-      seo_title: seoTitle || title,
-      seo_description: seoDescription || excerpt,
-      updated_at: new Date().toISOString(),
-      ...(finalStatus === "published" && !articleId
-        ? { published_at: new Date().toISOString() }
-        : {}),
+      target_keyword: targetKeyword,
+      meta_title: metaTitle || title,
+      meta_description: metaDescription || excerpt,
+      updated_at: nowIso,
+      published_at: newPublishedAt,
     }
 
     try {
-      if (articleId) {
+      if (currentArticleId) {
         const { error } = await supabase
           .from("articles")
           .update(articlePayload)
-          .eq("id", articleId)
+          .eq("id", currentArticleId)
         if (error) throw error
       } else {
-        const { error } = await supabase.from("articles").insert([articlePayload])
+        const { data, error } = await supabase
+          .from("articles")
+          .insert([articlePayload])
+          .select("id")
+          .single()
+
         if (error) throw error
+        if (data?.id) {
+          setCurrentArticleId(data.id)
+        }
       }
 
+      setStatus(finalStatus)
+      setPublishedAt(newPublishedAt)
       setSuccessMsg(
         finalStatus === "published"
           ? "تم نشر المقال بنجاح!"
           : "تم حفظ المسودة بنجاح!"
       )
       setTimeout(() => setSuccessMsg(""), 4000)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حفظ المقال:", err)
+      setErrorMsg(err.message || "حدث خطأ أثناء حفظ المقال.")
     } finally {
       setSaving(false)
     }
@@ -186,7 +216,7 @@ export default function ArticleEditorPage({
             </button>
             <div>
               <h1 className="text-xl font-black text-foreground">
-                {articleId ? "تعديل مقال قانوني" : "إضافة مقال جديد"}
+                {currentArticleId ? "تعديل مقال قانوني" : "إضافة مقال جديد"}
               </h1>
               <p className="text-xs text-muted-foreground">
                 إدارة وصياغة البحوث والمقالات القانونية ومراجعة معايير السيو.
@@ -195,6 +225,11 @@ export default function ArticleEditorPage({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            {errorMsg && (
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-destructive/10 px-3 py-1.5 text-xs font-bold text-destructive">
+                <AlertCircle className="size-3.5" /> {errorMsg}
+              </span>
+            )}
             {successMsg && (
               <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-600">
                 <Check className="size-3.5" /> {successMsg}
@@ -305,7 +340,7 @@ export default function ArticleEditorPage({
                   <option value="">اختر التصنيف...</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.name_ar} ({cat.name_fr})
+                      {cat.name} {cat.name_fr ? `(${cat.name_fr})` : ""}
                     </option>
                   ))}
                 </select>
@@ -324,7 +359,7 @@ export default function ArticleEditorPage({
                   <option value="">اختر الكلية المرفقة...</option>
                   {faculties.map((fac) => (
                     <option key={fac.id} value={fac.id}>
-                      {fac.name_ar} - {fac.city}
+                      {fac.name} - {fac.city}
                     </option>
                   ))}
                 </select>
@@ -356,8 +391,8 @@ export default function ArticleEditorPage({
                 <label className="text-xs font-semibold text-muted-foreground">الكلمة المفتاحية المستهدفة</label>
                 <input
                   type="text"
-                  value={focusKeyword}
-                  onChange={(e) => setFocusKeyword(e.target.value)}
+                  value={targetKeyword}
+                  onChange={(e) => setTargetKeyword(e.target.value)}
                   placeholder="مثال: القانون المدني"
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                 />
@@ -367,8 +402,8 @@ export default function ArticleEditorPage({
                 <label className="text-xs font-semibold text-muted-foreground">عنوان SEO</label>
                 <input
                   type="text"
-                  value={seoTitle}
-                  onChange={(e) => setSeoTitle(e.target.value)}
+                  value={metaTitle}
+                  onChange={(e) => setMetaTitle(e.target.value)}
                   placeholder={title || "عنوان المقال لمحركات البحث"}
                   className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                 />
@@ -377,8 +412,8 @@ export default function ArticleEditorPage({
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground">وصف SEO</label>
                 <textarea
-                  value={seoDescription}
-                  onChange={(e) => setSeoDescription(e.target.value)}
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
                   rows={2}
                   placeholder={excerpt || "وصف المقال الذي يتوافق مع معايير البحث..."}
                   className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
@@ -388,11 +423,11 @@ export default function ArticleEditorPage({
 
             {/* أداة فحص وتدقيق السيو */}
             <SeoAuditWidget
-              title={seoTitle || title}
-              description={seoDescription || excerpt}
+              title={metaTitle || title}
+              description={metaDescription || excerpt}
               content={content}
               slug={slug}
-              focusKeyword={focusKeyword}
+              focusKeyword={targetKeyword}
             />
           </div>
         </div>

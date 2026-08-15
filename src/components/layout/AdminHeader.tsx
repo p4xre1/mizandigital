@@ -1,26 +1,44 @@
-import { useState } from "react"
-import { Search, Bell, Sun, Moon, Menu, Plus, Globe, Shield } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, Bell, Sun, Moon, Menu, Globe } from "lucide-react"
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void
 }
 
 export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
-  const [isDark, setIsDark] = useState(false)
-  const [notifications] = useState(3)
+  // فحص الحالة الفعالية للوضع الداكن عند التحميل الأول
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("dark")
+    }
+    return false
+  })
+
+  const [notifications] = useState<number>(3)
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }, [isDark])
 
   const toggleTheme = () => {
-    setIsDark(!isDark)
-    document.documentElement.classList.toggle("dark")
+    setIsDark((prev) => !prev)
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/80 px-4 backdrop-blur-md sm:px-6" dir="rtl">
+    <header
+      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/80 px-4 backdrop-blur-md sm:px-6"
+      dir="rtl"
+    >
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={onToggleSidebar}
           className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted lg:hidden"
-          aria-label="القائمة"
+          aria-label="القائمة الجانبية"
         >
           <Menu className="size-5" />
         </button>
@@ -31,7 +49,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           <input
             type="text"
             placeholder="بحث في لوحة التحكم..."
-            className="h-9 w-64 rounded-full border border-border bg-background pr-9 pl-4 text-xs outline-none transition focus:w-80 focus:border-primary"
+            className="h-9 w-64 rounded-full border border-border bg-background pr-9 pl-4 text-xs text-foreground outline-none transition focus:w-80 focus:border-primary"
           />
         </div>
       </div>
@@ -41,23 +59,27 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
           href="/"
           target="_blank"
           rel="noreferrer"
-          className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:bg-muted sm:inline-flex"
+          className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground sm:inline-flex"
         >
-          <Globe className="size-3.5" /> زيارة الموقع
+          <Globe className="size-3.5" />
+          <span>زيارة الموقع</span>
         </a>
 
         {/* تبديل المظهر */}
         <button
+          type="button"
           onClick={toggleTheme}
-          className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:bg-muted"
-          aria-label="المظهر"
+          className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          aria-label="تغيير المظهر"
+          title={isDark ? "تفعيل الوضع النهارِي" : "تفعيل الوضع الداكن"}
         >
           {isDark ? <Sun className="size-4 text-amber-400" /> : <Moon className="size-4" />}
         </button>
 
         {/* الإشعارات */}
         <button
-          className="relative grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:bg-muted"
+          type="button"
+          className="relative grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
           aria-label="الإشعارات"
         >
           <Bell className="size-4" />

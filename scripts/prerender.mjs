@@ -7,12 +7,22 @@ const DIST = join(__dirname, "../dist");
 const DATA = join(__dirname, "../src/data");
 const DOMAIN = "https://www.mizan.page";
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
-const [articles, events, schools, lexicon] = await Promise.all([
+const [articles, events, schools, lexicon, news] = await Promise.all([
   readJson("articles.json"),
   readJson("events.json"),
   readJson("schools.json"),
   readJson("lexicon.json"),
+  readJson("news.json"),
 ]);
+
+const generateSlug = (text = "") => {
+  return String(text)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\/\\_]+/g, "-")
+    .replace(/[^\w\u0600-\u06FF\-]+/g, "")
+    .replace(/\-+$/, "");
+};
 
 const pages = [
   { path: "/", title: "ميزان الرقمية | المعرفة القانونية للطلبة", description: "منصة عربية سريعة للملخصات والأخبار والندوات والقاموس ودليل كليات الحقوق بالمغرب." },
@@ -28,6 +38,15 @@ const pages = [
     description: item.excerpt,
     schema: { "@context": "https://schema.org", "@type": item.type === "news" ? "NewsArticle" : "Article", headline: item.title, description: item.excerpt, datePublished: item.publishedAt, dateModified: item.updatedAt, inLanguage: "ar", mainEntityOfPage: `${DOMAIN}${item.type === "news" ? "/news" : "/articles"}/${item.slug}` },
   })),
+  ...news.map((item) => {
+    const slug = item.slug || generateSlug(item.title);
+    return {
+      path: `/news/${slug}`,
+      title: `${item.title} | ميزان الرقمية`,
+      description: item.summary || item.excerpt || "",
+      schema: { "@context": "https://schema.org", "@type": "NewsArticle", headline: item.title, description: item.summary || item.excerpt, datePublished: item.date || item.publishedAt, inLanguage: "ar", mainEntityOfPage: `${DOMAIN}/news/${slug}` },
+    };
+  }),
   ...events.map((item) => ({
     path: `/events/${item.slug}`,
     title: `${item.title} | ميزان الرقمية`,
@@ -40,12 +59,15 @@ const pages = [
     description: item.synopsis,
     schema: { "@context": "https://schema.org", "@type": "EducationalOrganization", name: item.name, parentOrganization: item.university, url: item.officialUrl, address: { "@type": "PostalAddress", addressLocality: item.city, addressCountry: "MA" }, inLanguage: "ar" },
   })),
-  ...lexicon.map((item) => ({
-    path: `/lexicon/${item.id}`,
-    title: `${item.term_ar} | القاموس القانوني`,
-    description: item.definition,
-    schema: { "@context": "https://schema.org", "@type": "DefinedTerm", name: item.term_ar, alternateName: item.term_fr, description: item.definition, inDefinedTermSet: `${DOMAIN}/lexicon`, inLanguage: "ar" },
-  })),
+  ...lexicon.map((item) => {
+    const slug = generateSlug(item.term_ar) || item.id;
+    return {
+      path: `/lexicon/${slug}`,
+      title: `${item.term_ar} | القاموس القانوني`,
+      description: item.definition,
+      schema: { "@context": "https://schema.org", "@type": "DefinedTerm", name: item.term_ar, alternateName: item.term_fr, description: item.definition, inDefinedTermSet: `${DOMAIN}/lexicon`, inLanguage: "ar" },
+    };
+  }),
 ];
 
 const escapeHtml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");

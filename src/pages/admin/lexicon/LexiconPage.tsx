@@ -15,61 +15,48 @@ import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
 import { supabase } from "../../../lib/supabase/client"
-import { generateSlug } from "../../../lib/utils/generateSlug"
-import type { DictionaryTerm, Category } from "../../../types/cms"
+import type { LexiconTerm } from "../../../types/cms"
 
 interface LexiconPageProps {
   onNavigate?: (path: string) => void
 }
 
 export default function LexiconPage({ onNavigate }: LexiconPageProps) {
-  const [terms, setTerms] = useState<DictionaryTerm[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
+  const [terms, setTerms] = useState<LexiconTerm[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
 
   // حالة Modal التأكيد والحذف
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
-  const [termToDelete, setTermToDelete] = useState<DictionaryTerm | null>(null)
+  const [termToDelete, setTermToDelete] = useState<LexiconTerm | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
 
   // حالة Modal الإضافة/التعديل
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
-  const [editingTerm, setEditingTerm] = useState<DictionaryTerm | null>(null)
+  const [editingTerm, setEditingTerm] = useState<LexiconTerm | null>(null)
   const [saving, setSaving] = useState<boolean>(false)
 
   // حقول النموذج
   const [termAr, setTermAr] = useState<string>("")
   const [termFr, setTermFr] = useState<string>("")
-  const [defAr, setDefAr] = useState<string>("")
-  const [defFr, setDefFr] = useState<string>("")
-  const [slug, setSlug] = useState<string>("")
-  const [categoryId, setCategoryId] = useState<string>("")
+  const [definition, setDefinition] = useState<string>("")
+  const [category, setCategory] = useState<string>("")
 
   useEffect(() => {
-    fetchInitialData()
+    fetchTerms()
   }, [])
 
-  const fetchInitialData = async () => {
+  const fetchTerms = async () => {
     setLoading(true)
     try {
-      const [termsRes, catsRes] = await Promise.all([
-        supabase
-          .from("dictionary_terms")
-          .select(`
-            *,
-            category:categories(id, name_ar, name_fr, slug)
-          `)
-          .order("created_at", { ascending: false }),
-        supabase.from("categories").select("*"),
-      ])
+      const { data, error } = await supabase
+        .from("lexicon_terms")
+        .select("*")
+        .order("created_at", { ascending: false })
 
-      if (termsRes.error) throw termsRes.error
-      if (catsRes.error) throw catsRes.error
-
-      if (termsRes.data) setTerms(termsRes.data as unknown as DictionaryTerm[])
-      if (catsRes.data) setCategories(catsRes.data as Category[])
+      if (error) throw error
+      if (data) setTerms(data)
     } catch (err) {
       console.error("خطأ في جلب بيانات المعجم:", err)
     } finally {
@@ -77,58 +64,60 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
     }
   }
 
+  // التصنيفات المتاحة مستخرجة من المصطلحات الحالية (لا يوجد جدول تصنيفات مرتبط)
+  const availableCategories = useMemo(() => {
+    const set = new Set<string>()
+    terms.forEach((t) => {
+      if (t.category) set.add(t.category)
+    })
+    return Array.from(set)
+  }, [terms])
+
   const handleOpenAddModal = () => {
     setEditingTerm(null)
     setTermAr("")
     setTermFr("")
-    setDefAr("")
-    setDefFr("")
-    setSlug("")
-    setCategoryId("")
+    setDefinition("")
+    setCategory("")
     setFormModalOpen(true)
   }
 
-  const handleOpenEditModal = (term: DictionaryTerm) => {
+  const handleOpenEditModal = (term: LexiconTerm) => {
     setEditingTerm(term)
     setTermAr(term.term_ar)
     setTermFr(term.term_fr)
-    setDefAr(term.definition_ar)
-    setDefFr(term.definition_fr || "")
-    setSlug(term.slug)
-    setCategoryId(term.category_id || "")
+    setDefinition(term.definition)
+    setCategory(term.category)
     setFormModalOpen(true)
   }
 
   const handleSaveTerm = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!termAr || !termFr || !defAr) return
+    if (!termAr || !termFr || !definition || !category) return
 
     setSaving(true)
-    const finalSlug = slug || generateSlug(termFr || termAr)
 
     const payload = {
       term_ar: termAr,
       term_fr: termFr,
-      definition_ar: defAr,
-      definition_fr: defFr || null,
-      slug: finalSlug,
-      category_id: categoryId || null,
+      definition,
+      category,
     }
 
     try {
       if (editingTerm) {
         const { error } = await supabase
-          .from("dictionary_terms")
+          .from("lexicon_terms")
           .update(payload)
           .eq("id", editingTerm.id)
 
         if (error) throw error
       } else {
-        const { error } = await supabase.from("dictionary_terms").insert([payload])
+        const { error } = await supabase.from("lexicon_terms").insert([payload])
         if (error) throw error
       }
 
-      await fetchInitialData()
+      await fetchTerms()
       setFormModalOpen(false)
     } catch (err) {
       console.error("خطأ أثناء حفظ المصطلح:", err)
@@ -142,7 +131,7 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
     setDeleting(true)
     try {
       const { error } = await supabase
-        .from("dictionary_terms")
+        .from("lexicon_terms")
         .delete()
         .eq("id", termToDelete.id)
 
@@ -163,10 +152,10 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
       const matchesSearch =
         term.term_ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
         term.term_fr.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        term.definition_ar.toLowerCase().includes(searchQuery.toLowerCase())
+        term.definition.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesCategory =
-        categoryFilter === "all" || term.category_id === categoryFilter
+        categoryFilter === "all" || term.category === categoryFilter
 
       return matchesSearch && matchesCategory
     })
@@ -213,9 +202,9 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
               className="rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary"
             >
               <option value="all">جميع التصنيفات</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name_ar}
+              {availableCategories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
                 </option>
               ))}
             </select>
@@ -247,7 +236,7 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
                   <tr>
                     <th className="px-4 py-3.5 font-bold">المصطلح بالعربية</th>
                     <th className="px-4 py-3.5 font-bold">المصطلح بالفرنسية</th>
-                    <th className="px-4 py-3.5 font-bold">التعريف بالعربية</th>
+                    <th className="px-4 py-3.5 font-bold">التعريف</th>
                     <th className="px-4 py-3.5 font-bold">التصنيف</th>
                     <th className="px-4 py-3.5 font-bold text-center">الإجراءات</th>
                   </tr>
@@ -262,13 +251,13 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
                         {term.term_fr}
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground">
-                        <p className="line-clamp-2 max-w-xs">{term.definition_ar}</p>
+                        <p className="line-clamp-2 max-w-xs">{term.definition}</p>
                       </td>
                       <td className="px-4 py-3.5 text-muted-foreground">
                         {term.category ? (
                           <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[11px] font-medium">
                             <Tag className="size-3" />
-                            {term.category.name_ar}
+                            {term.category}
                           </span>
                         ) : (
                           "—"
@@ -329,12 +318,7 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
                       type="text"
                       required
                       value={termAr}
-                      onChange={(e) => {
-                        setTermAr(e.target.value)
-                        if (!slug && !editingTerm) {
-                          setSlug(generateSlug(e.target.value))
-                        }
-                      }}
+                      onChange={(e) => setTermAr(e.target.value)}
                       placeholder="مثال: القوة القاهرة"
                       className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                     />
@@ -357,58 +341,34 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground">
-                    التعريف القانوني (بالعربية) *
+                    التعريف القانوني *
                   </label>
                   <textarea
                     required
-                    rows={3}
-                    value={defAr}
-                    onChange={(e) => setDefAr(e.target.value)}
+                    rows={4}
+                    value={definition}
+                    onChange={(e) => setDefinition(e.target.value)}
                     placeholder="شرح مفهوم المصطلح وأحكامه وفق التشريع..."
                     className="w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground outline-none focus:border-primary"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground">
-                    التعريف القانوني (بالفرنسية)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={defFr}
-                    onChange={(e) => setDefFr(e.target.value)}
-                    placeholder="Définition juridique en français..."
-                    className="w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground outline-none focus:border-primary dir-ltr text-right"
+                  <label className="text-xs font-bold text-foreground">التصنيف *</label>
+                  <input
+                    type="text"
+                    required
+                    list="lexicon-categories"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    placeholder="مثال: القانون المدني"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
                   />
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-foreground">التصنيف</label>
-                    <select
-                      value={categoryId}
-                      onChange={(e) => setCategoryId(e.target.value)}
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
-                    >
-                      <option value="">بدون تصنيف...</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name_ar}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-foreground">الرابط الفريد (Slug)</label>
-                    <input
-                      type="text"
-                      value={slug}
-                      onChange={(e) => setSlug(e.target.value)}
-                      placeholder="force-majeure"
-                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary dir-ltr text-right"
-                    />
-                  </div>
+                  <datalist id="lexicon-categories">
+                    {availableCategories.map((cat) => (
+                      <option key={cat} value={cat} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">

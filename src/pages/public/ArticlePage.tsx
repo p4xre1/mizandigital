@@ -1,0 +1,312 @@
+import { useState } from "react"
+import { useParams, Link } from "react-router-dom"
+import { SEOHead } from "../../components/seo/SEOHead"
+import { stripHtml, truncateCleanText } from "../../lib/utils/sanitize"
+import newsData from "../../data/news.json"
+import articlesData from "../../data/articles.json"
+import {
+  Calendar,
+  Clock,
+  User,
+  Tag,
+  ArrowRight,
+  Share2,
+  Check,
+  FileText,
+  AlertCircle,
+  Newspaper,
+  BookOpen
+} from "lucide-react"
+
+interface ArticlePageProps {
+  slug?: string
+}
+
+// دالة توليد الرابط المتوافقة مع السيرفر وخريطة الموقع
+const generateSlug = (text = "") => {
+  return String(text)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\/\\_]+/g, "-")
+    .replace(/[^\w\u0600-\u06FF\-]+/g, "")
+    .replace(/\-+$/, "");
+};
+
+export function ArticlePage({ slug }: ArticlePageProps) {
+  const params = useParams<{ slug?: string; id?: string }>()
+  const rawSlug = slug || params.slug || params.id
+  const [copied, setCopied] = useState(false)
+
+  // فك تشفير الرابط والتعامل مع النصوص العربية والمسافات
+  const articleSlug = rawSlug ? decodeURIComponent(rawSlug).trim() : ""
+
+  // دمج كافة البيانات (الأخبار والمقالات الدراسية) للبحث الشامل
+  const allItems = [...(newsData as any[]), ...(articlesData as any[])];
+
+  // البحث الذكي المطابق للأيدي، الـ slug الصريح، أو الـ slug المتولد من العنوان
+  const article = allItems.find((item) => {
+    const itemSlug = item.slug || generateSlug(item.title);
+    return (
+      String(item.id) === articleSlug || 
+      String(item.slug) === articleSlug || 
+      itemSlug === articleSlug
+    );
+  });
+
+  // تحديد نوع المسار الصحيح بناءً على تصنيف العنصر (خبر أو مقال)
+  const getBasePath = (item: any) => {
+    return item?.type === "news" ? "/news" : "/articles";
+  };
+
+  // المقالات ذات الصلة (استثناء المقال الحالي)
+  const relatedArticles = allItems
+    .filter((item) => String(item.id) !== String(article?.id))
+    .slice(0, 2)
+
+  // التعامل مع مشاركة / نسخ الرابط
+  const handleShare = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  // حالة عدم العثور على المقال
+  if (!article) {
+    return (
+      <>
+        <SEOHead
+          title="المقال غير موجود - منصة الميزان"
+          description="عذراً، لم يتم العثور على المقال أو الخبر المطلوب في الأرشيف التشريعي."
+        />
+        <main className="container mx-auto max-w-4xl px-4 py-20 text-center" dir="rtl">
+          <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border bg-card p-8 shadow-sm">
+            <AlertCircle size={48} className="mx-auto text-muted-foreground mb-4" />
+            <h1 className="text-2xl font-bold text-foreground">المقال غير موجود</h1>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+              قد يكون المقال قد تم نقله أو حذف رابط النشر الخاص به.
+            </p>
+            <Link
+              to="/news"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:opacity-90"
+            >
+              <ArrowRight size={16} />
+              <span>العودة لمدونة الأخبار والمقالات</span>
+            </Link>
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  const basePath = getBasePath(article);
+  const currentSlug = article.slug || generateSlug(article.title);
+
+  // تجهيز الوصف الآمن لـ SEO
+  const safeDescription = article.summary 
+    ? stripHtml(article.summary) 
+    : truncateCleanText(article.content || "", 160)
+
+  // بيانات Schema.org للمحركات البحثية
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": article.type === "news" ? "NewsArticle" : "TechArticle",
+    "headline": article.title,
+    "description": safeDescription,
+    "datePublished": article.date,
+    "author": {
+      "@type": "Person",
+      "name": article.author || "محرر الشؤون القانونية"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "منصة الميزان الرقمية",
+      "url": "https://www.mizan.page"
+    },
+    "mainEntityOfPage": `https://www.mizan.page${basePath}/${currentSlug}`,
+    "inLanguage": "ar-MA"
+  }
+
+  return (
+    <>
+      <SEOHead
+        title={`${article.title} - منصة الميزان`}
+        description={safeDescription}
+        ogType="article"
+        keywords={[
+          article.category || "العلوم القانونية",
+          "القانون المغربي",
+          "تحليل تشريعي"
+        ]}
+        schema={articleSchema}
+      />
+
+      <main className="container mx-auto max-w-4xl px-4 py-10" dir="rtl">
+        {/* شريط المسار Navigation */}
+        <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
+          <Link to="/" className="hover:text-primary transition">
+            الرئيسية
+          </Link>
+          <span>/</span>
+          <Link to={basePath} className="hover:text-primary transition">
+            {article.type === "news" ? "الأخبار التشريعية" : "المقالات والدراسات"}
+          </Link>
+          <span>/</span>
+          <span className="truncate max-w-[200px] text-foreground font-semibold">
+            {article.title}
+          </span>
+        </nav>
+
+        {/* حاوية المقال */}
+        <article className="rounded-2xl border border-border bg-card p-6 md:p-10 shadow-sm">
+          {/* الترويسة العلوية */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-3 py-1 text-xs font-bold text-primary border border-primary/20">
+                <Tag size={12} />
+                {article.category || "دراسة قانونية"}
+              </span>
+
+              <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                {article.type === "news" ? (
+                  <>
+                    <Newspaper size={12} />
+                    خبر تشريعي
+                  </>
+                ) : (
+                  <>
+                    <BookOpen size={12} />
+                    مقال تحليلي
+                  </>
+                )}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition"
+              title="مشاركة المقال"
+            >
+              {copied ? (
+                <>
+                  <Check size={14} className="text-green-600 dark:text-green-400" />
+                  <span>تم نسخ الرابط</span>
+                </>
+              ) : (
+                <>
+                  <Share2 size={14} />
+                  <span>مشاركة</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* العنوان الرئيسي */}
+          <h1 className="text-2xl md:text-4xl font-black text-foreground leading-snug mb-6">
+            {article.title}
+          </h1>
+
+          {/* شريط معلومات الكاتب والتاريخ */}
+          <div className="flex flex-wrap items-center gap-4 py-4 px-5 rounded-xl bg-muted/30 border border-border/50 text-xs text-muted-foreground mb-8">
+            {article.author && (
+              <div className="flex items-center gap-1.5 font-bold text-foreground">
+                <User size={14} className="text-primary" />
+                <span>{article.author}</span>
+              </div>
+            )}
+
+            {article.date && (
+              <div className="flex items-center gap-1.5">
+                <Calendar size={14} className="text-primary" />
+                <span>{article.date}</span>
+              </div>
+            )}
+
+            {article.readTime && (
+              <div className="flex items-center gap-1.5">
+                <Clock size={14} className="text-primary" />
+                <span>زمن القراءة: {article.readTime}</span>
+              </div>
+            )}
+          </div>
+
+          {/* الملخص التنفيذي */}
+          {article.summary && (
+            <div className="mb-8 rounded-xl bg-primary/5 border-r-4 border-primary p-4 md:p-5 text-sm text-foreground/90 font-medium leading-relaxed">
+              <span className="block font-bold text-primary mb-1 text-xs">ملخص التقرير:</span>
+              {stripHtml(article.summary)}
+            </div>
+          )}
+
+          {/* نص المقال */}
+          <div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground space-y-6 pt-2 border-t border-border/50">
+            {article.content ? (
+              article.content.split("\n\n").map((paragraph: string, idx: number) => (
+                <p key={idx} className="text-justify leading-8">
+                  {paragraph}
+                </p>
+              ))
+            ) : (
+              <p className="text-muted-foreground italic">لا يوجد محتوى نصي متاح لهذا التقرير.</p>
+            )}
+          </div>
+        </article>
+
+        {/* مقالات ذات صلة */}
+        {relatedArticles.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+              <FileText size={20} className="text-primary" />
+              <span>مقالات وقراءات ذات صلة</span>
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {relatedArticles.map((rel: any) => {
+                const relPath = getBasePath(rel);
+                const relSlug = rel.slug || generateSlug(rel.title);
+                return (
+                  <Link
+                    key={rel.id}
+                    to={`${relPath}/${relSlug}`}
+                    className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
+                  >
+                    <div>
+                      <span className="inline-block rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary mb-2">
+                        {rel.category}
+                      </span>
+                      <h3 className="text-base font-bold text-foreground group-hover:text-primary transition leading-snug">
+                        {rel.title}
+                      </h3>
+                      {(rel.summary || rel.content) && (
+                        <p className="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {truncateCleanText(rel.summary || rel.content, 130)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-border flex items-center gap-1 text-xs font-bold text-primary">
+                      <span>قراءة التقرير</span>
+                      <ArrowRight size={14} className="rotate-180" />
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* زر العودة */}
+        <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
+          <Link
+            to={basePath}
+            className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline"
+          >
+            <ArrowRight size={16} />
+            <span>العودة لجداول الأخبار والتحليلات</span>
+          </Link>
+        </div>
+      </main>
+    </>
+  )
+}
