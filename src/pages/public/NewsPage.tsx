@@ -49,7 +49,7 @@ export function NewsPage() {
     setLoading(true)
     try {
       // الاستعلام من جدول news المتاح في قاعدة البيانات
-      const { data, error } = await (supabase.from("news") as any)
+      const { data, error } = await (supabase as any).from("news")
         .select("*")
         .eq("is_published", true)
         .order("published_at", { ascending: false })
