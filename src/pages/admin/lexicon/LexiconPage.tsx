@@ -56,7 +56,7 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
         .order("created_at", { ascending: false })
 
       if (error) throw error
-      if (data) setTerms(data)
+      if (data) setTerms(data as any)
     } catch (err) {
       console.error("خطأ في جلب بيانات المعجم:", err)
     } finally {

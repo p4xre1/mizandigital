@@ -108,7 +108,7 @@ export default function ArticleEditorPage({
         setContent(data.content || "")
         setExcerpt(data.excerpt || "")
         setCoverImage(data.cover_image || "")
-        setStatus(data.status || "draft")
+        setStatus((data.status as any) || "draft")
         setCategoryId(data.category_id || "")
         setFacultyId(data.faculty_id || "")
         setTargetKeyword(data.target_keyword || "")

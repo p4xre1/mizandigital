@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { stripHtml, truncateCleanText } from "../../lib/utils/sanitize"
 import { renderTextWithInternalLinks } from "../../lib/utils/autoLinker"
+import { supabase } from "../../lib/supabase/client"
 import newsData from "../../data/news.json"
 import articlesData from "../../data/articles.json"
 import lexiconData from "../../data/lexicon.json"
@@ -39,11 +40,49 @@ export function ArticlePage({ slug }: ArticlePageProps) {
   const rawSlug = slug || params.slug || params.id
   const [copied, setCopied] = useState(false)
 
+  // دمج البيانات المحلية أولاً لضمان سرعة العرض والتحميل المسبق (Prerender)
+  const [allItems, setAllItems] = useState<any[]>([
+    ...(newsData as any[]),
+    ...(articlesData as any[])
+  ])
+  const [isLoading, setIsLoading] = useState(true)
+
+  // جلب المحتوى الجديد من لوحة تحكم Supabase CMS دمجاً مع الملفات المحلية
+  useEffect(() => {
+    async function fetchCMSContent() {
+      try {
+        const [{ data: dbArticles }, { data: dbNews }] = await Promise.all([
+          supabase.from("articles").select("*"),
+          supabase.from("news").select("*")
+        ])
+
+        if (dbArticles || dbNews) {
+          const combined = [
+            ...(dbNews || []),
+            ...(dbArticles || []),
+            ...(newsData as any[]),
+            ...(articlesData as any[])
+          ]
+          
+          // إزالة العناصر المكررة بناءً على المعرف أو الرابط
+          const uniqueItems = Array.from(
+            new Map(combined.map(item => [item.id || item.slug || item.title, item])).values()
+          )
+          
+          setAllItems(uniqueItems)
+        }
+      } catch (err) {
+        console.error("Error fetching Supabase CMS content:", err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchCMSContent()
+  }, [])
+
   // فك تشفير الرابط والتعامل مع النصوص العربية والمسافات
   const articleSlug = rawSlug ? decodeURIComponent(rawSlug).trim() : ""
-
-  // دمج كافة البيانات (الأخبار والمقالات الدراسية) للبحث الشامل
-  const allItems = [...(newsData as any[]), ...(articlesData as any[])];
 
   // البحث الذكي المطابق للأيدي، الـ slug الصريح، أو الـ slug المتولد من العنوان
   const article = allItems.find((item) => {
@@ -74,8 +113,8 @@ export function ArticlePage({ slug }: ArticlePageProps) {
     }
   }
 
-  // حالة عدم العثور على المقال
-  if (!article) {
+  // حالة عدم العثور على المقال (مع مراعاة انتظار التحميل إذا أردت)
+  if (!article && !isLoading) {
     return (
       <>
         <SEOHead
@@ -99,6 +138,14 @@ export function ArticlePage({ slug }: ArticlePageProps) {
           </div>
         </main>
       </>
+    )
+  }
+
+  if (!article && isLoading) {
+    return (
+      <main className="container mx-auto max-w-4xl px-4 py-20 text-center" dir="rtl">
+        <p className="text-muted-foreground animate-pulse">جاري تحميل المحتوى التشريعي...</p>
+      </main>
     )
   }
 
@@ -265,18 +312,18 @@ export function ArticlePage({ slug }: ArticlePageProps) {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {relatedArticles.map((rel: any) => {
+              {relatedArticles.slice(0, 2).map((rel: any) => {
                 const relPath = getBasePath(rel);
                 const relSlug = rel.slug || generateSlug(rel.title);
                 return (
                   <Link
-                    key={rel.id}
+                    key={rel.id || rel.slug}
                     to={`${relPath}/${relSlug}`}
                     className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
                   >
                     <div>
                       <span className="inline-block rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary mb-2">
-                        {rel.category}
+                        {rel.category || "عام"}
                       </span>
                       <h3 className="text-base font-bold text-foreground group-hover:text-primary transition leading-snug">
                         {rel.title}
