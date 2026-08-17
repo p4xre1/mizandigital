@@ -68,5 +68,1685 @@
     "term_fr": "Contrat de travail",
     "definition": "اتفاق يلتزم بموجبه الأجير بالعمل تحت إدارة المشغل مقابل أجر.",
     "category": "قانون الشغل"
+  },
+  {
+    "id": "contrat",
+    "term_ar": "العقد",
+    "term_fr": "Contrat",
+    "definition": "اتفاق بين شخصين أو أكثر يهدف إلى إنشاء أو نقل أو تعديل أو إنهاء التزام قانوني.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "nullite",
+    "term_ar": "البطلان",
+    "term_fr": "Nullité",
+    "definition": "جزاء يقرره القانون لعدم استيفاء العقد لأركانه الأساسية.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "mise-en-demeure",
+    "term_ar": "الإعذار",
+    "term_fr": "Mise en demeure",
+    "definition": "إشعار رسمي يوجهه الدائن للمدين لتنفيذ التزامه في أجل محدد.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "mandat",
+    "term_ar": "الوكالة",
+    "term_fr": "Mandat",
+    "definition": "عقد يقضي بأن يقوم شخص بإجراء عمل قانوني لحساب شخص آخر.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "donation",
+    "term_ar": "الهبة",
+    "term_fr": "Donation",
+    "definition": "عقد تمليك مآل الشيء من طرف الواهب للموهوب له دون مقابل.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "testament",
+    "term_ar": "الوصية",
+    "term_fr": "Testament",
+    "definition": "تصرف في التركة مضاف لما بعد الموت.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "mariage",
+    "term_ar": "الزواج",
+    "term_fr": "Mariage",
+    "definition": "ميثاق تراض وترابط شرعي بين رجل وامرأة غايته الإحصان وتكوين أسرة.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "divorce",
+    "term_ar": "الطلاق",
+    "term_fr": "Divorce",
+    "definition": "حل ميثاق الزوجية يمارسه الزوج أو الزوجة برعاية القضاء.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "garde",
+    "term_ar": "الحضانة",
+    "term_fr": "Garde",
+    "definition": "حفظ الولد والقيام بتربيته ورعايته.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "pension-alimentaire",
+    "term_ar": "النفقة",
+    "term_fr": "Pension alimentaire",
+    "definition": "ما ينفقه الشخص على من تلزمه نفقته شرعاً.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "wilaya",
+    "term_ar": "الولاية",
+    "term_fr": "Tutelle",
+    "definition": "سلطة شرعية يمارسها الولي على القاصر وتصرفاته القانونية.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "crime",
+    "term_ar": "الجناية",
+    "term_fr": "Crime",
+    "definition": "أشد أنواع الجرائم خطورة ويعاقب عليها بالسجن المؤبد أو المؤقت.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "delit",
+    "term_ar": "الجنحة",
+    "term_fr": "Délit",
+    "definition": "جريمة يعاقب عليها القانون بالحبس أو الغرامة.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "contravention",
+    "term_ar": "المخالفة",
+    "term_fr": "Contravention",
+    "definition": "أقل أنواع الجرائم خطورة ويعاقب عليها بغرامة مالية.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "parquet",
+    "term_ar": "النيابة العامة",
+    "term_fr": "Parquet",
+    "definition": "جهاز قضائي يمثل المجتمع في القضايا الجنائية ويسهر على تطبيق القانون.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "instruction",
+    "term_ar": "التحقيق",
+    "term_fr": "Instruction",
+    "definition": "مرحلة قضائية تسبق المحاكمة تهدف لجمع الأدلة والتحقق من التهم.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "appel",
+    "term_ar": "الاستئناف",
+    "term_fr": "Appel",
+    "definition": "طريق طعن عادي يهدف لإعادة النظر في حكم ابتدائي.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "cassation",
+    "term_ar": "النقض",
+    "term_fr": "Cassation",
+    "definition": "طعن يرفع أمام محكمة النقض لمراقبة مدى صحة تطبيق القانون من قبل المحاكم.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "saisie",
+    "term_ar": "الحجز",
+    "term_fr": "Saisie",
+    "definition": "إجراء تحفظي أو تنفيذي يهدف لوضع أموال المدين تحت يد القضاء.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "execution",
+    "term_ar": "التنفيذ",
+    "term_fr": "Exécution",
+    "definition": "إجبار المدين على تنفيذ التزامه الذي قضى به الحكم القضائي.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "faillite",
+    "term_ar": "الإفلاس",
+    "term_fr": "Faillite",
+    "definition": "حالة التاجر الذي يتوقف عن دفع ديونه التجارية في مواعيد استحقاقها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "lettre-de-change",
+    "term_ar": "الكمبيالة",
+    "term_fr": "Lettre de change",
+    "definition": "ورقة تجارية تتضمن أمراً من الساحب للمسحوب عليه بدفع مبلغ معين.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "cheque",
+    "term_ar": "الشيك",
+    "term_fr": "Chèque",
+    "definition": "ورقة تجارية يتضمن أمراً من الساحب للبنك بدفع مبلغ لحامله أو للمستفيد.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "registre-commerce",
+    "term_ar": "السجل التجاري",
+    "term_fr": "Registre de commerce",
+    "definition": "سجل رسمي تقيد فيه الشركات والتجار لغرض الإشهار القانوني.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "expropriation",
+    "term_ar": "نزع الملكية",
+    "term_fr": "Expropriation",
+    "definition": "إجراء إداري يهدف لانتزاع ملكية عقار من صاحبه للمصلحة العامة مقابل تعويض.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "service-public",
+    "term_ar": "المرفق العام",
+    "term_fr": "Service public",
+    "definition": "نشاط تديره السلطة العامة لإشباع حاجيات المصلحة العامة.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "licence",
+    "term_ar": "الرخصة",
+    "term_fr": "Licence",
+    "definition": "قرار إداري يسمح للأفراد بممارسة نشاط مقيد بالقانون.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "abrogation",
+    "term_ar": "الإلغاء",
+    "term_fr": "Abrogation",
+    "definition": "إزالة النص القانوني وتجريده من قوته الملزمة.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "prescription",
+    "term_ar": "التقادم",
+    "term_fr": "Prescription",
+    "definition": "مرور الزمن الذي يترتب عليه سقوط الحق أو الدعوى أو العقوبة.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "preuve",
+    "term_ar": "الإثبات",
+    "term_fr": "Preuve",
+    "definition": "إقامة الدليل أمام القضاء بالطرق القانونية على وجود واقعة أو حق.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "servitude",
+    "term_ar": "الارتفاق",
+    "term_fr": "Servitude",
+    "definition": "تكليف يقرر على عقار لمنفعة عقار آخر في ملكية غيره.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "immatriculation",
+    "term_ar": "التحفيظ",
+    "term_fr": "Immatriculation",
+    "definition": "مسطرة إدارية وقضائية لتسجيل العقار في السجل العقاري ليكون له سند نهائي.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "litige",
+    "term_ar": "النزاع",
+    "term_fr": "Litige",
+    "definition": "خلاف قانوني بين طرفين أو أكثر يعرض على القضاء.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "audition",
+    "term_ar": "الاستماع",
+    "term_fr": "Audition",
+    "definition": "إجراء يقوم به القاضي أو الضابطة القضائية لسماع أقوال الأطراف.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "plaidoyer",
+    "term_ar": "المرافعة",
+    "term_fr": "Plaidoyer",
+    "definition": "عرض المحامي أو الطرفين لمطالبهم وحججهم أمام القاضي.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "jugement",
+    "term_ar": "الحكم",
+    "term_fr": "Jugement",
+    "definition": "قرار صادر عن هيئة قضائية لفض نزاع معروض عليها.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "avocat",
+    "term_ar": "المحامي",
+    "term_fr": "Avocat",
+    "definition": "مساعد القضاء الذي يتولى الدفاع عن المتقاضين وتمثيلهم.",
+    "category": "مهن قضائية"
+  },
+  {
+    "id": "notaire",
+    "term_ar": "الموثق",
+    "term_fr": "Notaire",
+    "definition": "ضابط عمومي يحرر العقود التي يفرض القانون إعطاءها الصبغة الرسمية.",
+    "category": "مهن قضائية"
+  },
+  {
+    "id": "greffier",
+    "term_ar": "كاتب الضبط",
+    "term_fr": "Greffier",
+    "definition": "موظف بالمحكمة يساعد القاضي ويسجل الجلسات ويحرر المحاضر.",
+    "category": "مهن قضائية"
+  },
+  {
+    "id": "expert",
+    "term_ar": "الخبير",
+    "term_fr": "Expert",
+    "definition": "شخص مختص تقنياً يلجأ إليه القاضي لتنوير العدالة في أمور فنية.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "greve",
+    "term_ar": "الإضراب",
+    "term_fr": "Grève",
+    "definition": "توقف جماعي عن العمل يقوم به الأجراء للمطالبة بحقوقهم.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "licenciement",
+    "term_ar": "الطرد",
+    "term_fr": "Licenciement",
+    "definition": "إنهاء عقد الشغل من طرف المشغل.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "syndicat",
+    "term_ar": "النقابة",
+    "term_fr": "Syndicat",
+    "definition": "منظمة مهنية تهدف للدفاع عن مصالح الأجراء.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "convention-collective",
+    "term_ar": "الاتفاقية الجماعية",
+    "term_fr": "Convention collective",
+    "definition": "اتفاق ينظم شروط العمل بين المشغلين وممثلي الأجراء.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "dommage-interet",
+    "term_ar": "التعويض",
+    "term_fr": "Dommages-intérêts",
+    "definition": "مبلغ مالي يحكم به القاضي لجبر الضرر الذي لحق بالمتضرر.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "responsabilite-civile",
+    "term_ar": "المسؤولية المدنية",
+    "term_fr": "Responsabilité civile",
+    "definition": "التزام الشخص بجبر الضرر الناتج عن فعله أو فعل غيره.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "force-majeure",
+    "term_ar": "القوة القاهرة",
+    "term_fr": "Force majeure",
+    "definition": "حدث لا يمكن توقعه ولا يمكن دفعه يمنع تنفيذ الالتزام.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "capacite",
+    "term_ar": "الأهلية",
+    "term_fr": "Capacité",
+    "definition": "صلاحية الشخص لاكتساب الحقوق وتحمل الواجبات ومباشرة التصرفات القانونية.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "tutelle",
+    "term_ar": "الوصاية",
+    "term_fr": "Tutelle",
+    "definition": "نظام لحماية أموال القاصر أو ناقص الأهلية.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "succession",
+    "term_ar": "الإرث",
+    "term_fr": "Succession",
+    "definition": "انتقال التركة من الميت إلى ورثته حسب القواعد الشرعية.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "recidive",
+    "term_ar": "العود",
+    "term_fr": "Récidive",
+    "definition": "ارتكاب الجاني لجريمة جديدة بعد صدور حكم نهائي في جريمة سابقة.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "amnistie",
+    "term_ar": "العفو",
+    "term_fr": "Amnistie",
+    "definition": "إجراء يصدره الملك يمحو العقوبة كلياً أو جزئياً.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "assignation",
+    "term_ar": "الاستدعاء",
+    "term_fr": "Assignation",
+    "definition": "إجراء قضائي يبلغ من خلاله المدعي المدعى عليه للحضور للمحكمة.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "demande-reconventionnelle",
+    "term_ar": "الطلب المقابل",
+    "term_fr": "Demande reconventionnelle",
+    "definition": "طلب يقدمه المدعى عليه ضد المدعي أثناء سير الدعوى.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "derniere-instance",
+    "term_ar": "الدرجة النهائية",
+    "term_fr": "Dernier ressort",
+    "definition": "الحكم الذي لا يقبل الطعن بالاستئناف.",
+    "category": "تنظيم قضائي"
+  },
+  {
+    "id": "lit-de-justice",
+    "term_ar": "مجلس القضاء",
+    "term_fr": "Cour de justice",
+    "definition": "هيئة قضائية عليا للنظر في قضايا معينة.",
+    "category": "تنظيم قضائي"
+  },
+  {
+    "id": "audience-publique",
+    "term_ar": "الجلسة العلنية",
+    "term_fr": "Audience publique",
+    "definition": "جلسة المحكمة التي يسمح للعموم بالحضور لمتابعة أطوارها.",
+    "category": "تنظيم قضائي"
+  },
+  {
+    "id": "ordonnance",
+    "term_ar": "الأمر القضائي",
+    "term_fr": "Ordonnance",
+    "definition": "قرار يصدره قاضي معين (مثل قاضي المستعجلات) في قضايا محددة.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "surete",
+    "term_ar": "الضمانات",
+    "term_fr": "Sûretés",
+    "definition": "أموال أو حقوق تخصص لضمان استيفاء الدين.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "bail",
+    "term_ar": "الكراء",
+    "term_fr": "Bail",
+    "definition": "عقد يمنح بموجبه المكري للمكتري منفعة عين لمدة محددة مقابل أجرة.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "loyer",
+    "term_ar": "الواجب الكرائي",
+    "term_fr": "Loyer",
+    "definition": "المبلغ المالي الذي يؤديه المكتري للمكري مقابل الانتفاع.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "decret",
+    "term_ar": "المرسوم",
+    "term_fr": "Décret",
+    "definition": "وثيقة تنظيمية يصدرها رئيس الحكومة لتنفيذ القوانين.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "arrete",
+    "term_ar": "القرار الوزاري",
+    "term_fr": "Arrêté",
+    "definition": "نص تنظيمي يصدره وزير أو سلطة إدارية.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "liberte-publique",
+    "term_ar": "الحريات العامة",
+    "term_fr": "Libertés publiques",
+    "definition": "حقوق وحريات معترف بها للمواطنين يضمنها القانون.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "electeur",
+    "term_ar": "الناخب",
+    "term_fr": "Électeur",
+    "definition": "الشخص الذي يتمتع بحق التصويت في الانتخابات.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "candidat",
+    "term_ar": "المرشح",
+    "term_fr": "Candidat",
+    "definition": "الشخص الذي يتقدم لنيل منصب انتخابي.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "parlement",
+    "term_ar": "البرلمان",
+    "term_fr": "Parlement",
+    "definition": "المؤسسة التشريعية التي تتولى سن القوانين ومراقبة الحكومة.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "loi-organique",
+    "term_ar": "القانون التنظيمي",
+    "term_fr": "Loi organique",
+    "definition": "قانون مكمل للدستور يحدد كيفية تنظيم وتسيير المؤسسات.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "publicite",
+    "term_ar": "الإشهار",
+    "term_fr": "Publicité",
+    "definition": "إجراء قانوني يهدف لإطلاع الغير على تصرفات معينة (مثل السجل التجاري).",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "nantissement",
+    "term_ar": "الرهن الحيازي",
+    "term_fr": "Nantissement",
+    "definition": "رهن يقع على منقول مع انتقال الحيازة للدائن.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "recours-pour-exces-pouvoir",
+    "term_ar": "دعوى تجاوز السلطة",
+    "term_fr": "Recours pour excès de pouvoir",
+    "definition": "دعوى ترفع أمام المحكمة الإدارية لإلغاء قرار إداري غير مشروع.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "domaine-public",
+    "term_ar": "الملك العام",
+    "term_fr": "Domaine public",
+    "definition": "الأموال المخصصة للمنفعة العامة وغير القابلة للتصرف فيها.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "prevenu",
+    "term_ar": "المتهم",
+    "term_fr": "Prévenu",
+    "definition": "الشخص المتابع أمام القضاء لارتكابه جريمة.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "partie-civile",
+    "term_ar": "المطالب بالحق المدني",
+    "term_fr": "Partie civile",
+    "definition": "الشخص الذي تضرر من الجريمة ويطالب بالتعويض أمام القضاء الجنائي.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "tribunal-administratif",
+    "term_ar": "المحكمة الإدارية",
+    "term_fr": "Tribunal administratif",
+    "definition": "جهة قضائية متخصصة في البت في النزاعات التي تكون الإدارة طرفاً فيها.",
+    "category": "تنظيم قضائي"
+  },
+  {
+    "id": "force-oblige",
+    "term_ar": "القوة الملزمة",
+    "term_fr": "Force obligatoire",
+    "definition": "مبدأ أن العقد شريعة المتعاقدين ويجب تنفيذه.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "bonne-foi",
+    "term_ar": "حسن النية",
+    "term_fr": "Bonne foi",
+    "definition": "اعتقاد الشخص المشروع بصحة تصرفه القانوني وعدم علمه بما يشوبه من عيب.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "mauvaise-foi",
+    "term_ar": "سوء النية",
+    "term_fr": "Mauvaise foi",
+    "definition": "علم الشخص بعيب تصرفه أو بمخالفته للقانون مع إقدامه عليه رغم ذلك.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "dol",
+    "term_ar": "التدليس",
+    "term_fr": "Dol",
+    "definition": "استعمال طرق احتيالية لدفع المتعاقد الآخر إلى التعاقد لولاها لما تعاقد.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "erreur",
+    "term_ar": "الغلط",
+    "term_fr": "Erreur",
+    "definition": "وهم يقع في ذهن المتعاقد يحمله على التعاقد على غير الوجه الذي كان يريده.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "violence-vice",
+    "term_ar": "الإكراه",
+    "term_fr": "Violence (vice du consentement)",
+    "definition": "ضغط مادي أو معنوي يبعث الرهبة في نفس المتعاقد فيحمله على التعاقد.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "lesion",
+    "term_ar": "الغبن",
+    "term_fr": "Lésion",
+    "definition": "عدم التعادل بين ما يأخذه المتعاقد وما يعطيه في العقد.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "cause-obligation",
+    "term_ar": "السبب",
+    "term_fr": "Cause",
+    "definition": "الغرض المباشر الذي يقصده المدين من التزامه.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "objet-obligation",
+    "term_ar": "المحل",
+    "term_fr": "Objet de l'obligation",
+    "definition": "الأداء الذي يلتزم المدين بالقيام به أو الامتناع عنه.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "consentement",
+    "term_ar": "الرضا",
+    "term_fr": "Consentement",
+    "definition": "توافق إرادتي المتعاقدين على إحداث الأثر القانوني المقصود من العقد.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "resolution-contrat",
+    "term_ar": "الفسخ",
+    "term_fr": "Résolution",
+    "definition": "حل رابطة العقد بسبب عدم تنفيذ أحد المتعاقدين لالتزامه.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "novation",
+    "term_ar": "التجديد",
+    "term_fr": "Novation",
+    "definition": "استبدال التزام قديم بالتزام جديد ينقضي معه الالتزام الأول.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "compensation",
+    "term_ar": "المقاصة",
+    "term_fr": "Compensation",
+    "definition": "طريقة لانقضاء الالتزام تقع عندما يكون كل من الدائن والمدين دائناً ومديناً للآخر في آن واحد.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "remise-de-dette",
+    "term_ar": "الإبراء",
+    "term_fr": "Remise de dette",
+    "definition": "تنازل الدائن عن حقه في مواجهة مدينه فينقضي به الالتزام.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "subrogation",
+    "term_ar": "الحلول",
+    "term_fr": "Subrogation",
+    "definition": "إحلال شخص محل الدائن في حقوقه بعد وفائه بالدين.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "cession-de-creance",
+    "term_ar": "حوالة الحق",
+    "term_fr": "Cession de créance",
+    "definition": "اتفاق ينقل بموجبه الدائن حقه إلى شخص آخر يحل محله.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "solidarite",
+    "term_ar": "التضامن",
+    "term_fr": "Solidarité",
+    "definition": "رابطة قانونية تجيز للدائن مطالبة أي من المدينين المتضامنين بكامل الدين.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "gage-civil",
+    "term_ar": "الرهن الحيازي",
+    "term_fr": "Gage",
+    "definition": "عقد يسلم بموجبه المدين شيئاً منقولاً لدائنه ضماناً لدينه.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "cautionnement",
+    "term_ar": "الكفالة",
+    "term_fr": "Cautionnement",
+    "definition": "عقد يلتزم بموجبه الكفيل بأداء دين المدين إذا لم يفِ به هذا الأخير.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "privilege",
+    "term_ar": "الامتياز",
+    "term_fr": "Privilège",
+    "definition": "حق أولوية يقرره القانون لبعض الديون على أموال المدين.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "possession",
+    "term_ar": "الحيازة",
+    "term_fr": "Possession",
+    "definition": "سيطرة فعلية للشخص على شيء يباشر عليه أعمال المالك أو صاحب حق عيني.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "usufruit",
+    "term_ar": "حق الانتفاع",
+    "term_fr": "Usufruit",
+    "definition": "حق عيني يخول لصاحبه استعمال شيء مملوك للغير واستغلاله دون التصرف فيه.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "emphyteose",
+    "term_ar": "الحكر",
+    "term_fr": "Emphytéose",
+    "definition": "حق عيني عقاري طويل الأمد يخول لصاحبه استعمال واستغلال عقار مملوك لغيره مقابل أداء سنوي.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "mitoyennete",
+    "term_ar": "الاشتراك في الجدار",
+    "term_fr": "Mitoyenneté",
+    "definition": "ملكية مشتركة لحائط أو حاجز فاصل بين ملكين متجاورين.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "copropriete",
+    "term_ar": "الملكية المشتركة",
+    "term_fr": "Copropriété",
+    "definition": "نظام قانوني لملكية عقار مبني تكون بعض أجزائه مشتركة بين الملاك.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "indivision",
+    "term_ar": "الشياع",
+    "term_fr": "Indivision",
+    "definition": "حالة تعدد الملاك على شيء واحد دون قسمة أنصبتهم.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "partage",
+    "term_ar": "القسمة",
+    "term_fr": "Partage",
+    "definition": "عملية تنهي حالة الشياع بتوزيع الأموال المشتركة على الشركاء.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "vente",
+    "term_ar": "البيع",
+    "term_fr": "Vente",
+    "definition": "عقد يلتزم بموجبه البائع بنقل ملكية شيء إلى المشتري مقابل ثمن.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "depot-contrat",
+    "term_ar": "الوديعة",
+    "term_fr": "Dépôt",
+    "definition": "عقد يسلم بموجبه شخص شيئاً لآخر ليحفظه ويرده عند الطلب.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "pret",
+    "term_ar": "القرض",
+    "term_fr": "Prêt",
+    "definition": "عقد يسلم بموجبه المقرض للمقترض مالاً على أن يرد له مثله.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "transaction",
+    "term_ar": "الصلح",
+    "term_fr": "Transaction",
+    "definition": "عقد ينهي به الطرفان نزاعاً قائماً أو يتوقيان به نزاعاً محتملاً بتنازلات متبادلة.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "quittance",
+    "term_ar": "المخالصة",
+    "term_fr": "Quittance",
+    "definition": "وثيقة يقر فيها الدائن باستيفائه لحقه من المدين.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "personne-physique",
+    "term_ar": "الشخص الذاتي",
+    "term_fr": "Personne physique",
+    "definition": "الإنسان بوصفه صالحاً لاكتساب الحقوق وتحمل الالتزامات.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "domicile",
+    "term_ar": "الموطن",
+    "term_fr": "Domicile",
+    "definition": "المكان الذي يتخذه الشخص مركزاً لشؤونه القانونية.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "etat-civil",
+    "term_ar": "الحالة المدنية",
+    "term_fr": "État civil",
+    "definition": "مجموع الوقائع التي تحدد المركز القانوني للشخص كالميلاد والزواج والوفاة.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "absence",
+    "term_ar": "الغيبة",
+    "term_fr": "Absence",
+    "definition": "حالة شخص غاب عن موطنه دون أن يعرف مكانه أو حياته أو مماته.",
+    "category": "قانون مدني"
+  },
+  {
+    "id": "commercant",
+    "term_ar": "التاجر",
+    "term_fr": "Commerçant",
+    "definition": "كل شخص يزاول التجارة ويتخذها مهنة معتادة له.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "acte-de-commerce",
+    "term_ar": "العمل التجاري",
+    "term_fr": "Acte de commerce",
+    "definition": "كل عمل يقوم به الشخص بقصد الربح ويخضع لأحكام القانون التجاري.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "snc",
+    "term_ar": "شركة التضامن",
+    "term_fr": "Société en nom collectif",
+    "definition": "شركة أشخاص يكون فيها الشركاء تجاراً ومسؤولين شخصياً وبالتضامن عن ديونها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "sarl",
+    "term_ar": "الشركة ذات المسؤولية المحدودة",
+    "term_fr": "SARL",
+    "definition": "شركة تجارية لا يتحمل فيها الشركاء الخسائر إلا في حدود حصصهم.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "gerant",
+    "term_ar": "المسير",
+    "term_fr": "Gérant",
+    "definition": "الشخص المكلف بإدارة الشركة والتصرف باسمها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "associe",
+    "term_ar": "الشريك",
+    "term_fr": "Associé",
+    "definition": "الشخص الذي يساهم برأسمال أو عمل في شركة مقابل حصة من أرباحها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "capital-social",
+    "term_ar": "رأس المال الاجتماعي",
+    "term_fr": "Capital social",
+    "definition": "مجموع الحصص التي قدمها الشركاء عند تأسيس الشركة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "dividende",
+    "term_ar": "الأرباح الموزعة",
+    "term_fr": "Dividende",
+    "definition": "حصة الشريك من الأرباح الصافية التي تقرر الجمعية العامة توزيعها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "assemblee-generale",
+    "term_ar": "الجمعية العامة",
+    "term_fr": "Assemblée générale",
+    "definition": "هيئة تضم جميع الشركاء أو المساهمين وتتخذ القرارات المهمة في الشركة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "conseil-administration",
+    "term_ar": "مجلس الإدارة",
+    "term_fr": "Conseil d'administration",
+    "definition": "هيئة جماعية تتولى إدارة شركة المساهمة وتحديد توجهاتها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "commissaire-comptes",
+    "term_ar": "مراقب الحسابات",
+    "term_fr": "Commissaire aux comptes",
+    "definition": "شخص مؤهل يراقب حسابات الشركة ويصادق على صحتها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "dissolution",
+    "term_ar": "الحل",
+    "term_fr": "Dissolution",
+    "definition": "إنهاء الوجود القانوني للشركة تمهيداً لتصفيتها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "liquidation",
+    "term_ar": "التصفية",
+    "term_fr": "Liquidation",
+    "definition": "مجموع العمليات التي تهدف لتحويل أموال الشركة إلى نقود وسداد ديونها بعد حلها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "fusion",
+    "term_ar": "الاندماج",
+    "term_fr": "Fusion",
+    "definition": "اتحاد شركتين أو أكثر في شركة واحدة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "redressement-judiciaire",
+    "term_ar": "التسوية القضائية",
+    "term_fr": "Redressement judiciaire",
+    "definition": "مسطرة قضائية تهدف لإنقاذ المقاولة التي تتوقف عن أداء ديونها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "syndic",
+    "term_ar": "السنديك",
+    "term_fr": "Syndic",
+    "definition": "الشخص المكلف من طرف المحكمة بتدبير مسطرة صعوبات المقاولة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "creancier-chirographaire",
+    "term_ar": "الدائن العادي",
+    "term_fr": "Créancier chirographaire",
+    "definition": "دائن لا يتمتع بأي ضمان خاص ويتقاسم أموال مدينه مع باقي الدائنين.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "billet-a-ordre",
+    "term_ar": "السند لأمر",
+    "term_fr": "Billet à ordre",
+    "definition": "ورقة تجارية يتعهد بموجبها المحرر بدفع مبلغ معين لإذن المستفيد.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "endossement",
+    "term_ar": "التظهير",
+    "term_fr": "Endossement",
+    "definition": "تصرف يتم بموجبه نقل ملكية الورقة التجارية من الحامل إلى شخص آخر.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "aval",
+    "term_ar": "الضمان الاحتياطي",
+    "term_fr": "Aval",
+    "definition": "تعهد شخص بضمان أداء التزام الساحب أو أحد الموقعين على ورقة تجارية.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "protet",
+    "term_ar": "الاحتجاج",
+    "term_fr": "Protêt",
+    "definition": "محضر رسمي يثبت به حامل الورقة التجارية عدم أداء أو عدم قبول الورقة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "propriete-industrielle",
+    "term_ar": "الملكية الصناعية",
+    "term_fr": "Propriété industrielle",
+    "definition": "حقوق تحمي الابتكارات الصناعية كبراءات الاختراع والعلامات التجارية.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "brevet-invention",
+    "term_ar": "براءة الاختراع",
+    "term_fr": "Brevet d'invention",
+    "definition": "سند يمنح لمخترع حق الاستغلال الحصري لاختراعه لمدة محددة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "marque",
+    "term_ar": "العلامة التجارية",
+    "term_fr": "Marque",
+    "definition": "إشارة مميزة تستعمل للتمييز بين منتجات أو خدمات مقاولة عن أخرى.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "concurrence-deloyale",
+    "term_ar": "المنافسة غير المشروعة",
+    "term_fr": "Concurrence déloyale",
+    "definition": "أعمال منافية للأعراف التجارية تلحق ضرراً بمنافس آخر.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "franchise",
+    "term_ar": "عقد الامتياز التجاري",
+    "term_fr": "Franchise",
+    "definition": "عقد يرخص بموجبه المانح للمستفيد استغلال علامته وطرق تجارته مقابل إتاوة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "courtage",
+    "term_ar": "السمسرة",
+    "term_fr": "Courtage",
+    "definition": "عقد يتوسط بموجبه السمسار بين طرفين لإبرام صفقة مقابل عمولة.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "connaissement",
+    "term_ar": "سند الشحن",
+    "term_fr": "Connaissement",
+    "definition": "وثيقة يسلمها الناقل البحري تثبت استلام البضاعة والتزامه بنقلها.",
+    "category": "قانون تجاري"
+  },
+  {
+    "id": "requete",
+    "term_ar": "المقال",
+    "term_fr": "Requête",
+    "definition": "الوثيقة المكتوبة التي يرفع بها المدعي دعواه أمام المحكمة.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "exploit-huissier",
+    "term_ar": "محضر التبليغ",
+    "term_fr": "Exploit d'huissier",
+    "definition": "وثيقة يحررها عون التنفيذ لتبليغ إجراء قضائي لطرف معين.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "notification",
+    "term_ar": "التبليغ",
+    "term_fr": "Notification",
+    "definition": "إجراء يعلم به الطرف المعني رسمياً بإجراء أو قرار قضائي.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "defendeur",
+    "term_ar": "المدعى عليه",
+    "term_fr": "Défendeur",
+    "definition": "الشخص الذي وجهت ضده الدعوى القضائية.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "demandeur",
+    "term_ar": "المدعي",
+    "term_fr": "Demandeur",
+    "definition": "الشخص الذي يرفع الدعوى مطالباً بحق أمام القضاء.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "desistement",
+    "term_ar": "التنازل عن الدعوى",
+    "term_fr": "Désistement",
+    "definition": "تراجع المدعي عن دعواه قبل صدور حكم فيها.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "exception-incompetence",
+    "term_ar": "الدفع بعدم الاختصاص",
+    "term_fr": "Exception d'incompétence",
+    "definition": "دفع شكلي يثيره أحد الأطراف لعدم اختصاص المحكمة المرفوعة أمامها الدعوى.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "fin-de-non-recevoir",
+    "term_ar": "الدفع بعدم القبول",
+    "term_fr": "Fin de non-recevoir",
+    "definition": "دفع يهدف لعدم قبول الدعوى شكلاً دون بحث موضوعها.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "delibere",
+    "term_ar": "المداولة",
+    "term_fr": "Délibéré",
+    "definition": "مرحلة يتشاور فيها القضاة سراً قبل إصدار الحكم.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "formule-executoire",
+    "term_ar": "الصيغة التنفيذية",
+    "term_fr": "Formule exécutoire",
+    "definition": "عبارة تدرج في نسخة الحكم تخول تنفيذه جبراً.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "astreinte",
+    "term_ar": "الغرامة التهديدية",
+    "term_fr": "Astreinte",
+    "definition": "مبلغ مالي يحكم به لحمل المدين على تنفيذ التزامه عيناً.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "refere",
+    "term_ar": "القضاء الاستعجالي",
+    "term_fr": "Référé",
+    "definition": "إجراء قضائي سريع يهدف لاتخاذ تدابير مؤقتة دون المساس بجوهر الحق.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "opposition-jugement",
+    "term_ar": "التعرض",
+    "term_fr": "Opposition",
+    "definition": "طريق طعن عادي يرفعه المحكوم عليه غيابياً لإعادة النظر في الحكم.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "tierce-opposition",
+    "term_ar": "تعرض الغير الخارج عن الخصومة",
+    "term_fr": "Tierce opposition",
+    "definition": "طعن يرفعه شخص لم يكن طرفاً في الدعوى ضد حكم أضر بحقوقه.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "recours-revision",
+    "term_ar": "إعادة النظر",
+    "term_fr": "Recours en révision",
+    "definition": "طريق طعن غير عادي يهدف لإعادة فحص حكم نهائي في حالات استثنائية.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "aide-juridictionnelle",
+    "term_ar": "المساعدة القضائية",
+    "term_fr": "Aide juridictionnelle",
+    "definition": "نظام يعفي الشخص المعوز من مصاريف التقاضي كلياً أو جزئياً.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "conciliation",
+    "term_ar": "الصلح",
+    "term_fr": "Conciliation",
+    "definition": "طريقة ودية لإنهاء النزاع برضا الطرفين قبل أو أثناء التقاضي.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "arbitrage",
+    "term_ar": "التحكيم",
+    "term_fr": "Arbitrage",
+    "definition": "اتفاق طرفين على إحالة نزاعهما إلى محكم خاص بدلاً من القضاء العادي.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "saisie-conservatoire",
+    "term_ar": "الحجز التحفظي",
+    "term_fr": "Saisie conservatoire",
+    "definition": "إجراء وقائي يمنع المدين من التصرف في أمواله لحين الفصل في النزاع.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "mainlevee",
+    "term_ar": "رفع اليد",
+    "term_fr": "Mainlevée",
+    "definition": "إجراء قانوني يضع حداً لآثار الحجز أو الضمانة.",
+    "category": "مسطرة مدنية"
+  },
+  {
+    "id": "garde-a-vue",
+    "term_ar": "الوضع تحت الحراسة النظرية",
+    "term_fr": "Garde à vue",
+    "definition": "إجراء يمكن الضابطة القضائية من الاحتفاظ بالمشتبه فيه لمدة محددة قانوناً.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "flagrant-delit",
+    "term_ar": "الجريمة المتلبس بها",
+    "term_fr": "Flagrant délit",
+    "definition": "الجريمة التي يشاهدها مرتكبها أثناء ارتكابها أو عقب ارتكابها مباشرة.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "plainte",
+    "term_ar": "الشكاية",
+    "term_fr": "Plainte",
+    "definition": "إخبار يتقدم به المتضرر من جريمة إلى الجهات المختصة يطلب فيه المتابعة.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "requisitoire",
+    "term_ar": "الملتمس",
+    "term_fr": "Réquisitoire",
+    "definition": "طلب كتابي يقدمه وكيل الملك لقاضي التحقيق أو المحكمة.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "ordonnance-non-lieu",
+    "term_ar": "أمر بعدم متابعة",
+    "term_fr": "Ordonnance de non-lieu",
+    "definition": "قرار يصدره قاضي التحقيق بعدم إحالة المتهم على المحكمة لعدم كفاية الأدلة.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "mandat-depot",
+    "term_ar": "الأمر بالإيداع",
+    "term_fr": "Mandat de dépôt",
+    "definition": "أمر يصدره القاضي بإيداع المتهم بالسجن.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "mandat-arret",
+    "term_ar": "مذكرة اعتقال",
+    "term_fr": "Mandat d'arrêt",
+    "definition": "أمر يصدر بحق شخص فار أو غير معروف محل إقامته للبحث عنه وإيداعه السجن.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "detention-preventive",
+    "term_ar": "الاعتقال الاحتياطي",
+    "term_fr": "Détention préventive",
+    "definition": "إيداع المتهم بالسجن أثناء سير المسطرة قبل صدور حكم نهائي.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "liberte-provisoire",
+    "term_ar": "السراح المؤقت",
+    "term_fr": "Liberté provisoire",
+    "definition": "إفراج مؤقت عن المتهم المعتقل احتياطياً لحين البت في قضيته.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "casier-judiciaire",
+    "term_ar": "السجل العدلي",
+    "term_fr": "Casier judiciaire",
+    "definition": "سجل رسمي يتضمن الأحكام الصادرة في حق الشخص.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "rehabilitation",
+    "term_ar": "رد الاعتبار",
+    "term_fr": "Réhabilitation",
+    "definition": "إجراء قضائي يمحو الآثار الجنائية للحكم الصادر ضد المحكوم عليه.",
+    "category": "مسطرة جنائية"
+  },
+  {
+    "id": "legitime-defense",
+    "term_ar": "الدفاع الشرعي",
+    "term_fr": "Légitime défense",
+    "definition": "فعل يرتكبه الشخص لدفع خطر حال ووشيك يهدد حياته أو ماله أو عرضه.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "intention-criminelle",
+    "term_ar": "القصد الجنائي",
+    "term_fr": "Intention criminelle",
+    "definition": "اتجاه إرادة الجاني إلى ارتكاب الجريمة مع علمه بعناصرها.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "tentative",
+    "term_ar": "الشروع",
+    "term_fr": "Tentative",
+    "definition": "البدء في تنفيذ جريمة دون إتمامها لسبب خارج عن إرادة الفاعل.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "complicite",
+    "term_ar": "المساهمة الجنائية",
+    "term_fr": "Complicité",
+    "definition": "مساعدة أو تحريض شخص على ارتكاب جريمة دون أن يكون فاعلاً أصلياً فيها.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "circonstances-attenuantes",
+    "term_ar": "الظروف المخففة",
+    "term_fr": "Circonstances atténuantes",
+    "definition": "ظروف تجيز للقاضي تخفيف العقوبة المقررة قانوناً للجريمة.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "circonstances-aggravantes",
+    "term_ar": "الظروف المشددة",
+    "term_fr": "Circonstances aggravantes",
+    "definition": "ظروف تستوجب تشديد العقوبة المقررة للجريمة.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "cumul-des-peines",
+    "term_ar": "تعدد العقوبات",
+    "term_fr": "Cumul des peines",
+    "definition": "الحكم بعدة عقوبات عن جرائم متعددة ارتكبها الشخص.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "responsabilite-penale",
+    "term_ar": "المسؤولية الجنائية",
+    "term_fr": "Responsabilité pénale",
+    "definition": "التزام الشخص بتحمل تبعات أفعاله المخالفة للقانون الجنائي.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "peine-privative",
+    "term_ar": "عقوبة سالبة للحرية",
+    "term_fr": "Peine privative de liberté",
+    "definition": "عقوبة تهدف لحرمان الجاني من حريته كالسجن أو الحبس.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "sursis",
+    "term_ar": "إيقاف التنفيذ",
+    "term_fr": "Sursis",
+    "definition": "قرار قضائي بتعليق تنفيذ العقوبة لفترة معينة بشرط عدم العود.",
+    "category": "قانون جنائي"
+  },
+  {
+    "id": "cdd",
+    "term_ar": "عقد محدد المدة",
+    "term_fr": "Contrat à durée déterminée",
+    "definition": "عقد شغل يحدد فيه أجل انتهاء العلاقة الشغلية مسبقاً.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "cdi",
+    "term_ar": "عقد غير محدد المدة",
+    "term_fr": "Contrat à durée indéterminée",
+    "definition": "عقد شغل لا يحدد له أجل مسبق لانتهائه.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "periode-essai",
+    "term_ar": "فترة الاختبار",
+    "term_fr": "Période d'essai",
+    "definition": "مدة يجرب فيها الطرفان مدى ملاءمة العلاقة الشغلية قبل تثبيتها.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "preavis",
+    "term_ar": "أجل الإخطار",
+    "term_fr": "Préavis",
+    "definition": "مدة يجب على أحد طرفي عقد الشغل إخطار الآخر بها قبل إنهاء العقد.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "faute-grave",
+    "term_ar": "الخطأ الجسيم",
+    "term_fr": "Faute grave",
+    "definition": "إخلال جسيم بالتزامات عقد الشغل يبرر الفصل دون تعويض أو إخطار.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "demission",
+    "term_ar": "الاستقالة",
+    "term_fr": "Démission",
+    "definition": "إنهاء الأجير لعقد شغله بإرادته المنفردة.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "heures-supplementaires",
+    "term_ar": "الساعات الإضافية",
+    "term_fr": "Heures supplémentaires",
+    "definition": "ساعات العمل التي تتجاوز المدة القانونية العادية وتخضع لأجر إضافي.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "accident-travail",
+    "term_ar": "حادثة الشغل",
+    "term_fr": "Accident du travail",
+    "definition": "كل حادثة تقع للأجير بمناسبة أو بسبب أداء عمله وتلحق به ضرراً.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "inspecteur-travail",
+    "term_ar": "مفتش الشغل",
+    "term_fr": "Inspecteur du travail",
+    "definition": "موظف مكلف بمراقبة تطبيق قوانين الشغل داخل المقاولات.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "cnss",
+    "term_ar": "الصندوق الوطني للضمان الاجتماعي",
+    "term_fr": "CNSS",
+    "definition": "مؤسسة عمومية تدبر نظام الضمان الاجتماعي للأجراء في القطاع الخاص.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "delegue-personnel",
+    "term_ar": "مندوب الأجراء",
+    "term_fr": "Délégué du personnel",
+    "definition": "ممثل منتخب من الأجراء للدفاع عن مصالحهم لدى المشغل.",
+    "category": "قانون الشغل"
+  },
+  {
+    "id": "kafala",
+    "term_ar": "الكفالة",
+    "term_fr": "Kafala",
+    "definition": "التزام بالتكفل بحماية وتربية ونفقة طفل مهمل كما يفعل الأب بولده دون أن يترتب عنه النسب أو الإرث.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "sadaq",
+    "term_ar": "الصداق",
+    "term_fr": "Dot (Sadaq)",
+    "definition": "ما يلتزم الزوج بأدائه للزوجة عند عقد الزواج تكريماً واعتباراً.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "wali",
+    "term_ar": "الولي",
+    "term_fr": "Tuteur matrimonial (Wali)",
+    "definition": "الشخص الذي يمثل القاصر أو ناقصة الأهلية في عقد زواجها.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "khol",
+    "term_ar": "الخلع",
+    "term_fr": "Khol'",
+    "definition": "طلاق يتم بإرادة الزوجة مقابل عوض مالي تؤديه للزوج.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "chiqaq",
+    "term_ar": "الشقاق",
+    "term_fr": "Chiqaq",
+    "definition": "نزاع مستحكم بين الزوجين يجيز لأي منهما طلب التطليق بسببه.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "idda",
+    "term_ar": "العدة",
+    "term_fr": "Viduité (Idda)",
+    "definition": "مدة تتربص فيها المرأة بعد الطلاق أو الوفاة قبل جواز زواجها من جديد.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "filiation",
+    "term_ar": "النسب",
+    "term_fr": "Filiation",
+    "definition": "رابطة قانونية وشرعية تربط الولد بأبويه.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "acte-adoulaire",
+    "term_ar": "العقد العدلي",
+    "term_fr": "Acte adoulaire",
+    "definition": "عقد رسمي يحرره العدول ويوثقه القاضي المكلف بالتوثيق.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "adoul",
+    "term_ar": "العدول",
+    "term_fr": "Adoul",
+    "definition": "موثقون رسميون مؤهلون شرعاً وقانوناً لتوثيق عقود الزواج والتصرفات الشرعية.",
+    "category": "مدونة الأسرة"
+  },
+  {
+    "id": "recours-hierarchique",
+    "term_ar": "الطعن الرئاسي",
+    "term_fr": "Recours hiérarchique",
+    "definition": "تظلم يرفعه المتضرر إلى السلطة الرئاسية لصاحب القرار الإداري.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "contrat-administratif",
+    "term_ar": "العقد الإداري",
+    "term_fr": "Contrat administratif",
+    "definition": "عقد تبرمه الإدارة بقصد تسيير مرفق عام وتخضع فيه لقواعد استثنائية.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "marche-public",
+    "term_ar": "الصفقة العمومية",
+    "term_fr": "Marché public",
+    "definition": "عقد تبرمه الإدارة مع الأغيار لإنجاز أشغال أو توريد لفائدتها.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "delegation-service-public",
+    "term_ar": "التدبير المفوض",
+    "term_fr": "Délégation de service public",
+    "definition": "عقد تعهد بموجبه الإدارة تسيير مرفق عام لشخص آخر لمدة محددة.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "police-administrative",
+    "term_ar": "الضبط الإداري",
+    "term_fr": "Police administrative",
+    "definition": "مجموع الوسائل التي تستعملها الإدارة للحفاظ على النظام العام.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "tutelle-administrative",
+    "term_ar": "الوصاية الإدارية",
+    "term_fr": "Tutelle administrative",
+    "definition": "رقابة تمارسها السلطة المركزية على الجماعات الترابية.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "collectivite-territoriale",
+    "term_ar": "الجماعة الترابية",
+    "term_fr": "Collectivité territoriale",
+    "definition": "هيئة عمومية لامركزية تتمتع بالشخصية الاعتبارية والاستقلال المالي.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "fonction-publique",
+    "term_ar": "الوظيفة العمومية",
+    "term_fr": "Fonction publique",
+    "definition": "مجموع الوظائف التي يشغلها الموظفون في خدمة الإدارات العمومية.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "sanction-disciplinaire",
+    "term_ar": "العقوبة التأديبية",
+    "term_fr": "Sanction disciplinaire",
+    "definition": "جزاء يوقع على الموظف بسبب إخلاله بواجباته المهنية.",
+    "category": "قانون إداري"
+  },
+  {
+    "id": "souverainete",
+    "term_ar": "السيادة",
+    "term_fr": "Souveraineté",
+    "definition": "السلطة العليا التي تملك الدولة بموجبها حق التقرير في شؤونها الداخلية والخارجية.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "separation-pouvoirs",
+    "term_ar": "فصل السلط",
+    "term_fr": "Séparation des pouvoirs",
+    "definition": "مبدأ دستوري يقضي بتوزيع السلطة بين هيئات تشريعية وتنفيذية وقضائية مستقلة.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "motion-censure",
+    "term_ar": "ملتمس الرقابة",
+    "term_fr": "Motion de censure",
+    "definition": "إجراء برلماني يهدف لإسقاط الحكومة عبر سحب الثقة منها.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "immunite-parlementaire",
+    "term_ar": "الحصانة البرلمانية",
+    "term_fr": "Immunité parlementaire",
+    "definition": "حماية قانونية تحول دون متابعة البرلماني بسبب آرائه أو تصويته.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "cour-constitutionnelle",
+    "term_ar": "المحكمة الدستورية",
+    "term_fr": "Cour constitutionnelle",
+    "definition": "هيئة قضائية عليا تراقب مطابقة القوانين للدستور.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "referendum",
+    "term_ar": "الاستفتاء",
+    "term_fr": "Référendum",
+    "definition": "استشارة مباشرة للمواطنين لإبداء رأيهم في نص أو قرار معين.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "etat-urgence",
+    "term_ar": "حالة الطوارئ",
+    "term_fr": "État d'urgence",
+    "definition": "وضع استثنائي يمنح فيه السلطات صلاحيات موسعة لمواجهة خطر جسيم.",
+    "category": "قانون دستوري"
+  },
+  {
+    "id": "titre-foncier",
+    "term_ar": "الرسم العقاري",
+    "term_fr": "Titre foncier",
+    "definition": "وثيقة رسمية تثبت حق الملكية على عقار محفظ وتتضمن جميع التقييدات المتعلقة به.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "requisition-immatriculation",
+    "term_ar": "مطلب التحفيظ",
+    "term_fr": "Réquisition d'immatriculation",
+    "definition": "طلب يتقدم به مالك العقار لإدارة المحافظة العقارية لتحفيظ عقاره.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "conservation-fonciere",
+    "term_ar": "المحافظة العقارية",
+    "term_fr": "Conservation foncière",
+    "definition": "إدارة مكلفة بمسك السجلات العقارية وتقييد الحقوق المتعلقة بالعقارات.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "lotissement",
+    "term_ar": "التجزئة العقارية",
+    "term_fr": "Lotissement",
+    "definition": "عملية تقسيم عقار إلى بقع معدة للبناء وفق ترخيص إداري.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "droit-preemption",
+    "term_ar": "حق الشفعة",
+    "term_fr": "Droit de préemption",
+    "definition": "حق يخول للشريك في الشياع أخذ الحصة المبيعة بالثمن الذي بيعت به.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "hypotheque",
+    "term_ar": "الرهن الرسمي",
+    "term_fr": "Hypothèque",
+    "definition": "حق عيني يتقرر على عقار لضمان تنفيذ التزام دون تجريد المدين من حيازته.",
+    "category": "قانون عقاري"
+  },
+  {
+    "id": "impot-revenu",
+    "term_ar": "الضريبة على الدخل",
+    "term_fr": "Impôt sur le revenu",
+    "definition": "ضريبة تفرض على مجموع الدخول التي يحصل عليها الشخص الذاتي.",
+    "category": "قانون جبائي"
+  },
+  {
+    "id": "impot-societes",
+    "term_ar": "الضريبة على الشركات",
+    "term_fr": "Impôt sur les sociétés",
+    "definition": "ضريبة تفرض على الأرباح التي تحققها الشركات الخاضعة لها.",
+    "category": "قانون جبائي"
+  },
+  {
+    "id": "tva",
+    "term_ar": "الضريبة على القيمة المضافة",
+    "term_fr": "TVA",
+    "definition": "ضريبة غير مباشرة تفرض على استهلاك السلع والخدمات.",
+    "category": "قانون جبائي"
+  },
+  {
+    "id": "redressement-fiscal",
+    "term_ar": "التصحيح الضريبي",
+    "term_fr": "Redressement fiscal",
+    "definition": "إجراء تتخذه الإدارة الضريبية لتصحيح الإقرارات الناقصة أو غير الصحيحة.",
+    "category": "قانون جبائي"
+  },
+  {
+    "id": "contentieux-fiscal",
+    "term_ar": "المنازعات الضريبية",
+    "term_fr": "Contentieux fiscal",
+    "definition": "النزاعات القائمة بين الملزم والإدارة الضريبية بخصوص فرض أو تحصيل الضريبة.",
+    "category": "قانون جبائي"
+  },
+  {
+    "id": "droit-auteur",
+    "term_ar": "حق المؤلف",
+    "term_fr": "Droit d'auteur",
+    "definition": "حقوق أدبية ومالية يتمتع بها مؤلف مصنف فكري أو فني.",
+    "category": "الملكية الفكرية"
+  },
+  {
+    "id": "contrefacon",
+    "term_ar": "التقليد",
+    "term_fr": "Contrefaçon",
+    "definition": "استعمال غير مشروع لحق من حقوق الملكية الفكرية أو الصناعية.",
+    "category": "الملكية الفكرية"
+  },
+  {
+    "id": "ompic",
+    "term_ar": "المكتب المغربي للملكية الصناعية والتجارية",
+    "term_fr": "OMPIC",
+    "definition": "مؤسسة عمومية مكلفة بحماية حقوق الملكية الصناعية والسجل التجاري بالمغرب.",
+    "category": "الملكية الفكرية"
+  },
+  {
+    "id": "police-assurance",
+    "term_ar": "وثيقة التأمين",
+    "term_fr": "Police d'assurance",
+    "definition": "العقد المكتوب الذي يحدد شروط وضمانات عملية التأمين.",
+    "category": "قانون التأمين"
+  },
+  {
+    "id": "prime-assurance",
+    "term_ar": "قسط التأمين",
+    "term_fr": "Prime d'assurance",
+    "definition": "المبلغ الذي يؤديه المؤمن له للمؤمن مقابل الضمان المقدم.",
+    "category": "قانون التأمين"
+  },
+  {
+    "id": "sinistre",
+    "term_ar": "الحادث المؤمن عليه",
+    "term_fr": "Sinistre",
+    "definition": "وقوع الخطر المؤمن ضده والذي يترتب عنه حق المؤمن له في التعويض.",
+    "category": "قانون التأمين"
+  },
+  {
+    "id": "secret-bancaire",
+    "term_ar": "السر البنكي",
+    "term_fr": "Secret bancaire",
+    "definition": "التزام البنك بعدم إفشاء المعلومات المتعلقة بحسابات زبنائه إلا في الحالات المحددة قانوناً.",
+    "category": "القانون البنكي"
+  },
+  {
+    "id": "credit",
+    "term_ar": "الائتمان",
+    "term_fr": "Crédit",
+    "definition": "عملية يضع بموجبها البنك أموالاً رهن إشارة الزبون مقابل التزامه بالرد.",
+    "category": "القانون البنكي"
+  },
+  {
+    "id": "conflit-lois",
+    "term_ar": "تنازع القوانين",
+    "term_fr": "Conflit de lois",
+    "definition": "مسألة تحديد القانون الواجب التطبيق على علاقة قانونية ذات عنصر أجنبي.",
+    "category": "القانون الدولي الخاص"
+  },
+  {
+    "id": "exequatur",
+    "term_ar": "الصيغة التنفيذية للأحكام الأجنبية",
+    "term_fr": "Exequatur",
+    "definition": "إجراء قضائي يمنح حكماً أجنبياً القوة التنفيذية داخل التراب الوطني.",
+    "category": "القانون الدولي الخاص"
+  },
+  {
+    "id": "extradition",
+    "term_ar": "تسليم المجرمين",
+    "term_fr": "Extradition",
+    "definition": "تسليم دولة لشخص متابع أو محكوم عليه إلى دولة أخرى لمحاكمته أو تنفيذ عقوبته.",
+    "category": "القانون الدولي الخاص"
+  },
+  {
+    "id": "etude-impact",
+    "term_ar": "دراسة التأثير على البيئة",
+    "term_fr": "Étude d'impact",
+    "definition": "دراسة إلزامية تقيّم الآثار البيئية لمشروع قبل الترخيص بإنجازه.",
+    "category": "قانون البيئة"
+  },
+  {
+    "id": "developpement-durable",
+    "term_ar": "التنمية المستدامة",
+    "term_fr": "Développement durable",
+    "definition": "نموذج تنموي يراعي التوازن بين الحاجيات الاقتصادية والاجتماعية والبيئية للأجيال الحالية والمقبلة.",
+    "category": "قانون البيئة"
   }
 ]

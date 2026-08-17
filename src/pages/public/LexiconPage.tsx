@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
-import lexiconData from "../../data/lexicon.json"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { supabase } from "../../lib/supabase/client"
 import {
   BookOpen,
   Search,
@@ -12,28 +12,61 @@ import {
   Check,
   Scale,
   Bookmark,
-  ArrowLeft
+  ArrowLeft,
+  Loader2
 } from "lucide-react"
 
+interface LexiconTerm {
+  id: string
+  term_ar: string
+  term_fr: string
+  definition: string
+  category: string
+  reference?: string
+}
+
 export function LexiconPage() {
+  const [terms, setTerms] = useState<LexiconTerm[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
+  useEffect(() => {
+    fetchPublicTerms()
+  }, [])
+
+  const fetchPublicTerms = async () => {
+    setLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from("lexicon_terms")
+        .select("*")
+        .order("created_at", { ascending: false })
+
+      if (error) throw error
+      if (data) setTerms(data)
+    } catch (err) {
+      console.error("خطأ في جلب المصطلحات العامة:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const categories = useMemo(() => {
     const set = new Set<string>()
-    ;(lexiconData as any[]).forEach((item) => {
+    terms.forEach((item) => {
       if (item.category) set.add(item.category)
     })
     return Array.from(set)
-  }, [])
+  }, [terms])
 
   const filteredTerms = useMemo(() => {
-    return (lexiconData as any[]).filter((term) => {
-      const termAr = term.term_ar || term.term || ""
+    return terms.filter((term) => {
+      const termAr = term.term_ar || ""
       const termFr = term.term_fr || ""
       const category = term.category || ""
-      const definition = term.definition || term.description || ""
+      const definition = term.definition || ""
 
       const matchesCategory = selectedCategory === "all" || category === selectedCategory
 
@@ -46,7 +79,7 @@ export function LexiconPage() {
 
       return matchesCategory && matchesSearch
     })
-  }, [searchQuery, selectedCategory])
+  }, [terms, searchQuery, selectedCategory])
 
   const handleCopyTerm = (id: string, ar: string, fr?: string) => {
     const textToCopy = fr ? `${ar} (${fr})` : ar
@@ -63,9 +96,9 @@ export function LexiconPage() {
     "url": "https://www.mizan.page/lexicon",
     "hasDefinedTerm": filteredTerms.slice(0, 30).map((term: any, idx: number) => ({
       "@type": "DefinedTerm",
-      "name": term.term_ar || term.term,
+      "name": term.term_ar,
       "termCode": term.term_fr || `term-${idx}`,
-      "description": term.definition || term.description,
+      "description": term.definition,
       "inDefinedTermSet": "https://www.mizan.page/lexicon"
     }))
   }
@@ -102,7 +135,7 @@ export function LexiconPage() {
 
         {/* Search & Filter Bar */}
         <div className="mb-6 md:mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
-          {/* Search Input - Touch optimized */}
+          {/* Search Input */}
           <div className="relative w-full sm:w-96">
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
@@ -114,7 +147,7 @@ export function LexiconPage() {
             />
           </div>
 
-          {/* Mobile-First Category Filter Pills with Smooth Momentum Scrolling */}
+          {/* Category Filter Pills */}
           <div className="flex items-center gap-2 w-full overflow-x-auto pb-2 sm:pb-0 scrollbar-none [-webkit-overflow-scrolling:touch]">
             <button
               type="button"
@@ -125,7 +158,7 @@ export function LexiconPage() {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              جميع الفروع ({lexiconData.length})
+              جميع الفروع ({terms.length})
             </button>
             {categories.map((cat) => (
               <button
@@ -144,16 +177,21 @@ export function LexiconPage() {
           </div>
         </div>
 
-        {/* Lexicon Grid */}
-        {filteredTerms.length > 0 ? (
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-primary" />
+          </div>
+        ) : filteredTerms.length > 0 ? (
+          /* Lexicon Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {filteredTerms.map((term: any, index: number) => {
-              const termId = term.id || `term-${index}`
-              const termAr = term.term_ar || term.term
+            {filteredTerms.map((term) => {
+              const termId = term.id
+              const termAr = term.term_ar
               const termFr = term.term_fr
-              const definition = term.definition || term.description
+              const definition = term.definition
               const category = term.category
-              const reference = term.reference || term.source
+              const reference = term.reference
 
               const slug = generateSlug(termAr) || term.id
 
@@ -186,7 +224,7 @@ export function LexiconPage() {
                       </button>
                     </div>
 
-                    {/* Terms (Arabic & French) - Clickable Title */}
+                    {/* Terms (Arabic & French) */}
                     <div className="space-y-1 mb-3">
                       <h2 className="text-base md:text-lg font-bold text-foreground group-hover:text-primary transition">
                         <Link to={`/lexicon/${slug}`} className="focus:outline-none">
@@ -208,7 +246,7 @@ export function LexiconPage() {
                     )}
                   </div>
 
-                  {/* Card Footer: Reference & Unique Page Link */}
+                  {/* Card Footer */}
                   <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
                     {reference ? (
                       <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground truncate">

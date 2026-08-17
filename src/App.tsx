@@ -23,12 +23,17 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [session, setSession] = useState<Session | null | undefined>(undefined)
 
-  // Supabase Auth Listener with mounting guard
+  // Supabase Auth Listener with mounting guard & prerender signal
   useEffect(() => {
     let isMounted = true
 
     supabase.auth.getSession().then(({ data }) => {
-      if (isMounted) setSession(data.session)
+      if (isMounted) {
+        setSession(data.session)
+        // Signal the prerender engine that the initial auth check is done
+        // This ensures the static HTML includes your data/app state
+        document.dispatchEvent(new Event("render-event"))
+      }
     })
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {

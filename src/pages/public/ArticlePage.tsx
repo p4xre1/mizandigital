@@ -2,8 +2,10 @@ import { useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { stripHtml, truncateCleanText } from "../../lib/utils/sanitize"
+import { renderTextWithInternalLinks } from "../../lib/utils/autoLinker"
 import newsData from "../../data/news.json"
 import articlesData from "../../data/articles.json"
+import lexiconData from "../../data/lexicon.json"
 import {
   Calendar,
   Clock,
@@ -236,16 +238,16 @@ export function ArticlePage({ slug }: ArticlePageProps) {
           {article.summary && (
             <div className="mb-8 rounded-xl bg-primary/5 border-r-4 border-primary p-4 md:p-5 text-sm text-foreground/90 font-medium leading-relaxed">
               <span className="block font-bold text-primary mb-1 text-xs">ملخص التقرير:</span>
-              {stripHtml(article.summary)}
+              {renderTextWithInternalLinks(stripHtml(article.summary), lexiconData as any[])}
             </div>
           )}
 
-          {/* نص المقال */}
+          {/* نص المقال مع تحويل المصطلحات القانونية تلقائياً إلى روابط داخلية */}
           <div className="prose dark:prose-invert max-w-none text-base leading-relaxed text-foreground space-y-6 pt-2 border-t border-border/50">
             {article.content ? (
               article.content.split("\n\n").map((paragraph: string, idx: number) => (
                 <p key={idx} className="text-justify leading-8">
-                  {paragraph}
+                  {renderTextWithInternalLinks(paragraph, lexiconData as any[])}
                 </p>
               ))
             ) : (
