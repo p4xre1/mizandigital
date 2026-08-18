@@ -1,6 +1,7 @@
 export { HomePage } from "./HomePage"
 export { ArchivePage } from "./ArchivePage"
 export { NewsPage } from "./NewsPage"
+export { ArticlesPage } from "./ArticlesPage"
 export { ArticlePage } from "./ArticlePage"
 export { EventsPage } from "./EventsPage"
 export { EventPage } from "./EventPage"

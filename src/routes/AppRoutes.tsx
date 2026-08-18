@@ -6,7 +6,7 @@ import LoginPage from "@/pages/auth/LoginPage"
 
 // Admin Pages
 import DashboardPage from "@/pages/admin/DashboardPage"
-import ArticlesPage from "@/pages/admin/articles/ArticlesPage"
+import AdminArticlesPage from "@/pages/admin/articles/ArticlesPage"
 import ArticleEditorPage from "@/pages/admin/articles/ArticleEditorPage"
 import FacultiesPage from "@/pages/admin/faculties/FacultiesPage"
 import LexiconPageAdmin from "@/pages/admin/lexicon/LexiconPage"
@@ -19,6 +19,7 @@ import {
   HomePage,
   ArchivePage,
   NewsPage,
+  ArticlesPage,
   ArticlePage,
   EventsPage,
   EventPage,
@@ -97,7 +98,7 @@ export default function AppRoutes({
 
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:slug" element={<ArticleWrapper />} />
-        <Route path="/articles" element={<NewsPage />} />
+        <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:slug" element={<ArticleWrapper />} />
 
         <Route path="/events" element={<EventsPage />} />
@@ -136,7 +137,7 @@ export default function AppRoutes({
       >
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="articles" element={<ArticlesPage />} />
+        <Route path="articles" element={<AdminArticlesPage />} />
         <Route path="articles/new" element={<ArticleEditorPage />} />
         <Route path="articles/edit/:id" element={<ArticleEditorPage />} />
         <Route path="news" element={<NewsManagementPage />} />

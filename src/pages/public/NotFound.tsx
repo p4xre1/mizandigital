@@ -8,6 +8,7 @@ export function NotFound() {
       <SEOHead
         title="404 - الصفحة غير موجودة"
         description="عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها."
+        noindex
       />
 
       <main className="container mx-auto max-w-3xl px-4 py-20 text-center" dir="rtl">

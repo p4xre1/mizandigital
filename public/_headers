@@ -3,4 +3,57 @@
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://*.google.com https://*.google.co.ma https://*.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self'; manifest-src 'self'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://*.google.com https://*.google.co.ma https://*.google-analytics.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self'; manifest-src 'self'
+
+# ── Cache-Control: ملفات ثابتة (طويلة العمر) ──
+
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.svg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+# ── Cache-Control: ملفات تتغيّر أحياناً ──
+
+/*.json
+  Cache-Control: public, max-age=3600, must-revalidate
+
+/manifest.json
+  Cache-Control: public, max-age=86400, must-revalidate
+
+/sw.js
+  Cache-Control: no-cache
+
+# ── Cache-Control: HTML و SEO (لا تُخزَّن طويلاً) ──
+
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600, must-revalidate
+  X-Content-Type-Options: nosniff
+
+/robots.txt
+  Cache-Control: public, max-age=3600, must-revalidate
+  X-Content-Type-Options: nosniff

@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createClient } from "@supabase/supabase-js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "../public/sitemap.xml");
@@ -15,6 +16,49 @@ const [articles, events, schools, lexicon, news] = await Promise.all([
   readJson("lexicon.json"),
   readJson("news.json"),
 ]);
+
+/**
+ * جلب المقالات والأخبار المنشورة (status = published) من قاعدة بيانات Supabase (لوحة تحكم الـ CMS).
+ * هذا أساسي لأن أي محتوى ينشره المحرر عبر لوحة التحكم لا يظهر داخل ملفات JSON المحلية إطلاقاً،
+ * وبالتالي كان يبقى غائباً كلياً عن sitemap.xml وعن فهرسة Google رغم كونه منشوراً فعلياً على الموقع.
+ * في حال غياب بيانات الاتصال (بيئة بدون .env) أو تعذر الاتصال بالشبكة، نتجاهل الخطأ بهدوء
+ * ونكتفي بالمحتوى المحلي كي لا يفشل الـ build بالكامل بسبب السايتماب.
+ */
+async function fetchPublishedCmsContent() {
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://rfhjmtdblmarhlfftlmg.supabase.co";
+  const supabaseAnonKey =
+    process.env.VITE_SUPABASE_ANON_KEY ||
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmaGptdGRibG1hcmhsZmZ0bG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTE5NzgsImV4cCI6MjA5OTc4Nzk3OH0.uI2_WCQSERz0jgYPuy1-AiWuVtDcJlFKd7hZsaQ1r5Q";
+
+  try {
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+    const [{ data: cmsArticles, error: articlesError }, { data: cmsNews, error: newsError }] =
+      await Promise.all([
+        supabase
+          .from("articles")
+          .select("slug, updated_at, published_at, created_at")
+          .eq("status", "published"),
+        supabase
+          .from("news")
+          .select("slug, updated_at, published_at, created_at")
+          .eq("is_published", true),
+      ]);
+
+    if (articlesError) console.warn("⚠️  sitemap: تعذر جلب مقالات CMS —", articlesError.message);
+    if (newsError) console.warn("⚠️  sitemap: تعذر جلب أخبار CMS —", newsError.message);
+
+    return {
+      cmsArticles: cmsArticles || [],
+      cmsNews: cmsNews || [],
+    };
+  } catch (err) {
+    console.warn("⚠️  sitemap: تعذر الاتصال بـ Supabase، سيتم الاعتماد على البيانات المحلية فقط —", err.message);
+    return { cmsArticles: [], cmsNews: [] };
+  }
+}
+
+const { cmsArticles, cmsNews } = await fetchPublishedCmsContent();
 
 const generateSlug = (text = "") => {
   return String(text)
@@ -61,6 +105,24 @@ const dynamicEntries = [
       priority: "0.8",
     };
   }),
+  // مقالات لوحة تحكم الـ CMS (Supabase) — منشورة فقط
+  ...cmsArticles
+    .filter((item) => item.slug)
+    .map((item) => ({
+      path: `/articles/${item.slug}`,
+      lastmod: (item.updated_at || item.published_at || item.created_at || "").slice(0, 10),
+      changefreq: "monthly",
+      priority: "0.8",
+    })),
+  // أخبار لوحة تحكم الـ CMS (Supabase) — منشورة فقط
+  ...cmsNews
+    .filter((item) => item.slug)
+    .map((item) => ({
+      path: `/news/${item.slug}`,
+      lastmod: (item.updated_at || item.published_at || item.created_at || "").slice(0, 10),
+      changefreq: "monthly",
+      priority: "0.8",
+    })),
   ...events.map((item) => {
     const slug = item.slug || generateSlug(item.title);
     return { 
@@ -96,12 +158,20 @@ const normalizePath = (value = "") => {
   return path === "/" ? "" : path;
 };
 
-const entries = [...staticEntries, ...dynamicEntries].map((entry) => `  <url>
+// إزالة الروابط المكررة (قد يتقاطع محتوى CMS مع ملفات JSON المحلية أثناء الترحيل)، مع تفضيل آخر ظهور (بيانات CMS الحية)
+const allEntries = [...staticEntries, ...dynamicEntries];
+const dedupedByPath = Array.from(
+  new Map(allEntries.map((entry) => [normalizePath(entry.path), entry])).values()
+);
+
+const entries = dedupedByPath
+  .map((entry) => `  <url>
     <loc>${escapeXml(`${DOMAIN}${normalizePath(entry.path)}`)}</loc>
-    <lastmod>${entry.lastmod ?? today}</lastmod>
+    <lastmod>${entry.lastmod || today}</lastmod>
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
-  </url>`).join("\n");
+  </url>`)
+  .join("\n");
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -110,4 +180,6 @@ ${entries}
 `;
 
 await writeFile(OUTPUT, xml, "utf8");
-console.log(`Generated ${staticEntries.length + dynamicEntries.length} sitemap entries.`);
+console.log(
+  `Generated ${dedupedByPath.length} sitemap entries (${cmsArticles.length} CMS articles + ${cmsNews.length} CMS news included).`
+);

@@ -1,5 +1,15 @@
-# Canonical host
+# ── Canonical host: تحويل non-www إلى www ──
 https://mizan.page/* https://www.mizan.page/:splat 301
 
-# Static application routes
+# ── إزالة trailing slash (منع محتوى مكرّر في Google) ──
+https://www.mizan.page/*/ /:splat 301
+
+# ── SPA fallback لما لم يُولَّد مسبقاً عبر prerender ──
+# Cloudflare يخدم الملفات Static أولاً (284 صفحة مُولّدة)
+# ثم يطبّق هذه القاعدة فقط على المسارات غير الموجودة كملفات
 /* /index.html 200
+
+# ── صفحات 404 حقيقية (تحتسب في Coverage في Google Search Console) ──
+# أنشئ ملف public/404.html وأضفه في dist/ بعد البناء
+# عندما لا يُطابق المسار أي ملف static ولا مسار React Router
+# Cloudflare يخدم 404.html تلقائياً إن وُجد

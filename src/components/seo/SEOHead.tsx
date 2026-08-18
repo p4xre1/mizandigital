@@ -9,8 +9,11 @@ export interface SEOHeadProps {
   ogType?: "website" | "article"
   ogImage?: string
   publishedTime?: string
+  modifiedTime?: string
   keywords?: string[]
   schema?: Record<string, any> | Record<string, any>[]
+  /** يمنع فهرسة الصفحة من محركات البحث (صفحات 404، المسودات، نتائج البحث الداخلي...) */
+  noindex?: boolean
 }
 
 export function SEOHead({
@@ -20,8 +23,10 @@ export function SEOHead({
   ogType = "website",
   ogImage = "https://www.mizan.page/og-default.jpg",
   publishedTime,
+  modifiedTime,
   keywords = [],
   schema,
+  noindex = false,
 }: SEOHeadProps) {
   const fullTitle = `${title} | منصة الميزان الرقمية - القانون المغربي`
 
@@ -57,6 +62,12 @@ export function SEOHead({
     setMeta("description", description)
     setMeta("keywords", allKeywords)
 
+    // Robots: يتحكم فعلياً في فهرسة الصفحة الحالية (يطغى على وسم index.html العام)
+    setMeta(
+      "robots",
+      noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large"
+    )
+
     // OpenGraph
     setMeta("og:site_name", "الميزان الرقمي", "property")
     setMeta("og:title", fullTitle, "property")
@@ -66,9 +77,12 @@ export function SEOHead({
     setMeta("og:image", ogImage, "property")
     setMeta("og:locale", "ar_MA", "property")
 
-    // Published time for articles
+    // Published/modified time for articles
     if (publishedTime && ogType === "article") {
       setMeta("article:published_time", publishedTime, "property")
+    }
+    if (modifiedTime && ogType === "article") {
+      setMeta("article:modified_time", modifiedTime, "property")
     }
 
     // Twitter Card
@@ -85,7 +99,17 @@ export function SEOHead({
       document.head.appendChild(canonical)
     }
     canonical.setAttribute("href", url)
-  }, [fullTitle, description, allKeywords, url, ogType, ogImage, publishedTime])
+  }, [
+    fullTitle,
+    description,
+    allKeywords,
+    url,
+    ogType,
+    ogImage,
+    publishedTime,
+    modifiedTime,
+    noindex,
+  ])
 
   return schema ? <SchemaOrg schema={schema} /> : null
 }

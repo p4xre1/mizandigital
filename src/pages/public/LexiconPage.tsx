@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import localLexicon from "../../data/lexicon.json"
 import { supabase } from "../../lib/supabase/client"
 import {
   BookOpen,
@@ -37,21 +38,31 @@ export function LexiconPage() {
   }, [])
 
   const fetchPublicTerms = async () => {
-    setLoading(true)
-    try {
-      const { data, error } = await supabase
-        .from("lexicon_terms")
-        .select("*")
-        .order("created_at", { ascending: false })
+  setLoading(true)
+  try {
+    let remoteTerms: LexiconTerm[] = []
+    const { data, error } = await supabase
+      .from("lexicon_terms")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-      if (error) throw error
-      if (data) setTerms(data as any)
-    } catch (err) {
-      console.error("خطأ في جلب المصطلحات العامة:", err)
-    } finally {
-      setLoading(false)
-    }
+    // إن فشل الاتصال أو كان الجدول فارغاً، نعتمد البيانات المحلية كأساس
+    if (!error && data && data.length > 0) remoteTerms = data as LexiconTerm[]
+
+    // ندمج: Supabase أولاً، ثم مصطلحات JSON غير الموجودة في Supabase
+    const remoteNames = new Set(remoteTerms.map((t) => t.term_ar))
+    const merged = [
+      ...remoteTerms,
+      ...(localLexicon as LexiconTerm[]).filter((t) => !remoteNames.has(t.term_ar)),
+    ]
+    setTerms(merged)
+  } catch (err) {
+    console.error("خطأ في جلب المصطلحات، الاعتماد على البيانات المحلية:", err)
+    setTerms(localLexicon as LexiconTerm[])
+  } finally {
+    setLoading(false)
   }
+}
 
   const categories = useMemo(() => {
     const set = new Set<string>()

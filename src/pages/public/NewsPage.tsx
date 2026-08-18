@@ -4,6 +4,7 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
+import localNews from "../../data/news.json"
 import {
   Newspaper,
   Search,
@@ -46,22 +47,63 @@ export function NewsPage() {
   }, [])
 
   const fetchNewsItems = async () => {
-    setLoading(true)
-    try {
-      // الاستعلام من جدول news المتاح في قاعدة البيانات
-      const { data, error } = await (supabase as any).from("news")
-        .select("*")
-        .eq("is_published", true)
-        .order("published_at", { ascending: false })
+  setLoading(true)
+  try {
+    // 1) الأخبار المحلية من news.json (type = "news" فقط)
+    //    مع مواءمة أسماء الحقول مع واجهة NewsItem
+    const localItems: NewsItem[] = (localNews as any[])
+      .filter((n) => n.type === "news")
+      .map((n) => ({
+        id: n.id,
+        title: n.title,
+        summary: n.summary,
+        content: n.content,
+        source: n.author || "منصة الميزان",
+        source_url: null,
+        image_url: null,
+        is_published: true,
+        published_at: n.date,
+        slug: n.id, // الـ JSON له id صالح كـ slug
+        created_at: n.date
+      }))
 
-      if (error) throw error
-      if (data) setItems(data)
-    } catch (err) {
-      console.error("خطأ في جلب الأخبار والمستجدات:", err)
-    } finally {
-      setLoading(false)
-    }
+    // 2) أخبار Supabase (إن وُجدت)
+    let remoteItems: NewsItem[] = []
+    const { data, error } = await (supabase as any).from("news")
+      .select("*")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false })
+
+    if (!error && data) remoteItems = data
+
+    // 3) الدمج دون تكرار (بالعنوان) ثم الترتيب من الأحدث للأقدم
+    const remoteTitles = new Set(remoteItems.map((n) => n.title))
+    const merged = [...remoteItems, ...localItems.filter((n) => !remoteTitles.has(n.title))]
+    merged.sort((a, b) =>
+      new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime()
+    )
+
+    setItems(merged)
+  } catch (err) {
+    console.error("خطأ في جلب الأخبار والمستجدات، الاعتماد على البيانات المحلية:", err)
+    setItems(
+      (localNews as any[])
+        .filter((n) => n.type === "news")
+        .map((n) => ({
+          id: n.id,
+          title: n.title,
+          summary: n.summary,
+          content: n.content,
+          source: n.author || "منصة الميزان",
+          published_at: n.date,
+          slug: n.id,
+          created_at: n.date
+        }))
+    )
+  } finally {
+    setLoading(false)
   }
+}
 
   // استخراج مصادر الأخبار الفريدة للفلترة
   const availableSources = useMemo(() => {

@@ -4,6 +4,7 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import { stripHtml, truncateCleanText } from "../../lib/utils/sanitize"
 import { renderTextWithInternalLinks } from "../../lib/utils/autoLinker"
 import { supabase } from "../../lib/supabase/client"
+import { generateArticleSchema, generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import newsData from "../../data/news.json"
 import articlesData from "../../data/articles.json"
 import lexiconData from "../../data/lexicon.json"
@@ -35,6 +36,87 @@ const generateSlug = (text = "") => {
     .replace(/\-+$/, "");
 };
 
+// عدد الكلمات التقريبي لأي نص (يدعم العربية) لاستخدامه في wordCount الخاص بـ Schema.org
+const countWords = (text = "") => {
+  const clean = stripHtml(text).trim()
+  return clean ? clean.split(/\s+/).length : 0
+}
+
+/**
+ * توحيد شكل البيانات القادمة من ثلاثة مصادر مختلفة:
+ * - جدول "articles" في Supabase CMS (لوحة التحكم)
+ * - جدول "news" في Supabase CMS (لوحة التحكم)
+ * - ملفات JSON المحلية الثابتة (articles.json / news.json)
+ * في كائن واحد متجانس، لضمان دقة بيانات SEO (التاريخ، الكاتب، الوصف...) مهما كان مصدر المحتوى.
+ */
+function normalizeArticle(raw: any, source: "cms_article" | "cms_news" | "local"): any {
+  if (source === "cms_article") {
+    return {
+      id: raw.id,
+      slug: raw.slug,
+      type: "article",
+      title: raw.title,
+      summary: raw.excerpt || "",
+      content: raw.content || "",
+      category: raw.category?.name || raw.category?.name_fr || null,
+      author: null,
+      date: raw.published_at || raw.created_at || null,
+      updatedDate: raw.updated_at || raw.published_at || raw.created_at || null,
+      readingTime: null,
+      image: raw.cover_image || null,
+      status: raw.status,
+      metaTitle: raw.meta_title || null,
+      metaDescription: raw.meta_description || null,
+      canonicalUrl: raw.canonical_url || null,
+      targetKeyword: raw.target_keyword || null,
+    }
+  }
+
+  if (source === "cms_news") {
+    return {
+      id: raw.id,
+      slug: raw.slug,
+      type: "news",
+      title: raw.title,
+      summary: raw.summary || "",
+      content: raw.content || "",
+      category: raw.source || null,
+      author: null,
+      date: raw.published_at || raw.created_at || null,
+      updatedDate: raw.updated_at || raw.published_at || raw.created_at || null,
+      readingTime: null,
+      image: raw.image_url || null,
+      status: raw.is_published ? "published" : "draft",
+      metaTitle: null,
+      metaDescription: null,
+      canonicalUrl: null,
+      targetKeyword: null,
+    }
+  }
+
+  // بيانات محلية ثابتة: articles.json تستعمل excerpt/body/publishedAt، news.json تستعمل summary/content/date
+  const localContent = Array.isArray(raw.body) ? raw.body.join("\n\n") : raw.content || ""
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    type: raw.type || "article",
+    title: raw.title,
+    summary: raw.excerpt || raw.summary || "",
+    content: localContent,
+    category: raw.category || null,
+    author: raw.author || null,
+    date: raw.publishedAt || raw.date || null,
+    updatedDate: raw.updatedAt || raw.publishedAt || raw.date || null,
+    readingTime: raw.readingTime || raw.readTime || null,
+    image: raw.image || raw.coverImage || null,
+    status: "published",
+    metaTitle: null,
+    metaDescription: null,
+    canonicalUrl: null,
+    targetKeyword: null,
+  }
+}
+
 export function ArticlePage({ slug }: ArticlePageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
   const rawSlug = slug || params.slug || params.id
@@ -42,33 +124,41 @@ export function ArticlePage({ slug }: ArticlePageProps) {
 
   // دمج البيانات المحلية أولاً لضمان سرعة العرض والتحميل المسبق (Prerender)
   const [allItems, setAllItems] = useState<any[]>([
-    ...(newsData as any[]),
-    ...(articlesData as any[])
+    ...(newsData as any[]).map((item) => normalizeArticle(item, "local")),
+    ...(articlesData as any[]).map((item) => normalizeArticle(item, "local")),
   ])
   const [isLoading, setIsLoading] = useState(true)
 
-  // جلب المحتوى الجديد من لوحة تحكم Supabase CMS دمجاً مع الملفات المحلية
+  // جلب المحتوى المنشور فقط من لوحة تحكم Supabase CMS دمجاً مع الملفات المحلية
+  // ملاحظة SEO/أمان: نستبعد المسودات (draft) والمقالات قيد المراجعة كي لا تُفهرس أو تُعرض للعموم
   useEffect(() => {
     async function fetchCMSContent() {
       try {
         const [{ data: dbArticles }, { data: dbNews }] = await Promise.all([
-          supabase.from("articles").select("*"),
-          supabase.from("news").select("*")
+          supabase
+            .from("articles")
+            .select("*, category:categories(name, name_fr)")
+            .eq("status", "published"),
+          supabase.from("news").select("*").eq("is_published", true),
         ])
 
-        if (dbArticles || dbNews) {
+        const normalizedCms = [
+          ...(dbNews || []).map((item) => normalizeArticle(item, "cms_news")),
+          ...(dbArticles || []).map((item) => normalizeArticle(item, "cms_article")),
+        ]
+
+        if (normalizedCms.length > 0) {
           const combined = [
-            ...(dbNews || []),
-            ...(dbArticles || []),
-            ...(newsData as any[]),
-            ...(articlesData as any[])
+            ...normalizedCms,
+            ...(newsData as any[]).map((item) => normalizeArticle(item, "local")),
+            ...(articlesData as any[]).map((item) => normalizeArticle(item, "local")),
           ]
-          
+
           // إزالة العناصر المكررة بناءً على المعرف أو الرابط
           const uniqueItems = Array.from(
             new Map(combined.map(item => [item.id || item.slug || item.title, item])).values()
           )
-          
+
           setAllItems(uniqueItems)
         }
       } catch (err) {
@@ -120,6 +210,7 @@ export function ArticlePage({ slug }: ArticlePageProps) {
         <SEOHead
           title="المقال غير موجود - منصة الميزان"
           description="عذراً، لم يتم العثور على المقال أو الخبر المطلوب في الأرشيف التشريعي."
+          noindex
         />
         <main className="container mx-auto max-w-4xl px-4 py-20 text-center" dir="rtl">
           <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border bg-card p-8 shadow-sm">
@@ -151,44 +242,55 @@ export function ArticlePage({ slug }: ArticlePageProps) {
 
   const basePath = getBasePath(article);
   const currentSlug = article.slug || generateSlug(article.title);
+  const canonicalUrl = article.canonicalUrl || `${SITE_CONFIG.url}${basePath}/${currentSlug}`
 
-  // تجهيز الوصف الآمن لـ SEO
-  const safeDescription = article.summary 
-    ? stripHtml(article.summary) 
-    : truncateCleanText(article.content || "", 160)
+  // تجهيز الوصف الآمن لـ SEO: نُعطي الأولوية لوصف الـ Meta المخصص من لوحة التحكم
+  const safeDescription = article.metaDescription
+    ? stripHtml(article.metaDescription)
+    : article.summary
+      ? stripHtml(article.summary)
+      : truncateCleanText(article.content || "", 160)
 
-  // بيانات Schema.org للمحركات البحثية
-  const articleSchema = {
-    "@context": "https://schema.org",
-    "@type": article.type === "news" ? "NewsArticle" : "TechArticle",
-    "headline": article.title,
-    "description": safeDescription,
-    "datePublished": article.date,
-    "author": {
-      "@type": "Person",
-      "name": article.author || "محرر الشؤون القانونية"
+  // بيانات Schema.org للمحركات البحثية: مقال + مسار التنقل (Breadcrumb)
+  const articleSchema = generateArticleSchema({
+    title: article.title,
+    description: safeDescription,
+    url: canonicalUrl,
+    datePublished: article.date || new Date().toISOString(),
+    dateModified: article.updatedDate || article.date,
+    authorName: article.author || undefined,
+    image: article.image || undefined,
+    keywords: [article.targetKeyword, article.category].filter(Boolean) as string[],
+    wordCount: countWords(article.content),
+    articleCategory: article.type === "news" ? "Legislation" : "Analysis",
+  })
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "الرئيسية", url: "/" },
+    {
+      name: article.type === "news" ? "الأخبار التشريعية" : "المقالات والدراسات",
+      url: basePath,
     },
-    "publisher": {
-      "@type": "Organization",
-      "name": "منصة الميزان الرقمية",
-      "url": "https://www.mizan.page"
-    },
-    "mainEntityOfPage": `https://www.mizan.page${basePath}/${currentSlug}`,
-    "inLanguage": "ar-MA"
-  }
+    { name: article.title, url: `${basePath}/${currentSlug}` },
+  ])
 
   return (
     <>
       <SEOHead
-        title={`${article.title} - منصة الميزان`}
+        title={article.metaTitle || `${article.title} - منصة الميزان`}
         description={safeDescription}
+        canonicalUrl={canonicalUrl}
         ogType="article"
+        ogImage={article.image || undefined}
+        publishedTime={article.date || undefined}
+        modifiedTime={article.updatedDate || undefined}
         keywords={[
+          article.targetKeyword || "",
           article.category || "العلوم القانونية",
           "القانون المغربي",
           "تحليل تشريعي"
-        ]}
-        schema={articleSchema}
+        ].filter(Boolean)}
+        schema={[articleSchema, breadcrumbSchema]}
       />
 
       <main className="container mx-auto max-w-4xl px-4 py-10" dir="rtl">
@@ -273,10 +375,10 @@ export function ArticlePage({ slug }: ArticlePageProps) {
               </div>
             )}
 
-            {article.readTime && (
+            {article.readingTime && (
               <div className="flex items-center gap-1.5">
                 <Clock size={14} className="text-primary" />
-                <span>زمن القراءة: {article.readTime}</span>
+                <span>زمن القراءة: {article.readingTime}</span>
               </div>
             )}
           </div>
