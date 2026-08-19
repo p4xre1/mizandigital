@@ -54,6 +54,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [seminarToDelete, setSeminarToDelete] = useState<Seminar | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // حالة Modal الإضافة/التعديل
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
@@ -178,6 +179,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const handleDeleteConfirm = async () => {
     if (!seminarToDelete) return
     setDeleting(true)
+    setDeleteError(null)
     try {
       const { error } = await (supabase.from("seminars") as any)
         .delete()
@@ -188,8 +190,9 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
       setSeminars((prev) => prev.filter((item) => item.id !== seminarToDelete.id))
       setDeleteModalOpen(false)
       setSeminarToDelete(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حذف الندوة:", err)
+      setDeleteError(err?.message || "تعذر حذف الندوة. يرجى المحاولة مرة أخرى.")
     } finally {
       setDeleting(false)
     }
@@ -609,7 +612,13 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
           isOpen={deleteModalOpen}
           title="حذف الندوة القانونية"
           itemName={seminarToDelete?.title}
-          description="هل أنت تأكد من رغبتك في حذف هذه الندوة من الأرشيف الرقمي؟ لا يمكن التراجع عن هذا الإجراء بعد تنفيذه."
+          description={
+            deleteError ? (
+              <span className="font-semibold text-destructive">{deleteError}</span>
+            ) : (
+              "هل أنت تأكد من رغبتك في حذف هذه الندوة من الأرشيف الرقمي؟ لا يمكن التراجع عن هذا الإجراء بعد تنفيذه."
+            )
+          }
           confirmLabel="نعم، احذف الندوة"
           cancelLabel="تراجع"
           isLoading={deleting}
@@ -617,6 +626,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
           onClose={() => {
             setDeleteModalOpen(false)
             setSeminarToDelete(null)
+            setDeleteError(null)
           }}
         />
       </div>

@@ -53,6 +53,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [lawToDelete, setLawToDelete] = useState<Law | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // حالة Modal الإضافة/التعديل
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
@@ -176,6 +177,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
   const handleDeleteConfirm = async () => {
     if (!lawToDelete) return
     setDeleting(true)
+    setDeleteError(null)
     try {
       const { error } = await (supabase as any)
         .from("laws")
@@ -187,8 +189,10 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
       setLaws((prev) => prev.filter((item) => item.id !== lawToDelete.id))
       setDeleteModalOpen(false)
       setLawToDelete(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حذف القانون:", err)
+      // نُبقي النافذة مفتوحة ونعرض الخطأ للمستخدم بدلاً من الفشل الصامت
+      setDeleteError(err?.message || "تعذر حذف النص التشريعي. يرجى المحاولة مرة أخرى.")
     } finally {
       setDeleting(false)
     }
@@ -588,7 +592,13 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
           isOpen={deleteModalOpen}
           title="حذف النص التشريعي"
           itemName={lawToDelete?.title}
-          description="هل أنت متأكد من رغبتك في حذف هذا النص التشريعي من الأرشيف الرقمي؟ لا يمكن التراجع عن هذا الإجراء."
+          description={
+            deleteError ? (
+              <span className="font-semibold text-destructive">{deleteError}</span>
+            ) : (
+              "هل أنت متأكد من رغبتك في حذف هذا النص التشريعي من الأرشيف الرقمي؟ لا يمكن التراجع عن هذا الإجراء."
+            )
+          }
           confirmLabel="نعم، احذف القانون"
           cancelLabel="تراجع"
           isLoading={deleting}
@@ -596,6 +606,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
           onClose={() => {
             setDeleteModalOpen(false)
             setLawToDelete(null)
+            setDeleteError(null)
           }}
         />
       </div>

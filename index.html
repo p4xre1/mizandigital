@@ -7,15 +7,11 @@
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="description" content="ميزان الرقمية: منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب.">
     <meta name="robots" content="index, follow, max-image-preview:large">
-    <meta name="format-detection" content="telephone=no">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- Supabase (replace with your actual project ref) -->
-    <link rel="preconnect" href="https://rfhjmtdblmarhlfftlmg.supabase.co" crossorigin>
 
     <!-- SEO & Metadata -->
     <title>ميزان الرقمية | ملخصات وموارد طلبة القانون</title>
@@ -29,8 +25,6 @@
     <meta property="og:title" content="ميزان الرقمية | ملخصات وموارد طلبة القانون">
     <meta property="og:description" content="منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب.">
     <meta property="og:image" content="https://www.mizan.page/og-image.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
     <meta property="og:site_name" content="ميزان الرقمية">
     <meta property="og:locale" content="ar_MA">
 
@@ -42,7 +36,7 @@
 
     <!-- Favicon & PWA -->
     <link rel="icon" type="image/svg+xml" href="/Logo.svg">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="/Logo.svg">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
 
@@ -88,14 +82,33 @@
       }
     </script>
 
-    <!-- Google Analytics (GA4) Script -->
+    <!-- Google Analytics (GA4) Script + Consent Mode v2 -->
     <script>
       window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+
+      // وضع الموافقة الافتراضي من Google: رفض التخزين التحليلي/الإعلاني إلى حين موافقة صريحة من الزائر
+      gtag("consent", "default", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+        wait_for_update: 500
+      });
+
+      // إن كان الزائر قد وافق مسبقاً (محفوظ في localStorage عبر شريط إشعار الكوكيز)، نُحدّث الموافقة فوراً
+      try {
+        var storedConsent = window.localStorage.getItem("mizan-cookie-consent");
+        if (storedConsent === "granted") {
+          gtag("consent", "update", { analytics_storage: "granted" });
+        }
+      } catch (e) {}
+
       window.mizanGaMeasurementId = "%VITE_GA_ID%";
       if (window.mizanGaMeasurementId && !window.mizanGaMeasurementId.startsWith("%")) {
-        window.gtag = function () { window.dataLayer.push(arguments); };
-        window.gtag("js", new Date());
-        window.gtag("config", window.mizanGaMeasurementId, { anonymize_ip: true });
+        gtag("js", new Date());
+        gtag("config", window.mizanGaMeasurementId, { anonymize_ip: true });
         var gaScript = document.createElement("script");
         gaScript.async = true;
         gaScript.src = "https://www.googletagmanager.com/gtag/js?id=" + window.mizanGaMeasurementId;

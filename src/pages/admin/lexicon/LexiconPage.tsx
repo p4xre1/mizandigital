@@ -31,6 +31,7 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [termToDelete, setTermToDelete] = useState<LexiconTerm | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // حالة Modal الإضافة/التعديل
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
@@ -129,6 +130,7 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
   const handleDeleteConfirm = async () => {
     if (!termToDelete) return
     setDeleting(true)
+    setDeleteError(null)
     try {
       const { error } = await supabase
         .from("lexicon_terms")
@@ -140,8 +142,9 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
       setTerms((prev) => prev.filter((item) => item.id !== termToDelete.id))
       setDeleteModalOpen(false)
       setTermToDelete(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حذف المصطلح:", err)
+      setDeleteError(err?.message || "تعذر حذف المصطلح. يرجى المحاولة مرة أخرى.")
     } finally {
       setDeleting(false)
     }
@@ -401,12 +404,19 @@ export default function LexiconPage({ onNavigate }: LexiconPageProps) {
         <ConfirmDeleteModal
           isOpen={deleteModalOpen}
           title="حذف مصطلح"
-          description={`هل أنت تأكد من رغبتك في حذف مصطلح "${termToDelete?.term_ar}"؟`}
+          description={
+            deleteError ? (
+              <span className="font-semibold text-destructive">{deleteError}</span>
+            ) : (
+              `هل أنت تأكد من رغبتك في حذف مصطلح "${termToDelete?.term_ar}"؟`
+            )
+          }
           isLoading={deleting}
           onConfirm={handleDeleteConfirm}
           onClose={() => {
             setDeleteModalOpen(false)
             setTermToDelete(null)
+            setDeleteError(null)
           }}
         />
       </div>

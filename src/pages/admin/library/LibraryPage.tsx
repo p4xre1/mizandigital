@@ -70,6 +70,15 @@ async function uploadDocumentFile(
   return data.publicUrl
 }
 
+// يستخرج المسار الداخلي للملف داخل الـ bucket انطلاقاً من الرابط العام المخزَّن في قاعدة البيانات
+// (لازم لحذف الملف الفعلي من Supabase Storage عند حذف المستند، وليس فقط سطر قاعدة البيانات)
+function getStoragePathFromPublicUrl(publicUrl: string, bucket: string): string | null {
+  const marker = `/object/public/${bucket}/`
+  const index = publicUrl.indexOf(marker)
+  if (index === -1) return null
+  return decodeURIComponent(publicUrl.slice(index + marker.length))
+}
+
 export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const [documents, setDocuments] = useState<PdfDocument[]>([])
   const [faculties, setFaculties] = useState<Faculty[]>([])
@@ -82,6 +91,7 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [docToDelete, setDocToDelete] = useState<PdfDocument | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // حالة Modal رفع ملف جديد
   const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false)
@@ -177,7 +187,18 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const handleDeleteConfirm = async () => {
     if (!docToDelete) return
     setDeleting(true)
+    setDeleteError(null)
     try {
+      // نحذف الملف الفعلي من Supabase Storage أولاً (عملية غير حرجة: نُكمل حتى لو فشلت
+      // كي لا يبقى سطر قاعدة البيانات عالقاً بسبب خطأ في التخزين فقط)
+      const storagePath = getStoragePathFromPublicUrl(docToDelete.file_url, "documents")
+      if (storagePath) {
+        const { error: storageError } = await supabase.storage.from("documents").remove([storagePath])
+        if (storageError) {
+          console.warn("تعذر حذف الملف من التخزين (سيُكمل حذف السجل رغم ذلك):", storageError)
+        }
+      }
+
       const { error } = await supabase
         .from("pdf_summaries")
         .delete()
@@ -188,8 +209,9 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
       setDocuments((prev) => prev.filter((item) => item.id !== docToDelete.id))
       setDeleteModalOpen(false)
       setDocToDelete(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حذف المستند:", err)
+      setDeleteError(err?.message || "تعذر حذف المستند. يرجى المحاولة مرة أخرى.")
     } finally {
       setDeleting(false)
     }
@@ -501,12 +523,19 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
         <ConfirmDeleteModal
           isOpen={deleteModalOpen}
           title="حذف المستند"
-          description={`هل أنت تأكد من رغبتك في حذف مستند "${docToDelete?.title}"؟`}
+          description={
+            deleteError ? (
+              <span className="font-semibold text-destructive">{deleteError}</span>
+            ) : (
+              `هل أنت تأكد من رغبتك في حذف مستند "${docToDelete?.title}"؟`
+            )
+          }
           isLoading={deleting}
           onConfirm={handleDeleteConfirm}
           onClose={() => {
             setDeleteModalOpen(false)
             setDocToDelete(null)
+            setDeleteError(null)
           }}
         />
       </div>

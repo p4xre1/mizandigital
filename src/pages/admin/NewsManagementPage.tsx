@@ -52,6 +52,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [newsToDelete, setNewsToDelete] = useState<NewsItem | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // حالة Modal الإضافة/التعديل
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
@@ -191,8 +192,9 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
   const handleDeleteConfirm = async () => {
     if (!newsToDelete) return
     setDeleting(true)
+    setDeleteError(null)
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from("news")
         .delete()
         .eq("id", newsToDelete.id)
@@ -202,8 +204,9 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
       setNewsList((prev) => prev.filter((item) => item.id !== newsToDelete.id))
       setDeleteModalOpen(false)
       setNewsToDelete(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حذف الخبر:", err)
+      setDeleteError(err?.message || "تعذر حذف الخبر. يرجى المحاولة مرة أخرى.")
     } finally {
       setDeleting(false)
     }
@@ -610,7 +613,13 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
           isOpen={deleteModalOpen}
           title="حذف الخبر القانوني"
           itemName={newsToDelete?.title}
-          description="هل أنت متأكد من رغبتك في حذف هذا الخبر؟ لا يمكن التراجع عن هذا الإجراء."
+          description={
+            deleteError ? (
+              <span className="font-semibold text-destructive">{deleteError}</span>
+            ) : (
+              "هل أنت متأكد من رغبتك في حذف هذا الخبر؟ لا يمكن التراجع عن هذا الإجراء."
+            )
+          }
           confirmLabel="نعم، احذف الخبر"
           cancelLabel="تراجع"
           isLoading={deleting}
@@ -618,6 +627,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
           onClose={() => {
             setDeleteModalOpen(false)
             setNewsToDelete(null)
+            setDeleteError(null)
           }}
         />
       </div>

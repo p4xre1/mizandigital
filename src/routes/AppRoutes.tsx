@@ -27,6 +27,12 @@ import {
   SchoolPage,
   LexiconPage,
   TermPage,
+  AboutPage,
+  ContactPage,
+  FAQPage,
+  PrivacyPolicyPage,
+  CookiePolicyPage,
+  TermsPage,
   NotFound,
 } from "@/pages/public/index"
 
@@ -109,6 +115,14 @@ export default function AppRoutes({
 
         <Route path="/lexicon" element={<LexiconPage />} />
         <Route path="/lexicon/:slug" element={<TermWrapper />} />
+
+        {/* الصفحات القانونية والمعلوماتية */}
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/cookies" element={<CookiePolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
 
         {/* 404 Fallback */}
         <Route path="*" element={<NotFound />} />

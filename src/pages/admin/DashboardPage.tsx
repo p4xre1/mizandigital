@@ -65,11 +65,15 @@ export default function DashboardPage() {
         articlesListRes,
         docsListRes,
       ] = await Promise.all([
-        supabase.from("articles").select("*", { count: "exact", head: true }),
+        // العداد يجب أن يعكس فعلياً المقالات "المنشورة" فقط تماشياً مع عنوان البطاقة، وليس كل الحالات (مسودة/مراجعة/أرشيف)
+        supabase
+          .from("articles")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "published"),
         supabase.from("lexicon_terms").select("*", { count: "exact", head: true }),
         supabase.from("seminars").select("*", { count: "exact", head: true }),
         supabase.from("faculties").select("*", { count: "exact", head: true }),
-        (supabase as any).from("news").select("*", { count: "exact", head: true }),
+        supabase.from("news").select("*", { count: "exact", head: true }).eq("is_published", true),
         supabase
           .from("articles")
           .select("id, title, created_at")

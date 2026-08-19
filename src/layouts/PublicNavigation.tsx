@@ -92,12 +92,19 @@ export function Header({
 export function Footer() {
   return (
     <footer className="mt-20 border-t border-border bg-card/60">
-      <div className="container-wide grid gap-8 py-10 md:grid-cols-[1.4fr_1fr_1fr]">
+      <div className="container-wide grid gap-8 py-10 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
         <div>
           <Brand />
           <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
             منصة عربية مستقلة تجمع الأرشيف الدراسي والمقالات والأخبار والندوات ودليل كليات الحقوق بالمغرب للطالب القانوني.
           </p>
+          <a
+            href="mailto:contact@mizan.page"
+            dir="ltr"
+            className="mt-4 inline-block text-sm font-semibold text-muted-foreground hover:text-primary transition text-right"
+          >
+            contact@mizan.page
+          </a>
         </div>
         <div>
           <p className="mb-3 text-sm font-extrabold text-foreground">استكشف</p>
@@ -106,7 +113,10 @@ export function Footer() {
               المكتبة والملخصات
             </Link>
             <Link to="/news" className="hover:text-foreground">
-              الأخبار والمقالات
+              الأخبار
+            </Link>
+            <Link to="/articles" className="hover:text-foreground">
+              المقالات والدراسات
             </Link>
             <Link to="/events" className="hover:text-foreground">
               الندوات واللقاءات
@@ -122,11 +132,34 @@ export function Footer() {
             <Link to="/schools" className="hover:text-foreground">
               دليل كليات الحقوق
             </Link>
+            <Link to="/faq" className="hover:text-foreground">
+              الأسئلة الشائعة
+            </Link>
+            <Link to="/about" className="hover:text-foreground">
+              من نحن
+            </Link>
+            <Link to="/contact" className="hover:text-foreground">
+              اتصل بنا
+            </Link>
+          </div>
+        </div>
+        <div>
+          <p className="mb-3 text-sm font-extrabold text-foreground">قانوني</p>
+          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
+            <Link to="/terms" className="hover:text-foreground">
+              الشروط والأحكام
+            </Link>
+            <Link to="/privacy" className="hover:text-foreground">
+              سياسة الخصوصية
+            </Link>
+            <Link to="/cookies" className="hover:text-foreground">
+              سياسة الكوكيز
+            </Link>
           </div>
         </div>
       </div>
       <div className="container-wide border-t border-border py-5 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة.
+        © {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة. منصة تعليمية وليست بديلاً عن الاستشارة القانونية المتخصصة.
       </div>
     </footer>
   )

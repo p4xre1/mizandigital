@@ -31,6 +31,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
   const [facultyToDelete, setFacultyToDelete] = useState<Faculty | null>(null)
   const [deleting, setDeleting] = useState<boolean>(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   // حالة Modal الإضافة/التعديل
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
@@ -120,6 +121,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
   const handleDeleteConfirm = async () => {
     if (!facultyToDelete) return
     setDeleting(true)
+    setDeleteError(null)
     try {
       const { error } = await supabase
         .from("faculties")
@@ -131,8 +133,9 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
       setFaculties((prev) => prev.filter((item) => item.id !== facultyToDelete.id))
       setDeleteModalOpen(false)
       setFacultyToDelete(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حذف الكلية:", err)
+      setDeleteError(err?.message || "تعذر حذف الكلية. يرجى المحاولة مرة أخرى.")
     } finally {
       setDeleting(false)
     }
@@ -361,12 +364,19 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
         <ConfirmDeleteModal
           isOpen={deleteModalOpen}
           title="حذف كلية"
-          description={`هل أنت تأكد من رغبتك في حذف "${facultyToDelete?.name_ar || facultyToDelete?.name || ""}"؟`}
+          description={
+            deleteError ? (
+              <span className="font-semibold text-destructive">{deleteError}</span>
+            ) : (
+              `هل أنت تأكد من رغبتك في حذف "${facultyToDelete?.name_ar || facultyToDelete?.name || ""}"؟`
+            )
+          }
           isLoading={deleting}
           onConfirm={handleDeleteConfirm}
           onClose={() => {
             setDeleteModalOpen(false)
             setFacultyToDelete(null)
+            setDeleteError(null)
           }}
         />
       </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { Toast } from "@/components/Toast"
+import { CookieConsentBanner } from "@/components/CookieConsentBanner"
 import { supabase } from "@/lib/supabase/client"
 import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
@@ -101,6 +102,9 @@ export default function App() {
         isVisible={toastMessage !== null}
         onClose={() => setToastMessage(null)}
       />
+
+      {/* شريط موافقة الكوكيز (Google Consent Mode) */}
+      <CookieConsentBanner />
     </BrowserRouter>
   )
 }
