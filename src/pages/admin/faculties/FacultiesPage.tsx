@@ -90,6 +90,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
     setSaving(true)
     const finalSlug = slug || generateSlug(nameFr || nameAr)
 
+    // إرسال الأعمدة المتوافقة تماماً مع جدول faculties الأساسي
     const payload = {
       name: nameAr,
       city,
@@ -300,7 +301,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground">
-                    اسم الكلية (بالفرنسية)
+                    اسم الكلية (بالفرنسية) - اختيارى
                   </label>
                   <input
                     type="text"
