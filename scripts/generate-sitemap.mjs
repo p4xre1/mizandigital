@@ -17,13 +17,6 @@ const [articles, events, schools, lexicon, news] = await Promise.all([
   readJson("news.json"),
 ]);
 
-/**
- * جلب المقالات والأخبار المنشورة (status = published) من قاعدة بيانات Supabase (لوحة تحكم الـ CMS).
- * هذا أساسي لأن أي محتوى ينشره المحرر عبر لوحة التحكم لا يظهر داخل ملفات JSON المحلية إطلاقاً،
- * وبالتالي كان يبقى غائباً كلياً عن sitemap.xml وعن فهرسة Google رغم كونه منشوراً فعلياً على الموقع.
- * في حال غياب بيانات الاتصال (بيئة بدون .env) أو تعذر الاتصال بالشبكة، نتجاهل الخطأ بهدوء
- * ونكتفي بالمحتوى المحلي كي لا يفشل الـ build بالكامل بسبب السايتماب.
- */
 async function fetchPublishedCmsContent() {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://rfhjmtdblmarhlfftlmg.supabase.co";
   const supabaseAnonKey =
@@ -111,7 +104,6 @@ const dynamicEntries = [
       priority: "0.8",
     };
   }),
-  // مقالات لوحة تحكم الـ CMS (Supabase) — منشورة فقط
   ...cmsArticles
     .filter((item) => item.slug)
     .map((item) => ({
@@ -120,7 +112,6 @@ const dynamicEntries = [
       changefreq: "monthly",
       priority: "0.8",
     })),
-  // أخبار لوحة تحكم الـ CMS (Supabase) — منشورة فقط
   ...cmsNews
     .filter((item) => item.slug)
     .map((item) => ({
@@ -164,7 +155,6 @@ const normalizePath = (value = "") => {
   return path === "/" ? "" : path;
 };
 
-// إزالة الروابط المكررة (قد يتقاطع محتوى CMS مع ملفات JSON المحلية أثناء الترحيل)، مع تفضيل آخر ظهور (بيانات CMS الحية)
 const allEntries = [...staticEntries, ...dynamicEntries];
 const dedupedByPath = Array.from(
   new Map(allEntries.map((entry) => [normalizePath(entry.path), entry])).values()
