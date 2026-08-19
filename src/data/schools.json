@@ -6,6 +6,11 @@
     "logoUrl": "/images/logo-FSJES-Ain-sebaa-tawjihpro.jpg",
     "university": "جامعة الحسن الثاني بالدار البيضاء",
     "city": "الدار البيضاء",
+    "foundedYear": "2006",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/fsjesas.univh2c.ma",
+      "linkedin": "https://www.linkedin.com/school/fsjes-ain-sebaa"
+    },
     "officialUrl": "https://fsjesas.univh2c.ma/",
     "mapLocation": {
       "address": "طريق المطار، عين السبع، الدار البيضاء",
@@ -31,6 +36,11 @@
     "logoUrl": "/images/logo-faculity-rabat.png",
     "university": "جامعة محمد الخامس بالرباط",
     "city": "الرباط",
+    "foundedYear": "1957",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/FSJESAgdalOfficiel",
+      "linkedin": "https://www.linkedin.com/school/fsjes-agdal"
+    },
     "officialUrl": "https://fsjes-agdal.um5.ac.ma/fr/",
     "mapLocation": {
       "address": "أكدال، الرباط، المغرب",
@@ -53,6 +63,11 @@
     "logoUrl": "/images/faculity-marrakech.jpg",
     "university": "جامعة القاضي عياض",
     "city": "مراكش",
+    "foundedYear": "1979",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/FSJESM.official",
+      "linkedin": "https://www.linkedin.com/school/fsjes-marrakech"
+    },
     "officialUrl": "https://fsjes.uca.ma/",
     "mapLocation": {
       "address": "المحاميد / طريق الصويرة، مراكش",
@@ -75,10 +90,15 @@
     "logoUrl": "/images/faculty-uae-tanger.jpg",
     "university": "جامعة عبد المالك السعدي",
     "city": "طنجة",
+    "foundedYear": "1997",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/FSJEST.UAE",
+      "linkedin": "https://www.linkedin.com/school/fsjes-tanger"
+    },
     "officialUrl": "https://www.uae.ac.ma/etablissements/fsjest",
     "mapLocation": {
-      "address": "مرتيل / طنجة (جامعة عبد المالك السعدي)",
-      "googleMapsUrl": "https://maps.google.com/?q=FSJES+Tangier+UAE"
+      "address": "مجمع إستيفان / البوخالف، طنجة (جامعة عبد المالك السعدي)",
+      "googleMapsUrl": "https://maps.google.com/?q=FSJES+Tangier+Boukhalef"
     },
     "synopsis": "كلية تابعة لجامعة عبد المالك السعدي، تهتم بالتكوين والبحث في المجالات القانونية والاقتصادية والاجتماعية.",
     "studyAreas": ["القانون", "الاقتصاد", "العلوم الاجتماعية", "الندوات العلمية"],
@@ -97,6 +117,11 @@
     "logoUrl": "/images/faculity-agadir.jpg",
     "university": "جامعة ابن زهر",
     "city": "أكادير",
+    "foundedYear": "1994",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/FSJESAgadirUIZ",
+      "linkedin": "https://www.linkedin.com/school/fsjes-agadir"
+    },
     "officialUrl": "https://www.uiz.ac.ma/fr/index.php/faculte-des-sciences-juridiques-economiques-et-sociales-agadir",
     "mapLocation": {
       "address": "مركب أيت ملول / أكادير، جامعة ابن زهر",
@@ -119,6 +144,11 @@
     "logoUrl": "/images/pffpn-nador-faculity.png",
     "university": "جامعة محمد الأول",
     "city": "الناظور",
+    "foundedYear": "2005",
+    "socialMedia": {
+      "facebook": "https://www.facebook.com/FSJESNadorUMP",
+      "linkedin": "https://www.linkedin.com/school/fsjes-nador"
+    },
     "officialUrl": "https://fsjesn.ump.ma/",
     "mapLocation": {
       "address": "سلوان، الناظور، المغرب",

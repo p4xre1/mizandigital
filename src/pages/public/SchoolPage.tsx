@@ -13,7 +13,8 @@ import {
   Building2,
   Share2,
   Link as LinkIcon,
-  Navigation
+  Navigation,
+  Calendar
 } from "lucide-react"
 
 interface SchoolPageProps {
@@ -25,7 +26,6 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
   const targetQuery = propSlug || propId || params.slug || params.id
 
-  // Match school by ID or generated slug
   const school: any = schoolsData.find((item: any) => {
     const schoolName = item.name || item.name_ar || ""
     return item.id === targetQuery || generateSlug(schoolName) === targetQuery
@@ -38,7 +38,6 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
   const schoolName = school.name || school.name_ar || "كلية الحقوق"
   const website = school.websiteUrl || school.website || school.officialUrl
 
-  // EducationalOrganization Schema for Google Search Indexing
   const schoolSchema = {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
@@ -120,6 +119,12 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                     <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                       <MapPin size={12} />
                       {school.city}
+                    </span>
+                  )}
+                  {school.foundedYear && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                      <Calendar size={12} />
+                      تأسست سنة {school.foundedYear}
                     </span>
                   )}
                 </div>
@@ -224,6 +229,16 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   {school.city || "المملكة المغربية"}
                 </p>
               </div>
+              
+              {school.foundedYear && (
+                <div>
+                  <span className="text-xs text-muted-foreground block mb-1">تاريخ التأسيس:</span>
+                  <p className="font-medium text-foreground">
+                    سنة {school.foundedYear}
+                  </p>
+                </div>
+              )}
+
               {(school.address || school.mapLocation?.address) && (
                 <div>
                   <span className="text-xs text-muted-foreground block mb-1">العنوان الكامل:</span>
@@ -257,6 +272,35 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   >
                     {website}
                   </a>
+                </div>
+              )}
+
+              {/* Social Media Links */}
+              {school.socialMedia && (
+                <div className="pt-3 border-t border-border">
+                  <span className="text-xs text-muted-foreground block mb-2">حسابات التواصل الاجتماعي:</span>
+                  <div className="flex flex-wrap gap-2">
+                    {school.socialMedia.facebook && (
+                      <a
+                        href={school.socialMedia.facebook}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 text-blue-600 px-3 py-1.5 text-xs font-semibold hover:bg-blue-500/20 transition"
+                      >
+                        فيسبوك الرسمي
+                      </a>
+                    )}
+                    {school.socialMedia.linkedin && (
+                      <a
+                        href={school.socialMedia.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-lg bg-sky-500/10 text-sky-600 px-3 py-1.5 text-xs font-semibold hover:bg-sky-500/20 transition"
+                      >
+                        لينكد إن
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
