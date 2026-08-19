@@ -90,8 +90,11 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
     setSaving(true)
     const finalSlug = slug || generateSlug(nameFr || nameAr)
 
+    // تحديث الـ payload ليشمل الأعمدة المتكاملة لتفادي أخطاء قاعدة البيانات
     const payload = {
       name: nameAr,
+      name_ar: nameAr,
+      name_fr: nameFr || null,
       city,
       slug: finalSlug,
     }
