@@ -11,7 +11,9 @@ import {
   Globe,
   BookOpen,
   Building2,
-  Share2
+  Share2,
+  Link as LinkIcon,
+  Navigation
 } from "lucide-react"
 
 interface SchoolPageProps {
@@ -34,7 +36,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
   }
 
   const schoolName = school.name || school.name_ar || "كلية الحقوق"
-  const website = school.websiteUrl || school.website
+  const website = school.websiteUrl || school.website || school.officialUrl
 
   // EducationalOrganization Schema for Google Search Indexing
   const schoolSchema = {
@@ -42,7 +44,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
     "@type": "EducationalOrganization",
     "name": schoolName,
     "alternateName": school.name_fr || school.code,
-    "description": school.description,
+    "description": school.description || school.synopsis,
     "url": website || `https://www.mizan.page/schools/${school.id}`,
     "address": {
       "@type": "PostalAddress",
@@ -62,8 +64,8 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
       <SEOHead
         title={`${schoolName} - دليل كليات الحقوق بالمغرب`}
         description={
-          school.description
-            ? school.description.slice(0, 160)
+          school.description || school.synopsis
+            ? (school.description || school.synopsis).slice(0, 160)
             : `تعرف على المسالك القانونية وبرامج الماستر والدكتوراة بـ ${schoolName}.`
         }
         ogType="website"
@@ -90,36 +92,52 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
           </Link>
         </div>
 
-        {/* Main Banner Card */}
+        {/* Main Banner Card with Logo */}
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm mb-8">
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-            <div className="space-y-3 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary border border-primary/20">
-                  <GraduationCap size={14} />
-                  مؤسسة جامعية عمومية
-                </span>
-                {school.city && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
-                    <MapPin size={12} />
-                    {school.city}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            
+            {/* الشعار واسم الكلية */}
+            <div className="flex items-start md:items-center gap-4 flex-1">
+              {school.logoUrl ? (
+                <img
+                  src={school.logoUrl}
+                  alt={schoolName}
+                  className="size-16 md:size-20 rounded-xl object-contain bg-muted/50 p-2 border border-border shrink-0"
+                />
+              ) : (
+                <div className="size-16 md:size-20 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0 border border-primary/20">
+                  {schoolName.charAt(0)}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary border border-primary/20">
+                    <GraduationCap size={14} />
+                    مؤسسة جامعية عمومية
                   </span>
+                  {school.city && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                      <MapPin size={12} />
+                      {school.city}
+                    </span>
+                  )}
+                </div>
+
+                <h1 className="text-2xl md:text-3xl font-black text-foreground">
+                  {schoolName}
+                </h1>
+
+                {school.university && (
+                  <p className="text-sm font-semibold text-muted-foreground">
+                    تنسيق: {school.university}
+                  </p>
                 )}
               </div>
-
-              <h1 className="text-2xl md:text-4xl font-black text-foreground">
-                {schoolName}
-              </h1>
-
-              {school.university && (
-                <p className="text-base font-semibold text-muted-foreground">
-                  تنسيق: {school.university}
-                </p>
-              )}
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-3 shrink-0 self-start md:self-center">
               {website && (
                 <a
                   href={website}
@@ -144,18 +162,18 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
           </div>
 
           {/* Description Section */}
-          {school.description && (
+          {(school.description || school.synopsis) && (
             <div className="mt-6 pt-6 border-t border-border">
               <h2 className="text-sm font-bold text-foreground mb-2">عن الكلية:</h2>
               <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-                {school.description}
+                {school.description || school.synopsis}
               </p>
             </div>
           )}
         </div>
 
-        {/* Programs / Departments Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Programs & Location Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Undergraduate & Master Streams */}
           <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-center gap-2 text-primary font-bold text-base mb-4">
@@ -171,6 +189,18 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   >
                     <span className="size-2 rounded-full bg-primary shrink-0" />
                     <span>{program}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : school.studyAreas && school.studyAreas.length > 0 ? (
+              <ul className="space-y-2.5 text-sm">
+                {school.studyAreas.map((area: string, idx: number) => (
+                  <li
+                    key={idx}
+                    className="flex items-center gap-2 text-muted-foreground rounded-lg bg-muted/50 p-2.5"
+                  >
+                    <span className="size-2 rounded-full bg-primary shrink-0" />
+                    <span>{area}</span>
                   </li>
                 ))}
               </ul>
@@ -194,10 +224,26 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   {school.city || "المملكة المغربية"}
                 </p>
               </div>
-              {school.address && (
+              {(school.address || school.mapLocation?.address) && (
                 <div>
                   <span className="text-xs text-muted-foreground block mb-1">العنوان الكامل:</span>
-                  <p className="font-medium text-foreground">{school.address}</p>
+                  <p className="font-medium text-foreground">
+                    {school.address || school.mapLocation?.address}
+                  </p>
+                </div>
+              )}
+              {school.mapLocation?.googleMapsUrl && (
+                <div>
+                  <span className="text-xs text-muted-foreground block mb-1">خريطة جوجل:</span>
+                  <a
+                    href={school.mapLocation.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+                  >
+                    <Navigation size={14} />
+                    <span>عرض الموقع الدقيق على الخريطة</span>
+                  </a>
                 </div>
               )}
               {website && (
@@ -216,6 +262,30 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
             </div>
           </section>
         </div>
+
+        {/* Useful Links Section */}
+        {school.usefulLinks && school.usefulLinks.length > 0 && (
+          <section className="rounded-xl border border-border bg-card p-6 shadow-sm mb-8">
+            <div className="flex items-center gap-2 text-primary font-bold text-base mb-4">
+              <LinkIcon size={20} />
+              <h2>روابط مفيدة ومنصات رقمية</h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {school.usefulLinks.map((link: any, idx: number) => (
+                <a
+                  key={idx}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-muted/30 hover:border-primary hover:bg-muted/60 transition text-sm font-medium text-foreground"
+                >
+                  <span>{link.title}</span>
+                  <ExternalLink size={16} className="text-primary" />
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   )
