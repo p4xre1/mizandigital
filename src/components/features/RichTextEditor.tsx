@@ -18,6 +18,8 @@ import {
   FileText,
   Clock,
 } from "lucide-react"
+import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
+import { ArticleContent } from "../articles/ArticleContent"
 
 interface RichTextEditorProps {
   value: string
@@ -121,6 +123,9 @@ export default function RichTextEditor({
     return { charCount, wordCount, readingTime }
   }, [value])
 
+  // تحليل المحتوى لعرضه بنفس شكله النهائي في صفحة المقال (عناوين، صور، فقرات...)
+  const previewParsed = useMemo(() => parseArticleMarkdown(value), [value])
+
   const toolbarButtons = [
     { icon: Bold, title: "عريض (Ctrl+B)", action: () => insertFormatting("**", "**") },
     { icon: Italic, title: "مائل (Ctrl+I)", action: () => insertFormatting("*", "*") },
@@ -206,7 +211,7 @@ export default function RichTextEditor({
             style={{ minHeight }}
           >
             {value ? (
-              <div className="whitespace-pre-wrap font-sans leading-relaxed">{value}</div>
+              <ArticleContent blocks={previewParsed.blocks} />
             ) : (
               <p className="text-xs italic text-muted-foreground">لا يوجد محتوى للمعاينة حالياً...</p>
             )}

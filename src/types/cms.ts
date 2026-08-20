@@ -47,12 +47,34 @@ export interface Article {
   published_at?: string | null
 }
 
+export interface LegalArticleRef {
+  // رقم الفصل/المادة كما يرد في النص الرسمي (مثال: "230" أو "4")
+  number: string
+  // النص الحرفي أو الموجز للمقتضى القانوني المرتبط بالمصطلح
+  phrase: string
+}
+
+export interface LegalSource {
+  // الاسم الكامل للقانون/المدونة بالعربية (مثال: "قانون الالتزامات والعقود")
+  code_ar: string
+  // الاختصار الشائع إن وجد (مثال: "ق.ل.ع")
+  code_short?: string
+  // الاسم بالفرنسية إن وجد (مثال: "Code des obligations et des contrats")
+  code_fr?: string
+  // لائحة الفصول/المواد التي يرد فيها المصطلح ضمن هذا القانون
+  articles: LegalArticleRef[]
+}
+
 export interface LexiconTerm {
   id: string
   term_ar: string
   term_fr: string
   definition: string
   category: string
+  // "الشجرة القانونية": كل القوانين/المدونات التي يرد فيها المصطلح، مع أرقام
+  // الفصول/المواد والمقتضى القانوني لكل واحدة منها. اختياري وغير متوفر بعد
+  // لكل المصطلحات — يُستكمل تدريجياً بعد بحث قانوني موثّق لكل مصطلح.
+  legal_sources?: LegalSource[]
   created_at?: string | null
   updated_at?: string | null
 }

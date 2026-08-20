@@ -1,125 +1,208 @@
+import { useParams, Link } from "react-router-dom"
+import { useState } from "react"
 import { SEOHead } from "../../components/seo/SEOHead"
-import { generateBreadcrumbSchema } from "../../lib/seo/schema"
-import { LegalSection as Section } from "../../components/legal/LegalSection"
-import { Scale, ShieldAlert } from "lucide-react"
+import { NotFound } from "./NotFound"
+import lexiconData from "../../data/lexicon.json"
+import { generateSlug } from "../../lib/utils/generateSlug"
+import { BookOpen, ArrowRight, Share2, Scale, Gavel } from "lucide-react"
+import type { LegalSource } from "../../types/cms"
+import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
 
-const LAST_UPDATED = "19 غشت 2026"
-const CONTACT_EMAIL = "contact@mizan.page"
+interface TermPageProps {
+  slug?: string
+  id?: string
+}
 
-export function TermsPage() {
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "الرئيسية", url: "/" },
-    { name: "الشروط والأحكام", url: "/terms" },
-  ])
+export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
+  const params = useParams<{ slug?: string; id?: string }>()
+  const targetQuery = propSlug || propId || params.slug || params.id
+  const [highlighted, setHighlighted] = useState<string | null>(null)
+
+  // Match term by ID or slug
+  const term = lexiconData.find(
+    (item) =>
+      item.id === targetQuery ||
+      generateSlug(item.term_ar) === targetQuery
+  ) as (typeof lexiconData[number] & { legal_sources?: LegalSource[] }) | undefined
+
+  if (!term) {
+    return <NotFound />
+  }
+
+  const legalSources = term.legal_sources ?? []
+
+  const handleSelectArticle = (codeIndex: number, articleIndex: number) => {
+    const anchorId = legalSourceAnchorId(codeIndex, articleIndex)
+    const el = document.getElementById(anchorId)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      setHighlighted(anchorId)
+      window.setTimeout(() => setHighlighted((cur) => (cur === anchorId ? null : cur)), 2200)
+    }
+  }
+
+  // DefinedTerm Schema for Google Rich Search Results
+  const termSchema = {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    "name": term.term_ar,
+    "alternateName": term.term_fr,
+    "description": term.definition,
+    "inDefinedTermSet": "https://www.mizan.page/lexicon",
+    "inLanguage": ["ar-MA", "fr"]
+  }
+
+  const handleCopyLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href)
+    }
+  }
 
   return (
     <>
       <SEOHead
-        title="الشروط والأحكام وإخلاء المسؤولية"
-        description="شروط استخدام منصة الميزان الرقمية، وإخلاء مسؤولية يوضح أن المنصة تعليمية بحتة وليست بديلاً عن الاستشارة القانونية."
-        schema={breadcrumbSchema}
+        title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr})`}
+        description={term.definition.slice(0, 160)}
+        ogType="article"
+        keywords={[
+          term.term_ar,
+          term.term_fr,
+          term.category,
+          "القاموس القانوني المغربي",
+          ...legalSources.map((s) => s.code_ar),
+        ]}
+        schema={termSchema}
       />
 
-      <main className="container mx-auto max-w-3xl px-4 py-10 md:py-14" dir="rtl">
-        <header className="mb-8 text-center">
-          <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
-            <Scale size={26} />
-          </div>
-          <h1 className="text-2xl font-black text-foreground md:text-3xl">الشروط والأحكام</h1>
-          <p className="mt-2 text-xs text-muted-foreground">آخر تحديث: {LAST_UPDATED}</p>
-        </header>
-
-        {/* إخلاء المسؤولية البارز - أهم عنصر في هذه الصفحة */}
-        <div className="mb-8 flex items-start gap-3 rounded-2xl border-2 border-amber-500/30 bg-amber-500/5 p-5">
-          <ShieldAlert size={22} className="shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-          <div className="text-xs md:text-sm leading-relaxed text-amber-900 dark:text-amber-200">
-            <p className="mb-1.5 font-extrabold">إخلاء مسؤولية مهم — يرجى القراءة بعناية</p>
-            <p>
-              منصة "الميزان الرقمية" هي <strong>منصة تعليمية بحتة</strong> موجهة لطلبة وباحثي القانون،
-              وليست مكتب محاماة ولا جهة استشارات قانونية. المحتوى المنشور (ملخصات، مقالات، معجم،
-              أخبار) معدّ لأغراض دراسية ومعرفية فقط، ولا يشكل استشارة قانونية أو رأياً قانونياً
-              رسمياً، ولا ينشئ أي علاقة محامٍ-موكل بينكم وبين المنصة أو القائمين عليها. لأي حالة أو
-              نزاع قانوني فعلي، يجب استشارة محامٍ مرخّص أو جهة قانونية مختصة.
-            </p>
-          </div>
+      <main className="container mx-auto max-w-4xl px-4 py-12" dir="rtl">
+        <div className="mb-6">
+          <Link
+            to="/lexicon"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition"
+          >
+            <ArrowRight size={16} />
+            العودة إلى المعجم القانوني
+          </Link>
         </div>
 
-        <div className="space-y-8">
-          <Section title="1. قبول الشروط">
-            <p>
-              باستخدامكم لموقع mizan.page ("المنصة")، فإنكم توافقون على الالتزام بهذه الشروط والأحكام
-              كاملة. إن لم توافقوا عليها، يرجى التوقف عن استخدام المنصة.
+        <article className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm">
+          <header className="flex flex-wrap items-start justify-between gap-4 border-b border-border pb-6">
+            <div>
+              <div className="flex items-center gap-2 text-primary font-semibold text-sm mb-2">
+                <BookOpen size={18} />
+                <span>المعجم القانوني المغربي</span>
+              </div>
+              <h1 className="text-3xl font-black text-foreground md:text-4xl">
+                {term.term_ar}
+              </h1>
+              {term.term_fr && (
+                <p className="mt-1 text-lg font-semibold text-muted-foreground" dir="ltr">
+                  {term.term_fr}
+                </p>
+              )}
+            </div>
+
+            <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary border border-primary/20">
+              {term.category}
+            </span>
+          </header>
+
+          <section className="prose dark:prose-invert mt-6 max-w-none">
+            <h2 className="text-lg font-bold text-foreground mb-3">الشرح والتفصيل القانوني:</h2>
+            <p className="text-base leading-relaxed text-muted-foreground whitespace-pre-line">
+              {term.definition}
             </p>
-          </Section>
+          </section>
 
-          <Section title="2. طبيعة المنصة">
-            <p>
-              الميزان الرقمية منصة تعليمية عربية مستقلة، غير ربحية وغير تابعة لأي جهة حكومية أو نقابة
-              مهنية، هدفها مساعدة طلبة كليات الحقوق على تنظيم مراجعتهم والوصول إلى موارد ومصطلحات
-              قانونية بشكل مبسّط.
-            </p>
-          </Section>
+          {legalSources.length > 0 && (
+            <section className="mt-8 pt-6 border-t border-border">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-foreground mb-1">
+                <Scale size={18} className="text-primary" />
+                الشجرة القانونية للمصطلح
+              </h2>
+              <p className="text-xs text-muted-foreground mb-4">
+                كل القوانين والمدونات المغربية التي يرد فيها هذا المصطلح، مع رقم الفصل/المادة
+                والمقتضى القانوني المرتبط به.
+              </p>
 
-          <Section title="3. دقة المحتوى">
-            <p>
-              نبذل جهداً معقولاً للتأكد من دقة المحتوى وتحديثه، إلا أننا لا نضمن خلوّه التام من
-              الأخطاء أو أنه محدَّث بشكل دائم وفق آخر التعديلات التشريعية. يبقى الرجوع إلى النصوص
-              القانونية الرسمية المنشورة بالجريدة الرسمية والمراجع الأكاديمية المعتمدة هو المرجع
-              الأساسي والملزم.
-            </p>
-          </Section>
+              <div className="mb-6">
+                <LegalTermTree
+                  termAr={term.term_ar}
+                  termFr={term.term_fr}
+                  legalSources={legalSources}
+                  onSelectArticle={handleSelectArticle}
+                />
+              </div>
 
-          <Section title="4. الاستخدام المسموح به">
-            <ul className="list-disc pr-5 space-y-1.5 text-sm leading-relaxed text-muted-foreground">
-              <li>يجوز لكم تصفح المحتوى واستخدامه لأغراض دراسية وشخصية غير تجارية.</li>
-              <li>يُمنع إعادة نشر أو نسخ المحتوى بشكل جماعي أو تجاري دون إذن كتابي مسبق.</li>
-              <li>يُمنع استخدام المنصة بأي شكل يخالف القانون أو يضر بالغير أو بالمنصة نفسها.</li>
-            </ul>
-          </Section>
+              <div className="space-y-4">
+                {legalSources.map((source, sIdx) => (
+                  <div
+                    key={`${source.code_short ?? source.code_ar}-${sIdx}`}
+                    className="rounded-xl border border-border bg-muted/20 p-4"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+                      <h3 className="font-bold text-foreground text-sm md:text-base">
+                        {source.code_ar}
+                        {source.code_short && (
+                          <span className="ms-2 text-xs font-semibold text-primary">
+                            ({source.code_short})
+                          </span>
+                        )}
+                      </h3>
+                      {source.code_fr && (
+                        <span className="text-xs text-muted-foreground font-mono" dir="ltr">
+                          {source.code_fr}
+                        </span>
+                      )}
+                    </div>
 
-          <Section title="5. الملكية الفكرية">
-            <p>
-              جميع الحقوق المتعلقة بتصميم المنصة والمحتوى الأصلي المنشور عليها محفوظة لصالح الميزان
-              الرقمية أو لمالكيها الأصليين، ما لم يُذكر خلاف ذلك.
-            </p>
-          </Section>
+                    <ul className="space-y-3">
+                      {source.articles.map((article, aIdx) => {
+                        const anchorId = legalSourceAnchorId(sIdx, aIdx)
+                        const isHighlighted = highlighted === anchorId
+                        return (
+                          <li
+                            key={anchorId}
+                            id={anchorId}
+                            className={`flex gap-3 rounded-lg border p-3 transition-colors duration-500 scroll-mt-24 ${
+                              isHighlighted
+                                ? "bg-primary/10 border-primary"
+                                : "bg-background/60 border-border/60"
+                            }`}
+                          >
+                            <span className="shrink-0 inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary border border-primary/20 h-fit">
+                              <Gavel size={12} />
+                              {/^\d+$/.test(article.number) ? `الفصل ${article.number}` : article.number}
+                            </span>
+                            <p className="text-xs md:text-sm leading-relaxed text-muted-foreground">
+                              {article.phrase}
+                            </p>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
+                ))}
+              </div>
 
-          <Section title="6. حدود المسؤولية">
-            <p>
-              لا تتحمل المنصة أو القائمون عليها أي مسؤولية عن أي قرار قانوني أو أكاديمي أو شخصي
-              يُتَّخذ اعتماداً كلياً على محتوى المنصة دون الرجوع إلى مصادر رسمية أو استشارة مختص. كما
-              لا نتحمل مسؤولية أي انقطاع مؤقت في الخدمة أو أخطاء تقنية خارجة عن إرادتنا المعقولة.
-            </p>
-          </Section>
+              <p className="mt-4 text-[11px] text-muted-foreground/80">
+                ملاحظة: هذه الإحالات معدّة لأغراض تعليمية ولا تغني عن الرجوع إلى النص الرسمي
+                للقانون أو استشارة مختص.
+              </p>
+            </section>
+          )}
 
-          <Section title="7. الروابط الخارجية">
-            <p>
-              قد تتضمن المنصة روابط لمواقع خارجية (كمواقع رسمية أو مراجع أكاديمية). لا نتحمل مسؤولية
-              محتوى هذه المواقع أو ممارساتها المتعلقة بالخصوصية.
-            </p>
-          </Section>
-
-          <Section title="8. التعديلات على الشروط">
-            <p>
-              يجوز لنا تحديث هذه الشروط من وقت لآخر. يعني استمراركم في استخدام المنصة بعد أي تعديل
-              موافقتكم على الشروط المحدَّثة.
-            </p>
-          </Section>
-
-          <Section title="9. القانون المطبَّق">
-            <p>تخضع هذه الشروط وتُفسَّر وفقاً للقوانين المعمول بها في المملكة المغربية.</p>
-          </Section>
-
-          <Section title="10. تواصل معنا">
-            <p>
-              لأي استفسار بخصوص هذه الشروط، راسلونا على{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold text-primary" dir="ltr">
-                {CONTACT_EMAIL}
-              </a>
-              .
-            </p>
-          </Section>
-        </div>
+          <footer className="mt-8 pt-6 border-t border-border flex justify-between items-center flex-wrap gap-4">
+            <button
+              onClick={handleCopyLink}
+              type="button"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-xs font-medium text-foreground hover:bg-muted transition"
+            >
+              <Share2 size={14} />
+              مشاركة رابط المصطلح
+            </button>
+          </footer>
+        </article>
       </main>
     </>
   )
