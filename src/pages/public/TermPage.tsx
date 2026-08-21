@@ -1,29 +1,96 @@
 import { useParams, Link } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { NotFound } from "./NotFound"
 import lexiconData from "../../data/lexicon.json"
-import { lexiconSlugById } from "../../lib/utils/generateSlug"
-import { BookOpen, ArrowRight, Share2, Scale, Gavel } from "lucide-react"
+import { lexiconSlugById, generateSlug } from "../../lib/utils/generateSlug"
+import { BookOpen, ArrowRight, Share2, Scale, Gavel, Loader2 } from "lucide-react"
 import type { LegalSource } from "../../types/cms"
 import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
+import { supabase } from "../../lib/supabase"
 
 interface TermPageProps {
   slug?: string
   id?: string
 }
 
+type TermItem = typeof lexiconData[number] & { legal_sources?: LegalSource[] }
+
 export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
   const targetQuery = propSlug || propId || params.slug || params.id
+
+  const [term, setTerm] = useState<TermItem | null>(null)
+  const [loading, setLoading] = useState(true)
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
-  const slugById = lexiconSlugById(lexiconData)
-  const term = lexiconData.find(
-    (item) =>
-      item.id === targetQuery ||
-      slugById.get(item.id) === targetQuery
-  ) as (typeof lexiconData[number] & { legal_sources?: LegalSource[] }) | undefined
+  useEffect(() => {
+    async function fetchTerm() {
+      if (!targetQuery) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        // 1. محاولة الجلب من Supabase أولاً
+        const { data: remoteTerms, error } = await supabase
+          .from("lexicon_terms")
+          .select("*")
+
+        if (!error && remoteTerms && remoteTerms.length > 0) {
+          // حساب الـ slugs ديناميكياً تماماً كما يحدث في صفحة القائمة لضمان التوافق
+          const remoteNames = new Set(remoteTerms.map((t) => t.term_ar))
+          const filteredLocal = lexiconData.filter((t) => !remoteNames.has(t.term_ar))
+          const combined = [...remoteTerms, ...filteredLocal]
+
+          const slugById = lexiconSlugById(combined)
+          
+          const found = combined.find(
+            (item) =>
+              item.id === targetQuery ||
+              slugById.get(item.id) === targetQuery ||
+              generateSlug(item.term_ar) === targetQuery
+          )
+
+          if (found) {
+            setTerm(found as TermItem)
+            setLoading(false)
+            return
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching term from Supabase:", err)
+      }
+
+      // 2. Fallback: البحث في الملف المحلي إذا لم يُوجد في Supabase
+      const slugByIdLocal = lexiconSlugById(lexiconData)
+      const localFound = lexiconData.find(
+        (item) =>
+          item.id === targetQuery ||
+          slugByIdLocal.get(item.id) === targetQuery ||
+          generateSlug(item.term_ar) === targetQuery
+      )
+
+      if (localFound) {
+        setTerm(localFound as TermItem)
+      }
+
+      setLoading(false)
+    }
+
+    fetchTerm()
+  }, [targetQuery])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center" dir="rtl">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Loader2 className="animate-spin text-primary" size={24} />
+          <span>جاري تحميل المصطلح القانوني...</span>
+        </div>
+      </div>
+    )
+  }
 
   if (!term) {
     return <NotFound />
@@ -41,7 +108,6 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     }
   }
 
-  // DefinedTerm Schema for Google Rich Search Results
   const termSchema = {
     "@context": "https://schema.org",
     "@type": "DefinedTerm",
@@ -61,12 +127,12 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   return (
     <>
       <SEOHead
-        title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr})`}
+        title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr || ""})`}
         description={term.definition.slice(0, 160)}
         ogType="article"
         keywords={[
           term.term_ar,
-          term.term_fr,
+          term.term_fr || "",
           term.category,
           "القاموس القانوني المغربي",
           ...legalSources.map((s) => s.code_ar),
@@ -121,8 +187,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
                 الشجرة القانونية للمصطلح
               </h2>
               <p className="text-xs text-muted-foreground mb-4">
-                كل القوانين والمدونات المغربية التي يرد فيها هذا المصطلح، مع رقم الفصل/المادة
-                والمقتضى القانوني المرتبط به.
+                كل القوانين والمدونات المغربية التي يرد فيها هذا المصطلح، مع رقم الفصل/المادة والمقتضى القانوني المرتبط به.
               </p>
 
               <div className="mb-6">
@@ -184,11 +249,6 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
                   </div>
                 ))}
               </div>
-
-              <p className="mt-4 text-[11px] text-muted-foreground/80">
-                ملاحظة: هذه الإحالات معدّة لأغراض تعليمية ولا تغني عن الرجوع إلى النص الرسمي
-                للقانون أو استشارة مختص.
-              </p>
             </section>
           )}
 
