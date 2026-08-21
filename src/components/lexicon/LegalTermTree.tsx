@@ -131,10 +131,9 @@ export function LegalTermTree({ termAr, termFr, legalSources, onSelectArticle }:
               y={rootY + 42}
               textAnchor="middle"
               className="fill-muted-foreground"
-              style={{ fontSize: 10, fontFamily: "monospace" }}
-              dir="ltr"
-            >
-              {termFr}
+              style={{ fontSize: 10, fontFamily: "monospace", direction: "ltr" }}
+             >
+          {termFr}
             </text>
           )}
         </g>

@@ -7,20 +7,19 @@ import { lexiconSlugById, generateSlug } from "../../lib/utils/generateSlug"
 import { BookOpen, ArrowRight, Share2, Scale, Gavel, Loader2 } from "lucide-react"
 import type { LegalSource } from "../../types/cms"
 import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
-import { supabase } from "../../lib/supabase"
+import { supabase } from "../../lib/supabase/client"
 
 interface TermPageProps {
   slug?: string
   id?: string
 }
 
-type TermItem = typeof lexiconData[number] & { legal_sources?: LegalSource[] }
-
 export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
   const targetQuery = propSlug || propId || params.slug || params.id
 
-  const [term, setTerm] = useState<TermItem | null>(null)
+  // استخدام أي نوع مرن لتجنب تعارضات الـ null والـ undefined الصارمة في TypeScript
+  const [term, setTerm] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
@@ -38,22 +37,21 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
           .select("*")
 
         if (!error && remoteTerms && remoteTerms.length > 0) {
-          // حساب الـ slugs ديناميكياً تماماً كما يحدث في صفحة القائمة لضمان التوافق
-          const remoteNames = new Set(remoteTerms.map((t) => t.term_ar))
-          const filteredLocal = lexiconData.filter((t) => !remoteNames.has(t.term_ar))
+          const remoteNames = new Set(remoteTerms.map((t: any) => t.term_ar))
+          const filteredLocal = lexiconData.filter((t: any) => !remoteNames.has(t.term_ar))
           const combined = [...remoteTerms, ...filteredLocal]
 
-          const slugById = lexiconSlugById(combined)
+          const slugById = lexiconSlugById(combined as any)
           
           const found = combined.find(
-            (item) =>
+            (item: any) =>
               item.id === targetQuery ||
               slugById.get(item.id) === targetQuery ||
               generateSlug(item.term_ar) === targetQuery
           )
 
           if (found) {
-            setTerm(found as TermItem)
+            setTerm(found)
             setLoading(false)
             return
           }
@@ -62,17 +60,17 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
         console.error("Error fetching term from Supabase:", err)
       }
 
-      // 2. Fallback: البحث في الملف المحلي إذا لم يُوجد في Supabase
-      const slugByIdLocal = lexiconSlugById(lexiconData)
+      // 2. Fallback: البحث في الملف المحلي إذا لم يُوجد سحابياً
+      const slugByIdLocal = lexiconSlugById(lexiconData as any)
       const localFound = lexiconData.find(
-        (item) =>
+        (item: any) =>
           item.id === targetQuery ||
           slugByIdLocal.get(item.id) === targetQuery ||
           generateSlug(item.term_ar) === targetQuery
       )
 
       if (localFound) {
-        setTerm(localFound as TermItem)
+        setTerm(localFound)
       }
 
       setLoading(false)
@@ -96,7 +94,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     return <NotFound />
   }
 
-  const legalSources = term.legal_sources ?? []
+  const legalSources: LegalSource[] = term.legal_sources ?? []
 
   const handleSelectArticle = (codeIndex: number, articleIndex: number) => {
     const anchorId = legalSourceAnchorId(codeIndex, articleIndex)
@@ -112,7 +110,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     "@context": "https://schema.org",
     "@type": "DefinedTerm",
     "name": term.term_ar,
-    "alternateName": term.term_fr,
+    "alternateName": term.term_fr || undefined,
     "description": term.definition,
     "inDefinedTermSet": "https://www.mizan.page/lexicon",
     "inLanguage": ["ar-MA", "fr"]
@@ -128,12 +126,12 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     <>
       <SEOHead
         title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr || ""})`}
-        description={term.definition.slice(0, 160)}
+        description={term.definition ? term.definition.slice(0, 160) : ""}
         ogType="article"
         keywords={[
           term.term_ar,
           term.term_fr || "",
-          term.category,
+          term.category || "قانون",
           "القاموس القانوني المغربي",
           ...legalSources.map((s) => s.code_ar),
         ]}
@@ -168,9 +166,11 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
               )}
             </div>
 
-            <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary border border-primary/20">
-              {term.category}
-            </span>
+            {term.category && (
+              <span className="rounded-full bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary border border-primary/20">
+                {term.category}
+              </span>
+            )}
           </header>
 
           <section className="prose dark:prose-invert mt-6 max-w-none">
