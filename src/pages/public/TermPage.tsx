@@ -16,9 +16,9 @@ interface TermPageProps {
 
 export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
-  const targetQuery = propSlug || propId || params.slug || params.id
+  const rawQuery = propSlug || propId || params.slug || params.id
+  const targetQuery = rawQuery ? decodeURIComponent(rawQuery) : ""
 
-  // استخدام أي نوع مرن لتجنب تعارضات الـ null والـ undefined الصارمة في TypeScript
   const [term, setTerm] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [highlighted, setHighlighted] = useState<string | null>(null)
@@ -28,6 +28,20 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
       if (!targetQuery) {
         setLoading(false)
         return
+      }
+
+      // دالة مساعدة لمطابقة المصطلح بأكثر من صيغة للروابط
+      const matchTerm = (item: any, slugMap: Map<string, string>) => {
+        const itemSlug = slugMap.get(item.id) || generateSlug(item.term_ar)
+        const baseSlug = generateSlug(item.term_ar)
+
+        return (
+          item.id === targetQuery ||
+          itemSlug === targetQuery ||
+          baseSlug === targetQuery ||
+          (item.id && targetQuery.endsWith(item.id)) ||
+          targetQuery.startsWith(baseSlug)
+        )
       }
 
       try {
@@ -42,13 +56,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
           const combined = [...remoteTerms, ...filteredLocal]
 
           const slugById = lexiconSlugById(combined as any)
-          
-          const found = combined.find(
-            (item: any) =>
-              item.id === targetQuery ||
-              slugById.get(item.id) === targetQuery ||
-              generateSlug(item.term_ar) === targetQuery
-          )
+          const found = combined.find((item: any) => matchTerm(item, slugById))
 
           if (found) {
             setTerm(found)
@@ -62,12 +70,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
 
       // 2. Fallback: البحث في الملف المحلي إذا لم يُوجد سحابياً
       const slugByIdLocal = lexiconSlugById(lexiconData as any)
-      const localFound = lexiconData.find(
-        (item: any) =>
-          item.id === targetQuery ||
-          slugByIdLocal.get(item.id) === targetQuery ||
-          generateSlug(item.term_ar) === targetQuery
-      )
+      const localFound = lexiconData.find((item: any) => matchTerm(item, slugByIdLocal))
 
       if (localFound) {
         setTerm(localFound)
