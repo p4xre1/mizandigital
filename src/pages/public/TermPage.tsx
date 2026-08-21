@@ -3,7 +3,7 @@ import { useState } from "react"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { NotFound } from "./NotFound"
 import lexiconData from "../../data/lexicon.json"
-import { generateSlug } from "../../lib/utils/generateSlug"
+import { lexiconSlugById } from "../../lib/utils/generateSlug"
 import { BookOpen, ArrowRight, Share2, Scale, Gavel } from "lucide-react"
 import type { LegalSource } from "../../types/cms"
 import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
@@ -18,11 +18,11 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const targetQuery = propSlug || propId || params.slug || params.id
   const [highlighted, setHighlighted] = useState<string | null>(null)
 
-  // Match term by ID or slug
+  const slugById = lexiconSlugById(lexiconData)
   const term = lexiconData.find(
     (item) =>
       item.id === targetQuery ||
-      generateSlug(item.term_ar) === targetQuery
+      slugById.get(item.id) === targetQuery
   ) as (typeof lexiconData[number] & { legal_sources?: LegalSource[] }) | undefined
 
   if (!term) {

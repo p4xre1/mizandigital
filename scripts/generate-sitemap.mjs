@@ -84,6 +84,8 @@ const staticEntries = [
   { path: "/s6", changefreq: "weekly", priority: "0.9" },
 ];
 
+const usedLexiconSlugs = new Set();
+
 const dynamicEntries = [
   ...articles.map((item) => {
     const slug = item.slug || generateSlug(item.title);
@@ -139,7 +141,12 @@ const dynamicEntries = [
     };
   }),
   ...lexicon.map((item) => {
-    const slug = generateSlug(item.term_ar) || item.id;
+    const base = generateSlug(item.term_ar) || String(item.id);
+    const fr = generateSlug(item.term_fr || "") || String(item.id);
+    let slug = base;
+    if (usedLexiconSlugs.has(slug)) slug = `${base}-${fr}`;
+    if (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}`;
+    usedLexiconSlugs.add(slug);
     return {
       path: `/lexicon/${slug}`,
       changefreq: "monthly",

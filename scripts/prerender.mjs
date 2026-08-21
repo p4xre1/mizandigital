@@ -21,8 +21,11 @@ const generateSlug = (text = "") => {
     .toLowerCase()
     .replace(/[\s\/\\_]+/g, "-")
     .replace(/[^\w\u0600-\u06FF\-]+/g, "")
-    .replace(/\-+$/, "");
+    .replace(/\-+/g, "-")
+    .replace(/^\-+|\-+$/g, "");
 };
+
+const usedLexiconSlugs = new Set();
 
 const pages = [
   { path: "/", title: "ميزان الرقمية | المعرفة القانونية للطلبة", description: "منصة عربية سريعة للملخصات والأخبار والندوات والقاموس ودليل كليات الحقوق بالمغرب." },
@@ -59,30 +62,62 @@ const pages = [
     description: item.synopsis,
     schema: { "@context": "https://schema.org", "@type": "EducationalOrganization", name: item.name, parentOrganization: item.university, url: item.officialUrl, address: { "@type": "PostalAddress", addressLocality: item.city, addressCountry: "MA" }, inLanguage: "ar" },
   })),
+  { path: "/s1", title: "الفصل S1 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الأول لطلبة الحقوق." },
+  { path: "/s2", title: "الفصل S2 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الثاني لطلبة الحقوق." },
+  { path: "/s3", title: "الفصل S3 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الثالث لطلبة الحقوق." },
+  { path: "/s4", title: "الفصل S4 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الرابع لطلبة الحقوق." },
+  { path: "/s5", title: "الفصل S5 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الخامس لطلبة الحقوق." },
+  { path: "/s6", title: "الفصل S6 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل السادس لطلبة الحقوق." },
   ...lexicon.map((item) => {
-    const slug = generateSlug(item.term_ar) || item.id;
+    const base = generateSlug(item.term_ar) || String(item.id);
+    const fr = generateSlug(item.term_fr || "") || String(item.id);
+    let slug = base;
+    if (usedLexiconSlugs.has(slug)) slug = `${base}-${fr}`;
+    if (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}`;
+    usedLexiconSlugs.add(slug);
     return {
       path: `/lexicon/${slug}`,
-      title: `${item.term_ar} | القاموس القانوني`,
+      title: item.term_fr ? `${item.term_ar} (${item.term_fr}) | القاموس القانوني` : `${item.term_ar} | القاموس القانوني`,
       description: item.definition,
       schema: { "@context": "https://schema.org", "@type": "DefinedTerm", name: item.term_ar, alternateName: item.term_fr, description: item.definition, inDefinedTermSet: `${DOMAIN}/lexicon`, inLanguage: "ar" },
     };
   }),
 ];
 
+// حارس التداخل: يمنع تكرار المسارات أثناء البناء
+const seen = new Map();
+for (const page of pages) {
+  if (seen.has(page.path)) {
+    throw new Error(`Duplicate prerender path ${page.path} (${seen.get(page.path)} vs ${page.title})`);
+  }
+  seen.set(page.path, page.title);
+}
+
 const escapeHtml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const escapeJsonForHtml = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
 
 function renderPage(template, page) {
-  const canonical = `${DOMAIN}${page.path}`;
-  let html = template
-    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
-    .replace(/<meta name="description" content="[^"]*"\s*\/>/, `<meta name="description" content="${escapeHtml(page.description)}" />`)
-    .replace(/<link rel="canonical" href="[^"]*"\s*\/>/, `<link rel="canonical" href="${canonical}" />`)
-    .replace(/<link rel="alternate" hreflang="ar" href="[^"]*"\s*\/>/, `<link rel="alternate" hreflang="ar" href="${canonical}" />`)
-    .replace(/<meta property="og:url" content="[^"]*"\s*\/>/, `<meta property="og:url" content="${canonical}" />`)
-    .replace(/<meta property="og:title" content="[^"]*"\s*\/>/, `<meta property="og:title" content="${escapeHtml(page.title)}" />`)
-    .replace(/<meta property="og:description" content="[^"]*"\s*\/>/, `<meta property="og:description" content="${escapeHtml(page.description)}" />`);
+  const canonical = `${DOMAIN}${page.path === "/" ? "/" : page.path}`;
+  const attr = (v) => escapeHtml(v);
+  
+  // استبدال صارم يمنع الـ Silent No-ops
+  const swap = (html, re, next) => {
+    if (!html.match(re)) throw new Error(`Prerender: pattern not found — ${re}`);
+    return html.replace(re, next);
+  };
+
+  let html = template;
+  html = swap(html, /<title>[\s\S]*?<\/title>/, `<title>${attr(page.title)}</title>`);
+  html = swap(html, /<meta\b[^>]*\bname=["']description["'][^>]*>/i, `<meta name="description" content="${attr(page.description)}">`);
+  html = swap(html, /<link\b[^>]*\brel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${canonical}">`);
+  html = swap(html, /<link\b[^>]*\brel=["']alternate["'][^>]*\bhreflang=["']ar["'][^>]*>/i, `<link rel="alternate" hreflang="ar" href="${canonical}">`);
+  html = swap(html, /<link\b[^>]*\brel=["']alternate["'][^>]*\bhreflang=["']x-default["'][^>]*>/i, `<link rel="alternate" hreflang="x-default" href="${canonical}">`);
+  html = swap(html, /<meta\b[^>]*\bproperty=["']og:url["'][^>]*>/i, `<meta property="og:url" content="${canonical}">`);
+  html = swap(html, /<meta\b[^>]*\bproperty=["']og:title["'][^>]*>/i, `<meta property="og:title" content="${attr(page.title)}">`);
+  html = swap(html, /<meta\b[^>]*\bproperty=["']og:description["'][^>]*>/i, `<meta property="og:description" content="${attr(page.description)}">`);
+  html = swap(html, /<meta\b[^>]*\bname=["']twitter:title["'][^>]*>/i, `<meta name="twitter:title" content="${attr(page.title)}">`);
+  html = swap(html, /<meta\b[^>]*\bname=["']twitter:description["'][^>]*>/i, `<meta name="twitter:description" content="${attr(page.description)}">`);
+  
   if (page.schema) html = html.replace("</head>", `    <script type="application/ld+json">${escapeJsonForHtml(page.schema)}</script>\n  </head>`);
   return html;
 }

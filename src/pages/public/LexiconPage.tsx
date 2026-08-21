@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { containsText } from "../../lib/utils/search"
-import { generateSlug } from "../../lib/utils/generateSlug"
+import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
 import localLexicon from "../../data/lexicon.json"
 import { supabase } from "../../lib/supabase/client"
 import {
@@ -70,6 +70,17 @@ export function LexiconPage() {
       if (item.category) set.add(item.category)
     })
     return Array.from(set)
+  }, [terms])
+
+  const slugById = useMemo(() => {
+    const map = lexiconSlugById(localLexicon as LexiconSlugItem[])
+    const taken = new Set(map.values())
+    for (const term of terms) {
+      if (!map.has(term.id)) {
+        map.set(term.id, uniqueLexiconSlug(term, taken))
+      }
+    }
+    return map
   }, [terms])
 
   const filteredTerms = useMemo(() => {
@@ -204,7 +215,7 @@ export function LexiconPage() {
               const category = term.category
               const reference = term.reference
 
-              const slug = generateSlug(termAr) || term.id
+              const slug = slugById.get(termId) || generateSlug(termAr) || term.id
 
               return (
                 <article
