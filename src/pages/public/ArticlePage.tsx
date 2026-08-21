@@ -4,8 +4,11 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
+import localNewsData from "../../data/news.json"
 import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
 import { ArticleContent } from "../../components/articles/ArticleContent"
+import { ViewCounter } from "../../components/articles/ViewCounter"
+import { CommentSection } from "../../components/articles/CommentSection"
 import {
   Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen, KeyRound,
   List, SlidersHorizontal, ChevronDown, Minus, Plus, AlignLeft,
@@ -24,6 +27,8 @@ interface ArticleDetail {
   highlights?: string[]
   targetKeyword?: string
   keywords?: string[]
+  /** أي جدول ينتمي إليه هذا المحتوى في قاعدة البيانات — يُستخدم لعداد المشاهدات والتعليقات */
+  sourceTable?: "articles" | "news"
 }
 
 interface RelatedArticle {
@@ -166,6 +171,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           readingTime: "5 دقائق",
           targetKeyword: data.target_keyword || undefined,
           keywords: data.target_keyword ? [data.target_keyword] : undefined,
+          sourceTable: "articles",
         }
       } else {
         const localMatch = (articlesData as any[]).find((item) => item.slug === targetSlug)
@@ -186,6 +192,49 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             highlights: localMatch.highlights,
             targetKeyword: localMatch.targetKeyword || localMatch.keyword,
             keywords: localMatch.keywords || (localMatch.targetKeyword ? [localMatch.targetKeyword] : []),
+            sourceTable: "articles",
+          }
+        }
+      }
+
+      // لم يُعثر على المقال في مصدر "articles" — جرّب مصدر "news"
+      // (البطاقات في صفحة الأخبار تُشير إلى /news/:slug وتُعالَج بنفس هذا المكوّن)
+      if (!currentArticleData) {
+        const { data: newsRow, error: newsError } = await (supabase as any)
+          .from("news")
+          .select("id, title, slug, content, summary, source, published_at, created_at")
+          .eq("slug", targetSlug)
+          .maybeSingle()
+
+        if (newsRow && !newsError) {
+          currentArticleData = {
+            id: newsRow.id,
+            title: newsRow.title,
+            slug: newsRow.slug,
+            content: newsRow.content || "",
+            summary: newsRow.summary || undefined,
+            category: "أخبار",
+            date: newsRow.published_at || newsRow.created_at || undefined,
+            readingTime: "3 دقائق",
+            sourceTable: "news",
+          }
+        } else {
+          // الأخبار المحلية (news.json): الـ id يُستخدم كـ slug (كما في NewsPage.tsx)
+          const localNewsMatch = (localNewsData as any[]).find(
+            (item) => item.type === "news" && item.id === targetSlug
+          )
+          if (localNewsMatch) {
+            currentArticleData = {
+              id: localNewsMatch.id,
+              title: localNewsMatch.title,
+              slug: localNewsMatch.id,
+              content: localNewsMatch.content || "",
+              summary: localNewsMatch.summary || undefined,
+              category: "أخبار",
+              date: localNewsMatch.date || undefined,
+              readingTime: "3 دقائق",
+              sourceTable: "news",
+            }
           }
         }
       }
@@ -511,6 +560,9 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
                     {article.readingTime}
                   </span>
                 )}
+                {article.sourceTable && (
+                  <ViewCounter table={article.sourceTable} slug={article.slug} />
+                )}
               </div>
 
               <h1 className="text-2xl md:text-4xl font-black text-foreground tracking-tight leading-tight">
@@ -552,6 +604,10 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             <div className={`prose prose-neutral dark:prose-invert max-w-none leading-loose text-foreground/90 ${textSizeClass}`}>
               <ArticleContent blocks={parsed.blocks} />
             </div>
+
+            {article.sourceTable && (
+              <CommentSection table={article.sourceTable} slug={article.slug} />
+            )}
           </article>
 
           {/* 3. Appearance Sidebar (desktop only) */}

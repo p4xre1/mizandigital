@@ -344,6 +344,9 @@ export interface Database {
           id: string
           article_id: string | null
           pdf_id: string | null
+          news_id: string | null
+          source_type: string | null
+          source_slug: string | null
           author_name: string
           body: string
           is_approved: boolean
@@ -353,6 +356,9 @@ export interface Database {
           id?: string
           article_id?: string | null
           pdf_id?: string | null
+          news_id?: string | null
+          source_type?: string | null
+          source_slug?: string | null
           author_name?: string
           body: string
           is_approved?: boolean
@@ -362,10 +368,31 @@ export interface Database {
           id?: string
           article_id?: string | null
           pdf_id?: string | null
+          news_id?: string | null
+          source_type?: string | null
+          source_slug?: string | null
           author_name?: string
           body?: string
           is_approved?: boolean
           created_at?: string | null
+        }
+        Relationships: []
+      }
+      content_stats: {
+        Row: {
+          source_type: string
+          source_slug: string
+          views_count: number
+        }
+        Insert: {
+          source_type: string
+          source_slug: string
+          views_count?: number
+        }
+        Update: {
+          source_type?: string
+          source_slug?: string
+          views_count?: number
         }
         Relationships: []
       }
@@ -415,6 +442,7 @@ export interface Database {
           published_at: string | null
           slug: string
           created_at: string | null
+          views_count: number | null
         }
         Insert: {
           id?: string
@@ -428,6 +456,7 @@ export interface Database {
           published_at?: string | null
           slug: string
           created_at?: string | null
+          views_count?: number | null
         }
         Update: {
           id?: string
@@ -441,6 +470,7 @@ export interface Database {
           published_at?: string | null
           slug?: string
           created_at?: string | null
+          views_count?: number | null
         }
         Relationships: []
       }

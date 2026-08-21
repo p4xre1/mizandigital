@@ -56,6 +56,9 @@ export function Header({
           <NavLink to="/news" className={linkClass}>
             الأخبار
           </NavLink>
+          <NavLink to="/articles" className={linkClass}>
+            المقالات
+          </NavLink>
           <NavLink to="/lexicon" className={linkClass}>
             القاموس
           </NavLink>
