@@ -28,13 +28,16 @@ export type LexiconSlugItem = {
   term_fr?: string
 }
 
-/** First Arabic slug wins; later homonyms append the French slug (then id). */
+/** First Arabic slug wins; later homonyms append the item id instead of French. */
 export function uniqueLexiconSlug(item: LexiconSlugItem, taken: Set<string>): string {
   const base = generateSlug(item.term_ar) || item.id
-  const fr = generateSlug(item.term_fr || "") || item.id
   let slug = base
-  if (taken.has(slug)) slug = `${base}-${fr}`
-  if (taken.has(slug)) slug = `${base}-${item.id}`
+  
+  // إذا تكرر الاسم العربي، نضيف الـ id بدلاً من الـ term_fr لضمان فرادة الرابط ونظافته
+  if (taken.has(slug)) {
+    slug = `${base}-${item.id}`
+  }
+  
   taken.add(slug)
   return slug
 }
