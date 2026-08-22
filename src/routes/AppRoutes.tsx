@@ -13,6 +13,7 @@ import LexiconPageAdmin from "@/pages/admin/lexicon/LexiconPage"
 import LibraryPage from "@/pages/admin/library/LibraryPage"
 import SeminarsPage from "@/pages/admin/seminars/SeminarsPage"
 import NewsManagementPage from "@/pages/admin/NewsManagementPage"
+import CommentsPage from "@/pages/admin/CommentsPage"
 
 // Public Pages
 import {
@@ -157,6 +158,7 @@ export default function AppRoutes({
         <Route path="articles/new" element={<ArticleEditorPage />} />
         <Route path="articles/edit/:id" element={<ArticleEditorPage />} />
         <Route path="news" element={<NewsManagementPage />} />
+        <Route path="comments" element={<CommentsPage />} />
         <Route path="faculties" element={<FacultiesPage />} />
         <Route path="lexicon" element={<LexiconPageAdmin />} />
         <Route path="library" element={<LibraryPage />} />

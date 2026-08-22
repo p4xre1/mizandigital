@@ -9,6 +9,7 @@ import {
   Settings,
   Scale,
   BookOpen,
+  MessageCircle,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -41,6 +42,7 @@ export default function AdminSidebar({
   const menuItems = [
     { label: "لوحة القيادة", path: "/admin", icon: LayoutDashboard },
     { label: "المقالات والبحوث", path: "/admin/articles", icon: FileText },
+    { label: "التعليقات", path: "/admin/comments", icon: MessageCircle },
     { label: "مكتبة الوثائق", path: "/admin/library", icon: BookOpen },
     { label: "القاموس القانوني", path: "/admin/lexicon", icon: Tags },
     { label: "الندوات والبثوث", path: "/admin/seminars", icon: Video },
