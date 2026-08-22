@@ -18,6 +18,7 @@ import NewsManagementPage from "@/pages/admin/NewsManagementPage"
 import {
   HomePage,
   ArchivePage,
+  DownloadGatePage,
   NewsPage,
   ArticlesPage,
   ArticlePage,
@@ -93,6 +94,7 @@ export default function AppRoutes({
       >
         <Route path="/" element={<HomePage />} />
         <Route path="/archive" element={<ArchiveWrapper />} />
+        <Route path="/download/:id" element={<DownloadGatePage />} />
 
         {/* Semester Redirect Shortcuts (/s1, /s2...) */}
         <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} />

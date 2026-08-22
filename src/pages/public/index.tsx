@@ -1,5 +1,6 @@
 export { HomePage } from "./HomePage"
 export { ArchivePage } from "./ArchivePage"
+export { DownloadGatePage } from "./DownloadGatePage"
 export { NewsPage } from "./NewsPage"
 export { ArticlesPage } from "./ArticlesPage"
 // إذا كان ملف ArticlePage يعرض مقالاً مفرداً، تأكد من اسمه الحقيقي، أو استبدله بما يناسب:

@@ -452,19 +452,19 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
                       </div>
                     )}
 
-                    <a
-                      href={item.downloadUrl}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 shrink-0"
-                      onClick={(e) => {
-                        if (item.downloadUrl === "#") {
-                          e.preventDefault()
-                          alert(`جاري تجهيز رابط تحميل: ${item.title}`)
-                        }
+                    <Link
+                      to={`/download/${item.id}`}
+                      state={{
+                        title: item.title,
+                        downloadUrl: item.downloadUrl,
+                        fileSize: item.fileSize,
+                        fileFormat: item.fileFormat,
                       }}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 shrink-0"
                     >
                       <Download size={14} />
                       <span>تحميل الملف</span>
-                    </a>
+                    </Link>
                   </div>
                 </article>
               ))}

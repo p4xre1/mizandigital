@@ -21,26 +21,27 @@ export function EventsPage() {
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "upcoming" | "past">("all")
 
-  // Dynamic categories from data
+  // Dynamic categories from data (من التصنيف الصريح إن وُجد، أو من مواضيع topics)
   const categories = useMemo(() => {
     const set = new Set<string>()
     ;(eventsData as any[]).forEach((event) => {
       if (event.category) set.add(event.category)
+      if (Array.isArray(event.topics)) event.topics.forEach((t: string) => set.add(t))
     })
     return Array.from(set)
   }, [])
 
   // Filter events by text, category, and upcoming/past date
   const filteredEvents = useMemo(() => {
-    const todayStr = "2026-08-15"
+    const todayStr = new Date().toISOString().slice(0, 10)
 
     return (eventsData as any[]).filter((event) => {
       const title = event.title || ""
-      const description = event.description || event.summary || ""
+      const description = event.excerpt || event.description || event.summary || ""
       const organizer = event.organizer || event.university || ""
-      const location = event.location || event.city || ""
+      const location = event.city || event.location || ""
       const category = event.category || ""
-      const eventDate = event.date || ""
+      const eventDate = event.eventDate || event.date || ""
 
       const isUpcoming = eventDate >= todayStr
 
@@ -48,8 +49,11 @@ export function EventsPage() {
       if (statusFilter === "upcoming" && !isUpcoming) return false
       if (statusFilter === "past" && isUpcoming) return false
 
-      // Filter by category
-      if (selectedCategory !== "all" && category !== selectedCategory) return false
+      // Filter by category (نبحث أيضاً ضمن مواضيع الفعالية topics)
+      if (selectedCategory !== "all") {
+        const topics: string[] = Array.isArray(event.topics) ? event.topics : []
+        if (category !== selectedCategory && !topics.includes(selectedCategory)) return false
+      }
 
       // Filter by search term
       if (!searchQuery) return true
@@ -77,17 +81,18 @@ export function EventsPage() {
       "item": {
         "@type": "EducationEvent",
         "name": event.title,
-        "startDate": event.date,
+        "startDate": event.eventDate || event.date,
+        "image": event.image || undefined,
         "location": {
           "@type": "Place",
-          "name": event.location || event.city || "المغرب",
-          "address": event.location || event.city || "المغرب"
+          "name": event.city || event.location || "المغرب",
+          "address": event.city || event.location || "المغرب"
         },
         "organizer": {
           "@type": "Organization",
           "name": event.organizer || event.university || "جامعة مغربية"
         },
-        "description": event.description || event.summary,
+        "description": event.excerpt || event.description || event.summary,
         "url": `https://www.mizan.page/events/${event.id}`
       }
     }))
@@ -216,13 +221,28 @@ export function EventsPage() {
         {filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredEvents.map((event: any) => {
-              const isUpcoming = (event.date || "") >= "2026-08-15"
+              const isUpcoming = (event.eventDate || event.date || "") >= new Date().toISOString().slice(0, 10)
+              const eventDate = event.eventDate || event.date
+              const location = event.city || event.location
+              const excerpt = event.excerpt || event.description || event.summary
+              const registerLink = event.registrationUrl || event.sourceUrl
 
               return (
                 <article
                   key={event.id}
-                  className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md"
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:border-primary/50 hover:shadow-md"
                 >
+                  {event.image && (
+                    <Link to={`/events/${event.id}`} className="block aspect-video w-full overflow-hidden bg-muted">
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    </Link>
+                  )}
+                  <div className="flex flex-1 flex-col justify-between p-6">
                   <div>
                     {/* Top Metadata */}
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -253,10 +273,10 @@ export function EventsPage() {
                         </span>
                       </div>
 
-                      {event.date && (
+                      {eventDate && (
                         <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md">
                           <Calendar size={13} className="text-primary" />
-                          <span>{event.date}</span>
+                          <span>{eventDate}</span>
                         </div>
                       )}
                     </div>
@@ -267,9 +287,9 @@ export function EventsPage() {
                     </h2>
 
                     {/* Summary */}
-                    {event.summary && (
+                    {excerpt && (
                       <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 mb-4">
-                        {event.summary}
+                        {excerpt}
                       </p>
                     )}
 
@@ -282,10 +302,10 @@ export function EventsPage() {
                         </div>
                       )}
 
-                      {event.location && (
+                      {location && (
                         <div className="flex items-center gap-2">
                           <MapPin size={14} className="shrink-0 text-primary" />
-                          <span>{event.location}</span>
+                          <span>{location}</span>
                         </div>
                       )}
 
@@ -299,14 +319,26 @@ export function EventsPage() {
                   </div>
 
                   {/* Card Action Link */}
-                  <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
+                  <div className="mt-6 pt-4 border-t border-border flex items-center justify-between gap-3">
                     <Link
                       to={`/events/${event.id}`}
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
                     >
-                      <span>تفاصيل الفعالية والرابط</span>
+                      <span>تفاصيل الفعالية</span>
                       <ArrowLeft size={14} />
                     </Link>
+                    {registerLink && (
+                      <a
+                        href={registerLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-foreground hover:text-primary transition"
+                      >
+                        {event.registrationUrl ? "التسجيل" : "المصدر"}
+                      </a>
+                    )}
+                  </div>
                   </div>
                 </article>
               )

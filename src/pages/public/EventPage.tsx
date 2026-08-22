@@ -70,16 +70,24 @@ export function EventPage({ slug }: EventPageProps) {
     )
   }
 
-  const todayStr = "2026-08-15"
-  const isUpcoming = (event.date || "") >= todayStr
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const eventDate = event.eventDate || event.date
+  const location = event.city || event.location
+  const description = event.excerpt || event.description || event.summary
+  const bodyParagraphs: string[] = Array.isArray(event.body) ? event.body : []
+  const topics: string[] = Array.isArray(event.topics) ? event.topics : []
+  const registerLink = event.registrationUrl || event.sourceUrl
+  const registerLabel = event.registrationUrl ? "رابط التسجيل" : (event.sourceLabel || "المصدر الرسمي")
+  const isUpcoming = (eventDate || "") >= todayStr
 
   // Schema.org Structured Data for EducationEvent
   const eventSchema = {
     "@context": "https://schema.org",
     "@type": "EducationEvent",
     "name": event.title,
-    "description": event.summary || event.description,
-    "startDate": event.date ? `${event.date}T${event.time || "09:00"}:00` : undefined,
+    "description": description,
+    "image": event.image || undefined,
+    "startDate": eventDate ? `${eventDate}T${event.time || "09:00"}:00` : undefined,
     "eventStatus": isUpcoming
       ? "https://schema.org/EventScheduled"
       : "https://schema.org/EventMovedOnline",
@@ -88,8 +96,8 @@ export function EventPage({ slug }: EventPageProps) {
       : "https://schema.org/OfflineEventAttendanceMode",
     "location": {
       "@type": "Place",
-      "name": event.location || event.city || "المغرب",
-      "address": event.location || event.city || "المغرب"
+      "name": location || "المغرب",
+      "address": location || "المغرب"
     },
     "organizer": {
       "@type": "Organization",
@@ -103,7 +111,7 @@ export function EventPage({ slug }: EventPageProps) {
     <>
       <SEOHead
         title={`${event.title} - الندوات والأيام الدراسية`}
-        description={event.summary || `تفاصيل وبرنامج الندوة العلمية: ${event.title}`}
+        description={description || `تفاصيل وبرنامج الندوة العلمية: ${event.title}`}
         keywords={[
           event.title,
           event.category || "ندوة قانونية",
@@ -128,6 +136,17 @@ export function EventPage({ slug }: EventPageProps) {
             {event.title}
           </span>
         </nav>
+
+        {/* Hero Image */}
+        {event.image && (
+          <div className="mb-6 overflow-hidden rounded-2xl border border-border shadow-sm">
+            <img
+              src={event.image}
+              alt={event.title}
+              className="w-full max-h-[420px] object-cover"
+            />
+          </div>
+        )}
 
         {/* Top Header & Actions */}
         <div className="mb-8 rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm">
@@ -187,7 +206,7 @@ export function EventPage({ slug }: EventPageProps) {
 
           {/* Key Quick Specs Bar */}
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-6 border-t border-border">
-            {event.date && (
+            {eventDate && (
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-primary/10 p-2.5 text-primary shrink-0">
                   <Calendar size={18} />
@@ -196,7 +215,7 @@ export function EventPage({ slug }: EventPageProps) {
                   <span className="block text-[11px] text-muted-foreground font-medium">
                     تاريخ الانعقاد
                   </span>
-                  <span className="text-xs font-bold text-foreground">{event.date}</span>
+                  <span className="text-xs font-bold text-foreground">{eventDate}</span>
                 </div>
               </div>
             )}
@@ -231,7 +250,7 @@ export function EventPage({ slug }: EventPageProps) {
               </div>
             )}
 
-            {event.location && (
+            {location && (
               <div className="flex items-start gap-3">
                 <div className="rounded-lg bg-primary/10 p-2.5 text-primary shrink-0">
                   <MapPin size={18} />
@@ -240,7 +259,7 @@ export function EventPage({ slug }: EventPageProps) {
                   <span className="block text-[11px] text-muted-foreground font-medium">
                     المكان والمدينة
                   </span>
-                  <span className="text-xs font-bold text-foreground">{event.location}</span>
+                  <span className="text-xs font-bold text-foreground">{location}</span>
                 </div>
               </div>
             )}
@@ -256,8 +275,27 @@ export function EventPage({ slug }: EventPageProps) {
               <span>تقديم الفعالية والمحاور الأساسية</span>
             </h2>
             <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-muted-foreground space-y-4">
-              <p>{event.description || event.summary}</p>
+              {bodyParagraphs.length > 0 ? (
+                bodyParagraphs.map((paragraph, idx) => <p key={idx}>{paragraph}</p>)
+              ) : (
+                <p>{description}</p>
+              )}
             </div>
+
+            {/* Topics / Tags */}
+            {topics.length > 0 && (
+              <div className="mt-6 flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
+                {topics.map((topic) => (
+                  <span
+                    key={topic}
+                    className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground border border-border/50"
+                  >
+                    <Tag size={11} />
+                    {topic}
+                  </span>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* Speakers / Panelists Section */}
@@ -284,21 +322,23 @@ export function EventPage({ slug }: EventPageProps) {
           )}
 
           {/* Registration CTA / External Link */}
-          {event.registrationUrl && isUpcoming && (
+          {registerLink && (
             <section className="rounded-2xl bg-primary/10 border border-primary/20 p-6 text-center">
               <h3 className="text-base font-bold text-foreground">
-                هل ترغب في المشاركة أو الحضور؟
+                {event.registrationUrl ? "هل ترغب في المشاركة أو الحضور؟" : "لمزيد من التفاصيل والمصدر الرسمي"}
               </h3>
               <p className="mt-1 text-xs text-muted-foreground">
-                يمكنك التسجيل عبر البوابة الرسمية للجهة المنظمة.
+                {event.registrationUrl
+                  ? "يمكنك التسجيل عبر البوابة الرسمية للجهة المنظمة."
+                  : "هذه البطاقة أُعدّت استناداً إلى مصدر رسمي؛ للتفاصيل الكاملة يُرجى زيارة الرابط."}
               </p>
               <a
-                href={event.registrationUrl}
+                href={registerLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-md transition hover:opacity-90"
               >
-                <span>رابط التسجيل أو الحضور الافتراضي</span>
+                <span>{registerLabel}</span>
                 <ExternalLink size={14} />
               </a>
             </section>
