@@ -6,49 +6,56 @@ import {
   Edit,
   Trash2,
   Loader2,
-  MapPin,
   X,
   Check,
   User,
   Video,
-  Tag,
+  Clock,
+  Paperclip,
   Filter,
-  Building2,
   RotateCcw,
   AlertCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
 import { supabase } from "../../../lib/supabase/client"
-import { generateSlug } from "../../../lib/utils/generateSlug"
-import type { Category } from "../../../types/cms"
 
+// ملاحظة مهمة: هذا النموذج يطابق تماماً أعمدة جدول "seminars" الفعلي في Supabase
+// (title, speaker, speaker_title, video_url, event_date, event_time, agenda,
+// attachment_url, status). كانت النسخة القديمة من هذه الصفحة ترسل أعمدة غير
+// موجودة أصلاً في الجدول (organizer, location, is_online, slug, category_id)
+// وهو ما كان يتسبب في فشل الحفظ/التعديل بصمت (خطأ من قاعدة البيانات).
 export interface Seminar {
   id: string
   title: string
-  description?: string
-  speaker?: string
-  organizer?: string
-  location?: string
-  event_date?: string
-  is_online?: boolean
-  slug: string
-  category_id?: string
-  created_at?: string
-  category?: Category
+  speaker: string
+  speaker_title?: string | null
+  video_url: string
+  event_date?: string | null
+  event_time?: string | null
+  agenda?: string | null
+  attachment_url?: string | null
+  status?: string | null
+  created_at?: string | null
 }
 
 interface SeminarsPageProps {
   onNavigate?: (path: string) => void
 }
 
+const STATUS_OPTIONS = [
+  { value: "published", label: "منشورة" },
+  { value: "draft", label: "مسودة" },
+]
+
 export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const [seminars, setSeminars] = useState<Seminar[]>([])
-  const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
-  const [categoryFilter, setCategoryFilter] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
 
   // حالة Modal التأكيد والحذف
   const [deleteModalOpen, setDeleteModalOpen] = useState<boolean>(false)
@@ -62,16 +69,16 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const [saving, setSaving] = useState<boolean>(false)
   const [formError, setFormError] = useState<string | null>(null)
 
-  // حقول النموذج
+  // حقول النموذج (مطابقة لأعمدة جدول seminars الحقيقية)
   const [title, setTitle] = useState<string>("")
-  const [description, setDescription] = useState<string>("")
   const [speaker, setSpeaker] = useState<string>("")
-  const [organizer, setOrganizer] = useState<string>("")
-  const [location, setLocation] = useState<string>("")
+  const [speakerTitle, setSpeakerTitle] = useState<string>("")
+  const [videoUrl, setVideoUrl] = useState<string>("")
   const [eventDate, setEventDate] = useState<string>("")
-  const [isOnline, setIsOnline] = useState<boolean>(false)
-  const [slug, setSlug] = useState<string>("")
-  const [categoryId, setCategoryId] = useState<string>("")
+  const [eventTime, setEventTime] = useState<string>("")
+  const [agenda, setAgenda] = useState<string>("")
+  const [attachmentUrl, setAttachmentUrl] = useState<string>("")
+  const [status, setStatus] = useState<string>("published")
 
   useEffect(() => {
     fetchInitialData()
@@ -80,18 +87,12 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const fetchInitialData = async () => {
     setLoading(true)
     try {
-      const [seminarsRes, catsRes] = await Promise.all([
-        (supabase.from("seminars") as any)
-          .select(`
-            *,
-            category:categories(id, name_ar, name_fr, slug)
-          `)
-          .order("event_date", { ascending: false }),
-        supabase.from("categories").select("*").order("name_ar", { ascending: true }),
-      ])
+      const { data, error } = await (supabase.from("seminars") as any)
+        .select("*")
+        .order("event_date", { ascending: false })
 
-      if (seminarsRes.data) setSeminars(seminarsRes.data as unknown as Seminar[])
-      if (catsRes.data) setCategories(catsRes.data as Category[])
+      if (error) throw error
+      if (data) setSeminars(data as unknown as Seminar[])
     } catch (err) {
       console.error("خطأ أثناء جلب بيانات الندوات:", err)
     } finally {
@@ -99,18 +100,22 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
     }
   }
 
+  const resetForm = () => {
+    setTitle("")
+    setSpeaker("")
+    setSpeakerTitle("")
+    setVideoUrl("")
+    setEventDate("")
+    setEventTime("")
+    setAgenda("")
+    setAttachmentUrl("")
+    setStatus("published")
+  }
+
   const handleOpenAddModal = () => {
     setEditingSeminar(null)
     setFormError(null)
-    setTitle("")
-    setDescription("")
-    setSpeaker("")
-    setOrganizer("")
-    setLocation("")
-    setEventDate("")
-    setIsOnline(false)
-    setSlug("")
-    setCategoryId("")
+    resetForm()
     setFormModalOpen(true)
   }
 
@@ -118,14 +123,14 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
     setEditingSeminar(seminar)
     setFormError(null)
     setTitle(seminar.title)
-    setDescription(seminar.description || "")
     setSpeaker(seminar.speaker || "")
-    setOrganizer(seminar.organizer || "")
-    setLocation(seminar.location || "")
+    setSpeakerTitle(seminar.speaker_title || "")
+    setVideoUrl(seminar.video_url || "")
     setEventDate(seminar.event_date ? seminar.event_date.split("T")[0] : "")
-    setIsOnline(!!seminar.is_online)
-    setSlug(seminar.slug)
-    setCategoryId(seminar.category_id || "")
+    setEventTime(seminar.event_time || "")
+    setAgenda(seminar.agenda || "")
+    setAttachmentUrl(seminar.attachment_url || "")
+    setStatus(seminar.status || "published")
     setFormModalOpen(true)
   }
 
@@ -135,21 +140,29 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
       setFormError("يرجى إدخال عنوان الندوة.")
       return
     }
+    if (!speaker.trim()) {
+      setFormError("يرجى إدخال اسم المحاضر/المتدخل.")
+      return
+    }
+    if (!videoUrl.trim()) {
+      setFormError("يرجى إدخال رابط الفيديو أو البث المباشر للندوة.")
+      return
+    }
 
     setSaving(true)
     setFormError(null)
-    const finalSlug = slug.trim() || generateSlug(title)
 
+    // نرسل فقط الأعمدة الموجودة فعلياً في جدول seminars
     const payload: Record<string, any> = {
       title: title.trim(),
-      description: description.trim() || null,
-      speaker: speaker.trim() || null,
-      organizer: organizer.trim() || null,
-      location: isOnline ? "عبر الإنترنت (Online)" : location.trim() || null,
+      speaker: speaker.trim(),
+      speaker_title: speakerTitle.trim() || null,
+      video_url: videoUrl.trim(),
       event_date: eventDate || null,
-      is_online: isOnline,
-      slug: finalSlug,
-      category_id: categoryId || null,
+      event_time: eventTime || null,
+      agenda: agenda.trim() || null,
+      attachment_url: attachmentUrl.trim() || null,
+      status,
     }
 
     try {
@@ -160,8 +173,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
 
         if (error) throw error
       } else {
-        const { error } = await (supabase.from("seminars") as any)
-          .insert([payload])
+        const { error } = await (supabase.from("seminars") as any).insert([payload])
 
         if (error) throw error
       }
@@ -200,7 +212,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
 
   const resetFilters = () => {
     setSearchQuery("")
-    setCategoryFilter("all")
+    setStatusFilter("all")
   }
 
   const filteredSeminars = useMemo(() => {
@@ -209,25 +221,23 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
       const matchesSearch =
         item.title.toLowerCase().includes(query) ||
         (item.speaker && item.speaker.toLowerCase().includes(query)) ||
-        (item.organizer && item.organizer.toLowerCase().includes(query)) ||
-        (item.location && item.location.toLowerCase().includes(query))
+        (item.speaker_title && item.speaker_title.toLowerCase().includes(query))
 
-      const matchesCategory =
-        categoryFilter === "all" || item.category_id === categoryFilter
+      const matchesStatus = statusFilter === "all" || (item.status || "published") === statusFilter
 
-      return matchesSearch && matchesCategory
+      return matchesSearch && matchesStatus
     })
-  }, [seminars, searchQuery, categoryFilter])
+  }, [seminars, searchQuery, statusFilter])
 
   return (
-    <AdminLayout currentPath="/seminars" onNavigate={onNavigate}>
+    <AdminLayout currentPath="/admin/seminars" onNavigate={onNavigate}>
       <div className="space-y-6" dir="rtl">
         {/* الترويسة والزر الرئيسي */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-black text-foreground">الندوات والمؤتمرات القانونية</h1>
+            <h1 className="text-xl font-black text-foreground">الندوات والبثوث القانونية</h1>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              إدارة الفعاليات واللقاءات العلمية والمحاضرات الأكاديمية على منصة ميزان.
+              إدارة الندوات المسجّلة والمباشرة (فيديو) التي تظهر في صفحة الفعاليات بالموقع.
             </p>
           </div>
           <button
@@ -248,7 +258,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="البحث باسم الندوة، المحاضر، الجهة المنظمة، أو المكان..."
+              placeholder="البحث بعنوان الندوة أو اسم المحاضر..."
               className="w-full rounded-xl border border-border bg-background py-2 pr-9 pl-8 text-xs text-foreground outline-none transition focus:border-primary"
             />
             {searchQuery && (
@@ -265,19 +275,19 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
           <div className="flex items-center gap-2">
             <Filter className="size-4 shrink-0 text-muted-foreground" />
             <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground outline-none focus:border-primary"
             >
-              <option value="all">جميع التصنيفات</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name_ar || (cat as any).name}
+              <option value="all">جميع الحالات</option>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value}>
+                  {s.label}
                 </option>
               ))}
             </select>
 
-            {(searchQuery || categoryFilter !== "all") && (
+            {(searchQuery || statusFilter !== "all") && (
               <button
                 type="button"
                 onClick={resetFilters}
@@ -294,7 +304,9 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
         {/* عداد النتائج */}
         {!loading && (
           <div className="flex items-center justify-between px-1 text-xs text-muted-foreground">
-            <span>إجمالي الفعاليات: <strong className="font-bold text-foreground">{filteredSeminars.length}</strong></span>
+            <span>
+              إجمالي الندوات: <strong className="font-bold text-foreground">{filteredSeminars.length}</strong>
+            </span>
           </div>
         )}
 
@@ -306,15 +318,15 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
         ) : filteredSeminars.length === 0 ? (
           <EmptyState
             icon={Calendar}
-            title="لا توجد ندوات أو مؤتمرات"
+            title="لا توجد ندوات أو بثوث"
             description={
-              searchQuery || categoryFilter !== "all"
+              searchQuery || statusFilter !== "all"
                 ? "لم يتم العثور على أي نتائج تطابق محددات البحث."
-                : "لم تقم بإضافة أي ندوات أو مؤتمرات قانونية حتى الآن."
+                : "لم تقم بإضافة أي ندوة قانونية حتى الآن."
             }
-            actionLabel={searchQuery || categoryFilter !== "all" ? "إعادة ضبط البحث" : "إضافة ندوة جديدة"}
-            actionIcon={searchQuery || categoryFilter !== "all" ? RotateCcw : Plus}
-            onAction={searchQuery || categoryFilter !== "all" ? resetFilters : handleOpenAddModal}
+            actionLabel={searchQuery || statusFilter !== "all" ? "إعادة ضبط البحث" : "إضافة ندوة جديدة"}
+            actionIcon={searchQuery || statusFilter !== "all" ? RotateCcw : Plus}
+            onAction={searchQuery || statusFilter !== "all" ? resetFilters : handleOpenAddModal}
           />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -328,18 +340,18 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                   <div className="flex items-start justify-between gap-2">
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold ${
-                        seminar.is_online
-                          ? "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
-                          : "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        (seminar.status || "published") === "published"
+                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          : "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400"
                       }`}
                     >
-                      {seminar.is_online ? (
+                      {(seminar.status || "published") === "published" ? (
                         <>
-                          <Video className="size-3" /> عن بُعد (Online)
+                          <Eye className="size-3" /> منشورة
                         </>
                       ) : (
                         <>
-                          <MapPin className="size-3" /> حضوري
+                          <EyeOff className="size-3" /> مسودة
                         </>
                       )}
                     </span>
@@ -367,39 +379,48 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                     </div>
                   </div>
 
-                  {/* Title & Description */}
+                  {/* Title & Agenda */}
                   <div>
                     <h3 className="line-clamp-2 text-sm font-extrabold leading-snug text-foreground transition-colors group-hover:text-primary">
                       {seminar.title}
                     </h3>
-                    {seminar.description && (
+                    {seminar.agenda && (
                       <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                        {seminar.description}
+                        {seminar.agenda}
                       </p>
                     )}
                   </div>
 
                   {/* Metadata Info */}
                   <div className="space-y-1.5 border-t border-border/40 pt-2 text-xs text-muted-foreground">
-                    {seminar.speaker && (
-                      <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                        <User className="size-3.5 shrink-0 text-primary" />
-                        <span className="truncate">{seminar.speaker}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                      <User className="size-3.5 shrink-0 text-primary" />
+                      <span className="truncate">
+                        {seminar.speaker}
+                        {seminar.speaker_title ? ` — ${seminar.speaker_title}` : ""}
+                      </span>
+                    </div>
 
-                    {seminar.organizer && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Building2 className="size-3.5 shrink-0 text-muted-foreground" />
-                        <span className="truncate">{seminar.organizer}</span>
-                      </div>
-                    )}
+                    <a
+                      href={seminar.video_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-primary hover:underline"
+                    >
+                      <Video className="size-3.5 shrink-0" />
+                      <span className="truncate">رابط الفيديو / البث</span>
+                    </a>
 
-                    {seminar.location && !seminar.is_online && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <MapPin className="size-3.5 shrink-0 text-muted-foreground" />
-                        <span className="truncate">{seminar.location}</span>
-                      </div>
+                    {seminar.attachment_url && (
+                      <a
+                        href={seminar.attachment_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 hover:text-foreground"
+                      >
+                        <Paperclip className="size-3.5 shrink-0" />
+                        <span className="truncate">مرفق / وثيقة الندوة</span>
+                      </a>
                     )}
                   </div>
                 </div>
@@ -416,11 +437,10 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                         })
                       : "غير محدد"}
                   </span>
-
-                  {seminar.category && (
-                    <span className="inline-flex items-center gap-1 rounded-md bg-muted/80 px-2 py-0.5 text-[10px] font-bold text-foreground">
-                      <Tag className="size-3 text-primary" />
-                      {seminar.category.name_ar || (seminar.category as any).name}
+                  {seminar.event_time && (
+                    <span className="flex items-center gap-1 font-semibold">
+                      <Clock className="size-3.5 text-primary" />
+                      {seminar.event_time}
                     </span>
                   )}
                 </div>
@@ -436,7 +456,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
             onClick={() => !saving && setFormModalOpen(false)}
           >
             <div
-              className="w-full max-w-lg space-y-4 rounded-2xl border border-border bg-card p-6 shadow-2xl transition-all"
+              className="w-full max-w-lg space-y-4 rounded-2xl border border-border bg-card p-6 shadow-2xl transition-all max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-border pb-3">
@@ -467,12 +487,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                     type="text"
                     required
                     value={title}
-                    onChange={(e) => {
-                      setTitle(e.target.value)
-                      if (!slug && !editingSeminar) {
-                        setSlug(generateSlug(e.target.value))
-                      }
-                    }}
+                    onChange={(e) => setTitle(e.target.value)}
                     placeholder="مثال: المستجدات التشريعية في مادة القانون التجاري..."
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground outline-none transition focus:border-primary"
                   />
@@ -480,9 +495,10 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">المحاضر / المؤطر الرئيسي</label>
+                    <label className="text-xs font-bold text-foreground">المحاضر / المتدخل *</label>
                     <input
                       type="text"
+                      required
                       value={speaker}
                       onChange={(e) => setSpeaker(e.target.value)}
                       placeholder="مثال: د. عبد الله أستاذ القانون الخاص"
@@ -491,23 +507,36 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">الجهة المنظمة</label>
+                    <label className="text-xs font-bold text-foreground">صفة/لقب المحاضر</label>
                     <input
                       type="text"
-                      value={organizer}
-                      onChange={(e) => setOrganizer(e.target.value)}
-                      placeholder="مثال: كلية الحقوق أكدال"
+                      value={speakerTitle}
+                      onChange={(e) => setSpeakerTitle(e.target.value)}
+                      placeholder="مثال: أستاذ التعليم العالي، كلية الحقوق أكدال"
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground outline-none transition focus:border-primary"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-foreground">الوصف أو البرنامـج</label>
+                  <label className="text-xs font-bold text-foreground">رابط الفيديو / البث المباشر *</label>
+                  <input
+                    type="url"
+                    required
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                    placeholder="https://youtube.com/watch?v=... أو رابط البث المباشر"
+                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-left font-mono text-xs text-foreground outline-none transition focus:border-primary"
+                    dir="ltr"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">محاور / برنامج الندوة</label>
                   <textarea
                     rows={3}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    value={agenda}
+                    onChange={(e) => setAgenda(e.target.value)}
                     placeholder="تفاصيل محاور الندوة، الشركاء المنظمين، أو برنامج المداخلات..."
                     className="w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground outline-none transition focus:border-primary"
                   />
@@ -525,59 +554,41 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">التصنيف</label>
-                    <select
-                      value={categoryId}
-                      onChange={(e) => setCategoryId(e.target.value)}
-                      className="w-full cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary"
-                    >
-                      <option value="">اختر التصنيف...</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name_ar || (cat as any).name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {/* Checkbox Online */}
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="isOnline"
-                    checked={isOnline}
-                    onChange={(e) => setIsOnline(e.target.checked)}
-                    className="size-4 cursor-pointer rounded border-border text-primary focus:ring-primary"
-                  />
-                  <label htmlFor="isOnline" className="cursor-pointer select-none text-xs font-bold text-foreground">
-                    الندوة تبث عبر الإنترنت (Online)
-                  </label>
-                </div>
-
-                {!isOnline && (
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-foreground">مكان الانعقاد الحضوري</label>
+                    <label className="text-xs font-bold text-foreground">توقيت الانعقاد</label>
                     <input
-                      type="text"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                      placeholder="مثال: مدرج رقم 1، كلية الحقوق الرباط"
-                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground outline-none transition focus:border-primary"
+                      type="time"
+                      value={eventTime}
+                      onChange={(e) => setEventTime(e.target.value)}
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary"
                     />
                   </div>
-                )}
+                </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-foreground">الرابط الفريد (Slug)</label>
+                  <label className="text-xs font-bold text-foreground">رابط مرفق (اختياري)</label>
                   <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) => setSlug(e.target.value)}
-                    placeholder="seminar-commercial-law"
+                    type="url"
+                    value={attachmentUrl}
+                    onChange={(e) => setAttachmentUrl(e.target.value)}
+                    placeholder="رابط PDF لعرض تقديمي أو وثيقة مرافقة للندوة..."
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-left font-mono text-xs text-foreground outline-none transition focus:border-primary"
                     dir="ltr"
                   />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">حالة النشر</label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="w-full cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex items-center justify-end gap-2 border-t border-border pt-3">
@@ -616,7 +627,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
             deleteError ? (
               <span className="font-semibold text-destructive">{deleteError}</span>
             ) : (
-              "هل أنت تأكد من رغبتك في حذف هذه الندوة من الأرشيف الرقمي؟ لا يمكن التراجع عن هذا الإجراء بعد تنفيذه."
+              "هل أنت متأكد من رغبتك في حذف هذه الندوة؟ لا يمكن التراجع عن هذا الإجراء بعد تنفيذه."
             )
           }
           confirmLabel="نعم، احذف الندوة"

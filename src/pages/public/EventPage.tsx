@@ -1,7 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import eventsData from "../../data/events.json"
+import { supabase } from "../../lib/supabase/client"
 import {
   Calendar,
   MapPin,
@@ -16,22 +17,69 @@ import {
   FileText,
   AlertCircle,
   Tag,
-  CheckCircle2
+  CheckCircle2,
+  Loader2,
 } from "lucide-react"
 
 interface EventPageProps {
   slug?: string
 }
 
+function normalizeSeminar(raw: any) {
+  return {
+    id: `seminar-${raw.id}`,
+    title: raw.title,
+    excerpt: raw.agenda || "",
+    description: raw.agenda || "",
+    organizer: raw.speaker_title || null,
+    speaker: raw.speaker || null,
+    city: null,
+    eventDate: raw.event_date || null,
+    time: raw.event_time || null,
+    category: "ندوة قانونية",
+    registrationUrl: raw.video_url || null,
+    sourceUrl: raw.attachment_url || null,
+    isSeminar: true,
+  }
+}
+
 export function EventPage({ slug }: EventPageProps) {
   const params = useParams<{ slug?: string }>()
   const eventSlug = slug || params.slug
   const [copied, setCopied] = useState(false)
+  const [seminarEvent, setSeminarEvent] = useState<any | null>(null)
+  const [loadingSeminar, setLoadingSeminar] = useState<boolean>(false)
 
-  // Find target event by id or slug
-  const event = (eventsData as any[]).find(
+  // Find target event by id or slug within the local static catalog first
+  const localEvent = (eventsData as any[]).find(
     (item) => item.id === eventSlug || item.slug === eventSlug
   )
+
+  // إذا لم يوجد ضمن events.json المحلي، ولكن المعرّف يشير إلى ندوة من لوحة
+  // التحكم (بصيغة "seminar-<id>")، نجلبها مباشرة من Supabase
+  useEffect(() => {
+    if (localEvent || !eventSlug?.startsWith("seminar-")) return
+    const rawId = eventSlug.replace(/^seminar-/, "")
+    setLoadingSeminar(true)
+    ;(supabase.from("seminars") as any)
+      .select("*")
+      .eq("id", rawId)
+      .maybeSingle()
+      .then(({ data, error }: any) => {
+        if (!error && data) setSeminarEvent(normalizeSeminar(data))
+      })
+      .finally(() => setLoadingSeminar(false))
+  }, [eventSlug, localEvent])
+
+  const event = localEvent || seminarEvent
+
+  if (loadingSeminar && !event) {
+    return (
+      <main className="container mx-auto flex h-[50vh] max-w-4xl items-center justify-center px-4">
+        <Loader2 className="size-8 animate-spin text-primary" />
+      </main>
+    )
+  }
 
   // Handle Share / Copy Link
   const handleShare = () => {

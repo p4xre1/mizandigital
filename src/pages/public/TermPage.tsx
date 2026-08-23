@@ -4,10 +4,11 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import { NotFound } from "./NotFound"
 import lexiconData from "../../data/lexicon.json"
 import { lexiconSlugById, generateSlug } from "../../lib/utils/generateSlug"
-import { BookOpen, ArrowRight, Share2, Scale, Gavel, Loader2 } from "lucide-react"
+import { BookOpen, ArrowRight, ArrowLeft, Share2, Scale, Gavel, Loader2, Tags } from "lucide-react"
 import type { LegalSource } from "../../types/cms"
 import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
 import { supabase } from "../../lib/supabase/client"
+import { rankRelatedItems } from "../../lib/utils/recommend"
 
 interface TermPageProps {
   slug?: string
@@ -22,6 +23,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const [term, setTerm] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
   const [highlighted, setHighlighted] = useState<string | null>(null)
+  const [relatedTerms, setRelatedTerms] = useState<any[]>([])
 
   useEffect(() => {
     async function fetchTerm() {
@@ -60,6 +62,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
 
           if (found) {
             setTerm(found)
+            computeRelatedTerms(combined, found, slugById)
             setLoading(false)
             return
           }
@@ -74,9 +77,31 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
 
       if (localFound) {
         setTerm(localFound)
+        computeRelatedTerms(lexiconData as any[], localFound, slugByIdLocal)
       }
 
       setLoading(false)
+    }
+
+    // خوارزمية اقتراح: ترتيب باقي المصطلحات حسب تطابق التصنيف وتشابه الكلمات
+    // المفتاحية مع تعريف المصطلح الحالي (انظر lib/utils/recommend.ts)
+    const computeRelatedTerms = (pool: any[], current: any, slugMap: Map<string, string>) => {
+      const currentSlug = slugMap.get(current.id) || generateSlug(current.term_ar)
+      const candidates = pool.map((item: any) => ({
+        id: item.id,
+        slug: slugMap.get(item.id) || generateSlug(item.term_ar),
+        title: item.term_ar,
+        text: item.definition,
+        category: item.category,
+        term_fr: item.term_fr,
+      }))
+
+      const ranked = rankRelatedItems(
+        { id: current.id, slug: currentSlug, title: current.term_ar, text: current.definition, category: current.category },
+        candidates,
+        3
+      )
+      setRelatedTerms(ranked)
     }
 
     fetchTerm()
@@ -266,6 +291,46 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
             </button>
           </footer>
         </article>
+
+        {/* مصطلحات ذات صلة */}
+        {relatedTerms.length > 0 && (
+          <section className="mt-10 pt-8 border-t border-border">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="flex items-center gap-2 text-lg font-bold text-foreground">
+                <Tags size={18} className="text-primary" />
+                مصطلحات ذات صلة
+              </h3>
+              <Link to="/lexicon" className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">
+                <span>عرض المعجم كاملاً</span>
+                <ArrowLeft size={14} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {relatedTerms.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/lexicon/${item.slug}`}
+                  className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
+                >
+                  {item.category && (
+                    <span className="w-fit rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                      {item.category}
+                    </span>
+                  )}
+                  <h4 className="text-sm font-bold text-foreground group-hover:text-primary transition line-clamp-1">
+                    {item.title}
+                  </h4>
+                  {item.term_fr && (
+                    <p className="text-[11px] text-muted-foreground" dir="ltr">
+                      {item.term_fr}
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   )

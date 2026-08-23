@@ -98,6 +98,10 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
   const [uploading, setUploading] = useState<boolean>(false)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
 
+  // مصدر ملف الـ PDF: رفع ملف مباشرة، أو لصق رابط خارجي جاهز
+  const [pdfSource, setPdfSource] = useState<"upload" | "link">("upload")
+  const [pdfLinkUrl, setPdfLinkUrl] = useState<string>("")
+
   // حقول النموذج
   const [title, setTitle] = useState<string>("")
   const [description, setDescription] = useState<string>("")
@@ -141,26 +145,36 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
     setFacultyId("")
     setSelectedFile(null)
     setUploadProgress(0)
+    setPdfSource("upload")
+    setPdfLinkUrl("")
     setUploadModalOpen(true)
   }
 
   const handleUploadAndSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title || !selectedFile) return
+    if (!title) return
+    if (pdfSource === "upload" && !selectedFile) return
+    if (pdfSource === "link" && !pdfLinkUrl.trim()) return
 
     setUploading(true)
     setUploadProgress(15)
 
     try {
-      // 1. رفع الملف إلى Storage
-      const fileUrl = await uploadDocumentFile(selectedFile, (progress: number) => {
-        setUploadProgress(Math.round(progress))
-      })
+      // 1. تحديد رابط الملف: إما برفعه إلى Storage أو استخدام الرابط الخارجي المُدخل مباشرة
+      let fileUrl: string
+      let fileSizeBytes: number | null = null
 
-      // 2. حساب حجم الملف بالبايت
-      const fileSizeBytes = selectedFile.size
+      if (pdfSource === "upload" && selectedFile) {
+        fileUrl = await uploadDocumentFile(selectedFile, (progress: number) => {
+          setUploadProgress(Math.round(progress))
+        })
+        fileSizeBytes = selectedFile.size
+      } else {
+        fileUrl = pdfLinkUrl.trim()
+        setUploadProgress(90)
+      }
 
-      // 3. حفظ بيانات المستند في قاعدة البيانات
+      // 2. حفظ بيانات المستند في قاعدة البيانات
       const payload = {
         title,
         slug: generateSlug(title),
@@ -480,17 +494,65 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
                   />
                 </div>
 
-                {/* مكون إسقاط واختيار الملف */}
+                {/* اختيار مصدر ملف الـ PDF: رفع مباشر أو رابط خارجي */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground">ملف المستند (PDF) *</label>
-                  <PdfDropzone
-                    file={selectedFile}
-                    onFileSelect={(file: File | null) => setSelectedFile(file)}
-                  />
+                  <label className="text-xs font-bold text-foreground">مصدر الملف *</label>
+                  <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/40 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPdfSource("upload")}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                        pdfSource === "upload"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <UploadCloud className="size-3.5" />
+                      رفع ملف PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPdfSource("link")}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                        pdfSource === "link"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <ExternalLink className="size-3.5" />
+                      رابط PDF خارجي
+                    </button>
+                  </div>
                 </div>
 
+                {pdfSource === "upload" ? (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">ملف المستند (PDF) *</label>
+                    <PdfDropzone
+                      file={selectedFile}
+                      onFileSelect={(file: File | null) => setSelectedFile(file)}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">رابط ملف الـ PDF *</label>
+                    <input
+                      type="url"
+                      required
+                      value={pdfLinkUrl}
+                      onChange={(e) => setPdfLinkUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-left font-mono text-xs text-foreground outline-none focus:border-primary"
+                      dir="ltr"
+                    />
+                  </div>
+                )}
+
                 {uploading && (
-                  <ProgressBar progress={uploadProgress} label="جاري رفع الملف إلى السيرفر..." />
+                  <ProgressBar
+                    progress={uploadProgress}
+                    label={pdfSource === "upload" ? "جاري رفع الملف إلى السيرفر..." : "جاري حفظ الرابط..."}
+                  />
                 )}
 
                 <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
@@ -503,7 +565,7 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
                   </button>
                   <button
                     type="submit"
-                    disabled={uploading || !selectedFile || !title}
+                    disabled={uploading || !title || (pdfSource === "upload" ? !selectedFile : !pdfLinkUrl.trim())}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
                   >
                     {uploading ? (

@@ -14,6 +14,8 @@ import LibraryPage from "@/pages/admin/library/LibraryPage"
 import SeminarsPage from "@/pages/admin/seminars/SeminarsPage"
 import NewsManagementPage from "@/pages/admin/NewsManagementPage"
 import CommentsPage from "@/pages/admin/CommentsPage"
+import LawsPage from "@/pages/admin/LawsPage"
+import SettingsPage from "@/pages/admin/SettingsPage"
 
 // Public Pages
 import {
@@ -163,6 +165,8 @@ export default function AppRoutes({
         <Route path="lexicon" element={<LexiconPageAdmin />} />
         <Route path="library" element={<LibraryPage />} />
         <Route path="seminars" element={<SeminarsPage />} />
+        <Route path="laws" element={<LawsPage />} />
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   )

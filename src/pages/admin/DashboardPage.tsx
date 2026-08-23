@@ -12,8 +12,10 @@ import {
   Clock,
   UploadCloud,
   FileText,
+  Scale,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
+import { AdminSuggestions } from "../../components/admin/AdminSuggestions"
 
 interface DashboardStats {
   articlesCount: number
@@ -21,6 +23,7 @@ interface DashboardStats {
   seminarsCount: number
   schoolsCount: number
   newsCount: number
+  lawsCount: number
 }
 
 interface RecentArticle {
@@ -44,6 +47,7 @@ export default function DashboardPage() {
     seminarsCount: 0,
     schoolsCount: 0,
     newsCount: 0,
+    lawsCount: 0,
   })
   const [recentArticles, setRecentArticles] = useState<RecentArticle[]>([])
   const [recentDocuments, setRecentDocuments] = useState<RecentDocument[]>([])
@@ -62,6 +66,7 @@ export default function DashboardPage() {
         seminarsRes,
         facultiesRes,
         newsRes,
+        lawsRes,
         articlesListRes,
         docsListRes,
       ] = await Promise.all([
@@ -74,6 +79,8 @@ export default function DashboardPage() {
         supabase.from("seminars").select("*", { count: "exact", head: true }),
         supabase.from("faculties").select("*", { count: "exact", head: true }),
         supabase.from("news").select("*", { count: "exact", head: true }).eq("is_published", true),
+        // جدول "laws" قد لا يكون قد أُنشئ بعد على قاعدة البيانات؛ لهذا لا نستخدم throw هنا حتى لا تفشل بقية الإحصائيات
+        (supabase as any).from("laws").select("*", { count: "exact", head: true }),
         supabase
           .from("articles")
           .select("id, title, created_at")
@@ -92,6 +99,7 @@ export default function DashboardPage() {
         seminarsCount: seminarsRes.count || 0,
         schoolsCount: facultiesRes.count || 0,
         newsCount: newsRes.count || 0,
+        lawsCount: (lawsRes as any)?.count || 0,
       })
 
       if (articlesListRes.data) setRecentArticles(articlesListRes.data as RecentArticle[])
@@ -138,6 +146,13 @@ export default function DashboardPage() {
       icon: GraduationCap,
       color: "text-amber-500 bg-amber-500/10",
       path: "/admin/faculties",
+    },
+    {
+      title: "الأرشيف القانوني",
+      value: stats.lawsCount,
+      icon: Scale,
+      color: "text-rose-500 bg-rose-500/10",
+      path: "/admin/laws",
     },
   ]
 
@@ -198,6 +213,9 @@ export default function DashboardPage() {
           })}
         </div>
       )}
+
+      {/* اقتراحات ذكية للمشرف */}
+      <AdminSuggestions />
 
       {/* أحدث المقالات والمستندات */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

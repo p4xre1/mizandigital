@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import eventsData from "../../data/events.json"
 import { containsText } from "../../lib/utils/search"
+import { supabase } from "../../lib/supabase/client"
 import {
   Calendar,
   MapPin,
@@ -13,29 +14,74 @@ import {
   Sparkles,
   Tag,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Video,
+  Loader2,
 } from "lucide-react"
+
+// يحوّل سجل ندوة قادم من جدول "seminars" في Supabase إلى شكل موحّد
+// يتوافق مع بنية events.json المحلية حتى تُعرض الاثنتان معاً في نفس الصفحة.
+function normalizeSeminar(raw: any) {
+  return {
+    id: `seminar-${raw.id}`,
+    title: raw.title,
+    excerpt: raw.agenda || "",
+    organizer: raw.speaker_title || null,
+    speaker: raw.speaker || null,
+    city: null,
+    eventDate: raw.event_date || null,
+    time: raw.event_time || null,
+    category: "ندوة قانونية",
+    registrationUrl: raw.video_url || null,
+    attachmentUrl: raw.attachment_url || null,
+    isSeminar: true,
+  }
+}
 
 export function EventsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "upcoming" | "past">("all")
+  const [seminars, setSeminars] = useState<any[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+
+  // جلب الندوات المنشورة من لوحة التحكم (CMS) لدمجها مع الفعاليات المحلية
+  useEffect(() => {
+    const fetchSeminars = async () => {
+      try {
+        const { data, error } = await (supabase.from("seminars") as any)
+          .select("*")
+          .eq("status", "published")
+          .order("event_date", { ascending: false })
+
+        if (error) throw error
+        if (data) setSeminars(data.map(normalizeSeminar))
+      } catch (err) {
+        console.error("خطأ في جلب الندوات من لوحة التحكم:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchSeminars()
+  }, [])
+
+  const allEvents = useMemo(() => [...seminars, ...(eventsData as any[])], [seminars])
 
   // Dynamic categories from data (من التصنيف الصريح إن وُجد، أو من مواضيع topics)
   const categories = useMemo(() => {
     const set = new Set<string>()
-    ;(eventsData as any[]).forEach((event) => {
+    allEvents.forEach((event) => {
       if (event.category) set.add(event.category)
       if (Array.isArray(event.topics)) event.topics.forEach((t: string) => set.add(t))
     })
     return Array.from(set)
-  }, [])
+  }, [allEvents])
 
   // Filter events by text, category, and upcoming/past date
   const filteredEvents = useMemo(() => {
     const todayStr = new Date().toISOString().slice(0, 10)
 
-    return (eventsData as any[]).filter((event) => {
+    return allEvents.filter((event) => {
       const title = event.title || ""
       const description = event.excerpt || event.description || event.summary || ""
       const organizer = event.organizer || event.university || ""
@@ -154,7 +200,7 @@ export function EventsPage() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                الكل ({eventsData.length})
+                الكل ({allEvents.length})
               </button>
               <button
                 type="button"
@@ -218,7 +264,11 @@ export function EventsPage() {
         </div>
 
         {/* Events Grid */}
-        {filteredEvents.length > 0 ? (
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-primary" />
+          </div>
+        ) : filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredEvents.map((event: any) => {
               const isUpcoming = (event.eventDate || event.date || "") >= new Date().toISOString().slice(0, 10)
@@ -335,7 +385,15 @@ export function EventsPage() {
                         onClick={(e) => e.stopPropagation()}
                         className="inline-flex items-center gap-1 text-xs font-bold text-foreground hover:text-primary transition"
                       >
-                        {event.registrationUrl ? "التسجيل" : "المصدر"}
+                        {event.isSeminar ? (
+                          <>
+                            <Video size={13} className="text-primary" /> مشاهدة الفيديو
+                          </>
+                        ) : event.registrationUrl ? (
+                          "التسجيل"
+                        ) : (
+                          "المصدر"
+                        )}
                       </a>
                     )}
                   </div>

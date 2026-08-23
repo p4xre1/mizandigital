@@ -1,6 +1,8 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
+import docsData from "../../data/docs.json"
+import { supabase } from "../../lib/supabase/client"
 import {
   FolderDown,
   BookOpen,
@@ -18,156 +20,92 @@ import {
   Award,
   Layers,
   LayoutGrid,
-  List
+  List,
+  Loader2,
+  Scale
 } from "lucide-react"
 
 interface ArchivePageProps {
   initialSemester?: string
 }
 
-// Academic archive mock catalog for FSJES Law Faculties (S1 - S6)
-const ARCHIVE_CATALOG = [
-  {
-    id: "s1-droit-intro",
-    semester: "S1",
-    module: "المدخل لدراسة القانون",
-    title: "ملخص شامل ومبسط لنظرية الحق ونظرية القانون",
+interface ArchiveItem {
+  id: string
+  semester: string
+  module: string
+  title: string
+  type: string
+  branch: string
+  author: string
+  fileSize: string
+  fileFormat: string
+  downloads: number
+  downloadUrl: string
+  date?: string | null
+}
+
+// السداسي الخاص بالنصوص القانونية العامة (غير المرتبطة بفصل دراسي معيّن)
+const GENERAL_LAW_SEMESTER = "عام"
+
+function formatFileSize(bytes?: number | null): string {
+  if (!bytes) return "PDF"
+  const mb = bytes / (1024 * 1024)
+  return `${mb.toFixed(2)} MB`
+}
+
+// 1) مواد الفصول الدراسية المحلية (docs.json) — تُحدَّث يدوياً ضمن المستودع
+function normalizeLocalDoc(raw: any): ArchiveItem {
+  return {
+    id: `doc-${raw.id}`,
+    semester: raw.semester || "S1",
+    module: raw.module || "مادة دراسية",
+    title: raw.title,
     type: "ملخصات",
-    branch: "القانون العام والخاص",
-    author: "د. أستاذ المادة - كلية أكدال",
-    fileSize: "2.4 MB",
+    branch: raw.systemTag || "عام",
+    author: raw.professor || "منصة ميزان الرقمية",
+    fileSize: "PDF",
     fileFormat: "PDF",
-    downloads: 1420,
-    downloadUrl: "#",
-    date: "2026-01-10"
-  },
-  {
-    id: "s1-sharia-intro",
-    semester: "S1",
-    module: "المدخل لدراسة الشريعة الإسلامية",
-    title: "محاضرات الشريعة الإسلامية ومقاصد التشريع",
-    type: "محاضرات",
-    branch: "القانون العام والخاص",
-    author: "دليل الطالب القانوني",
-    fileSize: "1.8 MB",
-    fileFormat: "PDF",
-    downloads: 980,
-    downloadUrl: "#",
-    date: "2026-01-15"
-  },
-  {
-    id: "s2-obligations-1",
-    semester: "S2",
-    module: "نظرية الالتزامات والعقود",
-    title: "تلخيص مصادر الالتزام الإرادية وغير الإرادية",
-    type: "ملخصات",
-    branch: "القانون الخاص",
-    author: "شبكة الميزان الرقمية",
-    fileSize: "3.1 MB",
-    fileFormat: "PDF",
-    downloads: 2150,
-    downloadUrl: "#",
-    date: "2026-02-20"
-  },
-  {
-    id: "s2-penal-general",
-    semester: "S2",
-    module: "القانون الجنائي العام",
-    title: "نماذج امتحانات الجنائي العام مع عناصر الإجابة النموذجية",
-    type: "امتحانات",
-    branch: "القانون الخاص",
-    author: "كلية السويسي الرباط",
-    fileSize: "4.5 MB",
-    fileFormat: "PDF",
-    downloads: 1890,
-    downloadUrl: "#",
-    date: "2026-02-28"
-  },
-  {
-    id: "s3-commercial-law",
-    semester: "S3",
-    module: "القانون التجاري",
-    title: "محاضرات التاجر والأعمال التجارية والأصل التجاري",
-    type: "محاضرات",
-    branch: "القانون الخاص",
-    author: "د. عبد الرحيم السليماني",
-    fileSize: "2.9 MB",
-    fileFormat: "PDF",
-    downloads: 1640,
-    downloadUrl: "#",
-    date: "2026-03-12"
-  },
-  {
-    id: "s3-family-law",
-    semester: "S3",
-    module: "قانون الأسرة",
-    title: "دليل أحكام الزواج والطلاق والإنحلال في مدونة الأسرة",
-    type: "ملخصات",
-    branch: "القانون الخاص",
-    author: "الأرشيف القانوني",
-    fileSize: "1.9 MB",
-    fileFormat: "PDF",
-    downloads: 1320,
-    downloadUrl: "#",
-    date: "2026-03-18"
-  },
-  {
-    id: "s4-civil-proc",
-    semester: "S4",
-    module: "التنظيم القضائي والمسطرة المدنية",
-    title: "تلخيص التنظيم القضائي الجديد للمملكة والمساطر القضائية",
-    type: "ملخصات",
-    branch: "القانون الخاص",
-    author: "فريق الميزان",
-    fileSize: "3.8 MB",
-    fileFormat: "PDF",
-    downloads: 2800,
-    downloadUrl: "#",
-    date: "2026-04-05"
-  },
-  {
-    id: "s4-labor-law",
-    semester: "S4",
-    module: "قانون الشغل (مدونة الشغل 65.99)",
-    title: "نماذج امتحانات قانون الشغل وعقد الشغل الفردي",
-    type: "امتحانات",
-    branch: "القانون الخاص",
-    author: "كلية عين الشق الدار البيضاء",
-    fileSize: "2.1 MB",
-    fileFormat: "PDF",
-    downloads: 2410,
-    downloadUrl: "#",
-    date: "2026-04-14"
-  },
-  {
-    id: "s5-real-estate",
-    semester: "S5",
-    module: "الحقوق العينية والتحفيظ العقاري",
-    title: "محاضرات التحفيظ العقاري والحقوق العينية الأصلية والتبعية",
-    type: "محاضرات",
-    branch: "القانون الخاص",
-    author: "د. الأستاذ المحاضر",
-    fileSize: "4.1 MB",
-    fileFormat: "PDF",
-    downloads: 1750,
-    downloadUrl: "#",
-    date: "2026-05-02"
-  },
-  {
-    id: "s6-penal-proc",
-    semester: "S6",
-    module: "المسطرة الجنائية وصعوبات المقاولة",
-    title: "دليل البحث العلمي والتخرج في القانون الخاص",
-    type: "بحوث",
-    branch: "القانون الخاص",
-    author: "مجموعة الباحثين القانونيين",
-    fileSize: "5.2 MB",
-    fileFormat: "PDF",
-    downloads: 1120,
-    downloadUrl: "#",
-    date: "2026-05-20"
+    downloads: 0,
+    downloadUrl: raw.fileUrl || "#",
+    date: raw.updatedAt || null,
   }
-]
+}
+
+// 2) مستندات الفصول الدراسية المرفوعة من لوحة التحكم (جدول pdf_summaries)
+function normalizePdfSummary(raw: any): ArchiveItem {
+  return {
+    id: `pdf-${raw.id}`,
+    semester: raw.semester || "S1",
+    module: raw.faculty?.name || "مادة دراسية",
+    title: raw.title,
+    type: "ملخصات",
+    branch: raw.faculty?.name || "عام",
+    author: raw.professor || "منصة ميزان الرقمية",
+    fileSize: formatFileSize(raw.file_size_bytes),
+    fileFormat: "PDF",
+    downloads: raw.download_count || 0,
+    downloadUrl: raw.file_url,
+    date: raw.created_at || null,
+  }
+}
+
+// 3) النصوص القانونية العامة المضافة من لوحة التحكم (جدول laws) — غير مرتبطة بفصل دراسي
+function normalizeLaw(raw: any): ArchiveItem {
+  return {
+    id: `law-${raw.id}`,
+    semester: GENERAL_LAW_SEMESTER,
+    module: raw.law_number ? `القانون رقم ${raw.law_number}` : "نص تشريعي",
+    title: raw.title,
+    type: "نصوص قانونية",
+    branch: raw.category?.name_ar || raw.category?.name || "عام",
+    author: raw.official_gazette_number ? `الجريدة الرسمية عدد ${raw.official_gazette_number}` : "منصة ميزان الرقمية",
+    fileSize: "PDF",
+    fileFormat: "PDF",
+    downloads: 0,
+    downloadUrl: raw.pdf_url || "#",
+    date: raw.publication_date || null,
+  }
+}
 
 const SEMESTERS = [
   { id: "all", label: "جميع الفصول" },
@@ -176,10 +114,11 @@ const SEMESTERS = [
   { id: "S3", label: "الفصل S3" },
   { id: "S4", label: "الفصل S4" },
   { id: "S5", label: "الفصل S5" },
-  { id: "S6", label: "الفصل S6" }
+  { id: "S6", label: "الفصل S6" },
+  { id: GENERAL_LAW_SEMESTER, label: "قوانين ونصوص عامة" }
 ]
 
-const RESOURCE_TYPES = ["الكل", "ملخصات", "محاضرات", "امتحانات", "بحوث"]
+const RESOURCE_TYPES = ["الكل", "ملخصات", "محاضرات", "امتحانات", "بحوث", "نصوص قانونية"]
 
 export function ArchivePage({ initialSemester }: ArchivePageProps) {
   const params = useParams<{ semester?: string }>()
@@ -188,13 +127,52 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
   const [selectedSemester, setSelectedSemester] = useState<string>(activeSemesterParam)
   const [selectedType, setSelectedType] = useState<string>("الكل")
   const [searchQuery, setSearchQuery] = useState<string>("")
-  
+  const [cmsDocs, setCmsDocs] = useState<ArchiveItem[]>([])
+  const [cmsLaws, setCmsLaws] = useState<ArchiveItem[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+
+  // جلب مستندات الفصول الدراسية والنصوص القانونية المضافة من لوحة التحكم (CMS)
+  useEffect(() => {
+    const fetchArchiveData = async () => {
+      try {
+        const [pdfRes, lawsRes] = await Promise.all([
+          supabase
+            .from("pdf_summaries")
+            .select("*, faculty:faculties(id, name, city, slug)")
+            .order("created_at", { ascending: false }),
+          (supabase as any)
+            .from("laws")
+            .select("*, category:categories(id, name_ar, name_fr, slug)")
+            .order("created_at", { ascending: false }),
+        ])
+
+        if (pdfRes.data) setCmsDocs(pdfRes.data.map(normalizePdfSummary))
+        if (lawsRes.data) setCmsLaws(lawsRes.data.map(normalizeLaw))
+        if (lawsRes.error) {
+          // جدول "laws" قد لا يكون قد أُنشئ بعد على قاعدة البيانات، لا نعتبره خطأ حرجاً
+          console.warn("تعذر جلب النصوص القانونية العامة (تحقق من وجود جدول laws):", lawsRes.error)
+        }
+      } catch (err) {
+        console.error("خطأ أثناء جلب بيانات الأرشيف من لوحة التحكم:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchArchiveData()
+  }, [])
+
+  // دمج جميع مصادر الأرشيف: الملفات المحلية (docs.json) + مستندات لوحة التحكم + القوانين العامة
+  const fullCatalog = useMemo<ArchiveItem[]>(() => {
+    const localDocs = (docsData as any[]).map(normalizeLocalDoc)
+    return [...cmsDocs, ...localDocs, ...cmsLaws]
+  }, [cmsDocs, cmsLaws])
+
   // File Explorer view mode state ('grid' or 'list')
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   // Filter items based on Semester, Resource Type, and Search Query
   const filteredCatalog = useMemo(() => {
-    return ARCHIVE_CATALOG.filter((item) => {
+    return fullCatalog.filter((item) => {
       // Semester Filter
       if (selectedSemester !== "all" && item.semester !== selectedSemester) {
         return false
@@ -216,7 +194,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
         item.author.toLowerCase().includes(query)
       )
     })
-  }, [selectedSemester, selectedType, searchQuery])
+  }, [fullCatalog, selectedSemester, selectedType, searchQuery])
 
   // Schema.org Structured Data for Archive Collection
   const archiveSchema = {
@@ -367,7 +345,11 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
           </div>
 
           {/* Catalog Container (Adapts dynamically to Grid or List view) */}
-          {filteredCatalog.length > 0 ? (
+          {loading ? (
+            <div className="flex h-40 items-center justify-center">
+              <Loader2 className="size-8 animate-spin text-primary" />
+            </div>
+          ) : filteredCatalog.length > 0 ? (
             <div
               className={
                 viewMode === "grid"

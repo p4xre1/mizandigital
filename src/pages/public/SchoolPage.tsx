@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { NotFound } from "./NotFound"
 import schoolsData from "../../data/schools.json"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { supabase } from "../../lib/supabase/client"
 import {
   GraduationCap,
   MapPin,
@@ -14,7 +16,8 @@ import {
   Share2,
   Link as LinkIcon,
   Navigation,
-  Calendar
+  Calendar,
+  Loader2
 } from "lucide-react"
 
 interface SchoolPageProps {
@@ -22,14 +25,65 @@ interface SchoolPageProps {
   id?: string
 }
 
+// يحوّل سجل كلية قادم من جدول "faculties" في Supabase إلى نفس الشكل المستخدم في schools.json
+function normalizeFaculty(raw: any) {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    name: raw.name,
+    city: raw.city,
+    logoUrl: raw.logo_url || null,
+    foundedYear: raw.founded_year || null,
+    description: raw.description || null,
+  }
+}
+
 export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
   const targetQuery = propSlug || propId || params.slug || params.id
 
-  const school: any = schoolsData.find((item: any) => {
+  const localSchool: any = schoolsData.find((item: any) => {
     const schoolName = item.name || item.name_ar || ""
-    return item.id === targetQuery || generateSlug(schoolName) === targetQuery
+    return item.id === targetQuery || item.slug === targetQuery || generateSlug(schoolName) === targetQuery
   })
+
+  const [cmsSchool, setCmsSchool] = useState<any | null>(null)
+  const [loading, setLoading] = useState<boolean>(!localSchool)
+
+  // إذا لم تُوجد الكلية في الدليل المحلي، نبحث عنها ضمن الكليات المضافة من لوحة التحكم
+  useEffect(() => {
+    if (localSchool || !targetQuery) {
+      setLoading(false)
+      return
+    }
+    const fetchFaculty = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("faculties")
+          .select("*")
+          .or(`slug.eq.${targetQuery},id.eq.${targetQuery}`)
+          .maybeSingle()
+
+        if (error) throw error
+        if (data) setCmsSchool(normalizeFaculty(data))
+      } catch (err) {
+        console.error("خطأ في جلب بيانات الكلية من لوحة التحكم:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFaculty()
+  }, [localSchool, targetQuery])
+
+  const school: any = localSchool || cmsSchool
+
+  if (loading) {
+    return (
+      <main className="container mx-auto flex h-[50vh] max-w-4xl items-center justify-center px-4">
+        <Loader2 className="size-8 animate-spin text-primary" />
+      </main>
+    )
+  }
 
   if (!school) {
     return <NotFound />

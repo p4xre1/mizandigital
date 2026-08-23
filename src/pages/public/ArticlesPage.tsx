@@ -146,7 +146,7 @@ export function ArticlesPage() {
         schema={[listSchema, breadcrumbSchema]}
       />
 
-      <main className="container mx-auto max-w-6xl px-4 py-8 md:py-10" dir="rtl">
+      <main className="container mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 md:py-10 lg:px-10" dir="rtl">
         {/* Header Section */}
         <header className="mb-6 md:mb-8 text-center md:text-right">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
@@ -216,7 +216,7 @@ export function ArticlesPage() {
             <Loader2 className="size-8 animate-spin text-primary" />
           </div>
         ) : filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
             {filteredItems.map((item) => {
               const formattedDate = item.date
                 ? new Date(item.date).toLocaleDateString("ar-MA", {

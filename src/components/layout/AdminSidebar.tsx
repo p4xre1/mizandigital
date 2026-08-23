@@ -47,6 +47,7 @@ export default function AdminSidebar({
     { label: "القاموس القانوني", path: "/admin/lexicon", icon: Tags },
     { label: "الندوات والبثوث", path: "/admin/seminars", icon: Video },
     { label: "الكليات والمؤسسات", path: "/admin/faculties", icon: Users },
+    { label: "الأرشيف القانوني", path: "/admin/laws", icon: Scale },
     { label: "الإعدادات", path: "/admin/settings", icon: Settings },
   ]
 

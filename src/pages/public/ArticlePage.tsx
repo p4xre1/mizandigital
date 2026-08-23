@@ -5,6 +5,7 @@ import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import localNewsData from "../../data/news.json"
+import { rankRelatedItems } from "../../lib/utils/recommend"
 import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
 import { ArticleContent } from "../../components/articles/ArticleContent"
 import { ViewCounter } from "../../components/articles/ViewCounter"
@@ -242,7 +243,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       setArticle(currentArticleData)
 
       if (currentArticleData) {
-        await fetchRelated(targetSlug, currentArticleData.category);
+        await fetchRelated(currentArticleData);
       }
     } catch (err) {
       console.error("خطأ في جلب تفاصيل المقال:", err)
@@ -252,14 +253,18 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
     }
   }
 
-  const fetchRelated = async (currentSlug: string, currentCategory?: string) => {
+  const fetchRelated = async (current: ArticleDetail) => {
     try {
       let supabaseList: RelatedArticle[] = [];
+      // نجلب مجموعة أوسع من المقالات (وليس 3 فقط) لتتمكن الخوارزمية من
+      // المفاضلة الفعلية بينها قبل اختيار الأقرب صلة بالمقال الحالي
       const { data } = await supabase
         .from("articles")
         .select("id, title, slug, excerpt, published_at, created_at, category:categories(name)")
-        .neq("slug", currentSlug)
-        .limit(3);
+        .eq("status", "published")
+        .neq("slug", current.slug)
+        .order("published_at", { ascending: false })
+        .limit(30);
 
       if (data) {
         supabaseList = data.map((item: any) => ({
@@ -273,7 +278,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       }
 
       const localList: RelatedArticle[] = (articlesData as any[])
-        .filter((item) => item.slug !== currentSlug)
+        .filter((item) => item.slug !== current.slug)
         .map((item) => ({
           id: item.id,
           title: item.title,
@@ -287,11 +292,15 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
         new Map([...localList, ...supabaseList].map((item) => [item.slug, item])).values()
       );
 
-      const filtered = currentCategory 
-        ? combined.sort((a, b) => (a.category === currentCategory ? -1 : 1))
-        : combined;
+      // خوارزمية اقتراح: ترتيب المقالات حسب تطابق التصنيف وتشابه الكلمات
+      // المفتاحية مع عنوان/ملخص المقال الحالي (انظر lib/utils/recommend.ts)
+      const ranked = rankRelatedItems(
+        { id: current.id, slug: current.slug, title: current.title, text: current.summary, category: current.category },
+        combined.map((item) => ({ ...item, text: item.summary })),
+        3
+      )
 
-      setRelatedArticles(filtered.slice(0, 3));
+      setRelatedArticles(ranked);
     } catch (e) {
       console.error("خطأ في جلب المقالات المقترحة:", e);
     }

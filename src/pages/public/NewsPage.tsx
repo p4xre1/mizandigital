@@ -171,7 +171,7 @@ export function NewsPage() {
         schema={listSchema}
       />
 
-      <main className="container mx-auto max-w-6xl px-4 py-8 md:py-10" dir="rtl">
+      <main className="container mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 md:py-10 lg:px-10" dir="rtl">
         {/* Header Section */}
         <header className="mb-6 md:mb-8 text-center md:text-right">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
@@ -278,7 +278,7 @@ export function NewsPage() {
           <div
             className={
               viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
                 : "flex flex-col space-y-3"
             }
           >

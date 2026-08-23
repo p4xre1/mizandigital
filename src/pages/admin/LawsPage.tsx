@@ -15,10 +15,12 @@ import {
   ExternalLink,
   Tag,
   BookOpen,
+  UploadCloud,
 } from "lucide-react"
 import AdminLayout from "../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../components/ui/EmptyState"
+import { PdfDropzone } from "../../components/features/PdfDropzone"
 import { supabase } from "../../lib/supabase/client"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import type { Category } from "../../types/cms"
@@ -35,6 +37,25 @@ export interface Law {
   category_id?: string
   created_at?: string
   category?: Category
+}
+
+// يرفع ملف الـ PDF إلى نفس مستودع Supabase Storage المستخدم في مكتبة الوثائق (bucket: documents)
+async function uploadLawFile(file: File): Promise<string> {
+  const fileExt = file.name.split(".").pop()
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+  const filePath = `laws/${fileName}`
+
+  const { error: uploadError } = await supabase.storage
+    .from("documents")
+    .upload(filePath, file, { cacheControl: "3600", upsert: false })
+
+  if (uploadError) {
+    console.error("خطأ أثناء رفع ملف القانون إلى Supabase Storage:", uploadError)
+    throw uploadError
+  }
+
+  const { data } = supabase.storage.from("documents").getPublicUrl(filePath)
+  return data.publicUrl
 }
 
 interface LawsPageProps {
@@ -70,6 +91,11 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
   const [pdfUrl, setPdfUrl] = useState<string>("")
   const [slug, setSlug] = useState<string>("")
   const [categoryId, setCategoryId] = useState<string>("")
+
+  // مصدر ملف الـ PDF: رفع ملف مباشرة إلى المستودع، أو لصق رابط خارجي جاهز
+  const [pdfSource, setPdfSource] = useState<"upload" | "link">("link")
+  const [pdfFile, setPdfFile] = useState<File | null>(null)
+  const [uploadingFile, setUploadingFile] = useState<boolean>(false)
 
   useEffect(() => {
     fetchInitialData()
@@ -109,6 +135,8 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     setPdfUrl("")
     setSlug("")
     setCategoryId("")
+    setPdfSource("link")
+    setPdfFile(null)
     setFormModalOpen(true)
   }
 
@@ -123,6 +151,8 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     setPdfUrl(law.pdf_url || "")
     setSlug(law.slug)
     setCategoryId(law.category_id || "")
+    setPdfSource("link")
+    setPdfFile(null)
     setFormModalOpen(true)
   }
 
@@ -132,23 +162,35 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
       setFormError("يرجى إدخال عنوان القانون.")
       return
     }
+    if (pdfSource === "upload" && !pdfFile && !editingLaw?.pdf_url) {
+      setFormError("يرجى اختيار ملف PDF لرفعه.")
+      return
+    }
 
     setSaving(true)
     setFormError(null)
     const finalSlug = slug.trim() || generateSlug(title)
 
-    const payload: Record<string, any> = {
-      title: title.trim(),
-      law_number: lawNumber.trim() || null,
-      description: description.trim() || null,
-      official_gazette_number: officialGazetteNumber.trim() || null,
-      publication_date: publicationDate || null,
-      pdf_url: pdfUrl.trim() || null,
-      slug: finalSlug,
-      category_id: categoryId || null,
-    }
-
     try {
+      // إذا اختار المستخدم رفع ملف جديد، نرفعه أولاً ونستخدم رابطه العام
+      let finalPdfUrl = pdfUrl.trim() || null
+      if (pdfSource === "upload" && pdfFile) {
+        setUploadingFile(true)
+        finalPdfUrl = await uploadLawFile(pdfFile)
+        setUploadingFile(false)
+      }
+
+      const payload: Record<string, any> = {
+        title: title.trim(),
+        law_number: lawNumber.trim() || null,
+        description: description.trim() || null,
+        official_gazette_number: officialGazetteNumber.trim() || null,
+        publication_date: publicationDate || null,
+        pdf_url: finalPdfUrl,
+        slug: finalSlug,
+        category_id: categoryId || null,
+      }
+
       if (editingLaw) {
         const { error } = await (supabase as any)
           .from("laws")
@@ -171,6 +213,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
       setFormError(err?.message || "حدث خطأ غير متوقع أثناء حفظ النص التشريعي.")
     } finally {
       setSaving(false)
+      setUploadingFile(false)
     }
   }
 
@@ -536,16 +579,57 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-foreground">رابط ملف الـ PDF (اختياري)</label>
-                  <input
-                    type="url"
-                    value={pdfUrl}
-                    onChange={(e) => setPdfUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-left font-mono text-xs text-foreground outline-none transition focus:border-primary"
-                    dir="ltr"
-                  />
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">ملف الـ PDF (اختياري)</label>
+                  <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/40 p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPdfSource("link")}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                        pdfSource === "link"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <ExternalLink className="size-3.5" />
+                      رابط PDF خارجي
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPdfSource("upload")}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                        pdfSource === "upload"
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <UploadCloud className="size-3.5" />
+                      رفع ملف PDF
+                    </button>
+                  </div>
+
+                  {pdfSource === "link" ? (
+                    <input
+                      type="url"
+                      value={pdfUrl}
+                      onChange={(e) => setPdfUrl(e.target.value)}
+                      placeholder="https://..."
+                      className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-left font-mono text-xs text-foreground outline-none transition focus:border-primary"
+                      dir="ltr"
+                    />
+                  ) : (
+                    <div className="space-y-1.5">
+                      <PdfDropzone file={pdfFile} onFileSelect={(file) => setPdfFile(file)} />
+                      {editingLaw?.pdf_url && !pdfFile && (
+                        <p className="text-[11px] text-muted-foreground">
+                          يوجد ملف مرفوع حالياً؛ اختر ملفاً جديداً هنا لاستبداله، أو اترك الحقل فارغاً للإبقاء عليه.
+                        </p>
+                      )}
+                      {uploadingFile && (
+                        <p className="text-[11px] font-semibold text-primary">جاري رفع الملف...</p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-1">
@@ -571,17 +655,16 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                   </button>
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saving || uploadingFile}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:brightness-110 active:scale-95 disabled:opacity-50"
                   >
-                    {saving ? (
+                    {saving || uploadingFile ? (
                       <Loader2 className="size-3.5 animate-spin" />
                     ) : (
                       <Check className="size-3.5" />
                     )}
                     <span>حفظ النص التشريعي</span>
-                  </button>
-                </div>
+                  </button>                </div>
               </form>
             </div>
           </div>

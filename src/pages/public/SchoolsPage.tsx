@@ -1,27 +1,73 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import schoolsData from "../../data/schools.json"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
-import { Search, MapPin, Building2, ExternalLink, ArrowLeft, GraduationCap } from "lucide-react"
+import { supabase } from "../../lib/supabase/client"
+import { Search, MapPin, Building2, ExternalLink, ArrowLeft, GraduationCap, Loader2 } from "lucide-react"
+
+// يحوّل سجل كلية قادم من جدول "faculties" في Supabase إلى نفس الشكل
+// المستخدم في schools.json المحلي، لعرضهما معاً في نفس الصفحة/البطاقات.
+function normalizeFaculty(raw: any) {
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    name: raw.name,
+    city: raw.city,
+    logoUrl: raw.logo_url || null,
+    foundedYear: raw.founded_year || null,
+    description: raw.description || null,
+    websiteUrl: null,
+  }
+}
 
 export function SchoolsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCity, setSelectedCity] = useState("all")
+  const [cmsSchools, setCmsSchools] = useState<any[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+
+  // جلب الكليات المضافة من لوحة التحكم (CMS) ودمجها مع الدليل المحلي
+  useEffect(() => {
+    const fetchFaculties = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("faculties")
+          .select("*")
+          .order("created_at", { ascending: false })
+
+        if (error) throw error
+        if (data) setCmsSchools(data.map(normalizeFaculty))
+      } catch (err) {
+        console.error("خطأ في جلب الكليات من لوحة التحكم:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFaculties()
+  }, [])
+
+  // دمج كليات لوحة التحكم مع الدليل المحلي، مع إزالة التكرار بالأولوية لبيانات لوحة التحكم عند تطابق الـ slug
+  const allSchools = useMemo(() => {
+    const localSchools = schoolsData as any[]
+    return Array.from(
+      new Map([...localSchools, ...cmsSchools].map((s) => [s.slug || s.id, s])).values()
+    )
+  }, [cmsSchools])
 
   // Extract unique list of cities from schools dataset
   const cities = useMemo(() => {
     const set = new Set<string>()
-    schoolsData.forEach((s: any) => {
+    allSchools.forEach((s: any) => {
       if (s.city) set.add(s.city)
     })
     return Array.from(set)
-  }, [])
+  }, [allSchools])
 
   // Filter schools based on Arabic normalized search and city filter
   const filteredSchools = useMemo(() => {
-    return schoolsData.filter((school: any) => {
+    return allSchools.filter((school: any) => {
       const name = school.name || school.name_ar || ""
       const city = school.city || ""
       const description = school.description || ""
@@ -36,7 +82,7 @@ export function SchoolsPage() {
 
       return matchesSearch && matchesCity
     })
-  }, [searchQuery, selectedCity])
+  }, [allSchools, searchQuery, selectedCity])
 
   // ItemList Schema for Google Search Indexing
   const listSchema = {
@@ -108,7 +154,7 @@ export function SchoolsPage() {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              جميع المدن ({schoolsData.length})
+              جميع المدن ({allSchools.length})
             </button>
             {cities.map((city) => (
               <button
@@ -128,11 +174,15 @@ export function SchoolsPage() {
         </div>
 
         {/* Grid of Schools */}
-        {filteredSchools.length > 0 ? (
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <Loader2 className="size-8 animate-spin text-primary" />
+          </div>
+        ) : filteredSchools.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSchools.map((school: any) => {
               const schoolName = school.name || school.name_ar || ""
-              const schoolSlug = generateSlug(schoolName) || school.id
+              const schoolSlug = school.slug || generateSlug(schoolName) || school.id
               const website = school.websiteUrl || school.website
 
               return (
