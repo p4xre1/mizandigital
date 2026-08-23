@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import docsData from "../../data/docs.json"
 import { supabase } from "../../lib/supabase/client"
+import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import {
   FolderDown,
   BookOpen,
@@ -195,6 +196,27 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
       )
     })
   }, [fullCatalog, selectedSemester, selectedType, searchQuery])
+
+  // أداة WebMCP تجريبية: تتيح لوكيل ذكاء اصطناعي البحث في أرشيف الوثائق
+  // والملخصات الدراسية والنصوص القانونية مباشرة (Chrome 146+ خلف علم تجريبي)
+  useWebMCPTool({
+    name: "search_archive_documents",
+    description: "يبحث في أرشيف منصة الميزان الرقمية عن ملخصات دراسية أو نصوص قانونية عامة، مع إمكانية التصفية حسب الفصل الدراسي.",
+    properties: {
+      query: { type: "string", description: "كلمة أو عبارة للبحث في عناوين الوثائق" },
+      semester: {
+        type: "string",
+        description: "الفصل الدراسي المطلوب تصفية النتائج حسبه",
+        enum: ["all", "S1", "S2", "S3", "S4", "S5", "S6", GENERAL_LAW_SEMESTER],
+      },
+    },
+    required: ["query"],
+    execute: ({ query, semester }) => {
+      setSearchQuery(String(query || ""))
+      if (semester) setSelectedSemester(String(semester))
+      return { content: [{ type: "text", text: `تم تطبيق البحث عن: ${query}` }] }
+    },
+  })
 
   // Schema.org Structured Data for Archive Collection
   const archiveSchema = {

@@ -160,7 +160,7 @@ export function NewsPage() {
     <>
       <SEOHead
         title={pageTitle}
-        description="متابعة مستمرة لأهم المستجدات التشريعية، البلاغات الرسمية، وأخبار الجريدة الرسمية والمحاكم المغربية."
+        description="متابعة مستمرة لأهم المستجدات التشريعية والقضائية بالمغرب: البلاغات الرسمية، منشورات الجريدة الرسمية، وأخبار المحاكم والمؤسسات القانونية والأكاديمية."
         keywords={[
           "أخبار القانون المغربي",
           "الجريدة الرسمية",
@@ -296,12 +296,25 @@ export function NewsPage() {
               return (
                 <article
                   key={item.id}
-                  className={`group rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md ${
+                  className={`group rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md overflow-hidden ${
                     viewMode === "list"
                       ? "!flex !flex-row !items-center !justify-between !py-4 gap-4"
                       : "flex flex-col justify-between"
                   }`}
                 >
+                  {item.image_url && viewMode === "grid" && (
+                    <Link
+                      to={itemPath}
+                      className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
+                    >
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    </Link>
+                  )}
                   <div className={viewMode === "list" ? "space-y-1 flex-1" : "space-y-2"}>
                     {/* Top Metadata Badge */}
                     <div className="flex items-center gap-2 mb-2 text-xs flex-wrap">

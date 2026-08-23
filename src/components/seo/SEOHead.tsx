@@ -28,7 +28,11 @@ export function SEOHead({
   schema,
   noindex = false,
 }: SEOHeadProps) {
-  const fullTitle = `${title} | منصة الميزان الرقمية - القانون المغربي`
+  // لاحقة العلامة التجارية قصيرة عمداً (18 حرفاً فقط) حتى يبقى العنوان
+  // الكامل ضمن الحد الأمثل الذي يعرضه Google كاملاً (~60 حرفاً) لمعظم
+  // الصفحات. كانت اللاحقة السابقة (41 حرفاً) تجعل عناوين كثيرة تتجاوز 80
+  // حرفاً فتُقتطع في نتائج البحث.
+  const fullTitle = `${title} | الميزان الرقمية`
 
   const allKeywords = Array.from(
     new Set([...(DEFAULT_KEYWORDS || []), ...keywords])

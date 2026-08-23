@@ -24,6 +24,7 @@ interface ArticleItem {
   summary?: string | null
   category?: string | null
   date?: string | null
+  image?: string | null
 }
 
 // توحيد بيانات المقالات القادمة من جدول "articles" في Supabase مع ملف articles.json المحلي
@@ -35,6 +36,7 @@ function normalizeCmsArticle(raw: any): ArticleItem {
     summary: raw.excerpt || "",
     category: raw.category?.name || raw.category?.name_fr || null,
     date: raw.published_at || raw.created_at || null,
+    image: raw.cover_image || null,
   }
 }
 
@@ -46,6 +48,7 @@ function normalizeLocalArticle(raw: any): ArticleItem {
     summary: raw.excerpt || raw.summary || "",
     category: raw.category || null,
     date: raw.publishedAt || raw.date || null,
+    image: raw.image || raw.coverImage || null,
   }
 }
 
@@ -67,7 +70,7 @@ export function ArticlesPage() {
       // مقالات لوحة التحكم المنشورة فقط (status = published)، مع اسم التصنيف عبر join
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, slug, excerpt, published_at, created_at, category:categories(name, name_fr)")
+        .select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name, name_fr)")
         .eq("status", "published")
         .order("published_at", { ascending: false })
 
@@ -107,7 +110,7 @@ export function ArticlesPage() {
 
   const pageTitle = "المقالات والدراسات القانونية"
   const pageDescription =
-    "مقالات ودراسات تحليلية معمّقة في مختلف فروع القانون المغربي، بأسلوب منهجي موجه لطلبة كليات الحقوق."
+    "تصفح مقالات ودراسات تحليلية معمّقة في مختلف فروع القانون المغربي (المدني، التجاري، الجنائي، الشغل...)، بأسلوب منهجي واضح موجه لطلبة كليات الحقوق والباحثين."
 
   const listSchema = {
     "@context": "https://schema.org",
@@ -229,8 +232,21 @@ export function ArticlesPage() {
               return (
                 <article
                   key={item.id}
-                  className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
+                  className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md overflow-hidden"
                 >
+                  {item.image && (
+                    <Link
+                      to={`/articles/${item.slug}`}
+                      className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    </Link>
+                  )}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 mb-2 text-xs flex-wrap">
                       {item.category && (

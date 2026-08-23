@@ -17,7 +17,7 @@ export function PrivacyPolicyPage() {
     <>
       <SEOHead
         title="سياسة الخصوصية"
-        description="كيف تجمع منصة الميزان الرقمية بياناتك وتستخدمها وتحميها، بما في ذلك استخدام Google Analytics."
+        description="تعرّف على سياسة الخصوصية في منصة الميزان الرقمية: كيف نجمع بياناتك ونستخدمها ونحميها، بما في ذلك استخدام أدوات مثل Google Analytics وملفات تعريف الارتباط."
         schema={breadcrumbSchema}
       />
 

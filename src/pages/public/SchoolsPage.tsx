@@ -110,7 +110,7 @@ export function SchoolsPage() {
     <>
       <SEOHead
         title="دليل كليات الحقوق والجامعات المغربية"
-        description="دليل شامل لجميع كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب، والتخصصات الأكاديمية المتوفرة بكل مؤسسة."
+        description="دليل شامل لجميع كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب (FSJES)، مع التخصصات الأكاديمية المتوفرة والمعلومات العملية بكل مؤسسة وكل مدينة."
         keywords={["كليات الحقوق بالمغرب", "FSJES", "الجامعات المغربية", "دراسة القانون بالمغرب", ...cities]}
         schema={listSchema}
       />
@@ -192,9 +192,17 @@ export function SchoolsPage() {
                 >
                   <div>
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="rounded-lg bg-primary/10 p-2 text-primary">
-                        <Building2 size={24} />
-                      </div>
+                      {school.logoUrl ? (
+                        <img
+                          src={school.logoUrl}
+                          alt={schoolName}
+                          className="size-11 rounded-lg border border-border object-cover"
+                        />
+                      ) : (
+                        <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                          <Building2 size={24} />
+                        </div>
+                      )}
                       {school.city && (
                         <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                           <MapPin size={12} />

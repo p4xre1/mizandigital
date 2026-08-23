@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
+import { buildMetaDescription } from "../../lib/seo/description"
 import eventsData from "../../data/events.json"
 import { supabase } from "../../lib/supabase/client"
 import {
@@ -39,6 +40,7 @@ function normalizeSeminar(raw: any) {
     category: "ندوة قانونية",
     registrationUrl: raw.video_url || null,
     sourceUrl: raw.attachment_url || null,
+    image: raw.image_url || null,
     isSeminar: true,
   }
 }
@@ -95,8 +97,9 @@ export function EventPage({ slug }: EventPageProps) {
     return (
       <>
         <SEOHead
-          title="الفعالية غير موجودة - منصة الميزان"
-          description="عذراً، لم يتم العثور على الفعالية المطلوبة في الأرشيف الأكاديمي."
+          title="الفعالية غير موجودة"
+          description="عذراً، لم يتم العثور على هذه الفعالية أو الندوة في الأرشيف الأكاديمي لمنصة الميزان الرقمية. قد تكون غير منشورة بعد أو تم حذفها أو تغيير رابطها."
+          noindex
         />
         <main className="container mx-auto max-w-4xl px-4 py-20 text-center" dir="rtl">
           <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border bg-card p-8">
@@ -159,7 +162,10 @@ export function EventPage({ slug }: EventPageProps) {
     <>
       <SEOHead
         title={`${event.title} - الندوات والأيام الدراسية`}
-        description={description || `تفاصيل وبرنامج الندوة العلمية: ${event.title}`}
+        description={buildMetaDescription(description, [
+          `تفاصيل وبرنامج فعالية "${event.title}"`,
+          "ندوات وأيام دراسية قانونية موثّقة ضمن الأرشيف الأكاديمي لمنصة الميزان الرقمية، مع روابط المشاهدة والوثائق المرافقة.",
+        ])}
         keywords={[
           event.title,
           event.category || "ندوة قانونية",

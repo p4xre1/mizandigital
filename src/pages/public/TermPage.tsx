@@ -9,6 +9,7 @@ import type { LegalSource } from "../../types/cms"
 import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
 import { supabase } from "../../lib/supabase/client"
 import { rankRelatedItems } from "../../lib/utils/recommend"
+import { buildMetaDescription } from "../../lib/seo/description"
 
 interface TermPageProps {
   slug?: string
@@ -154,7 +155,10 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     <>
       <SEOHead
         title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr || ""})`}
-        description={term.definition ? term.definition.slice(0, 160) : ""}
+        description={buildMetaDescription(term.definition, [
+          term.term_fr ? `Terme juridique: ${term.term_fr}` : null,
+          `تعريف مصطلح "${term.term_ar}" ضمن المعجم القانوني المغربي على منصة الميزان الرقمية، مع الشجرة القانونية الرابطة بالقوانين والفصول ذات الصلة.`,
+        ])}
         ogType="article"
         keywords={[
           term.term_ar,

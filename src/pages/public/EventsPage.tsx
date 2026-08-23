@@ -34,6 +34,7 @@ function normalizeSeminar(raw: any) {
     category: "ندوة قانونية",
     registrationUrl: raw.video_url || null,
     attachmentUrl: raw.attachment_url || null,
+    image: raw.image_url || null,
     isSeminar: true,
   }
 }
@@ -147,8 +148,8 @@ export function EventsPage() {
   return (
     <>
       <SEOHead
-        title="الندوات والفعاليات الأكاديمية القانونية بالمغرب"
-        description="دليل الندوات العلمية، الأيام الدراسية، والمؤتمرات القانونية في مختلف كليات الحقوق والجامعات المغربية."
+        title="الندوات والفعاليات القانونية بالمغرب"
+        description="دليل الندوات العلمية والأيام الدراسية والمؤتمرات القانونية المنظَّمة في مختلف كليات الحقوق والجامعات المغربية، مع روابط المشاهدة والوثائق المرافقة."
         keywords={[
           "ندوات قانونية بالمغرب",
           "مؤتمرات كليات الحقوق",

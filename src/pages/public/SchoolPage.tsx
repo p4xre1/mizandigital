@@ -4,6 +4,7 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import { NotFound } from "./NotFound"
 import schoolsData from "../../data/schools.json"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import {
   GraduationCap,
@@ -116,11 +117,10 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
     <>
       <SEOHead
         title={`${schoolName} - دليل كليات الحقوق بالمغرب`}
-        description={
-          school.description || school.synopsis
-            ? (school.description || school.synopsis).slice(0, 160)
-            : `تعرف على المسالك القانونية وبرامج الماستر والدكتوراة بـ ${schoolName}.`
-        }
+        description={buildMetaDescription(school.description || school.synopsis, [
+          `كلية ${schoolName}${school.city ? ` بمدينة ${school.city}` : ""}`,
+          "تعرّف على المسالك القانونية وبرامج الإجازة والماستر والدكتوراة ومعلومات التواصل ضمن دليل كليات الحقوق بالمغرب.",
+        ])}
         ogType="website"
         keywords={[
           schoolName,

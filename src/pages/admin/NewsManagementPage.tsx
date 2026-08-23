@@ -20,6 +20,8 @@ import {
 import AdminLayout from "../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../components/ui/EmptyState"
+import SeoAuditWidget from "../../components/features/SeoAuditWidget"
+import KeywordSuggestions from "../../components/features/KeywordSuggestions"
 import { supabase } from "../../lib/supabase/client"
 import { generateSlug } from "../../lib/utils/generateSlug"
 
@@ -35,6 +37,9 @@ export interface NewsItem {
   published_at?: string
   created_at?: string
   slug: string
+  target_keyword?: string
+  meta_title?: string
+  meta_description?: string
 }
 
 interface NewsManagementPageProps {
@@ -70,6 +75,10 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
   const [isPublished, setIsPublished] = useState<boolean>(true)
   const [publishedAt, setPublishedAt] = useState<string>("")
   const [slug, setSlug] = useState<string>("")
+  const [targetKeyword, setTargetKeyword] = useState<string>("")
+  const [metaTitle, setMetaTitle] = useState<string>("")
+  const [metaDescription, setMetaDescription] = useState<string>("")
+  const [showSeoTools, setShowSeoTools] = useState<boolean>(false)
 
   useEffect(() => {
     fetchNews()
@@ -104,6 +113,10 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     setIsPublished(true)
     setPublishedAt(new Date().toISOString().split("T")[0])
     setSlug("")
+    setTargetKeyword("")
+    setMetaTitle("")
+    setMetaDescription("")
+    setShowSeoTools(false)
     setFormModalOpen(true)
   }
 
@@ -119,6 +132,10 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     setIsPublished(item.is_published)
     setPublishedAt(item.published_at ? item.published_at.split("T")[0] : "")
     setSlug(item.slug)
+    setTargetKeyword(item.target_keyword || "")
+    setMetaTitle(item.meta_title || "")
+    setMetaDescription(item.meta_description || "")
+    setShowSeoTools(false)
     setFormModalOpen(true)
   }
 
@@ -127,6 +144,20 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     if (!title.trim()) {
       setFormError("يرجى إدخال عنوان الخبر.")
       return
+    }
+
+    // بوابة السيو قبل النشر: تنبيه بسيط (غير حاجب) إن كانت الحقول الأساسية ناقصة
+    if (isPublished) {
+      const missing: string[] = []
+      if (!targetKeyword.trim()) missing.push("الكلمة المفتاحية المستهدفة")
+      if (!(metaTitle || title).trim()) missing.push("عنوان السيو")
+      if (!(metaDescription || summary).trim()) missing.push("وصف السيو")
+      if (missing.length > 0) {
+        const proceed = window.confirm(
+          `تنبيه SEO: الحقول التالية غير مكتملة قبل النشر:\n- ${missing.join("\n- ")}\n\nهل تريد المتابعة والنشر رغم ذلك؟`
+        )
+        if (!proceed) return
+      }
     }
 
     setSaving(true)
@@ -143,6 +174,9 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
       is_published: isPublished,
       published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
       slug: finalSlug,
+      target_keyword: targetKeyword.trim() || null,
+      meta_title: metaTitle.trim() || title.trim(),
+      meta_description: metaDescription.trim() || summary.trim() || null,
     }
 
     try {
@@ -445,7 +479,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
             onClick={() => !saving && setFormModalOpen(false)}
           >
             <div
-              className="w-full max-w-lg space-y-4 rounded-2xl border border-border bg-card p-6 shadow-2xl transition-all"
+              className="max-h-[92vh] w-full max-w-lg space-y-4 overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-2xl transition-all sm:max-w-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between border-b border-border pb-3">
@@ -566,6 +600,68 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-left font-mono text-xs text-foreground outline-none transition focus:border-primary"
                     dir="ltr"
                   />
+                </div>
+
+                {/* أدوات السيو قبل النشر */}
+                <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowSeoTools((v) => !v)}
+                    className="flex w-full items-center justify-between text-xs font-extrabold text-foreground"
+                  >
+                    <span>أدوات السيو والنشر (SEO Injection)</span>
+                    <span className="text-[10px] font-bold text-primary">
+                      {showSeoTools ? "إخفاء" : "إظهار"}
+                    </span>
+                  </button>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-foreground">الكلمة المفتاحية المستهدفة</label>
+                      <input
+                        type="text"
+                        value={targetKeyword}
+                        onChange={(e) => setTargetKeyword(e.target.value)}
+                        placeholder="مثال: الجريدة الرسمية"
+                        className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-foreground">عنوان SEO</label>
+                      <input
+                        type="text"
+                        value={metaTitle}
+                        onChange={(e) => setMetaTitle(e.target.value)}
+                        placeholder={title || "عنوان الخبر لمحركات البحث"}
+                        className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-foreground">وصف SEO</label>
+                    <textarea
+                      value={metaDescription}
+                      onChange={(e) => setMetaDescription(e.target.value)}
+                      rows={2}
+                      placeholder={summary || "وصف الخبر الذي يتوافق مع معايير البحث..."}
+                      className="w-full rounded-xl border border-border bg-background p-2.5 text-xs text-foreground outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  {showSeoTools && (
+                    <div className="space-y-3 pt-1">
+                      <SeoAuditWidget
+                        title={metaTitle || title}
+                        description={metaDescription || summary}
+                        content={content}
+                        slug={slug}
+                        focusKeyword={targetKeyword}
+                        baseUrl="https://www.mizan.page/news"
+                      />
+                      <KeywordSuggestions onUseAsFocusKeyword={(kw) => setTargetKeyword(kw)} />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 pt-1">

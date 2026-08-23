@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useLocation, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
+import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import { Download, Loader2, ArrowRight, FileText, Clock, AlertCircle } from "lucide-react"
 
@@ -87,7 +88,11 @@ export function DownloadGatePage() {
   if (!target || !target.downloadUrl || target.downloadUrl === "#") {
     return (
       <>
-        <SEOHead title="الملف غير متاح - منصة الميزان" description="تعذّر العثور على الملف المطلوب." />
+        <SEOHead
+          title="الملف غير متاح"
+          description="تعذّر العثور على رابط تحميل صالح لهذا الملف ضمن أرشيف منصة الميزان الرقمية. قد يكون الملف غير متاح مؤقتاً أو تم نقله إلى قسم آخر من الأرشيف."
+          noindex
+        />
         <main className="container mx-auto max-w-xl px-4 py-20 text-center" dir="rtl">
           <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border bg-card p-8">
             <AlertCircle size={40} className="mx-auto text-muted-foreground mb-3" />
@@ -111,8 +116,11 @@ export function DownloadGatePage() {
   return (
     <>
       <SEOHead
-        title={`تحميل: ${target.title} - منصة الميزان`}
-        description={`تحميل ملف: ${target.title}`}
+        title={`تحميل: ${target.title}`}
+        description={buildMetaDescription(null, [
+          `حمّل مجاناً ملف "${target.title}" من أرشيف منصة الميزان الرقمية`,
+          "المرجع القانوني المخصص لطلبة كليات الحقوق بالمغرب، بما يضم ملخصات دراسية ونصوصاً قانونية محدَّثة باستمرار.",
+        ])}
       />
 
       <main className="container mx-auto max-w-2xl px-4 py-10" dir="rtl">

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
+import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import localNewsData from "../../data/news.json"
@@ -30,6 +31,7 @@ interface ArticleDetail {
   keywords?: string[]
   /** أي جدول ينتمي إليه هذا المحتوى في قاعدة البيانات — يُستخدم لعداد المشاهدات والتعليقات */
   sourceTable?: "articles" | "news"
+  image?: string | null
 }
 
 interface RelatedArticle {
@@ -149,6 +151,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           published_at,
           created_at,
           category_id,
+          cover_image,
           category:categories(name)
         `)
         .eq("slug", targetSlug)
@@ -173,6 +176,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           targetKeyword: data.target_keyword || undefined,
           keywords: data.target_keyword ? [data.target_keyword] : undefined,
           sourceTable: "articles",
+          image: (data as any).cover_image || null,
         }
       } else {
         const localMatch = (articlesData as any[]).find((item) => item.slug === targetSlug)
@@ -194,6 +198,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             targetKeyword: localMatch.targetKeyword || localMatch.keyword,
             keywords: localMatch.keywords || (localMatch.targetKeyword ? [localMatch.targetKeyword] : []),
             sourceTable: "articles",
+            image: localMatch.image || localMatch.coverImage || null,
           }
         }
       }
@@ -203,7 +208,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       if (!currentArticleData) {
         const { data: newsRow, error: newsError } = await (supabase as any)
           .from("news")
-          .select("id, title, slug, content, summary, source, published_at, created_at")
+          .select("id, title, slug, content, summary, source, image_url, published_at, created_at")
           .eq("slug", targetSlug)
           .maybeSingle()
 
@@ -218,6 +223,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             date: newsRow.published_at || newsRow.created_at || undefined,
             readingTime: "3 دقائق",
             sourceTable: "news",
+            image: newsRow.image_url || null,
           }
         } else {
           // الأخبار المحلية (news.json): الـ id يُستخدم كـ slug (كما في NewsPage.tsx)
@@ -235,6 +241,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
               date: localNewsMatch.date || undefined,
               readingTime: "3 دقائق",
               sourceTable: "news",
+              image: localNewsMatch.image || localNewsMatch.imageUrl || null,
             }
           }
         }
@@ -451,8 +458,11 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   return (
     <>
       <SEOHead
-        title={`${article.title} | الميزان الرقمية`}
-        description={article.summary || article.title}
+        title={article.title}
+        description={buildMetaDescription(article.summary, [
+          article.category ? `مقال ضمن قسم ${article.category}` : null,
+          "اطّلع على التفاصيل الكاملة على منصة الميزان الرقمية، المرجع القانوني الأول للطلبة والباحثين بالمغرب.",
+        ])}
         canonicalUrl={`${SITE_CONFIG.url}/articles/${article.slug}`}
         schema={[generateBreadcrumbSchema([{ name: "الرئيسية", url: "/" }, { name: "المقالات", url: "/articles" }, { name: article.title, url: `/articles/${article.slug}` }])]}
       />
@@ -595,6 +605,16 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
                 </div>
               )}
             </header>
+
+            {article.image && (
+              <div className="mb-8 -mt-2 overflow-hidden rounded-xl border border-border bg-muted">
+                <img
+                  src={article.image}
+                  alt={article.title}
+                  className="max-h-[420px] w-full object-cover"
+                />
+              </div>
+            )}
 
             {article.highlights && article.highlights.length > 0 && (
               <div className="mb-8 rounded-xl bg-primary/5 p-4 md:p-5 border border-primary/20">

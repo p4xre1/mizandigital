@@ -5,6 +5,7 @@ import { containsText } from "../../lib/utils/search"
 import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
 import localLexicon from "../../data/lexicon.json"
 import { supabase } from "../../lib/supabase/client"
+import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import {
   BookOpen,
   Search,
@@ -103,6 +104,21 @@ export function LexiconPage() {
     })
   }, [terms, searchQuery, selectedCategory])
 
+  // أداة WebMCP تجريبية: تتيح لوكيل ذكاء اصطناعي البحث في المعجم القانوني
+  // مباشرة (Chrome 146+ فقط، خلف علم تجريبي — لا تأثير على المتصفحات الأخرى)
+  useWebMCPTool({
+    name: "search_legal_terms",
+    description: "يبحث في المعجم القانوني لمنصة الميزان الرقمية عن مصطلح قانوني بالعربية أو الفرنسية ويُظهر النتائج المطابقة.",
+    properties: {
+      query: { type: "string", description: "كلمة أو عبارة للبحث عنها في المعجم القانوني" },
+    },
+    required: ["query"],
+    execute: ({ query }) => {
+      setSearchQuery(String(query || ""))
+      return { content: [{ type: "text", text: `تم تطبيق البحث عن: ${query}` }] }
+    },
+  })
+
   const handleCopyTerm = (id: string, ar: string, fr?: string) => {
     const textToCopy = fr ? `${ar} (${fr})` : ar
     navigator.clipboard.writeText(textToCopy)
@@ -128,8 +144,8 @@ export function LexiconPage() {
   return (
     <>
       <SEOHead
-        title="المعجم القانوني المغربي الشامل - عربي / فرنسي"
-        description="قاموس ومصطلحات مفاهيم القانون الإداري، المدني، الجنائي، والتجاري بالمغرب مع الشرح باللغتين العربية والفرنسية."
+        title="المعجم القانوني المغربي - عربي / فرنسي"
+        description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
         keywords={[
           "المعجم القانوني المغربي",
           "مصطلحات قانونية عربي فرنسي",
