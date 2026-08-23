@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
 import {
   Save,
   ArrowRight,
   Globe,
-  Image as ImageIcon,
+
   Loader2,
   Check,
   Tag,
@@ -15,7 +14,9 @@ import {
 import AdminLayout from "../../../components/layout/AdminLayout"
 import RichTextEditor from "../../../components/features/RichTextEditor"
 import SeoAuditWidget from "../../../components/features/SeoAuditWidget"
-import KeywordSuggestions from "../../../components/features/KeywordSuggestions"
+import { ImageUploadField } from "../../../components/admin/ImageUploadField"
+import { KeywordSuggestions } from "../../../components/features/KeywordSuggestions"
+import { computeQuickSeoScore } from "../../../lib/seo/quickAudit"
 import { generateSlug } from "../../../lib/utils/generateSlug"
 import { supabase } from "../../../lib/supabase/client"
 import type { ArticleStatus, Category, Faculty } from "../../../types/cms"
@@ -31,7 +32,6 @@ export default function ArticleEditorPage({
   onBack,
   onNavigate,
 }: ArticleEditorPageProps) {
-  const [searchParams] = useSearchParams()
   const [currentArticleId, setCurrentArticleId] = useState<string | undefined>(initialArticleId)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -67,18 +67,6 @@ export default function ArticleEditorPage({
       fetchArticle(currentArticleId)
     }
   }, [currentArticleId])
-
-  // تعبئة الكلمة المفتاحية تلقائياً عند القدوم من صفحة "الاتجاهات القانونية" (?keyword=...)
-  useEffect(() => {
-    if (!currentArticleId) {
-      const kwFromTrends = searchParams.get("keyword")
-      if (kwFromTrends) {
-        setTargetKeyword(kwFromTrends)
-        if (!title) handleTitleChange(kwFromTrends)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // تحديث الرابط التلقائي عند تغيير العنوان
   const handleTitleChange = (value: string) => {
@@ -142,19 +130,25 @@ export default function ArticleEditorPage({
 
   // حفظ المقال
   const handleSave = async (targetStatus?: ArticleStatus) => {
-    const finalStatusCheck = targetStatus || status
+    const finalStatus = targetStatus || status
 
-    // بوابة السيو قبل النشر: تنبيه بسيط (غير حاجب) إن كانت الحقول الأساسية ناقصة
-    if (finalStatusCheck === "published") {
-      const missing: string[] = []
-      if (!targetKeyword.trim()) missing.push("الكلمة المفتاحية المستهدفة")
-      if (!(metaTitle || title).trim()) missing.push("عنوان السيو")
-      if (!(metaDescription || excerpt).trim()) missing.push("وصف السيو")
-      if (missing.length > 0) {
-        const proceed = window.confirm(
-          `تنبيه SEO: الحقول التالية غير مكتملة قبل النشر:\n- ${missing.join("\n- ")}\n\nهل تريد المتابعة والنشر رغم ذلك؟`
+    // بوابة السيو قبل النشر: عند النشر الفعلي (وليس الحفظ كمسودة) نتحقق أولاً
+    // من نتيجة سريعة للسيو، وإن كانت ضعيفة نطلب تأكيداً صريحاً من المحرر
+    if (finalStatus === "published") {
+      const { score, issues } = computeQuickSeoScore({
+        title: metaTitle || title,
+        description: metaDescription || excerpt,
+        content,
+        focusKeyword: targetKeyword,
+      })
+
+      if (score < 60) {
+        const confirmed = window.confirm(
+          `تنبيه سيو قبل النشر: نتيجة هذا المقال ${score}/100 فقط.\n\n` +
+            issues.map((i) => `• ${i}`).join("\n") +
+            "\n\nهل تريد المتابعة والنشر رغم ذلك؟"
         )
-        if (!proceed) return
+        if (!confirmed) return
       }
     }
 
@@ -162,7 +156,6 @@ export default function ArticleEditorPage({
     setSuccessMsg("")
     setErrorMsg("")
 
-    const finalStatus = targetStatus || status
     const nowIso = new Date().toISOString()
 
     let newPublishedAt = publishedAt
@@ -397,16 +390,13 @@ export default function ArticleEditorPage({
               </div>
 
               {/* صورة الغلاف */}
-              <div className="space-y-1.5 pt-2 border-t border-border">
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                  <ImageIcon className="size-3.5" /> رابط صورة الغلاف (R2 / CDN)
-                </label>
-                <input
-                  type="text"
+              <div className="pt-2 border-t border-border">
+                <ImageUploadField
+                  label="صورة الغلاف"
                   value={coverImage}
-                  onChange={(e) => setCoverImage(e.target.value)}
-                  placeholder="https://cdn.mizan.page/images/..."
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+                  onChange={setCoverImage}
+                  folder="articles"
+                  helperText="تظهر أعلى المقال وفي بطاقته ضمن لائحة المقالات."
                 />
               </div>
             </div>
@@ -452,6 +442,13 @@ export default function ArticleEditorPage({
               </div>
             </div>
 
+            {/* أداة اقتراح الكلمات المفتاحية */}
+            <KeywordSuggestions
+              title={title}
+              content={content}
+              onSelectKeyword={setTargetKeyword}
+            />
+
             {/* أداة فحص وتدقيق السيو */}
             <SeoAuditWidget
               title={metaTitle || title}
@@ -459,14 +456,6 @@ export default function ArticleEditorPage({
               content={content}
               slug={slug}
               focusKeyword={targetKeyword}
-            />
-
-            {/* بنك اقتراح الكلمات المفتاحية */}
-            <KeywordSuggestions
-              onUseAsFocusKeyword={(kw) => setTargetKeyword(kw)}
-              onInsertKeyword={(kw) =>
-                setMetaDescription((prev) => (prev ? prev : `${excerpt || title} — ${kw}`.slice(0, 160)))
-              }
             />
           </div>
         </div>

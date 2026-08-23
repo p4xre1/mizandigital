@@ -1,181 +1,170 @@
 import { useMemo, useState } from "react"
-import { Search, Copy, Check, Plus, Sparkles, ListFilter } from "lucide-react"
-import { CATEGORY_KEYWORDS, DEFAULT_KEYWORDS, type KeywordCategory } from "../../lib/seo/keywords"
+import { Lightbulb, Copy, Check, Sparkles } from "lucide-react"
+import { normalizeArabic } from "../../lib/utils/search"
+import { CATEGORY_KEYWORDS, type KeywordCategory } from "../../lib/seo/keywords"
 
 interface KeywordSuggestionsProps {
-  /** يُستدعى عند الضغط على "استخدام" — لجعل الكلمة هي الكلمة المفتاحية المستهدفة */
-  onUseAsFocusKeyword?: (keyword: string) => void
-  /** يُستدعى عند الضغط على "إدراج" — لإضافة الكلمة إلى قائمة كلمات مفتاحية إضافية */
-  onInsertKeyword?: (keyword: string) => void
-  /** الكلمات المُدرجة مسبقاً (لتعطيل زر الإدراج المكرر) */
-  insertedKeywords?: string[]
+  title: string
+  content: string
+  onSelectKeyword?: (keyword: string) => void
 }
 
-const CATEGORY_LABELS: Record<KeywordCategory, string> = {
-  general: "عام / تشريع",
-  labor_law: "قانون الشغل",
-  data_protection: "حماية المعطيات",
-  consumer_protection: "حماية المستهلك",
-  academic_exams: "امتحانات ومباريات",
-  commercial_law: "القانون التجاري",
-  legal_dictionary: "المعجم القانوني",
-  educational_summaries: "ملخصات تعليمية",
-}
+const ARABIC_STOPWORDS = new Set([
+  "من", "الى", "إلى", "في", "على", "عن", "مع", "هذا", "هذه", "ذلك", "التي",
+  "الذي", "و", "أو", "او", "ثم", "كما", "قد", "لا", "لم", "لن", "ما", "هو",
+  "هي", "كل", "بين", "عند", "بعد", "قبل", "غير", "دون", "إذا", "اذا", "كان",
+  "كانت", "يكون", "أن", "ان", "إن", "التي", "الذين", "كانوا", "يجب", "حيث",
+])
 
-function cn(...classes: (string | boolean | undefined | null)[]) {
-  return classes.filter(Boolean).join(" ")
-}
+// يستخرج أكثر العبارات (كلمتين إلى ثلاث كلمات) تكراراً في النص — مرشّحة
+// لتكون كلمات مفتاحية طبيعية لأنها تعكس فعلياً ما يتحدث عنه المقال
+function extractPhraseSuggestions(text: string, limit: number = 8): { phrase: string; count: number }[] {
+  const cleaned = text
+    .replace(/[#*_>`\[\]()]/g, " ")
+    .replace(/[^\u0600-\u06FF\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 
-/**
- * أداة اقتراح وحقن الكلمات المفتاحية (Keyword Research Tool)
- * تعتمد على بنك الكلمات المفتاحية القانونية المغربية المصنّف مسبقاً
- * في src/lib/seo/keywords.ts — بدون أي استدعاء خارجي، تعمل فوراً وبدون تكلفة.
- */
-export default function KeywordSuggestions({
-  onUseAsFocusKeyword,
-  onInsertKeyword,
-  insertedKeywords = [],
-}: KeywordSuggestionsProps) {
-  const [query, setQuery] = useState("")
-  const [activeCategory, setActiveCategory] = useState<KeywordCategory | "all">("all")
-  const [copiedKw, setCopiedKw] = useState<string | null>(null)
+  const words = cleaned.split(" ").filter((w) => w.length >= 2 && !ARABIC_STOPWORDS.has(normalizeArabic(w)))
 
-  const allEntries = useMemo(() => {
-    const entries: { keyword: string; category: KeywordCategory | "general" }[] = []
-    DEFAULT_KEYWORDS.forEach((kw) => entries.push({ keyword: kw, category: "general" }))
-    ;(Object.keys(CATEGORY_KEYWORDS) as KeywordCategory[]).forEach((cat) => {
-      CATEGORY_KEYWORDS[cat].forEach((kw) => entries.push({ keyword: kw, category: cat }))
-    })
-    // إزالة التكرار
-    const seen = new Set<string>()
-    return entries.filter((e) => {
-      const key = e.keyword.toLowerCase()
-      if (seen.has(key)) return false
-      seen.add(key)
-      return true
-    })
-  }, [])
+  const phraseCounts = new Map<string, number>()
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return allEntries.filter((e) => {
-      const matchesCategory = activeCategory === "all" || e.category === activeCategory
-      const matchesQuery = !q || e.keyword.toLowerCase().includes(q)
-      return matchesCategory && matchesQuery
-    })
-  }, [allEntries, query, activeCategory])
-
-  const handleCopy = async (kw: string) => {
-    try {
-      await navigator.clipboard.writeText(kw)
-      setCopiedKw(kw)
-      setTimeout(() => setCopiedKw(null), 1500)
-    } catch {
-      // بيئة بدون صلاحية الحافظة — تجاهل بصمت
+  for (let n = 2; n <= 3; n++) {
+    for (let i = 0; i <= words.length - n; i++) {
+      const phrase = words.slice(i, i + n).join(" ")
+      if (phrase.length < 6) continue
+      phraseCounts.set(phrase, (phraseCounts.get(phrase) || 0) + 1)
     }
   }
 
+  return Array.from(phraseCounts.entries())
+    .filter(([, count]) => count >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([phrase, count]) => ({ phrase, count }))
+}
+
+// يقترح فئة الكلمات المفتاحية القانونية الأنسب اعتماداً على تطابق العنوان
+// مع الكلمات المعروفة لكل فئة في بنك الكلمات المفتاحية المُعدّ مسبقاً
+function suggestBankCategory(title: string): KeywordCategory {
+  const normalizedTitle = normalizeArabic(title)
+  let bestCategory: KeywordCategory = "general"
+  let bestScore = 0
+
+  ;(Object.keys(CATEGORY_KEYWORDS) as KeywordCategory[]).forEach((cat) => {
+    const score = CATEGORY_KEYWORDS[cat].filter((kw) =>
+      normalizedTitle.includes(normalizeArabic(kw.split(" ")[0]))
+    ).length
+    if (score > bestScore) {
+      bestScore = score
+      bestCategory = cat
+    }
+  })
+
+  return bestCategory
+}
+
+const CATEGORY_LABELS: Record<KeywordCategory, string> = {
+  general: "عام",
+  labor_law: "قانون الشغل",
+  data_protection: "حماية المعطيات",
+  consumer_protection: "حماية المستهلك",
+  academic_exams: "الامتحانات الجامعية",
+  commercial_law: "القانون التجاري",
+  legal_dictionary: "المعجم القانوني",
+  educational_summaries: "الملخصات الدراسية",
+}
+
+export function KeywordSuggestions({ title, content, onSelectKeyword }: KeywordSuggestionsProps) {
+  const [copied, setCopied] = useState<string | null>(null)
+
+  const phraseSuggestions = useMemo(() => extractPhraseSuggestions(content), [content])
+  const bankCategory = useMemo(() => suggestBankCategory(title), [title])
+  const bankSuggestions = useMemo(
+    () => (CATEGORY_KEYWORDS[bankCategory] || []).slice(0, 6),
+    [bankCategory]
+  )
+
+  const handleCopy = (kw: string) => {
+    navigator.clipboard?.writeText(kw).catch(() => {})
+    setCopied(kw)
+    setTimeout(() => setCopied(null), 1500)
+  }
+
+  if (!title && !content) return null
+
   return (
-    <div className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-sm" dir="rtl">
-      <div className="flex items-center gap-2 border-b border-border pb-3">
-        <Sparkles className="size-4 text-primary" />
-        <h3 className="text-sm font-extrabold text-foreground">بنك الكلمات المفتاحية القانونية</h3>
+    <div className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-sm" dir="rtl">
+      <div className="flex items-center gap-2.5 border-b border-border pb-3">
+        <div className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary">
+          <Lightbulb className="size-4.5" />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-foreground">اقتراحات الكلمات المفتاحية</h3>
+          <p className="text-[11px] text-muted-foreground">مستخرجة من النص + بنك كلمات قانوني مصنّف</p>
+        </div>
       </div>
 
-      {/* بحث */}
-      <div className="relative">
-        <Search className="pointer-events-none absolute right-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث عن كلمة مفتاحية..."
-          className="w-full rounded-xl border border-border bg-background py-2 pr-9 pl-3 text-xs text-foreground outline-none transition focus:border-primary"
-        />
-      </div>
-
-      {/* تصفية حسب الفئة */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="flex items-center gap-1 text-[10px] font-bold text-muted-foreground">
-          <ListFilter className="size-3" /> الفئة:
-        </span>
-        <button
-          type="button"
-          onClick={() => setActiveCategory("all")}
-          className={cn(
-            "rounded-lg px-2 py-0.5 text-[10px] font-bold transition",
-            activeCategory === "all" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
-          )}
-        >
-          الكل
-        </button>
-        {(Object.keys(CATEGORY_LABELS) as KeywordCategory[]).map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setActiveCategory(cat)}
-            className={cn(
-              "rounded-lg px-2 py-0.5 text-[10px] font-bold transition",
-              activeCategory === cat ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
-            )}
-          >
-            {CATEGORY_LABELS[cat]}
-          </button>
-        ))}
-      </div>
-
-      {/* قائمة الكلمات */}
-      <div className="max-h-64 space-y-1.5 overflow-y-auto pt-1">
-        {filtered.length > 0 ? (
-          filtered.map((entry) => {
-            const already = insertedKeywords.includes(entry.keyword)
-            return (
-              <div
-                key={entry.keyword}
-                className="flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-background/60 px-3 py-1.5 text-xs"
+      {phraseSuggestions.length > 0 && (
+        <div className="space-y-2">
+          <p className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
+            <Sparkles className="size-3.5 text-primary" />
+            عبارات متكررة في النص (مرشّحة كأفضل كلمة مفتاحية)
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {phraseSuggestions.map(({ phrase, count }) => (
+              <button
+                key={phrase}
+                type="button"
+                onClick={() => (onSelectKeyword ? onSelectKeyword(phrase) : handleCopy(phrase))}
+                className="group inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-2.5 py-1.5 text-[11px] font-semibold text-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+                title={onSelectKeyword ? "استخدم ككلمة مفتاحية رئيسية" : "نسخ"}
               >
-                <span className="truncate font-semibold text-foreground">{entry.keyword}</span>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(entry.keyword)}
-                    title="نسخ"
-                    className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                  >
-                    {copiedKw === entry.keyword ? (
-                      <Check className="size-3.5 text-emerald-500" />
-                    ) : (
-                      <Copy className="size-3.5" />
-                    )}
-                  </button>
-                  {onInsertKeyword && (
-                    <button
-                      type="button"
-                      onClick={() => onInsertKeyword(entry.keyword)}
-                      disabled={already}
-                      title="إدراج ضمن كلمات المقال"
-                      className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-primary/10 hover:text-primary disabled:opacity-30"
-                    >
-                      <Plus className="size-3.5" />
-                    </button>
-                  )}
-                  {onUseAsFocusKeyword && (
-                    <button
-                      type="button"
-                      onClick={() => onUseAsFocusKeyword(entry.keyword)}
-                      className="rounded-lg bg-muted px-2 py-1 text-[10px] font-bold text-foreground transition hover:bg-primary hover:text-primary-foreground"
-                    >
-                      استهداف
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          })
-        ) : (
-          <div className="py-6 text-center text-xs text-muted-foreground">لا توجد نتائج مطابقة.</div>
-        )}
+                {onSelectKeyword ? null : copied === phrase ? (
+                  <Check className="size-3 text-emerald-500" />
+                ) : (
+                  <Copy className="size-3 opacity-0 transition group-hover:opacity-100" />
+                )}
+                <span>{phrase}</span>
+                <span className="rounded bg-primary/10 px-1 text-[9px] font-bold text-primary">×{count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <p className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
+          <Sparkles className="size-3.5 text-primary" />
+          كلمات مقترحة من فئة «{CATEGORY_LABELS[bankCategory]}»
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {bankSuggestions.map((kw) => (
+            <button
+              key={kw}
+              type="button"
+              onClick={() => (onSelectKeyword ? onSelectKeyword(kw) : handleCopy(kw))}
+              className="group inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-[11px] font-semibold text-foreground transition hover:border-primary hover:bg-primary/5 hover:text-primary"
+              title={onSelectKeyword ? "استخدم ككلمة مفتاحية رئيسية" : "نسخ"}
+            >
+              {onSelectKeyword ? null : copied === kw ? (
+                <Check className="size-3 text-emerald-500" />
+              ) : (
+                <Copy className="size-3 opacity-0 transition group-hover:opacity-100" />
+              )}
+              <span>{kw}</span>
+            </button>
+          ))}
+        </div>
       </div>
+
+      {phraseSuggestions.length === 0 && (
+        <p className="text-[11px] text-muted-foreground">
+          أضف مزيداً من المحتوى ليتمكن الأداة من استخراج عبارات متكررة تلقائياً.
+        </p>
+      )}
     </div>
   )
 }
+
+export default KeywordSuggestions

@@ -13,8 +13,6 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  Newspaper,
-  TrendingUp,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 
@@ -44,8 +42,6 @@ export default function AdminSidebar({
   const menuItems = [
     { label: "لوحة القيادة", path: "/admin", icon: LayoutDashboard },
     { label: "المقالات والبحوث", path: "/admin/articles", icon: FileText },
-    { label: "الأخبار والمستجدات", path: "/admin/news", icon: Newspaper },
-    { label: "الاتجاهات القانونية", path: "/admin/trends", icon: TrendingUp },
     { label: "التعليقات", path: "/admin/comments", icon: MessageCircle },
     { label: "مكتبة الوثائق", path: "/admin/library", icon: BookOpen },
     { label: "القاموس القانوني", path: "/admin/lexicon", icon: Tags },

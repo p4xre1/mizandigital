@@ -16,6 +16,7 @@ import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
 import { supabase } from "../../../lib/supabase/client"
 import { generateSlug } from "../../../lib/utils/generateSlug"
+import { ImageUploadField } from "../../../components/admin/ImageUploadField"
 import type { Faculty } from "../../../types/cms"
 
 interface FacultiesPageProps {
@@ -43,6 +44,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
   const [nameFr, setNameFr] = useState<string>("")
   const [city, setCity] = useState<string>("")
   const [slug, setSlug] = useState<string>("")
+  const [logoUrl, setLogoUrl] = useState<string>("")
 
   useEffect(() => {
     fetchFaculties()
@@ -71,6 +73,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
     setNameFr("")
     setCity("")
     setSlug("")
+    setLogoUrl("")
     setFormModalOpen(true)
   }
 
@@ -80,6 +83,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
     setNameFr(faculty.name_fr ?? "")
     setCity(faculty.city)
     setSlug(faculty.slug)
+    setLogoUrl(faculty.logo_url ?? "")
     setFormModalOpen(true)
   }
 
@@ -95,6 +99,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
       name: nameAr,
       city,
       slug: finalSlug,
+      logo_url: logoUrl.trim() || null,
     }
 
     try {
@@ -332,6 +337,16 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="fsjes-agdal"
                     className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground outline-none focus:border-primary dir-ltr text-right"
+                  />
+                </div>
+
+                <div className="pt-2 border-t border-border">
+                  <ImageUploadField
+                    label="شعار/صورة الكلية"
+                    value={logoUrl}
+                    onChange={setLogoUrl}
+                    folder="faculties"
+                    helperText="يظهر في دليل الكليات وصفحة الكلية التفصيلية."
                   />
                 </div>
 

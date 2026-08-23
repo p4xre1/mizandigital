@@ -21,6 +21,7 @@ import {
 import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
+import { ImageUploadField } from "../../../components/admin/ImageUploadField"
 import { supabase } from "../../../lib/supabase/client"
 
 // ملاحظة مهمة: هذا النموذج يطابق تماماً أعمدة جدول "seminars" الفعلي في Supabase
@@ -38,6 +39,7 @@ export interface Seminar {
   event_time?: string | null
   agenda?: string | null
   attachment_url?: string | null
+  image_url?: string | null
   status?: string | null
   created_at?: string | null
 }
@@ -78,6 +80,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const [eventTime, setEventTime] = useState<string>("")
   const [agenda, setAgenda] = useState<string>("")
   const [attachmentUrl, setAttachmentUrl] = useState<string>("")
+  const [imageUrl, setImageUrl] = useState<string>("")
   const [status, setStatus] = useState<string>("published")
 
   useEffect(() => {
@@ -109,6 +112,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
     setEventTime("")
     setAgenda("")
     setAttachmentUrl("")
+    setImageUrl("")
     setStatus("published")
   }
 
@@ -130,6 +134,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
     setEventTime(seminar.event_time || "")
     setAgenda(seminar.agenda || "")
     setAttachmentUrl(seminar.attachment_url || "")
+    setImageUrl(seminar.image_url || "")
     setStatus(seminar.status || "published")
     setFormModalOpen(true)
   }
@@ -162,6 +167,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
       event_time: eventTime || null,
       agenda: agenda.trim() || null,
       attachment_url: attachmentUrl.trim() || null,
+      image_url: imageUrl.trim() || null,
       status,
     }
 
@@ -575,6 +581,14 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                     dir="ltr"
                   />
                 </div>
+
+                <ImageUploadField
+                  label="صورة الندوة"
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  folder="seminars"
+                  helperText="تظهر في بطاقة الندوة ضمن صفحة الفعاليات."
+                />
 
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-foreground">حالة النشر</label>
