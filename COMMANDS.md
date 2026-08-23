@@ -4,7 +4,7 @@ Quick guide for all development, testing, validation, and build commands for `mi
 
 ---
 
-## 🚀 Development & Local Server
+## 🚀   Development & Local Server
 * **Start Development Server:**
   ```bash
   pnpm dev
