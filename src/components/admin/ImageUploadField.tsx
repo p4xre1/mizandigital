@@ -25,7 +25,7 @@ export function ImageUploadField({ label, value, onChange, helperText, folder = 
     setUploading(true)
     setError(null)
     try {
-      const { uploadUrl, fileUrl } = await storageService.getUploadUrl(file, folder)
+      const { uploadUrl, fileUrl } = await storageService.getUploadUrl(file)
       await storageService.uploadToPresignedUrl(uploadUrl, file)
       onChange(fileUrl)
     } catch (err: any) {
