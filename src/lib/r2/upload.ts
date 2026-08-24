@@ -13,8 +13,9 @@ export const r2Client = new S3Client({
 export const BUCKET_NAME = import.meta.env.VITE_R2_BUCKET_NAME || "mizan-cms-storage";
 export const PUBLIC_DOMAIN = import.meta.env.VITE_R2_PUBLIC_DOMAIN || "";
 
-export async function createPresignedUploadUrl(fileName: string, contentType: string) {
-  const fileKey = `docs/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+export async function createPresignedUploadUrl(fileName: string, contentType: string, folder: string = "images") {
+  const safeFolder = folder.replace(/^\/+|\/+$/g, "") || "images";
+  const fileKey = `${safeFolder}/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: fileKey,

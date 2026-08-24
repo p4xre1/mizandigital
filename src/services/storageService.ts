@@ -1,8 +1,8 @@
 import { createPresignedUploadUrl, deleteFileFromR2 } from "../lib/r2/upload";
 
 export const storageService = {
-  async getUploadUrl(file: File) {
-    return await createPresignedUploadUrl(file.name, file.type);
+  async getUploadUrl(file: File, folder: string = "images") {
+    return await createPresignedUploadUrl(file.name, file.type, folder);
   },
 
   async uploadToPresignedUrl(uploadUrl: string, file: File, onProgress?: (pct: number) => void) {

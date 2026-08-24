@@ -14,7 +14,7 @@ interface ImageUploadFieldProps {
 // الصورة: رفع ملف مباشرة إلى مستودع R2، أو لصق رابط جاهز. يُستخدم في نماذج
 // المقالات والأخبار والكليات والندوات بلوحة التحكم.
 export function ImageUploadField({ label, value, onChange, helperText, folder = "images" }: ImageUploadFieldProps) {
-  const [mode, setMode] = useState<"link" | "upload">(value ? "link" : "link")
+  const [mode, setMode] = useState<"link" | "upload">(value ? "link" : "upload")
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -25,7 +25,7 @@ export function ImageUploadField({ label, value, onChange, helperText, folder = 
     setUploading(true)
     setError(null)
     try {
-      const { uploadUrl, fileUrl } = await storageService.getUploadUrl(file)
+      const { uploadUrl, fileUrl } = await storageService.getUploadUrl(file, folder)
       await storageService.uploadToPresignedUrl(uploadUrl, file)
       onChange(fileUrl)
     } catch (err: any) {

@@ -6,13 +6,13 @@ export function useR2Upload() {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
-  const upload = async (file: File) => {
+  const upload = async (file: File, folder: string = "images") => {
     setIsUploading(true);
     setProgress(0);
     setError(null);
 
     try {
-      const { uploadUrl, fileUrl, fileKey } = await storageService.getUploadUrl(file);
+      const { uploadUrl, fileUrl, fileKey } = await storageService.getUploadUrl(file, folder);
       await storageService.uploadToPresignedUrl(uploadUrl, file, (pct) => setProgress(pct));
       return { fileUrl, fileKey };
     } catch (err) {
