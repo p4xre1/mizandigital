@@ -130,6 +130,11 @@ export default function ArticleEditorPage({
 
   // حفظ المقال
   const handleSave = async (targetStatus?: ArticleStatus) => {
+    if (!title.trim()) {
+      setErrorMsg("يرجى إدخال عنوان المقال قبل الحفظ.")
+      return
+    }
+
     const finalStatus = targetStatus || status
 
     // بوابة السيو قبل النشر: عند النشر الفعلي (وليس الحفظ كمسودة) نتحقق أولاً
@@ -261,7 +266,7 @@ export default function ArticleEditorPage({
             )}
             <button
               onClick={() => handleSave("draft")}
-              disabled={saving || !title}
+              disabled={saving}
               className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground transition hover:bg-muted disabled:opacity-50"
             >
               {saving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
@@ -269,7 +274,7 @@ export default function ArticleEditorPage({
             </button>
             <button
               onClick={() => handleSave("published")}
-              disabled={saving || !title}
+              disabled={saving}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-110 disabled:opacity-50"
             >
               <Globe className="size-3.5" />

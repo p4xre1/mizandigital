@@ -491,7 +491,6 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                   <label className="text-xs font-bold text-foreground">عنوان الندوة *</label>
                   <input
                     type="text"
-                    required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="مثال: المستجدات التشريعية في مادة القانون التجاري..."
@@ -504,7 +503,6 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                     <label className="text-xs font-bold text-foreground">المحاضر / المتدخل *</label>
                     <input
                       type="text"
-                      required
                       value={speaker}
                       onChange={(e) => setSpeaker(e.target.value)}
                       placeholder="مثال: د. عبد الله أستاذ القانون الخاص"
@@ -528,7 +526,6 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                   <label className="text-xs font-bold text-foreground">رابط الفيديو / البث المباشر *</label>
                   <input
                     type="url"
-                    required
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                     placeholder="https://youtube.com/watch?v=... أو رابط البث المباشر"

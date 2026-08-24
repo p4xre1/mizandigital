@@ -10,6 +10,7 @@ import {
   X,
   Check,
   Building2,
+  AlertCircle,
 } from "lucide-react"
 import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
@@ -38,6 +39,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
   const [formModalOpen, setFormModalOpen] = useState<boolean>(false)
   const [editingFaculty, setEditingFaculty] = useState<Faculty | null>(null)
   const [saving, setSaving] = useState<boolean>(false)
+  const [formError, setFormError] = useState<string | null>(null)
 
   // حقول النموذج
   const [nameAr, setNameAr] = useState<string>("")
@@ -69,6 +71,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
   const handleOpenAddModal = () => {
     setEditingFaculty(null)
+    setFormError(null)
     setNameAr("")
     setNameFr("")
     setCity("")
@@ -79,6 +82,7 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
   const handleOpenEditModal = (faculty: Faculty) => {
     setEditingFaculty(faculty)
+    setFormError(null)
     setNameAr(faculty.name_ar ?? faculty.name ?? "")
     setNameFr(faculty.name_fr ?? "")
     setCity(faculty.city)
@@ -89,15 +93,23 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
   const handleSaveFaculty = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!nameAr || !city) return
+    if (!nameAr.trim()) {
+      setFormError("يرجى إدخال اسم الكلية بالعربية.")
+      return
+    }
+    if (!city.trim()) {
+      setFormError("يرجى إدخال المدينة.")
+      return
+    }
 
     setSaving(true)
+    setFormError(null)
     const finalSlug = slug || generateSlug(nameFr || nameAr)
 
     // إرسال الأعمدة المتوافقة تماماً مع جدول faculties الأساسي
     const payload = {
-      name: nameAr,
-      city,
+      name: nameAr.trim(),
+      city: city.trim(),
       slug: finalSlug,
       logo_url: logoUrl.trim() || null,
     }
@@ -117,8 +129,9 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
 
       await fetchFaculties()
       setFormModalOpen(false)
-    } catch (err) {
+    } catch (err: any) {
       console.error("خطأ أثناء حفظ الكلية:", err)
+      setFormError(err?.message || "حدث خطأ غير متوقع أثناء حفظ الكلية.")
     } finally {
       setSaving(false)
     }
@@ -284,6 +297,13 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
                 </button>
               </div>
 
+              {formError && (
+                <div className="flex items-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-xs font-bold text-rose-600 dark:text-rose-400">
+                  <AlertCircle className="size-4 shrink-0" />
+                  <span>{formError}</span>
+                </div>
+              )}
+
               <form onSubmit={handleSaveFaculty} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground">
@@ -291,7 +311,6 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
                   </label>
                   <input
                     type="text"
-                    required
                     value={nameAr}
                     onChange={(e) => {
                       setNameAr(e.target.value)
@@ -321,7 +340,6 @@ export default function FacultiesPage({ onNavigate }: FacultiesPageProps) {
                   <label className="text-xs font-bold text-foreground">المدينة *</label>
                   <input
                     type="text"
-                    required
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
                     placeholder="الرباط"

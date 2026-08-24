@@ -501,7 +501,6 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
                   <label className="text-xs font-bold text-foreground">عنوان الخبر *</label>
                   <input
                     type="text"
-                    required
                     value={title}
                     onChange={(e) => {
                       setTitle(e.target.value)
