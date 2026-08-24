@@ -4,7 +4,7 @@ import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { ShieldCheck } from "lucide-react"
 
-const LAST_UPDATED = "19 غشت 2026"
+const LAST_UPDATED = "25 غشت 2026"
 const CONTACT_EMAIL = "contact@mizan.page"
 
 export function PrivacyPolicyPage() {
@@ -48,7 +48,7 @@ export function PrivacyPolicyPage() {
             </ul>
           </Section>
 
-          <Section title="3. استخدام Google Analytics وأدوات Google الإعلانية (Google Tags)">
+          <Section title="3. استخدام Google Analytics وGoogle AdSense (أدوات وإعلانات Google)">
             <p>
               نستخدم <strong>Google Analytics (GA4)</strong> و<strong>Google Tags</strong> لفهم كيفية
               استخدام زوارنا للموقع، وقياس أداء الصفحات، وتحسين تجربة المستخدم. هذه الأدوات قد تضع
@@ -59,9 +59,37 @@ export function PrivacyPolicyPage() {
               لتفاصيل هذه الملفات وكيفية التحكم بها.
             </p>
             <p>
-              لا يتم تفعيل هذه الأدوات إلا بعد موافقتكم الصريحة عبر شريط إشعار الكوكيز الذي يظهر عند
-              أول زيارة، تماشياً مع وضع الموافقة من Google (Google Consent Mode). يمكنكم سحب موافقتكم
-              في أي وقت من خلال إعدادات المتصفح أو عبر مسح بيانات الموقع المحلية.
+              كما نستخدم <strong>Google AdSense</strong> لعرض إعلانات على الموقع كمصدر تمويل يساعدنا
+              على استمرارية المنصة مجاناً. يستخدم Google AdSense وشركاؤه الإعلانيون (بما فيهم Google
+              DoubleClick) كوكيز الطرف الثالث لعرض إعلانات بناءً على زياراتكم لهذا الموقع ومواقع أخرى
+              على الإنترنت. يمكنكم تعطيل الإعلانات المخصَّصة (Personalized Ads) عبر{" "}
+              <a
+                href="https://adssettings.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline font-semibold text-primary"
+              >
+                إعدادات إعلانات Google
+              </a>
+              {" "}أو عبر{" "}
+              <a
+                href="https://www.aboutads.info/choices/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline font-semibold text-primary"
+              >
+                www.aboutads.info
+              </a>
+              .
+            </p>
+            <p>
+              لا يتم تفعيل كوكيز التحليل أو الإعلانات إلا بعد موافقتكم الصريحة عبر شريط إشعار الكوكيز
+              الذي يظهر عند أول زيارة، تماشياً مع وضع الموافقة من Google (Google Consent Mode).
+              يمكنكم سحب موافقتكم في أي وقت من خلال صفحة{" "}
+              <Link to="/cookies" className="underline font-semibold text-primary">
+                سياسة الكوكيز
+              </Link>
+              ، أو إعدادات المتصفح، أو مسح بيانات الموقع المحلية.
             </p>
             <p>
               لمزيد من المعلومات حول ممارسات Google في الخصوصية، يمكنكم مراجعة{" "}
@@ -83,14 +111,18 @@ export function PrivacyPolicyPage() {
               <li>الرد على استفساراتكم في حال تواصلتم معنا عبر البريد الإلكتروني.</li>
               <li>حماية المنصة من الاستخدام غير المشروع أو المسيء.</li>
             </ul>
-            <p>لا نبيع بياناتكم الشخصية لأي طرف ثالث، ولا نستخدمها لأغراض إعلانية مباشرة موجّهة.</p>
+            <p>
+              لا نبيع بياناتكم الشخصية لأي طرف ثالث. قد تُستخدم بيانات تصفح مجهولة، بموافقتكم، من قِبل
+              Google AdSense لعرض إعلانات (مخصَّصة أو غير مخصَّصة حسب اختياركم) — راجع القسم الثالث
+              أعلاه للتفاصيل وكيفية التحكم بذلك.
+            </p>
           </Section>
 
           <Section title="5. مشاركة البيانات مع أطراف ثالثة">
             <p>
               قد تتم مشاركة بيانات استخدام مجهولة مع مزودي خدمات تقنية نعتمد عليهم لتشغيل المنصة
-              (مثل Google لأدوات التحليل، ومزود الاستضافة وقاعدة البيانات Supabase)، وذلك فقط بالقدر
-              اللازم لتشغيل الموقع وتحليل أدائه.
+              (مثل Google لأدوات التحليل وإعلانات AdSense، ومزود الاستضافة وقاعدة البيانات Supabase)،
+              وذلك فقط بالقدر اللازم لتشغيل الموقع، تحليل أدائه، وعرض الإعلانات.
             </p>
           </Section>
 

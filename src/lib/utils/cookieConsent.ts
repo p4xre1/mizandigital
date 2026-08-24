@@ -22,9 +22,13 @@ export function setStoredConsent(value: ConsentValue) {
   window.localStorage.setItem(CONSENT_STORAGE_KEY, value)
 
   // إعلام Google Consent Mode بالتحديث فوراً دون الحاجة لإعادة تحميل الصفحة
+  // يشمل كوكيز التحليل (Analytics) وكوكيز الإعلانات (AdSense) معاً
   if (typeof window.gtag === "function") {
     window.gtag("consent", "update", {
       analytics_storage: value,
+      ad_storage: value,
+      ad_user_data: value,
+      ad_personalization: value,
     })
   }
 }

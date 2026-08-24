@@ -114,7 +114,12 @@
       try {
         var storedConsent = window.localStorage.getItem("mizan-cookie-consent");
         if (storedConsent === "granted") {
-          gtag("consent", "update", { analytics_storage: "granted" });
+          gtag("consent", "update", {
+            analytics_storage: "granted",
+            ad_storage: "granted",
+            ad_user_data: "granted",
+            ad_personalization: "granted"
+          });
         }
       } catch (e) {}
 
@@ -134,4 +139,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

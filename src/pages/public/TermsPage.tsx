@@ -1,9 +1,10 @@
+import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { Scale, ShieldAlert } from "lucide-react"
 
-const LAST_UPDATED = "19 غشت 2026"
+const LAST_UPDATED = "25 غشت 2026"
 const CONTACT_EMAIL = "contact@mizan.page"
 
 export function TermsPage() {
@@ -99,18 +100,35 @@ export function TermsPage() {
             </p>
           </Section>
 
-          <Section title="8. التعديلات على الشروط">
+          <Section title="8. الإعلانات">
+            <p>
+              تعرض المنصة إعلانات عبر خدمة Google AdSense كمصدر تمويل لاستمرارية تقديم المحتوى مجاناً.
+              هذه الإعلانات يديرها ويختار محتواها Google وشركاؤه الإعلانيون، ولا تتحمل المنصة أي
+              مسؤولية عن دقة أو ملاءمة أو محتوى الإعلانات المعروضة، أو عن أي منتج أو خدمة يُعلَن عنها.
+              لمزيد من التفاصيل حول كوكيز الإعلانات وكيفية التحكم بها، راجعوا{" "}
+              <Link to="/cookies" className="underline font-semibold text-primary">
+                سياسة الكوكيز
+              </Link>
+              {" "}و{" "}
+              <Link to="/privacy" className="underline font-semibold text-primary">
+                سياسة الخصوصية
+              </Link>
+              .
+            </p>
+          </Section>
+
+          <Section title="9. التعديلات على الشروط">
             <p>
               يجوز لنا تحديث هذه الشروط من وقت لآخر. يعني استمراركم في استخدام المنصة بعد أي تعديل
               موافقتكم على الشروط المحدَّثة.
             </p>
           </Section>
 
-          <Section title="9. القانون المطبَّق">
+          <Section title="10. القانون المطبَّق">
             <p>تخضع هذه الشروط وتُفسَّر وفقاً للقوانين المعمول بها في المملكة المغربية.</p>
           </Section>
 
-          <Section title="10. تواصل معنا">
+          <Section title="11. تواصل معنا">
             <p>
               لأي استفسار بخصوص هذه الشروط، راسلونا على{" "}
               <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold text-primary" dir="ltr">

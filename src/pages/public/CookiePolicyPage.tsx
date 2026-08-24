@@ -5,7 +5,7 @@ import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { getStoredConsent, setStoredConsent, type ConsentValue } from "../../lib/utils/cookieConsent"
 import { Cookie, Check, X } from "lucide-react"
 
-const LAST_UPDATED = "19 غشت 2026"
+const LAST_UPDATED = "25 غشت 2026"
 
 const COOKIE_TABLE = [
   {
@@ -35,6 +35,20 @@ const COOKIE_TABLE = [
     purpose: "تمييز الزوار خلال 24 ساعة لأغراض إحصائية.",
     duration: "24 ساعة",
     type: "تحليلي (يتطلب موافقتكم)",
+  },
+  {
+    name: "__gads، __gpi",
+    provider: "Google AdSense",
+    purpose: "قياس أداء الإعلانات وتحديد عدد مرات ظهورها للزائر.",
+    duration: "حتى 13 شهراً",
+    type: "إعلاني (يتطلب موافقتكم)",
+  },
+  {
+    name: "IDE، test_cookie",
+    provider: "Google DoubleClick",
+    purpose: "عرض إعلانات ذات صلة باهتمامات الزائر عبر مواقع مختلفة، والتحقق من دعم المتصفح للكوكيز.",
+    duration: "حتى 13 شهراً",
+    type: "إعلاني (يتطلب موافقتكم)",
   },
 ]
 
@@ -72,7 +86,7 @@ export function CookiePolicyPage() {
         <div className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-2 text-sm font-extrabold text-foreground">إدارة تفضيلاتكم الحالية</h2>
           <p className="mb-4 text-xs text-muted-foreground">
-            حالة الموافقة الحالية على كوكيز التحليل (Google Analytics):{" "}
+            حالة الموافقة الحالية على كوكيز التحليل والإعلانات (Google Analytics وGoogle AdSense):{" "}
             <span
               className={
                 consent === "granted"
@@ -91,14 +105,14 @@ export function CookiePolicyPage() {
               onClick={() => handleChoice("granted")}
               className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:opacity-90"
             >
-              <Check size={14} /> قبول كوكيز التحليل
+              <Check size={14} /> قبول كوكيز التحليل والإعلانات
             </button>
             <button
               type="button"
               onClick={() => handleChoice("denied")}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-bold text-foreground transition hover:bg-muted"
             >
-              <X size={14} /> رفض كوكيز التحليل
+              <X size={14} /> رفض كوكيز التحليل والإعلانات
             </button>
           </div>
         </div>
@@ -150,6 +164,20 @@ export function CookiePolicyPage() {
                 <strong>كوكيز تحليلية:</strong> عبر Google Analytics، تساعدنا على فهم استخدام الموقع
                 وتحسينه. لا تُفعَّل إلا بعد موافقتكم الصريحة، وفق وضع الموافقة من Google (Google
                 Consent Mode).
+              </li>
+              <li>
+                <strong>كوكيز إعلانية:</strong> عبر Google AdSense وGoogle DoubleClick، تُستخدم لعرض
+                إعلانات على الموقع وقد تُستخدم لعرض إعلانات أقرب لاهتماماتكم بناءً على تصفحكم. لا
+                تُفعَّل إلا بعد موافقتكم الصريحة. يمكنكم إدارة تفضيلات الإعلانات الشخصية عبر{" "}
+                <a
+                  href="https://adssettings.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline font-semibold text-primary"
+                >
+                  إعدادات إعلانات Google
+                </a>
+                .
               </li>
             </ul>
           </Section>
