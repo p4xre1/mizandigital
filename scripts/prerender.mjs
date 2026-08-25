@@ -27,6 +27,21 @@ const generateSlug = (text = "") => {
 
 const usedLexiconSlugs = new Set();
 
+// نبني قائمة { slug, term } لكل مصطلح مسبقاً حتى يمكن استخدامها في توليد
+// روابط داخلية حقيقية (لصفحة القاموس) وفي توليد محتوى ثابت لكل صفحة مصطلح.
+const lexiconWithSlugs = lexicon.map((item) => {
+  const base = generateSlug(item.term_ar) || String(item.id);
+  const fr = generateSlug(item.term_fr || "") || String(item.id);
+  let slug = base;
+  if (usedLexiconSlugs.has(slug)) slug = `${base}-${fr}`;
+  if (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}`;
+  usedLexiconSlugs.add(slug);
+  return { ...item, slug };
+});
+
+const escapeHtml = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+const escapeJsonForHtml = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
+
 const pages = [
   { path: "/", title: "ميزان الرقمية | المعرفة القانونية للطلبة", description: "منصة عربية سريعة للملخصات والأخبار والندوات والقاموس ودليل كليات الحقوق بالمغرب." },
   { path: "/archive", title: "الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ونماذج لطلبة الحقوق مصنفة حسب السداسي والوحدة." },
@@ -34,7 +49,7 @@ const pages = [
   { path: "/articles", title: "المقالات | ميزان الرقمية", description: "مقالات منهجية ومهارات قانونية لطلبة الحقوق." },
   { path: "/events", title: "الندوات واللقاءات | ميزان الرقمية", description: "أرشيف للندوات والأنشطة القانونية مع روابط مصادرها الرسمية." },
   { path: "/schools", title: "كليات الحقوق بالمغرب | ميزان الرقمية", description: "دليل كليات العلوم القانونية والاقتصادية والاجتماعية وروابطها الرسمية." },
-  { path: "/lexicon", title: "القاموس القانوني | ميزان الرقمية", description: "مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة." },
+  { path: "/lexicon", title: "القاموس القانوني | ميزان الرقمية", description: "مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة.", staticBody: renderLexiconIndexStaticHtml(lexiconWithSlugs) },
   ...articles.map((item) => ({
     path: `${item.type === "news" ? "/news" : "/articles"}/${item.slug}`,
     title: `${item.title} | ميزان الرقمية`,
@@ -68,18 +83,13 @@ const pages = [
   { path: "/s4", title: "الفصل S4 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الرابع لطلبة الحقوق." },
   { path: "/s5", title: "الفصل S5 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الخامس لطلبة الحقوق." },
   { path: "/s6", title: "الفصل S6 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل السادس لطلبة الحقوق." },
-  ...lexicon.map((item) => {
-    const base = generateSlug(item.term_ar) || String(item.id);
-    const fr = generateSlug(item.term_fr || "") || String(item.id);
-    let slug = base;
-    if (usedLexiconSlugs.has(slug)) slug = `${base}-${fr}`;
-    if (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}`;
-    usedLexiconSlugs.add(slug);
+  ...lexiconWithSlugs.map((item) => {
     return {
-      path: `/lexicon/${slug}`,
+      path: `/lexicon/${item.slug}`,
       title: item.term_fr ? `${item.term_ar} (${item.term_fr}) | القاموس القانوني` : `${item.term_ar} | القاموس القانوني`,
       description: item.definition,
       schema: { "@context": "https://schema.org", "@type": "DefinedTerm", name: item.term_ar, alternateName: item.term_fr, description: item.definition, inDefinedTermSet: `${DOMAIN}/lexicon`, inLanguage: "ar" },
+      staticBody: renderTermStaticHtml(item),
     };
   }),
 ];
@@ -93,8 +103,35 @@ for (const page of pages) {
   seen.set(page.path, page.title);
 }
 
-const escapeHtml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-const escapeJsonForHtml = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
+// يبني قائمة HTML حقيقية بروابط <a> نحو كل مصطلح — هذا هو المحتوى الذي
+// يحتاجه Googlebot ليكتشف صفحات القاموس عبر روابط داخلية فعلية، لا عبر
+// sitemap.xml وحده. تُستبدل هذه القائمة فوراً بواجهة React التفاعلية بمجرد
+// تحميل الجافاسكريبت لدى الزائر الحقيقي.
+function renderLexiconIndexStaticHtml(terms) {
+  const items = terms
+    .map(
+      (t) =>
+        `<li><a href="/lexicon/${escapeHtml(t.slug)}">${escapeHtml(t.term_ar)}${t.term_fr ? ` (${escapeHtml(t.term_fr)})` : ""}</a>${t.category ? ` — <span>${escapeHtml(t.category)}</span>` : ""}</li>`
+    )
+    .join("");
+  return `<main dir="rtl"><h1>القاموس القانوني</h1><p>مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة، لطلبة كليات الحقوق بالمغرب.</p><ul>${items}</ul></main>`;
+}
+
+// يبني محتوى HTML حقيقياً لصفحة مصطلح واحد (التعريف + المصادر القانونية
+// والفصول ذات الصلة)، بدلاً من ترك <div id="root"> فارغاً بانتظار جلب
+// البيانات عبر جافاسكريبت من Supabase.
+function renderTermStaticHtml(item) {
+  const sources = (item.legal_sources || [])
+    .map((src) => {
+      const articles = (src.articles || [])
+        .map((a) => `<li><strong>الفصل ${escapeHtml(a.number)}:</strong> ${escapeHtml(a.phrase)}</li>`)
+        .join("");
+      return `<section><h2>${escapeHtml(src.code_ar || src.code_short || "")}${src.code_fr ? ` — ${escapeHtml(src.code_fr)}` : ""}</h2><ul>${articles}</ul></section>`;
+    })
+    .join("");
+
+  return `<main dir="rtl"><h1>${escapeHtml(item.term_ar)}${item.term_fr ? ` (${escapeHtml(item.term_fr)})` : ""}</h1>${item.category ? `<p>التصنيف: ${escapeHtml(item.category)}</p>` : ""}<p>${escapeHtml(item.definition)}</p>${sources}<p><a href="/lexicon">العودة إلى القاموس القانوني</a></p></main>`;
+}
 
 function renderPage(template, page) {
   const canonical = `${DOMAIN}${page.path === "/" ? "/" : page.path}`;
@@ -119,6 +156,16 @@ function renderPage(template, page) {
   html = swap(html, /<meta\b[^>]*\bname=["']twitter:description["'][^>]*>/i, `<meta name="twitter:description" content="${attr(page.description)}">`);
   
   if (page.schema) html = html.replace("</head>", `    <script type="application/ld+json">${escapeJsonForHtml(page.schema)}</script>\n  </head>`);
+
+  // حقن محتوى ثابت حقيقي داخل #root للصفحات التي توفّره (القاموس وصفحات
+  // المصطلحات)، بدلاً من تركه فارغاً بانتظار تنفيذ الجافاسكريبت. بما أن
+  // main.tsx يستخدم createRoot().render() وليس hydrateRoot()، فإن React
+  // يستبدل هذا المحتوى بأمان بمجرد التحميل لدى الزائر الحقيقي — لا يوجد خطر
+  // تعارض Hydration.
+  if (page.staticBody) {
+    html = swap(html, /<div id="root"><\/div>/, `<div id="root">${page.staticBody}</div>`);
+  }
+
   return html;
 }
 

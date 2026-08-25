@@ -16,13 +16,36 @@ interface TermPageProps {
   id?: string
 }
 
+// يطابق مصطلحاً محلياً فوراً (بدون انتظار الشبكة) بأكثر من صيغة للرابط —
+// نفس منطق المطابقة المستخدم لاحقاً مع بيانات Supabase، لكن متاح فور التحميل
+// الأول حتى لا تُعرض الصفحة فارغة أو "غير موجودة" قبل اكتمال أي طلب شبكي.
+function findLocalTermSync(targetQuery: string) {
+  if (!targetQuery) return null
+  const slugByIdLocal = lexiconSlugById(lexiconData as any)
+  const matchTerm = (item: any) => {
+    const itemSlug = slugByIdLocal.get(item.id) || generateSlug(item.term_ar)
+    const baseSlug = generateSlug(item.term_ar)
+    return (
+      item.id === targetQuery ||
+      itemSlug === targetQuery ||
+      baseSlug === targetQuery ||
+      (item.id && targetQuery.endsWith(item.id)) ||
+      targetQuery.startsWith(baseSlug)
+    )
+  }
+  return lexiconData.find(matchTerm) ?? null
+}
+
 export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const params = useParams<{ slug?: string; id?: string }>()
   const rawQuery = propSlug || propId || params.slug || params.id
   const targetQuery = rawQuery ? decodeURIComponent(rawQuery) : ""
 
-  const [term, setTerm] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true)
+  // نبدأ بالمطابقة المحلية الفورية بدلاً من null — يطابق هذا المحتوى الثابت
+  // المُولَّد مسبقاً في scripts/prerender.mjs، ويمنع وميض "جاري التحميل" أو
+  // "غير موجود" لدى الزائر الحقيقي قبل أن يتدخل جافاسكريبت أصلاً.
+  const [term, setTerm] = useState<any | null>(() => findLocalTermSync(targetQuery))
+  const [loading, setLoading] = useState(() => findLocalTermSync(targetQuery) === null)
   const [highlighted, setHighlighted] = useState<string | null>(null)
   const [relatedTerms, setRelatedTerms] = useState<any[]>([])
 

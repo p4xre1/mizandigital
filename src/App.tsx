@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { Toast } from "@/components/Toast"
 import { CookieConsentBanner } from "@/components/CookieConsentBanner"
+import { ScrollToTop } from "@/components/ScrollToTop"
 import { supabase } from "@/lib/supabase/client"
 import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
@@ -87,6 +88,9 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {/* يعيد التمرير إلى الأعلى عند كل تنقّل بين الصفحات */}
+      <ScrollToTop />
+
       {/* Main Application Routes */}
       <AppRoutes
         session={session}

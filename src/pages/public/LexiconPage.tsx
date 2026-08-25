@@ -14,8 +14,7 @@ import {
   Check,
   Scale,
   Bookmark,
-  ArrowLeft,
-  Loader2
+  ArrowLeft
 } from "lucide-react"
 
 interface LexiconTerm {
@@ -28,8 +27,10 @@ interface LexiconTerm {
 }
 
 export function LexiconPage() {
-  const [terms, setTerms] = useState<LexiconTerm[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  // نبدأ بالبيانات المحلية فوراً (بدون انتظار الشبكة) حتى لا تُعرض الصفحة
+  // فارغة قبل اكتمال جلب Supabase — يطابق هذا أيضاً المحتوى الثابت المُولَّد
+  // مسبقاً في scripts/prerender.mjs لأغراض الفهرسة.
+  const [terms, setTerms] = useState<LexiconTerm[]>(localLexicon as LexiconTerm[])
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [copiedId, setCopiedId] = useState<string | null>(null)
@@ -39,7 +40,6 @@ export function LexiconPage() {
   }, [])
 
   const fetchPublicTerms = async () => {
-  setLoading(true)
   try {
     let remoteTerms: LexiconTerm[] = []
     const { data, error } = await supabase
@@ -58,10 +58,8 @@ export function LexiconPage() {
     ]
     setTerms(merged)
   } catch (err) {
+    // البيانات المحلية معروضة بالفعل منذ التحميل الأول، فلا حاجة لأي تراجع هنا
     console.error("خطأ في جلب المصطلحات، الاعتماد على البيانات المحلية:", err)
-    setTerms(localLexicon as LexiconTerm[])
-  } finally {
-    setLoading(false)
   }
 }
 
@@ -215,13 +213,8 @@ export function LexiconPage() {
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="size-8 animate-spin text-primary" />
-          </div>
-        ) : filteredTerms.length > 0 ? (
-          /* Lexicon Grid */
+        {/* Lexicon Grid */}
+        {filteredTerms.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             {filteredTerms.map((term) => {
               const termId = term.id
