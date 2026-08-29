@@ -92,6 +92,8 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
 
   const schoolName = school.name || school.name_ar || "كلية الحقوق"
   const website = school.websiteUrl || school.website || school.officialUrl
+  const canonicalSlug = school.slug || targetQuery
+  const canonicalUrl = `https://www.mizan.page/schools/${canonicalSlug}`
 
   const schoolSchema = {
     "@context": "https://schema.org",
@@ -122,6 +124,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
           "تعرّف على المسالك القانونية وبرامج الإجازة والماستر والدكتوراة ومعلومات التواصل ضمن دليل كليات الحقوق بالمغرب.",
         ])}
         ogType="website"
+        canonicalUrl={canonicalUrl}
         keywords={[
           schoolName,
           school.city,

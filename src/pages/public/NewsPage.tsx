@@ -161,6 +161,7 @@ export function NewsPage() {
       <SEOHead
         title={pageTitle}
         description="متابعة مستمرة لأهم المستجدات التشريعية والقضائية بالمغرب: البلاغات الرسمية، منشورات الجريدة الرسمية، وأخبار المحاكم والمؤسسات القانونية والأكاديمية."
+        canonicalUrl="https://www.mizan.page/news"
         keywords={[
           "أخبار القانون المغربي",
           "الجريدة الرسمية",

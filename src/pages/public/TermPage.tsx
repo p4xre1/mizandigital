@@ -151,6 +151,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   }
 
   const legalSources: LegalSource[] = term.legal_sources ?? []
+  const canonicalUrl = `https://www.mizan.page/lexicon/${targetQuery}`
 
   const handleSelectArticle = (codeIndex: number, articleIndex: number) => {
     const anchorId = legalSourceAnchorId(codeIndex, articleIndex)
@@ -187,6 +188,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
           `تعريف مصطلح "${term.term_ar}" ضمن المعجم القانوني المغربي على منصة الميزان الرقمية، مع الشجرة القانونية الرابطة بالقوانين والفصول ذات الصلة.`,
         ])}
         ogType="article"
+        canonicalUrl={canonicalUrl}
         keywords={[
           term.term_ar,
           term.term_fr || "",

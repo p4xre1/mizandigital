@@ -134,6 +134,7 @@ export function EventPage({ slug }: EventPageProps) {
   const registerLink = event.registrationUrl || event.sourceUrl
   const registerLabel = event.registrationUrl ? "رابط التسجيل" : (event.sourceLabel || "المصدر الرسمي")
   const isUpcoming = (eventDate || "") >= todayStr
+  const canonicalUrl = `https://www.mizan.page/events/${event.slug || eventSlug}`
 
   // Schema.org Structured Data for EducationEvent
   const eventSchema = {
@@ -170,6 +171,7 @@ export function EventPage({ slug }: EventPageProps) {
           `تفاصيل وبرنامج فعالية "${event.title}"`,
           "ندوات وأيام دراسية قانونية موثّقة ضمن الأرشيف الأكاديمي لمنصة الميزان الرقمية، مع روابط المشاهدة والوثائق المرافقة.",
         ])}
+        canonicalUrl={canonicalUrl}
         keywords={[
           event.title,
           event.category || "ندوة قانونية",

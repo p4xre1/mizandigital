@@ -9,3 +9,16 @@ http://www.mizan.page/*  https://www.mizan.page/:splat  301!
 # 2) توحيد النطاق: mizan.page (بدون www) يُحوَّل إلى النطاق القانوني www.mizan.page
 #    (النطاق القانوني الموحّد المستخدم في canonical URL و sitemap.xml)
 https://mizan.page/*     https://www.mizan.page/:splat  301!
+
+# 3) بادئات اللغة (/en, /fr, /es, /ar): المنصة أحادية اللغة (عربية فقط) ولا
+#    تحتوي على مسارات مترجمة فعلية. بعض الزواحف/الأدوات تُخمّن وجود نسخ
+#    مترجمة بهذه البادئات، فتُحوَّل هنا مباشرة (301) إلى نفس المسار بدون
+#    البادئة، لتفادي محتوى مكرر أو صفحات "غير مفهرسة" وهمية في Search Console.
+https://www.mizan.page/en/*  https://www.mizan.page/:splat  301!
+https://www.mizan.page/en    https://www.mizan.page/        301!
+https://www.mizan.page/fr/*  https://www.mizan.page/:splat  301!
+https://www.mizan.page/fr    https://www.mizan.page/        301!
+https://www.mizan.page/es/*  https://www.mizan.page/:splat  301!
+https://www.mizan.page/es    https://www.mizan.page/        301!
+https://www.mizan.page/ar/*  https://www.mizan.page/:splat  301!
+https://www.mizan.page/ar    https://www.mizan.page/        301!

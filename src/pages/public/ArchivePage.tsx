@@ -241,6 +241,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
     <>
       <SEOHead
         title={`الأرشيف الدراسي ${selectedSemester !== "all" ? `- الفصل ${selectedSemester}` : "الشامل"}`}
+        canonicalUrl="https://www.mizan.page/archive"
         description="تصفح وحمّل مجاناً أفضل ملخصات، محاضرات، ونماذج امتحانات كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب لجميع السداسيات (S1 - S6)."
         keywords={[
           "الأرشيف الدراسي القانوني",
