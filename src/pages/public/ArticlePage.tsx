@@ -9,8 +9,10 @@ import localNewsData from "../../data/news.json"
 import { rankRelatedItems } from "../../lib/utils/recommend"
 import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
 import { ArticleContent } from "../../components/articles/ArticleContent"
+import { PartnerSuggestionBox } from "../../components/articles/PartnerSuggestionBox"
 import { ViewCounter } from "../../components/articles/ViewCounter"
 import { CommentSection } from "../../components/articles/CommentSection"
+import { useTrackView } from "@/hooks/useTrackView"
 import {
   Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen, KeyRound,
   List, SlidersHorizontal, ChevronDown, Minus, Plus, AlignLeft,
@@ -55,6 +57,9 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   const [article, setArticle] = useState<ArticleDetail | null>(null)
   const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+
+  // تتبّع قراءة حقيقية لهذا المقال/الخبر (مرة واحدة لكل جلسة متصفح)
+  useTrackView(article?.sourceTable === "news" ? "news" : "article", article?.slug)
 
   // حالات الإخفاء والإظهار للأشرطة الجانبية
   const [showContents, setShowContents] = useState<boolean>(false)
@@ -633,6 +638,13 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             <div className={`prose prose-neutral dark:prose-invert max-w-none leading-loose text-foreground/90 ${textSizeClass}`}>
               <ArticleContent blocks={parsed.blocks} />
             </div>
+
+            <PartnerSuggestionBox
+              href="https://www.wadifapublic.ma/ar/tawjih"
+              title="عروض التسجيل والتوجيه الجامعي"
+              description="تصفّح مباريات ولوج المدارس والجامعات، عتبات الانتقاء ومواعيد التسجيل عبر بوابة WadifaPublic.ma."
+              ctaLabel="شاهد عروض التسجيل"
+            />
 
             {article.sourceTable && (
               <CommentSection table={article.sourceTable} slug={article.slug} />

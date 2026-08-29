@@ -47,5 +47,11 @@ test("المسارات الثابتة والبيانات المحلية بالع
   expect(lexicon.every((term) => term.term_ar && term.definition)).toBe(true);
   expect(articles.every((article) => article.slug && article.body.length > 0)).toBe(true);
   expect(events.every((event) => event.slug && event.sourceUrl.startsWith("https://"))).toBe(true);
-  expect(schools.every((school) => school.slug && school.officialUrl.startsWith("https://"))).toBe(true);
+  // بعض الكليات (فروع/ملحقات صغيرة تابعة لجامعة أم) لا تملك موقعاً إلكترونياً خاصاً بها بعد،
+  // لذا officialUrl اختياري؛ عند وجوده يجب أن يكون رابطاً فعلياً (http/https).
+  expect(
+    schools.every(
+      (school) => school.slug && (!school.officialUrl || /^https?:\/\//.test(school.officialUrl))
+    )
+  ).toBe(true);
 });

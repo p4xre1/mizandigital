@@ -6,6 +6,7 @@ import LoginPage from "@/pages/auth/LoginPage"
 
 // Admin Pages
 import DashboardPage from "@/pages/admin/DashboardPage"
+import AnalyticsPage from "@/pages/admin/AnalyticsPage"
 import AdminArticlesPage from "@/pages/admin/articles/ArticlesPage"
 import ArticleEditorPage from "@/pages/admin/articles/ArticleEditorPage"
 import FacultiesPage from "@/pages/admin/faculties/FacultiesPage"
@@ -156,6 +157,7 @@ export default function AppRoutes({
       >
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="articles" element={<AdminArticlesPage />} />
         <Route path="articles/new" element={<ArticleEditorPage />} />
         <Route path="articles/edit/:id" element={<ArticleEditorPage />} />

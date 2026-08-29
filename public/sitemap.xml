@@ -2,115 +2,115 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.mizan.page</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/archive</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/news</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/articles</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/events</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/schools</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/about</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/contact</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/faq</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/terms</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/privacy</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/cookies</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s1</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s2</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s3</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s4</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s5</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s6</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -158,7 +158,7 @@
   </url>
   <url>
     <loc>https://www.mizan.page/articles/ihtiram-qanun-assayr-al-itar-al-qanuni</loc>
-    <lastmod>2026-08-22</lastmod>
+    <lastmod>2026-08-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -241,6 +241,24 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://www.mizan.page/news/قانون-المحاماة-الجديد-6623-أهم-المستجدات-بالمغرب</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/news/تعديلات-قانون-المحاماة-6623-تحليل-شامل-للمواد</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/news/مستجدات-قانون-المسطرة-المدنية-5825-دليل-شامل</loc>
+    <lastmod>2026-08-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://www.mizan.page/events/multaqa-al-qanun-al-muqaran-lil-munafasa</loc>
     <lastmod>2026-05-16</lastmod>
     <changefreq>monthly</changefreq>
@@ -295,1502 +313,1592 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.mizan.page/schools/fsjp-kenitra</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-souissi-rabat</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-sale</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-fes</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-settat</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-mohammedia</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-kenitra</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-oujda</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-kelaa-sraghna</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-ait-melloul</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjp-settat</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-meknes</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-el-jadida</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-tetouan</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/schools/fsjes-ain-chock</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.mizan.page/lexicon/الشخص-المعنوي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الالتزام</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/شركة-المساهمة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الأصل-التجاري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المحكمة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاختصاص-الترابي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القرار-الإداري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحق-العيني</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حقوق-الإنسان</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/عقد-الشغل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العقد</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/البطلان</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإعذار</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوكالة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الهبة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوصية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الزواج</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الطلاق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحضانة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/النفقة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الولاية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الجناية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الجنحة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المخالفة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/النيابة-العامة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التحقيق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاستئناف</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/النقض</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحجز</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التنفيذ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإفلاس</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الكمبيالة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشيك</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السجل-التجاري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/نزع-الملكية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المرفق-العام</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الرخصة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإلغاء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التقادم</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإثبات</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الارتفاق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التحفيظ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/النزاع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاستماع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المرافعة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحكم</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المحامي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الموثق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/كاتب-الضبط</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الخبير</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإضراب</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الطرد</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/النقابة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاتفاقية-الجماعية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التعويض</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المسؤولية-المدنية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القوة-القاهرة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الأهلية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوصاية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإرث</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العود</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العفو</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاستدعاء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الطلب-المقابل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الدرجة-النهائية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مجلس-القضاء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الجلسة-العلنية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الأمر-القضائي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الضمانات</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الكراء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الواجب-الكرائي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المرسوم</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القرار-الوزاري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحريات-العامة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الناخب</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المرشح</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/البرلمان</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القانون-التنظيمي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإشهار</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الرهن-الحيازي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/دعوى-تجاوز-السلطة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الملك-العام</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المتهم</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المطالب-بالحق-المدني</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المحكمة-الإدارية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القوة-الملزمة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حسن-النية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/سوء-النية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التدليس</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الغلط</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإكراه</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الغبن</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السبب</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المحل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الرضا</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الفسخ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التجديد</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المقاصة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الإبراء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحلول</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حوالة-الحق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التضامن</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الرهن-الحيازي-gage</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الكفالة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الامتياز</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحيازة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حق-الانتفاع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحكر</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاشتراك-في-الجدار</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الملكية-المشتركة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشياع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القسمة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/البيع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوديعة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القرض</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصلح</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المخالصة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشخص-الذاتي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الموطن</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحالة-المدنية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الغيبة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التاجر</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العمل-التجاري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/شركة-التضامن</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشركة-ذات-المسؤولية-المحدودة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المسير</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشريك</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/رأس-المال-الاجتماعي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الأرباح-الموزعة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الجمعية-العامة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مجلس-الإدارة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مراقب-الحسابات</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التصفية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاندماج</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التسوية-القضائية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السنديك</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الدائن-العادي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السند-لأمر</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التظهير</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الضمان-الاحتياطي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاحتجاج</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الملكية-الصناعية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/براءة-الاختراع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العلامة-التجارية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المنافسة-غير-المشروعة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/عقد-الامتياز-التجاري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السمسرة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/سند-الشحن</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المقال</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/محضر-التبليغ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التبليغ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المدعى-عليه</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المدعي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التنازل-عن-الدعوى</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الدفع-بعدم-الاختصاص</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الدفع-بعدم-القبول</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المداولة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصيغة-التنفيذية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الغرامة-التهديدية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القضاء-الاستعجالي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التعرض</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/تعرض-الغير-الخارج-عن-الخصومة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/إعادة-النظر</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المساعدة-القضائية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصلح-conciliation</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التحكيم</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحجز-التحفظي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/رفع-اليد</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوضع-تحت-الحراسة-النظرية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الجريمة-المتلبس-بها</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشكاية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الملتمس</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/أمر-بعدم-متابعة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الأمر-بالإيداع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مذكرة-اعتقال</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاعتقال-الاحتياطي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السراح-المؤقت</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السجل-العدلي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/رد-الاعتبار</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الدفاع-الشرعي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/القصد-الجنائي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشروع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المساهمة-الجنائية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الظروف-المخففة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الظروف-المشددة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/تعدد-العقوبات</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المسؤولية-الجنائية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/عقوبة-سالبة-للحرية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/إيقاف-التنفيذ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/عقد-محدد-المدة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/عقد-غير-محدد-المدة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/فترة-الاختبار</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/أجل-الإخطار</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الخطأ-الجسيم</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاستقالة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الساعات-الإضافية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حادثة-الشغل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مفتش-الشغل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصندوق-الوطني-للضمان-الاجتماعي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مندوب-الأجراء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الكفالة-kafala</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصداق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الولي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الخلع</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الشقاق</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العدة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/النسب</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العقد-العدلي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العدول</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الطعن-الرئاسي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العقد-الإداري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصفقة-العمومية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التدبير-المفوض</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الضبط-الإداري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوصاية-الإدارية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الجماعة-الترابية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الوظيفة-العمومية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/العقوبة-التأديبية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السيادة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/فصل-السلط</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/ملتمس-الرقابة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحصانة-البرلمانية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المحكمة-الدستورية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الاستفتاء</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حالة-الطوارئ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الرسم-العقاري</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/مطلب-التحفيظ</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المحافظة-العقارية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التجزئة-العقارية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حق-الشفعة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الرهن-الرسمي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الضريبة-على-الدخل</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الضريبة-على-الشركات</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الضريبة-على-القيمة-المضافة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التصحيح-الضريبي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المنازعات-الضريبية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/حق-المؤلف</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التقليد</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/المكتب-المغربي-للملكية-الصناعية-والتجارية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/وثيقة-التأمين</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/قسط-التأمين</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الحادث-المؤمن-عليه</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/السر-البنكي</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الائتمان</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/تنازع-القوانين</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/الصيغة-التنفيذية-للأحكام-الأجنبية</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/تسليم-المجرمين</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/دراسة-التأثير-على-البيئة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon/التنمية-المستدامة</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-08-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

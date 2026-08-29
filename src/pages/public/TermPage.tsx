@@ -10,6 +10,7 @@ import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/Leg
 import { supabase } from "../../lib/supabase/client"
 import { rankRelatedItems } from "../../lib/utils/recommend"
 import { buildMetaDescription } from "../../lib/seo/description"
+import { useTrackView } from "@/hooks/useTrackView"
 
 interface TermPageProps {
   slug?: string
@@ -48,6 +49,9 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const [loading, setLoading] = useState(() => findLocalTermSync(targetQuery) === null)
   const [highlighted, setHighlighted] = useState<string | null>(null)
   const [relatedTerms, setRelatedTerms] = useState<any[]>([])
+
+  // تتبّع قراءة حقيقية لهذا المصطلح (مرة واحدة لكل جلسة متصفح)
+  useTrackView("term", term ? targetQuery : null)
 
   useEffect(() => {
     async function fetchTerm() {

@@ -3,6 +3,7 @@ import { useParams, useLocation, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
+import { useTrackView } from "@/hooks/useTrackView"
 import { Download, Loader2, ArrowRight, FileText, Clock, AlertCircle } from "lucide-react"
 
 const WAIT_SECONDS = 30
@@ -22,6 +23,9 @@ export function DownloadGatePage() {
   const [target, setTarget] = useState<DownloadTarget | null>(stateTarget)
   const [loading, setLoading] = useState(!stateTarget)
   const [secondsLeft, setSecondsLeft] = useState(WAIT_SECONDS)
+
+  // تتبّع قراءة/معاينة حقيقية لهذا الملف (مرة واحدة لكل جلسة متصفح)
+  useTrackView("pdf", id)
 
   // إن لم تصل بيانات الملف عبر التنقّل الداخلي (مثلاً: فُتحت الصفحة مباشرة أو أُعيد تحميلها)،
   // نحاول جلبها من قاعدة البيانات اعتماداً على المعرّف في الرابط

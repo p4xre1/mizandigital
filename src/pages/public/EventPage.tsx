@@ -4,6 +4,7 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import { buildMetaDescription } from "../../lib/seo/description"
 import eventsData from "../../data/events.json"
 import { supabase } from "../../lib/supabase/client"
+import { useTrackView } from "@/hooks/useTrackView"
 import {
   Calendar,
   MapPin,
@@ -51,6 +52,9 @@ export function EventPage({ slug }: EventPageProps) {
   const [copied, setCopied] = useState(false)
   const [seminarEvent, setSeminarEvent] = useState<any | null>(null)
   const [loadingSeminar, setLoadingSeminar] = useState<boolean>(false)
+
+  // تتبّع قراءة حقيقية لهذه الفعالية/الندوة (مرة واحدة لكل جلسة متصفح)
+  useTrackView("event", eventSlug)
 
   // Find target event by id or slug within the local static catalog first
   const localEvent = (eventsData as any[]).find(
