@@ -3,7 +3,7 @@ export type ArticleStatus = "draft" | "under_review" | "published" | "archived"
 export interface Category {
   id: string
   name: string
-  name_ar?: string // Optional alias for backward compatibility
+  name_ar?: string
   name_fr?: string | null
   slug: string
   description?: string | null
@@ -14,7 +14,7 @@ export interface Category {
 export interface Faculty {
   id: string
   name: string
-  name_ar?: string // Optional alias for backward compatibility
+  name_ar?: string
   name_fr?: string | null
   city: string
   slug: string
@@ -22,6 +22,65 @@ export interface Faculty {
   logo_url?: string | null
   description?: string | null
   created_at?: string | null
+}
+
+/** Canonical school record matching the public schools.json shape while remaining compatible with Supabase CMS records. */
+export interface School {
+  id: string
+  slug: string
+  name: string
+  university: string
+  city: string
+  officialUrl?: string | null
+  mapLocation?: { address?: string | null; googleMapsUrl?: string | null } | null
+  synopsis?: string | null
+  studyAreas?: string[]
+  verifiedAt?: string | null
+  registrationInfo?: Record<string, unknown> | null
+  usefulLinks?: Array<{ title: string; url: string }>
+  body?: string[]
+  logoUrl?: string | null
+  foundedYear?: string | number | null
+  socialMedia?: { facebook?: string | null; linkedin?: string | null } | null
+}
+
+export interface NewsItem {
+  id: string
+  title: string
+  summary?: string | null
+  content?: string | null
+  source?: string | null
+  source_url?: string | null
+  image_url?: string | null
+  slug: string
+  category_id?: string | null
+  category?: Category | null
+  is_published: boolean
+  published_at?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+  views_count?: number | null
+  target_keyword?: string | null
+  meta_title?: string | null
+  meta_description?: string | null
+  focus_keyword?: string | null
+}
+
+export interface PdfSummary {
+  id: string
+  title: string
+  slug: string
+  description?: string | null
+  semester: string
+  professor?: string | null
+  faculty_id?: string | null
+  file_url: string
+  file_size_bytes?: number | null
+  download_count?: number | null
+  status?: ArticleStatus
+  uploaded_by?: string | null
+  created_at?: string | null
+  updated_at?: string | null
 }
 
 export interface Article {
@@ -48,20 +107,14 @@ export interface Article {
 }
 
 export interface LegalArticleRef {
-  // رقم الفصل/المادة كما يرد في النص الرسمي (مثال: "230" أو "4")
   number: string
-  // النص الحرفي أو الموجز للمقتضى القانوني المرتبط بالمصطلح
   phrase: string
 }
 
 export interface LegalSource {
-  // الاسم الكامل للقانون/المدونة بالعربية (مثال: "قانون الالتزامات والعقود")
   code_ar: string
-  // الاختصار الشائع إن وجد (مثال: "ق.ل.ع")
   code_short?: string
-  // الاسم بالفرنسية إن وجد (مثال: "Code des obligations et des contrats")
   code_fr?: string
-  // لائحة الفصول/المواد التي يرد فيها المصطلح ضمن هذا القانون
   articles: LegalArticleRef[]
 }
 
@@ -71,9 +124,6 @@ export interface LexiconTerm {
   term_fr: string
   definition: string
   category: string
-  // "الشجرة القانونية": كل القوانين/المدونات التي يرد فيها المصطلح، مع أرقام
-  // الفصول/المواد والمقتضى القانوني لكل واحدة منها. اختياري وغير متوفر بعد
-  // لكل المصطلحات — يُستكمل تدريجياً بعد بحث قانوني موثّق لكل مصطلح.
   legal_sources?: LegalSource[]
   created_at?: string | null
   updated_at?: string | null
