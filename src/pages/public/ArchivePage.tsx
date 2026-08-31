@@ -143,7 +143,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
             .order("created_at", { ascending: false }),
           (supabase as any)
             .from("laws")
-            .select("*, category:categories(id, name_ar, name_fr, slug)")
+            .select("*, category:categories(id, name, name_fr, slug)")
             .order("created_at", { ascending: false }),
         ])
 

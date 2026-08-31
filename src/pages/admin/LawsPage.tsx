@@ -109,10 +109,10 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
           .from("laws")
           .select(`
             *,
-            category:categories(id, name_ar, name_fr, slug)
+            category:categories(id, name, name_fr, slug)
           `)
           .order("created_at", { ascending: false }),
-        supabase.from("categories").select("*").order("name_ar", { ascending: true }),
+        supabase.from("categories").select("*").order("name", { ascending: true }),
       ])
 
       if (lawsRes.data) setLaws(lawsRes.data as unknown as Law[])
@@ -314,7 +314,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
               <option value="all">جميع التصنيفات</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
-                  {cat.name_ar || (cat as any).name}
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -454,7 +454,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                   {law.category ? (
                     <span className="inline-flex items-center gap-1 rounded-md bg-muted/80 px-2 py-0.5 text-[10px] font-bold text-foreground">
                       <Tag className="size-3 text-primary" />
-                      {law.category.name_ar || (law.category as any).name}
+                      {law.category.name}
                     </span>
                   ) : (
                     <span className="text-[10px]">عام</span>
@@ -572,7 +572,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                       <option value="">اختر التصنيف...</option>
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.id}>
-                          {cat.name_ar || (cat as any).name}
+                          {cat.name}
                         </option>
                       ))}
                     </select>
