@@ -1,0 +1,41 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/mcp-server-card/v1.json",
+  "version": "1.0",
+  "protocolVersion": "2025-06-18",
+  "serverInfo": {
+    "name": "mizan-digital",
+    "title": "Mizan Digital",
+    "version": "1.0.0"
+  },
+  "description": "Read-only MCP endpoint for discovering Mizan Digital's public Moroccan legal and academic resources.",
+  "iconUrl": "https://www.mizan.page/Logo.svg",
+  "documentationUrl": "https://www.mizan.page/llms.txt",
+  "transport": {
+    "type": "streamable-http",
+    "endpoint": "https://www.mizan.page/mcp"
+  },
+  "capabilities": {
+    "tools": {"listChanged": false},
+    "resources": {},
+    "prompts": {}
+  },
+  "authentication": {
+    "required": false,
+    "schemes": []
+  },
+  "instructions": "This server exposes public read-only discovery tools. Do not treat summaries as official legislation; verify legal claims against official Moroccan sources.",
+  "tools": [
+    {
+      "name": "mizan_site_info",
+      "title": "Mizan site information",
+      "description": "Returns the public identity, scope and important links of Mizan Digital.",
+      "inputSchema": {"type":"object","properties":{},"additionalProperties":false}
+    },
+    {
+      "name": "mizan_resource_links",
+      "title": "Mizan resource links",
+      "description": "Returns stable public URLs for legal and academic resource sections.",
+      "inputSchema": {"type":"object","properties":{},"additionalProperties":false}
+    }
+  ]
+}
