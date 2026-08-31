@@ -1,0 +1,31 @@
+# ميزان الرقمية (Mizan Digital)
+
+> منصة أكاديمية مغربية مجانية لطلبة الحقوق والباحثين في القانون المغربي.
+
+## الموقع
+- https://www.mizan.page/
+- https://www.mizan.page/about
+- https://www.mizan.page/contact
+
+## المحتوى
+- https://www.mizan.page/articles — مقالات قانونية ومنهجية
+- https://www.mizan.page/news — أخبار ومستجدات
+- https://www.mizan.page/lexicon — قاموس قانوني عربي/فرنسي
+- https://www.mizan.page/archive — الأرشيف الدراسي
+- https://www.mizan.page/events — الندوات والفعاليات
+- https://www.mizan.page/schools — دليل كليات الحقوق بالمغرب
+
+## الفصول الدراسية
+- https://www.mizan.page/s1
+- https://www.mizan.page/s2
+- https://www.mizan.page/s3
+- https://www.mizan.page/s4
+- https://www.mizan.page/s5
+- https://www.mizan.page/s6
+
+## المصدر القانوني
+المحتوى تعليمي وبحثي. عند الاستناد إلى قاعدة قانونية، يرجى التحقق من النص الرسمي النافذ لدى الجهات المغربية المختصة، ومنها بوابة عدالة التابعة لوزارة العدل: https://adala.justice.gov.ma/
+
+## الزحف والفهرسة
+- https://www.mizan.page/robots.txt
+- https://www.mizan.page/sitemap.xml
