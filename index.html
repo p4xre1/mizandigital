@@ -1,42 +1,32 @@
 <!doctype html>
-<html lang="ar" dir="rtl" class="dark">
+<html lang="ar-MA" dir="rtl" class="dark">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0b1220">
     <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta name="description" content="ميزان الرقمية: منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب.">
+    <meta name="description" content="ميزان الرقمية: منصة عربية مغربية للمعرفة القانونية وملخصات وموارد طلبة القانون.">
     <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="google-site-verification" content="SpJLp1sPB-tOaZBbyy-PfmiAfHkUKwie9foaXLaGeno">
 
-    <!-- Google Search Console: أداة التحقق من ملكية الموقع -->
-    <!-- 1) اذهب إلى https://search.google.com/search-console وأضف الموقع (Domain أو URL prefix) -->
-    <!-- 2) اختر طريقة التحقق "HTML tag" وانسخ قيمة content من الكود الذي يعطيك إياه -->
-    <!-- 3) استبدل REPLACE_WITH_YOUR_VERIFICATION_CODE أدناه بتلك القيمة، ثم انشر الموقع -->
-    <!-- 4) عد إلى Search Console واضغط "تحقق" (Verify) -->
-    <meta name="google-site-verification" content="SpJLp1sPB-tOaZBbyy-PfmiAfHkUKwie9foaXLaGeno" />
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Fonts: load without blocking first paint. The system font is used immediately. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap"></noscript>
 
-    <!-- Google AdSense -->
-    <meta name="google-adsense-account" content="ca-pub-1749032173858747">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1749032173858747" crossorigin="anonymous"></script>
-
-    <!-- SEO & Metadata -->
+    <!-- SEO -->
     <title>ميزان الرقمية | ملخصات وموارد طلبة القانون</title>
     <link rel="canonical" href="https://www.mizan.page/">
     <link rel="alternate" hreflang="ar" href="https://www.mizan.page/">
     <link rel="alternate" hreflang="x-default" href="https://www.mizan.page/">
-    <link rel="publisher" href="https://www.facebook.com/mizandigital">
     <meta name="publisher" content="منصة الميزان الرقمية">
 
-    <!-- Open Graph / Social Media -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.mizan.page/">
     <meta property="og:title" content="ميزان الرقمية | ملخصات وموارد طلبة القانون">
-    <meta property="og:description" content="منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب.">
+    <meta property="og:description" content="منصة عربية مغربية للمعرفة القانونية وملخصات وموارد طلبة القانون.">
     <meta property="og:image" content="https://www.mizan.page/og-image.png">
     <meta property="og:site_name" content="ميزان الرقمية">
     <meta property="og:locale" content="ar_MA">
@@ -44,94 +34,98 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ميزان الرقمية | ملخصات وموارد طلبة القانون">
-    <meta name="twitter:description" content="منصة عربية سريعة لملخصات ونماذج طلبة القانون بالمغرب.">
+    <meta name="twitter:description" content="منصة عربية مغربية للمعرفة القانونية وملخصات وموارد طلبة القانون.">
     <meta name="twitter:image" content="https://www.mizan.page/og-image.png">
 
-    <!-- Favicon & PWA -->
+    <!-- PWA -->
     <link rel="icon" type="image/svg+xml" href="/Logo.svg">
     <link rel="apple-touch-icon" href="/Logo.svg">
     <meta name="mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.json">
 
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured data -->
     <script type="application/ld+json">
       {
-        "@context": "https://schema.org",
-        "@graph": [
+        "@context":"https://schema.org",
+        "@graph":[
           {
-            "@type": "EducationalOrganization",
-            "@id": "https://www.mizan.page/#organization",
-            "name": "ميزان الرقمية",
-            "alternateName": "Mizan Digital",
-            "url": "https://www.mizan.page/",
-            "logo": "https://www.mizan.page/Logo.svg",
-            "description": "منصة تعليمية عربية لطلبة القانون والعلوم القانونية بالمغرب.",
-            "areaServed": "MA",
-            "knowsLanguage": "ar"
+            "@type":"EducationalOrganization",
+            "@id":"https://www.mizan.page/#organization",
+            "name":"ميزان الرقمية",
+            "alternateName":"Mizan Digital",
+            "url":"https://www.mizan.page/",
+            "logo":"https://www.mizan.page/Logo.svg",
+            "description":"منصة تعليمية عربية لطلبة القانون والعلوم القانونية بالمغرب.",
+            "areaServed":"MA",
+            "knowsLanguage":"ar",
+            "sameAs":["https://github.com/p4xre1/mizandigital"]
           },
           {
-            "@type": "WebSite",
-            "@id": "https://www.mizan.page/#website",
-            "url": "https://www.mizan.page/",
-            "name": "ميزان الرقمية",
-            "publisher": { "@id": "https://www.mizan.page/#organization" },
-            "inLanguage": "ar",
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": "https://www.mizan.page/?q={search_term_string}",
-              "query-input": "required name=search_term_string"
-            }
+            "@type":"WebSite",
+            "@id":"https://www.mizan.page/#website",
+            "url":"https://www.mizan.page/",
+            "name":"ميزان الرقمية",
+            "publisher":{"@id":"https://www.mizan.page/#organization"},
+            "inLanguage":"ar-MA",
+            "potentialAction":{"@type":"SearchAction","target":"https://www.mizan.page/?q={search_term_string}","query-input":"required name=search_term_string"}
           },
           {
-            "@type": "WebPage",
-            "@id": "https://www.mizan.page/#webpage",
-            "url": "https://www.mizan.page/",
-            "name": "ميزان الرقمية | ملخصات وموارد طلبة القانون",
-            "isPartOf": { "@id": "https://www.mizan.page/#website" },
-            "about": { "@id": "https://www.mizan.page/#organization" },
-            "inLanguage": "ar"
+            "@type":"WebPage",
+            "@id":"https://www.mizan.page/#webpage",
+            "url":"https://www.mizan.page/",
+            "name":"ميزان الرقمية | ملخصات وموارد طلبة القانون",
+            "isPartOf":{"@id":"https://www.mizan.page/#website"},
+            "about":{"@id":"https://www.mizan.page/#organization"},
+            "inLanguage":"ar-MA",
+            "datePublished":"2026-07-21",
+            "dateModified":"2026-08-31"
           }
         ]
       }
     </script>
 
-    <!-- Google Analytics (GA4) Script + Consent Mode v2 -->
+    <!-- Google Analytics: initialize only when configured and after the first paint. -->
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag() { window.dataLayer.push(arguments); }
+      function gtag(){window.dataLayer.push(arguments);}
       window.gtag = gtag;
+      gtag("consent","default",{analytics_storage:"denied",ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",wait_for_update:500});
 
-      // وضع الموافقة الافتراضي من Google: رفض التخزين التحليلي/الإعلاني إلى حين موافقة صريحة من الزائر
-      gtag("consent", "default", {
-        analytics_storage: "denied",
-        ad_storage: "denied",
-        ad_user_data: "denied",
-        ad_personalization: "denied",
-        wait_for_update: 500
-      });
-
-      // إن كان الزائر قد وافق مسبقاً (محفوظ في localStorage عبر شريط إشعار الكوكيز)، نُحدّث الموافقة فوراً
-      try {
-        var storedConsent = window.localStorage.getItem("mizan-cookie-consent");
-        if (storedConsent === "granted") {
-          gtag("consent", "update", {
-            analytics_storage: "granted",
-            ad_storage: "granted",
-            ad_user_data: "granted",
-            ad_personalization: "granted"
-          });
-        }
-      } catch (e) {}
-
-      window.mizanGaMeasurementId = "%VITE_GA_ID%";
-      if (window.mizanGaMeasurementId && !window.mizanGaMeasurementId.startsWith("%")) {
-        gtag("js", new Date());
-        gtag("config", window.mizanGaMeasurementId, { anonymize_ip: true });
-        var gaScript = document.createElement("script");
-        gaScript.async = true;
-        gaScript.src = "https://www.googletagmanager.com/gtag/js?id=" + window.mizanGaMeasurementId;
-        document.head.appendChild(gaScript);
+      function loadMizanAnalytics(){
+        if(window.__mizanAnalyticsLoaded) return;
+        window.__mizanAnalyticsLoaded = true;
+        try {
+          if(window.localStorage.getItem("mizan-cookie-consent")==="granted") {
+            gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"});
+          }
+        } catch(e) {}
+        var id="%VITE_GA_ID%";
+        if(!id || id.indexOf("%")===0) return;
+        gtag("js",new Date());
+        gtag("config",id,{anonymize_ip:true});
+        var s=document.createElement("script");
+        s.async=true;
+        s.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(id);
+        document.head.appendChild(s);
       }
+      if("requestIdleCallback" in window) requestIdleCallback(loadMizanAnalytics,{timeout:2500});
+      else window.addEventListener("load",function(){setTimeout(loadMizanAnalytics,1500)},{once:true});
+    </script>
+
+    <!-- AdSense: defer third-party script so it does not compete with the mobile critical path. -->
+    <meta name="google-adsense-account" content="ca-pub-1749032173858747">
+    <script>
+      function loadMizanAds(){
+        if(window.__mizanAdsLoaded) return;
+        window.__mizanAdsLoaded=true;
+        var s=document.createElement("script");
+        s.async=true;
+        s.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1749032173858747";
+        s.crossOrigin="anonymous";
+        document.head.appendChild(s);
+      }
+      if("requestIdleCallback" in window) requestIdleCallback(loadMizanAds,{timeout:3500});
+      else window.addEventListener("load",function(){setTimeout(loadMizanAds,2500)},{once:true});
     </script>
   </head>
   <body>
