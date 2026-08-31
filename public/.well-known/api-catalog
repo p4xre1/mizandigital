@@ -1,0 +1,19 @@
+{
+  "name": "Mizan Digital Public Resource Catalog",
+  "version": "1.0.0",
+  "description": "Machine-readable catalog of public, read-only Mizan Digital resources. Mizan does not currently advertise a public authenticated API.",
+  "baseUrl": "https://www.mizan.page",
+  "resources": [
+    {"name":"Website","path":"/","method":"GET","contentType":"text/html"},
+    {"name":"Markdown homepage","path":"/index.md","method":"GET","contentType":"text/markdown"},
+    {"name":"LLMs guidance","path":"/llms.txt","method":"GET","contentType":"text/plain"},
+    {"name":"Sitemap","path":"/sitemap.xml","method":"GET","contentType":"application/xml"},
+    {"name":"Articles","path":"/articles","method":"GET","contentType":"text/html"},
+    {"name":"News","path":"/news","method":"GET","contentType":"text/html"},
+    {"name":"Legal glossary","path":"/lexicon","method":"GET","contentType":"text/html"},
+    {"name":"Law schools","path":"/schools","method":"GET","contentType":"text/html"},
+    {"name":"Archive","path":"/archive","method":"GET","contentType":"text/html"}
+  ],
+  "authentication": {"required": false},
+  "writeOperations": false
+}
