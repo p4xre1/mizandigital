@@ -669,7 +669,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           <section className="mt-16 pt-8 border-t border-border">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-bold text-foreground">مقالات ودراسات ذات صلة</h3>
-              <Link to="/articles" className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">
+              <Link to="/articles" title="عرض جميع المقالات" className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">
                 <span>عرض الكل</span>
                 <ArrowLeft size={14} />
               </Link>
@@ -680,6 +680,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
                 <Link
                   key={item.id}
                   to={`/articles/${item.slug}`}
+                  title={item.title}
                   className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                 >
                   <div className="space-y-2">

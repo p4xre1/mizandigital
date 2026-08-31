@@ -237,6 +237,7 @@ export function ArticlesPage() {
                   {item.image && (
                     <Link
                       to={`/articles/${item.slug}`}
+                      title={item.title}
                       className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
                     >
                       <img
@@ -264,7 +265,7 @@ export function ArticlesPage() {
                     </div>
 
                     <h2 className="text-base font-bold text-foreground group-hover:text-primary transition line-clamp-2 leading-snug">
-                      <Link to={`/articles/${item.slug}`}>{item.title}</Link>
+                      <Link to={`/articles/${item.slug}`} title={item.title}>{item.title}</Link>
                     </h2>
 
                     {item.summary && (
@@ -281,6 +282,7 @@ export function ArticlesPage() {
                     </span>
                     <Link
                       to={`/articles/${item.slug}`}
+                      title={`قراءة المقال: ${item.title}`}
                       className="inline-flex items-center gap-1 font-bold text-primary hover:underline shrink-0"
                     >
                       <span>قراءة المقال</span>

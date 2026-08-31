@@ -259,7 +259,7 @@ export function LexiconPage() {
                     {/* Terms (Arabic & French) */}
                     <div className="space-y-1 mb-3">
                       <h2 className="text-base md:text-lg font-bold text-foreground group-hover:text-primary transition">
-                        <Link to={`/lexicon/${slug}`} className="focus:outline-none">
+                        <Link to={`/lexicon/${slug}`} title={termAr} className="focus:outline-none">
                           {termAr}
                         </Link>
                       </h2>
@@ -291,6 +291,7 @@ export function LexiconPage() {
 
                     <Link
                       to={`/lexicon/${slug}`}
+                      title={`تعريف: ${termAr}`}
                       className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline shrink-0 py-1 px-2"
                     >
                       <span>التفاصيل</span>

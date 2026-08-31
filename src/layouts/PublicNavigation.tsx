@@ -3,7 +3,7 @@ import { Scale, Sun, Moon, X, Menu } from "lucide-react"
 
 export function Brand() {
   return (
-    <Link to="/" className="flex shrink-0 items-center gap-3">
+    <Link to="/" title="ميزان الرقمية — المعرفة القانونية للطلبة" className="flex shrink-0 items-center gap-3">
       <span className="brand-mark" aria-hidden="true">
         <Scale size={21} strokeWidth={2.2} />
       </span>
@@ -47,25 +47,25 @@ export function Header({
           } absolute inset-x-4 top-[68px] z-20 flex-col gap-1 rounded-2xl border border-border bg-card p-3 shadow-xl md:static md:flex md:flex-row md:items-center md:gap-0 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
           aria-label="التنقل الرئيسي"
         >
-          <NavLink to="/" end className={linkClass}>
+          <NavLink to="/" end title="الصفحة الرئيسية لمنصة ميزان الرقمية" className={linkClass}>
             الرئيسية
           </NavLink>
-          <NavLink to="/archive" className={linkClass}>
+          <NavLink to="/archive" title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className={linkClass}>
             المكتبة والملخصات
           </NavLink>
-          <NavLink to="/news" className={linkClass}>
+          <NavLink to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className={linkClass}>
             الأخبار
           </NavLink>
-          <NavLink to="/articles" className={linkClass}>
+          <NavLink to="/articles" title="مقالات ودراسات قانونية معمقة" className={linkClass}>
             المقالات
           </NavLink>
-          <NavLink to="/lexicon" className={linkClass}>
+          <NavLink to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className={linkClass}>
             القاموس
           </NavLink>
-          <NavLink to="/events" className={linkClass}>
+          <NavLink to="/events" title="الندوات واللقاءات القانونية القادمة" className={linkClass}>
             الندوات
           </NavLink>
-          <NavLink to="/schools" className={linkClass}>
+          <NavLink to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className={linkClass}>
             كليات الحقوق
           </NavLink>
         </nav>
@@ -103,6 +103,7 @@ export function Footer() {
           </p>
           <a
             href="mailto:contact@mizan.page"
+            title="راسلنا عبر البريد الإلكتروني"
             dir="ltr"
             className="mt-4 inline-block text-sm font-semibold text-muted-foreground hover:text-primary transition text-right"
           >
@@ -112,16 +113,16 @@ export function Footer() {
         <div>
           <p className="mb-3 text-sm font-extrabold text-foreground">استكشف</p>
           <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/archive" className="hover:text-foreground">
+            <Link to="/archive" title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className="hover:text-foreground">
               المكتبة والملخصات
             </Link>
-            <Link to="/news" className="hover:text-foreground">
+            <Link to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className="hover:text-foreground">
               الأخبار
             </Link>
-            <Link to="/articles" className="hover:text-foreground">
+            <Link to="/articles" title="مقالات ودراسات قانونية معمقة" className="hover:text-foreground">
               المقالات والدراسات
             </Link>
-            <Link to="/events" className="hover:text-foreground">
+            <Link to="/events" title="الندوات واللقاءات القانونية القادمة" className="hover:text-foreground">
               الندوات واللقاءات
             </Link>
           </div>
@@ -129,19 +130,19 @@ export function Footer() {
         <div>
           <p className="mb-3 text-sm font-extrabold text-foreground">مراجع سريعة</p>
           <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/lexicon" className="hover:text-foreground">
+            <Link to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className="hover:text-foreground">
               القاموس القانوني
             </Link>
-            <Link to="/schools" className="hover:text-foreground">
+            <Link to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className="hover:text-foreground">
               دليل كليات الحقوق
             </Link>
-            <Link to="/faq" className="hover:text-foreground">
+            <Link to="/faq" title="الأسئلة الشائعة حول منصة ميزان الرقمية" className="hover:text-foreground">
               الأسئلة الشائعة
             </Link>
-            <Link to="/about" className="hover:text-foreground">
+            <Link to="/about" title="من نحن — تعرف على منصة ميزان الرقمية" className="hover:text-foreground">
               من نحن
             </Link>
-            <Link to="/contact" className="hover:text-foreground">
+            <Link to="/contact" title="اتصل بفريق ميزان الرقمية" className="hover:text-foreground">
               اتصل بنا
             </Link>
           </div>
@@ -149,13 +150,13 @@ export function Footer() {
         <div>
           <p className="mb-3 text-sm font-extrabold text-foreground">قانوني</p>
           <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/terms" className="hover:text-foreground">
+            <Link to="/terms" title="الشروط والأحكام الخاصة باستخدام المنصة" className="hover:text-foreground">
               الشروط والأحكام
             </Link>
-            <Link to="/privacy" className="hover:text-foreground">
+            <Link to="/privacy" title="سياسة الخصوصية وحماية البيانات" className="hover:text-foreground">
               سياسة الخصوصية
             </Link>
-            <Link to="/cookies" className="hover:text-foreground">
+            <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="hover:text-foreground">
               سياسة الكوكيز
             </Link>
           </div>

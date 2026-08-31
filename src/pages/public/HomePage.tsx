@@ -404,7 +404,7 @@ export function HomePage() {
                         <FileText size={18} className="text-primary" />
                         أحدث المقالات
                       </h3>
-                      <Link to="/articles" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                      <Link to="/articles" title="عرض جميع المقالات القانونية" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
                         عرض الكل <ArrowLeft size={13} />
                       </Link>
                     </div>
@@ -413,6 +413,7 @@ export function HomePage() {
                         <Link
                           key={item.slug}
                           to={`/articles/${item.slug}`}
+                          title={item.title}
                           className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                         >
                           {item.category && (
@@ -440,7 +441,7 @@ export function HomePage() {
                         <Newspaper size={18} className="text-primary" />
                         أحدث الأخبار
                       </h3>
-                      <Link to="/news" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                      <Link to="/news" title="عرض جميع الأخبار القانونية" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
                         عرض الكل <ArrowLeft size={13} />
                       </Link>
                     </div>
@@ -449,6 +450,7 @@ export function HomePage() {
                         <Link
                           key={item.slug}
                           to={`/news/${item.slug}`}
+                          title={item.title}
                           className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                         >
                           {item.category && (
@@ -476,7 +478,7 @@ export function HomePage() {
                         <Calendar size={18} className="text-primary" />
                         أحدث الندوات والفعاليات
                       </h3>
-                      <Link to="/events" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                      <Link to="/events" title="عرض جميع الندوات والفعاليات" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
                         عرض الكل <ArrowLeft size={13} />
                       </Link>
                     </div>
@@ -485,6 +487,7 @@ export function HomePage() {
                         <Link
                           key={item.slug}
                           to={`/events/${item.slug}`}
+                          title={item.title}
                           className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                         >
                           <span className="w-fit inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -508,7 +511,7 @@ export function HomePage() {
                         <Download size={18} className="text-primary" />
                         أحدث وثائق الأرشيف
                       </h3>
-                      <Link to="/archive" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                      <Link to="/archive" title="عرض جميع وثائق الأرشيف" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
                         عرض الكل <ArrowLeft size={13} />
                       </Link>
                     </div>
@@ -517,6 +520,7 @@ export function HomePage() {
                         <Link
                           key={item.slug}
                           to={`/download/${item.id}`}
+                          title={item.title}
                           className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                         >
                           <span className="w-fit inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -540,7 +544,7 @@ export function HomePage() {
                         <Scale size={18} className="text-primary" />
                         أحدث المصطلحات القانونية
                       </h3>
-                      <Link to="/lexicon" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
+                      <Link to="/lexicon" title="عرض القاموس القانوني بالكامل" className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline">
                         عرض الكل <ArrowLeft size={13} />
                       </Link>
                     </div>
@@ -549,6 +553,7 @@ export function HomePage() {
                         <Link
                           key={item.slug}
                           to={`/lexicon/${item.slug}`}
+                          title={item.title}
                           className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                         >
                           {item.category && (

@@ -284,7 +284,7 @@ export function EventsPage() {
                   className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:border-primary/50 hover:shadow-md"
                 >
                   {event.image && (
-                    <Link to={`/events/${event.id}`} className="block aspect-video w-full overflow-hidden bg-muted">
+                    <Link to={`/events/${event.id}`} title={event.title} className="block aspect-video w-full overflow-hidden bg-muted">
                       <img
                         src={event.image}
                         alt={event.title}
@@ -334,7 +334,7 @@ export function EventsPage() {
 
                     {/* Event Title */}
                     <h2 className="text-xl font-bold text-foreground group-hover:text-primary transition leading-snug mb-3">
-                      <Link to={`/events/${event.id}`}>{event.title}</Link>
+                      <Link to={`/events/${event.id}`} title={event.title}>{event.title}</Link>
                     </h2>
 
                     {/* Summary */}
@@ -373,6 +373,7 @@ export function EventsPage() {
                   <div className="mt-6 pt-4 border-t border-border flex items-center justify-between gap-3">
                     <Link
                       to={`/events/${event.id}`}
+                      title={`تفاصيل الفعالية: ${event.title}`}
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
                     >
                       <span>تفاصيل الفعالية</span>

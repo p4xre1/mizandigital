@@ -333,7 +333,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
                 <Tags size={18} className="text-primary" />
                 مصطلحات ذات صلة
               </h3>
-              <Link to="/lexicon" className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">
+              <Link to="/lexicon" title="عرض القاموس القانوني بالكامل" className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1">
                 <span>عرض المعجم كاملاً</span>
                 <ArrowLeft size={14} />
               </Link>
@@ -344,6 +344,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
                 <Link
                   key={item.id}
                   to={`/lexicon/${item.slug}`}
+                  title={item.title}
                   className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm"
                 >
                   {item.category && (

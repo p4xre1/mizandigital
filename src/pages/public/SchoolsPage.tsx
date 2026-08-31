@@ -212,7 +212,7 @@ export function SchoolsPage() {
                     </div>
 
                     <h2 className="text-lg font-bold text-foreground group-hover:text-primary transition line-clamp-2">
-                      <Link to={`/schools/${schoolSlug}`}>
+                      <Link to={`/schools/${schoolSlug}`} title={schoolName}>
                         {schoolName}
                       </Link>
                     </h2>
@@ -227,6 +227,7 @@ export function SchoolsPage() {
                   <div className="mt-6 pt-4 border-t border-border flex items-center justify-between gap-2 text-xs">
                     <Link
                       to={`/schools/${schoolSlug}`}
+                      title={`تفاصيل الكلية: ${schoolName}`}
                       className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline"
                     >
                       تفاصيل الكلية

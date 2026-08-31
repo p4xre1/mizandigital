@@ -306,6 +306,7 @@ export function NewsPage() {
                   {item.image_url && viewMode === "grid" && (
                     <Link
                       to={itemPath}
+                      title={item.title}
                       className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
                     >
                       <img
@@ -336,7 +337,7 @@ export function NewsPage() {
 
                     {/* Title */}
                     <h2 className="text-base font-bold text-foreground group-hover:text-primary transition line-clamp-2 leading-snug">
-                      <Link to={itemPath}>
+                      <Link to={itemPath} title={item.title}>
                         {item.title}
                       </Link>
                     </h2>
@@ -382,6 +383,7 @@ export function NewsPage() {
                       )}
                       <Link
                         to={itemPath}
+                        title={`تفاصيل الخبر: ${item.title}`}
                         className="inline-flex items-center gap-1 font-bold text-primary hover:underline shrink-0 text-xs py-1 px-2"
                       >
                         <span>التفاصيل</span>
