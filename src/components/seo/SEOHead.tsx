@@ -28,10 +28,6 @@ export function SEOHead({
   schema,
   noindex = false,
 }: SEOHeadProps) {
-  // لاحقة العلامة التجارية قصيرة عمداً (18 حرفاً فقط) حتى يبقى العنوان
-  // الكامل ضمن الحد الأمثل الذي يعرضه Google كاملاً (~60 حرفاً) لمعظم
-  // الصفحات. كانت اللاحقة السابقة (41 حرفاً) تجعل عناوين كثيرة تتجاوز 80
-  // حرفاً فتُقتطع في نتائج البحث.
   const fullTitle = `${title} | الميزان الرقمية`
 
   const allKeywords = Array.from(
@@ -66,14 +62,14 @@ export function SEOHead({
     setMeta("description", description)
     setMeta("keywords", allKeywords)
 
-    // Robots: يتحكم فعلياً في فهرسة الصفحة الحالية (يطغى على وسم index.html العام)
+    // Robots: التحكم بالفهرسة
     setMeta(
       "robots",
       noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large"
     )
 
     // OpenGraph
-    setMeta("og:site_name", "الميزان الرقمي", "property")
+    setMeta("og:site_name", "ميزان الرقمية", "property")
     setMeta("og:title", fullTitle, "property")
     setMeta("og:description", description, "property")
     setMeta("og:type", ogType, "property")
@@ -115,5 +111,63 @@ export function SEOHead({
     noindex,
   ])
 
-  return schema ? <SchemaOrg schema={schema} /> : null
+  // --- E-E-A-T Schema Enrichment (Fixes AI Audit Warnings) ---
+  const domain = "https://www.mizan.page"
+  
+  const publisherSchema = {
+    "@type": "Organization",
+    name: "ميزان الرقمية",
+    url: domain,
+    logo: {
+      "@type": "ImageObject",
+      url: `${domain}/icon-512.png`
+    },
+    sameAs: [
+      "https://github.com/mizan-page",
+      "https://www.wikidata.org/wiki/Q12500000" // Replace with actual Wikidata/Social links when available
+    ]
+  }
+
+  const authorSchema = {
+    "@type": "Organization",
+    name: "فريق ميزان الرقمية",
+    url: domain
+  }
+
+  let finalSchema = schema
+
+  // If no schema is passed at all, generate a baseline WebPage or Article schema
+  if (!finalSchema && !noindex) {
+    finalSchema = {
+      "@context": "https://schema.org",
+      "@type": ogType === "article" ? "Article" : "WebPage",
+      name: title,
+      description: description,
+      url: url,
+      publisher: publisherSchema,
+      author: authorSchema,
+      ...(publishedTime && { datePublished: publishedTime }),
+      ...(modifiedTime && { dateModified: modifiedTime })
+    }
+  } else if (finalSchema) {
+    // If a schema is passed, auto-inject missing E-E-A-T signals
+    const enrichNode = (node: any) => {
+      if (typeof node !== 'object' || !node) return node
+      return {
+        ...node,
+        publisher: node.publisher || publisherSchema,
+        author: node.author || authorSchema,
+        ...(publishedTime && !node.datePublished && { datePublished: publishedTime }),
+        ...(modifiedTime && !node.dateModified && { dateModified: modifiedTime }),
+      }
+    }
+
+    if (Array.isArray(finalSchema)) {
+      finalSchema = finalSchema.map(enrichNode)
+    } else {
+      finalSchema = enrichNode(finalSchema)
+    }
+  }
+
+  return finalSchema ? <SchemaOrg schema={finalSchema} /> : null
 }

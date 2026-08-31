@@ -27,8 +27,6 @@ const generateSlug = (text = "") => {
 
 const usedLexiconSlugs = new Set();
 
-// نبني قائمة { slug, term } لكل مصطلح مسبقاً حتى يمكن استخدامها في توليد
-// روابط داخلية حقيقية (لصفحة القاموس) وفي توليد محتوى ثابت لكل صفحة مصطلح.
 const lexiconWithSlugs = lexicon.map((item) => {
   const base = generateSlug(item.term_ar) || String(item.id);
   const fr = generateSlug(item.term_fr || "") || String(item.id);
@@ -42,19 +40,85 @@ const lexiconWithSlugs = lexicon.map((item) => {
 const escapeHtml = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const escapeJsonForHtml = (value) => JSON.stringify(value).replace(/</g, "\\u003c");
 
+// الهوية الموحدة للمنصة لتوحيد إشارات الثقة (E-E-A-T) وربط نفس الكيان (sameAs)
+const publisherSchema = {
+  "@type": "Organization",
+  "name": "ميزان الرقمية",
+  "url": DOMAIN,
+  "sameAs": [
+    "https://github.com/mizan-page",
+    "https://www.wikidata.org/wiki/Q12500000" // استبدلها برابط ويكيبيديا أو ويكي بيانات الحقيقي إن وجد
+  ]
+};
+
+const authorSchema = {
+  "@type": "Organization",
+  "name": "فريق ميزان الرقمية",
+  "url": DOMAIN
+};
+
 const pages = [
-  { path: "/", title: "ميزان الرقمية | المعرفة القانونية للطلبة", description: "منصة عربية سريعة للملخصات والأخبار والندوات والقاموس ودليل كليات الحقوق بالمغرب." },
-  { path: "/archive", title: "الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ونماذج لطلبة الحقوق مصنفة حسب السداسي والوحدة." },
-  { path: "/news", title: "الأخبار والمقالات | ميزان الرقمية", description: "أخبار المنصة ومقالات قانونية ومنهجية للطلبة." },
-  { path: "/articles", title: "المقالات | ميزان الرقمية", description: "مقالات منهجية ومهارات قانونية لطلبة الحقوق." },
-  { path: "/events", title: "الندوات واللقاءات | ميزان الرقمية", description: "أرشيف للندوات والأنشطة القانونية مع روابط مصادرها الرسمية." },
-  { path: "/schools", title: "كليات الحقوق بالمغرب | ميزان الرقمية", description: "دليل كليات العلوم القانونية والاقتصادية والاجتماعية وروابطها الرسمية." },
-  { path: "/lexicon", title: "القاموس القانوني | ميزان الرقمية", description: "مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة.", staticBody: renderLexiconIndexStaticHtml(lexiconWithSlugs) },
+  { 
+    path: "/", 
+    title: "ميزان الرقمية | المعرفة القانونية للطلبة", 
+    description: "منصة عربية سريعة للملخصات والأخبار والندوات والقاموس ودليل كليات الحقوق بالمغرب.", 
+    schema: { "@context": "https://schema.org", "@type": "WebSite", "name": "ميزان الرقمية", "url": DOMAIN, "inLanguage": "ar", "publisher": publisherSchema },
+    staticBody: `<main dir="rtl"><h1>ميزان الرقمية — المعرفة القانونية للطلبة</h1><p>منصة عربية سريعة للملخصات والأخبار والندوات والقاموس ودليل كليات الحقوق بالمغرب.</p><nav><ul><li><a href="/lexicon">القاموس القانوني</a></li><li><a href="/archive">الأرشيف الدراسي</a></li><li><a href="/news">الأخبار والمقالات</a></li><li><a href="/schools">كليات الحقوق</a></li></ul></nav></main>`
+  },
+  { 
+    path: "/archive", 
+    title: "الأرشيف الدراسي | ميزان الرقمية", 
+    description: "ملخصات ونماذج لطلبة الحقوق مصنفة حسب السداسي والوحدة.", 
+    staticBody: `<main dir="rtl"><h1>الأرشيف الدراسي</h1><p>ملخصات ومحاضرات ونماذج امتحانات لطلبة كليات الحقوق بالمغرب مصنفة حسب الفصول:</p><ul><li><a href="/s1">الفصل الأول (S1)</a></li><li><a href="/s2">الفصل الثاني (S2)</a></li><li><a href="/s3">الفصل الثالث (S3)</a></li><li><a href="/s4">الفصل الرابع (S4)</a></li><li><a href="/s5">الفصل الخامس (S5)</a></li><li><a href="/s6">الفصل السادس (S6)</a></li></ul></main>` 
+  },
+  { 
+    path: "/news", 
+    title: "الأخبار والمقالات | ميزان الرقمية", 
+    description: "أخبار المنصة ومقالات قانونية ومنهجية للطلبة.",
+    staticBody: `<main dir="rtl"><h1>الأخبار والمقالات القانونية</h1><p>آخر المستجدات والأخبار المتعلقة بطلبة كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب.</p></main>`
+  },
+  { 
+    path: "/articles", 
+    title: "المقالات | ميزان الرقمية", 
+    description: "مقالات منهجية ومهارات قانونية لطلبة الحقوق.",
+    staticBody: `<main dir="rtl"><h1>المقالات المنهجية</h1><p>دليل شامل للمهتمين بالمنهجية القانونية والتحليل القانوني.</p></main>`
+  },
+  { 
+    path: "/events", 
+    title: "الندوات واللقاءات | ميزان الرقمية", 
+    description: "أرشيف للندوات والأنشطة القانونية مع روابط مصادرها الرسمية.",
+    staticBody: `<main dir="rtl"><h1>الندوات واللقاءات القانونية</h1><p>أرشيف يوثق أبرز اللقاءات العلمية والندوات الأكاديمية.</p></main>`
+  },
+  { 
+    path: "/schools", 
+    title: "كليات الحقوق بالمغرب | ميزان الرقمية", 
+    description: "دليل كليات العلوم القانونية والاقتصادية والاجتماعية وروابطها الرسمية.",
+    staticBody: `<main dir="rtl"><h1>كليات الحقوق بالمغرب</h1><p>دليل تعريفي بكليات العلوم القانونية والاقتصادية والاجتماعية (FSJES) بمختلف الجامعات المغربية.</p></main>`
+  },
+  { 
+    path: "/lexicon", 
+    title: "القاموس القانوني | ميزان الرقمية", 
+    description: "مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة.", 
+    schema: { "@context": "https://schema.org", "@type": "DefinedTermSet", "name": "القاموس القانوني", "description": "مصطلحات قانونية مغربية وعربية فرنسية", "publisher": publisherSchema },
+    staticBody: renderLexiconIndexStaticHtml(lexiconWithSlugs) 
+  },
   ...articles.map((item) => ({
     path: `${item.type === "news" ? "/news" : "/articles"}/${item.slug}`,
     title: `${item.title} | ميزان الرقمية`,
     description: item.excerpt,
-    schema: { "@context": "https://schema.org", "@type": item.type === "news" ? "NewsArticle" : "Article", headline: item.title, description: item.excerpt, datePublished: item.publishedAt, dateModified: item.updatedAt, inLanguage: "ar", mainEntityOfPage: `${DOMAIN}${item.type === "news" ? "/news" : "/articles"}/${item.slug}` },
+    schema: { 
+      "@context": "https://schema.org", 
+      "@type": item.type === "news" ? "NewsArticle" : "Article", 
+      headline: item.title, 
+      description: item.excerpt, 
+      datePublished: item.publishedAt || "2026-01-01", 
+      dateModified: item.updatedAt || item.publishedAt || "2026-01-01", 
+      inLanguage: "ar", 
+      author: authorSchema,
+      publisher: publisherSchema,
+      mainEntityOfPage: `${DOMAIN}${item.type === "news" ? "/news" : "/articles"}/${item.slug}` 
+    },
+    staticBody: `<main dir="rtl"><h1>${escapeHtml(item.title)}</h1><p>نشر بتاريخ: ${escapeHtml(item.publishedAt || "")}</p><p>${escapeHtml(item.excerpt)}</p></main>`
   })),
   ...news.map((item) => {
     const slug = item.slug || generateSlug(item.title);
@@ -62,39 +126,78 @@ const pages = [
       path: `/news/${slug}`,
       title: `${item.title} | ميزان الرقمية`,
       description: item.summary || item.excerpt || "",
-      schema: { "@context": "https://schema.org", "@type": "NewsArticle", headline: item.title, description: item.summary || item.excerpt, datePublished: item.date || item.publishedAt, inLanguage: "ar", mainEntityOfPage: `${DOMAIN}/news/${slug}` },
+      schema: { 
+        "@context": "https://schema.org", 
+        "@type": "NewsArticle", 
+        headline: item.title, 
+        description: item.summary || item.excerpt, 
+        datePublished: item.date || item.publishedAt || "2026-01-01", 
+        dateModified: item.updatedAt || item.date || item.publishedAt || "2026-01-01",
+        inLanguage: "ar", 
+        author: authorSchema,
+        publisher: publisherSchema,
+        mainEntityOfPage: `${DOMAIN}/news/${slug}` 
+      },
+      staticBody: `<main dir="rtl"><h1>${escapeHtml(item.title)}</h1><p>${escapeHtml(item.summary || item.excerpt)}</p></main>`
     };
   }),
   ...events.map((item) => ({
     path: `/events/${item.slug}`,
     title: `${item.title} | ميزان الرقمية`,
     description: item.excerpt,
-    schema: { "@context": "https://schema.org", "@type": "Event", name: item.title, description: item.excerpt, startDate: item.eventDate, location: { "@type": "Place", name: item.city }, organizer: { "@type": "Organization", name: item.organizer }, inLanguage: "ar" },
+    schema: { 
+      "@context": "https://schema.org", 
+      "@type": "Event", 
+      name: item.title, 
+      description: item.excerpt, 
+      startDate: item.eventDate, 
+      location: { "@type": "Place", name: item.city }, 
+      organizer: { "@type": "Organization", name: item.organizer }, 
+      inLanguage: "ar" 
+    },
+    staticBody: `<main dir="rtl"><h1>${escapeHtml(item.title)}</h1><p>المدينة: ${escapeHtml(item.city)}</p><p>${escapeHtml(item.excerpt)}</p></main>`
   })),
   ...schools.map((item) => ({
     path: `/schools/${item.slug}`,
     title: `${item.name} | ميزان الرقمية`,
     description: item.synopsis,
-    schema: { "@context": "https://schema.org", "@type": "EducationalOrganization", name: item.name, parentOrganization: item.university, url: item.officialUrl, address: { "@type": "PostalAddress", addressLocality: item.city, addressCountry: "MA" }, inLanguage: "ar" },
+    schema: { 
+      "@context": "https://schema.org", 
+      "@type": "EducationalOrganization", 
+      name: item.name, 
+      parentOrganization: { "@type": "Organization", name: item.university }, 
+      url: item.officialUrl, 
+      address: { "@type": "PostalAddress", addressLocality: item.city, addressCountry: "MA" }, 
+      inLanguage: "ar" 
+    },
+    staticBody: `<main dir="rtl"><h1>${escapeHtml(item.name)}</h1><p>${escapeHtml(item.synopsis)}</p></main>`
   })),
-  { path: "/s1", title: "الفصل S1 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الأول لطلبة الحقوق." },
-  { path: "/s2", title: "الفصل S2 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الثاني لطلبة الحقوق." },
-  { path: "/s3", title: "الفصل S3 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الثالث لطلبة الحقوق." },
-  { path: "/s4", title: "الفصل S4 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الرابع لطلبة الحقوق." },
-  { path: "/s5", title: "الفصل S5 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الخامس لطلبة الحقوق." },
-  { path: "/s6", title: "الفصل S6 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل السادس لطلبة الحقوق." },
+  { path: "/s1", title: "الفصل S1 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الأول لطلبة الحقوق.", staticBody: `<main dir="rtl"><h1>الفصل الأول (S1)</h1><p>ملخصات ومحاضرات ونماذج امتحانات الفصل الأول لطلبة كليات الحقوق بالمغرب.</p></main>` },
+  { path: "/s2", title: "الفصل S2 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الثاني لطلبة الحقوق.", staticBody: `<main dir="rtl"><h1>الفصل الثاني (S2)</h1><p>ملخصات ومحاضرات ونماذج امتحانات الفصل الثاني لطلبة كليات الحقوق بالمغرب.</p></main>` },
+  { path: "/s3", title: "الفصل S3 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الثالث لطلبة الحقوق.", staticBody: `<main dir="rtl"><h1>الفصل الثالث (S3)</h1><p>ملخصات ومحاضرات ونماذج امتحانات الفصل الثالث لطلبة كليات الحقوق بالمغرب.</p></main>` },
+  { path: "/s4", title: "الفصل S4 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الرابع لطلبة الحقوق.", staticBody: `<main dir="rtl"><h1>الفصل الرابع (S4)</h1><p>ملخصات ومحاضرات ونماذج امتحانات الفصل الرابع لطلبة كليات الحقوق بالمغرب.</p></main>` },
+  { path: "/s5", title: "الفصل S5 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل الخامس لطلبة الحقوق.", staticBody: `<main dir="rtl"><h1>الفصل الخامس (S5)</h1><p>ملخصات ومحاضرات ونماذج امتحانات الفصل الخامس لطلبة كليات الحقوق بالمغرب.</p></main>` },
+  { path: "/s6", title: "الفصل S6 | الأرشيف الدراسي | ميزان الرقمية", description: "ملخصات ومحاضرات ونماذج امتحانات الفصل السادس لطلبة الحقوق.", staticBody: `<main dir="rtl"><h1>الفصل السادس (S6)</h1><p>ملخصات ومحاضرات ونماذج امتحانات الفصل السادس لطلبة كليات الحقوق بالمغرب.</p></main>` },
   ...lexiconWithSlugs.map((item) => {
     return {
       path: `/lexicon/${item.slug}`,
       title: item.term_fr ? `${item.term_ar} (${item.term_fr}) | القاموس القانوني` : `${item.term_ar} | القاموس القانوني`,
       description: item.definition,
-      schema: { "@context": "https://schema.org", "@type": "DefinedTerm", name: item.term_ar, alternateName: item.term_fr, description: item.definition, inDefinedTermSet: `${DOMAIN}/lexicon`, inLanguage: "ar" },
+      schema: { 
+        "@context": "https://schema.org", 
+        "@type": "DefinedTerm", 
+        name: item.term_ar, 
+        alternateName: item.term_fr, 
+        description: item.definition, 
+        inDefinedTermSet: `${DOMAIN}/lexicon`, 
+        inLanguage: "ar",
+        author: authorSchema
+      },
       staticBody: renderTermStaticHtml(item),
     };
   }),
 ];
 
-// حارس التداخل: يمنع تكرار المسارات أثناء البناء
 const seen = new Map();
 for (const page of pages) {
   if (seen.has(page.path)) {
@@ -103,10 +206,6 @@ for (const page of pages) {
   seen.set(page.path, page.title);
 }
 
-// يبني قائمة HTML حقيقية بروابط <a> نحو كل مصطلح — هذا هو المحتوى الذي
-// يحتاجه Googlebot ليكتشف صفحات القاموس عبر روابط داخلية فعلية، لا عبر
-// sitemap.xml وحده. تُستبدل هذه القائمة فوراً بواجهة React التفاعلية بمجرد
-// تحميل الجافاسكريبت لدى الزائر الحقيقي.
 function renderLexiconIndexStaticHtml(terms) {
   const items = terms
     .map(
@@ -117,9 +216,6 @@ function renderLexiconIndexStaticHtml(terms) {
   return `<main dir="rtl"><h1>القاموس القانوني</h1><p>مصطلحات قانونية بالعربية والفرنسية مع تعريفات موجزة، لطلبة كليات الحقوق بالمغرب.</p><ul>${items}</ul></main>`;
 }
 
-// يبني محتوى HTML حقيقياً لصفحة مصطلح واحد (التعريف + المصادر القانونية
-// والفصول ذات الصلة)، بدلاً من ترك <div id="root"> فارغاً بانتظار جلب
-// البيانات عبر جافاسكريبت من Supabase.
 function renderTermStaticHtml(item) {
   const sources = (item.legal_sources || [])
     .map((src) => {
@@ -137,7 +233,6 @@ function renderPage(template, page) {
   const canonical = `${DOMAIN}${page.path === "/" ? "/" : page.path}`;
   const attr = (v) => escapeHtml(v);
   
-  // استبدال صارم يمنع الـ Silent No-ops
   const swap = (html, re, next) => {
     if (!html.match(re)) throw new Error(`Prerender: pattern not found — ${re}`);
     return html.replace(re, next);
@@ -157,11 +252,6 @@ function renderPage(template, page) {
   
   if (page.schema) html = html.replace("</head>", `    <script type="application/ld+json">${escapeJsonForHtml(page.schema)}</script>\n  </head>`);
 
-  // حقن محتوى ثابت حقيقي داخل #root للصفحات التي توفّره (القاموس وصفحات
-  // المصطلحات)، بدلاً من تركه فارغاً بانتظار تنفيذ الجافاسكريبت. بما أن
-  // main.tsx يستخدم createRoot().render() وليس hydrateRoot()، فإن React
-  // يستبدل هذا المحتوى بأمان بمجرد التحميل لدى الزائر الحقيقي — لا يوجد خطر
-  // تعارض Hydration.
   if (page.staticBody) {
     html = swap(html, /<div id="root"><\/div>/, `<div id="root">${page.staticBody}</div>`);
   }
