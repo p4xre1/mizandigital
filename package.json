@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --configLoader runner",
     "clean": "node scripts/clean.mjs",
-    "validate": "pnpm validate",
+    "validate": "pnpm typecheck",
     "doctor": "node scripts/doctor.mjs",
     "prebuild": "pnpm validate && node scripts/generate-sitemap.mjs",
     "build": "pnpm clean && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs",
