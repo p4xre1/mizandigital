@@ -1,23 +1,129 @@
+# Canonical: https://www.mizan.page/robots.txt
+
+# =====================================================
+# Mizan Digital — LegalTech Platform robots.txt
+# Global indexing & AI-friendly optimization enabled
+# =====================================================
+
+# =====================================================
+# 1. General Indexing & AI Signals
+# =====================================================
+
 User-agent: *
 Allow: /
-
-# AI/search content usage signals
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
-# Standard discovery resources
-Sitemap: https://www.mizan.page/sitemap.xml
+# =====================================================
+# 2. Meta / Facebook / WhatsApp
+# =====================================================
 
-# Agent cards / catalogs (روابط توثيقية فقط، ليست أوامر robots.txt رسمية،
-# لذا هي معلّقة كتعليقات لتفادي "Unknown directive" في Google Search Console)
+User-agent: FacebookExternalHit
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# =====================================================
+# 3. AI Crawlers / Answer Engines
+# =====================================================
+
+# OpenAI
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Apple / Bing
+User-agent: Applebot
+Allow: /
+
+User-agent: BingPreview
+Allow: /
+
+# =====================================================
+# 4. Global Search Engines
+# =====================================================
+
+# China
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Russia
+User-agent: YandexBot
+Allow: /
+
+# Korea
+User-agent: Yeti
+Allow: /
+
+# Japan
+User-agent: Yahoo! Slurp
+Allow: /
+
+# Global / SEO
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: PetalBot
+Allow: /
+
+# =====================================================
+# 5. Ads / Preview Bots
+# =====================================================
+
+User-agent: AdsBot-Google
+Allow: /
+
+# =====================================================
+# 6. AI Agent Catalogs & Discovery (Documentation Links)
+# =====================================================
+
 # A2A: https://www.mizan.page/.well-known/agent-card.json
 # Agent Skills: https://www.mizan.page/.well-known/agent-skills/index.json
 # AI Catalog: https://www.mizan.page/.well-known/ai-catalog.json
 # MCP: https://www.mizan.page/.well-known/mcp/server-card.json
 
-# Googlebot
-User-agent: Googlebot
-Allow: /
+# =====================================================
+# 7. Sitemap
+# =====================================================
 
-# Bingbot
-User-agent: Bingbot
-Allow: /
+Sitemap: https://www.mizan.page/sitemap.xml
