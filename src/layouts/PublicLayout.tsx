@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom"
 import { Header, Footer } from "./PublicNavigation"
+import SiteSearchBar from "../components/search/SiteSearchBar"
 
 export default function PublicLayout({
   theme,
@@ -20,6 +21,7 @@ export default function PublicLayout({
         onToggleTheme={onToggleTheme}
         onToggleMenu={onToggleMenu}
       />
+      <SiteSearchBar />
       <Outlet />
       <Footer />
     </div>
