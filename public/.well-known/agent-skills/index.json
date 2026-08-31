@@ -1,0 +1,27 @@
+{
+  "name": "Mizan Digital Agent Skills",
+  "version": "1.0.0",
+  "skills": [
+    {
+      "id": "moroccan-legal-research",
+      "name": "Moroccan Legal Research",
+      "description": "Find and organize Moroccan legal topics, laws, codes, legal concepts and official sources while clearly distinguishing educational summaries from official legislation.",
+      "url": "https://www.mizan.page/llms.txt",
+      "tags": ["morocco","law","legal-research","arabic","french"]
+    },
+    {
+      "id": "law-school-directory",
+      "name": "Moroccan Law School Directory",
+      "description": "Discover Moroccan law faculties and schools, their cities, universities, official websites and useful academic links.",
+      "url": "https://www.mizan.page/schools",
+      "tags": ["universities","law-schools","morocco","education"]
+    },
+    {
+      "id": "legal-study-resources",
+      "name": "Legal Study Resources",
+      "description": "Locate legal summaries, courses, lectures, glossary terms, events and educational PDF resources for law students.",
+      "url": "https://www.mizan.page/archive",
+      "tags": ["students","summaries","courses","pdf","law"]
+    }
+  ]
+}

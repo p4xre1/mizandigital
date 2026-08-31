@@ -1,0 +1,24 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+const distFile = join(root, "dist", "lexicon", "index.html");
+const dataFile = join(root, "src", "data", "lexicon.json");
+const DOMAIN = "https://www.mizan.page";
+const REVIEWED = "2026-08-31";
+const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#39;");
+const data = JSON.parse(await readFile(dataFile, "utf8"));
+const terms = Array.isArray(data) ? data : [];
+const slug = (x) => String(x.term_ar || x.id || "term").trim().toLowerCase().normalize("NFKC").replace(/[\u064B-\u065F\u0670]/g, "").replace(/[\s/\\_]+/g, "-").replace(/[^\w\u0600-\u06FF-]+/g, "").replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+const seen = new Set();
+const rows = terms.map((x) => { let s = slug(x); if (!s || seen.has(s)) s = `${s || "term"}-${esc(x.id)}`; seen.add(s); return { ...x, s }; });
+const cards = rows.map((x) => `<article><h2><a href="/lexicon/${esc(x.s)}">${esc(x.term_ar)}${x.term_fr ? ` (${esc(x.term_fr)})` : ""}</a></h2><p><strong>التعريف:</strong> ${esc(x.definition || "تعريف غير متوفر.")}</p>${x.category ? `<p><strong>التصنيف:</strong> ${esc(x.category)}</p>` : ""}${Array.isArray(x.legal_sources) && x.legal_sources.length ? `<p><strong>الإحالات التشريعية:</strong> ${x.legal_sources.map(s => esc(s.code_ar || s.code_short || "تشريع مغربي")).join("، ")}</p>` : ""}<p><a href="/lexicon/${esc(x.s)}">قراءة التعريف والإحالات</a></p></article>`).join("");
+const list = rows.map(x => `<li><a href="/lexicon/${esc(x.s)}">${esc(x.term_ar)}${x.term_fr ? ` — ${esc(x.term_fr)}` : ""}</a></li>`).join("");
+const schema = {"@context":"https://schema.org","@type":"DefinedTermSet","name":"القاموس القانوني المغربي","url":`${DOMAIN}/lexicon`,"inLanguage":"ar-MA","description":`قاموس قانوني يضم ${terms.length} مصطلحاً منشوراً بالعربية، مع المقابلات الفرنسية والإحالات التشريعية عند توفرها.`,"dateModified":REVIEWED,"hasDefinedTerm":rows.map(x=>({"@type":"DefinedTerm","name":x.term_ar,"description":x.definition || "","url":`${DOMAIN}/lexicon/${x.s}`}))};
+const html = await readFile(distFile, "utf8");
+const body = `<main dir="rtl"><article><h1>القاموس القانوني المغربي</h1><p><strong>القاموس القانوني في ميزان الرقمية يضم ${terms.length} مصطلحاً قانونياً منشوراً</strong>، مع تعريفات بالعربية، ومقابلات فرنسية، وإحالات تشريعية عند توفرها.</p><p>آخر مراجعة تحريرية للبيانات العامة: <time datetime="${REVIEWED}">${REVIEWED}</time>.</p><h2>ما هو القاموس القانوني المغربي؟</h2><p>هو دليل تعليمي يساعد الطالب والباحث على فهم المصطلحات القانونية والانتقال من المفهوم إلى التشريع المرتبط به. التعريفات هنا لأغراض تعليمية ولا تحل محل النص القانوني الرسمي.</p><h2>كيف أبحث عن مصطلح قانوني؟</h2><p><strong>ابحث باسم المصطلح بالعربية أو استخدم المقابل الفرنسي، ثم افتح صفحة المصطلح لمراجعة التعريف والإحالات التشريعية.</strong> عند الاستشهاد في بحث جامعي، تحقق دائماً من النص الرسمي النافذ وتاريخ التعديلات.</p><h2>ماذا تتضمن بيانات كل مصطلح؟</h2><ul><li>المصطلح بالعربية والمقابل الفرنسي عند توفره.</li><li>تعريف مختصر يساعد على الفهم والمراجعة.</li><li>التصنيف القانوني عند توفره.</li><li>الإحالات إلى القوانين والفصول الواردة في البيانات.</li></ul><h2>ما الفرق بين التعريف القانوني والنص الرسمي؟</h2><p>التعريف أداة تعليمية لتوضيح المفهوم، أما النص الرسمي المنشور في الجريدة الرسمية أو المصدر الحكومي فهو المرجع الذي ينبغي الاعتماد عليه للتحقق من القاعدة القانونية.</p><h2>مصطلحات القاموس</h2>${cards}<h2>كيف أتحقق من المصدر القانوني؟</h2><p>يمكن الرجوع إلى <a href="https://adala.justice.gov.ma/">بوابة عدالة التابعة لوزارة العدل المغربية</a> و<a href="https://www.sgg.gov.ma/">الأمانة العامة للحكومة المغربية</a> للتحقق من النصوص الرسمية.</p><h2>أسئلة شائعة</h2><h3>هل القاموس مصدر رسمي؟</h3><p>لا. هو مورد تعليمي وبحثي، ويجب التحقق من النص الرسمي قبل الاستشهاد.</p><h3>كم مصطلحاً يوجد في القاموس؟</h3><p>يضم ${terms.length} مصطلحاً في البيانات المنشورة وقت التوليد.</p><h3>هل يمكن البحث بالعربية والفرنسية؟</h3><p>نعم، تعرض صفحات المصطلحات المقابل الفرنسي عندما يكون متاحاً.</p><h2>تصفح سريع</h2><ul>${list}</ul><p><a href="/search?q=${encodeURIComponent("المعجم القانوني المغربي")}">البحث في جميع محتويات ميزان الرقمية</a> · <a href="/">الصفحة الرئيسية</a></p></article></main>`;
+let out = html.replace(/<main[^>]*>[\s\S]*?<\/main>/i, body);
+if (!out.includes('"@type":"DefinedTermSet"')) out = out.replace("</head>", `<script type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script></head>`);
+await writeFile(distFile, out, "utf8");
+console.log(`Enhanced lexicon prerender with ${terms.length} terms.`);

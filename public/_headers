@@ -4,56 +4,64 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.googleadservices.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google-analytics.com https://*.adtrafficquality.google; frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.doubleclick.net; worker-src 'self'; manifest-src 'self'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://*.googlesyndication.com https://*.doubleclick.net https://*.googleadservices.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google-analytics.com https://*.adtrafficquality.google; frame-src 'self' https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.doubleclick.net https://ep2.adtrafficquality.google https://www.google.com https://*.google.com; worker-src 'self'; manifest-src 'self'
 
-# ── Cache-Control: ملفات ثابتة (طويلة العمر) ──
+# RFC 8288 agent discovery links
+/
+  Link: <https://www.mizan.page/.well-known/agent-card.json>; rel="agent"; type="application/json"
+  Link: <https://www.mizan.page/.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/json"
+  Link: <https://www.mizan.page/.well-known/agent-skills/index.json>; rel="agent-skills"; type="application/json"
+  Link: <https://www.mizan.page/llms.txt>; rel="describedby"; type="text/plain"
+  Link: <https://www.mizan.page/index.md>; rel="alternate"; type="text/markdown"
+
+# ── Cache-Control: static assets ──
 
 /*.css
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
-
 /*.js
   Cache-Control: public, max-age=31536000, immutable
   Access-Control-Allow-Origin: *
-
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
-
 /*.svg
   Cache-Control: public, max-age=31536000, immutable
-
 /*.png
   Cache-Control: public, max-age=31536000, immutable
-
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
-
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
-
 /*.ico
   Cache-Control: public, max-age=31536000, immutable
 
-# ── Cache-Control: ملفات تتغيّر أحياناً ──
+# Agent discovery resources
+/.well-known/*
+  Cache-Control: public, max-age=3600, must-revalidate
+  Access-Control-Allow-Origin: *
+  X-Content-Type-Options: nosniff
 
 /*.json
   Cache-Control: public, max-age=3600, must-revalidate
 
+/llms.txt
+  Cache-Control: public, max-age=3600, must-revalidate
+  Content-Type: text/plain; charset=utf-8
+
+/index.md
+  Cache-Control: public, max-age=3600, must-revalidate
+  Content-Type: text/markdown; charset=utf-8
+
 /manifest.json
   Cache-Control: public, max-age=86400, must-revalidate
-
 /sw.js
   Cache-Control: no-cache
 
-# ── Cache-Control: HTML و SEO (لا تُخزَّن طويلاً) ──
-
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
-
 /sitemap.xml
   Cache-Control: public, max-age=3600, must-revalidate
   X-Content-Type-Options: nosniff
-
 /robots.txt
   Cache-Control: public, max-age=3600, must-revalidate
   X-Content-Type-Options: nosniff

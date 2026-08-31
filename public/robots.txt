@@ -1,11 +1,25 @@
 User-agent: *
 Allow: /
-# ملاحظة: تم حذف مسارات الإدارة لتجنب كشفها للمتطفلين. 
-# حماية الإدارة يجب أن تكون عبر نظام تسجيل الدخول وليس عبر robots.txt
+
+# AI/search content usage signals
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
+
+# Agent discovery
+Agentmap: https://www.mizan.page/.well-known/ai-catalog.json
+
+# Standard discovery resources
+Sitemap: https://www.mizan.page/sitemap.xml
+
+# Agent cards / catalogs
+# A2A: https://www.mizan.page/.well-known/agent-card.json
+# Agent Skills: https://www.mizan.page/.well-known/agent-skills/index.json
+# AI Catalog: https://www.mizan.page/.well-known/ai-catalog.json
+# MCP: https://www.mizan.page/.well-known/mcp/server-card.json
 
 # Googlebot
 User-agent: Googlebot
 Allow: /
 
-# Sitemap
-Sitemap: https://www.mizan.page/sitemap.xml
+# Bingbot
+User-agent: Bingbot
+Allow: /

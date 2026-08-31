@@ -1,0 +1,2 @@
+-- Migration already applied to the remote Supabase database.
+-- Kept locally so migration history matches the remote migration versions.

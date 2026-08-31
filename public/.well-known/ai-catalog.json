@@ -1,0 +1,32 @@
+{
+  "name": "Mizan Digital",
+  "alternateName": "ميزان الرقمية",
+  "version": "1.0.0",
+  "url": "https://www.mizan.page/",
+  "description": "Public discovery catalog for a Moroccan legal and academic knowledge platform.",
+  "documentation": "https://www.mizan.page/llms.txt",
+  "language": ["ar-MA", "fr", "en"],
+  "resources": [
+    {"id":"home","url":"https://www.mizan.page/","type":"webpage","format":"text/html"},
+    {"id":"markdown-home","url":"https://www.mizan.page/index.md","type":"document","format":"text/markdown"},
+    {"id":"sitemap","url":"https://www.mizan.page/sitemap.xml","type":"sitemap","format":"application/xml"},
+    {"id":"llms","url":"https://www.mizan.page/llms.txt","type":"documentation","format":"text/plain"},
+    {"id":"articles","url":"https://www.mizan.page/articles","type":"collection"},
+    {"id":"news","url":"https://www.mizan.page/news","type":"collection"},
+    {"id":"lexicon","url":"https://www.mizan.page/lexicon","type":"collection"},
+    {"id":"schools","url":"https://www.mizan.page/schools","type":"collection"},
+    {"id":"archive","url":"https://www.mizan.page/archive","type":"collection"},
+    {"id":"events","url":"https://www.mizan.page/events","type":"collection"}
+  ],
+  "agentDiscovery": {
+    "a2a": "https://www.mizan.page/.well-known/agent-card.json",
+    "agentSkills": "https://www.mizan.page/.well-known/agent-skills/index.json",
+    "mcp": "https://www.mizan.page/.well-known/mcp/server-card.json",
+    "auth": "https://www.mizan.page/auth.md"
+  },
+  "usage": {
+    "publicRead": true,
+    "authenticationRequired": false,
+    "commerce": false
+  }
+}

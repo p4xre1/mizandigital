@@ -21,7 +21,7 @@
   --accent-gold: 40 72% 49%;
   --accent-gold-muted: 40 80% 92%;
   --radius: 0.8rem;
-  --font-sans: "Cairo", system-ui, sans-serif;
+  --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Amiri", Georgia, serif;
 }
 
@@ -70,12 +70,10 @@
     min-height: 100vh;
     overflow-x: hidden;
     background-color: hsl(var(--background));
-    /* Rich ambient background lighting & texture */
-    background-image: 
+    background-image:
       radial-gradient(at 10% 15%, hsl(var(--primary) / 0.12) 0px, transparent 45%),
       radial-gradient(at 90% 85%, hsl(var(--accent-gold) / 0.08) 0px, transparent 45%),
       linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4));
-    background-attachment: fixed;
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
@@ -88,20 +86,46 @@
 
 @layer components {
   .container-wide { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
-  .site-header { position: sticky; top: 0; z-index: 30; border-bottom: 1px solid hsl(var(--border)); background: hsl(var(--background) / 0.85); backdrop-filter: blur(16px); }
-  .brand-mark { display: grid; height: 40px; width: 40px; place-items: center; border: 1px solid hsl(var(--primary) / 0.3); border-radius: 13px; background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05)); color: hsl(var(--primary)); box-shadow: 0 0 15px hsl(var(--primary) / 0.15); }
-  
-  /* Explorer view toggle buttons */
-  .view-mode-button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; transition: 160ms ease; color: hsl(var(--muted-foreground)); border: 1px solid transparent; }
-  .view-mode-button.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); box-shadow: 0 4px 12px hsl(var(--primary) / 0.3); }
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    border-bottom: 1px solid hsl(var(--border));
+    background: hsl(var(--background) / 0.96);
+  }
+  .brand-mark {
+    display: grid;
+    height: 40px;
+    width: 40px;
+    place-items: center;
+    border: 1px solid hsl(var(--primary) / 0.3);
+    border-radius: 13px;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05));
+    color: hsl(var(--primary));
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.15);
+  }
+
+  .view-mode-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    color: hsl(var(--muted-foreground));
+    border: 1px solid transparent;
+  }
+  .view-mode-button.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
   .view-mode-button:not(.active):hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
 
-  .document-card, .lexicon-card, .content-card { 
-    border: 1px solid hsl(var(--border)); 
-    border-radius: 18px; 
-    padding: 20px; 
-    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.25)); 
-    transition: all 200ms ease; 
+  .document-card, .lexicon-card, .content-card {
+    border: 1px solid hsl(var(--border));
+    border-radius: 18px;
+    padding: 20px;
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.25));
+    transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
     position: relative;
     overflow: hidden;
   }
@@ -112,13 +136,25 @@
     background: radial-gradient(circle at top right, hsl(var(--primary) / 0.06), transparent 60%);
     pointer-events: none;
   }
-  .document-card:hover, .lexicon-card:hover, .content-card:hover { 
-    border-color: hsl(var(--primary) / 0.5); 
-    transform: translateY(-3px); 
-    box-shadow: 0 20px 40px hsl(222 47% 4% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.2); 
+  .document-card:hover, .lexicon-card:hover, .content-card:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px hsl(222 47% 4% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.2);
   }
+}
+
+/* Avoid expensive fixed backgrounds and hover transforms on touch devices. */
+@media (max-width: 639px) {
+  html { scroll-behavior: auto; }
+  body { background-image: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4)); }
+  .document-card:hover, .lexicon-card:hover, .content-card:hover { transform: none; box-shadow: none; }
 }
 
 @media (min-width: 640px) {
   .search-field kbd { display: block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
