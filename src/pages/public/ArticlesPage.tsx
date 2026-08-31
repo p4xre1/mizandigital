@@ -7,6 +7,7 @@ import { generateSlug } from "../../lib/utils/generateSlug"
 import { truncateCleanText } from "../../lib/utils/sanitize"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
+import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import {
   BookOpen,
   Search,
@@ -163,38 +164,9 @@ export function ArticlesPage() {
         </header>
 
         {/* Filter & Search Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none [-webkit-overflow-scrolling:touch]">
-            <button
-              type="button"
-              onClick={() => setActiveCategory("all")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition shrink-0 min-h-[44px] ${
-                activeCategory === "all"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              <Filter size={14} />
-              جميع التصنيفات
-            </button>
-            {availableCategories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveCategory(cat)}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition shrink-0 min-h-[44px] ${
-                  activeCategory === cat
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                <Tag size={14} />
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          <div className="relative w-full sm:w-80">
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch bg-card p-4 rounded-xl border border-border shadow-sm">
+          {/* Search Input */}
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               type="text"
@@ -204,6 +176,16 @@ export function ArticlesPage() {
               className="w-full rounded-xl border border-border bg-background pr-11 pl-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
             />
           </div>
+
+          {/* Category Dropdown */}
+          <FilterDropdown
+            className="sm:w-64 shrink-0"
+            value={activeCategory}
+            onChange={setActiveCategory}
+            allLabel="جميع التصنيفات"
+            icon={<Filter size={14} />}
+            options={availableCategories.map((cat) => ({ value: cat, label: cat }))}
+          />
         </div>
 
         {/* Results Count */}

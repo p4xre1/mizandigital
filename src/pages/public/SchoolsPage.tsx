@@ -6,6 +6,7 @@ import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
 import { Search, MapPin, Building2, ExternalLink, ArrowLeft, GraduationCap, Loader2 } from "lucide-react"
+import { FilterDropdown } from "../../components/ui/FilterDropdown"
 
 // يحوّل سجل كلية قادم من جدول "faculties" في Supabase إلى نفس الشكل
 // المستخدم في schools.json المحلي، لعرضهما معاً في نفس الصفحة/البطاقات.
@@ -131,46 +132,28 @@ export function SchoolsPage() {
         </header>
 
         {/* Filter & Search Bar */}
-        <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
-          <div className="relative w-full sm:w-96">
+        <div className="mb-8 flex flex-col sm:flex-row gap-3 items-stretch bg-card p-4 rounded-xl border border-border shadow-sm">
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               type="text"
               placeholder="ابحث باسم الكلية، المدينة، أو التخصص..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-border bg-background pr-10 pl-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition"
+              className="w-full rounded-lg border border-border bg-background pr-10 pl-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
             />
           </div>
 
-          {/* City Selector Pills */}
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
-            <button
-              type="button"
-              onClick={() => setSelectedCity("all")}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition shrink-0 ${
-                selectedCity === "all"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              جميع المدن ({allSchools.length})
-            </button>
-            {cities.map((city) => (
-              <button
-                key={city}
-                type="button"
-                onClick={() => setSelectedCity(city)}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition shrink-0 ${
-                  selectedCity === city
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {city}
-              </button>
-            ))}
-          </div>
+          {/* City Dropdown */}
+          <FilterDropdown
+            className="sm:w-64 shrink-0"
+            value={selectedCity}
+            onChange={setSelectedCity}
+            allLabel="جميع المدن"
+            allCount={allSchools.length}
+            icon={<MapPin size={14} />}
+            options={cities.map((city) => ({ value: city, label: city }))}
+          />
         </div>
 
         {/* Grid of Schools */}

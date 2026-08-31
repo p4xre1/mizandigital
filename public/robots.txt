@@ -4,13 +4,11 @@ Allow: /
 # AI/search content usage signals
 Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
-# Agent discovery
-Agentmap: https://www.mizan.page/.well-known/ai-catalog.json
-
 # Standard discovery resources
 Sitemap: https://www.mizan.page/sitemap.xml
 
-# Agent cards / catalogs
+# Agent cards / catalogs (روابط توثيقية فقط، ليست أوامر robots.txt رسمية،
+# لذا هي معلّقة كتعليقات لتفادي "Unknown directive" في Google Search Console)
 # A2A: https://www.mizan.page/.well-known/agent-card.json
 # Agent Skills: https://www.mizan.page/.well-known/agent-skills/index.json
 # AI Catalog: https://www.mizan.page/.well-known/ai-catalog.json

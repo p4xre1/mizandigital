@@ -5,6 +5,7 @@ import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
 import localNews from "../../data/news.json"
+import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import {
   Newspaper,
   Search,
@@ -188,40 +189,9 @@ export function NewsPage() {
         </header>
 
         {/* Filter & Search Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
-          {/* Sources Tabs */}
-          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 scrollbar-none [-webkit-overflow-scrolling:touch]">
-            <button
-              type="button"
-              onClick={() => setActiveSource("all")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition shrink-0 min-h-[44px] ${
-                activeSource === "all"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              <Filter size={14} />
-              جميع المصادر
-            </button>
-            {availableSources.map((src) => (
-              <button
-                key={src}
-                type="button"
-                onClick={() => setActiveSource(src)}
-                className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition shrink-0 min-h-[44px] ${
-                  activeSource === src
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                <Globe size={14} />
-                {src}
-              </button>
-            ))}
-          </div>
-
+        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch bg-card p-4 rounded-xl border border-border shadow-sm">
           {/* Search Input */}
-          <div className="relative w-full sm:w-80">
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               type="text"
@@ -231,6 +201,16 @@ export function NewsPage() {
               className="w-full rounded-xl border border-border bg-background pr-11 pl-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
             />
           </div>
+
+          {/* Sources Dropdown */}
+          <FilterDropdown
+            className="sm:w-64 shrink-0"
+            value={activeSource}
+            onChange={setActiveSource}
+            allLabel="جميع المصادر"
+            icon={<Filter size={14} />}
+            options={availableSources.map((src) => ({ value: src, label: src }))}
+          />
         </div>
 
         {/* View Mode Switcher Toolbar */}

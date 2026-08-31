@@ -6,6 +6,7 @@ import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem 
 import localLexicon from "../../data/lexicon.json"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
+import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import {
   BookOpen,
   Search,
@@ -160,7 +161,7 @@ export function LexiconPage() {
         <header className="mb-6 md:mb-8 text-center md:text-right">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
             <BookOpen size={16} />
-            <span>المعجم الموحد للمصطلحات</span>
+            <span>المعجم الموحد للمصطلحات · {terms.length} مصطلح قانوني</span>
           </div>
           <h1 className="text-2xl font-black text-foreground md:text-4xl">
             المعجم القانوني المغربي (مزدوج اللغة)
@@ -171,9 +172,9 @@ export function LexiconPage() {
         </header>
 
         {/* Search & Filter Bar */}
-        <div className="mb-6 md:mb-8 flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
+        <div className="mb-6 md:mb-8 flex flex-col sm:flex-row gap-3 items-stretch bg-card p-4 rounded-xl border border-border shadow-sm">
           {/* Search Input */}
-          <div className="relative w-full sm:w-96">
+          <div className="relative flex-1 min-w-0">
             <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
             <input
               type="text"
@@ -184,34 +185,24 @@ export function LexiconPage() {
             />
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center gap-2 w-full overflow-x-auto pb-2 sm:pb-0 scrollbar-none [-webkit-overflow-scrolling:touch]">
-            <button
-              type="button"
-              onClick={() => setSelectedCategory("all")}
-              className={`rounded-xl px-4 py-2.5 text-xs font-bold transition shrink-0 min-h-[40px] flex items-center ${
-                selectedCategory === "all"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              }`}
-            >
-              جميع الفروع ({terms.length})
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                onClick={() => setSelectedCategory(cat)}
-                className={`rounded-xl px-4 py-2.5 text-xs font-bold transition shrink-0 min-h-[40px] flex items-center ${
-                  selectedCategory === cat
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
+          {/* Category Filter Dropdown */}
+          <FilterDropdown
+            className="sm:w-64 shrink-0"
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+            allLabel="جميع الفروع"
+            allCount={terms.length}
+            options={categories.map((cat) => ({ value: cat, label: cat }))}
+          />
+        </div>
+
+        {/* Results Count */}
+        <div className="mb-6 flex items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
+          <span className="text-xs font-bold text-muted-foreground">
+            {selectedCategory === "all" && !searchQuery
+              ? <>إجمالي عدد المصطلحات: <span className="text-primary">{terms.length} مصطلح</span></>
+              : <>نتائج معروضة: <span className="text-primary">{filteredTerms.length}</span> من أصل {terms.length} مصطلح</>}
+          </span>
         </div>
 
         {/* Lexicon Grid */}

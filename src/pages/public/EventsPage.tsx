@@ -4,6 +4,7 @@ import { SEOHead } from "../../components/seo/SEOHead"
 import eventsData from "../../data/events.json"
 import { containsText } from "../../lib/utils/search"
 import { supabase } from "../../lib/supabase/client"
+import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import {
   Calendar,
   MapPin,
@@ -228,38 +229,17 @@ export function EventsPage() {
             </div>
           </div>
 
-          {/* Category Pills */}
+          {/* Category Dropdown */}
           {categories.length > 0 && (
-            <div className="flex items-center gap-2 overflow-x-auto pt-2 border-t border-border/50 pb-1">
-              <span className="text-xs font-semibold text-muted-foreground shrink-0 flex items-center gap-1">
-                <Tag size={12} />
-                التصنيف:
-              </span>
-              <button
-                type="button"
-                onClick={() => setSelectedCategory("all")}
-                className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition shrink-0 ${
-                  selectedCategory === "all"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                جميع التصنيفات
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition shrink-0 ${
-                    selectedCategory === cat
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+            <div className="pt-3 border-t border-border/50">
+              <FilterDropdown
+                className="sm:w-72"
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                allLabel="جميع التصنيفات"
+                icon={<Tag size={14} />}
+                options={categories.map((cat) => ({ value: cat, label: cat }))}
+              />
             </div>
           )}
         </div>
