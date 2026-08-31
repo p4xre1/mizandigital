@@ -9,7 +9,7 @@
     "validate": "pnpm validate",
     "doctor": "node scripts/doctor.mjs",
     "prebuild": "pnpm validate && node scripts/generate-sitemap.mjs",
-    "build": "pnpm clean && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs",
+    "build": "pnpm clean && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "test": "vitest run --configLoader runner",
