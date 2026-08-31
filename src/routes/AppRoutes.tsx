@@ -3,6 +3,8 @@ import type { Session } from "@supabase/supabase-js"
 import PublicLayout from "@/layouts/PublicLayout"
 import AdminLayout from "@/components/layout/AdminLayout"
 import LoginPage from "@/pages/auth/LoginPage"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase/client"
 
 // Admin Pages
 import DashboardPage from "@/pages/admin/DashboardPage"
@@ -26,8 +28,9 @@ import {
   NewsPage,
   ArticlesPage,
   ArticlePage,
-  EventsPage,
+  ArticlesPage,
   EventPage,
+  EventsPage,
   SchoolsPage,
   SchoolPage,
   LexiconPage,
@@ -41,7 +44,6 @@ import {
   NotFound,
 } from "@/pages/public/index"
 
-// Helper components for route param mapping (مع فك تشفير النصوص العربية)
 function ArticleWrapper() {
   const { slug } = useParams<{ slug: string }>()
   return <ArticlePage slug={slug ? decodeURIComponent(slug) : undefined} />
@@ -68,6 +70,40 @@ function ArchiveWrapper() {
   return <ArchivePage initialSemester={semester} />
 }
 
+function AdminGate({ children }: { children: React.ReactNode }) {
+  const [checking, setChecking] = useState(true)
+  const [allowed, setAllowed] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    supabase
+      .from("profiles")
+      .select("admin_god_mode")
+      .eq("id", supabase.auth.getUser().then ? "" : "")
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) {
+        if (mounted) { setAllowed(false); setChecking(false) }
+        return
+      }
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("admin_god_mode")
+        .eq("id", data.user.id)
+        .maybeSingle()
+      if (mounted) {
+        setAllowed(!error && profile?.admin_god_mode === true)
+        setChecking(false)
+      }
+    })
+    return () => { mounted = false }
+  }, [])
+
+  if (checking) {
+    return <div className="flex min-h-screen items-center justify-center" dir="rtl"><p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من صلاحيات الإدارة...</p></div>
+  }
+  return allowed ? <>{children}</> : <Navigate to="/" replace />
+}
+
 interface AppRoutesProps {
   session: Session | null | undefined
   theme: "light" | "dark"
@@ -76,85 +112,45 @@ interface AppRoutesProps {
   onToggleMenu: () => void
 }
 
-export default function AppRoutes({
-  session,
-  theme,
-  menuOpen,
-  onToggleTheme,
-  onToggleMenu,
-}: AppRoutesProps) {
+export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onToggleMenu }: AppRoutesProps) {
   return (
     <Routes>
-      {/* ================= PUBLIC ROUTES ================= */}
-      <Route
-        element={
-          <PublicLayout
-            theme={theme}
-            menuOpen={menuOpen}
-            onToggleTheme={onToggleTheme}
-            onToggleMenu={onToggleMenu}
-          />
-        }
-      >
+      <Route element={<PublicLayout theme={theme} menuOpen={menuOpen} onToggleTheme={onToggleTheme} onToggleMenu={onToggleMenu} />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/archive" element={<ArchiveWrapper />} />
         <Route path="/download/:id" element={<DownloadGatePage />} />
-
-        {/* Semester Redirect Shortcuts (/s1, /s2...) */}
         <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} />
         <Route path="/s2" element={<Navigate to="/archive?semester=S2" replace />} />
         <Route path="/s3" element={<Navigate to="/archive?semester=S3" replace />} />
         <Route path="/s4" element={<Navigate to="/archive?semester=S4" replace />} />
         <Route path="/s5" element={<Navigate to="/archive?semester=S5" replace />} />
         <Route path="/s6" element={<Navigate to="/archive?semester=S6" replace />} />
-
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/:slug" element={<ArticleWrapper />} />
         <Route path="/articles" element={<ArticlesPage />} />
         <Route path="/articles/:slug" element={<ArticleWrapper />} />
-
         <Route path="/events" element={<EventsPage />} />
         <Route path="/events/:slug" element={<EventWrapper />} />
-
         <Route path="/schools" element={<SchoolsPage />} />
         <Route path="/schools/:slug" element={<SchoolWrapper />} />
-
         <Route path="/lexicon" element={<LexiconPage />} />
         <Route path="/lexicon/:slug" element={<TermWrapper />} />
-
-        {/* الصفحات القانونية والمعلوماتية */}
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/cookies" element={<CookiePolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
-
-        {/* 404 Fallback */}
         <Route path="*" element={<NotFound />} />
       </Route>
 
-      {/* ================= AUTH ROUTE ================= */}
-      <Route
-        path="/login"
-        element={session ? <Navigate to="/admin/dashboard" replace /> : <LoginPage />}
-      />
+      <Route path="/login" element={session ? <Navigate to="/admin/dashboard" replace /> : <LoginPage />} />
 
-      {/* ================= ADMIN ROUTES (PROTECTED) ================= */}
-      <Route
-        path="/admin"
-        element={
-          session === undefined ? (
-            <div className="flex min-h-screen items-center justify-center" dir="rtl">
-              <p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p>
-            </div>
-          ) : session === null ? (
-            <Navigate to="/login" replace />
-          ) : (
-            <AdminLayout />
-          )
-        }
-      >
+      <Route path="/admin" element={
+        session === undefined ? <div className="flex min-h-screen items-center justify-center" dir="rtl"><p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p></div> :
+        session === null ? <Navigate to="/login" replace /> :
+        <AdminGate><AdminLayout /></AdminGate>
+      }>
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
