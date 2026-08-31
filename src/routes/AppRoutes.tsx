@@ -20,7 +20,7 @@ import LawsPage from "@/pages/admin/LawsPage"
 import SettingsPage from "@/pages/admin/SettingsPage"
 
 import {
-  HomePage, ArchivePage, DownloadGatePage, NewsPage, ArticlesPage, ArticlePage,
+  HomePage, SearchPage, ArchivePage, DownloadGatePage, NewsPage, ArticlesPage, ArticlePage,
   EventPage, EventsPage, SchoolsPage, SchoolPage, LexiconPage, TermPage,
   AboutPage, ContactPage, FAQPage, PrivacyPolicyPage, CookiePolicyPage, TermsPage, NotFound,
 } from "@/pages/public/index"
@@ -52,7 +52,7 @@ interface AppRoutesProps { session: Session | null | undefined; theme: "light" |
 export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onToggleMenu }: AppRoutesProps) {
   return <Routes>
     <Route element={<PublicLayout theme={theme} menuOpen={menuOpen} onToggleTheme={onToggleTheme} onToggleMenu={onToggleMenu} />}>
-      <Route path="/" element={<HomePage />} /><Route path="/archive" element={<ArchiveWrapper />} /><Route path="/download/:id" element={<DownloadGatePage />} />
+      <Route path="/" element={<HomePage />} /><Route path="/search" element={<SearchPage />} /><Route path="/archive" element={<ArchiveWrapper />} /><Route path="/download/:id" element={<DownloadGatePage />} />
       <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} /><Route path="/s2" element={<Navigate to="/archive?semester=S2" replace />} /><Route path="/s3" element={<Navigate to="/archive?semester=S3" replace />} /><Route path="/s4" element={<Navigate to="/archive?semester=S4" replace />} /><Route path="/s5" element={<Navigate to="/archive?semester=S5" replace />} /><Route path="/s6" element={<Navigate to="/archive?semester=S6" replace />} />
       <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />
       <Route path="/events" element={<EventsPage />} /><Route path="/events/:slug" element={<EventWrapper />} /><Route path="/schools" element={<SchoolsPage />} /><Route path="/schools/:slug" element={<SchoolWrapper />} />
