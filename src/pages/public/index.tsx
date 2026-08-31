@@ -1,10 +1,10 @@
 export { HomePage } from "./HomePage"
+export { SearchPage } from "./SearchPage"
 export { ArchivePage } from "./ArchivePage"
 export { DownloadGatePage } from "./DownloadGatePage"
 export { NewsPage } from "./NewsPage"
 export { ArticlesPage } from "./ArticlesPage"
-// إذا كان ملف ArticlePage يعرض مقالاً مفرداً، تأكد من اسمه الحقيقي، أو استبدله بما يناسب:
-export { ArticlePage } from "./ArticlePage" 
+export { ArticlePage } from "./ArticlePage"
 export { EventsPage } from "./EventsPage"
 export { EventPage } from "./EventPage"
 export { SchoolsPage } from "./SchoolsPage"
