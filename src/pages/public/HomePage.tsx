@@ -6,9 +6,12 @@ import articlesData from "../../data/articles.json"
 import newsData from "../../data/news.json"
 import eventsData from "../../data/events.json"
 import lexiconData from "../../data/lexicon.json"
+import schoolsData from "../../data/schools.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import SiteSearchBar from "../../components/search/SiteSearchBar"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { CountUp } from "../../components/ui/CountUp"
+import { HomeFaqSection } from "../../components/home/HomeFaqSection"
 import {
   BookOpen, Scale, GraduationCap, Newspaper, Calendar, Search, ArrowLeft,
   ShieldCheck, FileText, Sparkles, Users, Video, Loader2, Download,
@@ -30,6 +33,10 @@ export function HomePage() {
   const [latestDocs, setLatestDocs] = useState<FeedCard[]>([])
   const [latestTerms, setLatestTerms] = useState<FeedCard[]>([])
   const [feedLoading, setFeedLoading] = useState<boolean>(true)
+  // نبدأ بعدد البيانات المحلية (دقيق بما يكفي) كي لا يظهر رقم فارغ قبل
+  // اكتمال الطلب الحي، ثم نحدّثه بالعدد الحقيقي من Supabase إن توفر
+  const [schoolsCount, setSchoolsCount] = useState<number>((schoolsData as any[]).length)
+  const [articlesCount, setArticlesCount] = useState<number>((articlesData as any[]).length)
 
   useEffect(() => {
     const fetchHomeFeed = async () => {
@@ -71,6 +78,27 @@ export function HomePage() {
       }
     }
     fetchHomeFeed()
+
+    // عدد الكليات والمقالات الحقيقي من قاعدة البيانات (بلا جلب الصفوف كاملة،
+    // فقط العدد) لعرضه فـ إحصائيات الصفحة الرئيسية. نتجاهل الخطأ بصمت
+    // ونبقي على العدد المحلي كاحتياطي إن تعذّر الطلب
+    const fetchCounts = async () => {
+      try {
+        const [schoolsCountRes, articlesCountRes] = await Promise.all([
+          supabase.from("schools").select("id", { count: "exact", head: true }),
+          supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published"),
+        ])
+        if (typeof schoolsCountRes.count === "number" && schoolsCountRes.count > 0) {
+          setSchoolsCount(schoolsCountRes.count)
+        }
+        if (typeof articlesCountRes.count === "number" && articlesCountRes.count > 0) {
+          setArticlesCount(articlesCountRes.count)
+        }
+      } catch (err) {
+        console.error("تعذّر جلب إحصائيات الصفحة الرئيسية:", err)
+      }
+    }
+    fetchCounts()
   }, [])
 
   const homepageSchemas = [
@@ -99,7 +127,14 @@ export function HomePage() {
           </div>}
         </div></section>
         <section className="py-16 border-t border-border"><div className="container mx-auto max-w-6xl px-4"><div className="grid grid-cols-1 md:grid-cols-3 gap-8"><div className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-card"><div className="rounded-lg bg-primary/10 p-3 text-primary shrink-0"><ShieldCheck size={24}/></div><div><h4 className="font-bold text-base">محتوى موثوق ومراجع</h4><p className="mt-1 text-xs text-muted-foreground leading-relaxed">مادة علمية قانونية مطابقة للتشريعات المغربية النافذة والاجتهادات القضائية.</p></div></div><div className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-card"><div className="rounded-lg bg-primary/10 p-3 text-primary shrink-0"><Search size={24}/></div><div><h4 className="font-bold text-base">بحث سريع وذكي</h4><p className="mt-1 text-xs text-muted-foreground leading-relaxed">محرك بحث متطور يدعم إزالة التشكيل والتطويل للوصول السريع للنصوص والمصطلحات.</p></div></div><div className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-card"><div className="rounded-lg bg-primary/10 p-3 text-primary shrink-0"><Users size={24}/></div><div><h4 className="font-bold text-base">مجتمع أكاديمي موحد</h4><p className="mt-1 text-xs text-muted-foreground leading-relaxed">ربط طلبة القانون والباحثين بمستجدات الجامعات والمؤسسات القانونية بالمغرب.</p></div></div></div></div></section>
-        <section className="py-12 bg-primary text-primary-foreground"><div className="container mx-auto max-w-6xl px-4"><div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center"><div><div className="text-3xl font-black sm:text-4xl">+500</div><div className="mt-1 text-xs opacity-90 font-medium">طالب مستفيد من المنصة</div></div><div><div className="text-3xl font-black sm:text-4xl">+{lexiconData.length}</div><div className="mt-1 text-xs opacity-90 font-medium">مصطلح قانوني موحد</div></div><div><div className="text-3xl font-black sm:text-4xl">+22</div><div className="mt-1 text-xs opacity-90 font-medium">كلية ومؤسسة جامعية</div></div><div><div className="text-3xl font-black sm:text-4xl">100%</div><div className="mt-1 text-xs opacity-90 font-medium">محتوى مفتوح ومجانى</div></div></div></div></section>
+        <section className="py-12 bg-primary text-primary-foreground"><div className="container mx-auto max-w-6xl px-4"><div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={500} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">طالب مستفيد من المنصة</div></div>
+          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={lexiconData.length} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">مصطلح قانوني موحد</div></div>
+          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={articlesCount} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">مقال قانوني</div></div>
+          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={schoolsCount} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">كلية ومؤسسة جامعية</div></div>
+          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={100} suffix="%" /></div><div className="mt-1 text-xs opacity-90 font-medium">محتوى مفتوح ومجانى</div></div>
+        </div></div></section>
+        <HomeFaqSection lexiconCount={lexiconData.length} articlesCount={articlesCount} schoolsCount={schoolsCount} />
       </main>
     </>
   )
