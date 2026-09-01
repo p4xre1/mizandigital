@@ -64,6 +64,7 @@ export function AboutPage() {
 
             <a
               href={LINKEDIN_URL}
+              title="تواصل معي على LinkedIn"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-3 inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground transition hover:border-primary/50 hover:text-primary"
@@ -101,11 +102,11 @@ export function AboutPage() {
             <p className="leading-relaxed">
               مبادرة طلابية مستقلة غير رسمية، وغير ناطقة باسم الكلية أو الجامعة. المحتوى المنشور
               معدّ لأغراض تعليمية بحتة، وليس بديلاً عن الاستشارة القانونية المتخصصة — راجع{" "}
-              <a href="/terms" className="underline font-semibold">
+              <a href="/terms" title="الشروط والأحكام الخاصة باستخدام المنصة" className="underline font-semibold">
                 الشروط وإخلاء المسؤولية
               </a>
               . لأي استفسار: {" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold" dir="ltr">
+              <a href={`mailto:${CONTACT_EMAIL}`} title="راسلنا عبر البريد الإلكتروني" className="underline font-semibold" dir="ltr">
                 {CONTACT_EMAIL}
               </a>
               .

@@ -459,6 +459,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
 
                     <Link
                       to={`/download/${item.id}`}
+                      title={`تحميل ${item.title}`}
                       state={{
                         title: item.title,
                         downloadUrl: item.downloadUrl,

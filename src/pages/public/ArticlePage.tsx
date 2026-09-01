@@ -331,7 +331,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       <main className="container mx-auto max-w-4xl px-4 py-16 text-center" dir="rtl">
         <h1 className="text-2xl font-bold text-foreground">المقال غير موجود</h1>
         <p className="mt-2 text-muted-foreground text-sm">عذراً، لم نتمكن من العثور على المقال الذي تبحث عنه.</p>
-        <Link to="/articles" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground">
+        <Link to="/articles" title="العودة إلى قائمة المقالات" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground">
           <ArrowRight size={16} />
           العودة إلى قائمة المقالات
         </Link>
@@ -351,6 +351,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
     <nav className="space-y-0.5 text-[13px] max-h-[60vh] overflow-y-auto pl-1">
       <a
         href="#top"
+        title="بداية المقال"
         className={`flex items-center gap-2 rounded-lg py-1.5 px-2.5 font-semibold transition ${
           activeSection === "top"
             ? "bg-primary/10 text-primary"
@@ -366,6 +367,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           <a
             key={idx}
             href={`#${section.id}`}
+            title={section.title}
             className={`flex items-center gap-2 rounded-lg py-1.5 px-2.5 transition truncate ${
               section.level === 3 ? "mr-3.5 text-[12px]" : ""
             } ${
@@ -483,7 +485,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       <div id="top" />
       <main className={`mx-auto ${maxWidthClass} px-2 md:px-6 py-6 md:py-10 transition-all duration-300`} dir="rtl">
         <div className="mb-4 px-2 flex items-center justify-between gap-3 flex-wrap">
-          <Link to="/articles" className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-primary transition">
+          <Link to="/articles" title="العودة إلى قائمة المقالات" className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-primary transition">
             <ArrowRight size={14} />
             <span>العودة إلى المقالات</span>
           </Link>

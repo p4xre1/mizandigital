@@ -306,6 +306,7 @@ export default function TrendingTopicsPage({ onNavigate, currentPath = "/admin/t
                 <a
                   key={link.label}
                   href={link.url}
+                  title={link.label}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-1.5 text-[11px] font-bold text-foreground transition hover:bg-muted"
@@ -434,6 +435,7 @@ export default function TrendingTopicsPage({ onNavigate, currentPath = "/admin/t
                     <a
                       key={link.label}
                       href={link.url}
+                      title={link.label}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1 text-[10px] font-bold text-foreground transition hover:bg-muted"

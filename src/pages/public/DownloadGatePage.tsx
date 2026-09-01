@@ -106,6 +106,7 @@ export function DownloadGatePage() {
             </p>
             <Link
               to="/archive"
+              title="العودة إلى المكتبة والملخصات"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:opacity-90"
             >
               <ArrowRight size={16} />
@@ -176,6 +177,7 @@ export function DownloadGatePage() {
           {/* زر التحميل الحقيقي */}
           <a
             href={readyToDownload ? target.downloadUrl : undefined}
+            title={`تحميل ${target.title}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => {
@@ -198,6 +200,7 @@ export function DownloadGatePage() {
 
           <Link
             to="/archive"
+            title="العودة إلى المكتبة والملخصات"
             className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-primary transition"
           >
             <ArrowRight size={14} />

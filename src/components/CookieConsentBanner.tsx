@@ -37,7 +37,7 @@ export function CookieConsentBanner() {
             نستخدم ملفات تعريف الارتباط (الكوكيز) لأغراض تحليلية عبر Google Analytics ولعرض إعلانات
             عبر Google AdSense، بما قد يشمل إعلانات مخصَّصة حسب اهتماماتكم. يمكنكم قبول ذلك أو رفضه،
             وسيبقى الموقع يعمل بشكل طبيعي في الحالتين. لمزيد من التفاصيل راجعوا{" "}
-            <Link to="/cookies" className="underline font-semibold text-primary">
+            <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="underline font-semibold text-primary">
               سياسة الكوكيز
             </Link>
             .

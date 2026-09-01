@@ -25,6 +25,7 @@ export function PartnerSuggestionBox({ href, title, description, ctaLabel }: Par
           <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
           <a
             href={href}
+            title={title}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 dark:text-amber-500 hover:underline"

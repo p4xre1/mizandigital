@@ -398,6 +398,7 @@ function IndexStatusPanel() {
             <li key={r.url} className="flex items-center justify-between gap-3 py-2.5">
               <a
                 href={r.url}
+                title={r.url}
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-1.5 truncate text-sm font-semibold text-foreground hover:text-primary"

@@ -33,6 +33,7 @@ export function ContactPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <a
             href={`mailto:${CONTACT_EMAIL}`}
+            title="راسلنا عبر البريد الإلكتروني"
             className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
           >
             <div className="flex items-center gap-2 text-primary">
@@ -67,7 +68,7 @@ export function ContactPage() {
             تنبيه: منصة الميزان الرقمية <strong>منصة تعليمية</strong> موجهة لطلبة وباحثي القانون، وليست
             مكتباً للاستشارات القانونية. لا يمكننا تقديم رأي أو استشارة قانونية بخصوص حالتكم الشخصية
             عبر البريد الإلكتروني. لهذا الغرض يرجى التواصل مع محامٍ أو مستشار قانوني مرخّص. راجع{" "}
-            <a href="/terms" className="underline font-semibold">
+            <a href="/terms" title="الشروط والأحكام الخاصة باستخدام المنصة" className="underline font-semibold">
               الشروط وإخلاء المسؤولية
             </a>{" "}
             لمزيد من التفاصيل.

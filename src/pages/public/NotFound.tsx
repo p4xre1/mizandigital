@@ -34,6 +34,7 @@ export function NotFound() {
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/"
+            title="الصفحة الرئيسية لمنصة ميزان الرقمية"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground hover:opacity-90 transition shadow-sm"
           >
             <Home size={16} />
@@ -42,6 +43,7 @@ export function NotFound() {
 
           <Link
             to="/lexicon"
+            title="القاموس القانوني — تعريفات المصطلحات القانونية"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition"
           >
             <BookOpen size={16} />
@@ -50,6 +52,7 @@ export function NotFound() {
 
           <Link
             to="/schools"
+            title="دليل كليات الحقوق بالجامعات المغربية"
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-xs font-bold text-foreground hover:bg-muted transition"
           >
             <GraduationCap size={16} />

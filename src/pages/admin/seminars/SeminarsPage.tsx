@@ -409,6 +409,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
 
                     <a
                       href={seminar.video_url}
+                      title={`رابط الفيديو / البث الخاص بـ ${seminar.title}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 text-primary hover:underline"
@@ -420,6 +421,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                     {seminar.attachment_url && (
                       <a
                         href={seminar.attachment_url}
+                        title={`مرفق / وثيقة ندوة ${seminar.title}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-1.5 hover:text-foreground"

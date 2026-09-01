@@ -27,6 +27,7 @@ function renderInline(text: string) {
         <a
           key={idx}
           href={linkMatch[2]}
+          title={linkMatch[1]}
           target="_blank"
           rel="noopener noreferrer"
           className="text-primary underline underline-offset-2 hover:no-underline"

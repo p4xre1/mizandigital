@@ -114,6 +114,7 @@ export function EventPage({ slug }: EventPageProps) {
             </p>
             <Link
               to="/events"
+              title="العودة لجدول الندوات"
               className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:opacity-90"
             >
               <ArrowRight size={16} />
@@ -184,11 +185,11 @@ export function EventPage({ slug }: EventPageProps) {
       <main className="container mx-auto max-w-4xl px-4 py-10" dir="rtl">
         {/* Breadcrumb Navigation */}
         <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground">
-          <Link to="/" className="hover:text-primary transition">
+          <Link to="/" title="الصفحة الرئيسية لمنصة ميزان الرقمية" className="hover:text-primary transition">
             الرئيسية
           </Link>
           <span>/</span>
-          <Link to="/events" className="hover:text-primary transition">
+          <Link to="/events" title="الندوات واللقاءات القانونية القادمة" className="hover:text-primary transition">
             الندوات والفعاليات
           </Link>
           <span>/</span>
@@ -394,6 +395,7 @@ export function EventPage({ slug }: EventPageProps) {
               </p>
               <a
                 href={registerLink}
+                title={registerLabel}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-md transition hover:opacity-90"
@@ -408,6 +410,7 @@ export function EventPage({ slug }: EventPageProps) {
           <div className="pt-4 flex items-center justify-between border-t border-border">
             <Link
               to="/events"
+              title="العودة لجداول الندوات والفعاليات"
               className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline"
             >
               <ArrowRight size={16} />

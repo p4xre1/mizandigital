@@ -141,6 +141,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
         <div className="mb-6">
           <Link
             to="/schools"
+            title="العودة إلى دليل الكليات"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition"
           >
             <ArrowRight size={16} />
@@ -203,6 +204,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
               {website && (
                 <a
                   href={website}
+                  title={`الموقع الرسمي لـ ${schoolName}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground hover:opacity-90 transition shadow-sm"
@@ -309,6 +311,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   <span className="text-xs text-muted-foreground block mb-1">خريطة جوجل:</span>
                   <a
                     href={school.mapLocation.googleMapsUrl}
+                    title={`عرض موقع ${schoolName} على خريطة جوجل`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
@@ -323,6 +326,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   <span className="text-xs text-muted-foreground block mb-1">البوابة الإلكترونية:</span>
                   <a
                     href={website}
+                    title={`البوابة الإلكترونية لـ ${schoolName}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium text-primary hover:underline break-all"
@@ -340,6 +344,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                     {school.socialMedia.facebook && (
                       <a
                         href={school.socialMedia.facebook}
+                        title={`فيسبوك الرسمي لـ ${schoolName}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg bg-blue-500/10 text-blue-600 px-3 py-1.5 text-xs font-semibold hover:bg-blue-500/20 transition"
@@ -350,6 +355,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                     {school.socialMedia.linkedin && (
                       <a
                         href={school.socialMedia.linkedin}
+                        title={`حساب لينكد إن الرسمي لـ ${schoolName}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg bg-sky-500/10 text-sky-600 px-3 py-1.5 text-xs font-semibold hover:bg-sky-500/20 transition"
@@ -376,6 +382,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                 <a
                   key={idx}
                   href={link.url}
+                  title={link.title}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-muted/30 hover:border-primary hover:bg-muted/60 transition text-sm font-medium text-foreground"

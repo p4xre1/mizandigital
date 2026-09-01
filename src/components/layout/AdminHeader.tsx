@@ -57,6 +57,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
       <div className="flex items-center gap-2">
         <a
           href="/"
+          title="زيارة الموقع في تبويب جديد"
           target="_blank"
           rel="noreferrer"
           className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground sm:inline-flex"

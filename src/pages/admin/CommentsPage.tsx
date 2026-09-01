@@ -292,6 +292,7 @@ export function CommentsPage({ onNavigate, currentPath = "/admin/comments" }: Co
                       {contentUrl && (
                         <a
                           href={contentUrl}
+                          title={`فتح ${item.source_type === "news" ? "الخبر" : "المقال"} المصدر`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary hover:underline"

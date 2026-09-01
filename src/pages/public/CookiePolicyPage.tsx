@@ -171,6 +171,7 @@ export function CookiePolicyPage() {
                 تُفعَّل إلا بعد موافقتكم الصريحة. يمكنكم إدارة تفضيلات الإعلانات الشخصية عبر{" "}
                 <a
                   href="https://adssettings.google.com"
+                  title="إعدادات إعلانات Google"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline font-semibold text-primary"
@@ -193,7 +194,7 @@ export function CookiePolicyPage() {
           <Section title="5. تواصل معنا">
             <p>
               لأي استفسار بخصوص هذه السياسة، راسلونا على{" "}
-              <a href="mailto:contact@mizan.page" className="underline font-semibold text-primary" dir="ltr">
+              <a href="mailto:contact@mizan.page" title="راسلنا عبر البريد الإلكتروني" className="underline font-semibold text-primary" dir="ltr">
                 contact@mizan.page
               </a>
               .

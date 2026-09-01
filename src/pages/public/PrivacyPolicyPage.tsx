@@ -53,7 +53,7 @@ export function PrivacyPolicyPage() {
               نستخدم <strong>Google Analytics (GA4)</strong> و<strong>Google Tags</strong> لفهم كيفية
               استخدام زوارنا للموقع، وقياس أداء الصفحات، وتحسين تجربة المستخدم. هذه الأدوات قد تضع
               ملفات تعريف ارتباط (كوكيز) على جهازكم — راجع{" "}
-              <Link to="/cookies" className="underline font-semibold text-primary">
+              <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="underline font-semibold text-primary">
                 سياسة الكوكيز
               </Link>{" "}
               لتفاصيل هذه الملفات وكيفية التحكم بها.
@@ -65,6 +65,7 @@ export function PrivacyPolicyPage() {
               على الإنترنت. يمكنكم تعطيل الإعلانات المخصَّصة (Personalized Ads) عبر{" "}
               <a
                 href="https://adssettings.google.com"
+                title="إعدادات إعلانات Google"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline font-semibold text-primary"
@@ -74,6 +75,7 @@ export function PrivacyPolicyPage() {
               {" "}أو عبر{" "}
               <a
                 href="https://www.aboutads.info/choices/"
+                title="خيارات الإعلانات الرقمية — aboutads.info"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline font-semibold text-primary"
@@ -86,7 +88,7 @@ export function PrivacyPolicyPage() {
               لا يتم تفعيل كوكيز التحليل أو الإعلانات إلا بعد موافقتكم الصريحة عبر شريط إشعار الكوكيز
               الذي يظهر عند أول زيارة، تماشياً مع وضع الموافقة من Google (Google Consent Mode).
               يمكنكم سحب موافقتكم في أي وقت من خلال صفحة{" "}
-              <Link to="/cookies" className="underline font-semibold text-primary">
+              <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="underline font-semibold text-primary">
                 سياسة الكوكيز
               </Link>
               ، أو إعدادات المتصفح، أو مسح بيانات الموقع المحلية.
@@ -95,6 +97,7 @@ export function PrivacyPolicyPage() {
               لمزيد من المعلومات حول ممارسات Google في الخصوصية، يمكنكم مراجعة{" "}
               <a
                 href="https://policies.google.com/privacy"
+                title="سياسة خصوصية Google"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline font-semibold text-primary"
@@ -134,7 +137,7 @@ export function PrivacyPolicyPage() {
             </ul>
             <p>
               لممارسة أي من هذه الحقوق، راسلونا على{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold text-primary" dir="ltr">
+              <a href={`mailto:${CONTACT_EMAIL}`} title="راسلنا عبر البريد الإلكتروني" className="underline font-semibold text-primary" dir="ltr">
                 {CONTACT_EMAIL}
               </a>
               .
@@ -158,7 +161,7 @@ export function PrivacyPolicyPage() {
           <Section title="9. تواصل معنا">
             <p>
               لأي استفسار بخصوص هذه السياسة، راسلونا على{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold text-primary" dir="ltr">
+              <a href={`mailto:${CONTACT_EMAIL}`} title="راسلنا عبر البريد الإلكتروني" className="underline font-semibold text-primary" dir="ltr">
                 {CONTACT_EMAIL}
               </a>
               .

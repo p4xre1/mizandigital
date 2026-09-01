@@ -182,6 +182,7 @@ export function FAQPage() {
           <p className="text-xs text-muted-foreground">راسلنا مباشرة وسنجيبك في أقرب وقت ممكن.</p>
           <Link
             to="/contact"
+            title="اتصل بفريق ميزان الرقمية"
             className="mt-1 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:opacity-90"
           >
             تواصل معنا

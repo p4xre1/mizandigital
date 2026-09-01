@@ -362,6 +362,7 @@ export function EventsPage() {
                     {registerLink && (
                       <a
                         href={registerLink}
+                        title={event.isSeminar ? `مشاهدة فيديو: ${event.title}` : `التسجيل في: ${event.title}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}

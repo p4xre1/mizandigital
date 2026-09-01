@@ -400,6 +400,7 @@ export default function LibraryPage({ onNavigate }: LibraryPageProps) {
                   <span>{formatFileSize(doc.file_size_bytes)}</span>
                   <a
                     href={doc.file_url}
+                    title={`تحميل ${doc.title}`}
                     download
                     className="inline-flex items-center gap-1 font-bold text-primary hover:underline"
                   >

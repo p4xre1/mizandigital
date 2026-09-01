@@ -106,11 +106,11 @@ export function TermsPage() {
               هذه الإعلانات يديرها ويختار محتواها Google وشركاؤه الإعلانيون، ولا تتحمل المنصة أي
               مسؤولية عن دقة أو ملاءمة أو محتوى الإعلانات المعروضة، أو عن أي منتج أو خدمة يُعلَن عنها.
               لمزيد من التفاصيل حول كوكيز الإعلانات وكيفية التحكم بها، راجعوا{" "}
-              <Link to="/cookies" className="underline font-semibold text-primary">
+              <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="underline font-semibold text-primary">
                 سياسة الكوكيز
               </Link>
               {" "}و{" "}
-              <Link to="/privacy" className="underline font-semibold text-primary">
+              <Link to="/privacy" title="سياسة الخصوصية وحماية البيانات" className="underline font-semibold text-primary">
                 سياسة الخصوصية
               </Link>
               .
@@ -131,7 +131,7 @@ export function TermsPage() {
           <Section title="11. تواصل معنا">
             <p>
               لأي استفسار بخصوص هذه الشروط، راسلونا على{" "}
-              <a href={`mailto:${CONTACT_EMAIL}`} className="underline font-semibold text-primary" dir="ltr">
+              <a href={`mailto:${CONTACT_EMAIL}`} title="راسلنا عبر البريد الإلكتروني" className="underline font-semibold text-primary" dir="ltr">
                 {CONTACT_EMAIL}
               </a>
               .

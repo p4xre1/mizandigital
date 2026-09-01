@@ -203,6 +203,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
         <div className="mb-6">
           <Link
             to="/lexicon"
+            title="العودة إلى المعجم القانوني"
             className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition"
           >
             <ArrowRight size={16} />

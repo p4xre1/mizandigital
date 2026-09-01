@@ -220,6 +220,7 @@ export function SchoolsPage() {
                     {website && (
                       <a
                         href={website}
+                        title={`الموقع الرسمي لـ ${schoolName}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition"
