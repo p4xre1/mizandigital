@@ -32,9 +32,6 @@ export default function App() {
     supabase.auth.getSession().then(({ data }) => {
       if (isMounted) {
         setSession(data.session)
-        // Signal the prerender engine that the initial auth check is done
-        // This ensures the static HTML includes your data/app state
-        document.dispatchEvent(new Event("render-event"))
       }
     })
 

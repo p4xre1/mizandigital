@@ -117,16 +117,13 @@ const lexiconWithSlugs = lexicon.map((item) => {
     generateSlug(item.term_ar) ||
     String(item.id);
 
-  const fr =
-    generateSlug(item.term_fr || "") ||
-    String(item.id);
-
   let slug = base;
 
-  if (usedLexiconSlugs.has(slug)) {
-    slug = `${base}-${fr}`;
-  }
-
+  // ملاحظة: لازم هاد المنطق يبقى مطابق تماماً لـ uniqueLexiconSlug فـ
+  // src/lib/utils/generateSlug.ts (base -> base-id)، لأن هادوك الدالة هي
+  // اللي كتستعمل فـ TermPage.tsx / LexiconPage.tsx باش تبني الروابط اللي
+  // كيشوفها الزائر. أي اختلاف بين الخوارزميتين كيولّد رابط كيأشر على صفحة
+  // ماكاينش (404).
   if (usedLexiconSlugs.has(slug)) {
     slug = `${base}-${item.id}`;
   }
@@ -1509,11 +1506,7 @@ for (const page of pages) {
   const destination =
     page.path === "/"
       ? join(DIST, "index.html")
-      : join(
-          DIST,
-          page.path.slice(1),
-          "index.html"
-        );
+      : join(DIST, `${page.path.slice(1)}.html`);
 
   await mkdir(dirname(destination), {
     recursive: true,

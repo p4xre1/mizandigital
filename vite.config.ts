@@ -12,12 +12,17 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    modulePreload: {
+      resolveDependencies: (_filename, deps) =>
+        deps.filter((dep) => !dep.includes("vendor-aws-admin-only")),
+    },
     rollupOptions: {
       output: {
         manualChunks(id: string) {
           if (id.includes("node_modules")) {
+            if (id.includes("@aws-sdk") || id.includes("@smithy")) return "vendor-aws-admin-only";
             if (id.includes("@supabase")) return "vendor-supabase";
-            
+
             if (
               id.includes("react") ||
               id.includes("react-dom") ||

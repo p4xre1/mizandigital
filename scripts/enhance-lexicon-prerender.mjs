@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const distFile = join(root, "dist", "lexicon", "index.html");
+const distFile = join(root, "dist", "lexicon.html");
 const dataFile = join(root, "src", "data", "lexicon.json");
 const DOMAIN = "https://www.mizan.page";
 const REVIEWED = "2026-08-31";
