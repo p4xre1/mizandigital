@@ -109,17 +109,23 @@ export function AdsterraAd({
       host.appendChild(adScript)
     }
 
-    let timeoutId: number | null = null
-    if ("requestIdleCallback" in window) {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null
+    const requestIdle = (
+      window as Window & {
+        requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number
+      }
+    ).requestIdleCallback
+
+    if (typeof requestIdle === "function") {
       // تأخير تحميل الطرف الثالث خارج المسار الحرج للأداء
-      window.requestIdleCallback(inject, { timeout: 3500 })
+      requestIdle(inject, { timeout: 3500 })
     } else {
-      timeoutId = window.setTimeout(inject, 2000)
+      timeoutId = setTimeout(inject, 2000)
     }
 
     return () => {
       if (timeoutId !== null) {
-        window.clearTimeout(timeoutId)
+        clearTimeout(timeoutId)
       }
     }
   }, [scriptSrc, variant, atOptions, requireConsent])
