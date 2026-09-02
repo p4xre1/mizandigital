@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react"
-import { Search, Bell, Sun, Moon, Menu, Globe } from "lucide-react"
+import { Search, Bell, Sun, Moon, Menu, ArrowUpLeft } from "lucide-react"
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void
 }
 
 export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
-  // فحص الحالة الفعالية للوضع الداكن عند التحميل الأول
   const [isDark, setIsDark] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       return document.documentElement.classList.contains("dark")
@@ -30,77 +29,79 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-border bg-card/80 px-4 backdrop-blur-md sm:px-6"
+      className="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-md sm:px-6"
       dir="rtl"
     >
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <button
           type="button"
           onClick={onToggleSidebar}
-          className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted lg:hidden"
+          className="grid size-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted lg:hidden"
           aria-label="القائمة الجانبية"
         >
-          <Menu className="size-5" />
+          <Menu className="size-[18px]" />
         </button>
 
         {/* شريط البحث */}
-        <div className="relative hidden sm:block">
-          <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <label className="group relative hidden w-full max-w-sm items-center sm:flex">
+          <Search className="pointer-events-none absolute right-3.5 size-[15px] text-muted-foreground/70" />
           <input
             type="text"
-            placeholder="بحث في لوحة التحكم..."
-            className="h-9 w-64 rounded-full border border-border bg-background pr-9 pl-4 text-xs text-foreground outline-none transition focus:w-80 focus:border-primary"
+            placeholder="ابحث فـ لوحة التحكم..."
+            className="h-9 w-full rounded-lg border border-border bg-background pr-9 pl-3 text-[12.5px] text-foreground outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/10"
           />
-        </div>
+        </label>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-1.5">
         <a
           href="/"
-          title="زيارة الموقع في تبويب جديد"
           target="_blank"
           rel="noreferrer"
-          className="hidden items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground sm:inline-flex"
+          title="زيارة الموقع فـ تبويب جديد"
+          className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-[12.5px] font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground sm:inline-flex"
         >
-          <Globe className="size-3.5" />
           <span>زيارة الموقع</span>
+          <ArrowUpLeft className="size-3.5" />
         </a>
+
+        <div className="mx-1 hidden h-6 w-px bg-border sm:block" />
 
         {/* تبديل المظهر */}
         <button
           type="button"
           onClick={toggleTheme}
-          className="grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="grid size-9 place-items-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground"
           aria-label="تغيير المظهر"
           title={isDark ? "تفعيل الوضع النهارِي" : "تفعيل الوضع الداكن"}
         >
-          {isDark ? <Sun className="size-4 text-amber-400" /> : <Moon className="size-4" />}
+          {isDark ? <Sun className="size-[17px] text-accent-gold" /> : <Moon className="size-[17px]" />}
         </button>
 
         {/* الإشعارات */}
         <button
           type="button"
-          className="relative grid size-9 place-items-center rounded-full border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="relative grid size-9 place-items-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground"
           aria-label="الإشعارات"
         >
-          <Bell className="size-4" />
+          <Bell className="size-[17px]" />
           {notifications > 0 && (
-            <span className="absolute top-1.5 right-1.5 grid size-2.5 place-items-center rounded-full bg-rose-500" />
+            <span className="absolute left-2 top-2 size-[7px] rounded-full bg-accent-gold ring-2 ring-card" />
           )}
         </button>
 
-        <div className="mr-2 h-6 w-px bg-border" />
+        <div className="mx-1 h-6 w-px bg-border" />
 
         {/* ملف المستخدم */}
-        <div className="flex items-center gap-2">
-          <div className="grid size-8 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+        <button type="button" className="flex items-center gap-2.5 rounded-lg py-1 pl-1 pr-2 transition hover:bg-muted">
+          <div className="hidden text-right md:block">
+            <div className="text-[12.5px] font-bold leading-tight text-foreground">مدير النظام</div>
+            <div className="text-[10.5px] leading-tight text-muted-foreground">admin@mizan.ma</div>
+          </div>
+          <div className="grid size-8 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground ring-2 ring-primary/15">
             م
           </div>
-          <div className="hidden text-right md:block">
-            <div className="text-xs font-bold text-foreground">مدير النظام</div>
-            <div className="text-[10px] text-muted-foreground">admin@mizan.ma</div>
-          </div>
-        </div>
+        </button>
       </div>
     </header>
   )

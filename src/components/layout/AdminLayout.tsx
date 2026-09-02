@@ -37,10 +37,10 @@ export default function AdminLayout({
       {mobileSidebarOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 bg-foreground/40 backdrop-blur-sm"
             onClick={() => setMobileSidebarOpen(false)}
           />
-          <div className="relative z-10 w-64 bg-card">
+          <div className="relative z-10 w-64 shadow-2xl">
             <AdminSidebar collapsed={false} />
           </div>
         </div>

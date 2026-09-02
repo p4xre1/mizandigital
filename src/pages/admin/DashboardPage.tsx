@@ -7,7 +7,7 @@ import {
   GraduationCap,
   Newspaper,
   Plus,
-  ArrowUpRight,
+  ArrowUpLeft,
   Loader2,
   Clock,
   UploadCloud,
@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 import { AdminSuggestions } from "../../components/admin/AdminSuggestions"
+import { CountUp } from "../../components/ui/CountUp"
 
 interface DashboardStats {
   articlesCount: number
@@ -116,42 +117,36 @@ export default function DashboardPage() {
       title: "المقالات المنشورة",
       value: stats.articlesCount,
       icon: BookOpen,
-      color: "text-blue-500 bg-blue-500/10",
       path: "/admin/articles",
     },
     {
       title: "المصطلحات القانونية",
       value: stats.termsCount,
       icon: Layers,
-      color: "text-emerald-500 bg-emerald-500/10",
       path: "/admin/lexicon",
     },
     {
       title: "الأخبار والمستجدات",
       value: stats.newsCount,
       icon: Newspaper,
-      color: "text-purple-500 bg-purple-500/10",
       path: "/admin/news",
     },
     {
       title: "الندوات والبثوث",
       value: stats.seminarsCount,
       icon: Calendar,
-      color: "text-indigo-500 bg-indigo-500/10",
       path: "/admin/seminars",
     },
     {
       title: "الكليات والمؤسسات",
       value: stats.schoolsCount,
       icon: GraduationCap,
-      color: "text-amber-500 bg-amber-500/10",
       path: "/admin/faculties",
     },
     {
       title: "الأرشيف القانوني",
       value: stats.lawsCount,
       icon: Scale,
-      color: "text-rose-500 bg-rose-500/10",
       path: "/admin/laws",
     },
   ]
@@ -163,23 +158,23 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-xl font-black text-foreground">لوحة التحكم الرئيسية</h1>
           <p className="text-xs text-muted-foreground">
-            مرحباً بك في منصة ميزان الرقمية. نظرة عامة على المحتوى والإحصائيات الحالية.
+            مرحباً بك فـ منصة ميزان الرقمية. نظرة عامة على المحتوى والإحصائيات الحالية.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => navigate("/admin/articles/new")}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-110"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-110"
           >
             <Plus className="size-4" />
             مقال جديد
           </button>
           <button
             onClick={() => navigate("/admin/library")}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground transition hover:bg-muted"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground transition hover:bg-muted"
           >
-            <UploadCloud className="size-4 text-primary" />
+            <UploadCloud className="size-4 text-muted-foreground" />
             رفع مستند
           </button>
         </div>
@@ -191,24 +186,28 @@ export default function DashboardPage() {
           <Loader2 className="size-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {statCards.map((card, idx) => {
             const Icon = card.icon
             return (
-              <div
+              <button
                 key={idx}
                 onClick={() => navigate(card.path)}
-                className="group relative flex cursor-pointer items-center justify-between rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md"
+                className="group relative flex flex-col gap-4 rounded-xl border border-border bg-card p-4 text-right transition hover:border-primary/40 hover:shadow-sm"
               >
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground">{card.title}</p>
-                  <p className="text-2xl font-black text-foreground">{card.value}</p>
+                <div className="flex items-center justify-between">
+                  <div className="grid size-9 place-items-center rounded-lg bg-primary/[0.07] text-primary">
+                    <Icon className="size-[17px]" strokeWidth={2} />
+                  </div>
+                  <ArrowUpLeft className="size-3.5 text-muted-foreground/0 transition group-hover:text-muted-foreground/60" />
                 </div>
-                <div className={`grid size-12 place-items-center rounded-2xl ${card.color}`}>
-                  <Icon className="size-6" />
+                <div>
+                  <p className="font-mono text-2xl font-black tracking-tight text-foreground">
+                    <CountUp to={card.value} />
+                  </p>
+                  <p className="mt-0.5 text-[11.5px] font-semibold text-muted-foreground">{card.title}</p>
                 </div>
-                <ArrowUpRight className="absolute left-3 top-3 size-4 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
-              </div>
+              </button>
             )
           })}
         </div>
