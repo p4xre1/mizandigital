@@ -129,12 +129,9 @@ export function DownloadGatePage() {
       />
 
       <main className="container mx-auto max-w-2xl px-4 py-10" dir="rtl">
-        {/* شريط إعلاني علوي — مكان مخصّص لكود شبكة الإعلانات (AdSense أو غيرها) */}
-        <div
-          id="ad-slot-top"
-          className="mb-6 flex h-24 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground"
-        >
-          مساحة إعلانية
+        {/* شريط إعلاني علوي — وحدة Adsterra (Banner 300x250) */}
+        <div className="mb-6 flex min-h-24 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
+          <span>مساحة إعلانية</span>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm text-center">
@@ -166,12 +163,9 @@ export function DownloadGatePage() {
             </p>
           </div>
 
-          {/* إعلان أوسط — مكان مخصّص لكود شبكة الإعلانات */}
-          <div
-            id="ad-slot-middle"
-            className="mt-6 flex h-40 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground"
-          >
-            مساحة إعلانية
+          {/* إعلان أوسط — وحدة Adsterra (Banner 320x50) */}
+          <div className="mt-6 flex min-h-[50px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
+            <span>مساحة إعلانية</span>
           </div>
 
           {/* زر التحميل الحقيقي */}

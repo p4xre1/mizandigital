@@ -1,1 +1,3 @@
-google.com, pub-1749032173858747, DIRECT, f08c47fec0942fa0
+# ads.txt — Authorized Digital Sellers
+# راجع: https://iabtechlab.com/ads-txt/
+adsterra.com, 3454410, DIRECT

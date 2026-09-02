@@ -54,11 +54,11 @@
             "name":"ميزان الرقمية",
             "alternateName":"Mizan Digital",
             "url":"https://www.mizan.page/",
-            "logo":"https://www.mizan.page/Logo.svg",
+            "logo":"https://www.mizan.page/icon-512.png",
             "description":"منصة تعليمية عربية لطلبة القانون والعلوم القانونية بالمغرب.",
             "areaServed":"MA",
             "knowsLanguage":"ar",
-            "sameAs":["https://github.com/p4xre1/mizandigital"]
+            "sameAs":["https://www.facebook.com/mizan.page","https://www.instagram.com/mizan.page","https://www.tiktok.com/@mizan_page","https://www.pinterest.com/mizan.page","https://github.com/p4xre1/mizandigital"]
           },
           {
             "@type":"WebSite",
@@ -68,17 +68,6 @@
             "publisher":{"@id":"https://www.mizan.page/#organization"},
             "inLanguage":"ar-MA",
             "potentialAction":{"@type":"SearchAction","target":"https://www.mizan.page/?q={search_term_string}","query-input":"required name=search_term_string"}
-          },
-          {
-            "@type":"WebPage",
-            "@id":"https://www.mizan.page/#webpage",
-            "url":"https://www.mizan.page/",
-            "name":"ميزان الرقمية | ملخصات وموارد طلبة القانون",
-            "isPartOf":{"@id":"https://www.mizan.page/#website"},
-            "about":{"@id":"https://www.mizan.page/#organization"},
-            "inLanguage":"ar-MA",
-            "datePublished":"2026-07-21",
-            "dateModified":"2026-08-31"
           }
         ]
       }
@@ -89,14 +78,14 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}
       window.gtag = gtag;
-      gtag("consent","default",{analytics_storage:"denied",ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",wait_for_update:500});
+      gtag("consent","default",{analytics_storage:"denied",wait_for_update:500});
 
       function loadMizanAnalytics(){
         if(window.__mizanAnalyticsLoaded) return;
         window.__mizanAnalyticsLoaded = true;
         try {
           if(window.localStorage.getItem("mizan-cookie-consent")==="granted") {
-            gtag("consent","update",{analytics_storage:"granted",ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted"});
+            gtag("consent","update",{analytics_storage:"granted"});
           }
         } catch(e) {}
         var id="%VITE_GA_ID%";
@@ -112,21 +101,13 @@
       else window.addEventListener("load",function(){setTimeout(loadMizanAnalytics,1500)},{once:true});
     </script>
 
-    <!-- AdSense: defer third-party script so it does not compete with the mobile critical path. -->
-    <meta name="google-adsense-account" content="ca-pub-1749032173858747">
-    <script>
-      function loadMizanAds(){
-        if(window.__mizanAdsLoaded) return;
-        window.__mizanAdsLoaded=true;
-        var s=document.createElement("script");
-        s.async=true;
-        s.src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1749032173858747";
-        s.crossOrigin="anonymous";
-        document.head.appendChild(s);
-      }
-      if("requestIdleCallback" in window) requestIdleCallback(loadMizanAds,{timeout:3500});
-      else window.addEventListener("load",function(){setTimeout(loadMizanAds,2500)},{once:true});
-    </script>
+    <!--
+      Adsterra: التحميل الفعلي لكود Adsterra كيتزاد هنا بمجرد توفر
+      كود النشر (Publisher Script) من لوحة تحكم Adsterra. المكان مجهّز
+      بنفس نمط التحميل المؤجَّل (requestIdleCallback) باش مايأثرش على
+      المسار الحرج لأول عرض (LCP/FCP). شوف src/components/ads/AdsterraAd.tsx
+      للوحدات الإعلانية (بانر/ناتيف) المدرجة داخل الصفحات مباشرة.
+    -->
   </head>
   <body>
     <div id="root"></div>

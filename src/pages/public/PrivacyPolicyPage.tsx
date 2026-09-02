@@ -48,7 +48,7 @@ export function PrivacyPolicyPage() {
             </ul>
           </Section>
 
-          <Section title="3. استخدام Google Analytics وGoogle AdSense (أدوات وإعلانات Google)">
+          <Section title="3. استخدام Google Analytics وشبكات الإعلانات">
             <p>
               نستخدم <strong>Google Analytics (GA4)</strong> و<strong>Google Tags</strong> لفهم كيفية
               استخدام زوارنا للموقع، وقياس أداء الصفحات، وتحسين تجربة المستخدم. هذه الأدوات قد تضع
@@ -59,20 +59,20 @@ export function PrivacyPolicyPage() {
               لتفاصيل هذه الملفات وكيفية التحكم بها.
             </p>
             <p>
-              كما نستخدم <strong>Google AdSense</strong> لعرض إعلانات على الموقع كمصدر تمويل يساعدنا
-              على استمرارية المنصة مجاناً. يستخدم Google AdSense وشركاؤه الإعلانيون (بما فيهم Google
-              DoubleClick) كوكيز الطرف الثالث لعرض إعلانات بناءً على زياراتكم لهذا الموقع ومواقع أخرى
-              على الإنترنت. يمكنكم تعطيل الإعلانات المخصَّصة (Personalized Ads) عبر{" "}
+              كما نستخدم شبكة إعلانية خارجية (<strong>Adsterra</strong>) لعرض إعلانات على الموقع كمصدر
+              تمويل يساعدنا على استمرارية المنصة مجاناً. قد تستخدم Adsterra وشركاؤها الإعلانيون كوكيز
+              الطرف الثالث لعرض إعلانات بناءً على زياراتكم لهذا الموقع ومواقع أخرى على الإنترنت. يمكنكم
+              مراجعة{" "}
               <a
-                href="https://adssettings.google.com"
-                title="إعدادات إعلانات Google"
+                href="https://adsterra.com/cookies/"
+                title="سياسة الكوكيز الخاصة بـ Adsterra"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline font-semibold text-primary"
               >
-                إعدادات إعلانات Google
+                سياسة كوكيز Adsterra
               </a>
-              {" "}أو عبر{" "}
+              {" "}أو تعطيل الإعلانات المخصَّصة بشكل عام عبر{" "}
               <a
                 href="https://www.aboutads.info/choices/"
                 title="خيارات الإعلانات الرقمية — aboutads.info"
@@ -85,7 +85,7 @@ export function PrivacyPolicyPage() {
               .
             </p>
             <p>
-              لا يتم تفعيل كوكيز التحليل أو الإعلانات إلا بعد موافقتكم الصريحة عبر شريط إشعار الكوكيز
+              لا يتم تفعيل كوكيز التحليل إلا بعد موافقتكم الصريحة عبر شريط إشعار الكوكيز
               الذي يظهر عند أول زيارة، تماشياً مع وضع الموافقة من Google (Google Consent Mode).
               يمكنكم سحب موافقتكم في أي وقت من خلال صفحة{" "}
               <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="underline font-semibold text-primary">
@@ -116,7 +116,7 @@ export function PrivacyPolicyPage() {
             </ul>
             <p>
               لا نبيع بياناتكم الشخصية لأي طرف ثالث. قد تُستخدم بيانات تصفح مجهولة، بموافقتكم، من قِبل
-              Google AdSense لعرض إعلانات (مخصَّصة أو غير مخصَّصة حسب اختياركم) — راجع القسم الثالث
+              شبكة الإعلانات (Adsterra) لعرض إعلانات (مخصَّصة أو غير مخصَّصة حسب اختياركم) — راجع القسم الثالث
               أعلاه للتفاصيل وكيفية التحكم بذلك.
             </p>
           </Section>
@@ -124,7 +124,7 @@ export function PrivacyPolicyPage() {
           <Section title="5. مشاركة البيانات مع أطراف ثالثة">
             <p>
               قد تتم مشاركة بيانات استخدام مجهولة مع مزودي خدمات تقنية نعتمد عليهم لتشغيل المنصة
-              (مثل Google لأدوات التحليل وإعلانات AdSense، ومزود الاستضافة وقاعدة البيانات Supabase)،
+              (مثل Google لأدوات التحليل، وAdsterra لعرض الإعلانات، ومزود الاستضافة وقاعدة البيانات Supabase)،
               وذلك فقط بالقدر اللازم لتشغيل الموقع، تحليل أدائه، وعرض الإعلانات.
             </p>
           </Section>

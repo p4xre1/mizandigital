@@ -1,5 +1,6 @@
 // utils/cookieConsent.ts
-// إدارة موافقة الكوكيز (Google Consent Mode v2) — يجب أن يبقى مفتاح التخزين متطابقاً مع index.html
+// إدارة موافقة الكوكيز (Google Consent Mode v2 لأدوات التحليل فقط — Google Analytics) —
+// يجب أن يبقى مفتاح التخزين متطابقاً مع index.html
 
 export const CONSENT_STORAGE_KEY = "mizan-cookie-consent"
 export type ConsentValue = "granted" | "denied"
@@ -22,13 +23,11 @@ export function setStoredConsent(value: ConsentValue) {
   window.localStorage.setItem(CONSENT_STORAGE_KEY, value)
 
   // إعلام Google Consent Mode بالتحديث فوراً دون الحاجة لإعادة تحميل الصفحة
-  // يشمل كوكيز التحليل (Analytics) وكوكيز الإعلانات (AdSense) معاً
+  // (كوكيز التحليل عبر Google Analytics فقط؛ لا علاقة لهذا بشبكة الإعلانات
+  // المستعملة حالياً — Adsterra ماشي جزء من نظام Google Consent Mode)
   if (typeof window.gtag === "function") {
     window.gtag("consent", "update", {
       analytics_storage: value,
-      ad_storage: value,
-      ad_user_data: value,
-      ad_personalization: value,
     })
   }
 }

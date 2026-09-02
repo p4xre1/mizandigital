@@ -37,17 +37,10 @@ const COOKIE_TABLE = [
     type: "تحليلي (يتطلب موافقتكم)",
   },
   {
-    name: "__gads، __gpi",
-    provider: "Google AdSense",
-    purpose: "قياس أداء الإعلانات وتحديد عدد مرات ظهورها للزائر.",
-    duration: "حتى 13 شهراً",
-    type: "إعلاني (يتطلب موافقتكم)",
-  },
-  {
-    name: "IDE، test_cookie",
-    provider: "Google DoubleClick",
-    purpose: "عرض إعلانات ذات صلة باهتمامات الزائر عبر مواقع مختلفة، والتحقق من دعم المتصفح للكوكيز.",
-    duration: "حتى 13 شهراً",
+    name: "كوكيز إعلانية متعددة (حسب الوحدة الإعلانية المفعّلة)",
+    provider: "Adsterra",
+    purpose: "قياس أداء الإعلانات، تحديد عدد مرات ظهورها، وعرض إعلانات ذات صلة باهتمامات الزائر عبر مواقع مختلفة.",
+    duration: "تختلف حسب نوع الكوكي (راجع سياسة كوكيز Adsterra)",
     type: "إعلاني (يتطلب موافقتكم)",
   },
 ]
@@ -86,7 +79,7 @@ export function CookiePolicyPage() {
         <div className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-2 text-sm font-extrabold text-foreground">إدارة تفضيلاتكم الحالية</h2>
           <p className="mb-4 text-xs text-muted-foreground">
-            حالة الموافقة الحالية على كوكيز التحليل والإعلانات (Google Analytics وGoogle AdSense):{" "}
+            حالة الموافقة الحالية على كوكيز التحليل والإعلانات (Google Analytics وAdsterra):{" "}
             <span
               className={
                 consent === "granted"
@@ -166,17 +159,17 @@ export function CookiePolicyPage() {
                 Consent Mode).
               </li>
               <li>
-                <strong>كوكيز إعلانية:</strong> عبر Google AdSense وGoogle DoubleClick، تُستخدم لعرض
+                <strong>كوكيز إعلانية:</strong> عبر شبكة الإعلانات Adsterra، تُستخدم لعرض
                 إعلانات على الموقع وقد تُستخدم لعرض إعلانات أقرب لاهتماماتكم بناءً على تصفحكم. لا
-                تُفعَّل إلا بعد موافقتكم الصريحة. يمكنكم إدارة تفضيلات الإعلانات الشخصية عبر{" "}
+                تُفعَّل إلا بعد موافقتكم الصريحة. يمكنكم مراجعة{" "}
                 <a
-                  href="https://adssettings.google.com"
-                  title="إعدادات إعلانات Google"
+                  href="https://adsterra.com/cookies/"
+                  title="سياسة الكوكيز الخاصة بـ Adsterra"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline font-semibold text-primary"
                 >
-                  إعدادات إعلانات Google
+                  سياسة كوكيز Adsterra
                 </a>
                 .
               </li>
