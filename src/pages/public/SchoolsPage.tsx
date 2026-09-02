@@ -124,7 +124,7 @@ export function SchoolsPage() {
             <span>الدليل الأكاديمي الموحد</span>
           </div>
           <h1 className="text-3xl font-black text-foreground md:text-4xl">
-            كليات الحقوق والمؤسسات الجامعية المغربية
+            دليل كليات الحقوق والجامعات المغربية
           </h1>
           <p className="mt-2 text-base text-muted-foreground max-w-2xl">
             استكشف كليات العلوم القانونية والاقتصادية والاجتماعية (FSJES) عبر مختلف مدن المملكة المغربية، وتعرف على التخصصات والمواقع الرسمية.

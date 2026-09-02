@@ -61,7 +61,7 @@ export function SearchPage() {
   const icon = (type: string) => ({ article: FileText, news: Newspaper, law: Scale, pdf: BookOpen, term: BookOpen, school: GraduationCap, event: Calendar }[type] || Search)
 
   return <>
-    <SEOHead title={initialQuery ? `البحث عن ${initialQuery} - ميزان الرقمية` : "البحث في ميزان الرقمية"} description="ابحث في المقالات والأخبار والقوانين والملخصات والمصطلحات وكليات الحقوق والندوات في منصة ميزان الرقمية." keywords={["البحث القانوني المغربي", "القانون المغربي", "ميزان الرقمية"]} />
+    <SEOHead title={initialQuery ? `البحث عن ${initialQuery} - ميزان الرقمية` : "البحث في ميزان الرقمية"} description="ابحث في المقالات والأخبار والقوانين والملخصات والمصطلحات وكليات الحقوق والندوات في منصة ميزان الرقمية." keywords={["البحث القانوني المغربي", "القانون المغربي", "ميزان الرقمية"]} noindex />
     <main dir="rtl" className="min-h-screen bg-background text-foreground">
       <section className="border-b border-border bg-muted/30 py-12 md:py-16">
         <div className="container mx-auto max-w-5xl px-4">

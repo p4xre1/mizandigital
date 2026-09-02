@@ -143,7 +143,7 @@ export function LexiconPage() {
   return (
     <>
       <SEOHead
-        title="المعجم القانوني المغربي - عربي / فرنسي"
+        title="القاموس القانوني المغربي"
         description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
         canonicalUrl="https://www.mizan.page/lexicon"
         keywords={[
@@ -164,7 +164,7 @@ export function LexiconPage() {
             <span>المعجم الموحد للمصطلحات · {terms.length} مصطلح قانوني</span>
           </div>
           <h1 className="text-2xl font-black text-foreground md:text-4xl">
-            المعجم القانوني المغربي (مزدوج اللغة)
+            القاموس القانوني المغربي
           </h1>
           <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-2xl">
             دليل القاموس القانوني الموحد لشرح المفاهيم والنصوص التشريعية باللغتين العربية والفرنسية (Droit Marocain).

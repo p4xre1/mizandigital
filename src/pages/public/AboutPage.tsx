@@ -29,7 +29,7 @@ export function AboutPage() {
   return (
     <>
       <SEOHead
-        title="من نحن"
+        title="حول ميزان الرقمية"
         description="تعرّف على القائم على منصة الميزان الرقمية، طالب قانون خاص بكلية العلوم القانونية والاقتصادية والاجتماعية بطنجة، جامعة عبد المالك السعدي."
         schema={[breadcrumbSchema, personSchema]}
       />
@@ -39,7 +39,7 @@ export function AboutPage() {
           <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
             <Target size={26} />
           </div>
-          <h1 className="text-2xl font-black text-foreground md:text-3xl">من نحن</h1>
+          <h1 className="text-2xl font-black text-foreground md:text-3xl">حول ميزان الرقمية</h1>
           <p className="mt-2 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
             القصة والدافع وراء منصة الميزان الرقمية.
           </p>

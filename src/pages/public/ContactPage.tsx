@@ -13,7 +13,7 @@ export function ContactPage() {
   return (
     <>
       <SEOHead
-        title="اتصل بنا"
+        title="تواصل معنا"
         description="تواصل مع فريق منصة الميزان الرقمية عبر البريد الإلكتروني لأي استفسار أو ملاحظة أو اقتراح بخصوص المحتوى القانوني أو خدمات المنصة أو الإبلاغ عن مشكلة تقنية."
         schema={breadcrumbSchema}
       />
@@ -23,7 +23,7 @@ export function ContactPage() {
           <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
             <MessageCircle size={26} />
           </div>
-          <h1 className="text-2xl font-black text-foreground md:text-3xl">اتصل بنا</h1>
+          <h1 className="text-2xl font-black text-foreground md:text-3xl">تواصل معنا</h1>
           <p className="mt-2 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
             نسعد بتواصلكم معنا لأي استفسار حول المحتوى، اقتراح تصحيح، طلب تعاون أكاديمي، أو أي
             ملاحظة تساعدنا على تطوير المنصة.
