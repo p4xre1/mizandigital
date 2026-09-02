@@ -101,7 +101,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
     "name": schoolName,
     "alternateName": school.name_fr || school.code,
     "description": school.description || school.synopsis,
-    "url": website || `https://www.mizan.page/schools/${school.id}`,
+    "url": website || `https://www.mizan.page/schools/${canonicalSlug}`,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": school.city || "المغرب",

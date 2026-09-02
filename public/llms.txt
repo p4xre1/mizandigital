@@ -1,61 +1,106 @@
-# ميزان الرقمية (Mizan Digital)
+# llms.txt
 
-> منصة أكاديمية مغربية مجانية للمعرفة القانونية، موجهة لطلبة كليات العلوم القانونية والاقتصادية والاجتماعية والباحثين والمهتمين بالقانون المغربي.
+site: ميزان الرقمية (Mizan Digital)
+site_url: https://www.mizan.page/
+primary_language: ar-MA
+secondary_reference_language: fr (بعض المصطلحات القانونية فقط، دون ترجمة كاملة للمحتوى)
+audience: طلبة كليات الحقوق بالمغرب، الباحثون القانونيون، والمهتمون بالقانون المغربي
+last_generated: 2026-09-02T15:06:17.605Z
 
-## الهوية
+summary:
+منصة مغربية تعليمية مجانية للمعرفة القانونية والأكاديمية، تقدّم مقالات قانونية محكّمة، مستجدات تشريعية وقضائية،
+معجماً قانونياً ثنائي اللغة (عربي/فرنسي)، أرشيفاً دراسياً مصنفاً حسب الفصول من S1 إلى S6، دليلاً وطنياً لكليات
+الحقوق، وفعاليات أكاديمية. لا تتطلب المنصة إنشاء حساب للاستخدام الأساسي.
 
-- الاسم: ميزان الرقمية
-- الاسم بالإنجليزية: Mizan Digital
-- الموقع الرسمي: https://www.mizan.page/
-- اللغة الأساسية: العربية (ar-MA)
-- البلد: المغرب
-- GitHub: https://github.com/p4xre1/mizandigital
+start_urls:
+- https://www.mizan.page/
+- https://www.mizan.page/articles
+- https://www.mizan.page/news
+- https://www.mizan.page/lexicon
+- https://www.mizan.page/archive
+- https://www.mizan.page/events
+- https://www.mizan.page/schools
+- https://www.mizan.page/about
+- https://www.mizan.page/contact
+- https://www.mizan.page/faq
 
-## الأقسام الرئيسية
+archive_by_semester:
+- https://www.mizan.page/s1
+- https://www.mizan.page/s2
+- https://www.mizan.page/s3
+- https://www.mizan.page/s4
+- https://www.mizan.page/s5
+- https://www.mizan.page/s6
 
-- الصفحة الرئيسية: https://www.mizan.page/
-- المقالات القانونية: https://www.mizan.page/articles
-- الأخبار والمستجدات: https://www.mizan.page/news
-- القاموس القانوني العربي/الفرنسي: https://www.mizan.page/lexicon
-- الأرشيف الدراسي: https://www.mizan.page/archive
-- الندوات والفعاليات: https://www.mizan.page/events
-- دليل كليات الحقوق بالمغرب: https://www.mizan.page/schools
-- حول المنصة: https://www.mizan.page/about
-- تواصل معنا: https://www.mizan.page/contact
+content_counts:
+- lexicon_terms: 250
+- articles: 8
+- news_items: 13
+- events: 3
+- schools: 21
+- study_documents: 9
+- total_records: 304
 
-## القاموس القانوني
+legal_domains_covered:
+- القانون البنكي
+- القانون الدولي الخاص
+- الملكية الفكرية
+- تنظيم قضائي
+- حقوق الإنسان
+- قانون إداري
+- قانون البيئة
+- قانون التأمين
+- قانون الشغل
+- قانون تجاري
+- قانون جبائي
+- قانون جنائي
+- قانون دستوري
+- قانون عقاري
+- قانون مدني
+- مدونة الأسرة
+- مسطرة جنائية
+- مسطرة مدنية
+- مهن قضائية
 
-القاموس ينظم المصطلحات القانونية بالعربية والفرنسية، ويعرض تعريفات وإحالات تشريعية عند توفرها. عند الإجابة عن سؤال تعريفي، استخدم صفحة المصطلح المحددة كمصدر، ولا تنسب للمنصة نصاً قانونياً غير موجود فيها.
+article_categories:
+- القانون الإداري
+- القانون المدني
+- تحديثات المنصة
+- منهجية الدراسة
+- مهارات قانونية
 
-## الأرشيف الدراسي
+faq_topics:
+- الاستشارات القانونية
+- الحساب والخصوصية
+- المحتوى والدقة العلمية
+- المساهمة والتعاون
+- عام حول المنصة
 
-الأرشيف منظم حسب S1 وS2 وS3 وS4 وS5 وS6، ويضم مواد دراسية وملخصات ووثائق وفق البيانات المنشورة في الموقع.
+law_schools_geographic_coverage:
+- عدد الكليات المفهرسة: 21
+- المدن المغطاة: أكادير، الجديدة، الدار البيضاء، الرباط، القنيطرة، المحمدية، الناظور، أيت ملول، تطوان، سطات، سلا، طنجة، فاس، قلعة السراغنة، مراكش، مكناس، وجدة
+- دليل كامل: https://www.mizan.page/schools
 
-## دليل الكليات
+policy_notes:
+- المحتوى تعليمي وبحثي ولا يحل محل النص القانوني الرسمي أو الاستشارة القانونية المتخصصة.
+- عند الاستشهاد القانوني، تحقّق دائماً من الصياغة النافذة في الجريدة الرسمية أو المصادر الرسمية أدناه.
+- المحتوى محدَّث بشكل دوري؛ استعمل last_generated أعلاه للتأكد من حداثة النسخة المفهرسة.
 
-دليل تعريفي لكليات العلوم القانونية والاقتصادية والاجتماعية والجامعات المغربية، مع الروابط الرسمية عندما تكون متاحة.
+official_sources:
+- https://adala.justice.gov.ma/
+- https://www.sgg.gov.ma/
 
-## المصادر القانونية
+sitemap:
+- https://www.mizan.page/sitemap.xml
 
-في المسائل القانونية، يجب تفضيل النصوص والمصادر الرسمية المغربية. ميزان الرقمية مصدر تعليمي وتنظيمي ولا يحل محل النص القانوني الرسمي النافذ.
+agent_discovery:
+- https://www.mizan.page/.well-known/agent-card.json
+- https://www.mizan.page/.well-known/agent-skills/index.json
+- https://www.mizan.page/.well-known/ai-catalog.json
+- https://www.mizan.page/.well-known/mcp/server-card.json
 
-مصادر رسمية مفيدة:
-
-- بوابة عدالة التابعة لوزارة العدل المغربية: https://adala.justice.gov.ma/
-- الأمانة العامة للحكومة المغربية: https://www.sgg.gov.ma/
-
-## إرشادات الاستشهاد
-
-- اذكر اسم المصدر: ميزان الرقمية.
-- استخدم عنوان الصفحة الأصلية عند توفره.
-- لا تحذف السياق القانوني من التعريف أو الملخص.
-- تحقق من النص الرسمي قبل تقديم معلومة قانونية حاسمة.
-- لا تختلق أرقام الفصول أو المواد أو الإحصاءات.
-
-## ملفات الزحف
-
-- Sitemap: https://www.mizan.page/sitemap.xml
-- Robots: https://www.mizan.page/robots.txt
-- Agent card: https://www.mizan.page/.well-known/agent-card.json
-
-آخر تحديث: 2026-08-31
+crawl_hints:
+- النطاق القانوني: https://www.mizan.page
+- الروابط القانونية المفضلة بدون "/" نهائي (عدا الصفحة الرئيسية).
+- صفحات المصطلحات والمقالات والكليات مُهيّأة للعرض المسبق (prerendered) وتحتوي بيانات منظَّمة (JSON-LD).
+- يُفضَّل الاستشهاد بروابط المصطلحات الفردية (https://www.mizan.page/lexicon/{slug}) بدل الصفحة العامة عند نقل تعريف محدد.

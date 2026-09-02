@@ -20,6 +20,7 @@ const [
   lexicon,
   news,
   faqGroups,
+  documents,
 ] = await Promise.all([
   readJson("articles.json"),
   readJson("events.json"),
@@ -27,6 +28,7 @@ const [
   readJson("lexicon.json"),
   readJson("news.json"),
   readJson("faq.json"),
+  readJson("docs.json"),
 ]);
 
 /* -------------------------------------------------------
@@ -85,6 +87,7 @@ const statistics = {
   events: count(events),
   schools: count(schools),
   lexicon: count(lexicon),
+  documents: count(documents),
 };
 
 const totalContent =
@@ -92,7 +95,16 @@ const totalContent =
   statistics.news +
   statistics.events +
   statistics.schools +
-  statistics.lexicon;
+  statistics.lexicon +
+  statistics.documents;
+
+const uniqueSorted = (values) =>
+  [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "ar"));
+
+const legalDomains = uniqueSorted(lexicon.map((term) => term.category));
+const articleCategories = uniqueSorted(articles.map((article) => article.category));
+const schoolCities = uniqueSorted(schools.map((school) => school.city));
+const faqTopics = uniqueSorted((faqGroups ?? []).map((group) => group.title));
 
 /* -------------------------------------------------------
    Lexicon slugs
@@ -1518,12 +1530,21 @@ for (const page of pages) {
    llms.txt
 ------------------------------------------------------- */
 
-const llmsTxt = `# ميزان الرقمية
+const llmsTxt = `# llms.txt
 
-> منصة عربية مغربية للمعرفة القانونية والأكاديمية لطلبة الحقوق والباحثين.
+site: ميزان الرقمية (Mizan Digital)
+site_url: ${DOMAIN}/
+primary_language: ar-MA
+secondary_reference_language: fr (بعض المصطلحات القانونية فقط، دون ترجمة كاملة للمحتوى)
+audience: طلبة كليات الحقوق بالمغرب، الباحثون القانونيون، والمهتمون بالقانون المغربي
+last_generated: ${NOW}
 
-## الموقع
+summary:
+منصة مغربية تعليمية مجانية للمعرفة القانونية والأكاديمية، تقدّم مقالات قانونية محكّمة، مستجدات تشريعية وقضائية،
+معجماً قانونياً ثنائي اللغة (عربي/فرنسي)، أرشيفاً دراسياً مصنفاً حسب الفصول من S1 إلى S6، دليلاً وطنياً لكليات
+الحقوق، وفعاليات أكاديمية. لا تتطلب المنصة إنشاء حساب للاستخدام الأساسي.
 
+start_urls:
 - ${DOMAIN}/
 - ${DOMAIN}/articles
 - ${DOMAIN}/news
@@ -1535,27 +1556,60 @@ const llmsTxt = `# ميزان الرقمية
 - ${DOMAIN}/contact
 - ${DOMAIN}/faq
 
-## إحصائيات المحتوى
+archive_by_semester:
+- ${DOMAIN}/s1
+- ${DOMAIN}/s2
+- ${DOMAIN}/s3
+- ${DOMAIN}/s4
+- ${DOMAIN}/s5
+- ${DOMAIN}/s6
 
-- المصطلحات القانونية: ${statistics.lexicon}
-- المقالات: ${statistics.articles}
-- الأخبار: ${statistics.news}
-- الفعاليات والندوات: ${statistics.events}
-- المؤسسات والكليات: ${statistics.schools}
-- إجمالي عناصر البيانات: ${totalContent}
+content_counts:
+- lexicon_terms: ${statistics.lexicon}
+- articles: ${statistics.articles}
+- news_items: ${statistics.news}
+- events: ${statistics.events}
+- schools: ${statistics.schools}
+- study_documents: ${statistics.documents}
+- total_records: ${totalContent}
 
-## اللغة
+legal_domains_covered:
+${legalDomains.map((domain) => `- ${domain}`).join("\n")}
 
-العربية (ar-MA)، مع مصطلحات قانونية عربية وفرنسية.
+article_categories:
+${articleCategories.map((category) => `- ${category}`).join("\n")}
 
-## ملاحظة للمستخدمين والوكلاء
+faq_topics:
+${faqTopics.map((topic) => `- ${topic}`).join("\n")}
 
-ميزان الرقمية منصة تعليمية وبحثية.
-عند الاستشهاد بقاعدة قانونية، يرجى الرجوع إلى النص القانوني الرسمي للتحقق من الصياغة النافذة.
+law_schools_geographic_coverage:
+- عدد الكليات المفهرسة: ${statistics.schools}
+- المدن المغطاة: ${schoolCities.join("، ")}
+- دليل كامل: ${DOMAIN}/schools
 
-## Sitemap
+policy_notes:
+- المحتوى تعليمي وبحثي ولا يحل محل النص القانوني الرسمي أو الاستشارة القانونية المتخصصة.
+- عند الاستشهاد القانوني، تحقّق دائماً من الصياغة النافذة في الجريدة الرسمية أو المصادر الرسمية أدناه.
+- المحتوى محدَّث بشكل دوري؛ استعمل last_generated أعلاه للتأكد من حداثة النسخة المفهرسة.
 
-${DOMAIN}/sitemap.xml
+official_sources:
+- https://adala.justice.gov.ma/
+- https://www.sgg.gov.ma/
+
+sitemap:
+- ${DOMAIN}/sitemap.xml
+
+agent_discovery:
+- ${DOMAIN}/.well-known/agent-card.json
+- ${DOMAIN}/.well-known/agent-skills/index.json
+- ${DOMAIN}/.well-known/ai-catalog.json
+- ${DOMAIN}/.well-known/mcp/server-card.json
+
+crawl_hints:
+- النطاق القانوني: ${DOMAIN}
+- الروابط القانونية المفضلة بدون "/" نهائي (عدا الصفحة الرئيسية).
+- صفحات المصطلحات والمقالات والكليات مُهيّأة للعرض المسبق (prerendered) وتحتوي بيانات منظَّمة (JSON-LD).
+- يُفضَّل الاستشهاد بروابط المصطلحات الفردية (${DOMAIN}/lexicon/{slug}) بدل الصفحة العامة عند نقل تعريف محدد.
 `;
 
 await writeFile(
