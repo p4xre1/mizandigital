@@ -1518,12 +1518,18 @@ for (const page of pages) {
    llms.txt
 ------------------------------------------------------- */
 
-const llmsTxt = `# ميزان الرقمية
+const llmsTxt = `# llms.txt
 
-> منصة عربية مغربية للمعرفة القانونية والأكاديمية لطلبة الحقوق والباحثين.
+site: ميزان الرقمية (Mizan Digital)
+site_url: ${DOMAIN}/
+primary_language: ar-MA
+audience: طلبة القانون والباحثون والمهتمون بالقانون المغربي
 
-## الموقع
+summary:
+منصة مغربية تعليمية للمعرفة القانونية والأكاديمية، تقدّم مقالات قانونية، مستجدات، قاموساً قانونياً،
+أرشيفاً دراسياً، دليلاً لكليات الحقوق، وفعاليات أكاديمية.
 
+start_urls:
 - ${DOMAIN}/
 - ${DOMAIN}/articles
 - ${DOMAIN}/news
@@ -1535,27 +1541,34 @@ const llmsTxt = `# ميزان الرقمية
 - ${DOMAIN}/contact
 - ${DOMAIN}/faq
 
-## إحصائيات المحتوى
+content_counts:
+- lexicon_terms: ${statistics.lexicon}
+- articles: ${statistics.articles}
+- news_items: ${statistics.news}
+- events: ${statistics.events}
+- schools: ${statistics.schools}
+- total_records: ${totalContent}
 
-- المصطلحات القانونية: ${statistics.lexicon}
-- المقالات: ${statistics.articles}
-- الأخبار: ${statistics.news}
-- الفعاليات والندوات: ${statistics.events}
-- المؤسسات والكليات: ${statistics.schools}
-- إجمالي عناصر البيانات: ${totalContent}
+policy_notes:
+- المحتوى تعليمي وبحثي ولا يحل محل النص القانوني الرسمي.
+- عند الاستشهاد القانوني، تحقّق من الصياغة النافذة في المصادر الرسمية.
 
-## اللغة
+official_sources:
+- https://adala.justice.gov.ma/
+- https://www.sgg.gov.ma/
 
-العربية (ar-MA)، مع مصطلحات قانونية عربية وفرنسية.
+sitemap:
+- ${DOMAIN}/sitemap.xml
 
-## ملاحظة للمستخدمين والوكلاء
+agent_discovery:
+- ${DOMAIN}/.well-known/agent-card.json
+- ${DOMAIN}/.well-known/agent-skills/index.json
+- ${DOMAIN}/.well-known/ai-catalog.json
+- ${DOMAIN}/.well-known/mcp/server-card.json
 
-ميزان الرقمية منصة تعليمية وبحثية.
-عند الاستشهاد بقاعدة قانونية، يرجى الرجوع إلى النص القانوني الرسمي للتحقق من الصياغة النافذة.
-
-## Sitemap
-
-${DOMAIN}/sitemap.xml
+crawl_hints:
+- النطاق القانوني: ${DOMAIN}
+- الروابط القانونية المفضلة بدون "/" نهائي (عدا الصفحة الرئيسية).
 `;
 
 await writeFile(

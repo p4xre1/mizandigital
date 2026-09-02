@@ -102,7 +102,10 @@ export function SchoolsPage() {
           "addressLocality": school.city,
           "addressCountry": "MA"
         },
-        "url": school.websiteUrl || school.website || `https://www.mizan.page/schools/${school.id}`
+        "url":
+          school.websiteUrl ||
+          school.website ||
+          `https://www.mizan.page/schools/${school.slug || generateSlug(school.name || school.name_ar || "") || school.id}`
       }
     }))
   }

@@ -22,3 +22,25 @@ https://www.mizan.page/es/*  https://www.mizan.page/:splat  301!
 https://www.mizan.page/es    https://www.mizan.page/        301!
 https://www.mizan.page/ar/*  https://www.mizan.page/:splat  301!
 https://www.mizan.page/ar    https://www.mizan.page/        301!
+
+# 4) توحيد المسارات بلا "/" نهائي لتفادي تكرار الفهرسة بين نسختين لنفس الصفحة
+https://www.mizan.page/schools/:slug/   https://www.mizan.page/schools/:slug   301!
+https://www.mizan.page/lexicon/:slug/   https://www.mizan.page/lexicon/:slug   301!
+https://www.mizan.page/articles/:slug/  https://www.mizan.page/articles/:slug  301!
+https://www.mizan.page/news/:slug/      https://www.mizan.page/news/:slug      301!
+https://www.mizan.page/events/:slug/    https://www.mizan.page/events/:slug    301!
+https://www.mizan.page/schools/         https://www.mizan.page/schools         301!
+https://www.mizan.page/lexicon/         https://www.mizan.page/lexicon         301!
+https://www.mizan.page/articles/        https://www.mizan.page/articles        301!
+https://www.mizan.page/news/            https://www.mizan.page/news            301!
+https://www.mizan.page/events/          https://www.mizan.page/events          301!
+https://www.mizan.page/archive/         https://www.mizan.page/archive         301!
+https://www.mizan.page/about/           https://www.mizan.page/about           301!
+https://www.mizan.page/contact/         https://www.mizan.page/contact         301!
+https://www.mizan.page/faq/             https://www.mizan.page/faq             301!
+https://www.mizan.page/privacy/         https://www.mizan.page/privacy         301!
+https://www.mizan.page/cookies/         https://www.mizan.page/cookies         301!
+https://www.mizan.page/terms/           https://www.mizan.page/terms           301!
+
+# 5) تصحيح مسارات تاريخية/خاطئة معروفة من أدوات الزحف
+https://www.mizan.page/schools/fsjest-tangier  https://www.mizan.page/schools/fsjes-tangier  301!
