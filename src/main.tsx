@@ -1,5 +1,5 @@
 import { StrictMode } from "react"
-import { createRoot, hydrateRoot } from "react-dom/client"
+import { createRoot } from "react-dom/client"
 import App from "./App"
 import "./styles/fonts.css"
 import "./styles/globals.css"
@@ -16,17 +16,17 @@ const app = (
   </StrictMode>
 )
 
-// الصفحات المُصدَّرة مسبقاً (prerendered — راجع scripts/prerender.mjs) تصل
-// للمتصفح ومعها محتوى ثابت جاهز داخل #root من أول لحظة (جيد لمحركات البحث
-// وسرعة أول عرض). المشكلة: createRoot() كان يمسح هذا المحتوى بالكامل
-// ويعيد بناءه من الصفر بمجرد تحميل main.tsx، فيظهر "ومضان" لحظي (المحتوى
-// الثابت يُرى ثم يختفي فجأة) قبل اكتمال تحميل السكريبتات.
-// hydrateRoot() يلتحم مع نفس العقد الموجودة في الصفحة بدل مسحها وإعادة
-// إدراجها، فتختفي هذه القفزة المرئية. نستعمله فقط عندما يوجد فعلاً محتوى
-// مُصدَّر مسبقاً (كما فـ الإنتاج)؛ في وضع التطوير المحلي (#root فارغ) نرجع
-// لسلوك createRoot() المعتاد.
-if (rootElement.hasChildNodes()) {
-  hydrateRoot(rootElement, app)
-} else {
-  createRoot(rootElement).render(app)
-}
+// ملاحظة مهمة (Sep 2026): كنا نستعملو hydrateRoot() هنا على أساس أن
+// المحتوى المُصدَّر مسبقاً (prerendered — راجع scripts/prerender.mjs) يطابق
+// شكل شجرة React الحقيقية، فيتفادى React إعادة البناء من الصفر.
+// المشكل: staticBody فـ prerender.mjs مصمم خصيصاً لمحركات البحث/الروبوتات
+// (HTML دلالي بسيط: <main><article><h1>...</h1>) وهو مختلف بنيوياً بالكامل
+// عن شجرة React الحقيقية (عناصر، className، تداخل مختلف تماماً). هاد
+// الاختلاف كان كيخلي hydrateRoot() يفشل فـ كل صفحة (React errors #418/#423
+// فـ الكونسول)، وReact كيتفاعل مع الفشل بمسح الشجرة المزيفة وإعادة البناء
+// من جديد على أي حال — يعني الومضان اللي كنا كنحاولو نتفاداوه كان لسه واقع،
+// بزيادة عملية hydration فاشلة قبلها (كتأثر على TBT وCumulative Layout Shift).
+// الحل: createRoot() بسيط ومباشر، كيبني الشجرة الصحيحة من أول مرة بلا محاولة
+// مطابقة فاشلة. المحتوى الثابت يبقى مفيد للروبوتات اللي ما كتخدمش JavaScript
+// (GPTBot, ClaudeBot...) لأنهم كيقراو HTML الخام مباشرة بلا ما ينتظرو React.
+createRoot(rootElement).render(app)

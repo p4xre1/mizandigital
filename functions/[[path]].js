@@ -69,6 +69,16 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const accept = request.headers.get("Accept") || "";
 
+  // توحيد الروابط: أي مسار (غير الجذر /) ينتهي بـ "/" يُحوَّل 301 لنفس
+  // المسار بدون الشرطة المائلة. بدون هذا، Google كيفهرس نفس الصفحة
+  // كرابطين مختلفين (مثال: /schools/fsjes-el-jadida و
+  // /schools/fsjes-el-jadida/)، فيتوزّع signal الترتيب بينهم بدل ما
+  // يتركّز فـ صفحة واحدة قوية.
+  if (url.pathname !== "/" && url.pathname.endsWith("/")) {
+    url.pathname = url.pathname.replace(/\/+$/, "");
+    return Response.redirect(url.toString(), 301);
+  }
+
   if (request.method === "OPTIONS" && url.pathname === "/mcp") {
     return new Response(null, { status: 204, headers: MCP_HEADERS });
   }
