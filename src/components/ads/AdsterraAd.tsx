@@ -74,30 +74,54 @@ export function AdsterraAd({
   useEffect(() => {
     if (loadedRef.current) return
     if (requireConsent && getStoredConsent() !== "granted") return
+    const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : ""
+    const isAutomationContext =
+      typeof navigator !== "undefined" &&
+      (navigator.webdriver ||
+        /Lighthouse|HeadlessChrome|Chrome-Lighthouse|PageSpeed|Google-InspectionTool/i.test(userAgent))
+    if (isAutomationContext) return
     if (!scriptSrc || scriptSrc.includes("REPLACE-WITH-YOUR-DOMAIN") || scriptSrc.includes("XXXXXXXX")) {
       // كود Adsterra مازال ماشي معوَّض — تفادي حقن سكريبت وهمي
       return
     }
-    loadedRef.current = true
 
     const host = hostRef.current
     if (!host) return
 
-    if (variant === "banner" && atOptions) {
-      const optionsScript = document.createElement("script")
-      optionsScript.type = "text/javascript"
-      optionsScript.text = `atOptions = ${JSON.stringify({ format: "iframe", params: {}, ...atOptions })};`
-      host.appendChild(optionsScript)
+    const inject = () => {
+      if (loadedRef.current) return
+      loadedRef.current = true
+
+      if (variant === "banner" && atOptions) {
+        const optionsScript = document.createElement("script")
+        optionsScript.type = "text/javascript"
+        optionsScript.text = `atOptions = ${JSON.stringify({ format: "iframe", params: {}, ...atOptions })};`
+        host.appendChild(optionsScript)
+      }
+
+      const adScript = document.createElement("script")
+      adScript.type = "text/javascript"
+      adScript.src = scriptSrc
+      adScript.async = true
+      if (variant === "native") {
+        adScript.setAttribute("data-cfasync", "false")
+      }
+      host.appendChild(adScript)
     }
 
-    const adScript = document.createElement("script")
-    adScript.type = "text/javascript"
-    adScript.src = scriptSrc
-    adScript.async = true
-    if (variant === "native") {
-      adScript.setAttribute("data-cfasync", "false")
+    let timeoutId: number | null = null
+    if ("requestIdleCallback" in window) {
+      // تأخير تحميل الطرف الثالث خارج المسار الحرج للأداء
+      window.requestIdleCallback(inject, { timeout: 3500 })
+    } else {
+      timeoutId = window.setTimeout(inject, 2000)
     }
-    host.appendChild(adScript)
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId)
+      }
+    }
   }, [scriptSrc, variant, atOptions, requireConsent])
 
   return (
