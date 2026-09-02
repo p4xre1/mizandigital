@@ -1,5 +1,34 @@
 import { Link, NavLink } from "react-router-dom"
-import { Scale, Sun, Moon, X, Menu } from "lucide-react"
+import { Scale, Sun, Moon, X, Menu, Instagram, Facebook } from "lucide-react"
+
+// أيقونات غير متوفرة ضمن lucide-react (تيك توك وبينتيريست)
+function TikTokIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M16.6 5.82c-1.02-.9-1.6-2.19-1.6-3.6V2h-3.4v13.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.03.78.1V9.44a5.99 5.99 0 0 0-.78-.05A6 6 0 1 0 15 15.4V9.2a7.6 7.6 0 0 0 4.4 1.4V7.2a4.85 4.85 0 0 1-2.8-1.38Z" />
+    </svg>
+  )
+}
+
+function PinterestIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M12.02 2C6.5 2 2 6.4 2 11.9c0 4.15 2.53 7.7 6.14 9.2-.08-.78-.16-1.98.03-2.83.18-.77 1.16-4.9 1.16-4.9s-.3-.6-.3-1.48c0-1.39.8-2.43 1.8-2.43.85 0 1.26.64 1.26 1.4 0 .86-.55 2.14-.83 3.33-.24.99.5 1.8 1.48 1.8 1.78 0 3.15-1.88 3.15-4.58 0-2.4-1.72-4.07-4.18-4.07-2.85 0-4.52 2.13-4.52 4.34 0 .86.33 1.78.75 2.28a.3.3 0 0 1 .07.29c-.08.33-.26 1.03-.29 1.18-.05.2-.16.24-.37.14-1.37-.64-2.22-2.63-2.22-4.24 0-3.45 2.5-6.62 7.22-6.62 3.79 0 6.74 2.7 6.74 6.31 0 3.77-2.37 6.79-5.67 6.79-1.1 0-2.14-.58-2.5-1.26l-.68 2.6c-.25.94-.91 2.13-1.36 2.85.99.31 2.04.47 3.13.47 5.52 0 10-4.4 10-9.9C22 6.4 17.52 2 12.02 2Z" />
+    </svg>
+  )
+}
 
 export function Brand() {
   return (
@@ -109,6 +138,48 @@ export function Footer() {
           >
             contact@mizan.page
           </a>
+          <div className="mt-4 flex items-center gap-2">
+            <a
+              href="https://www.instagram.com/mizan.page"
+              title="تابعنا على إنستغرام"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="icon-button"
+              aria-label="إنستغرام"
+            >
+              <Instagram size={18} />
+            </a>
+            <a
+              href="https://www.facebook.com/mizan.page"
+              title="تابعنا على فيسبوك"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="icon-button"
+              aria-label="فيسبوك"
+            >
+              <Facebook size={18} />
+            </a>
+            <a
+              href="https://www.tiktok.com/@mizan_page"
+              title="تابعنا على تيك توك"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="icon-button"
+              aria-label="تيك توك"
+            >
+              <TikTokIcon size={18} />
+            </a>
+            <a
+              href="https://www.pinterest.com/mizan.page"
+              title="تابعنا على بينتيريست"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="icon-button"
+              aria-label="بينتيريست"
+            >
+              <PinterestIcon size={18} />
+            </a>
+          </div>
         </div>
         <div>
           <p className="mb-3 text-sm font-extrabold text-foreground">استكشف</p>
