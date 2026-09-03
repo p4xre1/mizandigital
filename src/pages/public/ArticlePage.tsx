@@ -12,6 +12,7 @@ import { ArticleContent } from "../../components/articles/ArticleContent"
 import { PartnerSuggestionBox } from "../../components/articles/PartnerSuggestionBox"
 import { ViewCounter } from "../../components/articles/ViewCounter"
 import { CommentSection } from "../../components/articles/CommentSection"
+import { InContentAd } from "../../components/ads/InContentAd"
 import { useTrackView } from "@/hooks/useTrackView"
 import {
   Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen, KeyRound,
@@ -636,6 +637,8 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
                 </ul>
               </div>
             )}
+
+            <InContentAd className="mb-8" />
 
             <div className={`prose prose-neutral dark:prose-invert max-w-none leading-loose text-foreground/90 ${textSizeClass}`}>
               <ArticleContent blocks={parsed.blocks} />

@@ -6,6 +6,7 @@ import schoolsData from "../../data/schools.json"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
+import { InContentAd } from "../../components/ads/InContentAd"
 import {
   GraduationCap,
   MapPin,
@@ -369,6 +370,8 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
             </div>
           </section>
         </div>
+
+        <InContentAd className="mb-8" />
 
         {/* Useful Links Section */}
         {school.usefulLinks && school.usefulLinks.length > 0 && (
