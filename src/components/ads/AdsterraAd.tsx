@@ -37,11 +37,20 @@ import { getStoredConsent } from "@/lib/utils/cookieConsent"
  *   scriptSrc="//pl123456.REPLACE-WITH-YOUR-DOMAIN.com/xxxx/xxxx.js"
  * />
  * ```
+ *
+ * استعمال بصيغة "Popunder" أو "Social Bar" (بلا حجم مرئي — غير سكريبت
+ * كيتحمل مرة وحدة فـ الصفحة، الأفضل تحطها مرة وحدة فـ PublicLayout):
+ * ```tsx
+ * <AdsterraAd
+ *   variant="popunder" // أو "socialbar"
+ *   scriptSrc="//www.REPLACE-WITH-YOUR-DOMAIN.com/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/invoke.js"
+ * />
+ * ```
  */
 
 interface AdsterraAdProps {
-  /** نوع الوحدة الإعلانية */
-  variant: "banner" | "native"
+  /** نوع الوحدة الإعلانية. الـ popunder/socialbar بلا حجم مرئي — غير سكريبت كيتحمل مرة وحدة. */
+  variant: "banner" | "native" | "popunder" | "socialbar"
   /** رابط سكريبت Adsterra الحقيقي (من لوحة التحكم) */
   scriptSrc: string
   /** مطلوب فقط لصيغة "banner" — القيم اللي كتعطيك Adsterra */
@@ -126,6 +135,9 @@ export function AdsterraAd({
     frameParams.set("containerId", containerId)
   }
 
+  // popunder/socialbar بلا حجم مرئي (سكريبت خفي كيدبّر نفسه)، بخلاف
+  // banner/native اللي عندهم حجم محدد فـ الصفحة
+  const isInvisibleVariant = variant === "popunder" || variant === "socialbar"
   const width = variant === "banner" ? atOptions?.width : undefined
   const height = variant === "banner" ? atOptions?.height : undefined
 
@@ -134,11 +146,15 @@ export function AdsterraAd({
       <iframe
         src={`/ads/frame.html?${frameParams.toString()}`}
         title="إعلان"
-        width={width}
-        height={height}
+        width={isInvisibleVariant ? 0 : width}
+        height={isInvisibleVariant ? 0 : height}
         loading="lazy"
         scrolling="no"
-        style={{ border: "none", width: width ? `${width}px` : "100%", height: height ? `${height}px` : "100%" }}
+        style={
+          isInvisibleVariant
+            ? { border: "none", width: 0, height: 0, position: "absolute" }
+            : { border: "none", width: width ? `${width}px` : "100%", height: height ? `${height}px` : "100%" }
+        }
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
         referrerPolicy="no-referrer-when-downgrade"
       />

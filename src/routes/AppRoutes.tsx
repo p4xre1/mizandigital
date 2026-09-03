@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from "react"
-import { Routes, Route, Navigate, useParams, useSearchParams } from "react-router-dom"
+import { Routes, Route, Navigate, useParams, useSearchParams, useNavigate } from "react-router-dom"
 import type { Session } from "@supabase/supabase-js"
 import { supabase } from "@/lib/supabase/client"
 
@@ -52,6 +52,17 @@ function EventWrapper() { const { slug } = useParams<{ slug: string }>(); return
 function SchoolWrapper() { const { slug } = useParams<{ slug: string }>(); return <SchoolPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function TermWrapper() { const { slug } = useParams<{ slug: string }>(); return <TermPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function ArchiveWrapper() { const [searchParams] = useSearchParams(); return <ArchivePage initialSemester={searchParams.get("semester") ?? undefined} /> }
+function ArticleEditorWrapper() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  return (
+    <ArticleEditorPage
+      articleId={id}
+      onBack={() => navigate("/admin/articles")}
+      onNavigate={(path) => navigate(path)}
+    />
+  )
+}
 
 function AdminGate({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true)
@@ -93,7 +104,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
         <Route path="/login" element={session ? <Navigate to="/admin/dashboard" replace /> : <LoginPage />} />
         <Route path="/admin" element={session === undefined ? <div className="flex min-h-screen items-center justify-center" dir="rtl"><p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p></div> : session === null ? <Navigate to="/login" replace /> : <AdminGate><AdminLayout /></AdminGate>}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} /><Route path="dashboard" element={<DashboardPage />} /><Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorPage />} /><Route path="articles/edit/:id" element={<ArticleEditorPage />} /><Route path="news" element={<NewsManagementPage />} /><Route path="comments" element={<CommentsPage />} /><Route path="faculties" element={<FacultiesPage />} /><Route path="lexicon" element={<LexiconPageAdmin />} /><Route path="library" element={<LibraryPage />} /><Route path="seminars" element={<SeminarsPage />} /><Route path="laws" element={<LawsPage />} /><Route path="settings" element={<SettingsPage />} />
+          <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorWrapper />} /><Route path="articles/edit/:id" element={<ArticleEditorWrapper />} /><Route path="news" element={<NewsManagementPage />} /><Route path="comments" element={<CommentsPage />} /><Route path="faculties" element={<FacultiesPage />} /><Route path="lexicon" element={<LexiconPageAdmin />} /><Route path="library" element={<LibraryPage />} /><Route path="seminars" element={<SeminarsPage />} /><Route path="laws" element={<LawsPage />} /><Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Suspense>

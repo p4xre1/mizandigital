@@ -8,12 +8,24 @@ interface ImageUploadFieldProps {
   onChange: (url: string) => void
   helperText?: string
   folder?: string // مجلد التخزين داخل R2 (اختياري)
+  altValue?: string
+  onAltChange?: (alt: string) => void
+  altPlaceholder?: string
 }
 
 // حقل صورة اختياري تماماً (لا required في أي مكان) يدعم طريقتين لإضافة
 // الصورة: رفع ملف مباشرة إلى مستودع R2، أو لصق رابط جاهز. يُستخدم في نماذج
 // المقالات والأخبار والكليات والندوات بلوحة التحكم.
-export function ImageUploadField({ label, value, onChange, helperText, folder = "images" }: ImageUploadFieldProps) {
+export function ImageUploadField({
+  label,
+  value,
+  onChange,
+  helperText,
+  folder = "images",
+  altValue,
+  onAltChange,
+  altPlaceholder,
+}: ImageUploadFieldProps) {
   const [mode, setMode] = useState<"link" | "upload">(value ? "link" : "upload")
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -110,6 +122,27 @@ export function ImageUploadField({ label, value, onChange, helperText, folder = 
       )}
 
       {helperText && <p className="text-[11px] text-muted-foreground">{helperText}</p>}
+
+      {onAltChange && (
+        <div className="space-y-1 pt-1">
+          <label className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+            النص البديل للصورة (Alt Text)
+            <span className="font-normal text-muted-foreground/70">(مهم لمحركات البحث)</span>
+          </label>
+          <input
+            type="text"
+            value={altValue ?? ""}
+            onChange={(e) => onAltChange(e.target.value)}
+            placeholder={altPlaceholder || "وصف مختصر وواضح لمحتوى الصورة"}
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+          />
+          {!altValue && (
+            <p className="text-[11px] text-amber-600">
+              سيتم استخدام عنوان المقال كنص بديل افتراضي إذا تُرك هذا الحقل فارغاً.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

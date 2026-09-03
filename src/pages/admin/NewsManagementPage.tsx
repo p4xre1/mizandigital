@@ -17,7 +17,6 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react"
-import AdminLayout from "../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../components/ui/EmptyState"
 import { supabase } from "../../lib/supabase/client"
@@ -35,6 +34,7 @@ export interface NewsItem {
   source?: string
   source_url?: string
   image_url?: string
+  image_alt?: string | null
   focus_keyword?: string | null
   is_published: boolean
   published_at?: string
@@ -47,7 +47,7 @@ interface NewsManagementPageProps {
   currentPath?: string
 }
 
-export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: NewsManagementPageProps) {
+export function NewsManagementPage(_props: NewsManagementPageProps) {
   const [newsList, setNewsList] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -72,6 +72,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
   const [source, setSource] = useState<string>("")
   const [sourceUrl, setSourceUrl] = useState<string>("")
   const [imageUrl, setImageUrl] = useState<string>("")
+  const [imageAlt, setImageAlt] = useState<string>("")
   const [focusKeyword, setFocusKeyword] = useState<string>("")
   const [isPublished, setIsPublished] = useState<boolean>(true)
   const [publishedAt, setPublishedAt] = useState<string>("")
@@ -107,6 +108,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     setSource("")
     setSourceUrl("")
     setImageUrl("")
+    setImageAlt("")
     setIsPublished(true)
     setPublishedAt(new Date().toISOString().split("T")[0])
     setSlug("")
@@ -123,6 +125,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     setSource(item.source || "")
     setSourceUrl(item.source_url || "")
     setImageUrl(item.image_url || "")
+    setImageAlt(item.image_alt || "")
     setIsPublished(item.is_published)
     setPublishedAt(item.published_at ? item.published_at.split("T")[0] : "")
     setSlug(item.slug)
@@ -166,6 +169,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
       source: source.trim() || null,
       source_url: sourceUrl.trim() || null,
       image_url: imageUrl.trim() || null,
+      image_alt: imageAlt.trim() || title.trim(),
       focus_keyword: focusKeyword.trim() || null,
       is_published: isPublished,
       published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
@@ -262,7 +266,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
   }, [newsList, searchQuery, statusFilter])
 
   return (
-    <AdminLayout currentPath={currentPath} onNavigate={onNavigate}>
+    <>
       <div className="space-y-6" dir="rtl">
         {/* الترويسة والزر الرئيسي */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -575,6 +579,9 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
                   value={imageUrl}
                   onChange={setImageUrl}
                   folder="news"
+                  altValue={imageAlt}
+                  onAltChange={setImageAlt}
+                  altPlaceholder={title || "وصف صورة الخبر"}
                 />
 
                 <div className="space-y-1">
@@ -679,7 +686,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
           }}
         />
       </div>
-    </AdminLayout>
+    </>
   )
 }
 

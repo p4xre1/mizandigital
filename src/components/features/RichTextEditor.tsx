@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from "react"
+import React, { useState, useRef, useCallback, useMemo, useEffect } from "react"
 import {
   Bold,
   Italic,
@@ -17,9 +17,236 @@ import {
   Table,
   FileText,
   Clock,
+  Search,
+  Globe,
+  X,
+  Loader2,
 } from "lucide-react"
 import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
 import { ArticleContent } from "../articles/ArticleContent"
+import { supabase } from "../../lib/supabase/client"
+
+// نتيجة بحث داخلي (مقال أو خبر) صالحة للربط الداخلي بين المحتويات
+interface InternalLinkResult {
+  id: string
+  title: string
+  slug: string
+  kind: "article" | "news"
+}
+
+// نافذة إدراج رابط: تدعم البحث عن روابط داخلية (مقالات/أخبار منشورة) أو
+// إدخال رابط خارجي يدوياً، لتحل محل window.prompt غير الاحترافي.
+function LinkInsertDialog({
+  onInsert,
+  onClose,
+}: {
+  onInsert: (url: string, label: string) => void
+  onClose: () => void
+}) {
+  const [tab, setTab] = useState<"internal" | "external">("internal")
+  const [query, setQuery] = useState("")
+  const [results, setResults] = useState<InternalLinkResult[]>([])
+  const [searching, setSearching] = useState(false)
+  const [externalUrl, setExternalUrl] = useState("https://")
+  const [externalLabel, setExternalLabel] = useState("")
+
+  useEffect(() => {
+    if (tab !== "internal") return
+    let active = true
+    setSearching(true)
+    const timeout = setTimeout(async () => {
+      try {
+        const [articlesRes, newsRes] = await Promise.all([
+          supabase
+            .from("articles")
+            .select("id, title, slug")
+            .eq("status", "published")
+            .ilike("title", `%${query}%`)
+            .limit(6),
+          supabase
+            .from("news")
+            .select("id, title, slug")
+            .eq("is_published", true)
+            .ilike("title", `%${query}%`)
+            .limit(6),
+        ])
+        if (!active) return
+        const merged: InternalLinkResult[] = [
+          ...((articlesRes.data as any[]) || []).map((a) => ({ ...a, kind: "article" as const })),
+          ...((newsRes.data as any[]) || []).map((n) => ({ ...n, kind: "news" as const })),
+        ]
+        setResults(merged)
+      } catch (err) {
+        console.error("خطأ أثناء البحث عن روابط داخلية:", err)
+      } finally {
+        if (active) setSearching(false)
+      }
+    }, 300)
+    return () => {
+      active = false
+      clearTimeout(timeout)
+    }
+  }, [query, tab])
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-sm" dir="rtl">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-4 shadow-2xl">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-extrabold text-foreground">إدراج رابط</h3>
+          <button type="button" onClick={onClose} className="grid size-7 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
+            <X className="size-4" />
+          </button>
+        </div>
+
+        <div className="mb-3 flex items-center gap-1 rounded-xl border border-border bg-muted/40 p-1">
+          <button
+            type="button"
+            onClick={() => setTab("internal")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition",
+              tab === "internal" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Search className="size-3" /> رابط داخلي
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab("external")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[11px] font-bold transition",
+              tab === "external" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Globe className="size-3" /> رابط خارجي
+          </button>
+        </div>
+
+        {tab === "internal" ? (
+          <div className="space-y-2">
+            <input
+              type="text"
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="ابحث عن مقال أو خبر منشور..."
+              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+            />
+            <div className="max-h-56 space-y-1 overflow-y-auto">
+              {searching && (
+                <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted-foreground">
+                  <Loader2 className="size-3.5 animate-spin" /> جارٍ البحث...
+                </div>
+              )}
+              {!searching && results.length === 0 && (
+                <p className="py-4 text-center text-xs text-muted-foreground">لا توجد نتائج مطابقة.</p>
+              )}
+              {!searching &&
+                results.map((r) => (
+                  <button
+                    key={`${r.kind}-${r.id}`}
+                    type="button"
+                    onClick={() => onInsert(`/${r.kind === "article" ? "articles" : "news"}/${r.slug}`, r.title)}
+                    className="flex w-full items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-2 text-right text-xs font-semibold text-foreground transition hover:border-primary hover:bg-muted"
+                  >
+                    <span className="truncate">{r.title}</span>
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                      {r.kind === "article" ? "مقال" : "خبر"}
+                    </span>
+                  </button>
+                ))}
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <input
+              type="text"
+              autoFocus
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+              placeholder="https://example.com"
+              dir="ltr"
+              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-left text-xs text-foreground outline-none focus:border-primary"
+            />
+            <input
+              type="text"
+              value={externalLabel}
+              onChange={(e) => setExternalLabel(e.target.value)}
+              placeholder="نص الرابط المعروض (اختياري)"
+              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                if (externalUrl && externalUrl !== "https://") {
+                  onInsert(externalUrl, externalLabel || "رابط خارجي")
+                }
+              }}
+              className="w-full rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-110"
+            >
+              إدراج الرابط
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// نافذة إدراج صورة مع نص بديل إلزامي لضمان الالتزام بمعايير السيو وإمكانية الوصول
+function ImageInsertDialog({
+  onInsert,
+  onClose,
+}: {
+  onInsert: (url: string, alt: string) => void
+  onClose: () => void
+}) {
+  const [url, setUrl] = useState("https://")
+  const [alt, setAlt] = useState("")
+
+  const canInsert = url && url !== "https://" && alt.trim().length > 0
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-sm" dir="rtl">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-4 shadow-2xl">
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-extrabold text-foreground">إدراج صورة</h3>
+          <button type="button" onClick={onClose} className="grid size-7 place-items-center rounded-lg text-muted-foreground hover:bg-muted">
+            <X className="size-4" />
+          </button>
+        </div>
+        <div className="space-y-2">
+          <input
+            type="text"
+            autoFocus
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            placeholder="https://..."
+            dir="ltr"
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-left text-xs text-foreground outline-none focus:border-primary"
+          />
+          <input
+            type="text"
+            value={alt}
+            onChange={(e) => setAlt(e.target.value)}
+            placeholder="النص البديل للصورة (مطلوب لمحركات البحث) *"
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none focus:border-primary"
+          />
+          {!alt.trim() && (
+            <p className="text-[11px] text-amber-600">النص البديل مطلوب لضمان فهرسة الصورة بشكل صحيح في محركات البحث.</p>
+          )}
+          <button
+            type="button"
+            disabled={!canInsert}
+            onClick={() => canInsert && onInsert(url, alt.trim())}
+            className="w-full rounded-xl bg-primary px-3 py-2 text-xs font-bold text-primary-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            إدراج الصورة
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 interface RichTextEditorProps {
   value: string
@@ -45,6 +272,8 @@ export default function RichTextEditor({
   id,
 }: RichTextEditorProps) {
   const [isPreview, setIsPreview] = useState(false)
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false)
+  const [imageDialogOpen, setImageDialogOpen] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // إدراج التنسيقات النصية بناءً على تحديد النص الحاضر
@@ -73,21 +302,20 @@ export default function RichTextEditor({
     [value, onChange]
   )
 
-  // إدراج رابط إلكتروني
-  const handleInsertLink = () => {
-    const url = prompt("أدخل الرابط الإلكتروني (URL):", "https://")
-    if (url && url !== "https://") {
-      insertFormatting("[", `](${url})`, "عنوان الرابط")
-    }
+  // إدراج رابط إلكتروني (داخلي أو خارجي) عبر نافذة إدراج الروابط
+  const handleInsertLink = () => setLinkDialogOpen(true)
+
+  const handleLinkInsert = (url: string, label: string) => {
+    insertFormatting("[", `](${url})`, label || "عنوان الرابط")
+    setLinkDialogOpen(false)
   }
 
-  // إدراج صورة
-  const handleInsertImage = () => {
-    const url = prompt("أدخل رابط الصورة (URL):", "https://")
-    if (url && url !== "https://") {
-      const altText = prompt("وصف الصورة (Alt Text):", "وصف الصورة") || "صورة"
-      insertFormatting(`![${altText}](`, `)`, url)
-    }
+  // إدراج صورة عبر نافذة مخصصة تفرض نصاً بديلاً (Alt Text) لدواعي السيو
+  const handleInsertImage = () => setImageDialogOpen(true)
+
+  const handleImageInsert = (url: string, alt: string) => {
+    insertFormatting(`![${alt}](`, `)`, url)
+    setImageDialogOpen(false)
   }
 
   // إدراج جدول
@@ -211,7 +439,7 @@ export default function RichTextEditor({
             style={{ minHeight }}
           >
             {value ? (
-              <ArticleContent blocks={previewParsed.blocks} />
+              <ArticleContent blocks={previewParsed.blocks} disableAds />
             ) : (
               <p className="text-xs italic text-muted-foreground">لا يوجد محتوى للمعاينة حالياً...</p>
             )}
@@ -230,6 +458,9 @@ export default function RichTextEditor({
           />
         )}
       </div>
+
+      {linkDialogOpen && <LinkInsertDialog onInsert={handleLinkInsert} onClose={() => setLinkDialogOpen(false)} />}
+      {imageDialogOpen && <ImageInsertDialog onInsert={handleImageInsert} onClose={() => setImageDialogOpen(false)} />}
     </div>
   )
 }

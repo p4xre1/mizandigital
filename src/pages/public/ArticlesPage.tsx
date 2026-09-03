@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react"
-import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
@@ -8,11 +7,10 @@ import { truncateCleanText } from "../../lib/utils/sanitize"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
+import { ContentCard, type ContentCardData } from "../../components/content/ContentCard"
 import {
   BookOpen,
   Search,
-  Calendar,
-  ArrowLeft,
   Tag,
   Filter,
   Loader2,
@@ -26,6 +24,7 @@ interface ArticleItem {
   category?: string | null
   date?: string | null
   image?: string | null
+  imageAlt?: string | null
 }
 
 // توحيد بيانات المقالات القادمة من جدول "articles" في Supabase مع ملف articles.json المحلي
@@ -38,6 +37,7 @@ function normalizeCmsArticle(raw: any): ArticleItem {
     category: raw.category?.name || raw.category?.name_fr || null,
     date: raw.published_at || raw.created_at || null,
     image: raw.cover_image || null,
+    imageAlt: raw.cover_image_alt || raw.title || null,
   }
 }
 
@@ -50,6 +50,7 @@ function normalizeLocalArticle(raw: any): ArticleItem {
     category: raw.category || null,
     date: raw.publishedAt || raw.date || null,
     image: raw.image || raw.coverImage || null,
+    imageAlt: raw.imageAlt || raw.title || null,
   }
 }
 
@@ -71,7 +72,7 @@ export function ArticlesPage() {
       // مقالات لوحة التحكم المنشورة فقط (status = published)، مع اسم التصنيف عبر join
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name, name_fr)")
+        .select("*, category:categories(name, name_fr)")
         .eq("status", "published")
         .order("published_at", { ascending: false })
 
@@ -204,76 +205,19 @@ export function ArticlesPage() {
         ) : filteredItems.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
             {filteredItems.map((item) => {
-              const formattedDate = item.date
-                ? new Date(item.date).toLocaleDateString("ar-MA", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
-                : null
-
-              return (
-                <article
-                  key={item.id}
-                  className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md overflow-hidden"
-                >
-                  {item.image && (
-                    <Link
-                      to={`/articles/${item.slug}`}
-                      title={item.title}
-                      className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                      />
-                    </Link>
-                  )}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2 text-xs flex-wrap">
-                      {item.category && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 font-semibold text-primary border border-primary/20">
-                          <Tag size={12} />
-                          {item.category}
-                        </span>
-                      )}
-                      {formattedDate && (
-                        <span className="inline-flex items-center gap-1 text-muted-foreground">
-                          <Calendar size={12} />
-                          {formattedDate}
-                        </span>
-                      )}
-                    </div>
-
-                    <h2 className="text-base font-bold text-foreground group-hover:text-primary transition line-clamp-2 leading-snug">
-                      <Link to={`/articles/${item.slug}`} title={item.title}>{item.title}</Link>
-                    </h2>
-
-                    {item.summary && (
-                      <p className="mt-2 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                        {truncateCleanText(item.summary, 140)}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-border flex items-center justify-between gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <BookOpen size={12} />
-                      منصة الميزان
-                    </span>
-                    <Link
-                      to={`/articles/${item.slug}`}
-                      title={`قراءة المقال: ${item.title}`}
-                      className="inline-flex items-center gap-1 font-bold text-primary hover:underline shrink-0"
-                    >
-                      <span>قراءة المقال</span>
-                      <ArrowLeft size={14} />
-                    </Link>
-                  </div>
-                </article>
-              )
+              const cardData: ContentCardData = {
+                id: item.id,
+                title: item.title,
+                path: `/articles/${item.slug}`,
+                summary: item.summary ? truncateCleanText(item.summary, 140) : null,
+                image: item.image,
+                imageAlt: item.imageAlt,
+                date: item.date,
+                badgeLabel: item.category,
+                badgeIcon: <Tag size={12} />,
+                ctaLabel: "قراءة المقال",
+              }
+              return <ContentCard key={item.id} item={cardData} variant="grid" />
             })}
           </div>
         ) : (

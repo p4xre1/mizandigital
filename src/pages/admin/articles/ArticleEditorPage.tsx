@@ -11,7 +11,6 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react"
-import AdminLayout from "../../../components/layout/AdminLayout"
 import RichTextEditor from "../../../components/features/RichTextEditor"
 import SeoAuditWidget from "../../../components/features/SeoAuditWidget"
 import { ImageUploadField } from "../../../components/admin/ImageUploadField"
@@ -45,6 +44,7 @@ export default function ArticleEditorPage({
   const [content, setContent] = useState("")
   const [excerpt, setExcerpt] = useState("")
   const [coverImage, setCoverImage] = useState("")
+  const [coverImageAlt, setCoverImageAlt] = useState("")
   const [status, setStatus] = useState<ArticleStatus>("draft")
   const [categoryId, setCategoryId] = useState("")
   const [facultyId, setFacultyId] = useState("")
@@ -111,6 +111,7 @@ export default function ArticleEditorPage({
         setContent(data.content || "")
         setExcerpt(data.excerpt || "")
         setCoverImage(data.cover_image || "")
+        setCoverImageAlt(data.cover_image_alt || "")
         setStatus((data.status as any) || "draft")
         setCategoryId(data.category_id || "")
         setFacultyId(data.faculty_id || "")
@@ -174,6 +175,7 @@ export default function ArticleEditorPage({
       content,
       excerpt,
       cover_image: coverImage,
+      cover_image_alt: coverImageAlt || title,
       status: finalStatus,
       category_id: categoryId || null,
       faculty_id: facultyId || null,
@@ -222,16 +224,14 @@ export default function ArticleEditorPage({
 
   if (loading) {
     return (
-      <AdminLayout currentPath="/articles" onNavigate={onNavigate}>
-        <div className="flex h-64 items-center justify-center">
-          <Loader2 className="size-8 animate-spin text-primary" />
-        </div>
-      </AdminLayout>
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="size-8 animate-spin text-primary" />
+      </div>
     )
   }
 
   return (
-    <AdminLayout currentPath="/articles" onNavigate={onNavigate}>
+    <>
       <div className="space-y-6" dir="rtl">
         {/* شريط الإجراءات والترويسة */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -402,6 +402,9 @@ export default function ArticleEditorPage({
                   onChange={setCoverImage}
                   folder="articles"
                   helperText="تظهر أعلى المقال وفي بطاقته ضمن لائحة المقالات."
+                  altValue={coverImageAlt}
+                  onAltChange={setCoverImageAlt}
+                  altPlaceholder={title || "وصف صورة غلاف المقال"}
                 />
               </div>
             </div>
@@ -465,6 +468,6 @@ export default function ArticleEditorPage({
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </>
   )
 }

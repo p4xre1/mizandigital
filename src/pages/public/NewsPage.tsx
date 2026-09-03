@@ -1,18 +1,14 @@
 import { useState, useEffect, useMemo } from "react"
-import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
 import localNews from "../../data/news.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
+import { ContentCard, type ContentCardData } from "../../components/content/ContentCard"
 import {
   Newspaper,
   Search,
-  Calendar,
-  ExternalLink,
-  ArrowLeft,
-  Tag,
   Filter,
   LayoutGrid,
   List,
@@ -28,6 +24,7 @@ interface NewsItem {
   source?: string | null
   source_url?: string | null
   image_url?: string | null
+  image_alt?: string | null
   is_published?: boolean | null
   published_at?: string | null
   slug: string
@@ -62,6 +59,7 @@ export function NewsPage() {
         source: n.author || "منصة الميزان",
         source_url: null,
         image_url: null,
+        image_alt: n.title,
         is_published: true,
         published_at: n.date,
         slug: n.id, // الـ JSON له id صالح كـ slug
@@ -265,114 +263,21 @@ export function NewsPage() {
           >
             {filteredItems.map((item) => {
               const itemSlug = item.slug || generateSlug(item.title) || item.id
-              const itemPath = `/news/${itemSlug}`
-              const formattedDate = item.published_at
-                ? new Date(item.published_at).toLocaleDateString("ar-MA", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                  })
-                : null
-
-              return (
-                <article
-                  key={item.id}
-                  className={`group rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md overflow-hidden ${
-                    viewMode === "list"
-                      ? "!flex !flex-row !items-center !justify-between !py-4 gap-4"
-                      : "flex flex-col justify-between"
-                  }`}
-                >
-                  {item.image_url && viewMode === "grid" && (
-                    <Link
-                      to={itemPath}
-                      title={item.title}
-                      className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
-                    >
-                      <img
-                        src={item.image_url}
-                        alt={item.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                      />
-                    </Link>
-                  )}
-                  <div className={viewMode === "list" ? "space-y-1 flex-1" : "space-y-2"}>
-                    {/* Top Metadata Badge */}
-                    <div className="flex items-center gap-2 mb-2 text-xs flex-wrap">
-                      {item.source && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 font-semibold text-primary border border-primary/20">
-                          <Globe size={12} />
-                          {item.source}
-                        </span>
-                      )}
-
-                      {formattedDate && viewMode === "grid" && (
-                        <span className="inline-flex items-center gap-1 text-muted-foreground">
-                          <Calendar size={12} />
-                          {formattedDate}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Title */}
-                    <h2 className="text-base font-bold text-foreground group-hover:text-primary transition line-clamp-2 leading-snug">
-                      <Link to={itemPath} title={item.title}>
-                        {item.title}
-                      </Link>
-                    </h2>
-
-                    {/* Summary */}
-                    {item.summary && viewMode === "grid" && (
-                      <p className="mt-2 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                        {item.summary}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Card Footer */}
-                  <div
-                    className={
-                      viewMode === "list"
-                        ? "shrink-0 flex items-center gap-4"
-                        : "mt-6 pt-4 border-t border-border flex items-center justify-between gap-2 text-xs"
-                    }
-                  >
-                    {viewMode === "grid" ? (
-                      <span className="inline-flex items-center gap-1 text-muted-foreground">
-                        <Tag size={12} />
-                        منصة الميزان
-                      </span>
-                    ) : (
-                      <div className="hidden sm:flex flex-col text-left text-xs text-muted-foreground">
-                        {formattedDate && <span>{formattedDate}</span>}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-2">
-                      {item.source_url && (
-                        <a
-                          href={item.source_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary p-1"
-                          title="الرابط الأصلي للخبر"
-                        >
-                          <ExternalLink size={14} />
-                        </a>
-                      )}
-                      <Link
-                        to={itemPath}
-                        title={`تفاصيل الخبر: ${item.title}`}
-                        className="inline-flex items-center gap-1 font-bold text-primary hover:underline shrink-0 text-xs py-1 px-2"
-                      >
-                        <span>التفاصيل</span>
-                        <ArrowLeft size={14} />
-                      </Link>
-                    </div>
-                  </div>
-                </article>
-              )
+              const cardData: ContentCardData = {
+                id: item.id,
+                title: item.title,
+                path: `/news/${itemSlug}`,
+                summary: viewMode === "grid" ? item.summary : null,
+                image: viewMode === "grid" ? item.image_url : null,
+                imageAlt: item.image_alt,
+                date: item.published_at,
+                badgeLabel: item.source,
+                badgeIcon: <Globe size={12} />,
+                externalUrl: item.source_url,
+                ctaLabel: "التفاصيل",
+                footerLabel: "منصة الميزان",
+              }
+              return <ContentCard key={item.id} item={cardData} variant={viewMode} />
             })}
           </div>
         ) : (

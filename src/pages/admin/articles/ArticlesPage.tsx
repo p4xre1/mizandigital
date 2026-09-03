@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
 import {
   Plus,
   Search,
@@ -12,7 +13,6 @@ import {
   Archive,
   AlertCircle,
 } from "lucide-react"
-import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
 import { supabase } from "../../../lib/supabase/client"
@@ -30,6 +30,11 @@ interface ArticlesPageProps {
 }
 
 export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPageProps) {
+  // الصفحة قد تُستخدم عبر مسار React Router (بدون props) أو ضمن سياق يمرّر
+  // onNavigate/onEditArticle يدوياً؛ نعتمد useNavigate كقيمة احتياطية حتى لا
+  // تبقى أزرار "تعديل" و"مقال جديد" بلا أثر عندما لا تُمرَّر هذه الخاصيات.
+  const navigate = useNavigate()
+  const goTo = onNavigate ?? ((path: string) => navigate(path))
   const [articles, setArticles] = useState<ArticleWithRelations[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -131,7 +136,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
   }
 
   return (
-    <AdminLayout currentPath="/articles" onNavigate={onNavigate}>
+    <>
       <div className="space-y-6" dir="rtl">
         {/* الترويسة والأزرار الرئيسية */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -142,7 +147,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
             </p>
           </div>
           <button
-            onClick={() => onNavigate?.("/articles/new")}
+            onClick={() => goTo("/articles/new")}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:brightness-110"
           >
             <Plus className="size-4" />
@@ -195,7 +200,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
                   : "لم تقم بإضافة أي مقالات قانونية حتى الآن."
               }
               actionLabel="إضافة مقال جديد"
-              onAction={() => onNavigate?.("/articles/new")}
+              onAction={() => goTo("/articles/new")}
             />
           ) : (
             <div className="overflow-x-auto">
@@ -239,7 +244,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
                             onClick={() =>
                               onEditArticle
                                 ? onEditArticle(article.id)
-                                : onNavigate?.(`/articles/edit/${article.id}`)
+                                : goTo(`/articles/edit/${article.id}`)
                             }
                             className="grid size-8 place-items-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
                             title="تعديل المقال"
@@ -279,6 +284,6 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
           }}
         />
       </div>
-    </AdminLayout>
+    </>
   )
 }

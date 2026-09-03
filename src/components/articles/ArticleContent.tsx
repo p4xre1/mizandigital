@@ -1,5 +1,12 @@
 import { Fragment } from "react"
 import type { ArticleBlock } from "../../lib/content/parseArticleMarkdown"
+import { InContentAd } from "../ads/InContentAd"
+
+// عدد فقرات النص المتتالية بين كل صندوق إعلان داخل المحتوى وآخر
+const PARAGRAPHS_PER_AD = 4
+// أقل عدد فقرات إجمالي في المقال قبل ما نبداو نحقنو إعلانات (باش ما تبانش
+// كثيرة فـ المقالات القصيرة)
+const MIN_PARAGRAPHS_BEFORE_ADS = 3
 
 // تنسيقات داخل السطر: **عريض** *مائل* `كود` [نص](رابط)
 const INLINE_RE = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g
@@ -49,16 +56,34 @@ function renderInline(text: string) {
 
 interface ArticleContentProps {
   blocks: ArticleBlock[]
+  /** عطّل حقن صناديق الإعلانات (يُستعمل فـ معاينة المحرر بلوحة التحكم) */
+  disableAds?: boolean
 }
 
 /**
  * يعرض عناصر المقال المُحلّلة (عناوين فرعية بمعرّفات للتنقل من الفهرس،
  * فقرات، صور بتعليقات، اقتباسات، قوائم) بنفس هوية تصميم الموقع.
  */
-export function ArticleContent({ blocks }: ArticleContentProps) {
+export function ArticleContent({ blocks, disableAds = false }: ArticleContentProps) {
+  const totalParagraphs = blocks.filter((b) => b.type === "paragraph").length
+  let paragraphCounter = 0
+
   return (
     <div className="space-y-5">
       {blocks.map((block, idx) => {
+        // إدراج تلقائي لصندوق إعلان بعد كل PARAGRAPHS_PER_AD فقرات نصية،
+        // بشرط أن يحتوي المقال على عدد كافٍ من الفقرات وألا يكون هذا آخر بلوك
+        // (تفادياً لظهور إعلان معزول مباشرة قبل نهاية المقال مباشرة)
+        if (block.type === "paragraph") {
+          paragraphCounter += 1
+        }
+        const shouldInsertAd =
+          !disableAds &&
+          block.type === "paragraph" &&
+          totalParagraphs >= MIN_PARAGRAPHS_BEFORE_ADS &&
+          paragraphCounter % PARAGRAPHS_PER_AD === 0 &&
+          idx !== blocks.length - 1
+
         switch (block.type) {
           case "heading": {
             const Tag = block.level === 2 ? "h2" : "h3"
@@ -78,9 +103,10 @@ export function ArticleContent({ blocks }: ArticleContentProps) {
           }
           case "paragraph":
             return (
-              <p key={idx} className="leading-loose">
-                {renderInline(block.text)}
-              </p>
+              <Fragment key={idx}>
+                <p className="leading-loose">{renderInline(block.text)}</p>
+                {shouldInsertAd && <InContentAd className="my-2" />}
+              </Fragment>
             )
           case "image":
             return (

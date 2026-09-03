@@ -45,6 +45,22 @@ export default function PublicLayout({
       </div>
 
       <Footer />
+
+      {/*
+        وحدات إعلانية عامة بلا حجم مرئي (Popunder / Social Bar) — تُحمَّل
+        مرة واحدة فـ كل صفحة عامة، بنفس منطق العزل عبر iframe المستعمل فوق
+        (شبكة ProfitableRateCPM، نفس آلية العزل المستعملة مع Adsterra).
+        الوحدتان ما كيتحملوش حتى الزائر يوافق على الكوكيز أولاً (نفس منطق
+        Google Analytics فهاد المشروع) — شوف requireConsent فـ AdsterraAd.tsx.
+      */}
+      <AdsterraAd
+        variant="popunder"
+        scriptSrc="//pl31171139.profitableratecpmnetwork.com/12/81/c2/1281c23a986c79fb5176d6d6fe0f9886.js"
+      />
+      <AdsterraAd
+        variant="socialbar"
+        scriptSrc="//pl31171140.profitableratecpmnetwork.com/67/50/77/675077e6b9802c730bc0b4de4caecd4d.js"
+      />
     </div>
   )
 }

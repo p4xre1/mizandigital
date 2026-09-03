@@ -35,6 +35,7 @@ interface ArticleDetail {
   /** أي جدول ينتمي إليه هذا المحتوى في قاعدة البيانات — يُستخدم لعداد المشاهدات والتعليقات */
   sourceTable?: "articles" | "news"
   image?: string | null
+  imageAlt?: string | null
 }
 
 interface RelatedArticle {
@@ -148,16 +149,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       const { data, error } = await supabase
         .from("articles")
         .select(`
-          id,
-          title,
-          slug,
-          content,
-          excerpt,
-          target_keyword,
-          published_at,
-          created_at,
-          category_id,
-          cover_image,
+          *,
           category:categories(name)
         `)
         .eq("slug", targetSlug)
@@ -183,6 +175,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           keywords: data.target_keyword ? [data.target_keyword] : undefined,
           sourceTable: "articles",
           image: (data as any).cover_image || null,
+          imageAlt: (data as any).cover_image_alt || data.title || null,
         }
       } else {
         const localMatch = (articlesData as any[]).find((item) => item.slug === targetSlug)
@@ -205,6 +198,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             keywords: localMatch.keywords || (localMatch.targetKeyword ? [localMatch.targetKeyword] : []),
             sourceTable: "articles",
             image: localMatch.image || localMatch.coverImage || null,
+            imageAlt: localMatch.imageAlt || localMatch.title || null,
           }
         }
       }
@@ -214,7 +208,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       if (!currentArticleData) {
         const { data: newsRow, error: newsError } = await (supabase as any)
           .from("news")
-          .select("id, title, slug, content, summary, source, image_url, published_at, created_at")
+          .select("*")
           .eq("slug", targetSlug)
           .maybeSingle()
 
@@ -230,6 +224,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             readingTime: "3 دقائق",
             sourceTable: "news",
             image: newsRow.image_url || null,
+            imageAlt: newsRow.image_alt || newsRow.title || null,
           }
         } else {
           // الأخبار المحلية (news.json): الـ id يُستخدم كـ slug (كما في NewsPage.tsx)
@@ -248,6 +243,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
               readingTime: "3 دقائق",
               sourceTable: "news",
               image: localNewsMatch.image || localNewsMatch.imageUrl || null,
+              imageAlt: localNewsMatch.title || null,
             }
           }
         }
@@ -618,7 +614,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
               <div className="mb-8 -mt-2 overflow-hidden rounded-xl border border-border bg-muted">
                 <img
                   src={article.image}
-                  alt={article.title}
+                  alt={article.imageAlt || article.title}
                   className="max-h-[420px] w-full object-cover"
                 />
               </div>
