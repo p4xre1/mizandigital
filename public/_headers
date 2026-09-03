@@ -15,10 +15,17 @@
 # ⚠️ Cloudflare Pages كيدير 308 redirect لكل .html لنفس المسار بلا
 # الامتداد (frame.html → frame) — بلا حل لتعطيل هاد السلوك. القاعدة
 # مكررة على المسارين (قبل الـ redirect وبعدو) للاحتياط.
+#
+# ⚠️ مهم: "! Content-Security-Policy" خاصها تكون قبل القيمة الجديدة —
+# Cloudflare Pages كيجمع (concatenate) الـ headers من عدة قواعد متطابقة
+# بدل ما يبدل وحدة بالأخرى، فبلا "!" كان غادي يبقى عندنا جوج CSP headers
+# (الصارمة + المرنة) والمتصفح كيطبق تقاطعهم (الأصعب دايماً كيربح).
 /ads/frame.html
+  ! Content-Security-Policy
   X-Frame-Options: SAMEORIGIN
   Content-Security-Policy: default-src 'none'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *; img-src * data:; style-src * 'unsafe-inline'; font-src * data:
 /ads/frame
+  ! Content-Security-Policy
   X-Frame-Options: SAMEORIGIN
   Content-Security-Policy: default-src 'none'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *; img-src * data:; style-src * 'unsafe-inline'; font-src * data:
 
