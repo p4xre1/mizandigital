@@ -67,6 +67,11 @@ const escapeJsonForHtml = (value) =>
 const absoluteUrl = (path) =>
   `${DOMAIN}${path === "/" ? "/" : path}`;
 
+// صورة افتراضية للمقالات/الأخبار اللي ماعندهاش صورة خاصة بها فـ البيانات
+// المحلية (articles.json / news.json) — أحسن من ترك "image" ناقصة تماماً
+// فـ الـ schema (Google كيعتبرها optional بصح موصى بيها).
+const DEFAULT_ARTICLE_IMAGE = `${DOMAIN}/og-image.png`;
+
 const safeDate = (value, fallback = NOW) => {
   if (!value) return fallback;
 
@@ -626,6 +631,7 @@ const pages = [
           item.updatedAt || item.publishedAt
         ),
         inLanguage: "ar-MA",
+        image: item.image || item.coverImage || DEFAULT_ARTICLE_IMAGE,
         author: {
           "@id": `${DOMAIN}/#author`,
         },
@@ -678,6 +684,7 @@ const pages = [
           item.publishedAt
         ),
         inLanguage: "ar-MA",
+        image: item.image || item.imageUrl || item.image_url || DEFAULT_ARTICLE_IMAGE,
         author: {
           "@id": `${DOMAIN}/#author`,
         },
