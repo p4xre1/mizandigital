@@ -12,7 +12,13 @@
 # كتصل بدومينات كتتبدل بشكل متكرر (RTB/redirects)، فبدل ما نزيدو كل دومين
 # جديد يدوياً فـ CSP ديال الموقع كامل، عطيناها CSP مرنة خاصة بيها بحال هي
 # معزولة (iframe جوج sandbox) وما تأثرش على أمان باقي الصفحات.
+# ⚠️ Cloudflare Pages كيدير 308 redirect لكل .html لنفس المسار بلا
+# الامتداد (frame.html → frame) — بلا حل لتعطيل هاد السلوك. القاعدة
+# مكررة على المسارين (قبل الـ redirect وبعدو) للاحتياط.
 /ads/frame.html
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: default-src 'none'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *; img-src * data:; style-src * 'unsafe-inline'; font-src * data:
+/ads/frame
   X-Frame-Options: SAMEORIGIN
   Content-Security-Policy: default-src 'none'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; frame-src *; img-src * data:; style-src * 'unsafe-inline'; font-src * data:
 
