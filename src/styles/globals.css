@@ -22,7 +22,9 @@
   --accent-gold-muted: 40 80% 92%;
   --radius: 0.8rem;
   --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: "Amiri", Georgia, serif;
+  /* Amiri لم يعد يُحمَّل (غير مستعمل فعلياً فـ أي مكان بالواجهة — راجع
+     index.html)؛ أي استعمال مستقبلي لـ font-serif سيستعمل خط النظام مباشرة */
+  --font-serif: Georgia, serif;
 }
 
 .dark {

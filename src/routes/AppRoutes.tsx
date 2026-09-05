@@ -1,9 +1,20 @@
 import { Suspense, lazy, useEffect, useState } from "react"
 import { Routes, Route, Navigate, useParams, useSearchParams, useNavigate } from "react-router-dom"
 import type { Session } from "@supabase/supabase-js"
-import { supabase } from "@/lib/supabase/client"
+import PublicLayout from "@/layouts/PublicLayout"
+import { HomePage } from "@/pages/public/HomePage"
 
-const PublicLayout = lazy(() => import("@/layouts/PublicLayout"))
+// ملاحظة أداء (LCP): PublicLayout و HomePage كانا محمَّلين بـ lazy() سابقاً،
+// بحيث كل زيارة للصفحة الرئيسية (الأكثر زيارة فـ الموقع) كانت تنتظر Suspense
+// fallback (نص "جارٍ تحميل الصفحة...") لحين وصول شنكين JS إضافيين عبر
+// الشبكة، قبل ما يبان H1 الحقيقي. هاد الانتظار كان هو السبب الرئيسي فـ
+// "render delay" اللي كيبان فـ Lighthouse رغم أن الخادم كيرد بسرعة، ولأن
+// index.html المُصدَّر مسبقاً (prerendered) عنده نفس H1 جاهز أصلاً — مجرد
+// ما كيبدا React يشتغل (createRoot بلا hydration) كيمسح المحتوى الجاهز
+// ويعوّضه بـ Suspense fallback يبان لحين اكتمال التحميل. الحل: نستوردهم
+// بشكل مباشر (static import) بحال باقي الجذر (App.tsx)، حتى يبانو مع أول
+// render بلا أي انتظار شبكي إضافي. باقي الصفحات (admin، المقالات، إلخ)
+// تبقى lazy لأنها أقل زيارة وما محتاجاش تكون فـ المسار الحرج للـ LCP.
 const AdminLayout = lazy(() => import("@/components/layout/AdminLayout"))
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"))
 
@@ -20,7 +31,6 @@ const CommentsPage = lazy(() => import("@/pages/admin/CommentsPage"))
 const LawsPage = lazy(() => import("@/pages/admin/LawsPage"))
 const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage"))
 
-const HomePage = lazy(() => import("@/pages/public/HomePage").then((m) => ({ default: m.HomePage })))
 const SearchPage = lazy(() => import("@/pages/public/SearchPage").then((m) => ({ default: m.SearchPage })))
 const ArchivePage = lazy(() => import("@/pages/public/ArchivePage").then((m) => ({ default: m.ArchivePage })))
 const DownloadGatePage = lazy(() =>
@@ -79,10 +89,16 @@ function AdminGate({ children }: { children: React.ReactNode }) {
   const [allowed, setAllowed] = useState(false)
   useEffect(() => {
     let mounted = true
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) { if (mounted) { setAllowed(false); setChecking(false) }; return }
-      const { data: profile, error } = await supabase.from("profiles").select("admin_god_mode").eq("id", data.user.id).maybeSingle()
-      if (mounted) { setAllowed(!error && profile?.admin_god_mode === true); setChecking(false) }
+    // استيراد ديناميكي: مكتبة Supabase (~50 KiB) خاصها تبقى بعيدة عن
+    // المسار الحرج لأول عرض (LCP)، وهي أصلاً غير مطلوبة إلا للمسارات
+    // الإدارية (/admin) اللي كتشتغل بهاد الغلاف فقط
+    import("@/lib/supabase/client").then(({ supabase }) => {
+      if (!mounted) return
+      supabase.auth.getUser().then(async ({ data }) => {
+        if (!data.user) { if (mounted) { setAllowed(false); setChecking(false) }; return }
+        const { data: profile, error } = await supabase.from("profiles").select("admin_god_mode").eq("id", data.user.id).maybeSingle()
+        if (mounted) { setAllowed(!error && profile?.admin_god_mode === true); setChecking(false) }
+      })
     })
     return () => { mounted = false }
   }, [])

@@ -6,7 +6,6 @@ import {
   generateWebSiteSchema,
   generateLegalServiceSchema,
 } from "../../lib/seo/schema"
-import { supabase } from "../../lib/supabase/client"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import SiteSearchBar from "../../components/search/SiteSearchBar"
@@ -42,6 +41,11 @@ export function HomePage() {
   useEffect(() => {
     const fetchHomeFeed = async () => {
       try {
+        // استيراد ديناميكي لـ Supabase (~50 KiB): البطل الرئيسي مبني بلا
+        // انتظار هاد البيانات (شوف الـ hero فـ JSX تحت)، فلا داعي أن تكون
+        // مكتبة Supabase ضمن الحزمة الحرجة لأول عرض — تُجلب هنا بالموازاة
+        // بعد أول render، وما كتأخّرش ظهور H1
+        const { supabase } = await import("../../lib/supabase/client")
         const [articlesRes, newsRes, seminarsRes, docsRes, termsRes] = await Promise.all([
           supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(15),
           // Production `news` has no `category` column. Requesting it caused PostgREST HTTP 400.
@@ -97,6 +101,7 @@ export function HomePage() {
     // ونبقي على العدد المحلي كاحتياطي إن تعذّر الطلب
     const fetchCounts = async () => {
       try {
+        const { supabase } = await import("../../lib/supabase/client")
         const [schoolsCountRes, articlesCountRes] = await Promise.all([
           supabase.from("schools").select("id", { count: "exact", head: true }),
           supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published"),

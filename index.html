@@ -12,8 +12,13 @@
     <!-- Fonts: load without blocking first paint. The system font is used immediately. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;500;600;700;800;900&display=swap"></noscript>
+    <!-- ملاحظة أداء (الخطوط): خط Amiri كان مطلوباً هنا (وزنين: 400/700) لكن
+         تدقيق شامل فـ الكود (بحث عن "font-serif"/"Amiri" فـ كل src/) بيّن
+         أنه غير مستعمل فـ أي مكان — .font-serif معرّف فـ globals.css كمتغيّر
+         بصح ما كاين حتى className يستعمله فعلياً فـ الواجهة. حذفه كيقلّص
+         حجم طلب الخطوط بلا أي أثر بصري (Cairo هو الخط الوحيد المستعمل فعلاً). -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"></noscript>
 
     <!-- SEO -->
     <title>ميزان الرقمية | ملخصات وموارد طلبة القانون</title>

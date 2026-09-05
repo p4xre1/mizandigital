@@ -3,7 +3,6 @@ import { BrowserRouter } from "react-router-dom"
 import { Toast } from "@/components/Toast"
 import { CookieConsentBanner } from "@/components/CookieConsentBanner"
 import { ScrollToTop } from "@/components/ScrollToTop"
-import { supabase } from "@/lib/supabase/client"
 import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
 import { useTheme } from "@/hooks/useTheme"
@@ -20,22 +19,37 @@ export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(undefined)
 
   // Supabase Auth Listener with mounting guard & prerender signal
+  //
+  // ملاحظة أداء (JS الحرج): كنستوردو مكتبة Supabase (~50 KiB) بشكل ديناميكي
+  // هنا بدل استيرادها بشكل ثابت أعلى الملف. App.tsx كيتحمّل بشكل فوري (غير
+  // lazy) مع أول تحميل للصفحة، فأي استيراد ثابت لـ Supabase فيه كان كيرغم
+  // المتصفح يجلب وينفّذ حزمة Supabase كاملة قبل ما يقدر React يرسم أي حاجة
+  // — رغم أن التحقق من الجلسة أصلاً غير حرج لعرض المحتوى الأولي (H1/hero)
+  // وكيصرا داخل useEffect (بعد أول render). الاستيراد الديناميكي كيخلي
+  // حزمة Supabase تتحمّل بالموازاة مع/بعد أول رسم بلا ما تأخّره
   useEffect(() => {
     let isMounted = true
+    let unsubscribe: (() => void) | undefined
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (isMounted) {
-        setSession(data.session)
-      }
-    })
+    import("@/lib/supabase/client").then(({ supabase }) => {
+      if (!isMounted) return
 
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (isMounted) setSession(nextSession)
+      supabase.auth.getSession().then(({ data }) => {
+        if (isMounted) {
+          setSession(data.session)
+        }
+      })
+
+      const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+        if (isMounted) setSession(nextSession)
+      })
+
+      unsubscribe = () => subscription.subscription.unsubscribe()
     })
 
     return () => {
       isMounted = false
-      subscription.subscription.unsubscribe()
+      unsubscribe?.()
     }
   }, [])
 
