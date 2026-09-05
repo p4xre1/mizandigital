@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* أداء البناء (vite:css transform): Tailwind v4 كيمسح تلقائياً كل ملفات
+   المشروع (ما عدا .gitignore) بحثاً عن أصناف الأنماط (classes) المستعملة،
+   بما فيها مجلدات ماشي فيها ولو صنف Tailwind واحد فعلياً (تحقّقنا: بحث
+   class=/className= عبر كل واحد منها رجع فارغاً أو أصناف مخصصة/CSS عادية
+   بلا علاقة بـ Tailwind) — public/ (فيها sitemap.xml وfeed.xml اللي كبار
+   نسبياً)، supabase/ (SQL)، functions/، scripts/، tests/، .github/. استثناؤها
+   كيقلّص عدد/حجم الملفات اللي كيتفحصهم محرك المسح فـ كل بناء بلا أي تأثير
+   على الأصناف الفعلية المستعملة فـ الواجهة (كلها فـ index.html وsrc/) */
+@source not "../../public";
+@source not "../../supabase";
+@source not "../../functions";
+@source not "../../scripts";
+@source not "../../tests";
+@source not "../../.github";
+
 @variant dark (&:where(.dark, .dark *));
 @variant light (&:where(.light, .light *));
 

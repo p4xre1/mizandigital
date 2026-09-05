@@ -227,8 +227,17 @@ export function ArticleTranslateWidget({ className = "" }: { className?: string 
 
   return (
     <div ref={containerRef} className={`relative inline-block notranslate ${className}`} translate="no">
-      {/* حاوية مخفية يُدرج فيها Google عنصر التحكم الفعلي بالترجمة */}
-      <div id={ELEMENT_ID} className="hidden" aria-hidden="true" />
+      {/* حاوية مخفية يُدرج فيها Google عنصر التحكم الفعلي بالترجمة —
+          مهم: لازم تبقى فـ الـ layout (بلا display:none)، لأن سكريبت
+          Google Translate خاصو يقيس/يبني عنصر <select class="goog-te-combo">
+          بداخلها فعلياً، وإلا الترجمة ما كتخدمش (الكومبو يبقى فارغ أو بلا
+          تأثير حتى لو تبدّلت قيمته). كنخبّيوها بصرياً عبر إخراجها برّا
+          الشاشة (position/overflow) بدل hidden/display:none */}
+      <div
+        id={ELEMENT_ID}
+        aria-hidden="true"
+        style={{ position: "fixed", top: "-9999px", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}
+      />
 
       {/* إخفاء واجهة Google الافتراضية (الشريط العلوي، تمييز النص، الفقاعات) لصالح القائمة المخصصة أدناه */}
       <style>{`
