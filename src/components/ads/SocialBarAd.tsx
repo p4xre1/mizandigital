@@ -17,7 +17,7 @@ export function SocialBarAd() {
     >
       <AdsterraAd
         variant="socialbar"
-        scriptSrc="//REPLACE-WITH-YOUR-DOMAIN.com/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/invoke.js"
+        scriptSrc="//pl31171140.profitableratecpmnetwork.com/67/50/77/675077e6b9802c730bc0b4de4caecd4d.js"
         className="w-full"
       />
     </div>
