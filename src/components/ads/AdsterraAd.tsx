@@ -157,6 +157,19 @@ export function AdsterraAd({
   const height = variant === "banner" ? atOptions?.height : undefined
   // Popunder ما محتاجش أي مساحة مرئية — العنصر خدمته فقط تحميل السكريبت
   const isInvisibleVariant = variant === "popunder"
+  // "allow-same-origin" ضروري غير لصيغة popunder (باش /ads/frame.html
+  // يقدر يوصل لـ window.parent.document ويمرر أول نقرة — شوف
+  // public/ads/frame.html). باقي الصيغ (banner/native/socialbar) ما
+  // كتوصلش لـ window.parent أصلاً، فتركو الصلاحية هاذي مفعّلة بلا داعي
+  // كيولّد تحذير أمان فـ Chrome DevTools ("iframe مع allow-scripts +
+  // allow-same-origin كيقدر يهرب من الـ sandbox ديالو") بلا أي فائدة —
+  // وكيعطي لسكريبت Adsterra وصول لـ DOM ديال الصفحة الرئيسية ما محتاجوش.
+  const sandboxPermissions = [
+    "allow-scripts",
+    ...(variant === "popunder" ? ["allow-same-origin"] : []),
+    "allow-popups",
+    "allow-popups-to-escape-sandbox",
+  ].join(" ")
 
   return (
     <div ref={hostRef} className={className} aria-hidden="true">
@@ -172,7 +185,7 @@ export function AdsterraAd({
             ? { border: "none", width: "1px", height: "1px", position: "absolute", opacity: 0, pointerEvents: "none" }
             : { border: "none", width: width ? `${width}px` : "100%", height: height ? `${height}px` : "100%" }
         }
-        sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        sandbox={sandboxPermissions}
         referrerPolicy="no-referrer-when-downgrade"
       />
     </div>
