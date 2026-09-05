@@ -8,7 +8,7 @@
     "clean": "node scripts/clean.mjs",
     "validate": "pnpm typecheck",
     "doctor": "node scripts/doctor.mjs",
-    "prebuild": "node scripts/generate-sitemap.mjs",
+    "prebuild": "node scripts/generate-counts.mjs && node scripts/generate-sitemap.mjs && node scripts/generate-feed.mjs",
     "build": "pnpm clean && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
@@ -19,8 +19,6 @@
     "knip": "knip"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1108.0",
-    "@aws-sdk/s3-request-presigner": "^3.1108.0",
     "@supabase/supabase-js": "^2.112.3",
     "lucide-react": "0.487.0",
     "react": "18.3.1",

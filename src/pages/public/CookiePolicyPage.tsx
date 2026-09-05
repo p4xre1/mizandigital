@@ -9,7 +9,7 @@ const LAST_UPDATED = "25 غشت 2026"
 
 const COOKIE_TABLE = [
   {
-    name: "mizan-theme",
+    name: "mizan_theme",
     provider: "الميزان الرقمية (محلي)",
     purpose: "حفظ تفضيلكم للوضع الليلي أو النهاري للموقع.",
     duration: "دائم (حتى المسح اليدوي)",

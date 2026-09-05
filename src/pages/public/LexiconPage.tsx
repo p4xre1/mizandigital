@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
+import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
 import localLexicon from "../../data/lexicon.json"
@@ -45,7 +46,7 @@ export function LexiconPage() {
     let remoteTerms: LexiconTerm[] = []
     const { data, error } = await supabase
       .from("lexicon_terms")
-      .select("*")
+      .select("id, term_ar, term_fr, definition, category, created_at")
       .order("created_at", { ascending: false })
 
     // إن فشل الاتصال أو كان الجدول فارغاً، نعتمد البيانات المحلية كأساس
@@ -140,6 +141,11 @@ export function LexiconPage() {
     }))
   }
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "الرئيسية", url: "/" },
+    { name: "المعجم القانوني", url: "/lexicon" },
+  ])
+
   return (
     <>
       <SEOHead
@@ -153,7 +159,7 @@ export function LexiconPage() {
           "مصطلحات القانون المدني",
           "مصطلحات القانون الجنائي"
         ]}
-        schema={lexiconSchema}
+        schema={[lexiconSchema, breadcrumbSchema]}
       />
 
       <main className="container mx-auto max-w-6xl px-4 py-8 md:py-10" dir="rtl">

@@ -67,6 +67,19 @@ const escapeJsonForHtml = (value) =>
 const absoluteUrl = (path) =>
   `${DOMAIN}${path === "/" ? "/" : path}`;
 
+// مخطط مسار التنقل (BreadcrumbList) — يُستخدم عبر صفحات المقالات والأخبار
+// والقاموس القانوني لتفعيل خاصية "مسار التنقل" فـ نتائج البحث.
+// items: [{ name, path }] حيث path نسبي (يبدأ بـ "/") أو رابط كامل.
+const buildBreadcrumbSchema = (items) => ({
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: item.path.startsWith("http") ? item.path : absoluteUrl(item.path),
+  })),
+});
+
 // صورة افتراضية للمقالات/الأخبار اللي ماعندهاش صورة خاصة بها فـ البيانات
 // المحلية (articles.json / news.json) — أحسن من ترك "image" ناقصة تماماً
 // فـ الـ schema (Google كيعتبرها optional بصح موصى بيها).
@@ -602,6 +615,12 @@ const pages = [
         "@id": `${DOMAIN}/#organization`,
       },
     },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "المعجم القانوني", path: "/lexicon" },
+      ]),
+    ],
     staticBody: renderLexiconIndexStaticHtml(
       lexiconWithSlugs
     ),
@@ -643,6 +662,14 @@ const pages = [
           "@id": absoluteUrl(path),
         },
       },
+
+      extraSchema: [
+        buildBreadcrumbSchema([
+          { name: "الرئيسية", path: "/" },
+          { name: "المقالات", path: "/articles" },
+          { name: item.title, path },
+        ]),
+      ],
 
       staticBody: renderArticleStaticHtml(item),
     };
@@ -696,6 +723,14 @@ const pages = [
           "@id": absoluteUrl(path),
         },
       },
+
+      extraSchema: [
+        buildBreadcrumbSchema([
+          { name: "الرئيسية", path: "/" },
+          { name: "الأخبار", path: "/news" },
+          { name: item.title, path },
+        ]),
+      ],
 
       staticBody: renderNewsStaticHtml(item),
     };
@@ -927,6 +962,14 @@ const pages = [
           "@id": `${DOMAIN}/#author`,
         },
       },
+
+      extraSchema: [
+        buildBreadcrumbSchema([
+          { name: "الرئيسية", path: "/" },
+          { name: "المعجم القانوني", path: "/lexicon" },
+          { name: item.term_ar, path },
+        ]),
+      ],
 
       staticBody:
         renderTermStaticHtml(item),
@@ -1301,6 +1344,17 @@ function renderArticleStaticHtml(item) {
         </div>
 
         ${
+          item.category
+            ? `
+              <p>
+                <strong>التصنيف:</strong>
+                ${escapeHtml(item.category)}
+              </p>
+            `
+            : ""
+        }
+
+        ${
           item.publishedAt
             ? `
               <p>
@@ -1345,6 +1399,17 @@ function renderNewsStaticHtml(item) {
         <p>
           ${escapeHtml(summary)}
         </p>
+
+        ${
+          item.category
+            ? `
+              <p>
+                <strong>التصنيف:</strong>
+                ${escapeHtml(item.category)}
+              </p>
+            `
+            : ""
+        }
 
         ${
           content
@@ -1489,6 +1554,21 @@ function renderPage(template, page) {
     );
   }
 
+  // مخطط إضافي (مثل BreadcrumbList) يُحقن كـ <script> منفصل بدل دمجه
+  // داخل page.schema، تفادياً لتعارض خاصية "@context" الواحدة لكل عقدة.
+  if (Array.isArray(page.extraSchema) && page.extraSchema.length) {
+    for (const node of page.extraSchema) {
+      const withContext = { "@context": "https://schema.org", ...node };
+      html = html.replace(
+        "</head>",
+        `    <script type="application/ld+json">${escapeJsonForHtml(
+          withContext
+        )}</script>
+  </head>`
+      );
+    }
+  }
+
   if (page.staticBody) {
     html = swap(
       html,
@@ -1598,6 +1678,9 @@ official_sources:
 
 sitemap:
 - ${DOMAIN}/sitemap.xml
+
+rss_feed:
+- ${DOMAIN}/feed.xml
 
 agent_discovery:
 - ${DOMAIN}/.well-known/agent-card.json

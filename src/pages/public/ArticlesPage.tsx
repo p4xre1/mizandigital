@@ -7,7 +7,7 @@ import { truncateCleanText } from "../../lib/utils/sanitize"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
-import { ContentCard, type ContentCardData } from "../../components/content/ContentCard"
+import { ContentCard } from "../../components/content/ContentCard"
 import {
   BookOpen,
   Search,
@@ -37,7 +37,7 @@ function normalizeCmsArticle(raw: any): ArticleItem {
     category: raw.category?.name || raw.category?.name_fr || null,
     date: raw.published_at || raw.created_at || null,
     image: raw.cover_image || null,
-    imageAlt: raw.cover_image_alt || raw.title || null,
+    imageAlt: raw.cover_image_alt || null,
   }
 }
 
@@ -50,7 +50,7 @@ function normalizeLocalArticle(raw: any): ArticleItem {
     category: raw.category || null,
     date: raw.publishedAt || raw.date || null,
     image: raw.image || raw.coverImage || null,
-    imageAlt: raw.imageAlt || raw.title || null,
+    imageAlt: raw.imageAlt || raw.coverImageAlt || null,
   }
 }
 
@@ -72,7 +72,7 @@ export function ArticlesPage() {
       // مقالات لوحة التحكم المنشورة فقط (status = published)، مع اسم التصنيف عبر join
       const { data, error } = await supabase
         .from("articles")
-        .select("*, category:categories(name, name_fr)")
+        .select("id, title, slug, excerpt, published_at, created_at, cover_image, cover_image_alt, category:categories(name, name_fr)")
         .eq("status", "published")
         .order("published_at", { ascending: false })
 
@@ -205,19 +205,31 @@ export function ArticlesPage() {
         ) : filteredItems.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
             {filteredItems.map((item) => {
-              const cardData: ContentCardData = {
-                id: item.id,
-                title: item.title,
-                path: `/articles/${item.slug}`,
-                summary: item.summary ? truncateCleanText(item.summary, 140) : null,
-                image: item.image,
-                imageAlt: item.imageAlt,
-                date: item.date,
-                badgeLabel: item.category,
-                badgeIcon: <Tag size={12} />,
-                ctaLabel: "قراءة المقال",
-              }
-              return <ContentCard key={item.id} item={cardData} variant="grid" />
+              const formattedDate = item.date
+                ? new Date(item.date).toLocaleDateString("ar-MA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : null
+
+              return (
+                <ContentCard
+                  key={item.id}
+                  href={`/articles/${item.slug}`}
+                  title={item.title}
+                  image={item.image}
+                  imageAlt={item.imageAlt}
+                  badgeIcon={<Tag size={12} />}
+                  badgeLabel={item.category}
+                  formattedDate={formattedDate}
+                  summary={item.summary ? truncateCleanText(item.summary, 140) : null}
+                  tags={[item.category]}
+                  footerIcon={<BookOpen size={12} />}
+                  footerLabel="منصة الميزان"
+                  ctaLabel="قراءة المقال"
+                />
+              )
             })}
           </div>
         ) : (

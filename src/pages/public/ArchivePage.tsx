@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import docsData from "../../data/docs.json"
+import { titledSlugById } from "../../lib/utils/generateSlug"
+import { ContentTags } from "../../components/content/ContentTags"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import {
@@ -32,6 +34,9 @@ interface ArchivePageProps {
 
 interface ArchiveItem {
   id: string
+  slug: string
+  sourceTable: "local" | "pdf_summaries" | "laws"
+  dbId?: string
   semester: string
   module: string
   title: string
@@ -55,9 +60,11 @@ function formatFileSize(bytes?: number | null): string {
 }
 
 // 1) مواد الفصول الدراسية المحلية (docs.json) — تُحدَّث يدوياً ضمن المستودع
-function normalizeLocalDoc(raw: any): ArchiveItem {
+function normalizeLocalDoc(raw: any, slug: string): ArchiveItem {
   return {
     id: `doc-${raw.id}`,
+    slug,
+    sourceTable: "local",
     semester: raw.semester || "S1",
     module: raw.module || "مادة دراسية",
     title: raw.title,
@@ -76,6 +83,9 @@ function normalizeLocalDoc(raw: any): ArchiveItem {
 function normalizePdfSummary(raw: any): ArchiveItem {
   return {
     id: `pdf-${raw.id}`,
+    slug: raw.slug || raw.id,
+    sourceTable: "pdf_summaries",
+    dbId: raw.id,
     semester: raw.semester || "S1",
     module: raw.faculty?.name || "مادة دراسية",
     title: raw.title,
@@ -94,6 +104,9 @@ function normalizePdfSummary(raw: any): ArchiveItem {
 function normalizeLaw(raw: any): ArchiveItem {
   return {
     id: `law-${raw.id}`,
+    slug: raw.slug || raw.id,
+    sourceTable: "laws",
+    dbId: raw.id,
     semester: GENERAL_LAW_SEMESTER,
     module: raw.law_number ? `القانون رقم ${raw.law_number}` : "نص تشريعي",
     title: raw.title,
@@ -164,7 +177,8 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
 
   // دمج جميع مصادر الأرشيف: الملفات المحلية (docs.json) + مستندات لوحة التحكم + القوانين العامة
   const fullCatalog = useMemo<ArchiveItem[]>(() => {
-    const localDocs = (docsData as any[]).map(normalizeLocalDoc)
+    const localSlugs = titledSlugById((docsData as any[]).map((d) => ({ id: d.id, title: d.title })))
+    const localDocs = (docsData as any[]).map((raw) => normalizeLocalDoc(raw, localSlugs.get(raw.id) || raw.id))
     return [...cmsDocs, ...localDocs, ...cmsLaws]
   }, [cmsDocs, cmsLaws])
 
@@ -435,6 +449,8 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
                             {item.fileSize} ({item.fileFormat})
                           </span>
                         </div>
+
+                        <ContentTags tags={[item.branch, item.module, item.type]} size="sm" max={3} className="pt-2" />
                       </div>
                     )}
                   </div>
@@ -459,13 +475,15 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
                     )}
 
                     <Link
-                      to={`/download/${item.id}`}
+                      to={`/pdf/${item.slug}`}
                       title={`تحميل ${item.title}`}
                       state={{
                         title: item.title,
                         downloadUrl: item.downloadUrl,
                         fileSize: item.fileSize,
                         fileFormat: item.fileFormat,
+                        sourceTable: item.sourceTable,
+                        dbId: item.dbId,
                       }}
                       className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 shrink-0"
                     >

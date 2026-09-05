@@ -30,7 +30,7 @@ export function SearchPage() {
         supabase.from("news").select("id,title,slug,summary").eq("is_published", true).or(`title.ilike.${pattern},summary.ilike.${pattern},content.ilike.${pattern}`).limit(30),
         supabase.from("schools").select("id,name,slug,university,city,synopsis").or(`name.ilike.${pattern},university.ilike.${pattern},city.ilike.${pattern},synopsis.ilike.${pattern}`).limit(30),
         supabase.from("lexicon_terms").select("id,term_ar,term_fr,definition,category").or(`term_ar.ilike.${pattern},term_fr.ilike.${pattern},definition.ilike.${pattern},category.ilike.${pattern}`).limit(30),
-        supabase.from("pdf_summaries").select("id,title,description,semester").or(`title.ilike.${pattern},description.ilike.${pattern},professor.ilike.${pattern},semester.ilike.${pattern}`).limit(30),
+        supabase.from("pdf_summaries").select("id,title,slug,description,semester").or(`title.ilike.${pattern},description.ilike.${pattern},professor.ilike.${pattern},semester.ilike.${pattern}`).limit(30),
         supabase.from("seminars").select("id,title,speaker,speaker_title,agenda").eq("status", "published").or(`title.ilike.${pattern},speaker.ilike.${pattern},speaker_title.ilike.${pattern},agenda.ilike.${pattern}`).limit(30),
         supabase.from("laws").select("id,title,slug,law_number,description").or(`title.ilike.${pattern},law_number.ilike.${pattern},description.ilike.${pattern}`).limit(30),
       ])
@@ -40,7 +40,7 @@ export function SearchPage() {
       ;(news.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: x.summary, type: "news", typeLabel: "خبر", href: `/news/${x.slug}` }))
       ;(schools.data || []).forEach((x: any) => next.push({ id: x.id, title: x.name, description: `${x.university} — ${x.city}${x.synopsis ? ` — ${x.synopsis}` : ""}`, type: "school", typeLabel: "كلية", href: `/schools/${x.slug}` }))
       ;(terms.data || []).forEach((x: any) => next.push({ id: x.id, title: x.term_ar, description: [x.term_fr, x.definition, x.category].filter(Boolean).join(" — "), type: "term", typeLabel: "مصطلح قانوني", href: `/lexicon/${generateSlug(x.term_ar)}` }))
-      ;(pdfs.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: `${x.semester}${x.description ? ` — ${x.description}` : ""}`, type: "pdf", typeLabel: "ملخص / PDF", href: `/download/${x.id}` }))
+      ;(pdfs.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: `${x.semester}${x.description ? ` — ${x.description}` : ""}`, type: "pdf", typeLabel: "ملخص / PDF", href: `/pdf/${x.slug || x.id}` }))
       ;(events.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: [x.speaker, x.speaker_title, x.agenda].filter(Boolean).join(" — "), type: "event", typeLabel: "ندوة", href: `/events/seminar-${x.id}` }))
       ;(laws.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: [x.law_number, x.description].filter(Boolean).join(" — "), type: "law", typeLabel: "قانون", href: `/archive?law=${encodeURIComponent(x.slug)}` }))
       const unique = Array.from(new Map(next.map((x) => [`${x.type}:${x.id}`, x])).values())

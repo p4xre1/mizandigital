@@ -5,7 +5,8 @@ import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
 import localNews from "../../data/news.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
-import { ContentCard, type ContentCardData } from "../../components/content/ContentCard"
+import { ContentCard } from "../../components/content/ContentCard"
+import { ArticleTranslateWidget } from "../../components/articles/ArticleTranslateWidget"
 import {
   Newspaper,
   Search,
@@ -13,7 +14,8 @@ import {
   LayoutGrid,
   List,
   Loader2,
-  Globe
+  Globe,
+  BookOpen,
 } from "lucide-react"
 
 interface NewsItem {
@@ -29,6 +31,9 @@ interface NewsItem {
   published_at?: string | null
   slug: string
   created_at?: string | null
+  /** التصنيف (متوفر فـ news.json المحلي) والكلمة المفتاحية المستهدفة (متوفرة فـ جدول Supabase) — تُستخدمان كأوسمة سيو */
+  category?: string | null
+  target_keyword?: string | null
 }
 
 export function NewsPage() {
@@ -59,19 +64,22 @@ export function NewsPage() {
         source: n.author || "منصة الميزان",
         source_url: null,
         image_url: null,
-        image_alt: n.title,
         is_published: true,
         published_at: n.date,
         slug: n.id, // الـ JSON له id صالح كـ slug
-        created_at: n.date
+        created_at: n.date,
+        category: n.category,
       }))
 
-    // 2) أخبار Supabase (إن وُجدت)
+    // 2) أخبار Supabase (إن وُجدت) — نطلب فقط الأعمدة التي تحتاجها بطاقة
+    //    القائمة (بدون content الكامل)، ونحدّ العدد بحد معقول لمنع تحميل
+    //    الجدول بأكمله (P1-2: صفحة القائمة لا يجب أن تُنزّل محتوى المقال كاملاً)
     let remoteItems: NewsItem[] = []
     const { data, error } = await (supabase as any).from("news")
-      .select("*")
+      .select("id, title, summary, source, source_url, image_url, image_alt, is_published, published_at, slug, created_at")
       .eq("is_published", true)
       .order("published_at", { ascending: false })
+      .limit(100)
 
     if (!error && data) remoteItems = data
 
@@ -96,7 +104,8 @@ export function NewsPage() {
           source: n.author || "منصة الميزان",
           published_at: n.date,
           slug: n.id,
-          created_at: n.date
+          created_at: n.date,
+          category: n.category,
         }))
     )
   } finally {
@@ -213,9 +222,13 @@ export function NewsPage() {
 
         {/* View Mode Switcher Toolbar */}
         <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
-          <span className="text-xs font-bold text-muted-foreground">
-            عدد الأخبار المعروضة: <span className="text-primary">{filteredItems.length} خبر</span>
-          </span>
+          <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
+            <span className="text-xs font-bold text-muted-foreground">
+              عدد الأخبار المعروضة: <span className="text-primary">{filteredItems.length} خبر</span>
+            </span>
+            {/* أداة ترجمة صفحة الأخبار بأكملها إلى أي لغة (نفس الأداة المستخدمة في صفحة تفاصيل الخبر) */}
+            <ArticleTranslateWidget />
+          </div>
 
           <div className="flex items-center gap-1 bg-background p-1 rounded-xl border border-border">
             <button
@@ -263,21 +276,34 @@ export function NewsPage() {
           >
             {filteredItems.map((item) => {
               const itemSlug = item.slug || generateSlug(item.title) || item.id
-              const cardData: ContentCardData = {
-                id: item.id,
-                title: item.title,
-                path: `/news/${itemSlug}`,
-                summary: viewMode === "grid" ? item.summary : null,
-                image: viewMode === "grid" ? item.image_url : null,
-                imageAlt: item.image_alt,
-                date: item.published_at,
-                badgeLabel: item.source,
-                badgeIcon: <Globe size={12} />,
-                externalUrl: item.source_url,
-                ctaLabel: "التفاصيل",
-                footerLabel: "منصة الميزان",
-              }
-              return <ContentCard key={item.id} item={cardData} variant={viewMode} />
+              const itemPath = `/news/${itemSlug}`
+              const formattedDate = item.published_at
+                ? new Date(item.published_at).toLocaleDateString("ar-MA", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })
+                : null
+
+              return (
+                <ContentCard
+                  key={item.id}
+                  href={itemPath}
+                  title={item.title}
+                  image={item.image_url}
+                  imageAlt={item.image_alt}
+                  badgeIcon={<Globe size={12} />}
+                  badgeLabel={item.source}
+                  formattedDate={formattedDate}
+                  summary={item.summary}
+                  tags={[item.category, item.target_keyword]}
+                  footerIcon={<BookOpen size={12} />}
+                  footerLabel="منصة الميزان"
+                  ctaLabel="التفاصيل"
+                  externalUrl={item.source_url}
+                  variant={viewMode}
+                />
+              )
             })}
           </div>
         ) : (

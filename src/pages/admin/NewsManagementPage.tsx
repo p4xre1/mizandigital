@@ -17,6 +17,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react"
+import AdminLayout from "../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../components/ui/EmptyState"
 import { supabase } from "../../lib/supabase/client"
@@ -47,7 +48,7 @@ interface NewsManagementPageProps {
   currentPath?: string
 }
 
-export function NewsManagementPage(_props: NewsManagementPageProps) {
+export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: NewsManagementPageProps) {
   const [newsList, setNewsList] = useState<NewsItem[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -169,7 +170,7 @@ export function NewsManagementPage(_props: NewsManagementPageProps) {
       source: source.trim() || null,
       source_url: sourceUrl.trim() || null,
       image_url: imageUrl.trim() || null,
-      image_alt: imageAlt.trim() || title.trim(),
+      image_alt: imageAlt.trim() || null,
       focus_keyword: focusKeyword.trim() || null,
       is_published: isPublished,
       published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
@@ -266,7 +267,7 @@ export function NewsManagementPage(_props: NewsManagementPageProps) {
   }, [newsList, searchQuery, statusFilter])
 
   return (
-    <>
+    <AdminLayout currentPath={currentPath} onNavigate={onNavigate}>
       <div className="space-y-6" dir="rtl">
         {/* الترويسة والزر الرئيسي */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -581,7 +582,7 @@ export function NewsManagementPage(_props: NewsManagementPageProps) {
                   folder="news"
                   altValue={imageAlt}
                   onAltChange={setImageAlt}
-                  altPlaceholder={title || "وصف صورة الخبر"}
+                  altPlaceholder={title || "وصف صورة الخبر..."}
                 />
 
                 <div className="space-y-1">
@@ -686,7 +687,7 @@ export function NewsManagementPage(_props: NewsManagementPageProps) {
           }}
         />
       </div>
-    </>
+    </AdminLayout>
   )
 }
 

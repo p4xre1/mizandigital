@@ -1,110 +1,89 @@
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
-import { BookOpen, Calendar, Tag, ArrowLeft, ExternalLink } from "lucide-react"
+import { ArrowLeft, Calendar, ExternalLink } from "lucide-react"
+import { ContentTags } from "./ContentTags"
 
-export interface ContentCardData {
-  id: string
+export interface ContentCardProps {
+  /** رابط الصفحة الداخلية (تفاصيل المقال أو الخبر) */
+  href: string
   title: string
-  path: string
-  summary?: string | null
   image?: string | null
+  /** نص بديل للصورة — يقع رجوعاً للعنوان عند غيابه لضمان فهرسة سيو سليمة */
   imageAlt?: string | null
+  /** أيقونة ونص الشارة العلوية (تصنيف المقال أو مصدر الخبر) */
+  badgeIcon: ReactNode
   badgeLabel?: string | null
-  badgeIcon?: React.ReactNode
-  date?: string | null
+  /** تاريخ منسّق جاهز للعرض */
+  formattedDate?: string | null
+  summary?: string | null
+  /** أيقونة ونص أسفل البطاقة على اليمين (مثال: "منصة الميزان") */
+  footerIcon: ReactNode
+  footerLabel: string
+  /** نص زر القراءة (مثال: "قراءة المقال" أو "التفاصيل") */
+  ctaLabel: string
+  /** رابط خارجي اختياري (مصدر الخبر الأصلي) */
   externalUrl?: string | null
-  ctaLabel?: string
-  footerLabel?: string
-}
-
-interface ContentCardProps {
-  item: ContentCardData
+  /** تصنيفات/كلمات مفتاحية تُعرض كأوسمة أسفل الملخص (عرض شبكي فقط) — لتعزيز السيو الدلالي */
+  tags?: Array<string | null | undefined>
+  /** عرض شبكي (بطاقة كاملة) أو عرض قائمة تفصيلية أفقية */
   variant?: "grid" | "list"
 }
 
-// بطاقة محتوى موحدة يشترك فيها كل من المقالات والأخبار في الواجهة العامة،
-// بحيث يرث قسم الأخبار نفس تصميم بطاقة المقالات الاحترافي فعلياً بدل تكرار
-// نفس التنسيق بشكل منفصل ومستقل في كل صفحة.
-export function ContentCard({ item, variant = "grid" }: ContentCardProps) {
-  const formattedDate = item.date
-    ? new Date(item.date).toLocaleDateString("ar-MA", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : null
-
-  if (variant === "list") {
-    return (
-      <article className="group flex !flex-row items-center justify-between gap-4 rounded-xl border border-border bg-card !py-4 px-4 shadow-sm transition hover:border-primary/50 hover:shadow-md md:px-5">
-        <div className="min-w-0 flex-1 space-y-1">
-          <div className="mb-1 flex flex-wrap items-center gap-2 text-xs">
-            {item.badgeLabel && (
-              <span className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 font-semibold text-primary">
-                {item.badgeIcon}
-                {item.badgeLabel}
-              </span>
-            )}
-          </div>
-          <h2 className="line-clamp-2 text-base font-bold leading-snug text-foreground transition group-hover:text-primary">
-            <Link to={item.path} title={item.title}>
-              {item.title}
-            </Link>
-          </h2>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-4">
-          <div className="hidden flex-col text-left text-xs text-muted-foreground sm:flex">
-            {formattedDate && <span>{formattedDate}</span>}
-          </div>
-          {item.externalUrl && (
-            <a
-              href={item.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 p-1 text-muted-foreground hover:text-primary"
-              title="الرابط الأصلي"
-            >
-              <ExternalLink size={14} />
-            </a>
-          )}
-          <Link
-            to={item.path}
-            title={item.title}
-            className="inline-flex shrink-0 items-center gap-1 px-2 py-1 text-xs font-bold text-primary hover:underline"
-          >
-            <span>{item.ctaLabel || "التفاصيل"}</span>
-            <ArrowLeft size={14} />
-          </Link>
-        </div>
-      </article>
-    )
-  }
+/**
+ * بطاقة محتوى موحّدة تُستعمل في صفحتي "المقالات" و"الأخبار" العامتين، حتى
+ * تظل هويّة العرض (الصورة، الشارات، التذييل، أزرار القراءة...) واحدة تماماً
+ * بين القسمين بدل تكرار نفس التصميم يدوياً في كل صفحة على حدة.
+ */
+export function ContentCard({
+  href,
+  title,
+  image,
+  imageAlt,
+  badgeIcon,
+  badgeLabel,
+  formattedDate,
+  summary,
+  footerIcon,
+  footerLabel,
+  ctaLabel,
+  externalUrl,
+  tags,
+  variant = "grid",
+}: ContentCardProps) {
+  const isList = variant === "list"
 
   return (
-    <article className="group flex flex-col justify-between overflow-hidden rounded-xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/50 hover:shadow-md md:p-5">
-      {item.image && (
+    <article
+      className={`group rounded-xl border border-border bg-card p-4 md:p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md overflow-hidden ${
+        isList
+          ? "!flex !flex-row !items-center !justify-between !py-4 gap-4"
+          : "flex flex-col justify-between"
+      }`}
+    >
+      {image && !isList && (
         <Link
-          to={item.path}
-          title={item.title}
+          to={href}
+          title={title}
           className="-mx-4 -mt-4 mb-3 block aspect-[16/9] overflow-hidden bg-muted md:-mx-5 md:-mt-5"
         >
           <img
-            src={item.image}
-            alt={item.imageAlt || item.title}
+            src={image}
+            alt={imageAlt || title}
             loading="lazy"
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         </Link>
       )}
-      <div className="space-y-2">
-        <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
-          {item.badgeLabel && (
-            <span className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 font-semibold text-primary">
-              {item.badgeIcon}
-              {item.badgeLabel}
+
+      <div className={isList ? "space-y-1 flex-1" : "space-y-2"}>
+        <div className="flex items-center gap-2 mb-2 text-xs flex-wrap">
+          {badgeLabel && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2.5 py-1 font-semibold text-primary border border-primary/20">
+              {badgeIcon}
+              {badgeLabel}
             </span>
           )}
-          {formattedDate && (
+          {formattedDate && !isList && (
             <span className="inline-flex items-center gap-1 text-muted-foreground">
               <Calendar size={12} />
               {formattedDate}
@@ -112,40 +91,61 @@ export function ContentCard({ item, variant = "grid" }: ContentCardProps) {
           )}
         </div>
 
-        <h2 className="line-clamp-2 text-base font-bold leading-snug text-foreground transition group-hover:text-primary">
-          <Link to={item.path} title={item.title}>
-            {item.title}
+        <h2 className="text-base font-bold text-foreground group-hover:text-primary transition line-clamp-2 leading-snug">
+          <Link to={href} title={title}>
+            {title}
           </Link>
         </h2>
 
-        {item.summary && (
-          <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-muted-foreground">{item.summary}</p>
+        {summary && !isList && (
+          <p className="mt-2 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+            {summary}
+          </p>
+        )}
+
+        {tags && tags.length > 0 && !isList && (
+          <ContentTags tags={tags} size="sm" max={4} className="pt-1" />
         )}
       </div>
 
-      <div className="mt-6 flex items-center justify-between gap-2 border-t border-border pt-4 text-xs">
-        <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <BookOpen size={12} />
-          {item.footerLabel || "منصة الميزان"}
-        </span>
+      <div
+        className={
+          isList
+            ? "shrink-0 flex items-center gap-4"
+            : "mt-6 pt-4 border-t border-border flex items-center justify-between gap-2 text-xs"
+        }
+      >
+        {isList ? (
+          formattedDate && (
+            <div className="hidden sm:flex flex-col text-left text-xs text-muted-foreground">
+              <span>{formattedDate}</span>
+            </div>
+          )
+        ) : (
+          <span className="inline-flex items-center gap-1 text-muted-foreground">
+            {footerIcon}
+            {footerLabel}
+          </span>
+        )}
+
         <div className="flex items-center gap-2">
-          {item.externalUrl && (
+          {externalUrl && (
             <a
-              href={item.externalUrl}
+              href={externalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 p-1 text-muted-foreground hover:text-primary"
+              className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary p-1"
               title="الرابط الأصلي"
             >
               <ExternalLink size={14} />
             </a>
           )}
           <Link
-            to={item.path}
-            title={`قراءة المزيد: ${item.title}`}
-            className="inline-flex shrink-0 items-center gap-1 font-bold text-primary hover:underline"
+            to={href}
+            title={`${ctaLabel}: ${title}`}
+            className="inline-flex items-center gap-1 font-bold text-primary hover:underline shrink-0 text-xs py-1 px-2"
           >
-            <span>{item.ctaLabel || "قراءة المزيد"}</span>
+            <span>{ctaLabel}</span>
             <ArrowLeft size={14} />
           </Link>
         </div>
@@ -153,5 +153,3 @@ export function ContentCard({ item, variant = "grid" }: ContentCardProps) {
     </article>
   )
 }
-
-export default ContentCard

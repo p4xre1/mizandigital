@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useLocation } from "react-router-dom"
 import { SEOHead } from "../../components/seo/SEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
-import articlesData from "../../data/articles.json"
-import localNewsData from "../../data/news.json"
 import { rankRelatedItems } from "../../lib/utils/recommend"
 import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
 import { ArticleContent } from "../../components/articles/ArticleContent"
@@ -13,6 +11,9 @@ import { PartnerSuggestionBox } from "../../components/articles/PartnerSuggestio
 import { ViewCounter } from "../../components/articles/ViewCounter"
 import { CommentSection } from "../../components/articles/CommentSection"
 import { InContentAd } from "../../components/ads/InContentAd"
+import { ContentTags } from "../../components/content/ContentTags"
+import { ArticleTranslateWidget } from "../../components/articles/ArticleTranslateWidget"
+import { useTheme } from "@/hooks/useTheme"
 import { useTrackView } from "@/hooks/useTrackView"
 import {
   Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen, KeyRound,
@@ -35,6 +36,7 @@ interface ArticleDetail {
   /** أي جدول ينتمي إليه هذا المحتوى في قاعدة البيانات — يُستخدم لعداد المشاهدات والتعليقات */
   sourceTable?: "articles" | "news"
   image?: string | null
+  /** نص بديل (Alt Text) مخصص لصورة الغلاف — يقع رجوعاً للعنوان عند غيابه */
   imageAlt?: string | null
 }
 
@@ -55,6 +57,12 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   const params = useParams<{ slug: string }>()
   const rawSlug = propSlug || params.slug
   const slug = rawSlug ? decodeURIComponent(rawSlug) : ""
+  // P1-5: هذا المكوّن يُستخدم لكل من /articles/:slug و /news/:slug (نفس
+  // الغلاف ArticleWrapper). كنا نستعلم دائماً عن جدول "articles" أولاً حتى
+  // لصفحات الأخبار، أي استعلام فاشل مضمون فـ كل مرة يفتح فيها القارئ خبراً.
+  // نحدّد هنا ترتيب الجداول حسب المسار الفعلي بدل التخمين.
+  const location = useLocation()
+  const isNewsRoute = location.pathname.startsWith("/news")
 
   const [article, setArticle] = useState<ArticleDetail | null>(null)
   const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([])
@@ -72,7 +80,18 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   // خيارات المظهر
   const [textSize, setTextSize] = useState<"Small" | "Standard" | "Large">("Standard")
   const [pageWidth, setPageWidth] = useState<"Standard" | "Wide">("Standard")
-  const [colorMode, setColorMode] = useState<"Light" | "Dark" | "Automatic">("Light")
+  // موحّد الآن مع hooks/useTheme.ts (نفس مصدر الحقيقة المستخدم فـ App.tsx)
+  // بدل نسخة محلية منفصلة كانت تتجاهل تفضيل النظام افتراضياً (Light) وتتضارب
+  // مع الوضع الليلي العام للمنصة عند فتح أي مقال.
+  const { theme, setTheme, resetToSystemTheme, hasManualOverride } = useTheme()
+  const [colorMode, setColorModeState] = useState<"Light" | "Dark" | "Automatic">(() =>
+    hasManualOverride ? (theme === "dark" ? "Dark" : "Light") : "Automatic"
+  )
+  const setColorMode = (mode: "Light" | "Dark" | "Automatic") => {
+    setColorModeState(mode)
+    if (mode === "Automatic") resetToSystemTheme()
+    else setTheme(mode === "Dark" ? "dark" : "light")
+  }
 
   const articleBodyRef = useRef<HTMLDivElement | null>(null)
 
@@ -80,29 +99,14 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   // مبني على العناوين الفعلية داخل النص (##, ###) بدل تخمين أول كل فقرة
   const parsed = useMemo(() => parseArticleMarkdown(article?.content ?? ""), [article?.content])
 
-  // تفعيل تغيير الألوان (Light / Dark) على مستوى النظام أو الصفحة
-  useEffect(() => {
-    const root = document.documentElement;
-    if (colorMode === "Dark") {
-      root.classList.add("dark");
-    } else if (colorMode === "Light") {
-      root.classList.remove("dark");
-    } else {
-      // Automatic - الاعتماد على تفضيلات النظام
-      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (systemPrefersDark) {
-        root.classList.add("dark");
-      } else {
-        root.classList.remove("dark");
-      }
-    }
-  }, [colorMode]);
+  // ملاحظة: تفعيل الوضع الليلي/النهاري الفعلي على مستوى <html> أصبح
+  // بالكامل مسؤولية hooks/useTheme.ts (مصدر حقيقة واحد للمنصة كلها)
 
   useEffect(() => {
     if (slug) {
-      fetchArticleDetail(slug)
+      fetchArticleDetail(slug, isNewsRoute)
     }
-  }, [slug])
+  }, [slug, isNewsRoute])
 
   // تتبع الفقرة الحالية أثناء التمرير لتفعيلها في قائمة المحتويات
   useEffect(() => {
@@ -143,26 +147,37 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [article])
 
-  const fetchArticleDetail = async (targetSlug: string) => {
+  const fetchArticleDetail = async (targetSlug: string, preferNews: boolean) => {
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from("articles")
-        .select(`
-          *,
-          category:categories(name)
-        `)
-        .eq("slug", targetSlug)
-        .maybeSingle()
+      let currentArticleData: ArticleDetail | null = null
 
-      let currentArticleData: ArticleDetail | null = null;
+      const tryArticlesTable = async (): Promise<ArticleDetail | null> => {
+        const { data, error } = await supabase
+          .from("articles")
+          .select(`
+            id,
+            title,
+            slug,
+            content,
+            excerpt,
+            target_keyword,
+            published_at,
+            created_at,
+            category_id,
+            cover_image,
+            cover_image_alt,
+            category:categories(name)
+          `)
+          .eq("slug", targetSlug)
+          .maybeSingle()
 
-      if (data && !error) {
-        const catName = Array.isArray(data.category) 
-          ? (data.category[0] as any)?.name 
+        if (!data || error) return null
+        const catName = Array.isArray(data.category)
+          ? (data.category[0] as any)?.name
           : (data.category as any)?.name
 
-        currentArticleData = {
+        return {
           id: data.id,
           title: data.title,
           slug: data.slug,
@@ -175,78 +190,95 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           keywords: data.target_keyword ? [data.target_keyword] : undefined,
           sourceTable: "articles",
           image: (data as any).cover_image || null,
-          imageAlt: (data as any).cover_image_alt || data.title || null,
-        }
-      } else {
-        const localMatch = (articlesData as any[]).find((item) => item.slug === targetSlug)
-        if (localMatch) {
-          const bodyContent = Array.isArray(localMatch.body) 
-            ? localMatch.body.join("\n\n") 
-            : localMatch.content || ""
-
-          currentArticleData = {
-            id: localMatch.id,
-            title: localMatch.title,
-            slug: localMatch.slug,
-            content: bodyContent,
-            summary: localMatch.excerpt || undefined,
-            category: localMatch.category || undefined,
-            date: localMatch.publishedAt || undefined,
-            readingTime: localMatch.readingTime || undefined,
-            highlights: localMatch.highlights,
-            targetKeyword: localMatch.targetKeyword || localMatch.keyword,
-            keywords: localMatch.keywords || (localMatch.targetKeyword ? [localMatch.targetKeyword] : []),
-            sourceTable: "articles",
-            image: localMatch.image || localMatch.coverImage || null,
-            imageAlt: localMatch.imageAlt || localMatch.title || null,
-          }
+          imageAlt: (data as any).cover_image_alt || null,
         }
       }
 
-      // لم يُعثر على المقال في مصدر "articles" — جرّب مصدر "news"
-      // (البطاقات في صفحة الأخبار تُشير إلى /news/:slug وتُعالَج بنفس هذا المكوّن)
-      if (!currentArticleData) {
+      const tryArticlesLocal = async (): Promise<ArticleDetail | null> => {
+        // P1-4: يُستورد ديناميكياً — لا حاجة لتحميل articles.json ضمن الحزمة
+        // الأساسية إن كان المقال موجوداً أصلاً فـ Supabase (المسار الشائع)
+        const { default: articlesData } = await import("../../data/articles.json")
+        const localMatch = (articlesData as any[]).find((item) => item.slug === targetSlug)
+        if (!localMatch) return null
+
+        const bodyContent = Array.isArray(localMatch.body)
+          ? localMatch.body.join("\n\n")
+          : localMatch.content || ""
+
+        return {
+          id: localMatch.id,
+          title: localMatch.title,
+          slug: localMatch.slug,
+          content: bodyContent,
+          summary: localMatch.excerpt || undefined,
+          category: localMatch.category || undefined,
+          date: localMatch.publishedAt || undefined,
+          readingTime: localMatch.readingTime || undefined,
+          highlights: localMatch.highlights,
+          targetKeyword: localMatch.targetKeyword || localMatch.keyword,
+          keywords: localMatch.keywords || (localMatch.targetKeyword ? [localMatch.targetKeyword] : []),
+          sourceTable: "articles",
+          image: localMatch.image || localMatch.coverImage || null,
+          imageAlt: localMatch.imageAlt || localMatch.coverImageAlt || null,
+        }
+      }
+
+      const tryNewsTable = async (): Promise<ArticleDetail | null> => {
         const { data: newsRow, error: newsError } = await (supabase as any)
           .from("news")
-          .select("*")
+          .select("id, title, slug, content, summary, source, image_url, image_alt, published_at, created_at, target_keyword")
           .eq("slug", targetSlug)
           .maybeSingle()
 
-        if (newsRow && !newsError) {
-          currentArticleData = {
-            id: newsRow.id,
-            title: newsRow.title,
-            slug: newsRow.slug,
-            content: newsRow.content || "",
-            summary: newsRow.summary || undefined,
-            category: "أخبار",
-            date: newsRow.published_at || newsRow.created_at || undefined,
-            readingTime: "3 دقائق",
-            sourceTable: "news",
-            image: newsRow.image_url || null,
-            imageAlt: newsRow.image_alt || newsRow.title || null,
-          }
-        } else {
-          // الأخبار المحلية (news.json): الـ id يُستخدم كـ slug (كما في NewsPage.tsx)
-          const localNewsMatch = (localNewsData as any[]).find(
-            (item) => item.type === "news" && item.id === targetSlug
-          )
-          if (localNewsMatch) {
-            currentArticleData = {
-              id: localNewsMatch.id,
-              title: localNewsMatch.title,
-              slug: localNewsMatch.id,
-              content: localNewsMatch.content || "",
-              summary: localNewsMatch.summary || undefined,
-              category: "أخبار",
-              date: localNewsMatch.date || undefined,
-              readingTime: "3 دقائق",
-              sourceTable: "news",
-              image: localNewsMatch.image || localNewsMatch.imageUrl || null,
-              imageAlt: localNewsMatch.title || null,
-            }
-          }
+        if (!newsRow || newsError) return null
+        return {
+          id: newsRow.id,
+          title: newsRow.title,
+          slug: newsRow.slug,
+          content: newsRow.content || "",
+          summary: newsRow.summary || undefined,
+          category: "أخبار",
+          targetKeyword: newsRow.target_keyword || undefined,
+          date: newsRow.published_at || newsRow.created_at || undefined,
+          readingTime: "3 دقائق",
+          sourceTable: "news",
+          image: newsRow.image_url || null,
+          imageAlt: newsRow.image_alt || null,
         }
+      }
+
+      const tryNewsLocal = async (): Promise<ArticleDetail | null> => {
+        // الأخبار المحلية (news.json): الـ id يُستخدم كـ slug (كما في NewsPage.tsx)
+        // P1-4: استيراد ديناميكي لنفس السبب أعلاه
+        const { default: localNewsData } = await import("../../data/news.json")
+        const localNewsMatch = (localNewsData as any[]).find(
+          (item) => item.type === "news" && item.id === targetSlug
+        )
+        if (!localNewsMatch) return null
+        return {
+          id: localNewsMatch.id,
+          title: localNewsMatch.title,
+          slug: localNewsMatch.id,
+          content: localNewsMatch.content || "",
+          summary: localNewsMatch.summary || undefined,
+          category: localNewsMatch.category || "أخبار",
+          date: localNewsMatch.date || undefined,
+          readingTime: "3 دقائق",
+          sourceTable: "news",
+          image: localNewsMatch.image || localNewsMatch.imageUrl || null,
+        }
+      }
+
+      // P1-5: ترتيب المحاولات حسب المسار الفعلي (/news أو /articles) بدل
+      // الاستعلام دائماً عن "articles" أولاً — كان هذا يعني استعلاماً فاشلاً
+      // مضموناً فـ كل مرة يُفتح فيها خبر عبر /news/:slug
+      const attemptsInOrder = preferNews
+        ? [tryNewsTable, tryNewsLocal, tryArticlesTable, tryArticlesLocal]
+        : [tryArticlesTable, tryArticlesLocal, tryNewsTable, tryNewsLocal]
+
+      for (const attempt of attemptsInOrder) {
+        currentArticleData = await attempt()
+        if (currentArticleData) break
       }
 
       setArticle(currentArticleData)
@@ -286,7 +318,8 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
         }));
       }
 
-      const localList: RelatedArticle[] = (articlesData as any[])
+      const { default: articlesDataForRelated } = await import("../../data/articles.json")
+      const localList: RelatedArticle[] = (articlesDataForRelated as any[])
         .filter((item) => item.slug !== current.slug)
         .map((item) => ({
           id: item.id,
@@ -467,8 +500,17 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
           article.category ? `مقال ضمن قسم ${article.category}` : null,
           "اطّلع على التفاصيل الكاملة على منصة الميزان الرقمية، المرجع القانوني الأول للطلبة والباحثين بالمغرب.",
         ])}
-        canonicalUrl={`${SITE_CONFIG.url}/articles/${article.slug}`}
-        schema={[generateBreadcrumbSchema([{ name: "الرئيسية", url: "/" }, { name: "المقالات", url: "/articles" }, { name: article.title, url: `/articles/${article.slug}` }])]}
+        ogType="article"
+        publishedTime={article.date}
+        ogImage={article.image || undefined}
+        canonicalUrl={`${SITE_CONFIG.url}${article.sourceTable === "news" ? "/news" : "/articles"}/${article.slug}`}
+        schema={[
+          generateBreadcrumbSchema(
+            article.sourceTable === "news"
+              ? [{ name: "الرئيسية", url: "/" }, { name: "الأخبار", url: "/news" }, { name: article.title, url: `/news/${article.slug}` }]
+              : [{ name: "الرئيسية", url: "/" }, { name: "المقالات", url: "/articles" }, { name: article.title, url: `/articles/${article.slug}` }]
+          ),
+        ]}
       />
 
       {/* شريط تقدّم القراءة */}
@@ -487,8 +529,12 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             <span>العودة إلى المقالات</span>
           </Link>
 
-          {/* أزرار أدوات القراءة (تظهر دائما، وتتحول إلى شريط علوي على الجوال) */}
-          <div className="flex items-center gap-2 xl:hidden">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* أداة ترجمة الصفحة — تظهر دائماً (جوال وحاسوب) بعكس أدوات القراءة أدناه */}
+            <ArticleTranslateWidget />
+
+            {/* أزرار أدوات القراءة (تظهر دائما، وتتحول إلى شريط علوي على الجوال) */}
+            <div className="flex items-center gap-2 xl:hidden">
             <button
               onClick={() => { setShowContents((v) => !v); setShowAppearance(false) }}
               className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold transition cursor-pointer ${
@@ -508,6 +554,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
               <SlidersHorizontal size={13} />
               المظهر
             </button>
+            </div>
           </div>
         </div>
 
@@ -639,6 +686,11 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             <div className={`prose prose-neutral dark:prose-invert max-w-none leading-loose text-foreground/90 ${textSizeClass}`}>
               <ArticleContent blocks={parsed.blocks} />
             </div>
+
+            <ContentTags
+              tags={[article.category, article.targetKeyword, ...(article.keywords || [])]}
+              className="mt-6 border-t border-border pt-5"
+            />
 
             <PartnerSuggestionBox
               href="https://www.wadifapublic.ma/ar/tawjih"

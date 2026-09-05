@@ -11,6 +11,16 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react"
+// ملاحظة إصلاح خلل: هاد المكوّن كيتصيّر عبر ArticleEditorWrapper فـ
+// src/routes/AppRoutes.tsx، اللي بدورها Route فرعية تحت Route "/admin"
+// الأب اللي كيرندري AdminLayout مرة وحدة عبر <Outlet/> (شوف
+// src/components/layout/AdminLayout.tsx). قبل هاد الإصلاح كانت هاد
+// الصفحة كترندري AdminLayout ثانية بداخلها، فكيتكرر Sidebar/Header
+// فعلياً مرتين متداخلين فـ نفس الصفحة (بنية DOM غير صحيحة، وحالة داخلية
+// مزدوجة بين النسختين) — وهو سبب رئيسي فـ التصرفات الغريبة بعد نشر
+// المقال وتغيّر حالة النموذج (زر "تعديل"/"رجوع" كان كيبقى بلا تأثير).
+// الحل: لا نستورد AdminLayout هنا ولا نغلّف بيه — الصفحة كترجع محتواها
+// مباشرة، وAdminLayout الأب هو اللي كيوفر Sidebar/Header/Outlet.
 import RichTextEditor from "../../../components/features/RichTextEditor"
 import SeoAuditWidget from "../../../components/features/SeoAuditWidget"
 import { ImageUploadField } from "../../../components/admin/ImageUploadField"
@@ -175,7 +185,7 @@ export default function ArticleEditorPage({
       content,
       excerpt,
       cover_image: coverImage,
-      cover_image_alt: coverImageAlt || title,
+      cover_image_alt: coverImageAlt || null,
       status: finalStatus,
       category_id: categoryId || null,
       faculty_id: facultyId || null,
@@ -231,11 +241,10 @@ export default function ArticleEditorPage({
   }
 
   return (
-    <>
-      <div className="space-y-6" dir="rtl">
-        {/* شريط الإجراءات والترويسة */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
+    <div className="space-y-6" dir="rtl">
+      {/* شريط الإجراءات والترويسة */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
             <button
               onClick={() => (onBack ? onBack() : onNavigate?.("/articles"))}
               className="grid size-9 place-items-center rounded-xl border border-border text-muted-foreground transition hover:bg-muted"
@@ -404,7 +413,7 @@ export default function ArticleEditorPage({
                   helperText="تظهر أعلى المقال وفي بطاقته ضمن لائحة المقالات."
                   altValue={coverImageAlt}
                   onAltChange={setCoverImageAlt}
-                  altPlaceholder={title || "وصف صورة غلاف المقال"}
+                  altPlaceholder={title || "وصف صورة الغلاف..."}
                 />
               </div>
             </div>
@@ -468,6 +477,5 @@ export default function ArticleEditorPage({
           </div>
         </div>
       </div>
-    </>
   )
 }

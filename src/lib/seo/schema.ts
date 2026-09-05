@@ -60,9 +60,10 @@ export function generateOrganizationSchema() {
     },
     image: SITE_CONFIG.defaultImage,
     sameAs: [
-      "https://facebook.com/mizandigital",
-      "https://twitter.com/mizandigital",
-      "https://linkedin.com/company/mizandigital",
+      "https://www.instagram.com/mizan.page",
+      "https://www.facebook.com/mizan.page",
+      "https://www.tiktok.com/@mizan_page",
+      "https://www.pinterest.com/mizan.page",
     ],
     address: {
       "@type": "PostalAddress",
@@ -192,7 +193,50 @@ export function generateEducationalResourceSchema(resource: EducationalResourceI
 }
 
 /**
- * 7. دالة مساعدة لحقن البيانات المهيكلة في عناصر JSX
+ * 7. مخطط الخدمة القانونية/المرجعية (LegalService Schema)
+ * يُستخدم على الصفحة الرئيسية وصفحة "من نحن" لتعزيز إشارات E-E-A-T
+ * وربط المنصة بفئة "الخدمات القانونية" في نتائج البحث والذكاء الاصطناعي.
+ * ملاحظة: Mizan Digital منصة تعليمية مجانية ولا تقدم استشارات قانونية
+ * مدفوعة، لذلك يُحدَّد hasOfferCatalog كموارد تعليمية مجانية فقط.
+ */
+export function generateLegalServiceSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "LegalService",
+    "@id": `${SITE_CONFIG.url}/#legalservice`,
+    name: SITE_CONFIG.name,
+    alternateName: SITE_CONFIG.altName,
+    url: SITE_CONFIG.url,
+    image: SITE_CONFIG.defaultImage,
+    description:
+      "منصة مغربية تعليمية مجانية للمعرفة القانونية، تقدّم مقالات ومعجماً قانونياً وأرشيفاً دراسياً لطلبة القانون والمهتمين بالقانون المغربي. لا تقدم المنصة استشارات قانونية فردية.",
+    areaServed: {
+      "@type": "Country",
+      name: "المغرب",
+    },
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: SITE_CONFIG.country,
+    },
+    priceRange: "مجاني",
+    knowsLanguage: ["ar", "fr"],
+    parentOrganization: {
+      "@id": `${SITE_CONFIG.url}/#organization`,
+    },
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "الموارد القانونية التعليمية",
+      itemListElement: [
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "معجم قانوني ثنائي اللغة" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "أرشيف دراسي حسب الفصول (S1-S6)" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "مقالات ومستجدات تشريعية وقضائية" } },
+      ],
+    },
+  }
+}
+
+/**
+ * 8. دالة مساعدة لحقن البيانات المهيكلة في عناصر JSX
  */
 export function renderSchemaScript(schemaData: Record<string, unknown> | Array<Record<string, unknown>>) {
   return {

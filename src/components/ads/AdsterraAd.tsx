@@ -38,19 +38,37 @@ import { getStoredConsent } from "@/lib/utils/cookieConsent"
  * />
  * ```
  *
- * استعمال بصيغة "Popunder" أو "Social Bar" (بلا حجم مرئي — غير سكريبت
- * كيتحمل مرة وحدة فـ الصفحة، الأفضل تحطها مرة وحدة فـ PublicLayout):
+ * استعمال بصيغة "Social Bar" (شريط لاصق بأسفل الصفحة، عرض كامل):
+ * كنستعملو نفس معمارية الـ iframe المعزول، غير أن الحاوية الخارجية (شوف
+ * src/components/ads/SocialBarAd.tsx) خاصها تكون هي اللي "fixed" بأسفل
+ * الشاشة وبعرض كامل، حتى الشريط يبان بحال شريط حقيقي وليس محصور فـ صندوق
+ * صغير داخل المحتوى.
  * ```tsx
  * <AdsterraAd
- *   variant="popunder" // أو "socialbar"
- *   scriptSrc="//www.REPLACE-WITH-YOUR-DOMAIN.com/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/invoke.js"
+ *   variant="socialbar"
+ *   scriptSrc="//REPLACE-WITH-YOUR-DOMAIN.com/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/invoke.js"
+ * />
+ * ```
+ *
+ * استعمال بصيغة "Popunder" (كتفتح تبويب/نافذة جديدة عند أول نقرة فـ
+ * الصفحة). ⚠️ خلافاً للصيغ الأخرى، سكريبتات الـ Popunder فـ الغالب كتحتاج
+ * تراقب نقرات الصفحة الرئيسية كاملة باش تخدم. بحيث /ads/frame.html من نفس
+ * الدومين (مسار معزول فقط بـ CSP، وليس iframe عابر للدومين)، كنستافدو من
+ * "allow-same-origin" فـ الـ sandbox باش نمررو أول نقرة من window.parent
+ * (الصفحة الحقيقية) للسكريبت الموجود جوج الإطار المعزول — شوف الكود جوج
+ * public/ads/frame.html. هاد الحل عام (best-effort) وقد يحتاج تعديل بسيط
+ * حسب الـ API الحقيقي لسكريبت Popunder اللي غادي تعطيك Adsterra.
+ * ```tsx
+ * <AdsterraAd
+ *   variant="popunder"
+ *   scriptSrc="//REPLACE-WITH-YOUR-DOMAIN.com/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/invoke.js"
  * />
  * ```
  */
 
 interface AdsterraAdProps {
-  /** نوع الوحدة الإعلانية. الـ popunder/socialbar بلا حجم مرئي — غير سكريبت كيتحمل مرة وحدة. */
-  variant: "banner" | "native" | "popunder" | "socialbar"
+  /** نوع الوحدة الإعلانية */
+  variant: "banner" | "native" | "socialbar" | "popunder"
   /** رابط سكريبت Adsterra الحقيقي (من لوحة التحكم) */
   scriptSrc: string
   /** مطلوب فقط لصيغة "banner" — القيم اللي كتعطيك Adsterra */
@@ -135,24 +153,23 @@ export function AdsterraAd({
     frameParams.set("containerId", containerId)
   }
 
-  // popunder/socialbar بلا حجم مرئي (سكريبت خفي كيدبّر نفسه)، بخلاف
-  // banner/native اللي عندهم حجم محدد فـ الصفحة
-  const isInvisibleVariant = variant === "popunder" || variant === "socialbar"
   const width = variant === "banner" ? atOptions?.width : undefined
   const height = variant === "banner" ? atOptions?.height : undefined
+  // Popunder ما محتاجش أي مساحة مرئية — العنصر خدمته فقط تحميل السكريبت
+  const isInvisibleVariant = variant === "popunder"
 
   return (
     <div ref={hostRef} className={className} aria-hidden="true">
       <iframe
         src={`/ads/frame.html?${frameParams.toString()}`}
         title="إعلان"
-        width={isInvisibleVariant ? 0 : width}
-        height={isInvisibleVariant ? 0 : height}
+        width={isInvisibleVariant ? 1 : width}
+        height={isInvisibleVariant ? 1 : height}
         loading="lazy"
         scrolling="no"
         style={
           isInvisibleVariant
-            ? { border: "none", width: 0, height: 0, position: "absolute" }
+            ? { border: "none", width: "1px", height: "1px", position: "absolute", opacity: 0, pointerEvents: "none" }
             : { border: "none", width: width ? `${width}px` : "100%", height: height ? `${height}px` : "100%" }
         }
         sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"

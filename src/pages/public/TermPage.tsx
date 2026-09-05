@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { SEOHead } from "../../components/seo/SEOHead"
+import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { NotFound } from "./NotFound"
 import lexiconData from "../../data/lexicon.json"
 import { lexiconSlugById, generateSlug } from "../../lib/utils/generateSlug"
@@ -75,7 +76,45 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
       }
 
       try {
-        // 1. محاولة الجلب من Supabase أولاً
+        // 1. مسار سريع: إن كان الرابط مطابقاً لـ UUID (id حقيقي)، جلب صف
+        //    واحد فقط بدل تحميل الجدول كاملاً
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetQuery)
+        if (isUuid) {
+          const { data: byId } = await supabase.from("lexicon_terms").select("*").eq("id", targetQuery).maybeSingle()
+          if (byId) {
+            setTerm(byId)
+            const slugById = lexiconSlugById([...(lexiconData as any[]), byId] as any)
+            computeRelatedTerms([...(lexiconData as any[])], byId, slugById)
+            setLoading(false)
+            return
+          }
+        }
+
+        // 2. مسار سريع: إن كان عمود slug موجوداً فـ قاعدة البيانات (بعد
+        //    تطبيق migration اختيارية — راجع
+        //    supabase/migrations/20260904130000_add_lexicon_terms_slug.sql)،
+        //    جلب صف واحد مباشرة به. إن لم يكن العمود موجوداً بعد، Supabase
+        //    يُرجع خطأ فنتجاهله ونكمل بالمسار الحالي (الجدول كاملاً) بلا أي
+        //    عطل — توافقية كاملة قبل/بعد تطبيق الـ migration.
+        try {
+          const { data: bySlug, error: slugError } = await (supabase as any)
+            .from("lexicon_terms")
+            .select("*")
+            .eq("slug", targetQuery)
+            .maybeSingle()
+          if (!slugError && bySlug) {
+            setTerm(bySlug)
+            const slugById = lexiconSlugById([...(lexiconData as any[]), bySlug] as any)
+            computeRelatedTerms([...(lexiconData as any[])], bySlug, slugById)
+            setLoading(false)
+            return
+          }
+        } catch {
+          // عمود slug غير موجود بعد — تجاهل والمتابعة بالمسار العادي
+        }
+
+        // 3. محاولة الجلب من Supabase (الجدول كاملاً) — المسار الحالي، يبقى
+        //    كاحتياط إلى حين تطبيق migration الـ slug أعلاه
         const { data: remoteTerms, error } = await supabase
           .from("lexicon_terms")
           .select("*")
@@ -173,6 +212,12 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     "inLanguage": ["ar-MA", "fr"]
   }
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "الرئيسية", url: "/" },
+    { name: "المعجم القانوني", url: "/lexicon" },
+    { name: term.term_ar, url: `/lexicon/${targetQuery}` },
+  ])
+
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(window.location.href)
@@ -196,7 +241,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
           "القاموس القانوني المغربي",
           ...legalSources.map((s) => s.code_ar),
         ]}
-        schema={termSchema}
+        schema={[termSchema, breadcrumbSchema]}
       />
 
       <main className="container mx-auto max-w-4xl px-4 py-12" dir="rtl">

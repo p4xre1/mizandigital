@@ -1,12 +1,10 @@
 import { Fragment } from "react"
+import type { ReactNode } from "react"
 import type { ArticleBlock } from "../../lib/content/parseArticleMarkdown"
 import { InContentAd } from "../ads/InContentAd"
 
-// عدد فقرات النص المتتالية بين كل صندوق إعلان داخل المحتوى وآخر
-const PARAGRAPHS_PER_AD = 4
-// أقل عدد فقرات إجمالي في المقال قبل ما نبداو نحقنو إعلانات (باش ما تبانش
-// كثيرة فـ المقالات القصيرة)
-const MIN_PARAGRAPHS_BEFORE_ADS = 3
+// كل كم فقرة نصية نعرض صندوق إعلان تلقائياً بين فقرات المقال/الخبر
+const AD_PARAGRAPH_INTERVAL = 4
 
 // تنسيقات داخل السطر: **عريض** *مائل* `كود` [نص](رابط)
 const INLINE_RE = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g
@@ -56,40 +54,39 @@ function renderInline(text: string) {
 
 interface ArticleContentProps {
   blocks: ArticleBlock[]
-  /** عطّل حقن صناديق الإعلانات (يُستعمل فـ معاينة المحرر بلوحة التحكم) */
-  disableAds?: boolean
 }
 
 /**
  * يعرض عناصر المقال المُحلّلة (عناوين فرعية بمعرّفات للتنقل من الفهرس،
  * فقرات، صور بتعليقات، اقتباسات، قوائم) بنفس هوية تصميم الموقع.
  */
-export function ArticleContent({ blocks, disableAds = false }: ArticleContentProps) {
-  const totalParagraphs = blocks.filter((b) => b.type === "paragraph").length
-  let paragraphCounter = 0
+export function ArticleContent({ blocks }: ArticleContentProps) {
+  // عدّاد الفقرات النصية (paragraph) فقط — لا نحتسب العناوين/الصور/القوائم
+  // ضمن الفاصل الزمني حتى لا يظهر الإعلان مباشرة بعد عنوان أو صورة، بل بعد
+  // كتلة نص متتالية فعلية، كما هو متعارف عليه فـ صفحات القراءة الطويلة.
+  let paragraphsSinceLastAd = 0
 
   return (
     <div className="space-y-5">
       {blocks.map((block, idx) => {
-        // إدراج تلقائي لصندوق إعلان بعد كل PARAGRAPHS_PER_AD فقرات نصية،
-        // بشرط أن يحتوي المقال على عدد كافٍ من الفقرات وألا يكون هذا آخر بلوك
-        // (تفادياً لظهور إعلان معزول مباشرة قبل نهاية المقال مباشرة)
+        const isLastBlock = idx === blocks.length - 1
+        let adAfterThisBlock: ReactNode = null
+
         if (block.type === "paragraph") {
-          paragraphCounter += 1
+          paragraphsSinceLastAd += 1
+          if (paragraphsSinceLastAd >= AD_PARAGRAPH_INTERVAL && !isLastBlock) {
+            paragraphsSinceLastAd = 0
+            adAfterThisBlock = <InContentAd key={`ad-${idx}`} className="my-6" />
+          }
         }
-        const shouldInsertAd =
-          !disableAds &&
-          block.type === "paragraph" &&
-          totalParagraphs >= MIN_PARAGRAPHS_BEFORE_ADS &&
-          paragraphCounter % PARAGRAPHS_PER_AD === 0 &&
-          idx !== blocks.length - 1
+
+        let blockNode: ReactNode
 
         switch (block.type) {
           case "heading": {
             const Tag = block.level === 2 ? "h2" : "h3"
-            return (
+            blockNode = (
               <Tag
-                key={idx}
                 id={block.id}
                 className={
                   block.level === 2
@@ -100,17 +97,14 @@ export function ArticleContent({ blocks, disableAds = false }: ArticleContentPro
                 {block.text}
               </Tag>
             )
+            break
           }
           case "paragraph":
-            return (
-              <Fragment key={idx}>
-                <p className="leading-loose">{renderInline(block.text)}</p>
-                {shouldInsertAd && <InContentAd className="my-2" />}
-              </Fragment>
-            )
+            blockNode = <p className="leading-loose">{renderInline(block.text)}</p>
+            break
           case "image":
-            return (
-              <figure key={idx} className="my-6 -mx-1">
+            blockNode = (
+              <figure className="my-6 -mx-1">
                 <img
                   src={block.src}
                   alt={block.alt}
@@ -124,34 +118,42 @@ export function ArticleContent({ blocks, disableAds = false }: ArticleContentPro
                 )}
               </figure>
             )
+            break
           case "quote":
-            return (
-              <blockquote
-                key={idx}
-                className="border-r-4 border-primary/50 bg-primary/5 rounded-lg py-3 px-4 italic text-foreground/90"
-              >
+            blockNode = (
+              <blockquote className="border-r-4 border-primary/50 bg-primary/5 rounded-lg py-3 px-4 italic text-foreground/90">
                 {renderInline(block.text)}
               </blockquote>
             )
+            break
           case "list":
-            return block.ordered ? (
-              <ol key={idx} className="list-decimal ps-6 space-y-1.5 marker:text-primary marker:font-bold">
+            blockNode = block.ordered ? (
+              <ol className="list-decimal ps-6 space-y-1.5 marker:text-primary marker:font-bold">
                 {block.items.map((item, i2) => (
                   <li key={i2}>{renderInline(item)}</li>
                 ))}
               </ol>
             ) : (
-              <ul key={idx} className="list-disc ps-6 space-y-1.5 marker:text-primary">
+              <ul className="list-disc ps-6 space-y-1.5 marker:text-primary">
                 {block.items.map((item, i2) => (
                   <li key={i2}>{renderInline(item)}</li>
                 ))}
               </ul>
             )
+            break
           case "hr":
-            return <hr key={idx} className="border-border my-8" />
+            blockNode = <hr className="border-border my-8" />
+            break
           default:
-            return null
+            blockNode = null
         }
+
+        return (
+          <Fragment key={idx}>
+            {blockNode}
+            {adAfterThisBlock}
+          </Fragment>
+        )
       })}
     </div>
   )

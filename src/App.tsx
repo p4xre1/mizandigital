@@ -6,20 +6,14 @@ import { ScrollToTop } from "@/components/ScrollToTop"
 import { supabase } from "@/lib/supabase/client"
 import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
+import { useTheme } from "@/hooks/useTheme"
 
-type Theme = "light" | "dark"
 const DOWNLOAD_TOAST_EVENT = "mizan:toast"
 
 export default function App() {
-  // Theme state with localStorage & system preference fallback
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem("mizan-theme")
-      if (stored === "light" || stored === "dark") return stored
-      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-    }
-    return "dark"
-  })
+  // إدارة الوضع الليلي/النهاري: تفضيل النظام افتراضياً، مع تجاوز يدوي
+  // محفوظ فـ localStorage("mizan_theme") — المنطق الكامل فـ hooks/useTheme.ts
+  const { theme, toggleTheme } = useTheme()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -45,14 +39,7 @@ export default function App() {
     }
   }, [])
 
-  // Dynamic Theme Syncing
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.remove("light", "dark")
-    root.classList.add(theme)
-    root.style.colorScheme = theme
-    window.localStorage.setItem("mizan-theme", theme)
-  }, [theme])
+  // Dynamic Theme Syncing متكفّل بها الآن hooks/useTheme.ts
 
   // Global Custom Event Toast Handler (Type-safe browser timer)
   useEffect(() => {
@@ -75,10 +62,6 @@ export default function App() {
     }
   }, [])
 
-  const handleToggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"))
-  }, [])
-
   const handleToggleMenu = useCallback(() => {
     setMenuOpen((prev) => !prev)
   }, [])
@@ -93,7 +76,7 @@ export default function App() {
         session={session}
         theme={theme}
         menuOpen={menuOpen}
-        onToggleTheme={handleToggleTheme}
+        onToggleTheme={toggleTheme}
         onToggleMenu={handleToggleMenu}
       />
 

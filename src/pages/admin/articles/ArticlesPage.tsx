@@ -13,6 +13,7 @@ import {
   Archive,
   AlertCircle,
 } from "lucide-react"
+import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
 import EmptyState from "../../../components/ui/EmptyState"
 import { supabase } from "../../../lib/supabase/client"
@@ -30,11 +31,16 @@ interface ArticlesPageProps {
 }
 
 export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPageProps) {
-  // الصفحة قد تُستخدم عبر مسار React Router (بدون props) أو ضمن سياق يمرّر
-  // onNavigate/onEditArticle يدوياً؛ نعتمد useNavigate كقيمة احتياطية حتى لا
-  // تبقى أزرار "تعديل" و"مقال جديد" بلا أثر عندما لا تُمرَّر هذه الخاصيات.
+  // إصلاح خلل: هاد الصفحة كتوصل بلا onNavigate/onEditArticle مادام مُدرجة
+  // مباشرة فـ AppRoutes.tsx بلا غلاف يمرر هاد الـ props، فيبقى زر "مقال
+  // جديد" وزر "تعديل" فـ الجدول بلا أي تأثير (onNavigate?.(...) كيبقى
+  // undefined). هنا كنستعملو useNavigate الحقيقي ديال الراوتر كقيمة
+  // احتياطية دائماً شغّالة، بنفس المنطق المستعمل ديجا فـ AdminSidebar.
   const navigate = useNavigate()
-  const goTo = onNavigate ?? ((path: string) => navigate(path))
+  const goTo = (path: string) => (onNavigate ? onNavigate(path) : navigate(path))
+  const goToEdit = (id: string) =>
+    onEditArticle ? onEditArticle(id) : goTo(`/admin/articles/edit/${id}`)
+
   const [articles, setArticles] = useState<ArticleWithRelations[]>([])
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState<string>("")
@@ -136,7 +142,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
   }
 
   return (
-    <>
+    <AdminLayout currentPath="/admin/articles">
       <div className="space-y-6" dir="rtl">
         {/* الترويسة والأزرار الرئيسية */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -147,7 +153,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
             </p>
           </div>
           <button
-            onClick={() => goTo("/articles/new")}
+            onClick={() => goTo("/admin/articles/new")}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:brightness-110"
           >
             <Plus className="size-4" />
@@ -200,7 +206,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
                   : "لم تقم بإضافة أي مقالات قانونية حتى الآن."
               }
               actionLabel="إضافة مقال جديد"
-              onAction={() => goTo("/articles/new")}
+              onAction={() => goTo("/admin/articles/new")}
             />
           ) : (
             <div className="overflow-x-auto">
@@ -241,11 +247,7 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
                       <td className="px-4 py-3.5">
                         <div className="flex items-center justify-center gap-1">
                           <button
-                            onClick={() =>
-                              onEditArticle
-                                ? onEditArticle(article.id)
-                                : goTo(`/articles/edit/${article.id}`)
-                            }
+                            onClick={() => goToEdit(article.id)}
                             className="grid size-8 place-items-center rounded-lg border border-border text-muted-foreground transition hover:bg-muted hover:text-foreground"
                             title="تعديل المقال"
                           >
@@ -284,6 +286,6 @@ export default function ArticlesPage({ onNavigate, onEditArticle }: ArticlesPage
           }}
         />
       </div>
-    </>
+    </AdminLayout>
   )
 }

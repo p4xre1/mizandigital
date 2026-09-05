@@ -26,6 +26,9 @@ const ArchivePage = lazy(() => import("@/pages/public/ArchivePage").then((m) => 
 const DownloadGatePage = lazy(() =>
   import("@/pages/public/DownloadGatePage").then((m) => ({ default: m.DownloadGatePage }))
 )
+const PdfDownloadPage = lazy(() =>
+  import("@/pages/public/PdfDownloadPage").then((m) => ({ default: m.PdfDownloadPage }))
+)
 const NewsPage = lazy(() => import("@/pages/public/NewsPage").then((m) => ({ default: m.NewsPage })))
 const ArticlesPage = lazy(() => import("@/pages/public/ArticlesPage").then((m) => ({ default: m.ArticlesPage })))
 const ArticlePage = lazy(() => import("@/pages/public/ArticlePage").then((m) => ({ default: m.ArticlePage })))
@@ -52,6 +55,13 @@ function EventWrapper() { const { slug } = useParams<{ slug: string }>(); return
 function SchoolWrapper() { const { slug } = useParams<{ slug: string }>(); return <SchoolPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function TermWrapper() { const { slug } = useParams<{ slug: string }>(); return <TermPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function ArchiveWrapper() { const [searchParams] = useSearchParams(); return <ArchivePage initialSemester={searchParams.get("semester") ?? undefined} /> }
+
+// ملاحظة إصلاح خلل: كان مسار "articles/edit/:id" يُمرّر ArticleEditorPage مباشرة
+// بلا قراءة :id عبر useParams (خلافاً لبقية أغلفة المسارات أعلاه)، فيبقى
+// currentArticleId داخل الصفحة دائماً undefined ولا يتم تحميل المقال المطلوب
+// تعديله أبداً — زر "تعديل" يفتح نموذج "مقال جديد" فارغاً بدل تحميل المقال
+// الفعلي. هاد الغلاف يقرأ :id من الرابط ويمرره كـ prop، ويربط onBack/onNavigate
+// بـ useNavigate الحقيقي بدل الاعتماد على props اختيارية تبقى undefined هنا.
 function ArticleEditorWrapper() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -95,7 +105,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route element={<PublicLayout theme={theme} menuOpen={menuOpen} onToggleTheme={onToggleTheme} onToggleMenu={onToggleMenu} />}>
-          <Route path="/" element={<HomePage />} /><Route path="/search" element={<SearchPage />} /><Route path="/archive" element={<ArchiveWrapper />} /><Route path="/download/:id" element={<DownloadGatePage />} />
+          <Route path="/" element={<HomePage />} /><Route path="/search" element={<SearchPage />} /><Route path="/archive" element={<ArchiveWrapper />} /><Route path="/pdf/:slug" element={<PdfDownloadPage />} /><Route path="/download/:id" element={<DownloadGatePage />} />
           <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} /><Route path="/s2" element={<Navigate to="/archive?semester=S2" replace />} /><Route path="/s3" element={<Navigate to="/archive?semester=S3" replace />} /><Route path="/s4" element={<Navigate to="/archive?semester=S4" replace />} /><Route path="/s5" element={<Navigate to="/archive?semester=S5" replace />} /><Route path="/s6" element={<Navigate to="/archive?semester=S6" replace />} />
           <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />
           <Route path="/events" element={<EventsPage />} /><Route path="/events/:slug" element={<EventWrapper />} /><Route path="/schools" element={<SchoolsPage />} /><Route path="/schools/:slug" element={<SchoolWrapper />} />

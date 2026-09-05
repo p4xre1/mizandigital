@@ -1,31 +1,19 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Search, Bell, Sun, Moon, Menu, ArrowUpLeft } from "lucide-react"
+import { useTheme } from "@/hooks/useTheme"
 
 interface AdminHeaderProps {
   onToggleSidebar?: () => void
 }
 
 export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
-  const [isDark, setIsDark] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark")
-    }
-    return false
-  })
+  // موحّد الآن مع نفس hook المستخدم فـ الواجهة العمومية (App.tsx)، بدل
+  // نسخة منفصلة كانت لا تحفظ التفضيل فـ localStorage ولا تكتشف تفضيل
+  // النظام عند أول تحميل للوحة التحكم.
+  const { theme, toggleTheme } = useTheme()
+  const isDark = theme === "dark"
 
   const [notifications] = useState<number>(3)
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark")
-    } else {
-      document.documentElement.classList.remove("dark")
-    }
-  }, [isDark])
-
-  const toggleTheme = () => {
-    setIsDark((prev) => !prev)
-  }
 
   return (
     <header

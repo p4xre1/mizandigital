@@ -9,12 +9,13 @@ const DATA = join(__dirname, "../src/data");
 const DOMAIN = "https://www.mizan.page";
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
-const [articles, events, schools, lexicon, news] = await Promise.all([
+const [articles, events, schools, lexicon, news, docs] = await Promise.all([
   readJson("articles.json"),
   readJson("events.json"),
   readJson("schools.json"),
   readJson("lexicon.json"),
   readJson("news.json"),
+  readJson("docs.json"),
 ]);
 
 async function fetchPublishedCmsContent() {
@@ -26,7 +27,12 @@ async function fetchPublishedCmsContent() {
   try {
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    const [{ data: cmsArticles, error: articlesError }, { data: cmsNews, error: newsError }] =
+    const [
+      { data: cmsArticles, error: articlesError },
+      { data: cmsNews, error: newsError },
+      { data: cmsPdfs, error: pdfsError },
+      { data: cmsLaws, error: lawsError },
+    ] =
       await Promise.all([
         supabase
           .from("articles")
@@ -36,22 +42,31 @@ async function fetchPublishedCmsContent() {
           .from("news")
           .select("slug, updated_at, published_at, created_at")
           .eq("is_published", true),
+        supabase
+          .from("pdf_summaries")
+          .select("slug, updated_at, created_at")
+          .eq("status", "published"),
+        supabase.from("laws").select("slug, updated_at, created_at"),
       ]);
 
     if (articlesError) console.warn("⚠️  sitemap: تعذر جلب مقالات CMS —", articlesError.message);
     if (newsError) console.warn("⚠️  sitemap: تعذر جلب أخبار CMS —", newsError.message);
+    if (pdfsError) console.warn("⚠️  sitemap: تعذر جلب ملخصات CMS —", pdfsError.message);
+    if (lawsError) console.warn("⚠️  sitemap: تعذر جلب النصوص القانونية —", lawsError.message);
 
     return {
       cmsArticles: cmsArticles || [],
       cmsNews: cmsNews || [],
+      cmsPdfs: cmsPdfs || [],
+      cmsLaws: cmsLaws || [],
     };
   } catch (err) {
     console.warn("⚠️  sitemap: تعذر الاتصال بـ Supabase، سيتم الاعتماد على البيانات المحلية فقط —", err.message);
-    return { cmsArticles: [], cmsNews: [] };
+    return { cmsArticles: [], cmsNews: [], cmsPdfs: [], cmsLaws: [] };
   }
 }
 
-const { cmsArticles, cmsNews } = await fetchPublishedCmsContent();
+const { cmsArticles, cmsNews, cmsPdfs, cmsLaws } = await fetchPublishedCmsContent();
 
 const generateSlug = (text = "") => {
   return String(text)
@@ -85,6 +100,7 @@ const staticEntries = [
 ];
 
 const usedLexiconSlugs = new Set();
+const usedDocSlugs = new Set();
 
 const dynamicEntries = [
   ...articles.map((item) => {
@@ -153,6 +169,34 @@ const dynamicEntries = [
       priority: "0.7",
     };
   }),
+  ...docs.map((item) => {
+    const base = generateSlug(item.title) || String(item.id);
+    let slug = base;
+    if (usedDocSlugs.has(slug)) slug = `${base}-${generateSlug(item.id) || item.id}`;
+    usedDocSlugs.add(slug);
+    return {
+      path: `/pdf/${slug}`,
+      lastmod: item.updatedAt,
+      changefreq: "yearly",
+      priority: "0.6",
+    };
+  }),
+  ...cmsPdfs
+    .filter((item) => item.slug)
+    .map((item) => ({
+      path: `/pdf/${item.slug}`,
+      lastmod: (item.updated_at || item.created_at || "").slice(0, 10),
+      changefreq: "yearly",
+      priority: "0.6",
+    })),
+  ...cmsLaws
+    .filter((item) => item.slug)
+    .map((item) => ({
+      path: `/pdf/${item.slug}`,
+      lastmod: (item.updated_at || item.created_at || "").slice(0, 10),
+      changefreq: "yearly",
+      priority: "0.6",
+    })),
 ];
 
 const today = new Date().toISOString().slice(0, 10);
@@ -184,5 +228,5 @@ ${entries}
 
 await writeFile(OUTPUT, xml, "utf8");
 console.log(
-  `Generated ${dedupedByPath.length} sitemap entries (${cmsArticles.length} CMS articles + ${cmsNews.length} CMS news included).`
+  `Generated ${dedupedByPath.length} sitemap entries (${cmsArticles.length} CMS articles + ${cmsNews.length} CMS news + ${cmsPdfs.length} CMS PDFs + ${cmsLaws.length} CMS laws included).`
 );

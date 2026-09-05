@@ -50,3 +50,33 @@ export function lexiconSlugById(items: LexiconSlugItem[]): Map<string, string> {
   }
   return map
 }
+
+export type TitledSlugItem = {
+  id: string
+  title: string
+}
+
+/**
+ * روابط فريدة صديقة لمحركات البحث للموارد المحلية غير المرتبطة بقاعدة
+ * بيانات (مثل docs.json)، حيث لا يوجد عمود "slug" جاهز. يُستخدم نفس
+ * منطق lexiconSlugById: العنوان أولاً، ثم إضافة المعرّف الأصلي عند التكرار
+ * لضمان فرادة الرابط.
+ */
+export function uniqueTitledSlug(item: TitledSlugItem, taken: Set<string>): string {
+  const base = generateSlug(item.title) || generateSlug(item.id) || item.id
+  let slug = base
+  if (taken.has(slug)) {
+    slug = `${base}-${generateSlug(item.id) || item.id}`
+  }
+  taken.add(slug)
+  return slug
+}
+
+export function titledSlugById(items: TitledSlugItem[]): Map<string, string> {
+  const taken = new Set<string>()
+  const map = new Map<string, string>()
+  for (const item of items) {
+    map.set(item.id, uniqueTitledSlug(item, taken))
+  }
+  return map
+}

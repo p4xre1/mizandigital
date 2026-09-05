@@ -123,8 +123,10 @@ export function SEOHead({
       url: `${domain}/icon-512.png`
     },
     sameAs: [
-      "https://github.com/mizan-page",
-      "https://www.wikidata.org/wiki/Q12500000" // Replace with actual Wikidata/Social links when available
+      "https://www.instagram.com/mizan.page",
+      "https://www.facebook.com/mizan.page",
+      "https://www.tiktok.com/@mizan_page",
+      "https://www.pinterest.com/mizan.page"
     ]
   }
 
@@ -151,8 +153,20 @@ export function SEOHead({
     }
   } else if (finalSchema) {
     // If a schema is passed, auto-inject missing E-E-A-T signals
+    // — لكن فقط للأنواع التي يُعرّف فيها Schema.org خاصيتي author/publisher فعلياً
+    // (Article وما شابهها). أنواع مثل Organization أو WebSite أو BreadcrumbList
+    // أو DefinedTerm لا تملك هاتين الخاصيتين، وإضافتهما تُنتج بيانات مهيكلة غير صحيحة.
+    const ARTICLE_LIKE_TYPES = new Set([
+      "Article",
+      "TechArticle",
+      "NewsArticle",
+      "BlogPosting",
+      "ScholarlyArticle",
+      "EducationalResource",
+    ])
     const enrichNode = (node: any) => {
-      if (typeof node !== 'object' || !node) return node
+      if (typeof node !== "object" || !node) return node
+      if (!ARTICLE_LIKE_TYPES.has(node["@type"])) return node
       return {
         ...node,
         publisher: node.publisher || publisherSchema,

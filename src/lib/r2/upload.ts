@@ -1,37 +1,55 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+// src/lib/r2/upload.ts
+//
+// ⚠️ هذا الملف لم يعد يحمل أي بيانات اعتماد R2. توليد الروابط الموقّعة
+// (presigned URLs) انتقل بالكامل إلى دالة خادم Cloudflare Pages Function
+// (functions/api/r2/presign.js) التي تتحقق من صلاحية الإدارة عبر Supabase
+// قبل توليد أي رابط. المتصفح يطلب فقط رابطاً موقّتاً صالحاً لملف واحد،
+// ثم يرفع إليه مباشرة (Upload from browser → R2)، بلا أي وسيط للسر.
+//
+// راجع: functions/api/r2/presign.js و functions/_shared/r2sign.js
 
-export const r2Client = new S3Client({
-  region: "auto",
-  endpoint: `https://${import.meta.env.VITE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: import.meta.env.VITE_R2_ACCESS_KEY_ID || "",
-    secretAccessKey: import.meta.env.VITE_R2_SECRET_ACCESS_KEY || "",
-  },
-});
+import { supabase } from "../supabase/client"
 
-export const BUCKET_NAME = import.meta.env.VITE_R2_BUCKET_NAME || "mizan-cms-storage";
-export const PUBLIC_DOMAIN = import.meta.env.VITE_R2_PUBLIC_DOMAIN || "";
+async function getAuthHeader(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  if (!token) {
+    throw new Error("يجب تسجيل الدخول كمسؤول لرفع الملفات")
+  }
+  return { Authorization: `Bearer ${token}` }
+}
 
 export async function createPresignedUploadUrl(fileName: string, contentType: string, folder: string = "images") {
-  const safeFolder = folder.replace(/^\/+|\/+$/g, "") || "images";
-  const fileKey = `${safeFolder}/${Date.now()}-${fileName.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
-  const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: fileKey,
-    ContentType: contentType,
-  });
+  const authHeader = await getAuthHeader()
 
-  const uploadUrl = await getSignedUrl(r2Client, command, { expiresIn: 900 });
-  const fileUrl = `${PUBLIC_DOMAIN}/${fileKey}`;
+  const response = await fetch("/api/r2/presign", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeader },
+    body: JSON.stringify({ fileName, contentType, folder }),
+  })
 
-  return { uploadUrl, fileUrl, fileKey };
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}))
+    throw new Error(body?.error || `تعذّر توليد رابط الرفع (${response.status})`)
+  }
+
+  const { uploadUrl, fileUrl, fileKey } = await response.json()
+  return { uploadUrl, fileUrl, fileKey }
 }
 
 export async function deleteFileFromR2(fileKey: string) {
-  const command = new DeleteObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: fileKey,
-  });
-  return await r2Client.send(command);
+  const authHeader = await getAuthHeader()
+
+  const response = await fetch("/api/r2/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeader },
+    body: JSON.stringify({ fileKey }),
+  })
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}))
+    throw new Error(body?.error || `تعذّر حذف الملف (${response.status})`)
+  }
+
+  return response.json()
 }

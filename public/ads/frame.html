@@ -62,9 +62,29 @@
         container.id = containerId;
         root.appendChild(container);
       }
+    } else if (variant === "popunder") {
+      // سكريبتات الـ Popunder فـ الغالب محتاجة تراقب نقرات الصفحة كاملة
+      // باش تخدم بشكل طبيعي. هاد المسار (/ads/frame.html) من نفس دومين
+      // الموقع (معزول فقط بقاعدة CSP فـ public/_headers، وليس iframe
+      // عابر للدومين)، والـ sandbox فوق فيه "allow-same-origin"، فـ
+      // window.parent كيبقى فـ متناول الإطار. كنمرر أول نقرة وقعت فـ
+      // الصفحة الحقيقية لهاد الإطار المعزول، حتى أي سكريبت Popunder
+      // عادي (كيتنصت على document.body هنا) يحس بالنقرة ويخدم بشكل طبيعي.
+      try {
+        var forwardFirstClick = function () {
+          try {
+            document.body.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+          } catch (innerErr) {
+            /* تجاهل — بعض السكريبتات كتقرا الحدث مباشرة بلا حاجة لهاد التمرير */
+          }
+          window.parent.document.removeEventListener("click", forwardFirstClick, true);
+        };
+        window.parent.document.addEventListener("click", forwardFirstClick, true);
+      } catch (crossOriginErr) {
+        // إيلا تصادف الصفحة تتحمل فـ سياق مختلف (preview بدومين آخر مثلاً)
+        // نتجاهلو بهدوء بدل ما نكسرو الصفحة كاملة.
+      }
     }
-    // "popunder" و"socialbar": ما محتاجين أي atOptions ولا حاوية —
-    // غير سكريبت واحد كيتحمل مرة وحدة (كيدبّر الـ popup/الشريط بروحو).
 
     var adScript = document.createElement("script");
     adScript.type = "text/javascript";

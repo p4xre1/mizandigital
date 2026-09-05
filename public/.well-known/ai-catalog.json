@@ -10,6 +10,7 @@
     {"id":"home","url":"https://www.mizan.page/","type":"webpage","format":"text/html"},
     {"id":"markdown-home","url":"https://www.mizan.page/index.md","type":"document","format":"text/markdown"},
     {"id":"sitemap","url":"https://www.mizan.page/sitemap.xml","type":"sitemap","format":"application/xml"},
+    {"id":"feed","url":"https://www.mizan.page/feed.xml","type":"feed","format":"application/rss+xml"},
     {"id":"llms","url":"https://www.mizan.page/llms.txt","type":"documentation","format":"text/plain"},
     {"id":"articles","url":"https://www.mizan.page/articles","type":"collection"},
     {"id":"news","url":"https://www.mizan.page/news","type":"collection"},

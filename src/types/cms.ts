@@ -52,6 +52,7 @@ export interface NewsItem {
   source?: string | null
   source_url?: string | null
   image_url?: string | null
+  /** نص بديل (Alt Text) لصورة الخبر — لأغراض السيو وإمكانية الوصول */
   image_alt?: string | null
   slug: string
   category_id?: string | null
@@ -92,6 +93,7 @@ export interface Article {
   content: string
   excerpt?: string | null
   cover_image?: string | null
+  /** نص بديل (Alt Text) لصورة الغلاف — لأغراض السيو وإمكانية الوصول */
   cover_image_alt?: string | null
   category_id?: string | null
   faculty_id?: string | null

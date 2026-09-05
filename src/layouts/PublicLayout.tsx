@@ -1,6 +1,8 @@
 import { Outlet } from "react-router-dom"
 import { Header, Footer } from "./PublicNavigation"
 import { AdsterraAd } from "../components/ads/AdsterraAd"
+import { SocialBarAd } from "../components/ads/SocialBarAd"
+import { PopunderAd } from "../components/ads/PopunderAd"
 
 export default function PublicLayout({
   theme,
@@ -47,20 +49,14 @@ export default function PublicLayout({
       <Footer />
 
       {/*
-        وحدات إعلانية عامة بلا حجم مرئي (Popunder / Social Bar) — تُحمَّل
-        مرة واحدة فـ كل صفحة عامة، بنفس منطق العزل عبر iframe المستعمل فوق
-        (شبكة ProfitableRateCPM، نفس آلية العزل المستعملة مع Adsterra).
-        الوحدتان ما كيتحملوش حتى الزائر يوافق على الكوكيز أولاً (نفس منطق
-        Google Analytics فهاد المشروع) — شوف requireConsent فـ AdsterraAd.tsx.
+        وحدات الربح (Monetization) على مستوى التخطيط العام — مرة واحدة فقط
+        لكل الصفحات العامة، بلا ما تأثر على CSP ديال باقي الموقع (نفس
+        معمارية الإطار المعزول /ads/frame.html المستعملة أعلاه). طالما
+        scriptSrc ديالهم مازال يحتوي "REPLACE-WITH-YOUR-DOMAIN"، AdsterraAd
+        ما غاديش يحمّل حتى إطار — شوف SocialBarAd.tsx / PopunderAd.tsx.
       */}
-      <AdsterraAd
-        variant="popunder"
-        scriptSrc="//pl31171139.profitableratecpmnetwork.com/12/81/c2/1281c23a986c79fb5176d6d6fe0f9886.js"
-      />
-      <AdsterraAd
-        variant="socialbar"
-        scriptSrc="//pl31171140.profitableratecpmnetwork.com/67/50/77/675077e6b9802c730bc0b4de4caecd4d.js"
-      />
+      <SocialBarAd />
+      <PopunderAd />
     </div>
   )
 }
