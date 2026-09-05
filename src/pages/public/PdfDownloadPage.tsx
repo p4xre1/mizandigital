@@ -144,14 +144,19 @@ export function PdfDownloadPage() {
   const progressPct = Math.round(((WAIT_SECONDS - secondsLeft) / WAIT_SECONDS) * 100)
 
   const handleFinalDownload = async () => {
-    // زيادة عدّاد التحميلات للمستندات المرفوعة عبر لوحة التحكم فقط
-    // (لا يوقف التحميل إن فشل الطلب)
-    if (target?.sourceTable === "pdf_summaries" && target.dbId) {
-      try {
+    // زيادة عدّاد التحميلات بحسب مصدر الملف (لا يوقف التحميل إن فشل الطلب)
+    try {
+      if (target?.sourceTable === "pdf_summaries" && target.dbId) {
         await (supabase as any).rpc("increment_pdf_downloads", { p_id: target.dbId })
-      } catch {
-        /* تجاهل الخطأ — لا نمنع التحميل بسببه */
+      } else if (target?.sourceTable === "laws" && target.dbId) {
+        await (supabase as any).rpc("increment_law_downloads", { p_id: target.dbId })
+      } else if (target?.sourceTable === "local" && slug) {
+        // الملفات المحلية الثابتة (docs.json) لا تملك معرّفاً في قاعدة البيانات،
+        // لذا نستخدم الـ slug الفريد الخاص بها كمفتاح للعدّاد
+        await (supabase as any).rpc("increment_local_pdf_downloads", { p_slug: slug })
       }
+    } catch {
+      /* تجاهل الخطأ — لا نمنع التحميل بسببه */
     }
   }
 

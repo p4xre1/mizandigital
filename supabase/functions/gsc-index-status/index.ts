@@ -1,22 +1,4 @@
-// supabase/functions/gsc-index-status/index.ts
-//
-// يفحص حالة فهرسة رابط حقيقي في جوجل عبر Google Search Console API
-// (URL Inspection API) ويخزّن النتيجة في جدول public.index_status.
-//
-// الإعداد المطلوب (مرة واحدة فقط) — راجع شرح Claude المرفق في المحادثة:
-//   1) إنشاء Service Account في Google Cloud (مشروع تملكه)، وتفعيل
-//      "Search Console API" عليه، وتنزيل مفتاح JSON الخاص به.
-//   2) إضافة بريد الـ Service Account (client_email) كمستخدم "Owner" أو
-//      "Full user" على ملكية موقعك داخل Google Search Console.
-//   3) في Supabase: تخزين السرّين التاليين عبر
-//        supabase secrets set GSC_SERVICE_ACCOUNT_KEY='...محتوى ملف JSON كاملاً...'
-//        supabase secrets set GSC_SITE_URL='https://mizan.page/'   (كما يظهر بالضبط في GSC)
-//   4) نشر الدالة:  supabase functions deploy gsc-index-status
-//
-// إن لم يتم إعداد السرّين، تُعيد الدالة { notConfigured: true } وتبقى الواجهة
-// تعمل بشكل طبيعي بقية الميزات (الزيارات/القراءات) دون أي اعتماد على هذا الجزء.
-
-import { createClient } from "npm:@supabase/supabase-js@2"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!

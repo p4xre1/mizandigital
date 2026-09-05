@@ -1,11 +1,29 @@
 -- Compatibility for older CMS/news clients that still request `news.category`.
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+          AND table_name = 'news' 
+          AND column_name = 'category_id'
+    ) THEN
+        ALTER TABLE public.news ADD COLUMN category_id uuid REFERENCES public.categories(id);
+    END IF;
+END $$;
+
 ALTER TABLE public.news ADD COLUMN IF NOT EXISTS category text;
 
-UPDATE public.news n
-SET category = c.name
-FROM public.categories c
-WHERE n.category_id = c.id
-  AND (n.category IS NULL OR n.category = '');
+DO $$ 
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+          AND table_name = 'news' 
+          AND column_name = 'category_id'
+    ) THEN
+        EXECUTE 'UPDATE public.news n SET category = c.name FROM public.categories c WHERE n.category_id = c.id AND (n.category IS NULL OR n.category = '''')';
+    END IF;
+END $$;
 
 CREATE OR REPLACE FUNCTION public.sync_news_category_name()
 RETURNS trigger
@@ -53,7 +71,6 @@ ALTER FUNCTION public.cleanup_old_page_views(interval) SET search_path = public,
 ALTER FUNCTION public.force_comment_unapproved() SET search_path = public, pg_temp;
 
 -- The counter RPCs are intentionally public because the public site calls them.
--- Their implementations only modify the requested counter row.
 REVOKE EXECUTE ON FUNCTION public.increment_article_views(uuid) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.increment_content_views(text, text) FROM PUBLIC, anon, authenticated;
 REVOKE EXECUTE ON FUNCTION public.increment_news_views(uuid) FROM PUBLIC, anon, authenticated;
