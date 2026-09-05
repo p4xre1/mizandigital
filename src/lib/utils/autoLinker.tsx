@@ -8,8 +8,15 @@ interface LexiconTerm {
 }
 
 export function renderTextWithInternalLinks(
-  content: string, 
-  terms: LexiconTerm[]
+  content: string,
+  terms: LexiconTerm[],
+  /**
+   * معرّفات المصطلحات اللي تربطات ديجا فـ نفس المقال. كنمررو نفس الـ Set
+   * عبر كل الفقرات (شوف ArticleContent.tsx) باش كل مصطلح يتربط مرة واحدة
+   * فقط فـ المقال كامل — تفادياً لتكرار نفس الرابط بزاف مرات فـ نص طويل
+   * (link spam)، اللي كيضر أكثر ما كيفيد من ناحية تجربة القارئ وSEO.
+   */
+  linkedIds?: Set<string>
 ): React.ReactNode[] {
   if (!content) return []
   if (!terms || terms.length === 0) return [content]
@@ -25,7 +32,8 @@ export function renderTextWithInternalLinks(
 
   return parts.map((part, index) => {
     const matchedTerm = sortedTerms.find(t => t.term_ar === part)
-    if (matchedTerm) {
+    if (matchedTerm && !linkedIds?.has(matchedTerm.id)) {
+      linkedIds?.add(matchedTerm.id)
       return (
         <Link
           key={`${matchedTerm.id}-${index}`}

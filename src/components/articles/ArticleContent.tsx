@@ -2,6 +2,7 @@ import { Fragment } from "react"
 import type { ReactNode } from "react"
 import type { ArticleBlock } from "../../lib/content/parseArticleMarkdown"
 import { InContentAd } from "../ads/InContentAd"
+import { renderTextWithInternalLinks } from "../../lib/utils/autoLinker"
 
 // كل كم فقرة نصية نعرض صندوق إعلان تلقائياً بين فقرات المقال/الخبر
 const AD_PARAGRAPH_INTERVAL = 4
@@ -9,7 +10,17 @@ const AD_PARAGRAPH_INTERVAL = 4
 // تنسيقات داخل السطر: **عريض** *مائل* `كود` [نص](رابط)
 const INLINE_RE = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g
 
-function renderInline(text: string) {
+export interface LinkableLexiconTerm {
+  id: string
+  term_ar: string
+  slug: string
+}
+
+function renderInline(
+  text: string,
+  lexiconTerms: LinkableLexiconTerm[] | undefined,
+  linkedTermIds: Set<string>
+) {
   const parts = text.split(INLINE_RE).filter((p) => p !== "")
   return parts.map((part, idx) => {
     if (part.startsWith("**") && part.endsWith("**")) {
@@ -48,23 +59,42 @@ function renderInline(text: string) {
         </em>
       )
     }
+    // نص عادي: هنا فقط كنطبقو الربط التلقائي نحو صفحات المعجم (lexicon) —
+    // ماشي داخل روابط/كود/عناصر منسّقة ديجا، حتى ما نكسروش تنسيق موجود.
+    if (lexiconTerms && lexiconTerms.length > 0) {
+      return (
+        <Fragment key={idx}>
+          {renderTextWithInternalLinks(part, lexiconTerms, linkedTermIds)}
+        </Fragment>
+      )
+    }
     return <Fragment key={idx}>{part}</Fragment>
   })
 }
 
 interface ArticleContentProps {
   blocks: ArticleBlock[]
+  /**
+   * مصطلحات المعجم القانوني (اختياري) — إيلا تعطات، أي ذكر لمصطلح فـ نص
+   * المقال كيتربط تلقائياً بصفحة تعريفه فـ /lexicon/. هاد الشيء كيعطي
+   * لمحركات البحث روابط داخلية حقيقية نحو صفحات المعجم بدل ما تبقى
+   * صفحات "معزولة" ما حد كيشير ليها غير من الخريطة (sitemap).
+   */
+  lexiconTerms?: LinkableLexiconTerm[]
 }
 
 /**
  * يعرض عناصر المقال المُحلّلة (عناوين فرعية بمعرّفات للتنقل من الفهرس،
  * فقرات، صور بتعليقات، اقتباسات، قوائم) بنفس هوية تصميم الموقع.
  */
-export function ArticleContent({ blocks }: ArticleContentProps) {
+export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
   // عدّاد الفقرات النصية (paragraph) فقط — لا نحتسب العناوين/الصور/القوائم
   // ضمن الفاصل الزمني حتى لا يظهر الإعلان مباشرة بعد عنوان أو صورة، بل بعد
   // كتلة نص متتالية فعلية، كما هو متعارف عليه فـ صفحات القراءة الطويلة.
   let paragraphsSinceLastAd = 0
+  // كل مصطلح كيتربط مرة واحدة فقط عبر المقال كامل (شوف autoLinker.tsx) —
+  // Set مشتركة عبر كل الفقرات/العناصر ديال هاد المقال بالذات.
+  const linkedTermIds = new Set<string>()
 
   return (
     <div className="space-y-5">
@@ -100,7 +130,11 @@ export function ArticleContent({ blocks }: ArticleContentProps) {
             break
           }
           case "paragraph":
-            blockNode = <p className="leading-loose">{renderInline(block.text)}</p>
+            blockNode = (
+              <p className="leading-loose">
+                {renderInline(block.text, lexiconTerms, linkedTermIds)}
+              </p>
+            )
             break
           case "image":
             blockNode = (
@@ -122,7 +156,7 @@ export function ArticleContent({ blocks }: ArticleContentProps) {
           case "quote":
             blockNode = (
               <blockquote className="border-r-4 border-primary/50 bg-primary/5 rounded-lg py-3 px-4 italic text-foreground/90">
-                {renderInline(block.text)}
+                {renderInline(block.text, lexiconTerms, linkedTermIds)}
               </blockquote>
             )
             break
@@ -130,13 +164,13 @@ export function ArticleContent({ blocks }: ArticleContentProps) {
             blockNode = block.ordered ? (
               <ol className="list-decimal ps-6 space-y-1.5 marker:text-primary marker:font-bold">
                 {block.items.map((item, i2) => (
-                  <li key={i2}>{renderInline(item)}</li>
+                  <li key={i2}>{renderInline(item, lexiconTerms, linkedTermIds)}</li>
                 ))}
               </ol>
             ) : (
               <ul className="list-disc ps-6 space-y-1.5 marker:text-primary">
                 {block.items.map((item, i2) => (
-                  <li key={i2}>{renderInline(item)}</li>
+                  <li key={i2}>{renderInline(item, lexiconTerms, linkedTermIds)}</li>
                 ))}
               </ul>
             )

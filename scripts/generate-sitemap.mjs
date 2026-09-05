@@ -78,25 +78,25 @@ const generateSlug = (text = "") => {
 };
 
 const staticEntries = [
-  { path: "", changefreq: "weekly", priority: "1.0" },
-  { path: "/archive", changefreq: "weekly", priority: "0.9" },
-  { path: "/news", changefreq: "weekly", priority: "0.9" },
-  { path: "/articles", changefreq: "weekly", priority: "0.8" },
-  { path: "/events", changefreq: "weekly", priority: "0.8" },
+  { path: "", changefreq: "weekly", priority: "1.0", forceTodayLastmod: true },
+  { path: "/archive", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/news", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/articles", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
+  { path: "/events", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
   { path: "/schools", changefreq: "monthly", priority: "0.8" },
-  { path: "/lexicon", changefreq: "weekly", priority: "0.9" },
+  { path: "/lexicon", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
   { path: "/about", changefreq: "monthly", priority: "0.5" },
   { path: "/contact", changefreq: "yearly", priority: "0.4" },
   { path: "/faq", changefreq: "monthly", priority: "0.5" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/cookies", changefreq: "yearly", priority: "0.3" },
-  { path: "/s1", changefreq: "weekly", priority: "0.9" },
-  { path: "/s2", changefreq: "weekly", priority: "0.9" },
-  { path: "/s3", changefreq: "weekly", priority: "0.9" },
-  { path: "/s4", changefreq: "weekly", priority: "0.9" },
-  { path: "/s5", changefreq: "weekly", priority: "0.9" },
-  { path: "/s6", changefreq: "weekly", priority: "0.9" },
+  { path: "/s1", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/s2", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/s3", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/s4", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/s5", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  { path: "/s6", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
 ];
 
 const usedLexiconSlugs = new Set();
@@ -212,12 +212,25 @@ const dedupedByPath = Array.from(
 );
 
 const entries = dedupedByPath
-  .map((entry) => `  <url>
-    <loc>${escapeXml(`${DOMAIN}${normalizePath(entry.path)}`)}</loc>
-    <lastmod>${entry.lastmod || today}</lastmod>
+  .map((entry) => {
+    // ⚠️ ما كنحطوش <lastmod> بتاريخ اليوم كـ fallback لكل URL بلا تاريخ
+    // حقيقي (مثلاً مصطلحات المعجم اللي ما عندهاش updatedAt فـ البيانات).
+    // كنا قبل كنكتبو "اليوم" لـ 250 صفحة فـ كل مرة كيتبنى الموقع، وهاد
+    // الشيء كيبعث لمحركات البحث إشارة كاذبة بأن الصفحة "تحدّثت البارح"
+    // بلا أي تغيير حقيقي فـ المحتوى ديالها — إشارة سلبية عند التكرار على
+    // مئات الصفحات المتشابهة. الصفحات الرئيسية (staticEntries) عندها
+    // تاريخ اليوم بشكل مقصود لأنها فعلاً كتتحدث بانتظام.
+    const lastmodTag = entry.lastmod
+      ? `\n    <lastmod>${entry.lastmod}</lastmod>`
+      : entry.forceTodayLastmod
+        ? `\n    <lastmod>${today}</lastmod>`
+        : "";
+    return `  <url>
+    <loc>${escapeXml(`${DOMAIN}${normalizePath(entry.path)}`)}</loc>${lastmodTag}
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
-  </url>`)
+  </url>`;
+  })
   .join("\n");
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>

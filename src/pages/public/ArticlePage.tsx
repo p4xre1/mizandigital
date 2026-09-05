@@ -7,6 +7,8 @@ import { supabase } from "../../lib/supabase/client"
 import { rankRelatedItems } from "../../lib/utils/recommend"
 import { parseArticleMarkdown } from "../../lib/content/parseArticleMarkdown"
 import { ArticleContent } from "../../components/articles/ArticleContent"
+import lexiconData from "../../data/lexicon.json"
+import { lexiconSlugById } from "../../lib/utils/generateSlug"
 import { PartnerSuggestionBox } from "../../components/articles/PartnerSuggestionBox"
 import { ViewCounter } from "../../components/articles/ViewCounter"
 import { CommentSection } from "../../components/articles/CommentSection"
@@ -67,6 +69,17 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   const [article, setArticle] = useState<ArticleDetail | null>(null)
   const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+
+  // مصطلحات المعجم القابلة للربط التلقائي داخل نص المقال — كنستثنو
+  // المصطلحات القصيرة جداً (أقل من 4 حروف) لتفادي الربط الخاطئ لكلمات
+  // عامة شائعة الاستعمال (مثال: "الحل"، "السبب") ما عندهاش سياق قانوني
+  // واضح فـ كل ذكر ليها.
+  const lexiconTerms = useMemo(() => {
+    const slugById = lexiconSlugById(lexiconData as { id: string; term_ar: string; term_fr?: string }[])
+    return (lexiconData as { id: string; term_ar: string }[])
+      .filter((t) => t.term_ar && t.term_ar.length >= 4)
+      .map((t) => ({ id: t.id, term_ar: t.term_ar, slug: slugById.get(t.id) || t.id }))
+  }, [])
 
   // تتبّع قراءة حقيقية لهذا المقال/الخبر (مرة واحدة لكل جلسة متصفح)
   useTrackView(article?.sourceTable === "news" ? "news" : "article", article?.slug)
@@ -684,7 +697,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             <InContentAd className="mb-8" />
 
             <div className={`prose prose-neutral dark:prose-invert max-w-none leading-loose text-foreground/90 ${textSizeClass}`}>
-              <ArticleContent blocks={parsed.blocks} />
+              <ArticleContent blocks={parsed.blocks} lexiconTerms={lexiconTerms} />
             </div>
 
             <ContentTags
