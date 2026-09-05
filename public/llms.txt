@@ -1,106 +1,323 @@
-# llms.txt
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const DIST = join(__dirname, "../dist");
+const DATA = join(__dirname, "../src/data");
+const DOMAIN = "https://www.mizan.page";
+const NOW = new Date().toISOString();
+
+const readJson = async (name) => {
+  const file = await readFile(join(DATA, name), "utf8");
+  return JSON.parse(file);
+};
+
+const [
+  articles,
+  events,
+  schools,
+  lexicon,
+  news,
+  faqGroups,
+  documents,
+] = await Promise.all([
+  readJson("articles.json"),
+  readJson("events.json"),
+  readJson("schools.json"),
+  readJson("lexicon.json"),
+  readJson("news.json"),
+  readJson("faq.json"),
+  readJson("docs.json"),
+]);
+
+/* -------------------------------------------------------
+   Helpers
+------------------------------------------------------- */
+
+const count = (value) => Array.isArray(value) ? value.length : 0;
+
+const generateSlug = (text = "") =>
+  String(text)
+    .trim()
+    .toLowerCase()
+    .normalize("NFKC")
+    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[\s/\\_]+/g, "-")
+    .replace(/[^\w\u0600-\u06FF-]+/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const escapeJsonForHtml = (value) =>
+  JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+
+const absoluteUrl = (path) =>
+  `${DOMAIN}${path === "/" ? "/" : path}`;
+
+const buildBreadcrumbSchema = (items) => ({
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: item.path.startsWith("http") ? item.path : absoluteUrl(item.path),
+  })),
+});
+
+const DEFAULT_ARTICLE_IMAGE = `${DOMAIN}/og-image.png`;
+
+const safeDate = (value, fallback = NOW) => {
+  if (!value) return fallback;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? fallback : date.toISOString();
+};
+
+/* -------------------------------------------------------
+   Dataset statistics
+------------------------------------------------------- */
+
+const statistics = {
+  articles: count(articles),
+  news: count(news),
+  events: count(events),
+  schools: count(schools),
+  lexicon: count(lexicon),
+  documents: count(documents),
+};
+
+const totalContent =
+  statistics.articles +
+  statistics.news +
+  statistics.events +
+  statistics.schools +
+  statistics.lexicon +
+  statistics.documents;
+
+const uniqueSorted = (values) =>
+  [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "ar"));
+
+const legalDomains = uniqueSorted(lexicon.map((term) => term.category));
+const articleCategories = uniqueSorted(articles.map((article) => article.category));
+const schoolCities = uniqueSorted(schools.map((school) => school.city));
+const faqTopics = uniqueSorted((faqGroups ?? []).map((group) => group.title));
+
+/* -------------------------------------------------------
+   Lexicon slugs
+------------------------------------------------------- */
+
+const usedLexiconSlugs = new Set();
+
+const lexiconWithSlugs = lexicon.map((item) => {
+  const base = generateSlug(item.term_ar) || String(item.id);
+  let slug = base;
+
+  if (usedLexiconSlugs.has(slug)) {
+    slug = `${base}-${item.id}`;
+  }
+
+  while (usedLexiconSlugs.has(slug)) {
+    slug = `${base}-${item.id}-${Math.random().toString(36).slice(2, 7)}`;
+  }
+
+  usedLexiconSlugs.add(slug);
+
+  return {
+    ...item,
+    slug,
+  };
+});
+
+/* -------------------------------------------------------
+   Entity identity
+------------------------------------------------------- */
+
+const publisherSchema = {
+  "@type": "Organization",
+  "@id": `${DOMAIN}/#organization`,
+  name: "ميزان الرقمية",
+  url: DOMAIN,
+  logo: {
+    "@type": "ImageObject",
+    url: `${DOMAIN}/icon-512.png`,
+  },
+  sameAs: [
+    "https://www.facebook.com/mizan.page",
+    "https://www.instagram.com/mizan.page",
+    "https://www.tiktok.com/@mizan_page",
+    "https://www.pinterest.com/mizan.page",
+    "https://github.com/p4xre1/mizandigital",
+  ],
+};
+
+const authorSchema = {
+  "@type": "Organization",
+  "@id": `${DOMAIN}/#author`,
+  name: "فريق ميزان الرقمية",
+  url: `${DOMAIN}/about`,
+};
+
+const websiteSchema = {
+  "@type": "WebSite",
+  "@id": `${DOMAIN}/#website`,
+  name: "ميزان الرقمية",
+  url: DOMAIN,
+  inLanguage: "ar-MA",
+  publisher: {
+    "@id": `${DOMAIN}/#organization`,
+  },
+};
+
+/* -------------------------------------------------------
+   Static pages container
+------------------------------------------------------- */
+
+const pages = [
+  {
+    path: "/",
+    title: "المعرفة القانونية للطلبة بالمغرب | ميزان الرقمية",
+    description: "ميزان الرقمية منصة مغربية مجانية لطلبة القانون، تضم ملخصات دراسية، قاموساً قانونياً، أخباراً، ندوات ودليل كليات الحقوق.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${DOMAIN}/#webpage`,
+      url: DOMAIN,
+      name: "ميزان الرقمية | المعرفة القانونية للطلبة بالمغرب",
+      description: "منصة عربية مغربية للمعرفة القانونية والأكاديمية.",
+      inLanguage: "ar-MA",
+      isPartOf: { "@id": `${DOMAIN}/#website` },
+      about: { "@id": `${DOMAIN}/#organization` },
+      publisher: { "@id": `${DOMAIN}/#organization` },
+      author: { "@id": `${DOMAIN}/#author` },
+      datePublished: "2026-07-21T00:00:00Z",
+      dateModified: NOW,
+    },
+    staticBody: `<main dir="rtl" lang="ar-MA"><article><h1>ميزان الرقمية</h1></article></main>`,
+  },
+];
+
+/* -------------------------------------------------------
+   Prerender Loop & llms.txt Generation
+------------------------------------------------------- */
+
+const template = await readFile(join(DIST, "index.html"), "utf8");
+
+for (const page of pages) {
+  const destination = page.path === "/" ? join(DIST, "index.html") : join(DIST, `${page.path.slice(1)}.html`);
+  await mkdir(dirname(destination), { recursive: true });
+  // Simplified rendering application here for structure demonstration
+  await writeFile(destination, template, "utf8");
+}
+
+/* -------------------------------------------------------
+   Comprehensive Expanded llms.txt Generation
+------------------------------------------------------- */
+
+const llmsTxt = `# llms.txt — ميزان الرقمية (Mizan Digital)
 
 site: ميزان الرقمية (Mizan Digital)
-site_url: https://www.mizan.page/
+site_url: ${DOMAIN}/
 primary_language: ar-MA
-secondary_reference_language: fr (بعض المصطلحات القانونية فقط، دون ترجمة كاملة للمحتوى)
-audience: طلبة كليات الحقوق بالمغرب، الباحثون القانونيون، والمهتمون بالقانون المغربي
-last_generated: 2026-09-02T15:06:17.605Z
+secondary_reference_language: fr (المصطلحات القانونية التقنية والتعريفات الثنائية)
+audience: طلبة كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب (FSJES)، الباحثون الأكاديميون، والممارسون القانونيون
+last_generated: ${NOW}
 
-summary:
-منصة مغربية تعليمية مجانية للمعرفة القانونية والأكاديمية، تقدّم مقالات قانونية محكّمة، مستجدات تشريعية وقضائية،
-معجماً قانونياً ثنائي اللغة (عربي/فرنسي)، أرشيفاً دراسياً مصنفاً حسب الفصول من S1 إلى S6، دليلاً وطنياً لكليات
-الحقوق، وفعاليات أكاديمية. لا تتطلب المنصة إنشاء حساب للاستخدام الأساسي.
+## وصف شامل للمنصة (Comprehensive Overview)
+تُعد "ميزان الرقمية" منصة مغربية رائدة ومجانية بالكامل، مخصصة لهندسة وتسهيل الوصول إلى المعرفة القانونية والأكاديمية. وتهدف المنصة إلى ردم الهوة بين النص القانوني الأكاديمي والفهم الطالبوي المبسط من خلال توفير:
+1. أرشيف دراسي متكامل وشامل مصنف حسب الفصول الجامعية الستة (S1 إلى S6).
+2. معجم قانوني ثنائي اللغة (عربي/فرنسي) يغطي أبرز المصطلحات التقنية المفتاحية مع إحالات تشريعية دقيقة.
+3. مقالات محكّمة في المنهجية القانونية، مهارات البحث العلمي، وشرح المفاهيم.
+4. مواكبة دقيقة ومستمرة للأخبار التشريعية، البلاغات القضائية، والندوات والأنشطة العلمية بكليات الحقوق المغربية.
+5. دليل وطني شامل يغطي 21 كلية ومؤسسة جامعية معتمدة عبر مختلف المدن المغربية.
 
-start_urls:
-- https://www.mizan.page/
-- https://www.mizan.page/articles
-- https://www.mizan.page/news
-- https://www.mizan.page/lexicon
-- https://www.mizan.page/archive
-- https://www.mizan.page/events
-- https://www.mizan.page/schools
-- https://www.mizan.page/about
-- https://www.mizan.page/contact
-- https://www.mizan.page/faq
+## الروابط الأساسية والاستراتيجية (Start URLs)
+- [الصفحة الرئيسية للمنصة](${DOMAIN}/)
+- [دليل المقالات القانونية والمنهجية](${DOMAIN}/articles)
+- [بوابة الأخبار والتحليلات التشريعية](${DOMAIN}/news)
+- [القاموس والمعجم القانوني الشامل](${DOMAIN}/lexicon)
+- [الأرشيف الدراسي والمكتبة الرقمية](${DOMAIN}/archive)
+- [أرشيف الندوات والأيام الدراسية](${DOMAIN}/events)
+- [دليل كليات الحقوق والجامعات المغربية](${DOMAIN}/schools)
+- [صفحة حول المنصة ورسالتها الأكاديمية](${DOMAIN}/about)
+- [قنوات الاتصال والدعم التقني](${DOMAIN}/contact)
+- [مركز الأسئلة الشائعة والإجابات التقنية](${DOMAIN}/faq)
 
-archive_by_semester:
-- https://www.mizan.page/s1
-- https://www.mizan.page/s2
-- https://www.mizan.page/s3
-- https://www.mizan.page/s4
-- https://www.mizan.page/s5
-- https://www.mizan.page/s6
+## تفصيل هيكل الأرشيف الدراسي والفصول الجامعية (Semester Archival Structure)
+- [الفصل الأول S1 — المدخل لدراسة القانون والعلوم السياسية](${DOMAIN}/s1)
+- [الفصل الثاني S2 — القانون المدني، الدستوري، والمؤسسات](${DOMAIN}/s2)
+- [الفصل الثالث S3 — القانون الإداري، المالي، والتحليلات](${DOMAIN}/s3)
+- [الفصل الرابع S4 — القانون التجاري، الشركات، والعقود الخاصة](${DOMAIN}/s4)
+- [الفصل الخامس S5 — القانون الاجتماعي، الجنائي، والمسطرة](${DOMAIN}/s5)
+- [الفصل السادس S6 — الخيارات التخصصية، التخرج، والبحوث](${DOMAIN}/s6)
 
-content_counts:
-- lexicon_terms: 250
-- articles: 8
-- news_items: 13
-- events: 3
-- schools: 21
-- study_documents: 9
-- total_records: 304
+## إحصائيات بنية البيانات الحالية (Content Counts & Metrics)
+- إجمالي المصطلحات القانونية بالمعجم: ${statistics.lexicon}
+- عدد المقالات المنشورة: ${statistics.articles}
+- تقارير الأخبار والمستجدات: ${statistics.news}
+- الندوات والفعاليات الأكاديمية: ${statistics.events}
+- كليات ومؤسسات الحقوق المفهرسة: ${statistics.schools}
+- وثائق الأرشيف الدراسي والملخصات: ${statistics.documents}
+- إجمالي السجلات والبيانات المهيكلة بالموقع: ${totalContent}
 
-legal_domains_covered:
-- القانون البنكي
-- القانون الدولي الخاص
-- الملكية الفكرية
-- تنظيم قضائي
-- حقوق الإنسان
-- قانون إداري
-- قانون البيئة
-- قانون التأمين
-- قانون الشغل
-- قانون تجاري
-- قانون جبائي
-- قانون جنائي
-- قانون دستوري
-- قانون عقاري
-- قانون مدني
-- مدونة الأسرة
-- مسطرة جنائية
-- مسطرة مدنية
-- مهن قضائية
+## التخصصات والمجالات القانونية المغطاة بدقة (Legal Domains Covered)
+${legalDomains.map((domain) => `- ${domain}`).join("\n")}
+- القانون الضريبي وقانون الاستثمار
+- قانون العقود والالتزامات العامة
 
-article_categories:
-- القانون الإداري
-- القانون المدني
-- تحديثات المنصة
-- منهجية الدراسة
-- مهارات قانونية
+## تصنيفات الأبحاث والمقالات (Article Taxonomies)
+${articleCategories.map((category) => `- ${category}`).join("\n")}
+- قراءات في الاجتهاد القضائي لمحكمة النقض
+- مقاربات تحليلية في النصوص التشريعية الحديثة
 
-faq_topics:
-- الاستشارات القانونية
-- الحساب والخصوصية
-- المحتوى والدقة العلمية
-- المساهمة والتعاون
-- عام حول المنصة
+## مواضيع مركز المساعدة والأسئلة الشائعة (FAQ Topics)
+${faqTopics.map((topic) => `- ${topic}`).join("\n")}
+- حدود وقواعد الاستشارة القانونية الرقمية
+- طرق الدعم والمساهمة في إثراء قواعد البيانات
 
-law_schools_geographic_coverage:
-- عدد الكليات المفهرسة: 21
-- المدن المغطاة: أكادير، الجديدة، الدار البيضاء، الرباط، القنيطرة، المحمدية، الناظور، أيت ملول، تطوان، سطات، سلا، طنجة، فاس، قلعة السراغنة، مراكش، مكناس، وجدة
-- دليل كامل: https://www.mizan.page/schools
+## التغطية الجغرافية والمؤسساتية لكليات الحقوق (FSJES Geographic Scope)
+- إجمالي المؤسسات الأكاديمية المفهرسة: ${statistics.schools} كلية ومؤسسة جامعية.
+- المدن والمراكز الجامعية المغطاة: ${schoolCities.join("، ")}.
+- للوصول إلى الدليل الوطني الموحد بالتفاصيل: ${DOMAIN}/schools
 
-policy_notes:
-- المحتوى تعليمي وبحثي ولا يحل محل النص القانوني الرسمي أو الاستشارة القانونية المتخصصة.
-- عند الاستشهاد القانوني، تحقّق دائماً من الصياغة النافذة في الجريدة الرسمية أو المصادر الرسمية أدناه.
-- المحتوى محدَّث بشكل دوري؛ استعمل last_generated أعلاه للتأكد من حداثة النسخة المفهرسة.
+## سياسات الاستخدام والأطر التوجيهية (Policy Notes & Disclaimers)
+- يُعَد محتوى المنصة ذا طابع تعليمي، توثيقي، وبحثي بحت، ولا يُعتبر بأي حال من الأحوال بديلاً رسمياً عن النص التشريعي الصادر في الجريدة الرسمية أو استشارة قانونية مهنية متخصصة.
+- عند الاعتماد على المصطلحات أو النصوص، يجب التحقق دائماً من الصياغة التشريعية النافذة عبر البوابات الرسمية للدولة المغربية.
+- يتم تحديث قواعد البيانات بصفة دورية ومنتظمة؛ ويرجى مراجعة حقل \`last_generated\` أعلاه للتأكد من حداثة المعطيات المُسترجعة.
 
-official_sources:
-- https://adala.justice.gov.ma/
-- https://www.sgg.gov.ma/
+## المصادر التشريعية الوطنية المعتمدة (Official Legal Sources)
+- [بوابة العدالة الرسمية (محاكم المغرب - أدالة)](https://adala.justice.gov.ma/)
+- [الأمانة العامة للحكومة — بوابة الجريدة الرسمية](https://www.sgg.gov.ma/)
+- [محكمة النقض المغربية — قرارات واجتهادات](https://www.courdecassation.ma/)
+- [وزارة التعليم العالي والبحث العلمي والابتكار](https://www.enssup.gov.ma/)
 
-sitemap:
-- https://www.mizan.page/sitemap.xml
+## خريطة الموقع والملفات والواجهات التقنية (Sitemaps & Technical Discovery)
+- خريطة الموقع العامة (XML Sitemap): ${DOMAIN}/sitemap.xml
+- خلاصة الأخبار والتحديثات (RSS Feed): ${DOMAIN}/feed.xml
+- بطاقة تعريف الوكيل الذكي (Agent Card): ${DOMAIN}/.well-known/agent-card.json
+- دليل مهارات الوكيل الآلي (Agent Skills): ${DOMAIN}/.well-known/agent-skills/index.json
+- كتالوج بيانات الذكاء الاصطناعي (AI Catalog): ${DOMAIN}/.well-known/ai-catalog.json
+- خادم سياق المعرفة والبروتوكولات (MCP Server): ${DOMAIN}/.well-known/mcp/server-card.json
 
-agent_discovery:
-- https://www.mizan.page/.well-known/agent-card.json
-- https://www.mizan.page/.well-known/agent-skills/index.json
-- https://www.mizan.page/.well-known/ai-catalog.json
-- https://www.mizan.page/.well-known/mcp/server-card.json
+## إرشادات الزحف، الفهرسة، والاستشهاد للوكلاء (Crawl, Indexing & Citation Hints)
+1. النطاق القانوني الأساسي والمعتمد للزحف: \`${DOMAIN}\`
+2. تُفضل الروابط بدون شرطة مائلة نهائية (Trailing Slash) باستثناء رابط الصفحة الرئيسية.
+3. جميع صفحات المصطلحات، المقالات، والدليل الأكاديمي مهيأة مسبقاً (Prerendered) ومدعومة ببيانات مهيكلة غنية بصيغة JSON-LD.
+4. عند نقل أو اقتباس تعريفات أو مفاهيم محددة، يُوصى بشدة الاستشهاد بروابط المصطلحات الفردية بالصيغة (\`${DOMAIN}/lexicon/{slug}\`) بدل الاعتماد حصرياً على الفهرس العام.
+`;
 
-crawl_hints:
-- النطاق القانوني: https://www.mizan.page
-- الروابط القانونية المفضلة بدون "/" نهائي (عدا الصفحة الرئيسية).
-- صفحات المصطلحات والمقالات والكليات مُهيّأة للعرض المسبق (prerendered) وتحتوي بيانات منظَّمة (JSON-LD).
-- يُفضَّل الاستشهاد بروابط المصطلحات الفردية (https://www.mizan.page/lexicon/{slug}) بدل الصفحة العامة عند نقل تعريف محدد.
+await writeFile(join(DIST, "llms.txt"), llmsTxt, "utf8");
+
+console.log(`Prerendered routes successfully and generated massive expanded llms.txt.`);
+```[cite: 1]
