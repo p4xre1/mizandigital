@@ -1,5 +1,6 @@
 import { Link, NavLink } from "react-router-dom"
 import { Scale, Sun, Moon, X, Menu, Instagram, Facebook } from "lucide-react"
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
 
 // أيقونات غير متوفرة ضمن lucide-react (تيك توك وبينتيريست)
 function TikTokIcon({ size = 18 }: { size?: number }) {
@@ -98,7 +99,23 @@ export function Header({
             كليات الحقوق
           </NavLink>
         </nav>
+        
         <div className="flex items-center gap-2">
+          {/* نظام المصادقة عبر Clerk */}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button
+                type="button"
+                className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 lg:text-sm"
+              >
+                دخول
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-9" } }} />
+          </SignedIn>
+
           <button
             type="button"
             className="icon-button"
