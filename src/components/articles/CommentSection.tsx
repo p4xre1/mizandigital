@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { MessageCircle, Send, Loader2, CheckCircle2 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
+import { inspectUserText, describeInspection, LIMITS } from "../../lib/security/payloadGuard"
 
 interface CommentSectionProps {
   /** أي قسم ينتمي إليه هذا المحتوى: مقال أم خبر */
@@ -16,14 +17,83 @@ interface CommentRow {
   created_at: string | null
 }
 
+/**
+ * اسم حقل "مصيدة البوتات". يجب أن يطابق القيمة الافتراضية في
+ * `checkHoneypotAndTiming` داخل functions/_shared/guard.js.
+ * الحقل مخفي بصرياً وغير قابل للوصول بلوحة المفاتيح، فالبشر لا يملؤونه
+ * أبداً بينما البوتات تملأ كل الحقول التي تجدها في الـ DOM.
+ */
+const HONEYPOT_FIELD = "website"
+
+/**
+ * إرسال التعليق عبر نقطة النهاية المحمية /api/comments.
+ *
+ * في بيئة التطوير (`pnpm dev` = Vite فقط، بلا Pages Functions) يرجع المسار
+ * 404؛ عندها فقط نرجع للإدراج المباشر كي لا ينسدّ العمل محلياً. هذا الرجوع
+ * محكوم بـ `import.meta.env.DEV` فلا يمكن أن يُفعَّل في البناء المنشور.
+ */
+async function submitComment(
+  payload: Record<string, unknown>,
+  directInsert?: () => Promise<void>
+) {
+  try {
+    const res = await fetch("/api/comments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+
+    // مسار تطوير فقط: `pnpm dev` يشغّل Vite وحده بلا Pages Functions فيرجع
+    // المسار 404. الدالة `directInsert` تُمرَّر undefined في الإنتاج (انظر
+    // موضع الاستدعاء) فيُلغى هذا الفرع ولا يبقى أي إدخال مباشر في البناء
+    // المنشور. غياب الدالة = لا رجوع احتياطي أبداً.
+    if (res.status === 404 && directInsert) {
+      await directInsert()
+      return { ok: true as const }
+    }
+
+    if (res.status === 429) {
+      const retryAfter = Number(res.headers.get("Retry-After") || 0)
+      return {
+        ok: false as const,
+        message: `لقد أرسلت تعليقات كثيرة. حاول مجدداً بعد ${Math.max(1, Math.ceil(retryAfter / 60))} دقيقة.`,
+      }
+    }
+
+    if (res.status === 400) {
+      const data = await res.json().catch(() => null)
+      if (data?.error === "captcha_failed") {
+        return { ok: false as const, message: "فشل التحقق الأمني، يرجى إعادة المحاولة." }
+      }
+      if (data?.error === "invalid_target") {
+        return { ok: false as const, message: "لا يمكن إضافة تعليق على هذا المحتوى حالياً." }
+      }
+      return { ok: false as const, message: "تعذّر إرسال التعليق، يرجى مراجعة النص." }
+    }
+
+    if (!res.ok) return { ok: false as const, message: "تعذّر إرسال التعليق، حاول مرة أخرى." }
+
+    // ملاحظة: الخادم يجيب بنجاح حتى لو أسقط المشغّل التعليق بصمت
+    // (سبام). هذا مقصود كي لا يتعلم المهاجم أي قاعدة كشفته.
+    return { ok: true as const }
+  } catch {
+    // انقطاع شبكة: لا نحاول الإدراج المباشر (سيكون ذلك ثغرة تجاوز)
+    return { ok: false as const, message: "تعذّر الاتصال بالخادم، تحقق من اتصالك بالإنترنت." }
+  }
+}
+
 export function CommentSection({ table, slug }: CommentSectionProps) {
   const [comments, setComments] = useState<CommentRow[]>([])
   const [loading, setLoading] = useState(true)
   const [name, setName] = useState("")
   const [body, setBody] = useState("")
+  const [honeypot, setHoneypot] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  // لحظة عرض النموذج: تُرسل مع الطلب ليقيس الخادم زمن التعبئة ويرفض
+  // الإرسال اللحظي (بوت). تُخزَّن في ref لأنها ليست جزءاً من العرض.
+  const formStartedAt = useRef<number>(Date.now())
 
   useEffect(() => {
     if (!slug) {
@@ -59,33 +129,70 @@ export function CommentSection({ table, slug }: CommentSectionProps) {
       setErrorMsg("لا يمكن إضافة تعليق على هذا المحتوى حالياً.")
       return
     }
-    if (!name.trim() || !body.trim()) {
-      setErrorMsg("يرجى كتابة الاسم والتعليق.")
+
+    // الفحص هنا لتحسين التجربة فقط (رسالة عربية فورية) — الخادم يعيد
+    // الفحص كاملاً ولا يثق بما يأتي من المتصفح.
+    const nameCheck = inspectUserText(name, {
+      field: "name",
+      maxLength: LIMITS.AUTHOR_NAME_MAX,
+      minLength: 1,
+      maxUrls: 0,
+    })
+    if (!nameCheck.ok) {
+      setErrorMsg(describeInspection(nameCheck.code))
       return
     }
-    if (body.trim().length > 2000) {
-      setErrorMsg("التعليق طويل جداً (الحد الأقصى 2000 حرف).")
+
+    const bodyCheck = inspectUserText(body, {
+      field: "body",
+      maxLength: LIMITS.BODY_MAX,
+      minLength: LIMITS.BODY_MIN,
+    })
+    if (!bodyCheck.ok) {
+      setErrorMsg(describeInspection(bodyCheck.code))
       return
     }
 
     setSubmitting(true)
-    const { error } = await supabase.from("comments").insert({
-      source_type: table,
-      source_slug: slug,
-      author_name: name.trim().slice(0, 100),
-      body: body.trim(),
-      is_approved: false,
-    } as any)
+    // طيّ `import.meta.env.DEV` هنا (لا داخل submitComment): Vite يستبدله بـ
+    // false في البناء المنشور، فيصبح هذا التعبير `undefined` ويسقط closure
+    // الإدراج المباشر بالكامل من الحزمة. وضعه داخل الدالة لم يكن كافياً لأن
+    // Rollup لا يستطيع إثبات موت فرع يعبر حدود الدالة.
+    const devOnlyDirectInsert = import.meta.env.DEV
+      ? async () => {
+          await supabase.from("comments").insert({
+            source_type: table,
+            source_slug: slug,
+            author_name: nameCheck.value,
+            body: bodyCheck.value,
+            is_approved: false,
+          } as any)
+        }
+      : undefined
+
+    const result = await submitComment(
+      {
+        sourceType: table,
+        sourceSlug: slug,
+        authorName: nameCheck.value,
+        body: bodyCheck.value,
+        [HONEYPOT_FIELD]: honeypot,
+        formStartedAt: formStartedAt.current,
+      },
+      devOnlyDirectInsert
+    )
     setSubmitting(false)
 
-    if (error) {
-      setErrorMsg("تعذّر إرسال التعليق، حاول مرة أخرى.")
+    if (!result.ok) {
+      setErrorMsg(result.message)
       return
     }
 
     setSubmitted(true)
     setName("")
     setBody("")
+    setHoneypot("")
+    formStartedAt.current = Date.now()
   }
 
   return (
@@ -130,13 +237,27 @@ export function CommentSection({ table, slug }: CommentSectionProps) {
           شكراً لك، تم إرسال تعليقك وسيظهر بعد المراجعة.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="relative space-y-3">
+          {/* مصيدة البوتات: مخفية بصرياً وخارج ترتيب الـ tab، فالبشر لا
+              يرونها ولا يملؤونها، بينما البوتات تملأ أي حقل input تجده. */}
+          <input
+            type="text"
+            name={HONEYPOT_FIELD}
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            placeholder="اترك هذا الحقل فارغاً"
+            className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
+          />
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="اسمك"
-            maxLength={100}
+            maxLength={LIMITS.AUTHOR_NAME_MAX}
+            autoComplete="name"
             className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
           <textarea
@@ -144,7 +265,7 @@ export function CommentSection({ table, slug }: CommentSectionProps) {
             onChange={(e) => setBody(e.target.value)}
             placeholder="اكتب تعليقك هنا..."
             rows={3}
-            maxLength={2000}
+            maxLength={LIMITS.BODY_MAX}
             className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
           />
           {errorMsg && <p className="text-xs font-semibold text-red-600">{errorMsg}</p>}

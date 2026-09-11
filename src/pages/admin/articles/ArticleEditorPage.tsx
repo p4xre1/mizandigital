@@ -25,7 +25,8 @@ import RichTextEditor from "../../../components/features/RichTextEditor"
 import SeoAuditWidget from "../../../components/features/SeoAuditWidget"
 import { ImageUploadField } from "../../../components/admin/ImageUploadField"
 import { KeywordSuggestions } from "../../../components/features/KeywordSuggestions"
-import { computeQuickSeoScore } from "../../../lib/seo/quickAudit"
+import { computeMizanScore, formatMizanGate } from "../../../lib/seo/scoring/mizanScore"
+import { SITE_CONFIG } from "../../../lib/seo/schema"
 import { generateSlug } from "../../../lib/utils/generateSlug"
 import { supabase } from "../../../lib/supabase/client"
 import type { ArticleStatus, Category, Faculty } from "../../../types/cms"
@@ -148,21 +149,25 @@ export default function ArticleEditorPage({
 
     const finalStatus = targetStatus || status
 
-    // بوابة السيو قبل النشر: عند النشر الفعلي (وليس الحفظ كمسودة) نتحقق أولاً
-    // من نتيجة سريعة للسيو، وإن كانت ضعيفة نطلب تأكيداً صريحاً من المحرر
+    // بوابة MIZAN CONTENT SCORE قبل النشر: عند النشر الفعلي (وليس الحفظ
+    // كمسودة) تُحتسب النتيجة /1000. إن كانت دون الحد أو وُجد مانع، يُطلب
+    // تأكيد صريح من المحرر بدل النشر بلا علمه.
     if (finalStatus === "published") {
-      const { score, issues } = computeQuickSeoScore({
+      const mizan = computeMizanScore({
         title: metaTitle || title,
+        body: content,
+        slug: slug || generateSlug(title),
         description: metaDescription || excerpt,
-        content,
+        excerpt,
+        publishedAt: publishedAt || new Date().toISOString(),
         focusKeyword: targetKeyword,
+        kind: "article",
+        canonicalUrl: `${SITE_CONFIG.url}/articles/${slug || generateSlug(title)}`,
       })
 
-      if (score < 60) {
+      if (!mizan.publishable) {
         const confirmed = window.confirm(
-          `تنبيه سيو قبل النشر: نتيجة هذا المقال ${score}/100 فقط.\n\n` +
-            issues.map((i) => `• ${i}`).join("\n") +
-            "\n\nهل تريد المتابعة والنشر رغم ذلك؟"
+          `${formatMizanGate(mizan)}\n\nهل تريد المتابعة والنشر رغم ذلك؟`
         )
         if (!confirmed) return
       }
