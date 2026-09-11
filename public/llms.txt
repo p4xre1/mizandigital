@@ -1,323 +1,150 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+# ميزان الرقمية (Mizan Digital)
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const DIST = join(__dirname, "../dist");
-const DATA = join(__dirname, "../src/data");
-const DOMAIN = "https://www.mizan.page";
-const NOW = new Date().toISOString();
+> منصة مغربية مجانية للمعرفة القانونية والأكاديمية، موجّهة لطلبة كليات الحقوق والباحثين: ملخصات ودروس، معجم قانوني عربي-فرنسي، مستجدات تشريعية وقضائية، دليل كليات الحقوق، وأرشيف ملفات PDF.
 
-const readJson = async (name) => {
-  const file = await readFile(join(DATA, name), "utf8");
-  return JSON.parse(file);
-};
+المحتوى باللغة العربية (ar-MA). يضم 304 سجلاً: 8 مقالاً، 13 خبراً، 250 مصطلحاً قانونياً، 21 كلية، 9 مستنداً، و3 فعالية.
 
-const [
-  articles,
-  events,
-  schools,
-  lexicon,
-  news,
-  faqGroups,
-  documents,
-] = await Promise.all([
-  readJson("articles.json"),
-  readJson("events.json"),
-  readJson("schools.json"),
-  readJson("lexicon.json"),
-  readJson("news.json"),
-  readJson("faq.json"),
-  readJson("docs.json"),
-]);
+تنبيه مهم: المنصة تعليمية وبحثية وليست مصدراً رسمياً للتشريع ولا تقدّم استشارة قانونية. عند الاستشهاد بنص قانوني يجب التحقق من النص النافذ عبر المصادر الرسمية أدناه.
 
-/* -------------------------------------------------------
-   Helpers
-------------------------------------------------------- */
+## الأقسام الرئيسية
 
-const count = (value) => Array.isArray(value) ? value.length : 0;
+- [المقالات](https://www.mizan.page/articles): شروحات ومنهجيات قانونية لطلبة الحقوق
+- [المستجدات](https://www.mizan.page/news): أخبار تشريعية وقضائية مغربية
+- [المعجم القانوني](https://www.mizan.page/lexicon): مصطلحات قانونية عربية-فرنسية مع تعريفاتها
+- [كليات الحقوق](https://www.mizan.page/schools): دليل كليات الحقوق بالمغرب ومعلومات التسجيل
+- [الأرشيف والملفات](https://www.mizan.page/archive): ملخصات ومحاضرات وملفات PDF حسب الفصل S1-S6
+- [الندوات والفعاليات](https://www.mizan.page/events): فعاليات أكاديمية وقانونية
+- [الأسئلة الشائعة](https://www.mizan.page/faq): أسئلة متكررة حول الدراسة القانونية والمنصة
 
-const generateSlug = (text = "") =>
-  String(text)
-    .trim()
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[\u064B-\u065F\u0670]/g, "")
-    .replace(/[\s/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF-]+/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+## المقالات
 
-const escapeHtml = (value) =>
-  String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+- [كيف تبني خطة مراجعة قانونية قبل الامتحان؟](https://www.mizan.page/articles/kif-tabni-khitat-murajaa-qanuniya): منهج عملي لتحويل المحاضرات والنصوص القانونية إلى برنامج مراجعة واضح وقابل للتنفيذ.
+- [منهجية قراءة النص القانوني: من الفهم إلى التحليل](https://www.mizan.page/articles/manhajiyat-qiraat-nass-qanuni): خطوات بسيطة تساعد الطالب على استخراج القاعدة القانونية وشروطها وآثارها من أي نص.
+- [كيف تكتب تعليقاً مختصراً على حكم قضائي؟](https://www.mizan.page/articles/kif-taktub-taaliqan-ala-hukm-qadai): هيكل عملي لعرض الوقائع والإشكال القانوني ومنطوق الحكم دون الخلط بين الوصف والتحليل.
+- [مفاهيم أساسية في المسؤولية المدنية التقصيرية](https://www.mizan.page/articles/mafhum-al-masuuliya-al-madaniya-al-qusuria): دليل مبسط لفهم أركان المسؤولية المدنية: الخطأ، الضرر، والعلاقة السببية.
+- [إطلاق الأرشيف الدراسي الجديد في ميزان الرقمية](https://www.mizan.page/articles/itlaq-al-arshif-ad-dirasi): أصبح تصفح الملخصات والنماذج منظماً حسب السداسي والوحدة والأستاذ، مع روابط تحميل مباشرة.
+- [إضافة دليل كليات الحقوق بالمغرب](https://www.mizan.page/articles/idafat-dalil-kulliyat-al-huquq): قسم جديد يجمع بطاقات تعريفية وروابط المواقع الرسمية لكليات الحقوق والعلوم القانونية.
+- [روابط قراءة مستقلة للأخبار والندوات والمعجم](https://www.mizan.page/articles/rawabit-qiraa-mustaqilla-lil-muhtawa): كل مادة منشورة أصبحت تملك رابطاً مباشراً يمكن حفظه أو نسخه أو مشاركته.
+- [احترام قانون السير بالمغرب: الإطار القانوني والمسؤولية المدنية والجزائية بالتفصيل](https://www.mizan.page/articles/ihtiram-qanun-assayr-al-itar-al-qanuni): دراسة قانونية موسّعة لمدونة السير المغربية: الأساس التشريعي، التزامات مستعملي الطريق، نظام النقط، تصنيف المخالفات، والمسؤولية المدنية والجنائية عن حوادث السير.
 
-const escapeJsonForHtml = (value) =>
-  JSON.stringify(value)
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029");
+## المستجدات التشريعية والقضائية
 
-const absoluteUrl = (path) =>
-  `${DOMAIN}${path === "/" ? "/" : path}`;
+- [صدور قانون المسطرة المدنية الجديد رقم 58.25 ودخوله حيز التنفيذ](https://www.mizan.page/news/صدور-قانون-المسطرة-المدنية-الجديد-رقم-5825-ودخوله-حيز-التنفيذ): بعد مسار تشريعي طويل انطلق بمشروع القانون رقم 02.23، صدر أخيراً قانون المسطرة المدنية الجديد رقم 58.25 بعد مراجعته من طرف المحكمة الدستورية، وينتظر أن يدخل حيز…
+- [مستجدات مشروع قانون المسطرة المدنية رقم 02.23 وآثاره على الآجال والتقاضي](https://www.mizan.page/news/مستجدات-مشروع-قانون-المسطرة-المدنية-رقم-0223-وآثاره-على-الآجال-والتقاضي): قراءة تحليليّة في أهم التعديلات والتحولات الإجرائية التي جاء بها مشروع قانون المسطرة المدنية الجديد بهدف تسريع وتيرة إنصاف المتقاضين وتقليص مدة المساطر…
+- [الحماية القانونية للأجراء في ضوء أحكام القانون رقم 65.99 المتعلق بمدونة الشغل](https://www.mizan.page/news/الحماية-القانونية-للأجراء-في-ضوء-أحكام-القانون-رقم-6599-المتعلق-بمدونة-الشغل): دراسة قانونية مفصلة حول ضمانات عقد الشغل، مسطرة الفصل التعسفي، وحقوق الأجراء والضوابط المنظمة للمقاولة في التشريع المغربي.
+- [مشروع تعديل مدونة الأسرة بين الانتظار البرلماني ونهاية الولاية التشريعية](https://www.mizan.page/news/مشروع-تعديل-مدونة-الأسرة-بين-الانتظار-البرلماني-ونهاية-الولاية-التشريعية): لا يزال مشروع القانون المعدل لمدونة الأسرة (القانون رقم 70.03) قيد المناقشة أمام البرلمان دون أن يدخل بعد حيز التنفيذ، وسط تباين في الرؤى حول إمكانية حسمه قبل…
+- [مستجدات حماية المعطيات ذات الطابع الشخصي وفق القانون رقم 09.08](https://www.mizan.page/news/مستجدات-حماية-المعطيات-ذات-الطابع-الشخصي-وفق-القانون-رقم-0908): تراقب اللجنة الوطنية لحماية المعطيات ذات الطابع الشخصي (CNDP) مدى الامتثال القانوني لمعالجة معطيات المواطنين في المنصات الرقمية والمؤسسات.
+- [حقوق المستهلك في المعاملات الإلكترونية وفق القانون رقم 31.09](https://www.mizan.page/news/حقوق-المستهلك-في-المعاملات-الإلكترونية-وفق-القانون-رقم-3109): تسليط الضوء على آلية حماية المستهلك المغربي، وخاصة حق التراجع والإعلام المسبق والضمانات القانونية للبيع عبر الإنترنت.
+- [تعزيز منصات الرقمنة القضائية والتبادل اللامادي للمستندات بمحاكم المملكة](https://www.mizan.page/news/تعزيز-منصات-الرقمنة-القضائية-والتبادل-اللامادي-للمستندات-بمحاكم-المملكة): إطلاق خدمات جديدة في إطار ورش الرقمنة الشاملة للعدالة بالمغرب لمساعدة المحامين والخبراء والمتقاضين على متابعة ملفاتهم عن بعد.
+- [أحكام صيانة العين المكتراة والتزام الطرفين في ظهير الالتزامات والعقود](https://www.mizan.page/news/أحكام-صيانة-العين-المكتراة-والتزام-الطرفين-في-ظهير-الالتزامات-والعقود): مراجعة قانونية حول توزيع مسؤوليات الصيانة والإصلاحات بين المكري والمكتري بناءً على الفصول المنظمة لعقد الكراء في القانون المدني المغربي.
+- [القسم الحادي عشر من قانون المسطرة المدنية الجديد: نحو محكمة رقمية](https://www.mizan.page/news/القسم-الحادي-عشر-من-قانون-المسطرة-المدنية-الجديد-نحو-محكمة-رقمية): خصص المشرع قسماً كاملاً من قانون المسطرة المدنية الجديد لتأطير رقمنة الإجراءات القضائية، بما يشمل التبادل الإلكتروني للمذكرات والوثائق بين المحامين والمحاكم.
+- [الحكومة تصادق على مشروع تعديل مدونة الشغل لفائدة حراس الأمن الخاص](https://www.mizan.page/news/الحكومة-تصادق-على-مشروع-تعديل-مدونة-الشغل-لفائدة-حراس-الأمن-الخاص): صادق مجلس الحكومة على مشروع القانون رقم 032.26 القاضي بتغيير مدونة الشغل، بهدف إخضاع حراس الأمن الخاص لمدة الشغل العادية بدل نظام العمل المتقطع الذي كان يفرض…
+- [مشروع قانون 041.25 يراجع مدونة الحقوق العينية وظهير الالتزامات والعقود](https://www.mizan.page/news/مشروع-قانون-04125-يراجع-مدونة-الحقوق-العينية-وظهير-الالتزامات-والعقود): صادق مجلس الحكومة على مشروع القانون رقم 041.25 المتعلق بتغيير مجموعة من النصوص، من بينها مدونة الحقوق العينية وقانون الالتزامات والعقود والنصوص المنظمة للملكية…
+- [قانون 71.24 يعيد تنظيم جرائم الشيك ويخفف الطابع الزجري لعقوبتها](https://www.mizan.page/news/قانون-7124-يعيد-تنظيم-جرائم-الشيك-ويخفف-الطابع-الزجري-لعقوبتها): دخل القانون رقم 71.24 المغير لمدونة التجارة حيز التنفيذ، حاملاً تعديلات جوهرية على معالجة الشيكات بدون رصيد، أبرزها إمكانية سقوط المتابعة بمجرد التسوية…
+- [دخول قانون المسطرة الجنائية الجديد رقم 03.23 حيز التنفيذ](https://www.mizan.page/news/دخول-قانون-المسطرة-الجنائية-الجديد-رقم-0323-حيز-التنفيذ): دخل القانون رقم 03.23 المغير والمتمم لقانون المسطرة الجنائية حيز التنفيذ بعد نشره بالجريدة الرسمية، ليدخل تعديلات جوهرية على مسطرة الاعتقال الاحتياطي والتسجيل…
 
-const buildBreadcrumbSchema = (items) => ({
-  "@type": "BreadcrumbList",
-  itemListElement: items.map((item, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    name: item.name,
-    item: item.path.startsWith("http") ? item.path : absoluteUrl(item.path),
-  })),
-});
+## كليات الحقوق
 
-const DEFAULT_ARTICLE_IMAGE = `${DOMAIN}/og-image.png`;
+- [كلية العلوم القانونية والاقتصادية والاجتماعية — عين السبع](https://www.mizan.page/schools/fsjes-casablanca-ain-sebaa): جامعة الحسن الثاني بالدار البيضاء — الدار البيضاء
+- [كلية العلوم القانونية والاقتصادية والاجتماعية — أكدال](https://www.mizan.page/schools/fsjes-rabat-agdal): جامعة محمد الخامس بالرباط — الرباط
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بمراكش](https://www.mizan.page/schools/fsjes-marrakech): جامعة القاضي عياض — مراكش
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بطنجة](https://www.mizan.page/schools/fsjes-tangier): جامعة عبد المالك السعدي — طنجة
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بأكادير](https://www.mizan.page/schools/fsjes-agadir): جامعة ابن زهر — أكادير
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بالناظور](https://www.mizan.page/schools/fsjes-nador): جامعة محمد الأول — الناظور
+- [كلية العلوم القانونية والسياسية القنيطرة](https://www.mizan.page/schools/fsjp-kenitra): جامعة ابن طفيل بالقنيطرة — القنيطرة
+- [كلية العلوم القانونية والاقتصادية والاجتماعية السويسي الرباط](https://www.mizan.page/schools/fsjes-souissi-rabat): جامعة محمد الخامس بالرباط — الرباط
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بسلا](https://www.mizan.page/schools/fsjes-sale): جامعة محمد الخامس بالرباط — سلا
+- [كلية العلوم القانونية والاقتصادية والاجتماعية فاس](https://www.mizan.page/schools/fsjes-fes): Université Sidi Mohamed Ben Abdellah Fès — فاس
+- [كلية العلوم القانونية والاقتصادية والاجتماعية سطات](https://www.mizan.page/schools/fsjes-settat): جامعة الحسن الأول بسطات — سطات
+- [كلية العلوم القانونية والاقتصادية والاجتماعية المحمدية](https://www.mizan.page/schools/fsjes-mohammedia): جامعة الحسن الثاني بالدار البيضاء — المحمدية
+- [كلية العلوم القانونية والاقتصادية والاجتماعية القنيطرة](https://www.mizan.page/schools/fsjes-kenitra): جامعة ابن طفيل بالقنيطرة — القنيطرة
+- [كلية العلوم القانونية والاقتصادية والاجتماعية وجدة](https://www.mizan.page/schools/fsjes-oujda): جامعة محمد الأول بوجدة — وجدة
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بقلعة السراغنة](https://www.mizan.page/schools/fsjes-kelaa-sraghna): جامعة القاضي عياض بمراكش — قلعة السراغنة
+- [كلية العلوم القانونية والاقتصادية والاجتماعية أيت ملول](https://www.mizan.page/schools/fsjes-ait-melloul): جامعة ابن زهر بأكادير — أيت ملول
+- [كلية العلوم القانونية والسياسية سطات](https://www.mizan.page/schools/fsjp-settat): جامعة الحسن الأول بسطات — سطات
+- [كلية العلوم القانونية والاقتصادية والاجتماعية مكناس](https://www.mizan.page/schools/fsjes-meknes): جامعة مولاي إسماعيل بمكناس — مكناس
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بالجديدة](https://www.mizan.page/schools/fsjes-el-jadida): جامعة شعيب الدكالي بالجديدة — الجديدة
+- [كلية العلوم القانونية والاقتصادية والاجتماعية بتطوان](https://www.mizan.page/schools/fsjes-tetouan): جامعة عبد المالك السعدي بتطوان — تطوان
+- [كلية العلوم القانونية والاقتصادية والاجتماعية عين الشق الدار البيضاء](https://www.mizan.page/schools/fsjes-ain-chock): جامعة الحسن الثاني بالدار البيضاء — الدار البيضاء
 
-const safeDate = (value, fallback = NOW) => {
-  if (!value) return fallback;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? fallback : date.toISOString();
-};
+## عينة من المعجم القانوني
 
-/* -------------------------------------------------------
-   Dataset statistics
-------------------------------------------------------- */
+<!-- المعجم كامل يضم 250 مصطلحاً على /lexicon -->
+- [الشخص المعنوي](https://www.mizan.page/lexicon/الشخص-المعنوي): مجموعة من الأشخاص أو الأموال يمنحها القانون شخصية مستقلة وذمة مالية خاصة بها.
+- [الالتزام](https://www.mizan.page/lexicon/الالتزام): رابطة قانونية تفرض على المدين أداء عمل أو الامتناع عنه لفائدة الدائن.
+- [شركة المساهمة](https://www.mizan.page/lexicon/شركة-المساهمة): شركة تجارية يقسم رأسمالها إلى أسهم ويتحمل المساهمون الخسائر في حدود مساهماتهم.
+- [الأصل التجاري](https://www.mizan.page/lexicon/الأصل-التجاري): مجموع الأموال المنقولة المخصصة لممارسة نشاط تجاري واستقطاب الزبناء.
+- [المحكمة](https://www.mizan.page/lexicon/المحكمة): جهة قضائية تملك صلاحية النظر في النزاعات وإصدار الأحكام وفق القانون.
+- [الاختصاص الترابي](https://www.mizan.page/lexicon/الاختصاص-الترابي): تحديد المحكمة المختصة بالنظر في الدعوى بحسب المكان الذي حدده القانون.
+- [القرار الإداري](https://www.mizan.page/lexicon/القرار-الإداري): إفصاح الإدارة عن إرادتها المنفردة بقصد إحداث أثر قانوني معين.
+- [الحق العيني](https://www.mizan.page/lexicon/الحق-العيني): سلطة مباشرة يقررها القانون لشخص على شيء معين، مثل حق الملكية أو الانتفاع.
+- [حقوق الإنسان](https://www.mizan.page/lexicon/حقوق-الإنسان): حقوق وحريات أساسية تثبت لكل إنسان دون تمييز وتحميها القواعد الوطنية والدولية.
+- [عقد الشغل](https://www.mizan.page/lexicon/عقد-الشغل): اتفاق يلتزم بموجبه الأجير بالعمل تحت إدارة المشغل مقابل أجر.
+- [العقد](https://www.mizan.page/lexicon/العقد): اتفاق بين شخصين أو أكثر يهدف إلى إنشاء أو نقل أو تعديل أو إنهاء التزام قانوني.
+- [البطلان](https://www.mizan.page/lexicon/البطلان): جزاء يقرره القانون لعدم استيفاء العقد لأركانه الأساسية.
+- [الإعذار](https://www.mizan.page/lexicon/الإعذار): إشعار رسمي يوجهه الدائن للمدين لتنفيذ التزامه في أجل محدد.
+- [الوكالة](https://www.mizan.page/lexicon/الوكالة): عقد يقضي بأن يقوم شخص بإجراء عمل قانوني لحساب شخص آخر.
+- [الهبة](https://www.mizan.page/lexicon/الهبة): عقد تمليك مآل الشيء من طرف الواهب للموهوب له دون مقابل.
+- [الوصية](https://www.mizan.page/lexicon/الوصية): تصرف في التركة مضاف لما بعد الموت.
+- [الزواج](https://www.mizan.page/lexicon/الزواج): ميثاق تراض وترابط شرعي بين رجل وامرأة غايته الإحصان وتكوين أسرة.
+- [الطلاق](https://www.mizan.page/lexicon/الطلاق): حل ميثاق الزوجية يمارسه الزوج أو الزوجة برعاية القضاء.
+- [الحضانة](https://www.mizan.page/lexicon/الحضانة): حفظ الولد والقيام بتربيته ورعايته.
+- [النفقة](https://www.mizan.page/lexicon/النفقة): ما ينفقه الشخص على من تلزمه نفقته شرعاً.
+- [الولاية](https://www.mizan.page/lexicon/الولاية): سلطة شرعية يمارسها الولي على القاصر وتصرفاته القانونية.
+- [الجناية](https://www.mizan.page/lexicon/الجناية): أشد أنواع الجرائم خطورة ويعاقب عليها بالسجن المؤبد أو المؤقت.
+- [الجنحة](https://www.mizan.page/lexicon/الجنحة): جريمة يعاقب عليها القانون بالحبس أو الغرامة.
+- [المخالفة](https://www.mizan.page/lexicon/المخالفة): أقل أنواع الجرائم خطورة ويعاقب عليها بغرامة مالية.
+- [النيابة العامة](https://www.mizan.page/lexicon/النيابة-العامة): جهاز قضائي يمثل المجتمع في القضايا الجنائية ويسهر على تطبيق القانون.
+- [التحقيق](https://www.mizan.page/lexicon/التحقيق): مرحلة قضائية تسبق المحاكمة تهدف لجمع الأدلة والتحقق من التهم.
+- [الاستئناف](https://www.mizan.page/lexicon/الاستئناف): طريق طعن عادي يهدف لإعادة النظر في حكم ابتدائي.
+- [النقض](https://www.mizan.page/lexicon/النقض): طعن يرفع أمام محكمة النقض لمراقبة مدى صحة تطبيق القانون من قبل المحاكم.
+- [الحجز](https://www.mizan.page/lexicon/الحجز): إجراء تحفظي أو تنفيذي يهدف لوضع أموال المدين تحت يد القضاء.
+- [التنفيذ](https://www.mizan.page/lexicon/التنفيذ): إجبار المدين على تنفيذ التزامه الذي قضى به الحكم القضائي.
+- [الإفلاس](https://www.mizan.page/lexicon/الإفلاس): حالة التاجر الذي يتوقف عن دفع ديونه التجارية في مواعيد استحقاقها.
+- [الكمبيالة](https://www.mizan.page/lexicon/الكمبيالة): ورقة تجارية تتضمن أمراً من الساحب للمسحوب عليه بدفع مبلغ معين.
+- [الشيك](https://www.mizan.page/lexicon/الشيك): ورقة تجارية يتضمن أمراً من الساحب للبنك بدفع مبلغ لحامله أو للمستفيد.
+- [السجل التجاري](https://www.mizan.page/lexicon/السجل-التجاري): سجل رسمي تقيد فيه الشركات والتجار لغرض الإشهار القانوني.
+- [نزع الملكية](https://www.mizan.page/lexicon/نزع-الملكية): إجراء إداري يهدف لانتزاع ملكية عقار من صاحبه للمصلحة العامة مقابل تعويض.
+- [المرفق العام](https://www.mizan.page/lexicon/المرفق-العام): نشاط تديره السلطة العامة لإشباع حاجيات المصلحة العامة.
+- [الرخصة](https://www.mizan.page/lexicon/الرخصة): قرار إداري يسمح للأفراد بممارسة نشاط مقيد بالقانون.
+- [الإلغاء](https://www.mizan.page/lexicon/الإلغاء): إزالة النص القانوني وتجريده من قوته الملزمة.
+- [التقادم](https://www.mizan.page/lexicon/التقادم): مرور الزمن الذي يترتب عليه سقوط الحق أو الدعوى أو العقوبة.
+- [الإثبات](https://www.mizan.page/lexicon/الإثبات): إقامة الدليل أمام القضاء بالطرق القانونية على وجود واقعة أو حق.
 
-const statistics = {
-  articles: count(articles),
-  news: count(news),
-  events: count(events),
-  schools: count(schools),
-  lexicon: count(lexicon),
-  documents: count(documents),
-};
+## الفصول الدراسية
 
-const totalContent =
-  statistics.articles +
-  statistics.news +
-  statistics.events +
-  statistics.schools +
-  statistics.lexicon +
-  statistics.documents;
+- [الفصل S1](https://www.mizan.page/s1): ملخصات ومحاضرات هذا الفصل
+- [الفصل S2](https://www.mizan.page/s2): ملخصات ومحاضرات هذا الفصل
+- [الفصل S3](https://www.mizan.page/s3): ملخصات ومحاضرات هذا الفصل
+- [الفصل S4](https://www.mizan.page/s4): ملخصات ومحاضرات هذا الفصل
+- [الفصل S5](https://www.mizan.page/s5): ملخصات ومحاضرات هذا الفصل
+- [الفصل S6](https://www.mizan.page/s6): ملخصات ومحاضرات هذا الفصل
 
-const uniqueSorted = (values) =>
-  [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "ar"));
+## صفحات قانونية ومعلوماتية
 
-const legalDomains = uniqueSorted(lexicon.map((term) => term.category));
-const articleCategories = uniqueSorted(articles.map((article) => article.category));
-const schoolCities = uniqueSorted(schools.map((school) => school.city));
-const faqTopics = uniqueSorted((faqGroups ?? []).map((group) => group.title));
+- [من نحن](https://www.mizan.page/about): تعريف بالمنصة وفريقها ومنهجها
+- [الشروط وإخلاء المسؤولية](https://www.mizan.page/terms): حدود استعمال المحتوى
+- [سياسة الخصوصية](https://www.mizan.page/privacy): معالجة البيانات الشخصية
+- [سياسة ملفات الارتباط](https://www.mizan.page/cookies)
+- [تواصل معنا](https://www.mizan.page/contact): contact@mizan.page
 
-/* -------------------------------------------------------
-   Lexicon slugs
-------------------------------------------------------- */
+## مصادر رسمية للتحقق
 
-const usedLexiconSlugs = new Set();
+- [بوابة عدالة](https://adala.justice.gov.ma/): النصوص القانونية المغربية النافذة
+- [الأمانة العامة للحكومة](https://www.sgg.gov.ma/): الجريدة الرسمية والمشاريع
+- [الجريدة الرسمية](https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx): النصوص المنشورة
+- [وزارة التعليم العالي](https://www.enssup.gov.ma/): التعليم العالي والبحث العلمي
 
-const lexiconWithSlugs = lexicon.map((item) => {
-  const base = generateSlug(item.term_ar) || String(item.id);
-  let slug = base;
+## واجهات آلية
 
-  if (usedLexiconSlugs.has(slug)) {
-    slug = `${base}-${item.id}`;
-  }
+- [MCP endpoint](https://www.mizan.page/mcp): Model Context Protocol — أدوات قراءة عامة
+- [AI catalog](https://www.mizan.page/.well-known/ai-catalog.json): فهرس المحتوى للوكلاء
+- [Agent card](https://www.mizan.page/.well-known/agent-card.json): بطاقة اكتشاف الوكيل (A2A)
+- [خريطة الموقع](https://www.mizan.page/sitemap.xml): كل الروابط القابلة للفهرسة
+- [RSS](https://www.mizan.page/feed.xml): تغذية المستجدات
 
-  while (usedLexiconSlugs.has(slug)) {
-    slug = `${base}-${item.id}-${Math.random().toString(36).slice(2, 7)}`;
-  }
+## Optional
 
-  usedLexiconSlugs.add(slug);
+- [البحث](https://www.mizan.page/search): بحث داخلي في كل المحتوى
+- [تسجيل الدخول](https://www.mizan.page/login): للوصول إلى لوحة التحرير (غير مطلوب للقراءة)
 
-  return {
-    ...item,
-    slug,
-  };
-});
-
-/* -------------------------------------------------------
-   Entity identity
-------------------------------------------------------- */
-
-const publisherSchema = {
-  "@type": "Organization",
-  "@id": `${DOMAIN}/#organization`,
-  name: "ميزان الرقمية",
-  url: DOMAIN,
-  logo: {
-    "@type": "ImageObject",
-    url: `${DOMAIN}/icon-512.png`,
-  },
-  sameAs: [
-    "https://www.facebook.com/mizan.page",
-    "https://www.instagram.com/mizan.page",
-    "https://www.tiktok.com/@mizan_page",
-    "https://www.pinterest.com/mizan.page",
-    "https://github.com/p4xre1/mizandigital",
-  ],
-};
-
-const authorSchema = {
-  "@type": "Organization",
-  "@id": `${DOMAIN}/#author`,
-  name: "فريق ميزان الرقمية",
-  url: `${DOMAIN}/about`,
-};
-
-const websiteSchema = {
-  "@type": "WebSite",
-  "@id": `${DOMAIN}/#website`,
-  name: "ميزان الرقمية",
-  url: DOMAIN,
-  inLanguage: "ar-MA",
-  publisher: {
-    "@id": `${DOMAIN}/#organization`,
-  },
-};
-
-/* -------------------------------------------------------
-   Static pages container
-------------------------------------------------------- */
-
-const pages = [
-  {
-    path: "/",
-    title: "المعرفة القانونية للطلبة بالمغرب | ميزان الرقمية",
-    description: "ميزان الرقمية منصة مغربية مجانية لطلبة القانون، تضم ملخصات دراسية، قاموساً قانونياً، أخباراً، ندوات ودليل كليات الحقوق.",
-    schema: {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": `${DOMAIN}/#webpage`,
-      url: DOMAIN,
-      name: "ميزان الرقمية | المعرفة القانونية للطلبة بالمغرب",
-      description: "منصة عربية مغربية للمعرفة القانونية والأكاديمية.",
-      inLanguage: "ar-MA",
-      isPartOf: { "@id": `${DOMAIN}/#website` },
-      about: { "@id": `${DOMAIN}/#organization` },
-      publisher: { "@id": `${DOMAIN}/#organization` },
-      author: { "@id": `${DOMAIN}/#author` },
-      datePublished: "2026-07-21T00:00:00Z",
-      dateModified: NOW,
-    },
-    staticBody: `<main dir="rtl" lang="ar-MA"><article><h1>ميزان الرقمية</h1></article></main>`,
-  },
-];
-
-/* -------------------------------------------------------
-   Prerender Loop & llms.txt Generation
-------------------------------------------------------- */
-
-const template = await readFile(join(DIST, "index.html"), "utf8");
-
-for (const page of pages) {
-  const destination = page.path === "/" ? join(DIST, "index.html") : join(DIST, `${page.path.slice(1)}.html`);
-  await mkdir(dirname(destination), { recursive: true });
-  // Simplified rendering application here for structure demonstration
-  await writeFile(destination, template, "utf8");
-}
-
-/* -------------------------------------------------------
-   Comprehensive Expanded llms.txt Generation
-------------------------------------------------------- */
-
-const llmsTxt = `# llms.txt — ميزان الرقمية (Mizan Digital)
-
-site: ميزان الرقمية (Mizan Digital)
-site_url: ${DOMAIN}/
-primary_language: ar-MA
-secondary_reference_language: fr (المصطلحات القانونية التقنية والتعريفات الثنائية)
-audience: طلبة كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب (FSJES)، الباحثون الأكاديميون، والممارسون القانونيون
-last_generated: ${NOW}
-
-## وصف شامل للمنصة (Comprehensive Overview)
-تُعد "ميزان الرقمية" منصة مغربية رائدة ومجانية بالكامل، مخصصة لهندسة وتسهيل الوصول إلى المعرفة القانونية والأكاديمية. وتهدف المنصة إلى ردم الهوة بين النص القانوني الأكاديمي والفهم الطالبوي المبسط من خلال توفير:
-1. أرشيف دراسي متكامل وشامل مصنف حسب الفصول الجامعية الستة (S1 إلى S6).
-2. معجم قانوني ثنائي اللغة (عربي/فرنسي) يغطي أبرز المصطلحات التقنية المفتاحية مع إحالات تشريعية دقيقة.
-3. مقالات محكّمة في المنهجية القانونية، مهارات البحث العلمي، وشرح المفاهيم.
-4. مواكبة دقيقة ومستمرة للأخبار التشريعية، البلاغات القضائية، والندوات والأنشطة العلمية بكليات الحقوق المغربية.
-5. دليل وطني شامل يغطي 21 كلية ومؤسسة جامعية معتمدة عبر مختلف المدن المغربية.
-
-## الروابط الأساسية والاستراتيجية (Start URLs)
-- [الصفحة الرئيسية للمنصة](${DOMAIN}/)
-- [دليل المقالات القانونية والمنهجية](${DOMAIN}/articles)
-- [بوابة الأخبار والتحليلات التشريعية](${DOMAIN}/news)
-- [القاموس والمعجم القانوني الشامل](${DOMAIN}/lexicon)
-- [الأرشيف الدراسي والمكتبة الرقمية](${DOMAIN}/archive)
-- [أرشيف الندوات والأيام الدراسية](${DOMAIN}/events)
-- [دليل كليات الحقوق والجامعات المغربية](${DOMAIN}/schools)
-- [صفحة حول المنصة ورسالتها الأكاديمية](${DOMAIN}/about)
-- [قنوات الاتصال والدعم التقني](${DOMAIN}/contact)
-- [مركز الأسئلة الشائعة والإجابات التقنية](${DOMAIN}/faq)
-
-## تفصيل هيكل الأرشيف الدراسي والفصول الجامعية (Semester Archival Structure)
-- [الفصل الأول S1 — المدخل لدراسة القانون والعلوم السياسية](${DOMAIN}/s1)
-- [الفصل الثاني S2 — القانون المدني، الدستوري، والمؤسسات](${DOMAIN}/s2)
-- [الفصل الثالث S3 — القانون الإداري، المالي، والتحليلات](${DOMAIN}/s3)
-- [الفصل الرابع S4 — القانون التجاري، الشركات، والعقود الخاصة](${DOMAIN}/s4)
-- [الفصل الخامس S5 — القانون الاجتماعي، الجنائي، والمسطرة](${DOMAIN}/s5)
-- [الفصل السادس S6 — الخيارات التخصصية، التخرج، والبحوث](${DOMAIN}/s6)
-
-## إحصائيات بنية البيانات الحالية (Content Counts & Metrics)
-- إجمالي المصطلحات القانونية بالمعجم: ${statistics.lexicon}
-- عدد المقالات المنشورة: ${statistics.articles}
-- تقارير الأخبار والمستجدات: ${statistics.news}
-- الندوات والفعاليات الأكاديمية: ${statistics.events}
-- كليات ومؤسسات الحقوق المفهرسة: ${statistics.schools}
-- وثائق الأرشيف الدراسي والملخصات: ${statistics.documents}
-- إجمالي السجلات والبيانات المهيكلة بالموقع: ${totalContent}
-
-## التخصصات والمجالات القانونية المغطاة بدقة (Legal Domains Covered)
-${legalDomains.map((domain) => `- ${domain}`).join("\n")}
-- القانون الضريبي وقانون الاستثمار
-- قانون العقود والالتزامات العامة
-
-## تصنيفات الأبحاث والمقالات (Article Taxonomies)
-${articleCategories.map((category) => `- ${category}`).join("\n")}
-- قراءات في الاجتهاد القضائي لمحكمة النقض
-- مقاربات تحليلية في النصوص التشريعية الحديثة
-
-## مواضيع مركز المساعدة والأسئلة الشائعة (FAQ Topics)
-${faqTopics.map((topic) => `- ${topic}`).join("\n")}
-- حدود وقواعد الاستشارة القانونية الرقمية
-- طرق الدعم والمساهمة في إثراء قواعد البيانات
-
-## التغطية الجغرافية والمؤسساتية لكليات الحقوق (FSJES Geographic Scope)
-- إجمالي المؤسسات الأكاديمية المفهرسة: ${statistics.schools} كلية ومؤسسة جامعية.
-- المدن والمراكز الجامعية المغطاة: ${schoolCities.join("، ")}.
-- للوصول إلى الدليل الوطني الموحد بالتفاصيل: ${DOMAIN}/schools
-
-## سياسات الاستخدام والأطر التوجيهية (Policy Notes & Disclaimers)
-- يُعَد محتوى المنصة ذا طابع تعليمي، توثيقي، وبحثي بحت، ولا يُعتبر بأي حال من الأحوال بديلاً رسمياً عن النص التشريعي الصادر في الجريدة الرسمية أو استشارة قانونية مهنية متخصصة.
-- عند الاعتماد على المصطلحات أو النصوص، يجب التحقق دائماً من الصياغة التشريعية النافذة عبر البوابات الرسمية للدولة المغربية.
-- يتم تحديث قواعد البيانات بصفة دورية ومنتظمة؛ ويرجى مراجعة حقل \`last_generated\` أعلاه للتأكد من حداثة المعطيات المُسترجعة.
-
-## المصادر التشريعية الوطنية المعتمدة (Official Legal Sources)
-- [بوابة العدالة الرسمية (محاكم المغرب - أدالة)](https://adala.justice.gov.ma/)
-- [الأمانة العامة للحكومة — بوابة الجريدة الرسمية](https://www.sgg.gov.ma/)
-- [محكمة النقض المغربية — قرارات واجتهادات](https://www.courdecassation.ma/)
-- [وزارة التعليم العالي والبحث العلمي والابتكار](https://www.enssup.gov.ma/)
-
-## خريطة الموقع والملفات والواجهات التقنية (Sitemaps & Technical Discovery)
-- خريطة الموقع العامة (XML Sitemap): ${DOMAIN}/sitemap.xml
-- خلاصة الأخبار والتحديثات (RSS Feed): ${DOMAIN}/feed.xml
-- بطاقة تعريف الوكيل الذكي (Agent Card): ${DOMAIN}/.well-known/agent-card.json
-- دليل مهارات الوكيل الآلي (Agent Skills): ${DOMAIN}/.well-known/agent-skills/index.json
-- كتالوج بيانات الذكاء الاصطناعي (AI Catalog): ${DOMAIN}/.well-known/ai-catalog.json
-- خادم سياق المعرفة والبروتوكولات (MCP Server): ${DOMAIN}/.well-known/mcp/server-card.json
-
-## إرشادات الزحف، الفهرسة، والاستشهاد للوكلاء (Crawl, Indexing & Citation Hints)
-1. النطاق القانوني الأساسي والمعتمد للزحف: \`${DOMAIN}\`
-2. تُفضل الروابط بدون شرطة مائلة نهائية (Trailing Slash) باستثناء رابط الصفحة الرئيسية.
-3. جميع صفحات المصطلحات، المقالات، والدليل الأكاديمي مهيأة مسبقاً (Prerendered) ومدعومة ببيانات مهيكلة غنية بصيغة JSON-LD.
-4. عند نقل أو اقتباس تعريفات أو مفاهيم محددة، يُوصى بشدة الاستشهاد بروابط المصطلحات الفردية بالصيغة (\`${DOMAIN}/lexicon/{slug}\`) بدل الاعتماد حصرياً على الفهرس العام.
-`;
-
-await writeFile(join(DIST, "llms.txt"), llmsTxt, "utf8");
-
-console.log(`Prerendered routes successfully and generated massive expanded llms.txt.`);
-```[cite: 1]
