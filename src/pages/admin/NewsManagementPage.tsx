@@ -25,7 +25,7 @@ import { generateSlug } from "../../lib/utils/generateSlug"
 import { ImageUploadField } from "../../components/admin/ImageUploadField"
 import SeoAuditWidget from "../../components/features/SeoAuditWidget"
 import { KeywordSuggestions } from "../../components/features/KeywordSuggestions"
-import { computeQuickSeoScore } from "../../lib/seo/quickAudit"
+import { computeMizanScore, formatMizanGate } from "../../lib/seo/scoring/mizanScore"
 
 export interface NewsItem {
   id: string
@@ -141,19 +141,26 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
       return
     }
 
-    // بوابة السيو قبل النشر: نفس المنطق المستخدم في محرر المقالات
+    // بوابة MIZAN CONTENT SCORE قبل النشر: نفس المنطق المستخدم في محرر
+    // المقالات، لكن الأخبار تُقيَّم بمعيار حداثة أشد وتُلزَم بإحالة محددة
+    // (قانون رقم / فصل / جريدة رسمية) لأن الخبر القانوني بلا نص محدد
+    // لا يمكن التحقق منه.
     if (isPublished) {
-      const { score, issues } = computeQuickSeoScore({
+      const mizan = computeMizanScore({
         title,
+        body: content || summary,
+        slug: slug.trim() || generateSlug(title),
         description: summary,
-        content: content || summary,
+        excerpt: summary,
+        publishedAt: new Date().toISOString(),
         focusKeyword,
+        kind: "news",
+        source,
+        sourceUrl,
       })
-      if (score < 60) {
+      if (!mizan.publishable) {
         const confirmed = window.confirm(
-          `تنبيه سيو قبل النشر: نتيجة هذا الخبر ${score}/100 فقط.\n\n` +
-            issues.map((i) => `• ${i}`).join("\n") +
-            "\n\nهل تريد المتابعة والنشر رغم ذلك؟"
+          `${formatMizanGate(mizan)}\n\nهل تريد المتابعة والنشر رغم ذلك؟`
         )
         if (!confirmed) return
       }
