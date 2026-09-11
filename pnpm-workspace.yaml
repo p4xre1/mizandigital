@@ -1,6 +1,7 @@
 packages:
   - "."
 allowBuilds:
+  '@clerk/shared': true
   '@tailwindcss/oxide': set this to true or false
   esbuild: true
   puppeteer: true

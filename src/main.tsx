@@ -1,5 +1,6 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
+import { ClerkProvider } from "@clerk/clerk-react"
 import App from "./App"
 import "./styles/fonts.css"
 import "./styles/globals.css"
@@ -10,9 +11,17 @@ if (!rootElement) {
   throw new Error("Root element '#root' not found in index.html")
 }
 
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key (VITE_CLERK_PUBLISHABLE_KEY)")
+}
+
 const app = (
   <StrictMode>
-    <App />
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+      <App />
+    </ClerkProvider>
   </StrictMode>
 )
 
