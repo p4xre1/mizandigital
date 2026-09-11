@@ -11,8 +11,10 @@ const read = (file: string) => readFileSync(new URL(`../${file}`, import.meta.ur
 test("الهيكل العام للموقع يدعم اللغة العربية فقط وخالٍ من الإعلانات القديمة", () => {
   const index = read("index.html");
 
-  // التأكيد على أن اللغة الوحيدة المعرفة هي العربية
-  expect(index).toContain('<html lang="ar" dir="rtl" class="dark">');
+  // التأكيد على أن اللغة الوحيدة المعرفة هي العربية (ar-MA = العربية المغربية)
+  // ملاحظة: كان هذا التوقّع "ar" فقط، وهو قديم ولا يطابق index.html الفعلي
+  // (ar-MA أدق لأنه يحدّد اللهجة المغربية للمنصة).
+  expect(index).toContain('<html lang="ar-MA" dir="rtl" class="dark">');
 
   // التأكد من عدم وجود لغات أجنبية ثانوية في hreflang
   expect(index).not.toContain('hreflang="fr"');
