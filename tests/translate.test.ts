@@ -35,6 +35,18 @@ import { hashText } from "../src/lib/i18n/translate"
 
 import { onRequestPost, onRequestGet } from "../functions/api/translate.js"
 
+/**
+ * اسم مضيف الطلب.
+ *
+ * مقارنة المضيف بدقة بدل `.includes()` على الرابط كله: البحث عن نص داخل
+ * الرابط يطابق في أي موضع منه، فيمرّ `https://evil.test/?x=translate.googleapis.com`
+ * كمضيف موثوق (CodeQL: Incomplete URL substring sanitization).
+ */
+function hostOf(url: string | URL | Request): string {
+  const raw = typeof url === "string" ? url : url instanceof URL ? url.href : url.url
+  return new URL(raw).hostname
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1) التقطيع
 // ─────────────────────────────────────────────────────────────────────────────
@@ -310,10 +322,10 @@ describe("functions/api/translate.js", () => {
   test("ينتقل إلى MyMemory حين يفشل Google", async () => {
     const seen: string[] = []
     globalThis.fetch = vi.fn(async (url: string | URL | Request) => {
-      const u = String(url)
-      seen.push(u)
-      if (u.includes("translate.googleapis.com")) return new Response("boom", { status: 503 })
-      if (u.includes("mymemory")) {
+      const host = hostOf(url)
+      seen.push(host)
+      if (host === "translate.googleapis.com") return new Response("boom", { status: 503 })
+      if (host === "api.mymemory.translated.net") {
         return new Response(
           JSON.stringify({ responseStatus: 200, responseData: { translatedText: "Bonjour" } }),
           { status: 200, headers: { "Content-Type": "application/json" } }
@@ -327,7 +339,7 @@ describe("functions/api/translate.js", () => {
     const data = await response.json()
     expect(data.results).toEqual(["Bonjour"])
     expect(data.provider).toBe("mymemory")
-    expect(seen.some((u) => u.includes("mymemory"))).toBe(true)
+    expect(seen.some((host) => host === "api.mymemory.translated.net")).toBe(true)
   })
 
   test("يعيد 502 حين تسقط كل السلسلة", async () => {
@@ -371,8 +383,7 @@ describe("functions/api/translate.js", () => {
 
     let googleCalls = 0
     globalThis.fetch = vi.fn(async (url: string | URL | Request) => {
-      const u = String(url)
-      if (u.includes("translate.googleapis.com")) {
+      if (hostOf(url) === "translate.googleapis.com") {
         googleCalls += 1
         if (googleCalls === 1) {
           return new Response(JSON.stringify([[["FIRST", "نص أول", null, null, 10]]]), {
