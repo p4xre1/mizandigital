@@ -1,259 +1,174 @@
-import { useEffect, useRef, useState } from "react"
-import { Languages, Check, Search, Loader2 } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Languages, Check, Search, Loader2, RotateCcw, AlertTriangle } from "lucide-react"
 
-declare global {
-  interface Window {
-    google?: any
-    googleTranslateElementInit?: () => void
-  }
-}
+import {
+  LANGUAGES,
+  SORTED_LANGUAGES,
+  SOURCE_LANG,
+  getLanguage,
+  isRtlLanguage,
+  searchLanguages,
+} from "../../lib/i18n/languages"
+import { translateTexts } from "../../lib/i18n/translate"
+import {
+  applyTranslations,
+  collectTranslatableNodes,
+  resetDirection,
+  restoreOriginals,
+  setDirection,
+} from "../../lib/i18n/domTranslate"
 
-// لائحة شبه كاملة للغات التي يدعمها محرك Google للترجمة (الأكواد كما
-// يتعرّف عليها Google Website Translator تحديداً — بعضها يختلف عن ISO
-// القياسي، مثل "iw" للعبرية و"zh-CN"/"zh-TW" للصينية).
-const LANGUAGES: { code: string; name: string }[] = [
-  { code: "en", name: "English" },
-  { code: "fr", name: "Français" },
-  { code: "es", name: "Español" },
-  { code: "de", name: "Deutsch" },
-  { code: "it", name: "Italiano" },
-  { code: "pt", name: "Português" },
-  { code: "ru", name: "Русский" },
-  { code: "zh-CN", name: "中文 (简体)" },
-  { code: "zh-TW", name: "中文 (繁體)" },
-  { code: "ja", name: "日本語" },
-  { code: "ko", name: "한국어" },
-  { code: "hi", name: "हिन्दी" },
-  { code: "ur", name: "اردو" },
-  { code: "fa", name: "فارسی" },
-  { code: "tr", name: "Türkçe" },
-  { code: "iw", name: "עברית" },
-  { code: "nl", name: "Nederlands" },
-  { code: "pl", name: "Polski" },
-  { code: "sv", name: "Svenska" },
-  { code: "no", name: "Norsk" },
-  { code: "da", name: "Dansk" },
-  { code: "fi", name: "Suomi" },
-  { code: "el", name: "Ελληνικά" },
-  { code: "cs", name: "Čeština" },
-  { code: "sk", name: "Slovenčina" },
-  { code: "ro", name: "Română" },
-  { code: "hu", name: "Magyar" },
-  { code: "uk", name: "Українська" },
-  { code: "vi", name: "Tiếng Việt" },
-  { code: "th", name: "ไทย" },
-  { code: "id", name: "Bahasa Indonesia" },
-  { code: "ms", name: "Bahasa Melayu" },
-  { code: "tl", name: "Filipino" },
-  { code: "bn", name: "বাংলা" },
-  { code: "ta", name: "தமிழ்" },
-  { code: "te", name: "తెలుగు" },
-  { code: "pa", name: "ਪੰਜਾਬੀ" },
-  { code: "gu", name: "ગુજરાતી" },
-  { code: "mr", name: "मराठी" },
-  { code: "kn", name: "ಕನ್ನಡ" },
-  { code: "ml", name: "മലയാളം" },
-  { code: "si", name: "සිංහල" },
-  { code: "ne", name: "नेपाली" },
-  { code: "km", name: "ខ្មែរ" },
-  { code: "lo", name: "ລາວ" },
-  { code: "my", name: "မြန်မာ" },
-  { code: "sw", name: "Kiswahili" },
-  { code: "am", name: "አማርኛ" },
-  { code: "ha", name: "Hausa" },
-  { code: "yo", name: "Yorùbá" },
-  { code: "ig", name: "Igbo" },
-  { code: "zu", name: "isiZulu" },
-  { code: "xh", name: "isiXhosa" },
-  { code: "st", name: "Sesotho" },
-  { code: "sn", name: "Shona" },
-  { code: "ny", name: "Chichewa" },
-  { code: "so", name: "Soomaali" },
-  { code: "af", name: "Afrikaans" },
-  { code: "sq", name: "Shqip" },
-  { code: "hy", name: "Հայերեն" },
-  { code: "az", name: "Azərbaycan" },
-  { code: "eu", name: "Euskara" },
-  { code: "be", name: "Беларуская" },
-  { code: "bs", name: "Bosanski" },
-  { code: "bg", name: "Български" },
-  { code: "ca", name: "Català" },
-  { code: "hr", name: "Hrvatski" },
-  { code: "et", name: "Eesti" },
-  { code: "gl", name: "Galego" },
-  { code: "ka", name: "ქართული" },
-  { code: "is", name: "Íslenska" },
-  { code: "ga", name: "Gaeilge" },
-  { code: "kk", name: "Қазақша" },
-  { code: "ky", name: "Кыргызча" },
-  { code: "lv", name: "Latviešu" },
-  { code: "lt", name: "Lietuvių" },
-  { code: "lb", name: "Lëtzebuergesch" },
-  { code: "mk", name: "Македонски" },
-  { code: "mt", name: "Malti" },
-  { code: "mn", name: "Монгол" },
-  { code: "sr", name: "Српски" },
-  { code: "sl", name: "Slovenščina" },
-  { code: "tg", name: "Тоҷикӣ" },
-  { code: "uz", name: "Oʻzbekcha" },
-  { code: "cy", name: "Cymraeg" },
-  { code: "yi", name: "ייִדיש" },
-  { code: "ps", name: "پښتو" },
-  { code: "co", name: "Corsu" },
-  { code: "fy", name: "Frysk" },
-  { code: "gd", name: "Gàidhlig" },
-  { code: "ht", name: "Kreyòl Ayisyen" },
-  { code: "haw", name: "ʻŌlelo Hawaiʻi" },
-  { code: "hmn", name: "Hmoob" },
-  { code: "jw", name: "Basa Jawa" },
-  { code: "su", name: "Basa Sunda" },
-  { code: "la", name: "Latina" },
-  { code: "eo", name: "Esperanto" },
-  { code: "mg", name: "Malagasy" },
-  { code: "mi", name: "Māori" },
-  { code: "sm", name: "Gagana Sāmoa" },
-  { code: "sd", name: "سنڌي" },
-  { code: "ceb", name: "Cebuano" },
-  { code: "ku", name: "Kurdî" },
-]
-
-const SCRIPT_ID = "google-translate-script"
-const ELEMENT_ID = "google_translate_element"
 const STORAGE_KEY = "mizan_translate_lang"
-const SOURCE_LANG = "ar"
 
-function fireChangeEvent(el: HTMLSelectElement) {
-  el.dispatchEvent(new Event("change", { bubbles: true }))
-}
-
-function waitForCombo(maxAttempts = 60, intervalMs = 100): Promise<HTMLSelectElement | null> {
-  return new Promise((resolve) => {
-    let attempts = 0
-    const timer = setInterval(() => {
-      attempts += 1
-      const combo = document.querySelector<HTMLSelectElement>(".goog-te-combo")
-      if (combo) {
-        clearInterval(timer)
-        resolve(combo)
-      } else if (attempts >= maxAttempts) {
-        clearInterval(timer)
-        resolve(null)
-      }
-    }, intervalMs)
-  })
-}
-
-let scriptLoadPromise: Promise<void> | null = null
-
-// تحميل مُفرد (idempotent) لسكريبت Google Website Translator — يُحمَّل مرة
-// واحدة فقط بغض النظر عن عدد مرات فتح القارئ للأداة عبر عدة مقالات
-function ensureScriptLoaded(): Promise<void> {
-  if (window.google?.translate?.TranslateElement) return Promise.resolve()
-  if (scriptLoadPromise) return scriptLoadPromise
-
-  scriptLoadPromise = new Promise((resolve) => {
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        { pageLanguage: SOURCE_LANG, autoDisplay: false },
-        ELEMENT_ID
-      )
-      resolve()
-    }
-    const script = document.createElement("script")
-    script.id = SCRIPT_ID
-    script.src = "https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-    script.async = true
-    document.body.appendChild(script)
-  })
-
-  return scriptLoadPromise
+export interface ArticleTranslateWidgetProps {
+  className?: string
+  /**
+   * مُحدِّد جذر المحتوى الذي ستُترجم نصوصه.
+   * الافتراضي "main" — يغطي صفحة المقال وصفحة تفاصيل الخبر معاً لأن
+   * المسارين /articles/:slug و /news/:slug يُصرَّفان بنفس المكوّن.
+   */
+  target?: string
 }
 
 /**
- * أداة ترجمة صفحة المقال إلى أي لغة يختارها القارئ، عبر محرك Google
- * للترجمة (مجاني، بلا حدود استخدام أو مفتاح API) — بواجهة منسدلة مخصّصة
- * بالعربية بدل شريط Google الافتراضي. الترجمة تتم بالكامل داخل نفس
- * الصفحة (بدون تنقّل لرابط جديد أو مسار لغة منفصل /en, /fr...).
+ * أداة ترجمة محتوى الصفحة إلى أي لغة يختارها القارئ.
+ *
+ * بديل عن "Google Website Translator" الذي أوقفته Google نهائياً ابتداءً من
+ * 1 أكتوبر 2026: لم نعد نُحمّل translate.google.com/translate_a/element.js،
+ * بل نُدخل نصوص المحتوى إلى /api/translate (وسيط على نفس النطاق يُدير سلسلة
+ * مزوّدين وتخزيناً مؤقتاً) ونكتب الترجمة مكان النص مباشرةً.
+ *
+ * ⚠️ الترجمة آلية. المصطلح القانوني والإحالات التشريعية قد تفقد دقتها،
+ * ولهذا يظهر تنبيه واضح للقارئ عند تفعيل أي لغة.
  */
-export function ArticleTranslateWidget({ className = "" }: { className?: string }) {
+export function ArticleTranslateWidget({ className = "", target = "main" }: ArticleTranslateWidgetProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [activeLang, setActiveLang] = useState<string | null>(null)
   const [search, setSearch] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState<string | null>(null)
+
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const originalDirection = useRef<{ dir: string | null; lang: string | null } | null>(null)
   const appliedFromStorage = useRef(false)
 
+  // إغلاق القائمة عند النقر خارجها
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  // إعادة تطبيق آخر لغة اختارها القارئ تلقائياً عند فتح مقال آخر، حتى لا
-  // يضطر لإعادة الاختيار في كل صفحة
+  const resolveRoot = useCallback((): HTMLElement | null => {
+    const el = document.querySelector<HTMLElement>(target)
+    return el || document.querySelector<HTMLElement>("main") || document.body
+  }, [target])
+
+  const restore = useCallback(() => {
+    const root = resolveRoot()
+    restoreOriginals()
+    if (root && originalDirection.current) {
+      resetDirection(root, originalDirection.current.dir, originalDirection.current.lang)
+      originalDirection.current = null
+    }
+    setActiveLang(null)
+    setError(null)
+    setProgress(null)
+  }, [resolveRoot])
+
+  const applyLanguage = useCallback(
+    async (code: string) => {
+      if (code === SOURCE_LANG) {
+        restore()
+        window.localStorage.setItem(STORAGE_KEY, SOURCE_LANG)
+        setOpen(false)
+        return
+      }
+
+      setError(null)
+      setLoading(true)
+      setProgress("جارٍ جمع نصوص الصفحة…")
+
+      try {
+        const root = resolveRoot()
+        if (!root) throw new Error("تعذّر تحديد محتوى الصفحة")
+
+        // حفظ الاتجاه الأصلي مرة واحدة قبل أول ترجمة
+        if (!originalDirection.current) {
+          originalDirection.current = {
+            dir: root.getAttribute("dir"),
+            lang: root.getAttribute("lang"),
+          }
+        }
+
+        const nodes = collectTranslatableNodes(root)
+        if (nodes.length === 0) throw new Error("لا توجد نصوص قابلة للترجمة في هذه الصفحة")
+
+        setProgress(`جارٍ الترجمة (${nodes.length} مقطعاً)…`)
+        const { results, provider, partial } = await translateTexts(
+          nodes.map((node) => node.nodeValue || ""),
+          code
+        )
+
+        applyTranslations(nodes, results)
+        setDirection(root, code, isRtlLanguage(code))
+
+        setActiveLang(code)
+        window.localStorage.setItem(STORAGE_KEY, code)
+        setProgress(null)
+        if (partial || provider === "none") {
+          setError("ترجمة جزئية — بعض المقاطع لم يُترجم. جرّب لغة أخرى أو أعد المحاولة.")
+        }
+      } catch (err) {
+        setProgress(null)
+        setError(err instanceof Error ? err.message : "تعذّرت الترجمة")
+      } finally {
+        setLoading(false)
+        setOpen(false)
+      }
+    },
+    [resolveRoot, restore]
+  )
+
+  // إعادة تطبيق آخر لغة اختارها القارئ عند فتح صفحة أخرى
   useEffect(() => {
     if (appliedFromStorage.current) return
     appliedFromStorage.current = true
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored && stored !== SOURCE_LANG) {
-      applyLanguage(stored, { silent: true })
+    let stored: string | null = null
+    try {
+      stored = window.localStorage.getItem(STORAGE_KEY)
+    } catch {
+      stored = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (stored && stored !== SOURCE_LANG && getLanguage(stored)) {
+      void applyLanguage(stored)
+    }
+  }, [applyLanguage])
+
+  // تفكيك الترجمة عند مغادرة الصفحة كي لا تنتقل نصوص مترجمة لصفحة أخرى
+  useEffect(() => {
+    return () => {
+      restoreOriginals()
+    }
   }, [])
 
-  const applyLanguage = async (code: string, opts: { silent?: boolean } = {}) => {
-    if (!opts.silent) setLoading(true)
-    await ensureScriptLoaded()
-    const combo = await waitForCombo()
-    if (combo) {
-      combo.value = code
-      fireChangeEvent(combo)
-    }
-    setActiveLang(code === SOURCE_LANG ? null : code)
-    window.localStorage.setItem(STORAGE_KEY, code)
-    setLoading(false)
-    setOpen(false)
-  }
-
-  const filteredLanguages = LANGUAGES.filter((l) =>
-    l.name.toLowerCase().includes(search.trim().toLowerCase())
-  )
-
-  const activeLabel = LANGUAGES.find((l) => l.code === activeLang)?.name
+  const filtered = search.trim() ? searchLanguages(search) : SORTED_LANGUAGES
+  const activeLabel = activeLang ? getLanguage(activeLang)?.name : null
 
   return (
     <div ref={containerRef} className={`relative inline-block notranslate ${className}`} translate="no">
-      {/* حاوية مخفية يُدرج فيها Google عنصر التحكم الفعلي بالترجمة —
-          مهم: لازم تبقى فـ الـ layout (بلا display:none)، لأن سكريبت
-          Google Translate خاصو يقيس/يبني عنصر <select class="goog-te-combo">
-          بداخلها فعلياً، وإلا الترجمة ما كتخدمش (الكومبو يبقى فارغ أو بلا
-          تأثير حتى لو تبدّلت قيمته). كنخبّيوها بصرياً عبر إخراجها برّا
-          الشاشة (position/overflow) بدل hidden/display:none */}
-      <div
-        id={ELEMENT_ID}
-        aria-hidden="true"
-        style={{ position: "fixed", top: "-9999px", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}
-      />
-
-      {/* إخفاء واجهة Google الافتراضية (الشريط العلوي، تمييز النص، الفقاعات) لصالح القائمة المخصصة أدناه */}
-      <style>{`
-        .goog-te-banner-frame.skiptranslate { display: none !important; }
-        body { top: 0 !important; }
-        .goog-text-highlight { background: none !important; box-shadow: none !important; }
-        .goog-tooltip, .goog-tooltip:hover { display: none !important; }
-        #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
-      `}</style>
-
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        title="ترجمة هذه الصفحة إلى لغة أخرى"
+        title="ترجمة محتوى هذه الصفحة إلى لغة أخرى (ترجمة آلية)"
+        aria-expanded={open}
         className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] font-bold transition cursor-pointer ${
-          activeLang ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:text-foreground"
+          activeLang
+            ? "border-primary bg-primary/10 text-primary"
+            : "border-border text-muted-foreground hover:text-foreground"
         }`}
       >
         {loading ? <Loader2 size={13} className="animate-spin" /> : <Languages size={13} />}
@@ -263,7 +178,7 @@ export function ArticleTranslateWidget({ className = "" }: { className?: string 
       {open && (
         <div
           dir="rtl"
-          className="absolute z-50 mt-2 flex max-h-80 w-64 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+          className="absolute z-50 mt-2 flex max-h-96 w-72 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-lg"
         >
           <div className="border-b border-border p-2">
             <div className="relative">
@@ -272,11 +187,18 @@ export function ArticleTranslateWidget({ className = "" }: { className?: string 
                 autoFocus
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="ابحث عن لغة..."
+                placeholder={`ابحث في ${LANGUAGES.length} لغة…`}
                 className="w-full rounded-md border border-border bg-background py-1.5 pr-8 pl-2 text-xs outline-none focus:border-primary"
               />
             </div>
           </div>
+
+          {progress && (
+            <p className="flex items-center gap-1.5 border-b border-border bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
+              <Loader2 size={12} className="animate-spin" />
+              {progress}
+            </p>
+          )}
 
           <button
             type="button"
@@ -290,24 +212,52 @@ export function ArticleTranslateWidget({ className = "" }: { className?: string 
           </button>
 
           <div className="flex-1 overflow-y-auto">
-            {filteredLanguages.map((lang) => (
+            {filtered.map((lang) => (
               <button
                 key={lang.code}
                 type="button"
                 onClick={() => applyLanguage(lang.code)}
-                className={`flex w-full items-center justify-between px-3 py-2 text-xs transition hover:bg-muted ${
+                className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-xs transition hover:bg-muted ${
                   activeLang === lang.code ? "font-bold text-primary" : "text-foreground"
                 }`}
               >
-                <span>{lang.name}</span>
+                <span className="flex flex-col items-start">
+                  <span>{lang.name}</span>
+                  <span className="text-[10px] text-muted-foreground">{lang.ar}</span>
+                </span>
                 {activeLang === lang.code && <Check size={13} />}
               </button>
             ))}
-            {filteredLanguages.length === 0 && (
+            {filtered.length === 0 && (
               <p className="px-3 py-4 text-center text-xs text-muted-foreground">لا توجد نتائج</p>
             )}
           </div>
+
+          {activeLang && (
+            <button
+              type="button"
+              onClick={() => {
+                restore()
+                window.localStorage.setItem(STORAGE_KEY, SOURCE_LANG)
+              }}
+              className="flex items-center justify-center gap-1.5 border-t border-border px-3 py-2 text-[11px] font-bold text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            >
+              <RotateCcw size={12} />
+              استعادة النص الأصلي
+            </button>
+          )}
         </div>
+      )}
+
+      {(error || activeLang) && !open && (
+        <p
+          className={`mt-1.5 flex max-w-[16rem] items-start gap-1 text-[10px] leading-snug ${
+            error ? "text-destructive" : "text-muted-foreground"
+          }`}
+        >
+          {error ? <AlertTriangle size={11} className="mt-px shrink-0" /> : null}
+          <span>{error || "ترجمة آلية — قد لا تكون المصطلحات القانونية دقيقة."}</span>
+        </p>
       )}
     </div>
   )
