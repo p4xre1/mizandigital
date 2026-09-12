@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom"
 import { Scale, Sun, Moon, X, Menu, Instagram, Facebook } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
+import { isClerkEnabled } from "@/lib/clerk/config"
 
 // أيقونات غير متوفرة ضمن lucide-react (تيك توك وبينتيريست)
 function TikTokIcon({ size = 18 }: { size?: number }) {
@@ -101,20 +102,34 @@ export function Header({
         </nav>
         
         <div className="flex items-center gap-2">
-          {/* نظام المصادقة عبر Clerk */}
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 lg:text-sm"
-              >
-                دخول
-              </button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-9" } }} />
-          </SignedIn>
+          {/*
+            نظام المصادقة عبر Clerk
+            ملاحظة إصلاح خلل: <SignedIn>/<SignedOut> تحتاج <ClerkProvider>
+            فـ الشجرة الأب (main.tsx). كان الكود القديم كيرندري هاد
+            المكوّنات بلا أي شرط، وكان main.tsx كيرمي Error ويوقف التطبيق
+            بأكمله إذا كان VITE_CLERK_PUBLISHABLE_KEY غير مضبوط — فزر
+            "دخول" ما كان يبان أصلاً (ولا حتى باقي الموقع). دابا نتحقق من
+            isClerkEnabled (نفس الفحص المستعمل فـ main.tsx) قبل ما نرندري
+            هاد المكوّنات، حتى لا تنهار الصفحة إذا كان Clerk غير مفعّل،
+            وباش زر الدخول يبان بشكل طبيعي بمجرد ما يكون المفتاح مضبوطاً.
+          */}
+          {isClerkEnabled && (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 lg:text-sm"
+                  >
+                    دخول
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-9" } }} />
+              </SignedIn>
+            </>
+          )}
 
           <button
             type="button"

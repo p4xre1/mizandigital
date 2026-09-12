@@ -6,6 +6,7 @@ import {
   UserButton,
 } from "@clerk/clerk-react"
 import { Scale, LogIn } from "lucide-react"
+import { isClerkEnabled } from "@/lib/clerk/config"
 
 /**
  * Header / Navbar
@@ -48,28 +49,32 @@ export default function Header() {
 
         {/* منطقة المصادقة */}
         <div className="flex shrink-0 items-center gap-3">
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-[0.98] sm:px-5 sm:text-sm"
-              >
-                <LogIn size={16} strokeWidth={2.3} />
-                <span>تسجيل الدخول / إنشاء حساب</span>
-              </button>
-            </SignInButton>
-          </SignedOut>
+          {isClerkEnabled && (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-[0.98] sm:px-5 sm:text-sm"
+                  >
+                    <LogIn size={16} strokeWidth={2.3} />
+                    <span>تسجيل الدخول / إنشاء حساب</span>
+                  </button>
+                </SignInButton>
+              </SignedOut>
 
-          <SignedIn>
-            <UserButton
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: "size-9",
-                },
-              }}
-            />
-          </SignedIn>
+              <SignedIn>
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "size-9",
+                    },
+                  }}
+                />
+              </SignedIn>
+            </>
+          )}
         </div>
       </div>
     </header>

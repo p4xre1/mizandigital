@@ -2,6 +2,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { ClerkProvider } from "@clerk/clerk-react"
 import App from "./App"
+import { CLERK_PUBLISHABLE_KEY, isClerkEnabled } from "./lib/clerk/config"
 import "./styles/fonts.css"
 import "./styles/globals.css"
 
@@ -11,17 +12,22 @@ if (!rootElement) {
   throw new Error("Root element '#root' not found in index.html")
 }
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key (VITE_CLERK_PUBLISHABLE_KEY)")
-}
-
+// ملاحظة إصلاح خلل (زر "دخول" الغائب): كان التطبيق كيرمي Error ويوقف
+// التنفيذ بأكمله إذا كان VITE_CLERK_PUBLISHABLE_KEY غير مضبوط فـ بيئة
+// النشر — يعني الموقع كامل (الهيدر، التنقل، المحتوى) كيبقى بلا أي رد فعل
+// (بلا حتى زر تسجيل الدخول اللي هو المفروض يبان). دابا: نغلّف بـ
+// <ClerkProvider> فقط إذا كان المفتاح موجود فعلاً، وإلا كنرندريو
+// <App/> مباشرة (Header/PublicNavigation عندها نفس الفحص باش ما
+// تحاولش تستعمل مكوّنات Clerk بلا Provider — شوف src/lib/clerk/config.ts).
 const app = (
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
+    {isClerkEnabled ? (
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY as string}>
+        <App />
+      </ClerkProvider>
+    ) : (
       <App />
-    </ClerkProvider>
+    )}
   </StrictMode>
 )
 

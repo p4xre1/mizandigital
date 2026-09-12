@@ -34,8 +34,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "^26.1.1",
-    "@types/react": "18.3.18",
-    "@types/react-dom": "18.3.5",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
     "@vitejs/plugin-react": "^6.0.5",
     "knip": "^6.32.2",
     "tailwindcss": "4.1.12",

@@ -41,7 +41,7 @@ export const PdfDropzone: React.FC<PdfDropzoneProps> = ({
     handleProcessFile(selected)
   }
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     const droppedFile = e.dataTransfer.files?.[0] || null
     handleProcessFile(droppedFile)

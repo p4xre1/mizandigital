@@ -3,7 +3,7 @@ import {
   Save,
   ArrowRight,
   Globe,
-
+  FileUp,
   Loader2,
   Check,
   Tag,
@@ -22,6 +22,7 @@ import {
 // الحل: لا نستورد AdminLayout هنا ولا نغلّف بيه — الصفحة كترجع محتواها
 // مباشرة، وAdminLayout الأب هو اللي كيوفر Sidebar/Header/Outlet.
 import RichTextEditor from "../../../components/features/RichTextEditor"
+import PdfToMarkdownTool from "../../../components/features/PdfToMarkdownTool"
 import SeoAuditWidget from "../../../components/features/SeoAuditWidget"
 import { ImageUploadField } from "../../../components/admin/ImageUploadField"
 import { KeywordSuggestions } from "../../../components/features/KeywordSuggestions"
@@ -63,6 +64,8 @@ export default function ArticleEditorPage({
   const [metaTitle, setMetaTitle] = useState("")
   const [metaDescription, setMetaDescription] = useState("")
   const [publishedAt, setPublishedAt] = useState<string | null>(null)
+  // إظهار/إخفاء أداة استيراد PDF → Markdown فوق محرر النص الرئيسي
+  const [showPdfImport, setShowPdfImport] = useState(false)
 
   // القوائم المنسدلة
   const [categories, setCategories] = useState<Category[]>([])
@@ -325,6 +328,43 @@ export default function ArticleEditorPage({
                   className="flex-1 rounded-lg border border-border bg-muted/40 px-2.5 py-1 text-xs text-foreground outline-none"
                 />
               </div>
+            </div>
+
+            {/*
+              أداة استيراد PDF → Markdown
+              ملاحظة إصلاح خلل: كانت هذه الأداة (PdfToMarkdownTool) موجودة
+              فـ الكود لكن غير مستوردة أو مستعملة فـ أي صفحة فـ التطبيق —
+              يعني الميزة كانت موجودة لكن غير قابلة للوصول إليها إطلاقاً من
+              الواجهة. تمّ ربطها هنا فوق محرر النص الرئيسي مع إمكانية
+              الطي/الفتح حتى لا تشغل مساحة دائمة لمن لا يحتاجها.
+            */}
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setShowPdfImport((v) => !v)}
+                className="flex w-full items-center justify-between gap-2 text-right"
+              >
+                <span className="flex items-center gap-2 text-xs font-bold text-foreground">
+                  <FileUp className="size-4 text-primary" />
+                  استيراد نص من ملف PDF
+                </span>
+                <span className="text-[11px] font-semibold text-primary">
+                  {showPdfImport ? "إخفاء" : "إظهار"}
+                </span>
+              </button>
+
+              {showPdfImport && (
+                <div className="mt-4">
+                  <PdfToMarkdownTool
+                    onSave={(markdown) => {
+                      // نضيف النص المستورَد إلى نهاية المحتوى الحالي بدل
+                      // استبداله، حتى لا يفقد المحرر ما كُتب سابقاً.
+                      setContent((prev) => (prev ? `${prev}\n\n${markdown}` : markdown))
+                      setShowPdfImport(false)
+                    }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* محرر النص الغني */}
