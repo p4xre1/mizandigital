@@ -384,6 +384,22 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# ملاحظة مهمة (onboarding function): هاذ الدالة كتاخد Clerk session token
+# (JWT موقّع من طرف Clerk) عوض Supabase JWT/anon key فـ هيدر Authorization
+# — لأن تسجيل الدخول العام كيمر عبر Clerk وليس Supabase Auth (شوف
+# src/lib/onboarding/api.ts). بوابة Supabase الافتراضية كتحاول تتحقق من
+# أي JWT فـ Authorization بمفتاح Supabase الخاص بيها، وغادي ترفضو (401)
+# قبل ما توصل الطلبية أصلاً لكود الدالة، لأن توقيع Clerk مختلف. لازم
+# نعطلو التحقق التلقائي هنا، ونديرو التحقق يدوياً من JWKS ديال Clerk
+# داخل كود الدالة نفسها (supabase/functions/onboarding/index.ts).
+#
+# ⚠️ هاذ الإعداد كيخدم محلياً (supabase start) فقط. عند النشر (supabase
+# functions deploy onboarding)، خاصك تزيد --no-verify-jwt للأمر، أو
+# تعطّل "Enforce JWT Verification" لهاذ الدالة يدوياً من لوحة تحكم
+# Supabase → Edge Functions → onboarding → Details.
+[functions.onboarding]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

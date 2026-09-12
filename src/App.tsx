@@ -6,6 +6,8 @@ import { ScrollToTop } from "@/components/ScrollToTop"
 import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
 import { useTheme } from "@/hooks/useTheme"
+import { isClerkEnabled } from "@/lib/clerk/config"
+import { OnboardingGate } from "@/components/onboarding/OnboardingGate"
 
 const DOWNLOAD_TOAST_EVENT = "mizan:toast"
 
@@ -103,6 +105,16 @@ export default function App() {
 
       {/* شريط موافقة الكوكيز (Google Consent Mode) */}
       <CookieConsentBanner />
+
+      {/*
+        استبيان الترحيب (3 أسئلة) بعد أول تسجيل دخول عبر Clerk.
+        نتحقق من isClerkEnabled هنا لأن useAuth/useUser (المستعملة داخل
+        OnboardingGate) كتحتاج <ClerkProvider> فـ الشجرة — main.tsx كيغلّف
+        <App/> بـ ClerkProvider فقط إذا كان المفتاح مضبوط (شوف
+        src/lib/clerk/config.ts). بلا هاد الشرط، الموقع كان غايهرمي خطأ
+        فوري إذا كان Clerk غير مفعّل.
+      */}
+      {isClerkEnabled && <OnboardingGate />}
     </BrowserRouter>
   )
 }
