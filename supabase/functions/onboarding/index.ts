@@ -30,7 +30,11 @@ import * as jose from "https://esm.sh/jose@5"
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-const CLERK_JWT_ISSUER = Deno.env.get("CLERK_JWT_ISSUER")
+// القيمة الافتراضية هنا مؤكدة فعلياً (JWKS كيرجع مفتاح حقيقي):
+// https://clerk.mizan.page/.well-known/jwks.json
+// نخلي CLERK_JWT_ISSUER قابل للتجاوز عبر secret فـ حالة تغيير النطاق
+// مستقبلاً، لكن الدالة كتخدم بشكل صحيح حتى بلا ضبط الـ secret يدوياً.
+const CLERK_JWT_ISSUER = Deno.env.get("CLERK_JWT_ISSUER") ?? "https://clerk.mizan.page"
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
