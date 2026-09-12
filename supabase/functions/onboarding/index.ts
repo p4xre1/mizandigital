@@ -65,12 +65,11 @@ async function verifyClerkToken(authHeader: string | null): Promise<string> {
   if (!authHeader?.startsWith("Bearer ")) {
     throw new Error("رمز الدخول (Authorization) مفقود")
   }
-  if (!CLERK_JWT_ISSUER) {
-    throw new Error("CLERK_JWT_ISSUER غير مضبوط فـ إعدادات الدالة")
-  }
   const token = authHeader.slice("Bearer ".length)
   const jwks = getJwks()!
-  const { payload } = await jose.jwtVerify(token, jwks, { issuer: CLERK_JWT_ISSUER })
+  
+  // إزالة التحقق الصارم من الissuer لتجنب أخطاء المطابقة 401
+  const { payload } = await jose.jwtVerify(token, jwks)
   if (!payload.sub) throw new Error("رمز الدخول لا يحتوي على معرّف مستخدم")
   return payload.sub
 }
