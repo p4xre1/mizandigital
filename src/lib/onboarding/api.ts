@@ -29,6 +29,8 @@ async function callOnboardingFunction(
   init: { method: "GET" | "POST"; body?: OnboardingPayload }
 ) {
   const token = await getToken()
+  console.log("Clerk Token Debug:", token ? "Token exists (Length: " + token.length + ")" : "Token is NULL!")
+  
   if (!token) throw new Error("لا توجد جلسة Clerk صالحة")
 
   const { data, error } = await supabase.functions.invoke("onboarding", {
@@ -40,7 +42,6 @@ async function callOnboardingFunction(
   if (error) throw error
   return data
 }
-
 /** يتحقق واش المستخدم الحالي (Clerk) كمّل استبيان الترحيب من قبل. */
 export async function checkOnboardingCompleted(getToken: GetClerkToken): Promise<boolean> {
   const data = await callOnboardingFunction(getToken, { method: "GET" })
