@@ -1,0 +1,262 @@
+import { useEffect, useState } from "react"
+import { Link, useParams } from "react-router-dom"
+import {
+  UserRound,
+  Trophy,
+  Target,
+  Flame,
+  Copy,
+  Check,
+  Share2,
+  ArrowLeft,
+  GraduationCap,
+  BriefcaseBusiness,
+  Users,
+  MapPin,
+} from "lucide-react"
+import { SEOHead } from "../../components/seo/SEOHead"
+import { generateBreadcrumbSchema } from "../../lib/seo/schema"
+import { RankBadge } from "../../components/quiz/RankBadge"
+import { XpBar } from "../../components/quiz/XpBar"
+import { BADGE_BY_ID, getRankDefinition, getRankProgress } from "../../lib/quiz/ranks"
+import { fetchPublicProfile, type PublicProfile } from "../../lib/quiz/profileService"
+import { buildWhatsAppShareUrl } from "../../lib/quiz/shareCard"
+
+const ROLE_META: Record<string, { label: string; icon: typeof Users }> = {
+  student: { label: "طالب قانون", icon: GraduationCap },
+  lawyer: { label: "محامٍ", icon: BriefcaseBusiness },
+  citizen: { label: "مهتم بالقانون", icon: Users },
+}
+
+/**
+ * البروفايل العام (/u/:username) — رابط يشاركه المستخدم في سيرته الذاتية
+ * وعلى لينكد إن، ويبرز رتبته وإحصاءاته بدل أن يبرز "شهادة" لا معنى لها.
+ */
+export function PublicProfilePage() {
+  const { username = "" } = useParams<{ username: string }>()
+  const [profile, setProfile] = useState<PublicProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    setLoading(true)
+    fetchPublicProfile(username).then((result) => {
+      if (!mounted) return
+      setProfile(result)
+      setLoading(false)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [username])
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2500)
+    } catch {
+      /* تجاهل */
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="container-wide py-16" dir="rtl">
+        <p className="text-center text-sm font-bold text-muted-foreground">جارٍ تحميل البروفايل...</p>
+      </main>
+    )
+  }
+
+  if (!profile) {
+    return (
+      <main className="container-wide py-16" dir="rtl">
+        <SEOHead title="البروفايل غير موجود" description="لم نعثر على هذا البروفايل العام على منصة ميزان." noindex />
+        <div className="mx-auto max-w-lg rounded-3xl border border-dashed border-border bg-card p-8 text-center">
+          <span className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
+            <UserRound className="size-6" strokeWidth={2.2} />
+          </span>
+          <h1 className="text-lg font-extrabold text-foreground">هذا البروفايل غير متاح</h1>
+          <p className="mt-2 text-[13px] leading-7 text-muted-foreground">
+            لم نعثر على مستخدم بالاسم <span className="font-extrabold text-foreground" dir="ltr">@{username}</span>.
+            إما أن الاسم غير صحيح، أو أن صاحبه لم ينشر بروفايله العام بعد.
+          </p>
+          <Link
+            to="/quiz"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13px] font-extrabold text-primary-foreground transition hover:opacity-90"
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            استكشف الاختبارات
+          </Link>
+        </div>
+      </main>
+    )
+  }
+
+  const rank = getRankDefinition(profile.rank as never)
+  const rankProgress = getRankProgress(profile.xp)
+  const roleMeta = ROLE_META[profile.role] ?? ROLE_META.citizen
+
+  return (
+    <main className="container-wide py-10" dir="rtl">
+      <SEOHead
+        title={`${profile.displayName} — بروفايل ميزان`}
+        description={`بروفايل ${profile.displayName} على منصة ميزان الرقمية: الرتبة ${rank.id} (${rank.label})، نقاط الخبرة، والأوسمة القانونية.`}
+        canonicalUrl={`https://www.mizan.page/u/${profile.username}`}
+        schema={[
+          generateBreadcrumbSchema([
+            { name: "الرئيسية", url: "/" },
+            { name: "الاختبارات", url: "/quiz" },
+            { name: profile.displayName, url: `/u/${profile.username}` },
+          ]),
+          {
+            "@type": "ProfilePage",
+            mainEntity: {
+              "@type": "Person",
+              name: profile.displayName,
+              alternateName: profile.username,
+              url: `https://www.mizan.page/u/${profile.username}`,
+            },
+          },
+        ]}
+      />
+
+      <div className="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-6 sm:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <UserRound className="size-7" strokeWidth={2.2} />
+            </span>
+            <div>
+              <h1 className="text-xl font-black text-foreground">{profile.displayName}</h1>
+              <p className="text-[12.5px] font-semibold text-muted-foreground" dir="ltr">
+                mizan.page/u/{profile.username}
+              </p>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11.5px] font-bold text-muted-foreground">
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1">
+                  <roleMeta.icon className="size-3" aria-hidden="true" />
+                  {roleMeta.label}
+                </span>
+                {profile.semester && (
+                  <span className="rounded-full border border-accent-gold/40 bg-accent-gold/10 px-2.5 py-1 text-accent-gold">
+                    {profile.semester}
+                  </span>
+                )}
+                {profile.yearsOfExperience !== null && profile.yearsOfExperience !== undefined && (
+                  <span className="rounded-full border border-border bg-background px-2.5 py-1">
+                    {profile.yearsOfExperience} سنوات خبرة
+                  </span>
+                )}
+                {profile.city && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1">
+                    <MapPin className="size-3" aria-hidden="true" />
+                    {profile.city}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <RankBadge rank={rank} size="lg" />
+        </div>
+
+        {profile.bio && (
+          <p className="mt-5 rounded-2xl border border-border bg-background p-4 text-[13.5px] leading-7 text-muted-foreground">
+            {profile.bio}
+          </p>
+        )}
+
+        <div className="mt-6">
+          <XpBar rankProgress={rankProgress} xp={profile.xp} credits={profile.credits} />
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          {[
+            { icon: Trophy, label: "الرتبة", value: rank.id },
+            { icon: Target, label: "نقاط الخبرة", value: profile.xp.toLocaleString("ar-MA") },
+            { icon: Flame, label: "الكريدتس", value: profile.credits.toLocaleString("ar-MA") },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl border border-border bg-background p-4 text-center">
+              <item.icon className="mx-auto mb-1.5 size-4 text-primary" aria-hidden="true" />
+              <p className="text-lg font-black text-foreground" dir="ltr">
+                {item.value}
+              </p>
+              <p className="mt-0.5 text-[10.5px] font-bold text-muted-foreground">{item.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {profile.badges.length > 0 && (
+          <div className="mt-6">
+            <p className="mb-2 text-[12.5px] font-extrabold text-foreground">الأوسمة</p>
+            <div className="flex flex-wrap gap-2">
+              {profile.badges.map((badgeId) => {
+                const badge = BADGE_BY_ID.get(badgeId)
+                if (!badge) return null
+                return (
+                  <span
+                    key={badgeId}
+                    title={badge.description}
+                    className="rounded-full border border-border bg-background px-3 py-1.5 text-[12px] font-bold text-foreground"
+                  >
+                    {badge.icon} {badge.label}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {(profile.interests?.length ?? 0) > 0 && (
+          <div className="mt-6">
+            <p className="mb-2 text-[12.5px] font-extrabold text-foreground">الاهتمامات القانونية</p>
+            <div className="flex flex-wrap gap-2">
+              {(profile.interests ?? []).map((interest) => (
+                <span
+                  key={interest}
+                  className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[12px] font-bold text-primary"
+                >
+                  {interest}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-7 flex flex-wrap items-center gap-2 border-t border-border pt-5">
+          <button
+            type="button"
+            onClick={copyLink}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-[12.5px] font-extrabold text-foreground transition hover:border-primary/50"
+          >
+            {copied ? <Check className="size-4 text-emerald-600" /> : <Copy className="size-4" />}
+            {copied ? "نُسخ الرابط" : "نسخ الرابط"}
+          </button>
+          <a
+            href={buildWhatsAppShareUrl({
+              title: `بروفايل ${profile.displayName} على ميزان`,
+              score: 0,
+              correct: 0,
+              total: 0,
+              rank: rank.id,
+            })}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-[12.5px] font-extrabold text-foreground transition hover:border-emerald-500/60 hover:text-emerald-600"
+          >
+            <Share2 className="size-4" />
+            مشاركة البروفايل
+          </a>
+          <Link
+            to="/quiz"
+            className="mr-auto inline-flex items-center gap-2 text-[12.5px] font-extrabold text-primary transition hover:gap-3"
+          >
+            أنشئ بروفايلك وابدأ الاختبارات
+            <ArrowLeft className="size-4" aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    </main>
+  )
+}

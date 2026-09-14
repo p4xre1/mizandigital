@@ -21,6 +21,7 @@ const [
   news,
   faqGroups,
   documents,
+  quizQuestions,
 ] = await Promise.all([
   readJson("articles.json"),
   readJson("events.json"),
@@ -29,6 +30,7 @@ const [
   readJson("news.json"),
   readJson("faq.json"),
   readJson("docs.json"),
+  readJson("quiz-questions.json"),
 ]);
 
 /* -------------------------------------------------------
@@ -1156,6 +1158,234 @@ pages.push(
             قد تستخدم المنصة ملفات ارتباط وتقنيات مشابهة
             لتحسين تجربة المستخدم والأداء والأمان.
           </p>
+        </article>
+      </main>
+    `,
+  }
+);
+
+
+/* -------------------------------------------------------
+   Quiz pages (محور الاختبارات — 4-Tier Quiz System)
+------------------------------------------------------- */
+// تُبنى من بنك الأسئلة المحلي (src/data/quiz-questions.json) حتى يحتوي
+// الـ HTML المُصدَّر مسبقاً على محتوى حقيقي (عناوين المواد، الفصول،
+// الجهات...) بدل صفحة فارغة — وهو ما تفهرسه محركات البحث فعلياً.
+const quizByTier = (tier) => quizQuestions.filter((item) => item.tier === tier);
+const countBy = (items, key) => {
+  const map = new Map();
+  items.forEach((item) => {
+    const value = item[key];
+    if (!value) return;
+    map.set(value, (map.get(value) ?? 0) + 1);
+  });
+  return Array.from(map.entries());
+};
+
+const QUIZ_TIERS = [
+  {
+    path: "/quiz/university",
+    tier: "university",
+    title: "اختبارات طلبة كليات الحقوق من S1 إلى S6 | ميزان",
+    description:
+      "اختبارات قانونية مرتبطة بالمقررات الجامعية الرسمية لكل فصل دراسي: القانون المدني، الجنائي، الإداري، الدستوري، المساطر، الشغل، ومدونة الأسرة.",
+    heading: "اختبارات طلبة الكلية",
+    lead: "أسئلة مصنّفة بحسب الفصل الدراسي (S1 حتى S6) والمادة، مع شرح وسند قانوني لكل سؤال.",
+    groups: () =>
+      ["S1", "S2", "S3", "S4", "S5", "S6"].map((semester) => ({
+        title: `الفصل ${semester}`,
+        items: countBy(
+          quizByTier("university").filter((item) => item.semester === semester),
+          "module"
+        ).map(([name, total]) => `${name} (${total} سؤالاً)`),
+      })),
+  },
+  {
+    path: "/quiz/general",
+    tier: "general",
+    title: "الاختبار العشوائي العام — ثقافة قانونية ونقاط خبرة | ميزان",
+    description:
+      "أسئلة قانونية متنوعة تظهر عشوائياً: أجب فتجمع نقاط الخبرة، وأخطئ فيمنحك النظام الإجابة الصحيحة مع شرح مبسط ومفاجئ.",
+    heading: "الاختبار العشوائي العام",
+    lead: "تسلية معرفية تكسر ملل المراجعة اليومية، وتمنحك نقاط خبرة (XP) ترفع رتبتك من D حتى SSS.",
+    groups: () => [
+      {
+        title: "محاور الأسئلة",
+        items: [
+          `إجمالي الأسئلة المتاحة: ${quizByTier("general").length}`,
+          "الثقافة القانونية المغربية",
+          "الحقوق والحريات",
+          "المؤسسات الدستورية",
+        ],
+      },
+    ],
+  },
+  {
+    path: "/quiz/concours",
+    tier: "concours",
+    title: "اختبارات المباريات المهنية — الأمن الوطني والقضاء والوظيفة العمومية | ميزان",
+    description:
+      "تدريب على صيغة أسئلة المباريات الرسمية بالمغرب: الأمن الوطني، القوات المساعدة، الجمارك، القضاء، والوظيفة العمومية، مع وضع مؤقّت كالمباراة الفعلية.",
+    heading: "اختبارات المباريات المهنية",
+    lead: "أسئلة تخصصية بصيغة قريبة من الامتحانات الرسمية السابقة، مع عدّاد زمني يحاكي ضغط المباراة.",
+    groups: () => [
+      {
+        title: "المباريات المتاحة",
+        items: [
+          `الأمن الوطني (${quizByTier("concours").filter((item) => item.body === "police").length} سؤالاً)`,
+          `القضاء وكتابة الضبط (${quizByTier("concours").filter((item) => item.body === "judiciary").length} سؤالاً)`,
+          `الوظيفة العمومية (${quizByTier("concours").filter((item) => item.body === "civil_service").length} سؤالاً)`,
+          `القوات المساعدة (${quizByTier("concours").filter((item) => item.body === "auxiliary").length} سؤالاً)`,
+          `الجمارك (${quizByTier("concours").filter((item) => item.body === "customs").length} سؤالاً)`,
+        ],
+      },
+    ],
+  },
+  {
+    path: "/quiz/interview",
+    tier: "interview",
+    title: "اختبارات المقابلات المهنية وتداريب العمل القانوني | ميزان",
+    description:
+      "مواقف عملية وأسئلة مقابلات حقيقية لإعداد الخريجين والباحثين عن تدريب أو وظيفة قانونية في مكاتب المحاماة والشركات والمؤسسات.",
+    heading: "مقابلات التدريب والعمل",
+    lead: "أسئلة عملية ومواقف تطبيقية من الواقع المهني لتأكيد الجاهزية العملية.",
+    groups: () => [
+      {
+        title: "محاور التدريب",
+        items: [
+          `تدريب في مكتب محاماة أو محكمة (${quizByTier("interview").filter((item) => item.track === "internship").length} سؤالاً)`,
+          `وظيفة قانونية (${quizByTier("interview").filter((item) => item.track === "job").length} سؤالاً)`,
+          `أخلاقيات المهنة (${quizByTier("interview").filter((item) => item.track === "ethics").length} سؤالاً)`,
+          `مهارات التواصل والعمل (${quizByTier("interview").filter((item) => item.track === "softskills").length} سؤالاً)`,
+        ],
+      },
+    ],
+  },
+];
+
+pages.push(
+  {
+    path: "/quiz",
+    title: "اختبارات القانون المغربي — الكلية، المباريات، المقابلات | ميزان",
+    description:
+      "اختبر نفسك في القانون المغربي عبر أربعة مسارات: اختبارات طلبة الكلية من S1 إلى S6، اختبار عشوائي للثقافة القانونية، مباريات الأمن الوطني والقضاء والوظيفة العمومية، وتدريبات المقابلات المهنية.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "مسارات الاختبارات القانونية في ميزان",
+      itemListElement: QUIZ_TIERS.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.heading,
+        url: absoluteUrl(item.path),
+      })),
+    },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "الاختبارات", path: "/quiz" },
+      ]),
+    ],
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>الاختبارات القانونية</h1>
+          <p>
+            أربعة مسارات لاختبار نفسك في القانون المغربي: تحضير امتحانات الكلية،
+            ثقافة قانونية عامة، التدريب على صيغة المباريات المهنية، والتأهيل العملي
+            لمقابلات التدريب والعمل. كل إجابة صحيحة تمنحك نقاط خبرة وترقّيك من الرتبة D حتى SSS.
+          </p>
+          <ul>
+            ${QUIZ_TIERS.map(
+              (item) => `<li><a href="${item.path}">${escapeHtml(item.heading)}</a> — ${escapeHtml(item.description)}</li>`
+            ).join("\n            ")}
+            <li><a href="/quiz/placement">اختبار تحديد المستوى</a> — 15 سؤالاً تحدد رتبتك الابتدائية.</li>
+          </ul>
+          <h2>إجمالي الأسئلة</h2>
+          <p>${quizQuestions.length} سؤالاً موزّعة على المسارات الأربعة.</p>
+        </article>
+      </main>
+    `,
+  },
+
+  ...QUIZ_TIERS.map((item) => ({
+    path: item.path,
+    title: item.title,
+    description: item.description,
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      name: item.heading,
+      description: item.description,
+      educationalLevel: item.tier === "university" ? "جامعي" : undefined,
+      about: "القانون المغربي",
+      inLanguage: "ar-MA",
+      url: absoluteUrl(item.path),
+    },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "الاختبارات", path: "/quiz" },
+        { name: item.heading, path: item.path },
+      ]),
+    ],
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>${escapeHtml(item.heading)}</h1>
+          <p>${escapeHtml(item.lead)}</p>
+          ${item
+            .groups()
+            .map(
+              (group) => `
+          <section>
+            <h2>${escapeHtml(group.title)}</h2>
+            <ul>
+              ${group.items.map((entry) => `<li>${escapeHtml(entry)}</li>`).join("\n              ")}
+            </ul>
+          </section>`
+            )
+            .join("\n          ")}
+        </article>
+      </main>
+    `,
+  })),
+
+  {
+    path: "/quiz/placement",
+    title: "اختبار تحديد المستوى في القانون — حدد رتبتك في 5 دقائق | ميزان",
+    description:
+      "15 سؤالاً متدرجة تحدد مستواك الابتدائي في القانون المغربي وتمنحك الرتبة المناسبة، مع خيار التجاوز المدفوع للمحامين والخبراء.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Quiz",
+      name: "اختبار تحديد المستوى",
+      description: "15 سؤالاً متدرجة تحدد الرتبة الابتدائية في منصة ميزان.",
+      inLanguage: "ar-MA",
+      url: absoluteUrl("/quiz/placement"),
+    },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "الاختبارات", path: "/quiz" },
+        { name: "تحديد المستوى", path: "/quiz/placement" },
+      ]),
+    ],
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>اختبار تحديد المستوى</h1>
+          <p>
+            خمسة عشر سؤالاً تكفي ليرسم النظام صورة عن مستواك: نبدأ بأسئلة سهلة في
+            الثقافة القانونية، ثم نصعد تدريجياً حتى مستوى مباريات القضاء.
+          </p>
+          <h2>سلم الرتب بعد التحديد</h2>
+          <ul>
+            <li>Rank D — مبتدئ: أول خطوة في الطريق.</li>
+            <li>Rank C — متعلم: تمكنت من المصطلحات والمبادئ العامة.</li>
+            <li>Rank B — متمكن: تجيب عن أسئلة الفصول المتوسطة بثبات.</li>
+            <li>Rank A — متقدم: مستوى يؤهلك لمساعدة زملائك ونشر مقالاتك.</li>
+          </ul>
         </article>
       </main>
     `,

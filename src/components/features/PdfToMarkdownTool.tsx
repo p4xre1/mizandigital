@@ -45,7 +45,9 @@ export default function PdfToMarkdownTool({ onSave }: PdfToMarkdownToolProps) {
   }, [])
 
   const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    // HTMLElement بدل HTMLDivElement: نفس المعالج موصول بعنصر <label>
+    // (شوف JSX تحت)، فتقييده بـ HTMLDivElement كان يمنع التصريف (TS2322).
+    (e: React.DragEvent<HTMLElement>) => {
       e.preventDefault()
       setIsDragging(false)
       pickFile(e.dataTransfer.files?.[0])
