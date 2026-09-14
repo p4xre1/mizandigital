@@ -10,6 +10,13 @@ export default defineConfig({
   resolve: {
     alias: { "@": path.resolve(rootDir, "./src") },
   },
+  server: {
+    host: true,
+    // إعداد خادم التطوير فقط: يسمح بفتح الموقع من مضيفات المعاينة
+    // (مثل *.e2b.app المستعملة في بيئات التطوير السحابية) بدل رفض الطلب
+    // بـ HTTP 403 "Blocked request". لا أثر له على بناء الإنتاج.
+    allowedHosts: [".e2b.app", ".arena.ai", "localhost"],
+  },
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {

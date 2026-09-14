@@ -90,6 +90,9 @@ export function Header({
           <NavLink to="/articles" title="مقالات ودراسات قانونية معمقة" className={linkClass}>
             المقالات
           </NavLink>
+          <NavLink to="/quiz" title="اختبارات قانونية: الكلية، العشوائي، المباريات، المقابلات" className={linkClass}>
+            الاختبارات
+          </NavLink>
           <NavLink to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className={linkClass}>
             القاموس
           </NavLink>
@@ -228,6 +231,9 @@ export function Footer() {
             <Link to="/events" title="الندوات واللقاءات القانونية القادمة" className="hover:text-foreground">
               الندوات واللقاءات
             </Link>
+            <Link to="/quiz" title="اختبارات قانونية للكلية والمباريات والمقابلات المهنية" className="hover:text-foreground">
+              الاختبارات القانونية
+            </Link>
           </div>
         </div>
         <div>
@@ -238,6 +244,9 @@ export function Footer() {
             </Link>
             <Link to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className="hover:text-foreground">
               دليل كليات الحقوق
+            </Link>
+            <Link to="/profile" title="ملفي الشخصي — رتبتي ونقاط خبرتي وبروفايلي العام" className="hover:text-foreground">
+              ملفي ورتبتي
             </Link>
             <Link to="/faq" title="الأسئلة الشائعة حول منصة ميزان الرقمية" className="hover:text-foreground">
               الأسئلة الشائعة

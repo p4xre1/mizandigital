@@ -112,6 +112,178 @@ export interface Database {
         Update: { id?: string; clerk_user_id?: string; user_type?: string; referral_source?: string; interests?: string[]; created_at?: string; updated_at?: string }
         Relationships: []
       }
+      // محور الاختبارات ونظام الرتب — أنشئت في ترقية 20260914000000
+      quiz_questions: {
+        Row: {
+          id: string
+          slug: string
+          tier: string
+          semester: string | null
+          module: string | null
+          body: string | null
+          track: string | null
+          difficulty: string
+          question: string
+          options: Json
+          answer: number
+          explanation: string
+          reference: string | null
+          is_published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          tier: string
+          semester?: string | null
+          module?: string | null
+          body?: string | null
+          track?: string | null
+          difficulty?: string
+          question: string
+          options?: Json
+          answer?: number
+          explanation: string
+          reference?: string | null
+          is_published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          tier?: string
+          semester?: string | null
+          module?: string | null
+          body?: string | null
+          track?: string | null
+          difficulty?: string
+          question?: string
+          options?: Json
+          answer?: number
+          explanation?: string
+          reference?: string | null
+          is_published?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          id: string
+          user_ref: string | null
+          mode: string
+          label: string | null
+          total: number
+          correct: number
+          score: number
+          xp_earned: number
+          credits_earned: number
+          best_streak: number
+          duration_ms: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_ref?: string | null
+          mode: string
+          label?: string | null
+          total?: number
+          correct?: number
+          score?: number
+          xp_earned?: number
+          credits_earned?: number
+          best_streak?: number
+          duration_ms?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_ref?: string | null
+          mode?: string
+          label?: string | null
+          total?: number
+          correct?: number
+          score?: number
+          xp_earned?: number
+          credits_earned?: number
+          best_streak?: number
+          duration_ms?: number | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      mizan_profiles: {
+        Row: {
+          id: string
+          owner_id: string | null
+          clerk_user_id: string | null
+          username: string
+          display_name: string
+          role: string
+          semester: string | null
+          years_of_experience: number | null
+          interests: string[]
+          city: string | null
+          bio: string | null
+          xp: number
+          credits: number
+          rank: string
+          badges: string[]
+          streak_days: number
+          placement_completed: boolean
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          owner_id?: string | null
+          clerk_user_id?: string | null
+          username: string
+          display_name: string
+          role?: string
+          semester?: string | null
+          years_of_experience?: number | null
+          interests?: string[]
+          city?: string | null
+          bio?: string | null
+          xp?: number
+          credits?: number
+          rank?: string
+          badges?: string[]
+          streak_days?: number
+          placement_completed?: boolean
+          is_public?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<{
+          id: string
+          owner_id: string | null
+          clerk_user_id: string | null
+          username: string
+          display_name: string
+          role: string
+          semester: string | null
+          years_of_experience: number | null
+          interests: string[]
+          city: string | null
+          bio: string | null
+          xp: number
+          credits: number
+          rank: string
+          badges: string[]
+          streak_days: number
+          placement_completed: boolean
+          is_public: boolean
+          created_at: string
+          updated_at: string
+        }>
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
     Functions: { [_ in never]: never }
