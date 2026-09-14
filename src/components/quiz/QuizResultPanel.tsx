@@ -4,7 +4,6 @@ import {
   RotateCcw,
   ArrowLeft,
   Share2,
-  Download,
   Sparkles,
   CheckCircle2,
   XCircle,
@@ -24,12 +23,7 @@ import {
 import { BADGE_BY_ID, getRankProgress, type RankProgress } from "@/lib/quiz/ranks"
 import { XpBar } from "./XpBar"
 import { RankBadge } from "./RankBadge"
-import {
-  buildLinkedInShareUrl,
-  buildWhatsAppShareUrl,
-  renderShareCard,
-  shareOrDownloadCard,
-} from "@/lib/quiz/shareCard"
+import { ShareDialog } from "./ShareDialog"
 
 /**
  * شاشة النتيجة بعد إكمال الاختبار: النسبة، نقاط الخبرة المكتسبة، الرتبة،
@@ -66,7 +60,7 @@ export function QuizResultPanel({
   onExit: () => void
 }) {
   const verdict = getScoreVerdict(summary.score)
-  const [shareState, setShareState] = useState<string | null>(null)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const questionById = new Map(questions.map((question) => [question.id, question]))
 
@@ -78,17 +72,6 @@ export function QuizResultPanel({
     rank: rankProgress.rank.id,
     username,
     xpEarned: summary.xpEarned,
-  }
-
-  const handleShareCard = async () => {
-    setShareState("جارٍ تحضير البطاقة...")
-    const blob = await renderShareCard(shareInput)
-    if (!blob) {
-      setShareState("تعذّر إنشاء البطاقة على هذا المتصفح.")
-      return
-    }
-    const result = await shareOrDownloadCard(blob)
-    setShareState(result === "downloaded" ? "نُزّلت البطاقة — شاركها على واتساب أو لينكد إن." : result === "shared" ? "تمت المشاركة." : "تعذّرت المشاركة.")
   }
 
   return (
@@ -180,30 +163,12 @@ export function QuizResultPanel({
           </button>
           <button
             type="button"
-            onClick={handleShareCard}
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[13px] font-extrabold text-foreground transition hover:border-primary/50"
+            onClick={() => setShareOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-primary/40 bg-primary/5 px-4 py-2.5 text-[13px] font-extrabold text-primary transition hover:bg-primary/10"
           >
-            <Download className="size-4" aria-hidden="true" />
-            بطاقة النتيجة
+            <Share2 className="size-4" aria-hidden="true" />
+            مشاركة النتيجة (بطاقة + واتساب + لينكد إن)
           </button>
-          <a
-            href={buildWhatsAppShareUrl(shareInput)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[13px] font-extrabold text-foreground transition hover:border-emerald-500/60 hover:text-emerald-600"
-          >
-            <Share2 className="size-4" aria-hidden="true" />
-            مشاركة على واتساب
-          </a>
-          <a
-            href={buildLinkedInShareUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-[13px] font-extrabold text-foreground transition hover:border-sky-500/60 hover:text-sky-600"
-          >
-            <Share2 className="size-4" aria-hidden="true" />
-            لينكد إن
-          </a>
           <button
             type="button"
             onClick={onExit}
@@ -213,8 +178,14 @@ export function QuizResultPanel({
             العودة للاختبارات
           </button>
         </div>
-        {shareState && <p className="px-6 pb-5 text-[12px] font-semibold text-muted-foreground">{shareState}</p>}
       </div>
+
+      <ShareDialog
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        input={shareInput}
+        shareUrl={username ? `https://mizan.page/u/${username}` : "https://mizan.page/quiz"}
+      />
 
       {/* مراجعة الأسئلة */}
       <div className="mt-6">

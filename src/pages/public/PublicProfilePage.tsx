@@ -20,7 +20,7 @@ import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
 import { BADGE_BY_ID, getRankDefinition, getRankProgress } from "../../lib/quiz/ranks"
 import { fetchPublicProfile, type PublicProfile } from "../../lib/quiz/profileService"
-import { buildWhatsAppShareUrl } from "../../lib/quiz/shareCard"
+import { buildProfileShare, copyToClipboard, openExternalShare } from "../../lib/quiz/shareCard"
 
 const ROLE_META: Record<string, { label: string; icon: typeof Users }> = {
   student: { label: "طالب قانون", icon: GraduationCap },
@@ -52,13 +52,9 @@ export function PublicProfilePage() {
   }, [username])
 
   const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href)
-      setCopied(true)
-      window.setTimeout(() => setCopied(false), 2500)
-    } catch {
-      /* تجاهل */
-    }
+    const ok = await copyToClipboard(window.location.href)
+    setCopied(ok)
+    window.setTimeout(() => setCopied(false), 2500)
   }
 
   if (loading) {
@@ -97,6 +93,16 @@ export function PublicProfilePage() {
   const rank = getRankDefinition(profile.rank as never)
   const rankProgress = getRankProgress(profile.xp)
   const roleMeta = ROLE_META[profile.role] ?? ROLE_META.citizen
+  const profileShare = buildProfileShare({
+    displayName: profile.displayName,
+    username: profile.username,
+    rank: rank.id,
+  })
+
+  // داخل الإطارات المعزولة يحجب المتصفح النوافذ المنبثقة، فننسخ الرابط بدلاً منه
+  const shareProfile = (url: string) => {
+    if (openExternalShare(url) === "blocked") void copyToClipboard(url)
+  }
 
   return (
     <main className="container-wide py-10" dir="rtl">
@@ -233,21 +239,22 @@ export function PublicProfilePage() {
             {copied ? <Check className="size-4 text-emerald-600" /> : <Copy className="size-4" />}
             {copied ? "نُسخ الرابط" : "نسخ الرابط"}
           </button>
-          <a
-            href={buildWhatsAppShareUrl({
-              title: `بروفايل ${profile.displayName} على ميزان`,
-              score: 0,
-              correct: 0,
-              total: 0,
-              rank: rank.id,
-            })}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => shareProfile(profileShare.whatsappUrl)}
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-[12.5px] font-extrabold text-foreground transition hover:border-emerald-500/60 hover:text-emerald-600"
           >
             <Share2 className="size-4" />
-            مشاركة البروفايل
-          </a>
+            مشاركة على واتساب
+          </button>
+          <button
+            type="button"
+            onClick={() => shareProfile(profileShare.linkedinUrl)}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-[12.5px] font-extrabold text-foreground transition hover:border-sky-500/60 hover:text-sky-600"
+          >
+            <Share2 className="size-4" />
+            مشاركة على لينكد إن
+          </button>
           <Link
             to="/quiz"
             className="mr-auto inline-flex items-center gap-2 text-[12.5px] font-extrabold text-primary transition hover:gap-3"

@@ -140,22 +140,131 @@ export async function renderShareCard(input: ShareCardInput): Promise<Blob | nul
   })
 }
 
-/** ينشئ رابط مشاركة واتساب لنتيجة الاختبار. */
-export function buildWhatsAppShareUrl(input: ShareCardInput): string {
-  const text = `حققت %${Math.round(input.score)} في اختبار «${input.title}» على منصة ميزان الرقمية — رتبتي الحالية ${input.rank}. جرّب حظك: https://mizan.page/quiz`
-  return `https://wa.me/?text=${encodeURIComponent(text)}`
+/** ينشئ نص المشاركة الجاهز للنسخ أو لإرساله عبر واتساب. */
+export function buildShareText(input: ShareCardInput): string {
+  const scorePart = input.total > 0
+    ? `حصلت على ${input.correct} من ${input.total} (${Math.round(input.score)} من 100)`
+    : `نتيجتي ${Math.round(input.score)} من 100`
+
+  return [
+    `${scorePart} في اختبار «${input.title}» على منصة ميزان الرقمية.`,
+    `رتبتي الحالية: ${input.rank}.`,
+    input.username ? `بروفايلي: https://mizan.page/u/${input.username}` : "",
+    "جرّب حظك: https://mizan.page/quiz",
+  ]
+    .filter(Boolean)
+    .join("\n")
 }
 
-/** ينشئ رابط مشاركة لينكد إن (يشارك رابط المنصة). */
-export function buildLinkedInShareUrl(): string {
-  return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://mizan.page/quiz")}`
+/** رابط مشاركة واتساب (api.whatsapp.com أنسب من wa.me للمشاركة النصية). */
+export function buildWhatsAppShareUrl(input: ShareCardInput): string {
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(buildShareText(input))}`
+}
+
+/** رابط مشاركة لينكد إن — share-offsite هو نقطة النهاية الرسمية للمشاركة. */
+export function buildLinkedInShareUrl(url = "https://mizan.page/quiz"): string {
+  return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
+}
+
+/** نص ورابط مشاركة البروفايل العام (يختلف عن بطاقة نتيجة الاختبار). */
+export function buildProfileShare(input: { displayName: string; username: string; rank: string }): {
+  text: string
+  whatsappUrl: string
+  linkedinUrl: string
+  url: string
+} {
+  const url = `https://mizan.page/u/${input.username}`
+  const text = `${input.displayName} على منصة ميزان الرقمية — الرتبة ${input.rank}.\nبروفايلي القانوني: ${url}`
+  return {
+    text,
+    whatsappUrl: `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`,
+    linkedinUrl: buildLinkedInShareUrl(url),
+    url,
+  }
+}
+
+/**
+ * يفتح نافذة مشاركة خارجية (واتساب/لينكد إن...).
+ *
+ * داخل الإطارات المعزولة (iframes) — مثل نافذة المعاينة في بيئات التطوير —
+ * يحجب المتصفح النوافذ المنبثقة، فيرجع `window.open` بـ null. نميّز هذه
+ * الحالة ونُرجع "blocked" لتعرض الواجهة حينها صندوق نسخ الرابط بدل أن تبدو
+ * وكأن الزر معطّل.
+ */
+export function openExternalShare(url: string): "opened" | "blocked" {
+  if (typeof window === "undefined") return "blocked"
+  try {
+    const win = window.open(url, "_blank", "noopener,noreferrer")
+    return win ? "opened" : "blocked"
+  } catch {
+    return "blocked"
+  }
+}
+
+/** نسخ نص إلى الحافظة مع بديل (execCommand) لأن الـ API محجوب في بعض الإطارات. */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  if (typeof document === "undefined") return false
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  } catch {
+    /* نكمل بالبديل أدناه */
+  }
+  try {
+    const textarea = document.createElement("textarea")
+    textarea.value = text
+    textarea.setAttribute("readonly", "")
+    textarea.style.position = "fixed"
+    textarea.style.opacity = "0"
+    document.body.appendChild(textarea)
+    textarea.select()
+    const ok = document.execCommand("copy")
+    document.body.removeChild(textarea)
+    return ok
+  } catch {
+    return false
+  }
+}
+
+/** ينشئ رابطاً مؤقتاً للصورة لعرضها أو تنزيلها داخل الواجهة. */
+export function blobToObjectUrl(blob: Blob): string | null {
+  try {
+    return URL.createObjectURL(blob)
+  } catch {
+    return null
+  }
+}
+
+/** ينزّل ملفاً (الصورة) — ويرجع "blocked" إن حجب المتصفح التنزيل. */
+export function downloadBlob(blob: Blob, filename: string): "downloaded" | "blocked" {
+  if (typeof document === "undefined") return "blocked"
+  try {
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = filename
+    link.rel = "noopener"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.setTimeout(() => URL.revokeObjectURL(url), 10_000)
+    return "downloaded"
+  } catch {
+    return "blocked"
+  }
 }
 
 /**
  * يشارك البطاقة: عبر Web Share API على الجوال (تشمل واتساب ولينكد إن مباشرة)،
- * وإلا ينزّلها كصورة PNG على الحاسوب.
+ * وإلا ينزّلها كصورة PNG على الحاسوب. النتيجة تُخبر الواجهة بما حدث فعلاً
+ * حتى تعرض الرسالة المناسبة.
  */
-export async function shareOrDownloadCard(blob: Blob, filename = "mizan-result.png"): Promise<"shared" | "downloaded" | "failed"> {
+export async function shareOrDownloadCard(
+  blob: Blob,
+  filename = "mizan-result.png"
+): Promise<"shared" | "downloaded" | "blocked" | "failed"> {
   if (typeof window === "undefined") return "failed"
 
   const file = new File([blob], filename, { type: "image/png" })
@@ -170,17 +279,5 @@ export async function shareOrDownloadCard(blob: Blob, filename = "mizan-result.p
     }
   }
 
-  try {
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    link.href = url
-    link.download = filename
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-    return "downloaded"
-  } catch {
-    return "failed"
-  }
+  return downloadBlob(blob, filename)
 }
