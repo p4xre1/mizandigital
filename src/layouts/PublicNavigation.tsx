@@ -23,7 +23,7 @@ function PinterestIcon({ size = 18 }: { size?: number }) {
 export function Brand({ onClick }: { onClick?: () => void } = {}) {
   return (
     <Link to="/" onClick={onClick} className="flex shrink-0 items-center gap-2.5">
-      <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black text-[16px] shadow-sm">م</span>
+      <img src="/Logo.svg" alt="ميزان الرقمية" className="size-9 rounded-xl shadow-sm object-cover" width={36} height={36} loading="eager" />
       <span>
         <span className="block text-[15px] font-black tracking-tight leading-none text-[#0f172a] dark:text-white">ميزان الرقمية</span>
         <span className="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8] tracking-wide">المعرفة القانونية للطلبة</span>
@@ -192,7 +192,7 @@ export function Footer() {
       <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
         <div>
           <div className="flex items-center gap-2.5">
-            <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black">م</span>
+            <img src="/Logo.svg" alt="ميزان الرقمية" className="size-9 rounded-xl shadow-sm object-cover" width={36} height={36} loading="lazy" />
             <span>
               <span className="block text-[15px] font-black">ميزان الرقمية</span>
               <span className="block text-[11px] text-[#94a3b8] font-bold">المعرفة القانونية للطلبة</span>
