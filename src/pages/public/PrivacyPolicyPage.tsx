@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { ShieldCheck } from "lucide-react"
@@ -15,9 +15,10 @@ export function PrivacyPolicyPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="سياسة الخصوصية"
         description="تعرّف على سياسة الخصوصية في منصة الميزان الرقمية: كيف نجمع بياناتك ونستخدمها ونحميها، بما في ذلك استخدام أدوات مثل Google Analytics وملفات تعريف الارتباط."
+        directAnswer="سياسة خصوصية ميزان الرقمية: حماية البيانات الشخصية وفق القانون المغربي 09.08 ومعايير GDPR."
         schema={breadcrumbSchema}
       />
 

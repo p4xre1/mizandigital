@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { Search, ArrowLeft, BookOpen, FileText, Newspaper, GraduationCap, Calendar, Scale, Loader2 } from "lucide-react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { supabase } from "../../lib/supabase/client"
 import { generateSlug } from "../../lib/utils/generateSlug"
 
@@ -61,7 +61,9 @@ export function SearchPage() {
   const icon = (type: string) => ({ article: FileText, news: Newspaper, law: Scale, pdf: BookOpen, term: BookOpen, school: GraduationCap, event: Calendar }[type] || Search)
 
   return <>
-    <SEOHead title={initialQuery ? `البحث عن ${initialQuery} - ميزان الرقمية` : "البحث في ميزان الرقمية"} description="ابحث في المقالات والأخبار والقوانين والملخصات والمصطلحات وكليات الحقوق والندوات في منصة ميزان الرقمية." keywords={["البحث القانوني المغربي", "القانون المغربي", "ميزان الرقمية"]} noindex />
+    <AEOHead title={initialQuery ? `البحث عن ${initialQuery} - ميزان الرقمية` : "البحث في ميزان الرقمية"} description="ابحث في المقالات والأخبار والقوانين والملخصات والمصطلحات وكليات الحقوق والندوات في منصة ميزان الرقمية."
+        directAnswer="بحث ذكي في ميزان الرقمية يشمل 304 سجلاً: مقالات، أخبار، مصطلحات قانونية، كليات، وملفات PDF."
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "SearchPage", url: "https://www.mizan.page/searchpage" }]} keywords={["البحث القانوني المغربي", "القانون المغربي", "ميزان الرقمية"]} noindex />
     <main dir="rtl" className="min-h-screen bg-background text-foreground">
       <section className="border-b border-border bg-muted/30 py-12 md:py-16">
         <div className="container mx-auto max-w-5xl px-4">

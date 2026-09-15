@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import schoolsData from "../../data/schools.json"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
@@ -112,9 +112,10 @@ export function SchoolsPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="دليل كليات الحقوق والجامعات المغربية"
         description="دليل شامل لجميع كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب (FSJES)، مع التخصصات الأكاديمية المتوفرة والمعلومات العملية بكل مؤسسة وكل مدينة."
+        directAnswer="دليل كليات الحقوق بالمغرب في ميزان الرقمية يضم 21 كلية (FSJES وFSJP) مع معلومات التسجيل والمدينة والجامعة."
         keywords={["كليات الحقوق بالمغرب", "FSJES", "الجامعات المغربية", "دراسة القانون بالمغرب", ...cities]}
         schema={listSchema}
       />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
@@ -166,9 +166,11 @@ export function NewsPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={pageTitle}
         description="متابعة مستمرة لأهم المستجدات التشريعية والقضائية بالمغرب: البلاغات الرسمية، منشورات الجريدة الرسمية، وأخبار المحاكم والمؤسسات القانونية والأكاديمية."
+        directAnswer="أخبار تشريعية وقضائية مغربية: مستجدات القوانين، قرارات المحكمة الدستورية، ومدونة الأسرة والشغل."
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "عرض شبكي", url: "https://www.mizan.page/newspage" }]}
         canonicalUrl="https://www.mizan.page/news"
         keywords={[
           "أخبار القانون المغربي",

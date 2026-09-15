@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { getStoredConsent, setStoredConsent, type ConsentValue } from "../../lib/utils/cookieConsent"
@@ -60,9 +60,10 @@ export function CookiePolicyPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="سياسة الكوكيز"
         description="تعرّف على ملفات تعريف الارتباط (الكوكيز) التي تستخدمها منصة الميزان الرقمية، أنواعها، الغرض من كل نوع، وكيفية التحكم بها أو تعطيلها من إعدادات متصفحك."
+        directAnswer="CookiePolicyPage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
         schema={breadcrumbSchema}
       />
 

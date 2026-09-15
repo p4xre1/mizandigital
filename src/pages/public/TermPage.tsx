@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom"
 import { useState, useEffect } from "react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { NotFound } from "./NotFound"
 import lexiconData from "../../data/lexicon.json"
@@ -226,7 +226,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr || ""})`}
         description={buildMetaDescription(term.definition, [
           term.term_fr ? `Terme juridique: ${term.term_fr}` : null,

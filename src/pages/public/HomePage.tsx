@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import {
   generateOrganizationSchema,
   generateWebSiteSchema,
@@ -121,11 +121,18 @@ export function HomePage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="المعرفة القانونية للطلبة بالمغرب"
         description="ميزان الرقمية منصة مغربية مجانية لطلبة القانون، تضم ملخصات دراسية، قاموساً قانونياً، أخباراً، ندوات ودليل كليات الحقوق."
+        directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تضم 304 سجلاً: 8 مقالات قانونية، 13 خبراً تشريعياً، 250 مصطلحاً قانونياً، 21 كلية حقوق، وأرشيف ملخصات S1-S6، و4 مسارات اختبارات (جامعي، عام، مباريات، مقابلات)."
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي", "مدونة الشغل المغربية", "المعجم القانوني المغربي", "كليات الحقوق بالمغرب", "ندوات قانونية", "شرح القانون المغربي", "دروس القانون للطلبة"]}
-        schema={[generateOrganizationSchema(), generateWebSiteSchema(), generateLegalServiceSchema()]}
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "المعرفة القانونية للطلبة بالمغرب", url: "https://www.mizan.page/homepage" }]}
+        faq={[
+          { question: "ما هي ميزان الرقمية؟", answer: "منصة مغربية مجانية للمعرفة القانونية لطلبة كليات الحقوق، تضم ملخصات، مقالات، أخبار تشريعية، قاموس قانوني (250 مصطلح)، دليل كليات (21 كلية)، واختبارات قانونية." },
+          { question: "هل المحتوى رسمي؟", answer: "لا، المحتوى تعليمي وبحثي فقط. للنصوص الرسمية راجع بوابة عدالة adala.justice.gov.ma والأمانة العامة للحكومة sgg.gov.ma." },
+          { question: "ما هي الفصول المتاحة؟", answer: "S1 إلى S6 — كل فصل يضم ملخصات ومحاضرات وملفات PDF حسب المادة والأستاذ." },
+          { question: "ما هي الاختبارات المتاحة؟", answer: "4 مسارات: الكلية (S1-S6 حسب المادة)، العشوائي العام (ثقافة قانونية + XP)، المباريات المهنية (الأمن، القضاء، الوظيفة العمومية)، والمقابلات المهنية." },
+        ]}
       />
       <main className="min-h-screen bg-background text-foreground" dir="rtl">
         <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 via-background to-background py-16 md:py-24"><div className="container mx-auto max-w-6xl px-4"><div className="mx-auto max-w-3xl text-center"><h1 className="text-3xl font-black tracking-tight text-foreground sm:text-5xl md:text-6xl leading-tight">ميزان الرقمية — <span className="text-primary">المعرفة القانونية</span> للطلبة بالمغرب</h1><p className="mt-6 text-base text-muted-foreground sm:text-lg leading-relaxed max-w-2xl mx-auto">أفضل منصة مجانية لملخصات ومصطلحات القانون لطلبة كليات الحقوق، بأرشيف دراسي كامل، ومعجم قانوني شامل، ومتابعة حية للمستجدات التشريعية والندوات القانونية.</p><div className="mt-8 flex flex-wrap items-center justify-center gap-4"><Link to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-md transition hover:opacity-90 hover:shadow-lg"><BookOpen size={18}/><span>تصفح المعجم القانوني</span></Link><Link to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-bold text-foreground transition hover:bg-muted"><GraduationCap size={18}/><span>دليل كليات الحقوق</span></Link></div><div className="mt-10"><SiteSearchBar /></div></div></div></section>

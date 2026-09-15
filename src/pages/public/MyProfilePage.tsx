@@ -15,7 +15,7 @@ import {
   ExternalLink,
   Share2,
 } from "lucide-react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
@@ -153,9 +153,10 @@ export function MyProfilePage() {
 
   return (
     <main className="container-wide py-10" dir="rtl">
-      <SEOHead
+      <AEOHead
         title="ملفي الشخصي — رتبتي ونقاط خبرتي"
         description="أنشئ بروفايلك العام على ميزان: رابط خاص بك، رتبتك، نقاط خبرتك، أوسمتك، وسجل اختباراتك القانونية."
+        directAnswer="MyProfilePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
         canonicalUrl="https://www.mizan.page/profile"
         noindex
         schema={[

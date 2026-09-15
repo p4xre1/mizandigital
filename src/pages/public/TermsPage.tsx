@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { Scale, ShieldAlert } from "lucide-react"
@@ -15,9 +15,10 @@ export function TermsPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="الشروط والأحكام وإخلاء المسؤولية"
         description="شروط استخدام منصة الميزان الرقمية، وإخلاء مسؤولية يوضح بجلاء أن المحتوى المقدَّم تعليمي بحت ولا يُعدّ بأي شكل بديلاً عن الاستشارة القانونية المتخصصة."
+        directAnswer="شروط استخدام ميزان الرقمية: المحتوى تعليمي فقط، ليس استشارة قانونية، يجب التحقق من النصوص الرسمية."
         schema={breadcrumbSchema}
       />
 

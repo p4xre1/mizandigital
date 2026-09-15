@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "ميزان الرقمية - Mizan Digital",
+  "name_for_model": "mizan_digital",
+  "description_for_human": "منصة مغربية للمعرفة القانونية: 8 مقالات، 13 أخبار، 250 مصطلح قانوني، 21 كلية حقوق، ملخصات S1-S6، واختبارات.",
+  "description_for_model": "Moroccan legal education platform in Arabic (ar-MA). 8 articles, 13 news, 250 lexicon terms, 21 schools, S1-S6 summaries, 4-tier quiz. Educational only, verify via adala.justice.gov.ma",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://www.mizan.page/.well-known/openapi.json",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://www.mizan.page/icon-512.png",
+  "contact_email": "contact@mizan.page",
+  "legal_info_url": "https://www.mizan.page/terms"
+}

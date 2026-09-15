@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.mizan.page/llms.txt</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.mizan.page/llms-full.txt</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mizan.page/ai.txt</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.mizan.page/.well-known/ai-plugin.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/.well-known/openapi.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/.well-known/agent-card.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/.well-known/ai-catalog.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+</urlset>

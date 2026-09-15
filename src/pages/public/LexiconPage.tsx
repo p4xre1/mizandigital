@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
@@ -148,9 +148,10 @@ export function LexiconPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="القاموس القانوني المغربي"
         description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
+        directAnswer="القاموس القانوني في ميزان الرقمية يضم 250 مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب."
         canonicalUrl="https://www.mizan.page/lexicon"
         keywords={[
           "المعجم القانوني المغربي",

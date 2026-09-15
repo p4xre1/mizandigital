@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useParams, Link, useLocation } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
@@ -509,7 +509,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={article.title}
         description={buildMetaDescription(article.summary, [
           article.category ? `مقال ضمن قسم ${article.category}` : null,

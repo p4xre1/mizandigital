@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { useParams, useLocation, Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
@@ -171,9 +171,10 @@ export function PdfDownloadPage() {
   if (notFound || !target || !target.downloadUrl || target.downloadUrl === "#") {
     return (
       <>
-        <SEOHead
+        <AEOHead
           title="الملف غير متاح"
           description="تعذّر العثور على رابط تحميل صالح لهذا الملف ضمن أرشيف منصة الميزان الرقمية. قد يكون الملف غير متاح مؤقتاً أو تم نقله إلى قسم آخر من الأرشيف."
+        directAnswer="تحميل ملفات PDF من أرشيف ميزان الرقمية لطلبة الحقوق S1-S6 حسب المادة والأستاذ."
           noindex
         />
         <main className="container mx-auto max-w-xl px-4 py-20 text-center" dir="rtl">
@@ -201,7 +202,7 @@ export function PdfDownloadPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={`تحميل: ${target.title}`}
         description={buildMetaDescription(null, [
           `حمّل مجاناً ملف "${target.title}" من أرشيف منصة الميزان الرقمية`,

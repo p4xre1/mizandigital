@@ -1,0 +1,47 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Mizan Digital API",
+    "description": "API for Moroccan legal platform — 8 articles, 250 terms, 21 schools",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://www.mizan.page"
+    }
+  ],
+  "paths": {
+    "/api/search": {
+      "get": {
+        "operationId": "search",
+        "summary": "Search legal content",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results"
+          }
+        }
+      }
+    },
+    "/llms.txt": {
+      "get": {
+        "operationId": "getLlmsTxt",
+        "summary": "Get llms.txt for AI",
+        "responses": {
+          "200": {
+            "description": "llms.txt"
+          }
+        }
+      }
+    }
+  }
+}

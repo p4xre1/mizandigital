@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
@@ -139,7 +139,7 @@ export function ArticlesPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={pageTitle}
         description={pageDescription}
         keywords={[

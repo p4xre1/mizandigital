@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { SEOHead } from "@/components/seo/SEOHead";
+import { AEOHead } from "@/components/seo/AEOHead";
 import { fetchGuidelines, type CommunityGuideline } from "@/lib/governance/service";
 import { Shield, BookOpen, MessageSquare, Scale, Loader2 } from "lucide-react";
 
@@ -23,9 +23,11 @@ export function GuidelinesPage() {
 
   return (
     <main className="container-wide py-10" dir="rtl">
-      <SEOHead
+      <AEOHead
         title="إرشادات المجتمع — ميزان الرقمية"
         description="إرشادات المجتمع لميزان الرقمية: الاحترام، الدقة القانونية، منع السبام، ونزاهة الاختبارات."
+        directAnswer="إرشادات مجتمع ميزان الرقمية: احترام المحتوى التعليمي، عدم نشر استشارة قانونية، والتحقق من النصوص الرسمية."
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "إرشادات المجتمع — ميزان الرقمية", url: "https://www.mizan.page/guidelinespage" }]}
         canonicalUrl="https://www.mizan.page/guidelines"
       />
 
