@@ -6,7 +6,7 @@ import { diversifyByCategory } from "../../lib/utils/diversify"
 import { CountUp } from "../../components/ui/CountUp"
 import { HomeFaqSection } from "../../components/home/HomeFaqSection"
 import {
-  BookOpen, Scale, GraduationCap, Search, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight
+  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight
 } from "lucide-react"
 
 interface FeedCard {
@@ -80,21 +80,18 @@ export function HomePage() {
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي"]}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground overflow-hidden" dir="rtl">
-        {/* Hero - Centered Text as requested */}
+        {/* Hero - Centered Text */}
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          {/* Decorative blur circles */}
           <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 size-[600px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/15 blur-[80px]" />
           <div className="pointer-events-none absolute -bottom-20 -right-20 size-[300px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/10 blur-[60px]" />
           <div className="pointer-events-none absolute -bottom-20 -left-20 size-[300px] rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f]/10 blur-[60px]" />
 
           <div className="container relative mx-auto max-w-[800px] px-6 py-16 lg:py-24 flex flex-col items-center text-center">
-            {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
               <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
               منصة تعليمية عصرية • مجانية 100%
             </div>
 
-            {/* Title - 3 lines centered */}
             <h1 className="mt-6 text-[36px] md:text-[52px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">
               افتح إمكانياتك مع
               <br />
@@ -103,12 +100,10 @@ export function HomePage() {
               <span className="text-[22px] md:text-[26px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span>
             </h1>
 
-            {/* Description - centered */}
             <p className="mt-6 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
               انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
             </p>
 
-            {/* Buttons - centered in middle */}
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_6px_20px_rgba(37,99,235,0.25)] transition-all hover:shadow-[0_8px_24px_rgba(37,99,235,0.35)] hover:-translate-y-0.5">
                 ابدأ الآن
@@ -120,7 +115,6 @@ export function HomePage() {
               </Link>
             </div>
 
-            {/* Small trust row - centered */}
             <div className="mt-8 flex items-center justify-center gap-4">
               <div className="flex -space-x-2 rtl:space-x-reverse">
                 {[1, 2, 3, 4].map((i) => (
@@ -140,7 +134,6 @@ export function HomePage() {
               </div>
             </div>
 
-            {/* Cards row below centered text - still centered */}
             <div className="mt-12 w-full max-w-[560px] grid grid-cols-2 gap-3">
               {[
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
@@ -163,8 +156,68 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Pricing - Subscription - EduFlex Blue */}
-        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] relative overflow-hidden">
+        {/* Course Category - استكشف مساراتنا المميزة - BEFORE subscription as requested */}
+        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]">
+          <div className="container mx-auto max-w-[1280px] px-6">
+            <div className="text-center mb-8">
+              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
+              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", color: "from-[#f59e0b] to-[#fbbf24]", href: "/archive" },
+                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },
+              ].map((card) => (
+                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_12px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
+                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                  <div className="flex items-center justify-between">
+                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm group-hover:scale-110 transition-transform`}>
+                      <card.icon className="size-5" />
+                    </div>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+                  </div>
+                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h3>
+                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                  <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-[#2563eb] opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all">
+                    استكشف <ArrowRight className="size-3 rtl:rotate-180" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-12">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
+                <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {latestArticles.slice(0, 4).map((item) => (
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all">
+                    <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden">
+                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
+                    </div>
+                    <div className="p-4">
+                      <span className="inline-block bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#dbeafe] dark:border-[#334155]">{item.category || "قانون"}</span>
+                      <h4 className="mt-2 font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
+                      <p className="mt-1 text-[11px] text-[#64748b] line-clamp-2">{item.summary}</p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                        <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
+                        <span>•</span>
+                        <span>ميزان الرقمية</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing - Subscription */}
+        <section className="py-16 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] relative overflow-hidden">
           <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 size-[800px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[100px]" />
           <div className="container relative mx-auto max-w-[1280px] px-6">
             <div className="text-center max-w-[640px] mx-auto">
@@ -182,7 +235,6 @@ export function HomePage() {
             </div>
 
             <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
-              {/* Free */}
               <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
@@ -216,7 +268,6 @@ export function HomePage() {
                 </Link>
               </div>
 
-              {/* Monthly - Popular? Actually yearly is popular */}
               <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.10)] hover:border-[#2563eb]/20 transition-all relative">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb]">
@@ -250,7 +301,6 @@ export function HomePage() {
                 </Link>
               </div>
 
-              {/* Yearly - Best Value */}
               <div className="rounded-2xl bg-[#0f172a] dark:bg-black border border-[#0f172a] dark:border-[#334155] p-6 shadow-[0_12px_32px_rgba(15,23,42,0.25)] relative overflow-hidden md:-mt-3 md:mb-3">
                 <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#2563eb] to-[#60a5fa]" />
                 <span className="absolute top-4 left-4 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[10px] font-black text-white shadow-sm">الأفضل قيمة — خصم 32%</span>
@@ -298,8 +348,8 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Why Choose Us - EduFlex - Arabic */}
-        <section className="py-16 bg-white dark:bg-[#0f172a]">
+        {/* Why Choose Us */}
+        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="max-w-[900px] mx-auto">
               <div className="text-center max-w-[640px] mx-auto mb-10">
@@ -333,68 +383,7 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Course Category - EduFlex */}
-        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]">
-          <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="text-center mb-8">
-              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
-              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
-                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", color: "from-[#f59e0b] to-[#fbbf24]", href: "/archive" },
-                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
-                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },
-              ].map((card) => (
-                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_12px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
-                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60 group-hover:opacity-100 transition-opacity`} />
-                  <div className="flex items-center justify-between">
-                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm group-hover:scale-110 transition-transform`}>
-                      <card.icon className="size-5" />
-                    </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
-                  </div>
-                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h3>
-                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                  <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-[#2563eb] opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all">
-                    استكشف <ArrowRight className="size-3 rtl:rotate-180" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Latest Articles - EduFlex Course Grid */}
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
-                <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {latestArticles.slice(0, 4).map((item) => (
-                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all">
-                    <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden">
-                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
-                    </div>
-                    <div className="p-4">
-                      <span className="inline-block bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#dbeafe] dark:border-[#334155]">{item.category || "قانون"}</span>
-                      <h4 className="mt-2 font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
-                      <p className="mt-1 text-[11px] text-[#64748b] line-clamp-2">{item.summary}</p>
-                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
-                        <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
-                        <span>•</span>
-                        <span>ميزان الرقمية</span>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats - EduFlex */}
+        {/* Stats */}
         <section className="py-12 bg-[#2563eb] dark:bg-[#1e40af] text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
           <div className="container mx-auto max-w-[1280px] px-6 relative">
