@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom"
-import { Scale, Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
+import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
 import { isClerkEnabled } from "@/lib/clerk/config"
 import { useEffect } from "react"
@@ -45,15 +45,17 @@ export function Header({
   onToggleMenu: () => void
   onCloseMenu?: () => void
 }) {
-  // Prevent body scroll when menu open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = "hidden"
+      document.documentElement.style.overflow = "hidden"
     } else {
       document.body.style.overflow = ""
+      document.documentElement.style.overflow = ""
     }
     return () => {
       document.body.style.overflow = ""
+      document.documentElement.style.overflow = ""
     }
   }, [menuOpen])
 
@@ -62,108 +64,110 @@ export function Header({
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-xl border-b border-[#e2e8f0] dark:border-[#1e293b]">
-      <div className="container mx-auto max-w-[1280px] px-4 h-[64px] flex items-center justify-between gap-4">
-        <Brand onClick={handleNavClick} />
+    <>
+      <header className="sticky top-0 z-[50] w-full bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-xl border-b border-[#e2e8f0] dark:border-[#1e293b]">
+        <div className="container mx-auto max-w-[1280px] px-4 h-16 flex items-center justify-between gap-4">
+          <Brand onClick={handleNavClick} />
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-1">
-          <NavLink to="/" end className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            الرئيسية
-          </NavLink>
-          <NavLink to="/articles" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            المقالات
-          </NavLink>
-          <NavLink to="/news" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            الأخبار
-          </NavLink>
-          <NavLink to="/lexicon" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            القاموس
-          </NavLink>
-          <NavLink to="/schools" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            الكليات
-          </NavLink>
-          <NavLink to="/archive" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            الأرشيف
-          </NavLink>
-          <NavLink to="/quiz" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
-            الاختبارات
-          </NavLink>
-        </nav>
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-1">
+            <NavLink to="/" end className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الرئيسية
+            </NavLink>
+            <NavLink to="/articles" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              المقالات
+            </NavLink>
+            <NavLink to="/news" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الأخبار
+            </NavLink>
+            <NavLink to="/lexicon" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              القاموس
+            </NavLink>
+            <NavLink to="/schools" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الكليات
+            </NavLink>
+            <NavLink to="/archive" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الأرشيف
+            </NavLink>
+            <NavLink to="/quiz" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الاختبارات
+            </NavLink>
+          </nav>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
-            <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
-              <Search className="size-4" />
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
+              <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
+                <Search className="size-4" />
+              </div>
+              <input placeholder="ابحث..." className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
             </div>
-            <input placeholder="ابحث..." className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
+
+            <button onClick={onToggleTheme} className="hidden lg:grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle theme">
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+
+            {isClerkEnabled && (
+              <div className="hidden md:flex items-center gap-2">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-8" } }} />
+                </SignedIn>
+              </div>
+            )}
+
+            <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
+              ابدأ الآن
+              <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
+            </Link>
+
+            <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle menu">
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
           </div>
-
-          <button onClick={onToggleTheme} className="hidden lg:grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle theme">
-            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          {isClerkEnabled && (
-            <div className="hidden md:flex items-center gap-2">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-8" } }} />
-              </SignedIn>
-            </div>
-          )}
-
-          <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
-            ابدأ الآن
-            <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
-          </Link>
-
-          <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle menu">
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Menu - Fixed overlay, not absolute, prevents crash */}
+      {/* Mobile Menu - MUST be outside header to avoid backdrop-filter containing block bug that clips fixed children */}
       {menuOpen && (
         <>
-          <div className="lg:hidden fixed inset-0 top-[64px] bg-black/20 backdrop-blur-sm z-30" onClick={onCloseMenu} />
-          <div className="lg:hidden fixed inset-x-0 top-[64px] bottom-0 bg-white dark:bg-[#0f172a] border-t border-[#e2e8f0] dark:border-[#1e293b] z-40 overflow-y-auto">
-            <nav className="p-4 space-y-1">
-              <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+          <div className="lg:hidden fixed inset-0 top-16 bg-black/40 backdrop-blur-[2px] z-[60]" onClick={onCloseMenu} aria-hidden="true" />
+          <div className="lg:hidden fixed left-0 right-0 top-16 bottom-0 bg-white dark:bg-[#0f172a] z-[70] overflow-y-auto border-t border-[#e2e8f0] dark:border-[#1e293b] shadow-[0_20px_60px_-10px_rgba(0,0,0,0.3)]">
+            <nav className="p-4 space-y-1.5 pb-24">
+              <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>الرئيسية</span>
-                <span>🏠</span>
+                <span className="text-[16px]">🏠</span>
               </NavLink>
-              <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+              <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>المقالات</span>
-                <span>📚</span>
+                <span className="text-[16px]">📚</span>
               </NavLink>
-              <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+              <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>الأخبار</span>
-                <span>📰</span>
+                <span className="text-[16px]">📰</span>
               </NavLink>
-              <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+              <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>القاموس</span>
-                <span>📖</span>
+                <span className="text-[16px]">📖</span>
               </NavLink>
-              <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+              <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>الكليات</span>
-                <span>🎓</span>
+                <span className="text-[16px]">🎓</span>
               </NavLink>
-              <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+              <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>الأرشيف</span>
-                <span>🗂️</span>
+                <span className="text-[16px]">🗂️</span>
               </NavLink>
-              <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+              <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3.5 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "bg-[#f8fafc] dark:bg-[#1e293b] text-[#0f172a] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
                 <span>الاختبارات</span>
-                <span>✍️</span>
+                <span className="text-[16px]">✍️</span>
               </NavLink>
 
-              <div className="pt-4 mt-4 border-t border-[#e2e8f0] dark:border-[#1e293b] space-y-3">
-                <button onClick={onToggleTheme} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#0f172a] dark:bg-white text-white dark:text-black text-[14px] font-bold">
+              <div className="pt-5 mt-4 border-t border-[#e2e8f0] dark:border-[#1e293b] space-y-3">
+                <button onClick={onToggleTheme} className="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-[#0f172a] dark:bg-white text-white dark:text-black text-[14px] font-bold shadow-sm">
                   <span>وضع القراءة</span>
                   <span className="flex items-center gap-2">
                     {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
@@ -171,32 +175,36 @@ export function Header({
                   </span>
                 </button>
 
-                <Link to="/search" onClick={handleNavClick} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] text-[14px] font-bold">
+                <Link to="/search" onClick={handleNavClick} className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-[#e2e8f0] dark:border-[#334155] text-[14px] font-bold text-[#0f172a] dark:text-white bg-[#f8fafc] dark:bg-[#1e293b]">
                   <Search size={18} />
                   بحث
                 </Link>
 
                 {isClerkEnabled && (
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <SignedOut>
                       <SignInButton mode="modal">
-                        <button className="w-full rounded-xl bg-[#2563eb] text-white py-3 text-[14px] font-bold">تسجيل الدخول</button>
+                        <button className="w-full rounded-xl bg-[#2563eb] text-white py-3.5 text-[14px] font-bold shadow-sm">تسجيل الدخول</button>
                       </SignInButton>
                     </SignedOut>
                     <SignedIn>
-                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#f8fafc] dark:bg-[#1e293b]">
+                      <div className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-[#f8fafc] dark:bg-[#1e293b]">
                         <UserButton afterSignOutUrl="/" />
-                        <span className="text-[13px] font-bold">حسابي</span>
+                        <span className="text-[13px] font-bold text-[#0f172a] dark:text-white">حسابي</span>
                       </div>
                     </SignedIn>
                   </div>
                 )}
+
+                <Link to="/articles" onClick={handleNavClick} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-3.5 text-[14px] font-bold shadow-sm mt-3">
+                  ابدأ الآن ←
+                </Link>
               </div>
             </nav>
           </div>
         </>
       )}
-    </header>
+    </>
   )
 }
 
