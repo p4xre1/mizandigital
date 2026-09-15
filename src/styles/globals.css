@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* أداء البناء (vite:css transform): Tailwind v4 كيمسح تلقائياً كل ملفات
+   المشروع (ما عدا .gitignore) بحثاً عن أصناف الأنماط (classes) المستعملة،
+   بما فيها مجلدات ماشي فيها ولو صنف Tailwind واحد فعلياً (تحقّقنا: بحث
+   class=/className= عبر كل واحد منها رجع فارغاً أو أصناف مخصصة/CSS عادية
+   بلا علاقة بـ Tailwind) — public/ (فيها sitemap.xml وfeed.xml اللي كبار
+   نسبياً)، supabase/ (SQL)، functions/، scripts/، tests/، .github/. استثناؤها
+   كيقلّص عدد/حجم الملفات اللي كيتفحصهم محرك المسح فـ كل بناء بلا أي تأثير
+   على الأصناف الفعلية المستعملة فـ الواجهة (كلها فـ index.html وsrc/) */
 @source not "../../public";
 @source not "../../supabase";
 @source not "../../functions";
@@ -12,40 +20,44 @@
 
 :root,
 .light {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 4%;
+  --background: 210 33% 98%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 4%;
-  --primary: 0 0% 4%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 0 0% 4%;
-  --accent: 0 0% 96%;
-  --radius: 0.75rem;
-  --font-sans: "Cairo", "Geist", system-ui, -apple-system, sans-serif;
-  --font-serif: "Amiri", Georgia, serif;
+  --card-foreground: 222 47% 11%;
+  --primary: 222 73% 29%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 24% 94%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 22% 94%;
+  --muted-foreground: 215 16% 42%;
+  --border: 214 25% 86%;
+  --input: 214 25% 82%;
+  --ring: 222 73% 29%;
+  --accent-gold: 40 72% 49%;
+  --accent-gold-muted: 40 80% 92%;
+  --radius: 0.8rem;
+  --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Amiri لم يعد يُحمَّل (غير مستعمل فعلياً فـ أي مكان بالواجهة — راجع
+     index.html)؛ أي استعمال مستقبلي لـ font-serif سيستعمل خط النظام مباشرة */
+  --font-serif: Georgia, serif;
 }
 
 .dark {
-  --background: 0 0% 4%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 6%;
-  --card-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 0 0% 9%;
-  --secondary: 0 0% 12%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 12%;
-  --muted-foreground: 0 0% 64%;
-  --border: 0 0% 14%;
-  --input: 0 0% 14%;
-  --ring: 0 0% 83%;
-  --accent: 0 0% 12%;
+  --background: 222 47% 6%;
+  --foreground: 210 40% 98%;
+  --card: 222 43% 9%;
+  --card-foreground: 210 40% 98%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 217 33% 16%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 14%;
+  --muted-foreground: 215 20% 68%;
+  --border: 217 30% 20%;
+  --input: 217 30% 24%;
+  --ring: 217 91% 60%;
+  --accent-gold: 43 92% 62%;
+  --accent-gold-muted: 43 45% 18%;
 }
 
 @theme {
@@ -62,7 +74,7 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --color-accent: hsl(var(--accent));
+  --color-accent-gold: hsl(var(--accent-gold));
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
 }
@@ -74,93 +86,171 @@
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    background: hsl(var(--background));
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(at 10% 15%, hsl(var(--primary) / 0.12) 0px, transparent 45%),
+      radial-gradient(at 90% 85%, hsl(var(--accent-gold) / 0.08) 0px, transparent 45%),
+      linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4));
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    letter-spacing: -0.01em;
   }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   button { cursor: pointer; }
-  ::selection { background: hsl(var(--foreground) / 0.1); }
+  ::selection { background: hsl(var(--primary) / 0.25); }
 }
 
 @layer components {
-  .container-wide { width: min(1200px, calc(100% - 2rem)); margin-inline: auto; }
+  .container-wide { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
   .site-header {
     position: sticky;
     top: 0;
     z-index: 30;
     border-bottom: 1px solid hsl(var(--border));
-    background: hsl(var(--background) / 0.8);
-    backdrop-filter: blur(8px);
+    background: hsl(var(--background) / 0.96);
+    backdrop-filter: blur(12px);
   }
   .brand-mark {
     display: grid;
-    height: 36px;
-    width: 36px;
+    height: 40px;
+    width: 40px;
     place-items: center;
-    border-radius: 10px;
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
-    font-weight: 800;
-    font-size: 14px;
+    border: 1px solid hsl(var(--primary) / 0.3);
+    border-radius: 13px;
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05));
+    color: hsl(var(--primary));
+    box-shadow: 0 0 15px hsl(var(--primary) / 0.15);
   }
 
-  /* Minimal editorial cards - no gradients */
-  .content-card {
-    border: 1px solid hsl(var(--border));
-    border-radius: 12px;
-    background: hsl(var(--card));
-    transition: border-color 200ms ease, transform 200ms ease;
+  .view-mode-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    color: hsl(var(--muted-foreground));
+    border: 1px solid transparent;
   }
-  .content-card:hover {
-    border-color: hsl(var(--foreground) / 0.15);
-    transform: translateY(-1px);
+  .view-mode-button.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+  .view-mode-button:not(.active):hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
+
+  .document-card, .lexicon-card, .content-card {
+    border: 1px solid hsl(var(--border));
+    border-radius: 18px;
+    padding: 20px;
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.25));
+    transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .document-card::after, .lexicon-card::after, .content-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, hsl(var(--primary) / 0.06), transparent 60%);
+    pointer-events: none;
+  }
+  .document-card:hover, .lexicon-card:hover, .content-card:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px hsl(222 47% 4% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.2);
+  }
+
+  /* Pro animations */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.04), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
   }
 }
 
-/* Minimal keyframes - only subtle */
+/* Professional keyframes */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-8px); }
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.1); }
+  50% { box-shadow: 0 0 30px hsl(var(--primary) / 0.2); }
+}
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
 
-/* Editorial utilities */
-.editorial-heading {
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  font-weight: 800;
+/* Pro utilities */
+.pro-gradient-text {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(262 83% 58%), hsl(var(--accent-gold)));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 6s ease infinite;
 }
-.editorial-subtle {
-  color: hsl(var(--muted-foreground));
-  letter-spacing: -0.01em;
+.pro-glass {
+  background: hsl(var(--card) / 0.8);
+  backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid hsl(var(--border) / 0.5);
 }
-.minimal-card {
-  border: 1px solid hsl(var(--border));
-  border-radius: 16px;
-  background: hsl(var(--card));
-  transition: all 200ms ease;
+.pro-card-hover {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.minimal-card:hover {
-  border-color: hsl(var(--foreground) / 0.12);
+.pro-card-hover:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 60px -15px hsl(var(--primary) / 0.15), 0 0 0 1px hsl(var(--primary) / 0.1);
 }
 
+/* Avoid expensive fixed backgrounds and hover transforms on touch devices. */
 @media (max-width: 639px) {
   html { scroll-behavior: auto; }
+  body { background-image: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4)); }
+  .document-card:hover, .lexicon-card:hover, .content-card:hover { transform: none; box-shadow: none; }
+}
+
+@media (min-width: 640px) {
+  .search-field kbd { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
