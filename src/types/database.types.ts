@@ -215,6 +215,56 @@ export interface Database {
         }
         Relationships: []
       }
+
+      credit_packages: {
+        Row: { id: string; slug: string; title: string; description: string | null; credits: number; price_mad: number; price_usd: number | null; bonus_credits: number; is_popular: boolean; is_active: boolean; sort_order: number; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; title: string; description?: string | null; credits: number; price_mad: number; price_usd?: number | null; bonus_credits?: number; is_popular?: boolean; is_active?: boolean; sort_order?: number; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; title?: string; description?: string | null; credits?: number; price_mad?: number; price_usd?: number | null; bonus_credits?: number; is_popular?: boolean; is_active?: boolean; sort_order?: number; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      payments: {
+        Row: { id: string; user_ref: string | null; clerk_user_id: string | null; package_id: string | null; amount_mad: number; amount_usd: number | null; credits_purchased: number; bonus_credits: number; provider: string; provider_payment_id: string | null; status: string; metadata: Json; created_at: string; completed_at: string | null }
+        Insert: { id?: string; user_ref?: string | null; clerk_user_id?: string | null; package_id?: string | null; amount_mad: number; amount_usd?: number | null; credits_purchased: number; bonus_credits?: number; provider?: string; provider_payment_id?: string | null; status?: string; metadata?: Json; created_at?: string; completed_at?: string | null }
+        Update: { id?: string; user_ref?: string | null; clerk_user_id?: string | null; package_id?: string | null; amount_mad?: number; amount_usd?: number | null; credits_purchased?: number; bonus_credits?: number; provider?: string; provider_payment_id?: string | null; status?: string; metadata?: Json; created_at?: string; completed_at?: string | null }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: { id: string; user_ref: string; clerk_user_id: string | null; type: string; amount: number; balance_after: number | null; reason: string | null; reference_id: string | null; metadata: Json; created_at: string }
+        Insert: { id?: string; user_ref: string; clerk_user_id?: string | null; type: string; amount: number; balance_after?: number | null; reason?: string | null; reference_id?: string | null; metadata?: Json; created_at?: string }
+        Update: { id?: string; user_ref?: string; clerk_user_id?: string | null; type?: string; amount?: number; balance_after?: number | null; reason?: string | null; reference_id?: string | null; metadata?: Json; created_at?: string }
+        Relationships: []
+      }
+      reactions: {
+        Row: { id: string; user_ref: string; clerk_user_id: string | null; target_type: string; target_id: string; reaction_type: string; created_at: string }
+        Insert: { id?: string; user_ref: string; clerk_user_id?: string | null; target_type: string; target_id: string; reaction_type: string; created_at?: string }
+        Update: { id?: string; user_ref?: string; clerk_user_id?: string | null; target_type?: string; target_id?: string; reaction_type?: string; created_at?: string }
+        Relationships: []
+      }
+      reaction_counts: {
+        Row: { target_type: string; target_id: string; reaction_type: string; count: number; updated_at: string }
+        Insert: { target_type: string; target_id: string; reaction_type: string; count?: number; updated_at?: string }
+        Update: { target_type?: string; target_id?: string; reaction_type?: string; count?: number; updated_at?: string }
+        Relationships: []
+      }
+      reports: {
+        Row: { id: string; reporter_ref: string | null; reporter_clerk_id: string | null; target_type: string; target_id: string; reason: string; details: string | null; status: string; moderator_note: string | null; moderator_id: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; reporter_ref?: string | null; reporter_clerk_id?: string | null; target_type: string; target_id: string; reason: string; details?: string | null; status?: string; moderator_note?: string | null; moderator_id?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; reporter_ref?: string | null; reporter_clerk_id?: string | null; target_type?: string; target_id?: string; reason?: string; details?: string | null; status?: string; moderator_note?: string | null; moderator_id?: string | null; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+      moderation_actions: {
+        Row: { id: string; moderator_id: string | null; target_type: string; target_id: string; action: string; reason: string | null; metadata: Json; created_at: string }
+        Insert: { id?: string; moderator_id?: string | null; target_type: string; target_id: string; action: string; reason?: string | null; metadata?: Json; created_at?: string }
+        Update: { id?: string; moderator_id?: string | null; target_type?: string; target_id?: string; action?: string; reason?: string | null; metadata?: Json; created_at?: string }
+        Relationships: []
+      }
+      community_guidelines: {
+        Row: { id: string; slug: string; title: string; content: string; category: string; is_active: boolean; sort_order: number; created_at: string; updated_at: string }
+        Insert: { id?: string; slug: string; title: string; content: string; category?: string; is_active?: boolean; sort_order?: number; created_at?: string; updated_at?: string }
+        Update: { id?: string; slug?: string; title?: string; content?: string; category?: string; is_active?: boolean; sort_order?: number; created_at?: string; updated_at?: string }
+        Relationships: []
+      }
+
       mizan_profiles: {
         Row: {
           id: string
@@ -286,7 +336,17 @@ export interface Database {
       }
     }
     Views: { [_ in never]: never }
-    Functions: { [_ in never]: never }
+
+    Functions: {
+      submit_quiz_attempt: { Args: { p_mode: string; p_label: string; p_tier: string; p_answers: Json; p_duration_ms: number; p_user_ref?: string | null }; Returns: { id: string; correct: number; total: number; score: number; xp_earned: number; credits_earned: number; best_streak: number }[] }
+      check_quiz_answer: { Args: { p_question_id: string; p_chosen: number }; Returns: { correct: boolean; explanation: string; reference: string | null }[] }
+      toggle_reaction: { Args: { p_user_ref: string; p_target_type: string; p_target_id: string; p_reaction_type: string; p_clerk_user_id?: string | null }; Returns: { action: string; count: number }[] }
+      get_reaction_summary: { Args: { p_target_type: string; p_target_id: string }; Returns: { reaction_type: string; count: number }[] }
+      create_report: { Args: { p_reporter_ref: string; p_target_type: string; p_target_id: string; p_reason: string; p_details?: string | null; p_reporter_clerk_id?: string | null }; Returns: string }
+      complete_payment_and_grant_credits: { Args: { p_payment_id: string }; Returns: boolean }
+      quiz_leaderboard: { Args: { p_limit?: number }; Returns: { user_ref: string; label: string; score: number; xp_earned: number; created_at: string }[] }
+      compute_quiz_xp: { Args: { p_correct: boolean; p_difficulty: string; p_elapsed_ms: number; p_streak: number }; Returns: number }
+    }
     Enums: { [_ in never]: never }
     CompositeTypes: { [_ in never]: never }
   }

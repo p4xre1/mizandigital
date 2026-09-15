@@ -42,7 +42,7 @@ function keyFor(targetType: TargetType, targetId: string): string {
 export async function fetchReactions(targetType: TargetType, targetId: string): Promise<ReactionSummary[]> {
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).rpc("get_reaction_summary", {
+    const { data, error } = await supabase.rpc("get_reaction_summary", {
       p_target_type: targetType,
       p_target_id: targetId,
     });
@@ -72,7 +72,7 @@ export async function toggleReaction(
 
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).rpc("toggle_reaction", {
+    const { data, error } = await supabase.rpc("toggle_reaction", {
       p_user_ref: userRef,
       p_target_type: targetType,
       p_target_id: targetId,

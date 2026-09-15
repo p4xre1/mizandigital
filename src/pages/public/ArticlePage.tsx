@@ -12,7 +12,7 @@ import { lexiconSlugById } from "../../lib/utils/generateSlug"
 import { PartnerSuggestionBox } from "../../components/articles/PartnerSuggestionBox"
 import { ViewCounter } from "../../components/articles/ViewCounter"
 import { CommentSection } from "../../components/articles/CommentSection"
-import { InContentAd } from "../../components/ads/InContentAd"
+// InContentAd removed
 import { ContentTags } from "../../components/content/ContentTags"
 import { ArticleTranslateWidget } from "../../components/articles/ArticleTranslateWidget"
 import { ReactionBar } from "@/components/reactions/ReactionBar"
@@ -696,7 +696,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
               </div>
             )}
 
-            <InContentAd className="mb-8" />
+            {/* Ad removed */}
 
             <div className={`prose prose-neutral dark:prose-invert max-w-none leading-loose text-foreground/90 ${textSizeClass}`}>
               <ArticleContent blocks={parsed.blocks} lexiconTerms={lexiconTerms} />

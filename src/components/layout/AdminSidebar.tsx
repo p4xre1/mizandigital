@@ -55,6 +55,17 @@ const navGroups = [
       { label: "الإعدادات", path: "/admin/settings", icon: Settings },
     ],
   },
+  {
+    label: "الذكاء والأمان",
+    items: [
+      { label: "مكافحة الاحتيال", path: "/admin/fraud", icon: Flag },
+      { label: "الاستخبارات", path: "/admin/intelligence", icon: LayoutDashboard },
+      { label: "مراقبة الحدود", path: "/admin/limits", icon: Settings },
+      { label: "إدارة التسعير", path: "/admin/pricing", icon: Coins },
+      { label: "إدارة المستخدمين", path: "/admin/users", icon: Users },
+      { label: "بيانات المستخدم", path: "/admin/userdata", icon: FileText },
+    ],
+  },
 ]
 
 export default function AdminSidebar({

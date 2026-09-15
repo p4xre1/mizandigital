@@ -64,7 +64,7 @@ export async function fetchPackages(force = false): Promise<CreditPackage[]> {
 export async function fetchUserPayments(userRef: string): Promise<Payment[]> {
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).from("payments").select("*").eq("user_ref", userRef).order("created_at", { ascending: false }).limit(50);
+    const { data, error } = await supabase.from("payments").select("*").eq("user_ref", userRef).order("created_at", { ascending: false }).limit(50);
     if (error) throw error;
     return (data as unknown as Payment[]) || [];
   } catch {
@@ -75,7 +75,7 @@ export async function fetchUserPayments(userRef: string): Promise<Payment[]> {
 export async function fetchCreditHistory(userRef: string): Promise<CreditTransaction[]> {
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).from("credit_transactions").select("*").eq("user_ref", userRef).order("created_at", { ascending: false }).limit(100);
+    const { data, error } = await supabase.from("credit_transactions").select("*").eq("user_ref", userRef).order("created_at", { ascending: false }).limit(100);
     if (error) throw error;
     return (data as unknown as CreditTransaction[]) || [];
   } catch {

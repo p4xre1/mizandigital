@@ -54,7 +54,7 @@ export async function createReport(params: {
 
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).rpc("create_report", {
+    const { data, error } = await supabase.rpc("create_report", {
       p_reporter_ref: userRef,
       p_target_type: params.targetType,
       p_target_id: params.targetId,
@@ -84,7 +84,7 @@ export async function createReport(params: {
 export async function fetchGuidelines(): Promise<CommunityGuideline[]> {
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).from("community_guidelines").select("*").eq("is_active", true).order("sort_order", { ascending: true });
+    const { data, error } = await supabase.from("community_guidelines").select("*").eq("is_active", true).order("sort_order", { ascending: true });
     if (error) throw error;
     return (data as unknown as CommunityGuideline[]) || [];
   } catch {
@@ -100,7 +100,7 @@ export async function fetchGuidelines(): Promise<CommunityGuideline[]> {
 export async function fetchReportsForAdmin(status?: ReportStatus): Promise<Report[]> {
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    let query = (supabase as any).from("reports").select("*").order("created_at", { ascending: false }).limit(100);
+    let query = supabase.from("reports").select("*").order("created_at", { ascending: false }).limit(100);
     if (status) query = query.eq("status", status);
     const { data, error } = await query;
     if (error) throw error;

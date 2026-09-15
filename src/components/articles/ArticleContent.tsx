@@ -1,7 +1,7 @@
 import { Fragment } from "react"
 import type { ReactNode } from "react"
 import type { ArticleBlock } from "../../lib/content/parseArticleMarkdown"
-import { InContentAd } from "../ads/InContentAd"
+// InContentAd removed — ads deleted per file map
 import { renderTextWithInternalLinks } from "../../lib/utils/autoLinker"
 
 // كل كم فقرة نصية نعرض صندوق إعلان تلقائياً بين فقرات المقال/الخبر
@@ -106,7 +106,7 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
           paragraphsSinceLastAd += 1
           if (paragraphsSinceLastAd >= AD_PARAGRAPH_INTERVAL && !isLastBlock) {
             paragraphsSinceLastAd = 0
-            adAfterThisBlock = <InContentAd key={`ad-${idx}`} className="my-6" />
+            adAfterThisBlock = null
           }
         }
 

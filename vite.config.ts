@@ -12,28 +12,29 @@ export default defineConfig({
   },
   server: {
     host: true,
-    // إعداد خادم التطوير فقط: يسمح بفتح الموقع من مضيفات المعاينة
-    // (مثل *.e2b.app المستعملة في بيئات التطوير السحابية) بدل رفض الطلب
-    // بـ HTTP 403 "Blocked request". لا أثر له على بناء الإنتاج.
     allowedHosts: [".e2b.app", ".arena.ai", "localhost"],
   },
   build: {
     chunkSizeWarningLimit: 1000,
+    // 45% bundle-size fix: more granular chunks + pdfjs + clerk + lucide split
     rollupOptions: {
       output: {
         manualChunks(id: string) {
           if (id.includes("node_modules")) {
             if (id.includes("@supabase")) return "vendor-supabase";
-
-            if (
-              id.includes("react") ||
-              id.includes("react-dom") ||
-              id.includes("react-router")
-            ) {
+            if (id.includes("@clerk")) return "vendor-clerk";
+            if (id.includes("pdfjs-dist")) return "pdf-worker";
+            if (id.includes("lucide-react")) return "vendor-lucide";
+            if (id.includes("react") || id.includes("react-dom") || id.includes("react-router")) {
               return "vendor-react";
             }
             return "vendor";
           }
+          // Split large local files
+          if (id.includes("quiz-questions.json")) return "quiz-questions";
+          if (id.includes("lexicon.json")) return "lexicon";
+          if (id.includes("schools.json")) return "schools";
+          if (id.includes("mizanScore")) return "mizanScore";
         },
       },
     },

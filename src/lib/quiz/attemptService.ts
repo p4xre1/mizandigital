@@ -90,7 +90,7 @@ export async function submitAttemptSecure(payload: SecureSubmitPayload): Promise
       correct: a.correct,
     }));
 
-    const { data, error } = await (supabase as any).rpc("submit_quiz_attempt", {
+    const { data, error } = await supabase.rpc("submit_quiz_attempt", {
       p_mode: payload.mode,
       p_label: payload.label.slice(0, 200),
       p_tier: payload.tier,
@@ -151,7 +151,7 @@ export async function checkAnswerSecure(questionId: string, chosen: number | nul
 
   try {
     const { supabase } = await import("@/lib/supabase/client");
-    const { data, error } = await (supabase as any).rpc("check_quiz_answer", {
+    const { data, error } = await supabase.rpc("check_quiz_answer", {
       p_question_id: questionId,
       p_chosen: chosen,
     });
