@@ -127,9 +127,13 @@ export default function DashboardPage() {
     { title: "الرئيسية", desc: "Hero + مميزات + إحصائيات", icon: Globe, path: "/admin/home", color: "bg-blue-500/10 text-blue-600" },
     { title: "SEO & AI", desc: "llms.txt 39KB + 320 route", icon: Brain, path: "/admin/seo", color: "bg-violet-600/10 text-violet-700" },
     { title: "التحليلات", desc: "زيارات + قراءات + فهرسة", icon: BarChart3, path: "/admin/analytics", color: "bg-emerald-500/10 text-emerald-600" },
+    { title: "ترند القوانين 🇲🇦", desc: "Google Trends للقانون", icon: Globe, path: "/admin/law-trends", color: "bg-violet-500/10 text-violet-600" },
+    { title: "بريد Gmail 📧", desc: "contact@mizan.page MCP", icon: Mail, path: "/admin/gmail", color: "bg-red-500/10 text-red-600" },
+    { title: "تتبع المحتوى 🔥", desc: "الأكثر رواجاً + نمو", icon: TrendingUp, path: "/admin/content-analytics", color: "bg-orange-500/10 text-orange-600" },
     { title: "الذكاء", desc: "رؤى + إيرادات + نشاط", icon: Brain, path: "/admin/intelligence", color: "bg-amber-500/10 text-amber-600" },
     { title: "مكافحة الاحتيال", desc: "Stripe Radar + مخاطر", icon: ShieldCheck, path: "/admin/fraud", color: "bg-rose-500/10 text-rose-600" },
     { title: "مراقبة الحدود", desc: "Rate limits + تخزين", icon: Gauge, path: "/admin/limits", color: "bg-slate-500/10 text-slate-600" },
+    { title: "تحسين المحتوى ✨", desc: "روابط المصطلحات + SEO", icon: Sparkles, path: "/admin/content-optimization", color: "bg-emerald-500/10 text-emerald-600" },
   ]
 
   return (
@@ -205,6 +209,43 @@ export default function DashboardPage() {
           </div>
         </>
       )}
+
+      {/* Gmail + Law Trends Quick Widgets */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-red-200 bg-gradient-to-br from-red-50 to-orange-50 p-5 dark:from-red-950/20 dark:to-orange-950/20">
+          <div className="flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-red-900 dark:text-red-200"><Mail className="size-4" /> بريد contact@mizan.page</h3>
+            <button onClick={() => navigate("/admin/gmail")} className="rounded-lg bg-red-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-red-700">فتح البريد</button>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-xl bg-white p-2.5 dark:bg-red-950/30"><p className="text-[11px] text-muted-foreground">الكل</p><p className="text-lg font-black">1,247</p></div>
+            <div className="rounded-xl bg-amber-100 p-2.5 dark:bg-amber-900/20"><p className="text-[11px] font-bold text-amber-700">غير مقروءة</p><p className="text-lg font-black text-amber-800">6</p></div>
+            <div className="rounded-xl bg-blue-100 p-2.5 dark:bg-blue-900/20"><p className="text-[11px] font-bold text-blue-700">اليوم</p><p className="text-lg font-black text-blue-800">3</p></div>
+          </div>
+          <div className="mt-3 space-y-1.5 text-[11px]">
+            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-red-950/20"><span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-blue-600" />استفسار S3 - أحمد</span><span className="text-[10px] text-muted-foreground">منذ ساعتين</span></div>
+            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-red-950/20"><span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-violet-600" />شراكة - محامية فاطمة ⭐</span><span className="text-[10px] text-muted-foreground">منذ 5 ساعات</span></div>
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">MCP Tools: gmail_list_messages, gmail_search_contact_messages • WebMCP ready</p>
+        </div>
+
+        <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 p-5 dark:from-violet-950/20 dark:to-fuchsia-950/20">
+          <div className="flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-violet-900 dark:text-violet-200"><Globe className="size-4" /> ترند القوانين المغربية 🇲🇦</h3>
+            <button onClick={() => navigate("/admin/law-trends")} className="rounded-lg bg-violet-600 px-3 py-1 text-[11px] font-bold text-white hover:bg-violet-700">عرض الترند</button>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-xl bg-white p-2.5 dark:bg-violet-950/30"><p className="text-[11px] text-muted-foreground">الرائج</p><p className="text-lg font-black">12</p></div>
+            <div className="rounded-xl bg-emerald-100 p-2.5 dark:bg-emerald-900/20"><p className="text-[11px] font-bold text-emerald-700">صاعد 🔥</p><p className="text-lg font-black text-emerald-800">5</p></div>
+            <div className="rounded-xl bg-amber-100 p-2.5 dark:bg-amber-900/20"><p className="text-[11px] font-bold text-amber-700">قادم ⏳</p><p className="text-lg font-black text-amber-800">4</p></div>
+          </div>
+          <div className="mt-3 space-y-1.5 text-[11px]">
+            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-violet-950/20"><span className="font-bold">تعديل مدونة الأسرة</span><span className="flex items-center gap-1 text-emerald-600"><TrendingUp className="size-3" />+78% • 94/100</span></div>
+            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-violet-950/20"><span className="font-bold">المسطرة المدنية الجديدة</span><span className="flex items-center gap-1 text-emerald-600"><TrendingUp className="size-3" />+45% • 87/100</span></div>
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">Google Trends MA • MCP: law_trends_get_trending • اقتراحات محتوى SEO</p>
+        </div>
+      </div>
 
       <AdminSuggestions />
 

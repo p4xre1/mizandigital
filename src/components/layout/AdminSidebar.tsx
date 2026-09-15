@@ -57,6 +57,8 @@ const navGroups = [
       { label: "التحكم الكامل", path: "/admin/control", icon: Zap },
       { label: "التحليلات", path: "/admin/analytics", icon: BarChart3 },
       { label: "تتبع المحتوى 🔥", path: "/admin/content-analytics", icon: TrendingUp },
+      { label: "ترند القوانين 🇲🇦", path: "/admin/law-trends", icon: Globe },
+      { label: "بريد Gmail 📧", path: "/admin/gmail", icon: Mail },
       { label: "الاستخبارات", path: "/admin/intelligence", icon: Brain },
     ],
   },

@@ -35,6 +35,8 @@ const SeoManagementPage = lazy(() => import("@/pages/admin/SeoManagementPage"))
 const TrendingTopicsPage = lazy(() => import("@/pages/admin/TrendingTopicsPage"))
 const ContentAnalyticsPage = lazy(() => import("@/pages/admin/ContentAnalyticsPage"))
 const ContentOptimizationPage = lazy(() => import("@/pages/admin/ContentOptimizationPage"))
+const GmailInboxPage = lazy(() => import("@/pages/admin/GmailInboxPage"))
+const LawTrendsPage = lazy(() => import("@/pages/admin/LawTrendsPage"))
 
 const QuizHubPage = lazy(() => import("@/pages/public/quiz/QuizHubPage").then((m) => ({ default: m.QuizHubPage })))
 const UniversityQuizPage = lazy(() => import("@/pages/public/quiz/UniversityQuizPage").then((m) => ({ default: m.UniversityQuizPage })))
@@ -157,6 +159,8 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="trends" element={<TrendingTopicsPage />} />
           <Route path="content-analytics" element={<ContentAnalyticsPage />} />
           <Route path="content-optimization" element={<ContentOptimizationPage />} />
+          <Route path="gmail" element={<GmailInboxPage />} />
+          <Route path="law-trends" element={<LawTrendsPage />} />
           <Route path="moderation" element={<ModerationPage />} />
           <Route path="payments" element={<PaymentsAdminPage />} />
           <Route path="fraud" element={<FraudPreventionPage />} />
