@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
+import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
@@ -7,21 +8,7 @@ import { truncateCleanText } from "../../lib/utils/sanitize"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
-import { ProContentCard, ProContentCardSkeleton } from "../../components/content/ProContentCard"
-import { AnimatedSection, StaggerGrid } from "../../components/ui/AnimatedSection"
-import {
-  BookOpen,
-  Search,
-  Filter,
-  Sparkles,
-  TrendingUp,
-  Clock,
-  GraduationCap,
-  FileText,
-  Scale,
-  Library,
-  Flame,
-} from "lucide-react"
+import { Search, Clock, Flame, ArrowLeft } from "lucide-react"
 
 interface ArticleItem {
   id: string
@@ -31,7 +18,6 @@ interface ArticleItem {
   category?: string | null
   date?: string | null
   image?: string | null
-  imageAlt?: string | null
   readingTime?: string | null
 }
 
@@ -44,7 +30,6 @@ function normalizeCmsArticle(raw: any): ArticleItem {
     category: raw.category?.name || raw.category?.name_fr || null,
     date: raw.published_at || raw.created_at || null,
     image: raw.cover_image || null,
-    imageAlt: raw.cover_image_alt || null,
     readingTime: "5 دقائق",
   }
 }
@@ -58,20 +43,8 @@ function normalizeLocalArticle(raw: any): ArticleItem {
     category: raw.category || null,
     date: raw.publishedAt || raw.date || null,
     image: raw.image || raw.coverImage || null,
-    imageAlt: raw.imageAlt || raw.coverImageAlt || null,
     readingTime: raw.readingTime || "4 دقائق",
   }
-}
-
-const categoryConfig: Record<string, { color: "blue" | "violet" | "emerald" | "amber" | "rose" | "primary", icon: any }> = {
-  "القانون المدني": { color: "blue", icon: Scale },
-  "القانون الجنائي": { color: "rose", icon: FileText },
-  "القانون التجاري": { color: "amber", icon: Library },
-  "مدونة الأسرة": { color: "violet", icon: BookOpen },
-  "المسطرة المدنية": { color: "emerald", icon: Scale },
-  "المسطرة الجنائية": { color: "rose", icon: FileText },
-  "القانون الإداري": { color: "blue", icon: GraduationCap },
-  "default": { color: "primary", icon: BookOpen },
 }
 
 export function ArticlesPage() {
@@ -91,22 +64,19 @@ export function ArticlesPage() {
     try {
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, slug, excerpt, published_at, created_at, cover_image, cover_image_alt, category:categories(name, name_fr)")
+        .select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name, name_fr)")
         .eq("status", "published")
         .order("published_at", { ascending: false })
 
       if (error) throw error
-
       const cmsItems = (data || []).map(normalizeCmsArticle)
       const localItems = (articlesData as any[]).map(normalizeLocalArticle)
-
       const merged = Array.from(
         new Map([...localItems, ...cmsItems].map((item) => [item.slug, item])).values()
       ).sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
-
       setItems(merged)
     } catch (err) {
-      console.error("خطأ في جلب المقالات:", err)
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -129,11 +99,12 @@ export function ArticlesPage() {
   }, [items, searchQuery, activeCategory])
 
   const featured = filteredItems[0]
-  const rest = filteredItems.slice(1)
+  const editorsPicks = filteredItems.slice(1, 4)
+  const trending = filteredItems.slice(4, 9)
+  const featuredPosts = filteredItems.slice(1, 5)
 
   const pageTitle = "المقالات والدراسات القانونية"
-  const pageDescription =
-    "شرح القانون المغربي بأسلوب منهجي واضح: مقالات ودراسات تحليلية معمّقة في مختلف فروع القانون المغربي (المدني، التجاري، الجنائي، الشغل...)، موجهة لطلبة كليات الحقوق والباحثين."
+  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي."
 
   const listSchema = {
     "@context": "https://schema.org",
@@ -163,249 +134,191 @@ export function ArticlesPage() {
       <AEOHead
         title={pageTitle}
         description={pageDescription}
-        keywords={[
-          "مقالات قانونية",
-          "شرح القانون المغربي",
-          "دراسات قانونية مغربية",
-          "تحليل تشريعي",
-          "بحوث الطلبة القانونية",
-        ]}
+        keywords={["مقالات قانونية", "شرح القانون المغربي", "دراسات قانونية مغربية"]}
         schema={[listSchema, breadcrumbSchema]}
       />
 
-      <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.06),transparent_60%),radial-gradient(ellipse_at_bottom_right,_hsl(var(--accent-gold)/0.04),transparent_60%)]" dir="rtl">
-        {/* Hero Header */}
-        <div className="relative overflow-hidden border-b border-border/50">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.04] via-violet-500/[0.03] to-transparent" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
-          
-          <div className="container relative mx-auto max-w-screen-2xl px-4 py-12 sm:px-6 md:py-16 lg:px-10">
-            <AnimatedSection animation="fadeUp">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <div className="space-y-4">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-bold text-primary backdrop-blur">
-                    <div className="size-2 rounded-full bg-primary animate-pulse" />
-                    <BookOpen className="size-4" />
-                    <span>المقالات والدراسات</span>
-                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px]">{filteredItems.length} مقال</span>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <h1 className="text-3xl font-black tracking-tight text-foreground md:text-5xl lg:text-[2.75rem] leading-[1.1]">
-                      <span className="pro-gradient-text">{pageTitle.split(" ")[0]}</span> {pageTitle.split(" ").slice(1).join(" ")}
-                    </h1>
-                    <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-[15px]">
-                      {pageDescription}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    {[
-                      { icon: FileText, label: "منهجية قانونية", color: "bg-blue-500/10 text-blue-700 border-blue-500/20" },
-                      { icon: Scale, label: "تحليل تشريعي", color: "bg-violet-500/10 text-violet-700 border-violet-500/20" },
-                      { icon: GraduationCap, label: "لطلبة الحقوق", color: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20" },
-                    ].map((badge, i) => (
-                      <span key={i} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold ${badge.color}`}>
-                        <badge.icon className="size-3.5" />
-                        {badge.label}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="hidden lg:block">
-                  <div className="grid grid-cols-3 gap-3">
-                    {[
-                      { value: items.length, label: "مقال", icon: BookOpen, color: "from-blue-500 to-cyan-500" },
-                      { value: availableCategories.length, label: "تصنيف", icon: Library, color: "from-violet-500 to-purple-500" },
-                      { value: "200", label: "كلمة/د", icon: Clock, color: "from-amber-500 to-orange-500" },
-                    ].map((stat, i) => (
-                      <div key={i} className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur p-4 text-center">
-                        <div className={`mx-auto grid size-10 place-items-center rounded-xl bg-gradient-to-br ${stat.color} text-white shadow`}>
-                          <stat.icon className="size-5" />
-                        </div>
-                        <p className="mt-2 text-xl font-black text-foreground">{stat.value}</p>
-                        <p className="text-[11px] font-bold text-muted-foreground">{stat.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </AnimatedSection>
+      <main className="min-h-screen bg-[#f8f7f4]" dir="rtl">
+        {/* Top black bar */}
+        <div className="bg-[#0a0a0a] text-white text-[11px] h-8 flex items-center">
+          <div className="container mx-auto max-w-[1280px] px-4 flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
+              المقالات والدراسات • {filteredItems.length} مقال
+            </span>
+            <span className="opacity-60 hidden sm:block">الرئيسية / المقالات</span>
           </div>
         </div>
 
-        <div className="container mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10">
-          {/* Search & Filters - Pro glass */}
-          <AnimatedSection animation="fadeUp" delay={100}>
-            <div className="mb-8 flex flex-col gap-4 rounded-[20px] border border-border/50 bg-card/70 p-4 backdrop-blur-xl shadow-[0_8px_32px_hsl(0_0%_0%/0.04)] sm:flex-row sm:items-center">
-              <div className="relative flex-1">
-                <Search className="absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="ابحث في المقالات: المسؤولية المدنية، العقود، مدونة الأسرة..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-12 w-full rounded-xl border border-border bg-background/50 pr-12 pl-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:border-primary/50 focus:bg-background focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-muted p-1 text-muted-foreground hover:bg-muted/80">
-                    <span className="text-xs px-1">✕</span>
-                  </button>
-                )}
+        {/* Header */}
+        <div className="bg-white border-b border-black/10">
+          <div className="container mx-auto max-w-[1280px] px-4 py-6">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="size-1 h-5 bg-[#dc2626]" />
+                  <h1 className="text-[28px] font-black tracking-[-0.02em]">{pageTitle}</h1>
+                </div>
+                <p className="text-[13px] text-muted-foreground max-w-[600px] leading-relaxed">{pageDescription} محتوى موثوق، منهجي، ومراجع — مصمم لمساعدة الطلبة.</p>
               </div>
-
               <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="ابحث..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-9 w-64 rounded-full border border-black/10 bg-[#f8f7f4] pr-9 pl-3 text-[12px] outline-none focus:border-black/20"
+                  />
+                </div>
                 <FilterDropdown
-                  className="w-full sm:w-64"
+                  className="w-44"
                   value={activeCategory}
                   onChange={setActiveCategory}
                   allLabel="جميع التصنيفات"
-                  icon={<Filter size={14} />}
                   options={availableCategories.map((cat) => ({ value: cat, label: cat }))}
                 />
-                <div className="hidden sm:flex items-center gap-1 rounded-xl bg-muted p-1">
-                  <span className="px-3 py-1.5 text-[11px] font-bold text-muted-foreground">{filteredItems.length} مقال</span>
-                </div>
               </div>
             </div>
-          </AnimatedSection>
+          </div>
+        </div>
 
-          {/* Featured + Grid - FIXED to show all articles */}
+        <div className="container mx-auto max-w-[1280px] px-4 py-6">
           {loading ? (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <ProContentCardSkeleton key={i} variant={i === 0 ? "hero" : "default"} />
+            <div className="grid grid-cols-12 gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="col-span-4 h-64 bg-white border border-black/5 rounded animate-pulse" />
               ))}
             </div>
           ) : filteredItems.length > 0 ? (
             <>
-              {/* Bento grid with featured hero */}
-              <div className="space-y-6">
-                {featured && (
-                  <AnimatedSection animation="scaleIn">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <div className="lg:col-span-2">
-                        <ProContentCard
-                          href={`/articles/${featured.slug}`}
-                          title={featured.title}
-                          image={featured.image}
-                          imageAlt={featured.imageAlt}
-                          badgeLabel={featured.category || "مقال مميز"}
-                          badgeColor={categoryConfig[featured.category || ""]?.color || "primary"}
-                          formattedDate={featured.date ? new Date(featured.date).toLocaleDateString("ar-MA", { year: "numeric", month: "short", day: "numeric" }) : null}
-                          summary={featured.summary ? truncateCleanText(featured.summary, 160) : null}
-                          readingTime={featured.readingTime || "5 دقائق"}
-                          isFeatured
-                          isTrending
-                          tags={featured.category ? [featured.category, "قانون مغربي"] : ["قانون"]}
-                          variant="hero"
-                          index={0}
-                        />
-                      </div>
-                      <div className="space-y-4">
-                        {rest.slice(0, 2).map((item, idx) => {
-                          const cfg = categoryConfig[item.category || ""] || categoryConfig.default
-                          return (
-                            <ProContentCard
-                              key={item.id}
-                              href={`/articles/${item.slug}`}
-                              title={item.title}
-                              image={item.image}
-                              imageAlt={item.imageAlt}
-                              badgeLabel={item.category}
-                              badgeColor={cfg.color}
-                              formattedDate={item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
-                              summary={item.summary ? truncateCleanText(item.summary, 80) : null}
-                              readingTime={item.readingTime || "4 د"}
-                              isNew
-                              index={idx + 1}
-                            />
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </AnimatedSection>
-                )}
+              {/* Main newspaper grid */}
+              <div className="grid grid-cols-12 gap-6">
+                {/* Editor's Picks */}
+                <div className="col-span-12 lg:col-span-3">
+                  <div className="flex items-center gap-2 mb-4 border-b-2 border-black pb-2">
+                    <span className="size-1 h-4 bg-[#dc2626]" />
+                    <h2 className="font-black text-[12px] uppercase">Editor's Picks</h2>
+                  </div>
+                  <div className="space-y-3">
+                    {editorsPicks.map((item) => (
+                      <Link key={item.id} to={`/articles/${item.slug}`} className="group flex gap-3 bg-white border border-black/5 rounded p-3 hover:border-black/15 transition-colors">
+                        <div className="shrink-0 size-16 rounded bg-[#eee] overflow-hidden">
+                          {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full grid place-items-center text-[9px]">IMG</div>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9px] font-bold text-[#dc2626]">{item.category || "قانون"}</span>
+                          <h3 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-[#dc2626]">{item.title}</h3>
+                          <span className="text-[9px] text-muted-foreground flex items-center gap-1 mt-1"><Clock className="size-3" /> {item.readingTime}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
-                {/* Rest of articles - always visible grid */}
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {(featured ? rest.slice(2) : filteredItems).map((item, idx) => {
-                    const cfg = categoryConfig[item.category || ""] || categoryConfig.default
-                    const isNew = item.date ? (Date.now() - new Date(item.date).getTime()) < 7 * 24 * 3600000 : false
-                    const isTrending = idx < 2
-
-                    return (
-                      <div key={item.id} className="animate-[fadeUp_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: `${(idx + 3) * 60}ms` }}>
-                        <ProContentCard
-                          href={`/articles/${item.slug}`}
-                          title={item.title}
-                          image={item.image}
-                          imageAlt={item.imageAlt}
-                          badgeLabel={item.category}
-                          badgeColor={cfg.color}
-                          formattedDate={item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
-                          summary={item.summary ? truncateCleanText(item.summary, 120) : null}
-                          readingTime={item.readingTime || "4 د"}
-                          isNew={isNew}
-                          isTrending={isTrending}
-                          tags={item.category ? [item.category] : undefined}
-                          index={idx + 3}
-                        />
+                {/* Main */}
+                <div className="col-span-12 lg:col-span-6">
+                  <div className="flex items-center gap-2 mb-4 border-b-2 border-black pb-2">
+                    <span className="size-1 h-4 bg-black" />
+                    <h2 className="font-black text-[12px] uppercase">Main News</h2>
+                    <span className="ms-auto text-[10px] bg-[#dc2626] text-white px-2 py-0.5 rounded font-bold">مميز</span>
+                  </div>
+                  {featured && (
+                    <Link to={`/articles/${featured.slug}`} className="group block bg-white border border-black/5 rounded overflow-hidden hover:border-black/15 transition-colors">
+                      <div className="aspect-[16/10] bg-[#111] relative overflow-hidden">
+                        {featured.image ? <img src={featured.image} alt={featured.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-violet-500/20" />}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                        <div className="absolute bottom-0 p-4 text-white">
+                          <span className="bg-[#dc2626] text-[10px] font-black px-2 py-0.5 rounded">حصري</span>
+                          <h2 className="mt-2 text-[18px] font-black leading-tight line-clamp-2">{featured.title}</h2>
+                          <p className="mt-1 text-[11px] opacity-80 line-clamp-2">{featured.summary ? truncateCleanText(featured.summary, 100) : ""}</p>
+                        </div>
                       </div>
-                    )
-                  })}
+                    </Link>
+                  )}
+                </div>
+
+                {/* Trending */}
+                <div className="col-span-12 lg:col-span-3">
+                  <div className="flex items-center gap-2 mb-4 border-b-2 border-black pb-2">
+                    <span className="size-1 h-4 bg-[#dc2626]" />
+                    <h2 className="font-black text-[12px] uppercase">Trending Now</h2>
+                  </div>
+                  <div className="bg-white border border-black/5 rounded divide-y divide-black/5">
+                    {trending.map((item, idx) => (
+                      <Link key={item.id} to={`/articles/${item.slug}`} className="group flex gap-2 p-3 hover:bg-[#f8f7f4] transition-colors">
+                        <span className="size-5 grid place-items-center rounded-full bg-black text-white text-[10px] font-black shrink-0">{idx + 3}</span>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-[11px] font-bold line-clamp-2 group-hover:text-[#dc2626]">{item.title}</h4>
+                          <span className="text-[9px] text-muted-foreground">{item.category}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Bottom CTA */}
-              <AnimatedSection animation="fadeUp" delay={400} className="mt-12">
-                <div className="relative overflow-hidden rounded-[24px] border border-primary/10 bg-gradient-to-br from-primary/[0.06] via-violet-500/[0.04] to-accent-gold/[0.03] p-8">
-                  <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.2)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.2)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
-                  <div className="relative flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between sm:text-right">
-                    <div className="flex items-center gap-3">
-                      <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-primary to-violet-600 text-white shadow-[0_8px_20px_hsl(var(--primary)/0.25)]">
-                        <Sparkles className="size-6" />
+              {/* Featured Posts */}
+              <div className="mt-8">
+                <div className="flex items-center gap-2 mb-4 border-b-2 border-black pb-2">
+                  <span className="size-1 h-4 bg-black" />
+                  <h2 className="font-black text-[12px] uppercase">Featured Posts</h2>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  {featuredPosts.map((item) => (
+                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-black/5 rounded overflow-hidden hover:border-black/15 transition-colors">
+                      <div className="aspect-[16/10] bg-[#eee] overflow-hidden">
+                        {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full grid place-items-center text-[10px]">صورة</div>}
                       </div>
-                      <div>
-                        <h3 className="text-[15px] font-black text-foreground">هل تبحث عن موضوع محدد؟</h3>
-                        <p className="text-[12px] text-muted-foreground">استخدم البحث المتقدم أو تصفح حسب التصنيف</p>
+                      <div className="p-3">
+                        <span className="text-[9px] font-bold text-[#dc2626]">{item.category}</span>
+                        <h3 className="text-[12px] font-bold leading-snug line-clamp-2 mt-1 group-hover:text-[#dc2626]">{item.title}</h3>
+                        <div className="mt-2 text-[10px] text-muted-foreground flex items-center gap-1">
+                          <Clock className="size-3" /> {item.readingTime}
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-card border border-border px-3 py-1.5 text-[11px] font-bold">
-                        <Flame className="size-3.5 text-orange-500" />
-                        {availableCategories.length} تصنيف
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-[12px] font-black text-background">
-                        <TrendingUp className="size-4" />
-                        {filteredItems.length} مقال متاح
-                      </span>
-                    </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* All grid */}
+              <div className="mt-8">
+                <div className="flex items-center gap-2 mb-4 border-b-2 border-black pb-2">
+                  <span className="size-1 h-4 bg-black" />
+                  <h2 className="font-black text-[12px] uppercase">جميع المقالات • {filteredItems.length}</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {filteredItems.slice(4).map((item) => (
+                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-black/5 rounded p-3 hover:border-black/15 transition-colors">
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-2">
+                        <span className="bg-black text-white px-1.5 py-0.5 rounded text-[9px]">{item.category || "عام"}</span>
+                        <span>{item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : ""}</span>
+                      </div>
+                      <h3 className="font-bold text-[13px] leading-snug line-clamp-2 group-hover:text-[#dc2626]">{item.title}</h3>
+                      <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{item.summary ? truncateCleanText(item.summary, 80) : ""}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-8 bg-[#111] text-white rounded p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="size-10 grid place-items-center rounded bg-[#dc2626]"><Flame className="size-5" /></div>
+                  <div>
+                    <div className="font-black text-[13px]">هل تبحث عن موضوع محدد؟</div>
+                    <div className="text-[11px] opacity-60">استخدم البحث أو تصفح حسب التصنيف</div>
                   </div>
                 </div>
-              </AnimatedSection>
+                <div className="text-[11px] bg-white text-black px-3 py-1.5 rounded-full font-bold">{filteredItems.length} مقال متاح</div>
+              </div>
             </>
           ) : (
-            <AnimatedSection animation="scaleIn">
-              <div className="relative overflow-hidden rounded-[24px] border border-dashed border-border bg-card p-12 text-center">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent" />
-                <div className="relative">
-                  <div className="mx-auto grid size-20 place-items-center rounded-[20px] bg-muted text-muted-foreground/50">
-                    <BookOpen className="size-10" />
-                  </div>
-                  <h3 className="mt-4 text-lg font-black text-foreground">لا توجد مقالات مطابقة</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">جرب تغيير كلمات البحث أو التصنيف</p>
-                  <button
-                    onClick={() => { setSearchQuery(""); setActiveCategory("all") }}
-                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition"
-                  >
-                    <Sparkles className="size-4" />
-                    إعادة ضبط البحث
-                  </button>
-                </div>
-              </div>
-            </AnimatedSection>
+            <div className="bg-white border border-dashed border-black/10 rounded p-12 text-center">
+              <h3 className="font-bold">لا توجد مقالات مطابقة</h3>
+              <button onClick={() => { setSearchQuery(""); setActiveCategory("all") }} className="mt-4 rounded-full border border-black/10 px-4 py-1.5 text-[12px] hover:border-black/20">إعادة ضبط</button>
+            </div>
           )}
         </div>
       </main>
