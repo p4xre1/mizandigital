@@ -298,67 +298,36 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Why Choose Us - EduFlex */}
+        {/* Why Choose Us - EduFlex - Arabic */}
         <section className="py-16 bg-white dark:bg-[#0f172a]">
           <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="grid lg:grid-cols-12 gap-10 items-center">
-              <div className="lg:col-span-5">
-                <div className="relative grid grid-cols-2 gap-3 max-w-[360px] mx-auto">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[300px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/20 blur-3xl" />
-                  
-                  <div className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
-                    <div className="size-10 grid place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb]">📚</div>
-                    <div className="mt-2 font-bold text-[12px]">ملخصات شاملة</div>
-                    <div className="text-[10px] text-muted-foreground">S1-S6</div>
-                  </div>
-                  <div className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm mt-6">
-                    <div className="size-10 grid place-items-center rounded-xl bg-[#fef3c7] text-[#f59e0b]">🎓</div>
-                    <div className="mt-2 font-bold text-[12px]">معتمد</div>
-                    <div className="text-[10px] text-muted-foreground">موثوق 100%</div>
-                  </div>
-                  <div className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
-                    <div className="size-10 grid place-items-center rounded-xl bg-[#dcfce7] text-[#16a34a]">⚖️</div>
-                    <div className="mt-2 font-bold text-[12px]">قاموس قانوني</div>
-                    <div className="text-[10px] text-muted-foreground">250 مصطلح</div>
-                  </div>
-                  <div className="relative rounded-2xl bg-[#2563eb] text-white p-4 shadow-lg mt-6">
-                    <div className="font-black text-[18px]">500+</div>
-                    <div className="text-[11px] opacity-80">طالب مستفيد</div>
-                    <div className="mt-2 flex gap-1">
-                      {[1,2,3,4,5].map(i => <Star key={i} className="size-3 fill-white" />)}
-                    </div>
-                  </div>
-                </div>
+            <div className="max-w-[900px] mx-auto">
+              <div className="text-center max-w-[640px] mx-auto mb-10">
+                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">لماذا نحن</span>
+                <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                  اكتشف المزايا المميزة
+                  <br />
+                  لمنصتنا التعليمية
+                  <span className="text-[#2563eb]"> القانونية</span>
+                </h2>
+                <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">منصة متكاملة بتصميم عصري — كل ما يحتاجه طالب القانون في مكان واحد</p>
               </div>
 
-              <div className="lg:col-span-7 space-y-6">
-                <div>
-                  <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">لماذا نحن</span>
-                  <h2 className="mt-3 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
-                    اكتشف المزايا المميزة
-                    <br />
-                    لمنصتنا التعليمية
-                    <br />
-                    <span className="text-[#2563eb]">القانونية</span>
-                  </h2>
-                </div>
-
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {[
-                    { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك وأهدافك المهنية في القانون.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                    { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي ومسيرتك القانونية.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
-                    { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة تناسب نمط حياتك المزدحم كطالب.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
-                    { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة تعليمية غنية ومثمرة مع ميزان الرقمية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
-                  ].map((feature, i) => (
-                    <div key={i} className="rounded-2xl border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all group">
-                      <div className={`size-10 grid place-items-center rounded-xl ${feature.color} group-hover:scale-110 transition-transform`}>
-                        <feature.icon className="size-5" />
-                      </div>
-                      <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{feature.title}</h3>
-                      <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[
+                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك وأهدافك المهنية في القانون.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي ومسيرتك القانونية.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
+                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة تناسب نمط حياتك المزدحم كطالب.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
+                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة تعليمية غنية ومثمرة مع ميزان الرقمية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                ].map((feature, i) => (
+                  <div key={i} className="rounded-2xl border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all group text-right">
+                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color} group-hover:scale-110 transition-transform`}>
+                      <feature.icon className="size-5" />
                     </div>
-                  ))}
-                </div>
+                    <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{feature.title}</h3>
+                    <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
