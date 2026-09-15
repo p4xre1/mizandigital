@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
-import { CountUp } from "../../components/ui/CountUp"
-import { HomeFaqSection } from "../../components/home/HomeFaqSection"
 import {
   BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight
 } from "lucide-react"
+
+const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
 
 interface FeedCard {
   id: string
@@ -21,54 +21,65 @@ interface FeedCard {
 
 export function HomePage() {
   const [latestArticles, setLatestArticles] = useState<FeedCard[]>([])
-  const [latestNews, setLatestNews] = useState<FeedCard[]>([])
-  const [schoolsCount, setSchoolsCount] = useState<number>(counts.schools)
-  const [articlesCount, setArticlesCount] = useState<number>(counts.articles)
-  const [feedLoading, setFeedLoading] = useState<boolean>(true)
+  const [schoolsCount] = useState<number>(counts.schools)
+  const [articlesCount] = useState<number>(counts.articles)
 
   useEffect(() => {
-    const fetchHomeFeed = async () => {
+    // Fast local load - no supabase, immediate after paint
+    const loadLocal = async () => {
       try {
-        const { supabase } = await import("../../lib/supabase/client")
-        const [articlesRes, newsRes] = await Promise.all([
-          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(20),
-          supabase.from("news").select("id, title, slug, summary, published_at, created_at, image_url").eq("is_published", true).order("published_at", { ascending: false }).limit(20),
-        ])
-
-        const [{ default: articlesData }, { default: newsData }] = await Promise.all([
-          import("../../data/articles.json"),
-          import("../../data/news.json"),
-        ])
-
-        const remoteArticles: FeedCard[] = (articlesRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug, title: item.title, summary: item.excerpt, category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name, date: item.published_at || item.created_at, image: item.cover_image }))
-        const localArticles: FeedCard[] = (articlesData as any[]).map((item) => ({ id: item.id, slug: item.slug, title: item.title, summary: item.excerpt, category: item.category, date: item.publishedAt, image: item.coverImage || item.image }))
-        const combinedArticles = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
-        setLatestArticles(diversifyByCategory(combinedArticles, 8))
-
-        const remoteNews: FeedCard[] = (newsRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug || item.id, title: item.title, summary: item.summary, category: null, date: item.published_at || item.created_at, image: item.image_url }))
-        const localNews: FeedCard[] = (newsData as any[]).filter((item) => item.type === "news").map((item) => ({ id: item.id, slug: item.id, title: item.title, summary: item.summary, category: item.category, date: item.date }))
-        const combinedNews = Array.from(new Map([...remoteNews, ...localNews].map((n) => [n.slug, n])).values())
-        setLatestNews(diversifyByCategory(combinedNews, 8))
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setFeedLoading(false)
-      }
-    }
-    fetchHomeFeed()
-
-    const fetchCounts = async () => {
-      try {
-        const { supabase } = await import("../../lib/supabase/client")
-        const [schoolsCountRes, articlesCountRes] = await Promise.all([
-          supabase.from("schools").select("id", { count: "exact", head: true }),
-          supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published"),
-        ])
-        if (typeof schoolsCountRes.count === "number" && schoolsCountRes.count > 0) setSchoolsCount(schoolsCountRes.count)
-        if (typeof articlesCountRes.count === "number" && articlesCountRes.count > 0) setArticlesCount(articlesCountRes.count)
+        const [{ default: articlesData }] = await Promise.all([import("../../data/articles.json")])
+        const local: FeedCard[] = (articlesData as any[]).slice(0, 8).map((item) => ({
+          id: item.id,
+          slug: item.slug,
+          title: item.title,
+          summary: item.excerpt,
+          category: item.category,
+          date: item.publishedAt,
+          image: item.coverImage || item.image,
+        }))
+        setLatestArticles(diversifyByCategory(local, 8))
       } catch {}
     }
-    fetchCounts()
+    loadLocal()
+
+    // Defer heavy supabase to idle - not critical for LCP
+    const loadRemote = async () => {
+      try {
+        const { supabase } = await import("../../lib/supabase/client")
+        const [{ default: articlesData }] = await Promise.all([import("../../data/articles.json")])
+        const [articlesRes] = await Promise.all([
+          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(20),
+        ])
+        const remoteArticles: FeedCard[] = (articlesRes.data || []).map((item: any) => ({
+          id: item.id,
+          slug: item.slug,
+          title: item.title,
+          summary: item.excerpt,
+          category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name,
+          date: item.published_at || item.created_at,
+          image: item.cover_image,
+        }))
+        const localArticles: FeedCard[] = (articlesData as any[]).map((item) => ({
+          id: item.id,
+          slug: item.slug,
+          title: item.title,
+          summary: item.excerpt,
+          category: item.category,
+          date: item.publishedAt,
+          image: item.coverImage || item.image,
+        }))
+        const combined = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
+        setLatestArticles(diversifyByCategory(combined, 8))
+      } catch {}
+    }
+
+    if ("requestIdleCallback" in window) {
+      // @ts-ignore
+      requestIdleCallback(loadRemote, { timeout: 3000 })
+    } else {
+      setTimeout(loadRemote, 1500)
+    }
   }, [])
 
   return (
@@ -79,43 +90,43 @@ export function HomePage() {
         directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تضم 304 سجلاً: 8 مقالات قانونية، 13 خبراً تشريعياً، 250 مصطلحاً قانونياً، 21 كلية حقوق."
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي"]}
       />
-      <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground overflow-hidden" dir="rtl">
-        {/* Hero - Centered Text */}
+      <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
+        {/* Hero - Centered Text - Optimized: smaller blur, no heavy animations */}
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 size-[600px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/15 blur-[80px]" />
-          <div className="pointer-events-none absolute -bottom-20 -right-20 size-[300px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/10 blur-[60px]" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 size-[300px] rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f]/10 blur-[60px]" />
+          {/* Lightweight decorative - hidden on mobile for speed */}
+          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]" />
+          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
 
-          <div className="container relative mx-auto max-w-[800px] px-6 py-16 lg:py-24 flex flex-col items-center text-center">
+          <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
-              <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+              <span className="size-1.5 rounded-full bg-[#2563eb]" />
               منصة تعليمية عصرية • مجانية 100%
             </div>
 
-            <h1 className="mt-6 text-[36px] md:text-[52px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+            <h1 className="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">
               افتح إمكانياتك مع
               <br />
               <span className="text-[#2563eb]">التعلم القانوني</span>
               <br />
-              <span className="text-[22px] md:text-[26px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span>
+              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span>
             </h1>
 
-            <p className="mt-6 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+            <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
               انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_6px_20px_rgba(37,99,235,0.25)] transition-all hover:shadow-[0_8px_24px_rgba(37,99,235,0.35)] hover:-translate-y-0.5">
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">
                 ابدأ الآن
                 <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
               </Link>
-              <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors shadow-sm">
+              <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
                 اعرف المزيد
                 <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
               </Link>
             </div>
 
-            <div className="mt-8 flex items-center justify-center gap-4">
+            <div className="mt-7 flex items-center justify-center gap-4">
               <div className="flex -space-x-2 rtl:space-x-reverse">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">
@@ -134,14 +145,14 @@ export function HomePage() {
               </div>
             </div>
 
-            <div className="mt-12 w-full max-w-[560px] grid grid-cols-2 gap-3">
+            <div className="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">
               {[
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
                 { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
                 { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
                 { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
               ].map((card, i) => (
-                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all">
+                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
                   <div className="flex items-center justify-between">
                     <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
                       <card.icon className="size-4" />
@@ -156,8 +167,8 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Course Category - استكشف مساراتنا المميزة - BEFORE subscription as requested */}
-        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]">
+        {/* Course Category - BEFORE subscription - content-visibility for speed */}
+        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
               <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
@@ -171,19 +182,16 @@ export function HomePage() {
                 { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },
               ].map((card) => (
-                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_12px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
-                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all">
+                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60`} />
                   <div className="flex items-center justify-between">
-                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm group-hover:scale-110 transition-transform`}>
+                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm`}>
                       <card.icon className="size-5" />
                     </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">{card.count}</span>
                   </div>
-                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h3>
+                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{card.title}</h3>
                   <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                  <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-[#2563eb] opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all">
-                    استكشف <ArrowRight className="size-3 rtl:rotate-180" />
-                  </div>
                 </Link>
               ))}
             </div>
@@ -195,13 +203,25 @@ export function HomePage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {latestArticles.slice(0, 4).map((item) => (
-                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all">
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:shadow-sm transition-all">
                     <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden">
-                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
+                      {item.image ? (
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover"
+                          width={320}
+                          height={200}
+                        />
+                      ) : (
+                        <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>
+                      )}
                     </div>
                     <div className="p-4">
-                      <span className="inline-block bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#dbeafe] dark:border-[#334155]">{item.category || "قانون"}</span>
-                      <h4 className="mt-2 font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
+                      <span className="inline-block bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[10px] font-bold px-2 py-0.5 rounded-full border">{item.category || "قانون"}</span>
+                      <h4 className="mt-2 font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white">{item.title}</h4>
                       <p className="mt-1 text-[11px] text-[#64748b] line-clamp-2">{item.summary}</p>
                       <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
                         <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
@@ -216,26 +236,25 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Pricing - Subscription */}
-        <section className="py-16 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] relative overflow-hidden">
-          <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 size-[800px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[100px]" />
+        {/* Pricing */}
+        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
           <div className="container relative mx-auto max-w-[1280px] px-6">
             <div className="text-center max-w-[640px] mx-auto">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
-                <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+                <span className="size-1.5 rounded-full bg-[#2563eb]" />
                 الأسعار • خطط مرنة
               </span>
-              <h2 className="mt-4 text-[28px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+              <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                 خطط تناسب كل
                 <span className="text-[#2563eb]"> طالب قانون</span>
               </h2>
               <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">
-                ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع — اختر ما يناسبك وابدأ اليوم.
+                ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع.
               </p>
             </div>
 
             <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all">
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
                     <BookOpen className="size-5" />
@@ -263,25 +282,24 @@ export function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold">
                   ابدأ مجاناً ←
                 </Link>
               </div>
 
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.10)] hover:border-[#2563eb]/20 transition-all relative">
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb]">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb]">
                     <Clock className="size-5" />
                   </div>
                   <div>
-                    <h3 className="font-black text-[14px] text-[#0f172a] dark:text-white">شهري</h3>
+                    <h3 className="font-black text-[14px]">شهري</h3>
                     <p className="text-[11px] text-[#64748b]">500 كريدتس</p>
                   </div>
                 </div>
                 <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-[28px] font-black text-[#0f172a] dark:text-white">49</span>
+                  <span className="text-[28px] font-black">49</span>
                   <span className="text-[13px] font-bold text-[#64748b]"> د.م / شهر</span>
-                  <span className="mr-auto text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">$5</span>
                 </div>
                 <ul className="mt-5 space-y-2.5">
                   {[
@@ -290,20 +308,20 @@ export function HomePage() {
                     "دعم أولوية",
                     "كل مزايا المجاني",
                   ].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[12px] text-[#334155] dark:text-[#cbd5e1]">
-                      <span className="grid size-5 place-items-center rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb]"><ShieldCheck className="size-3" /></span>
+                    <li key={f} className="flex items-center gap-2 text-[12px]">
+                      <span className="grid size-5 place-items-center rounded-full bg-[#eff6ff] text-[#2563eb]"><ShieldCheck className="size-3" /></span>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold hover:opacity-90 transition-opacity">
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold">
                   اختر الشهري ←
                 </Link>
               </div>
 
-              <div className="rounded-2xl bg-[#0f172a] dark:bg-black border border-[#0f172a] dark:border-[#334155] p-6 shadow-[0_12px_32px_rgba(15,23,42,0.25)] relative overflow-hidden md:-mt-3 md:mb-3">
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#2563eb] to-[#60a5fa]" />
-                <span className="absolute top-4 left-4 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[10px] font-black text-white shadow-sm">الأفضل قيمة — خصم 32%</span>
+              <div className="rounded-2xl bg-[#0f172a] dark:bg-black border p-6 shadow-lg relative overflow-hidden md:-mt-3">
+                <div className="absolute top-0 inset-x-0 h-1 bg-[#2563eb]" />
+                <span className="absolute top-4 left-4 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[10px] font-black text-white">الأفضل قيمة — خصم 32%</span>
                 <div className="flex items-center gap-3 mt-1">
                   <div className="grid size-10 place-items-center rounded-xl bg-white/10 text-white">
                     <Award className="size-5" />
@@ -316,7 +334,6 @@ export function HomePage() {
                 <div className="mt-5 flex items-baseline gap-1">
                   <span className="text-[28px] font-black text-white">399</span>
                   <span className="text-[13px] font-bold text-white/60"> د.م / سنة</span>
-                  <span className="mr-auto text-[10px] font-bold bg-white/10 border border-white/10 rounded-full px-2 py-1 text-white">$39</span>
                 </div>
                 <p className="mt-1 text-[11px] text-[#f59e0b] font-bold">1000 كريدتس هدية + خصم 32%</p>
                 <ul className="mt-5 space-y-2.5">
@@ -325,56 +342,48 @@ export function HomePage() {
                     "خصم 32% عن الشهري",
                     "1000 كريدتس هدية",
                     "شهادة توصية",
-                    "شارات حصرية + أولوية قصوى",
+                    "شارات حصرية",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-[12px] text-white/90">
-                      <span className="grid size-5 place-items-center rounded-full bg-white/10 text-white"><ShieldCheck className="size-3" /></span>
+                      <span className="grid size-5 place-items-center rounded-full bg-white/10"><ShieldCheck className="size-3" /></span>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-3 text-[13px] font-bold shadow-[0_6px_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] text-white py-3 text-[13px] font-bold">
                   اختر السنوي ←
                 </Link>
-                <p className="mt-3 text-center text-[10px] text-white/50">الأكثر اختياراً من الطلبة • إلغاء في أي وقت</p>
               </div>
-            </div>
-
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-[11px] text-[#94a3b8]">
-              <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#16a34a]" /> دفع آمن CMI • Stripe • MoPay</span>
-              <span className="flex items-center gap-1.5"><Clock className="size-4 text-[#2563eb]" /> تفعيل فوري</span>
-              <span className="flex items-center gap-1.5"><Star className="size-4 text-[#f59e0b]" /> 30% يمول منح مجانية</span>
             </div>
           </div>
         </section>
 
         {/* Why Choose Us */}
-        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b]">
+        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="max-w-[900px] mx-auto">
               <div className="text-center max-w-[640px] mx-auto mb-10">
-                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">لماذا نحن</span>
+                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">لماذا نحن</span>
                 <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                   اكتشف المزايا المميزة
                   <br />
                   لمنصتنا التعليمية
                   <span className="text-[#2563eb]"> القانونية</span>
                 </h2>
-                <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">منصة متكاملة بتصميم عصري — كل ما يحتاجه طالب القانون في مكان واحد</p>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
-                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك وأهدافك المهنية في القانون.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي ومسيرتك القانونية.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
-                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة تناسب نمط حياتك المزدحم كطالب.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
-                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة تعليمية غنية ومثمرة مع ميزان الرقمية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
+                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
+                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة غنية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
                 ].map((feature, i) => (
-                  <div key={i} className="rounded-2xl border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all group text-right">
-                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color} group-hover:scale-110 transition-transform`}>
+                  <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
+                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
                       <feature.icon className="size-5" />
                     </div>
-                    <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{feature.title}</h3>
+                    <h3 className="mt-3 font-black text-[13px]">{feature.title}</h3>
                     <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
                   </div>
                 ))}
@@ -383,20 +392,19 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Stats */}
-        <section className="py-12 bg-[#2563eb] dark:bg-[#1e40af] text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+        {/* Stats - lightweight, no animation */}
+        <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
           <div className="container mx-auto max-w-[1280px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
               {[
-                { value: 500, label: "طالب مستفيد", prefix: "+" },
-                { value: counts.lexicon, label: "مصطلح قانوني", prefix: "+" },
-                { value: articlesCount, label: "مقال قانوني", prefix: "+" },
-                { value: schoolsCount, label: "كلية جامعية", prefix: "+" },
-                { value: 100, label: "مجاني", suffix: "%" },
+                { value: "500+", label: "طالب مستفيد" },
+                { value: "250+", label: "مصطلح قانوني" },
+                { value: `${counts.articles}+`, label: "مقال قانوني" },
+                { value: `${counts.schools}+`, label: "كلية جامعية" },
+                { value: "100%", label: "مجاني" },
               ].map((stat, i) => (
                 <div key={i}>
-                  <div className="text-[28px] font-black"><CountUp to={stat.value} prefix={stat.prefix} suffix={stat.suffix} /></div>
+                  <div className="text-[24px] font-black">{stat.value}</div>
                   <div className="text-[11px] opacity-80 font-bold mt-1">{stat.label}</div>
                 </div>
               ))}
@@ -404,7 +412,9 @@ export function HomePage() {
           </div>
         </section>
 
-        <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={articlesCount} schoolsCount={schoolsCount} />
+        <Suspense fallback={null}>
+          <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={counts.articles} schoolsCount={counts.schools} />
+        </Suspense>
       </main>
     </>
   )

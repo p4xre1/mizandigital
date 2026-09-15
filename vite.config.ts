@@ -20,8 +20,11 @@ export default defineConfig({
     cors: true,
   },
   build: {
-    chunkSizeWarningLimit: 1000,
-    // 45% bundle-size fix: more granular chunks + pdfjs + clerk + lucide split
+    target: "es2022",
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 600,
+    minify: "esbuild",
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks(id: string) {
@@ -35,7 +38,6 @@ export default defineConfig({
             }
             return "vendor";
           }
-          // Split large local files
           if (id.includes("quiz-questions.json")) return "quiz-questions";
           if (id.includes("lexicon.json")) return "lexicon";
           if (id.includes("schools.json")) return "schools";
@@ -43,6 +45,10 @@ export default defineConfig({
         },
       },
     },
+  },
+  optimizeDeps: {
+    include: ["react", "react-dom", "react-router-dom", "lucide-react"],
+    exclude: ["@clerk/clerk-react", "@supabase/supabase-js", "pdfjs-dist"],
   },
   test: {
     globals: true,

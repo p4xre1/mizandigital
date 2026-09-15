@@ -62,7 +62,7 @@ export function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-[50] w-full bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-xl border-b border-[#e2e8f0] dark:border-[#1e293b]">
+      <header className="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
         <div className="container mx-auto max-w-[1280px] px-4 h-16 flex items-center justify-between gap-3">
           <Brand onClick={handleNavClick} />
 

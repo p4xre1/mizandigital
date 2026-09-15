@@ -9,16 +9,14 @@
     <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="google-site-verification" content="SpJLp1sPB-tOaZBbyy-PfmiAfHkUKwie9foaXLaGeno">
 
-    <!-- Fonts: load without blocking first paint. The system font is used immediately. -->
+    <!-- Performance: preconnect to critical origins, dns-prefetch for analytics -->
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- ملاحظة أداء (الخطوط): خط Amiri كان مطلوباً هنا (وزنين: 400/700) لكن
-         تدقيق شامل فـ الكود (بحث عن "font-serif"/"Amiri" فـ كل src/) بيّن
-         أنه غير مستعمل فـ أي مكان — .font-serif معرّف فـ globals.css كمتغيّر
-         بصح ما كاين حتى className يستعمله فعلياً فـ الواجهة. حذفه كيقلّص
-         حجم طلب الخطوط بلا أي أثر بصري (Cairo هو الخط الوحيد المستعمل فعلاً). -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"></noscript>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    <!-- Fonts: only 4 weights (400,700,800,900) - was 6, saves ~40KB, display=swap for non-blocking -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap"></noscript>
 
     <!-- SEO -->
     <title>ميزان الرقمية | ملخصات وموارد طلبة القانون</title>
@@ -86,7 +84,7 @@
       }
     </script>
 
-    <!-- Google Analytics: initialize only when configured and after the first paint. -->
+    <!-- Google Analytics: deferred to idle, timeout 4s to not block LCP -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}
@@ -104,14 +102,14 @@
         var id="%VITE_GA_ID%";
         if(!id || id.indexOf("%")===0) return;
         gtag("js",new Date());
-        gtag("config",id,{anonymize_ip:true});
+        gtag("config",id,{anonymize_ip:true, send_page_view:false});
         var s=document.createElement("script");
         s.async=true;
         s.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(id);
         document.head.appendChild(s);
       }
-      if("requestIdleCallback" in window) requestIdleCallback(loadMizanAnalytics,{timeout:2500});
-      else window.addEventListener("load",function(){setTimeout(loadMizanAnalytics,1500)},{once:true});
+      if("requestIdleCallback" in window) requestIdleCallback(loadMizanAnalytics,{timeout:4000});
+      else window.addEventListener("load",function(){setTimeout(loadMizanAnalytics,2500)},{once:true});
     </script>
   </head>
   <body>
