@@ -66,7 +66,6 @@ export function Header({
         <div className="container mx-auto max-w-[1280px] px-4 h-16 flex items-center justify-between gap-3">
           <Brand onClick={handleNavClick} />
 
-          {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-1">
             <NavLink to="/" end className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
               الرئيسية
@@ -95,7 +94,6 @@ export function Header({
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Search desktop input */}
             <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
               <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
                 <Search className="size-4" />
@@ -103,12 +101,10 @@ export function Header({
               <input placeholder="ابحث..." className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
             </div>
 
-            {/* Search icon - visible on mobile navbar (not in burger) */}
             <Link to="/search" className="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Search">
               <Search size={16} />
             </Link>
 
-            {/* Theme toggle - ALWAYS visible on navbar (light/dark) */}
             <button onClick={onToggleTheme} className="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle theme">
               {theme === "dark" ? <Sun size={16} className="text-[#f59e0b]" /> : <Moon size={16} className="text-[#475569]" />}
             </button>
@@ -131,7 +127,6 @@ export function Header({
               <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
             </Link>
 
-            {/* Burger - mobile only */}
             <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="Toggle menu">
               {menuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -139,44 +134,35 @@ export function Header({
         </div>
       </header>
 
-      {/* Small mobile menu - dropdown card, not full screen */}
       {menuOpen && (
         <>
           <div className="lg:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-[1px] z-[60]" onClick={onCloseMenu} aria-hidden="true" />
           <div className="lg:hidden fixed right-3 top-[70px] w-[300px] max-w-[calc(100vw-24px)] z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
               <nav className="p-2.5 space-y-1 max-h-[70vh] overflow-y-auto">
-                <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>الرئيسية</span>
-                  <span className="text-[14px]">🏠</span>
+                <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الرئيسية
                 </NavLink>
-                <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>المقالات</span>
-                  <span className="text-[14px]">📚</span>
+                <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  المقالات
                 </NavLink>
-                <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>الأخبار</span>
-                  <span className="text-[14px]">📰</span>
+                <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الأخبار
                 </NavLink>
-                <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>القاموس</span>
-                  <span className="text-[14px]">📖</span>
+                <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  القاموس
                 </NavLink>
-                <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>الكليات</span>
-                  <span className="text-[14px]">🎓</span>
+                <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الكليات
                 </NavLink>
-                <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>الأرشيف</span>
-                  <span className="text-[14px]">🗂️</span>
+                <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الأرشيف
                 </NavLink>
-                <NavLink to="/events" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>الفعاليات</span>
-                  <span className="text-[14px]">🎤</span>
+                <NavLink to="/events" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الفعاليات
                 </NavLink>
-                <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  <span>الاختبارات</span>
-                  <span className="text-[14px]">✍️</span>
+                <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الاختبارات
                 </NavLink>
 
                 <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
@@ -196,7 +182,7 @@ export function Header({
 export function Footer() {
   return (
     <footer className="mt-20 bg-[#0f172a] text-white">
-      <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+      <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_0.9fr]">
         <div>
           <div className="flex items-center gap-2.5">
             <img src="/Logo.svg" alt="ميزان الرقمية" className="size-9 rounded-xl shadow-sm object-cover" width={36} height={36} loading="lazy" />
@@ -224,21 +210,39 @@ export function Footer() {
           </div>
         </div>
         <div>
-          <p className="mb-3 text-[13px] font-black">استكشف</p>
+          <p className="mb-3 text-[13px] font-black">استكشف المحتوى</p>
           <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/" className="hover:text-white transition-colors">الرئيسية</Link>
             <Link to="/archive" className="hover:text-white transition-colors">المكتبة والملخصات</Link>
-            <Link to="/news" className="hover:text-white transition-colors">الأخبار</Link>
-            <Link to="/articles" className="hover:text-white transition-colors">المقالات والدراسات</Link>
-            <Link to="/quiz" className="hover:text-white transition-colors">الاختبارات القانونية</Link>
+            <Link to="/articles" className="hover:text-white transition-colors">المقالات</Link>
+            <Link to="/news" className="hover:text-white transition-colors">الأخبار القانونية</Link>
+            <Link to="/lexicon" className="hover:text-white transition-colors">القاموس القانوني</Link>
+            <Link to="/schools" className="hover:text-white transition-colors">دليل الكليات</Link>
+            <Link to="/events" className="hover:text-white transition-colors">الفعاليات</Link>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-[13px] font-black">مراجع سريعة</p>
+          <p className="mb-3 text-[13px] font-black">التعلم</p>
           <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
-            <Link to="/lexicon" className="hover:text-white transition-colors">القاموس القانوني</Link>
-            <Link to="/schools" className="hover:text-white transition-colors">دليل كليات الحقوق</Link>
-            <Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link>
+            <Link to="/quiz" className="hover:text-white transition-colors">مركز الاختبارات</Link>
+            <Link to="/quiz/university" className="hover:text-white transition-colors">اختبارات S1-S6</Link>
+            <Link to="/quiz/general" className="hover:text-white transition-colors">الثقافة العامة</Link>
+            <Link to="/quiz/concours" className="hover:text-white transition-colors">مباريات التوظيف</Link>
+            <Link to="/quiz/interview" className="hover:text-white transition-colors">المقابلات الشفوية</Link>
+            <Link to="/quiz/placement" className="hover:text-white transition-colors">تحديد المستوى</Link>
+            <Link to="/search" className="hover:text-white transition-colors">البحث</Link>
+          </div>
+        </div>
+        <div>
+          <p className="mb-3 text-[13px] font-black">المنصة</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
             <Link to="/about" className="hover:text-white transition-colors">من نحن</Link>
+            <Link to="/contact" className="hover:text-white transition-colors">اتصل بنا</Link>
+            <Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link>
+            <Link to="/pricing" className="hover:text-white transition-colors">الأسعار</Link>
+            <Link to="/payments" className="hover:text-white transition-colors">شراء كريدتس</Link>
+            <Link to="/saved" className="hover:text-white transition-colors">المحفوظات</Link>
+            <Link to="/profile" className="hover:text-white transition-colors">حسابي</Link>
           </div>
         </div>
         <div>
@@ -247,6 +251,9 @@ export function Footer() {
             <Link to="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
             <Link to="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
             <Link to="/cookies" className="hover:text-white transition-colors">سياسة الكوكيز</Link>
+            <Link to="/guidelines" className="hover:text-white transition-colors">إرشادات المجتمع</Link>
+            <a href="/sitemap.xml" className="hover:text-white transition-colors">خريطة الموقع</a>
+            <a href="/feed.xml" className="hover:text-white transition-colors">RSS</a>
           </div>
         </div>
       </div>
