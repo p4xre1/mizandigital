@@ -163,7 +163,141 @@ export function HomePage() {
           </div>
         </section>
 
+        {/* Pricing - Subscription - EduFlex Blue */}
+        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] relative overflow-hidden">
+          <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 size-[800px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[100px]" />
+          <div className="container relative mx-auto max-w-[1280px] px-6">
+            <div className="text-center max-w-[640px] mx-auto">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
+                <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+                الأسعار • خطط مرنة
+              </span>
+              <h2 className="mt-4 text-[28px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                خطط تناسب كل
+                <span className="text-[#2563eb]"> طالب قانون</span>
+              </h2>
+              <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">
+                ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع — اختر ما يناسبك وابدأ اليوم.
+              </p>
+            </div>
 
+            <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
+              {/* Free */}
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
+                    <BookOpen className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[14px] text-[#0f172a] dark:text-white">المجاني</h3>
+                    <p className="text-[11px] text-[#64748b]">للجميع • للأبد</p>
+                  </div>
+                </div>
+                <div className="mt-5">
+                  <span className="text-[28px] font-black text-[#0f172a] dark:text-white">0</span>
+                  <span className="text-[13px] font-bold text-[#64748b]"> د.م / للأبد</span>
+                </div>
+                <ul className="mt-5 space-y-2.5">
+                  {[
+                    "الوصول للأرشيف S1-S6",
+                    "القاموس 250 مصطلح",
+                    "المقالات المجانية",
+                    "الاختبارات الأساسية",
+                    "دليل الكليات 21 كلية",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[12px] text-[#334155] dark:text-[#cbd5e1]">
+                      <span className="grid size-5 place-items-center rounded-full bg-[#dcfce7] text-[#16a34a]"><ShieldCheck className="size-3" /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                  ابدأ مجاناً ←
+                </Link>
+              </div>
+
+              {/* Monthly - Popular? Actually yearly is popular */}
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_28px_rgba(37,99,235,0.10)] hover:border-[#2563eb]/20 transition-all relative">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb]">
+                    <Clock className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[14px] text-[#0f172a] dark:text-white">شهري</h3>
+                    <p className="text-[11px] text-[#64748b]">500 كريدتس</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-[28px] font-black text-[#0f172a] dark:text-white">49</span>
+                  <span className="text-[13px] font-bold text-[#64748b]"> د.م / شهر</span>
+                  <span className="mr-auto text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">$5</span>
+                </div>
+                <ul className="mt-5 space-y-2.5">
+                  {[
+                    "تحميل بلا إنترنت",
+                    "شجرة القوانين المتقدمة",
+                    "تحديات مميزة",
+                    "دعم أولوية",
+                    "كل مزايا المجاني",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[12px] text-[#334155] dark:text-[#cbd5e1]">
+                      <span className="grid size-5 place-items-center rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb]"><ShieldCheck className="size-3" /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold hover:opacity-90 transition-opacity">
+                  اختر الشهري ←
+                </Link>
+              </div>
+
+              {/* Yearly - Best Value */}
+              <div className="rounded-2xl bg-[#0f172a] dark:bg-black border border-[#0f172a] dark:border-[#334155] p-6 shadow-[0_12px_32px_rgba(15,23,42,0.25)] relative overflow-hidden md:-mt-3 md:mb-3">
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-[#2563eb] to-[#60a5fa]" />
+                <span className="absolute top-4 left-4 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[10px] font-black text-white shadow-sm">الأفضل قيمة — خصم 32%</span>
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="grid size-10 place-items-center rounded-xl bg-white/10 text-white">
+                    <Award className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[14px] text-white">سنوي</h3>
+                    <p className="text-[11px] text-white/60">7000 + 1000 هدية</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-[28px] font-black text-white">399</span>
+                  <span className="text-[13px] font-bold text-white/60"> د.م / سنة</span>
+                  <span className="mr-auto text-[10px] font-bold bg-white/10 border border-white/10 rounded-full px-2 py-1 text-white">$39</span>
+                </div>
+                <p className="mt-1 text-[11px] text-[#f59e0b] font-bold">1000 كريدتس هدية + خصم 32%</p>
+                <ul className="mt-5 space-y-2.5">
+                  {[
+                    "كل مزايا الشهري",
+                    "خصم 32% عن الشهري",
+                    "1000 كريدتس هدية",
+                    "شهادة توصية",
+                    "شارات حصرية + أولوية قصوى",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[12px] text-white/90">
+                      <span className="grid size-5 place-items-center rounded-full bg-white/10 text-white"><ShieldCheck className="size-3" /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-3 text-[13px] font-bold shadow-[0_6px_20px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-0.5">
+                  اختر السنوي ←
+                </Link>
+                <p className="mt-3 text-center text-[10px] text-white/50">الأكثر اختياراً من الطلبة • إلغاء في أي وقت</p>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-[11px] text-[#94a3b8]">
+              <span className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#16a34a]" /> دفع آمن CMI • Stripe • MoPay</span>
+              <span className="flex items-center gap-1.5"><Clock className="size-4 text-[#2563eb]" /> تفعيل فوري</span>
+              <span className="flex items-center gap-1.5"><Star className="size-4 text-[#f59e0b]" /> 30% يمول منح مجانية</span>
+            </div>
+          </div>
+        </section>
 
         {/* Why Choose Us - EduFlex */}
         <section className="py-16 bg-white dark:bg-[#0f172a]">
