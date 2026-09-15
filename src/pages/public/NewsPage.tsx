@@ -5,7 +5,8 @@ import { generateSlug } from "../../lib/utils/generateSlug"
 import { supabase } from "../../lib/supabase/client"
 import localNews from "../../data/news.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
-import { ContentCard } from "../../components/content/ContentCard"
+import { ProContentCard, ProContentCardSkeleton } from "../../components/content/ProContentCard"
+import { AnimatedSection, StaggerGrid } from "../../components/ui/AnimatedSection"
 import { ArticleTranslateWidget } from "../../components/articles/ArticleTranslateWidget"
 import {
   Newspaper,
@@ -13,9 +14,13 @@ import {
   Filter,
   LayoutGrid,
   List,
-  Loader2,
   Globe,
-  BookOpen,
+  Sparkles,
+  Flame,
+  Clock,
+  TrendingUp,
+  Zap,
+  AlertCircle,
 } from "lucide-react"
 
 interface NewsItem {
@@ -31,7 +36,6 @@ interface NewsItem {
   published_at?: string | null
   slug: string
   created_at?: string | null
-  /** التصنيف (متوفر فـ news.json المحلي) والكلمة المفتاحية المستهدفة (متوفرة فـ جدول Supabase) — تُستخدمان كأوسمة سيو */
   category?: string | null
   target_keyword?: string | null
 }
@@ -41,8 +45,6 @@ export function NewsPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeSource, setActiveSource] = useState<string>("all")
-  
-  // View mode state ('grid' or 'list')
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   useEffect(() => {
@@ -50,51 +52,9 @@ export function NewsPage() {
   }, [])
 
   const fetchNewsItems = async () => {
-  setLoading(true)
-  try {
-    // 1) الأخبار المحلية من news.json (type = "news" فقط)
-    //    مع مواءمة أسماء الحقول مع واجهة NewsItem
-    const localItems: NewsItem[] = (localNews as any[])
-      .filter((n) => n.type === "news")
-      .map((n) => ({
-        id: n.id,
-        title: n.title,
-        summary: n.summary,
-        content: n.content,
-        source: n.author || "منصة الميزان",
-        source_url: null,
-        image_url: null,
-        is_published: true,
-        published_at: n.date,
-        slug: n.id, // الـ JSON له id صالح كـ slug
-        created_at: n.date,
-        category: n.category,
-      }))
-
-    // 2) أخبار Supabase (إن وُجدت) — نطلب فقط الأعمدة التي تحتاجها بطاقة
-    //    القائمة (بدون content الكامل)، ونحدّ العدد بحد معقول لمنع تحميل
-    //    الجدول بأكمله (P1-2: صفحة القائمة لا يجب أن تُنزّل محتوى المقال كاملاً)
-    let remoteItems: NewsItem[] = []
-    const { data, error } = await (supabase as any).from("news")
-      .select("id, title, summary, source, source_url, image_url, image_alt, is_published, published_at, slug, created_at")
-      .eq("is_published", true)
-      .order("published_at", { ascending: false })
-      .limit(100)
-
-    if (!error && data) remoteItems = data
-
-    // 3) الدمج دون تكرار (بالعنوان) ثم الترتيب من الأحدث للأقدم
-    const remoteTitles = new Set(remoteItems.map((n) => n.title))
-    const merged = [...remoteItems, ...localItems.filter((n) => !remoteTitles.has(n.title))]
-    merged.sort((a, b) =>
-      new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime()
-    )
-
-    setItems(merged)
-  } catch (err) {
-    console.error("خطأ في جلب الأخبار والمستجدات، الاعتماد على البيانات المحلية:", err)
-    setItems(
-      (localNews as any[])
+    setLoading(true)
+    try {
+      const localItems: NewsItem[] = (localNews as any[])
         .filter((n) => n.type === "news")
         .map((n) => ({
           id: n.id,
@@ -102,24 +62,58 @@ export function NewsPage() {
           summary: n.summary,
           content: n.content,
           source: n.author || "منصة الميزان",
+          source_url: null,
+          image_url: null,
+          is_published: true,
           published_at: n.date,
           slug: n.id,
           created_at: n.date,
           category: n.category,
         }))
-    )
-  } finally {
-    setLoading(false)
-  }
-}
 
-  // استخراج مصادر الأخبار الفريدة للفلترة
+      let remoteItems: NewsItem[] = []
+      const { data, error } = await (supabase as any).from("news")
+        .select("id, title, summary, source, source_url, image_url, image_alt, is_published, published_at, slug, created_at, category")
+        .eq("is_published", true)
+        .order("published_at", { ascending: false })
+        .limit(100)
+
+      if (!error && data) remoteItems = data
+
+      const remoteTitles = new Set(remoteItems.map((n) => n.title))
+      const merged = [...remoteItems, ...localItems.filter((n) => !remoteTitles.has(n.title))]
+      merged.sort((a, b) =>
+        new Date(b.published_at || 0).getTime() - new Date(a.published_at || 0).getTime()
+      )
+
+      setItems(merged)
+    } catch (err) {
+      console.error("خطأ في جلب الأخبار:", err)
+      setItems(
+        (localNews as any[])
+          .filter((n) => n.type === "news")
+          .map((n) => ({
+            id: n.id,
+            title: n.title,
+            summary: n.summary,
+            content: n.content,
+            source: n.author || "منصة الميزان",
+            published_at: n.date,
+            slug: n.id,
+            created_at: n.date,
+            category: n.category,
+          }))
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const availableSources = useMemo(() => {
     const sources = items.map((item) => item.source).filter(Boolean) as string[]
     return Array.from(new Set(sources))
   }, [items])
 
-  // تصفية الأخبار بناءً على البحث والمصدر
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       const title = item.title || ""
@@ -128,7 +122,6 @@ export function NewsPage() {
       const source = item.source || ""
 
       const matchesSource = activeSource === "all" || source === activeSource
-
       const matchesSearch =
         !searchQuery ||
         containsText(title, searchQuery) ||
@@ -140,14 +133,16 @@ export function NewsPage() {
     })
   }, [items, searchQuery, activeSource])
 
+  const breakingNews = filteredItems[0]
+  const restNews = filteredItems.slice(1)
+
   const pageTitle = "الأخبار والمستجدات التشريعية والقضائية"
 
-  // ItemList Schema for Google Search Indexing
   const listSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": pageTitle,
-    "description": "تابع أحدث المستجدات والأخبار التشريعية والقضائية الرسمية في المغرب.",
+    name: pageTitle,
+    description: "تابع أحدث المستجدات والأخبار التشريعية والقضائية الرسمية في المغرب.",
     "itemListElement": filteredItems.slice(0, 30).map((item, index) => {
       const slug = item.slug || generateSlug(item.title) || item.id
       return {
@@ -170,7 +165,7 @@ export function NewsPage() {
         title={pageTitle}
         description="متابعة مستمرة لأهم المستجدات التشريعية والقضائية بالمغرب: البلاغات الرسمية، منشورات الجريدة الرسمية، وأخبار المحاكم والمؤسسات القانونية والأكاديمية."
         directAnswer="أخبار تشريعية وقضائية مغربية: مستجدات القوانين، قرارات المحكمة الدستورية، ومدونة الأسرة والشغل."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "عرض شبكي", url: "https://www.mizan.page/newspage" }]}
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الأخبار", url: "https://www.mizan.page/news" }]}
         canonicalUrl="https://www.mizan.page/news"
         keywords={[
           "أخبار القانون المغربي",
@@ -182,152 +177,215 @@ export function NewsPage() {
         schema={listSchema}
       />
 
-      <main className="container mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 md:py-10 lg:px-10" dir="rtl">
-        {/* Header Section */}
-        <header className="mb-6 md:mb-8 text-center md:text-right">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
-            <Newspaper size={16} />
-            <span>المرصد الإخباري</span>
-          </div>
-          <h1 className="text-2xl font-black text-foreground md:text-4xl">
-            {pageTitle}
-          </h1>
-          <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-2xl">
-            نافذة تفاعلية على المستجدات القانونية والتشريعية الرسمية، ومتابعة دقيقة لكل ما يُستجد في الساحة القانونية بالمغرب.
-          </p>
-        </header>
+      <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_hsl(25_90%_60%/0.06),transparent_60%),radial-gradient(ellipse_at_bottom_left,_hsl(200_90%_60%/0.05),transparent_60%)]" dir="rtl">
+        {/* Hero Header - News Style */}
+        <div className="relative overflow-hidden border-b border-border/50">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/[0.04] via-red-500/[0.03] to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--border)/0.3)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--border)/0.3)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+          
+          <div className="container relative mx-auto max-w-screen-2xl px-4 py-12 sm:px-6 md:py-16 lg:px-10">
+            <AnimatedSection animation="fadeUp">
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-1.5 text-xs font-bold text-red-700 backdrop-blur dark:text-red-300">
+                        <span className="relative flex size-2">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex size-2 rounded-full bg-red-500"></span>
+                        </span>
+                        <Newspaper className="size-4" />
+                        <span>المرصد الإخباري المباشر</span>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-700">
+                        <Flame className="size-3.5" />
+                        {filteredItems.length} خبر جديد
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h1 className="text-3xl font-black tracking-tight text-foreground md:text-5xl lg:text-[2.75rem] leading-[1.1]">
+                        <span className="bg-gradient-to-r from-red-600 via-orange-600 to-amber-600 bg-clip-text text-transparent">الأخبار</span> والمستجدات
+                        <span className="block text-[0.6em] font-bold text-muted-foreground mt-1">التشريعية والقضائية</span>
+                      </h1>
+                      <p className="max-w-2xl text-sm leading-7 text-muted-foreground md:text-[15px]">
+                        نافذة تفاعلية على المستجدات القانونية والتشريعية الرسمية، ومتابعة دقيقة لكل ما يُستجد في الساحة القانونية بالمغرب مع تنبيهات فورية.
+                      </p>
+                    </div>
+                  </div>
 
-        {/* Filter & Search Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch bg-card p-4 rounded-xl border border-border shadow-sm">
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <input
-              type="text"
-              placeholder="ابحث في العناوين أو الملخصات..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-border bg-background pr-11 pl-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
-            />
-          </div>
+                  <div className="flex items-center gap-2">
+                    <ArticleTranslateWidget />
+                    <div className="hidden sm:flex items-center gap-1 rounded-xl bg-card border border-border p-1">
+                      <button onClick={() => setViewMode("grid")} className={`p-2 rounded-lg transition ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
+                        <LayoutGrid className="size-4" />
+                      </button>
+                      <button onClick={() => setViewMode("list")} className={`p-2 rounded-lg transition ${viewMode === "list" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>
+                        <List className="size-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Sources Dropdown */}
-          <FilterDropdown
-            className="sm:w-64 shrink-0"
-            value={activeSource}
-            onChange={setActiveSource}
-            allLabel="جميع المصادر"
-            icon={<Filter size={14} />}
-            options={availableSources.map((src) => ({ value: src, label: src }))}
-          />
-        </div>
-
-        {/* View Mode Switcher Toolbar */}
-        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
-          <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
-            <span className="text-xs font-bold text-muted-foreground">
-              عدد الأخبار المعروضة: <span className="text-primary">{filteredItems.length} خبر</span>
-            </span>
-            {/* أداة ترجمة صفحة الأخبار بأكملها إلى أي لغة (نفس الأداة المستخدمة في صفحة تفاصيل الخبر) */}
-            <ArticleTranslateWidget />
-          </div>
-
-          <div className="flex items-center gap-1 bg-background p-1 rounded-xl border border-border">
-            <button
-              type="button"
-              onClick={() => setViewMode("grid")}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all min-h-[38px] ${
-                viewMode === "grid"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              title="عرض شبكي"
-            >
-              <LayoutGrid size={15} />
-              <span>شبكة</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all min-h-[38px] ${
-                viewMode === "list"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-              title="قائمة تفصيلية"
-            >
-              <List size={15} />
-              <span>قائمة تفصيلية</span>
-            </button>
+                {/* Breaking ticker */}
+                {breakingNews && (
+                  <div className="relative overflow-hidden rounded-xl border border-red-500/20 bg-gradient-to-r from-red-500/10 via-orange-500/5 to-transparent p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-[11px] font-black text-white animate-pulse shrink-0">
+                        <Zap className="size-3" /> عاجل
+                      </span>
+                      <p className="truncate text-[13px] font-bold text-foreground">{breakingNews.title}</p>
+                      <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground shrink-0">
+                        <Clock className="size-3" />
+                        {breakingNews.published_at ? new Date(breakingNews.published_at).toLocaleDateString("ar-MA") : "الآن"}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AnimatedSection>
           </div>
         </div>
 
-        {/* Loading State */}
-        {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="size-8 animate-spin text-primary" />
-          </div>
-        ) : filteredItems.length > 0 ? (
-          <div
-            className={
-              viewMode === "grid"
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6"
-                : "flex flex-col space-y-3"
-            }
-          >
-            {filteredItems.map((item) => {
-              const itemSlug = item.slug || generateSlug(item.title) || item.id
-              const itemPath = `/news/${itemSlug}`
-              const formattedDate = item.published_at
-                ? new Date(item.published_at).toLocaleDateString("ar-MA", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric"
-                  })
-                : null
-
-              return (
-                <ContentCard
-                  key={item.id}
-                  href={itemPath}
-                  title={item.title}
-                  image={item.image_url}
-                  imageAlt={item.image_alt}
-                  badgeIcon={<Globe size={12} />}
-                  badgeLabel={item.source}
-                  formattedDate={formattedDate}
-                  summary={item.summary}
-                  tags={[item.category, item.target_keyword]}
-                  footerIcon={<BookOpen size={12} />}
-                  footerLabel="منصة الميزان"
-                  ctaLabel="التفاصيل"
-                  externalUrl={item.source_url}
-                  variant={viewMode}
+        <div className="container mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10">
+          {/* Search & Filters */}
+          <AnimatedSection animation="fadeUp" delay={100}>
+            <div className="mb-8 flex flex-col gap-4 rounded-[20px] border border-border/50 bg-card/70 p-4 backdrop-blur-xl shadow-[0_8px_32px_hsl(0_0%_0%/0.04)] sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute right-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="ابحث في الأخبار: مدونة الأسرة، الجريدة الرسمية، وزارة العدل..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-12 w-full rounded-xl border border-border bg-background/50 pr-12 pl-4 text-sm font-medium focus:border-primary/50 focus:bg-background focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all"
                 />
-              )
-            })}
-          </div>
-        ) : (
-          /* Empty State */
-          <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-            <Newspaper size={40} className="mx-auto text-muted-foreground mb-3" />
-            <h3 className="text-lg font-bold text-foreground">لا توجد أخبار متاحة</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              لا توجد مستجدات مطابقة لبحثك الحالي.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("")
-                setActiveSource("all")
-              }}
-              className="mt-4 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:opacity-90 min-h-[44px]"
-            >
-              إعادة ضبط البحث
-            </button>
-          </div>
-        )}
+              </div>
+              <FilterDropdown
+                className="w-full sm:w-64"
+                value={activeSource}
+                onChange={setActiveSource}
+                allLabel="جميع المصادر"
+                icon={<Filter size={14} />}
+                options={availableSources.map((src) => ({ value: src, label: src }))}
+              />
+              <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold text-muted-foreground">
+                <span className="flex items-center gap-1"><TrendingUp className="size-3.5 text-emerald-600" />{filteredItems.length} خبر</span>
+              </div>
+            </div>
+          </AnimatedSection>
+
+          {loading ? (
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <ProContentCardSkeleton key={i} variant={i === 0 ? "hero" : "default"} />
+              ))}
+            </div>
+          ) : filteredItems.length > 0 ? (
+            <>
+              <div className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
+                {viewMode === "grid" ? (
+                  <>
+                    {breakingNews && (
+                      <AnimatedSection animation="scaleIn" className="sm:col-span-2 lg:col-span-2">
+                        <ProContentCard
+                          href={`/news/${breakingNews.slug || breakingNews.id}`}
+                          title={breakingNews.title}
+                          image={breakingNews.image_url}
+                          imageAlt={breakingNews.image_alt}
+                          badgeLabel={breakingNews.source || "عاجل"}
+                          badgeColor="rose"
+                          formattedDate={breakingNews.published_at ? new Date(breakingNews.published_at).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
+                          summary={breakingNews.summary || ""}
+                          isFeatured
+                          isTrending
+                          tags={breakingNews.category ? [breakingNews.category, breakingNews.source || ""] : undefined}
+                          variant="hero"
+                          index={0}
+                        />
+                      </AnimatedSection>
+                    )}
+                    <StaggerGrid className="contents" delay={150}>
+                      {restNews.map((item, idx) => {
+                        const isNew = item.published_at ? (Date.now() - new Date(item.published_at).getTime()) < 2 * 24 * 3600000 : false
+                        const isTrending = idx < 3
+                        return (
+                          <ProContentCard
+                            key={item.id}
+                            href={`/news/${item.slug || item.id}`}
+                            title={item.title}
+                            image={item.image_url}
+                            imageAlt={item.image_alt}
+                            badgeLabel={item.source || item.category || "خبر"}
+                            badgeColor={isTrending ? "rose" : "amber"}
+                            formattedDate={item.published_at ? new Date(item.published_at).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
+                            summary={item.summary || ""}
+                            isNew={isNew}
+                            isTrending={isTrending}
+                            tags={item.category ? [item.category] : undefined}
+                            index={idx + 1}
+                          />
+                        )
+                      })}
+                    </StaggerGrid>
+                  </>
+                ) : (
+                  restNews.map((item, idx) => (
+                    <AnimatedSection key={item.id} animation="slideRight" delay={idx * 40}>
+                      <div className="group flex gap-4 rounded-2xl border border-border bg-card p-4 hover:border-primary/20 hover:shadow-lg transition-all">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                            <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold text-red-700">{item.source || "خبر"}</span>
+                            {item.published_at && <span>{new Date(item.published_at).toLocaleDateString("ar-MA")}</span>}
+                          </div>
+                          <h3 className="mt-2 font-bold text-foreground group-hover:text-primary line-clamp-1">{item.title}</h3>
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{item.summary}</p>
+                        </div>
+                        <div className="shrink-0 grid place-items-center size-10 rounded-xl bg-muted group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          <Globe className="size-5" />
+                        </div>
+                      </div>
+                    </AnimatedSection>
+                  ))
+                )}
+              </div>
+
+              <AnimatedSection animation="fadeUp" delay={400} className="mt-12">
+                <div className="relative overflow-hidden rounded-[24px] border border-orange-500/10 bg-gradient-to-br from-orange-500/[0.06] via-red-500/[0.04] to-transparent p-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-red-600 to-orange-600 text-white shadow-[0_8px_20px_hsl(0_84%_60%/0.25)]">
+                        <AlertCircle className="size-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-[14px] font-black">تنبيهات القوانين الجديدة</h3>
+                        <p className="text-[12px] text-muted-foreground">اشترك لتصلك المستجدات التشريعية فور صدورها</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-card border border-border px-3 py-1.5 text-[11px] font-bold flex items-center gap-1">
+                        <span className="size-2 rounded-full bg-emerald-500 animate-pulse" /> مباشر
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </AnimatedSection>
+            </>
+          ) : (
+            <AnimatedSection animation="scaleIn">
+              <div className="rounded-[24px] border border-dashed border-border bg-card p-12 text-center">
+                <div className="mx-auto grid size-20 place-items-center rounded-[20px] bg-muted text-muted-foreground/50">
+                  <Newspaper className="size-10" />
+                </div>
+                <h3 className="mt-4 text-lg font-black">لا توجد أخبار مطابقة</h3>
+                <p className="mt-1 text-sm text-muted-foreground">جرب تغيير البحث أو المصدر</p>
+                <button onClick={() => { setSearchQuery(""); setActiveSource("all") }} className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-primary-foreground">
+                  <Sparkles className="size-4" /> إعادة ضبط
+                </button>
+              </div>
+            </AnimatedSection>
+          )}
+        </div>
       </main>
     </>
   )
