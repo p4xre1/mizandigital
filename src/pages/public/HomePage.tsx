@@ -216,29 +216,29 @@ export function HomePage() {
                 <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
                 <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {latestArticles.slice(0, 4).map((item) => (
-                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:shadow-sm transition-all">
-                    <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden">
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all flex flex-col">
+                    <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
                       {item.image ? (
                         <img
                           src={item.image}
                           alt={item.title}
                           loading="lazy"
                           decoding="async"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
                           width={320}
-                          height={200}
+                          height={120}
                         />
                       ) : (
-                        <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>
+                        <div className="w-full h-full grid place-items-center"><BookOpen className="size-7 text-[#94a3b8]" /></div>
                       )}
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
                     </div>
-                    <div className="p-4">
-                      <span className="inline-block bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[10px] font-bold px-2 py-0.5 rounded-full border">{item.category || "قانون"}</span>
-                      <h4 className="mt-2 font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white">{item.title}</h4>
-                      <p className="mt-1 text-[11px] text-[#64748b] line-clamp-2">{item.summary}</p>
-                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                    <div className="p-4 flex flex-col flex-1">
+                      <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
+                      <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                         <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
                         <span>•</span>
                         <span>ميزان الرقمية</span>
