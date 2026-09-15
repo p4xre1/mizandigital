@@ -266,7 +266,7 @@ export function HomePage() {
             {/* Latest Articles - EduFlex Course Grid */}
             <div className="mt-12">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات • Signature Courses</h3>
+                <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
                 <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
