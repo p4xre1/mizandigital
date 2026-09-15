@@ -120,11 +120,11 @@ export function generateOrganizationSchema() {
     logo: {
       "@type": "ImageObject",
       "@id": "https://www.mizan.page/#logo",
-      url: "https://www.mizan.page/icon-512.png",
-      contentUrl: "https://www.mizan.page/icon-512.png",
+      url: "https://www.mizan.page/logo-white-512.png",
+      contentUrl: "https://www.mizan.page/logo-white-512.png",
       width: 512,
       height: 512,
-      caption: "ميزان الرقمية - شعار المنصة",
+      caption: "ميزان الرقمية - شعار المنصة بخلفية بيضاء",
     },
     image: {
       "@type": "ImageObject",

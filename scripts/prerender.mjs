@@ -228,10 +228,22 @@ const publisherSchema = {
   "@type": "Organization",
   "@id": `${DOMAIN}/#organization`,
   name: "ميزان الرقمية",
+  alternateName: ["Mizan Digital", "Mizan.page", "منصة الميزان الرقمية"],
   url: DOMAIN,
   logo: {
     "@type": "ImageObject",
-    url: `${DOMAIN}/icon-512.png`,
+    "@id": `${DOMAIN}/#logo`,
+    url: `${DOMAIN}/logo-white-512.png`,
+    contentUrl: `${DOMAIN}/logo-white-512.png`,
+    width: 512,
+    height: 512,
+    caption: "ميزان الرقمية - شعار المنصة بخلفية بيضاء",
+  },
+  image: {
+    "@type": "ImageObject",
+    url: `${DOMAIN}/og-image.png`,
+    width: 1200,
+    height: 630,
   },
   sameAs: [
     "https://www.facebook.com/mizan.page",
@@ -267,19 +279,19 @@ const websiteSchema = {
 const pages = [
   {
     path: "/",
-    title: "المعرفة القانونية للطلبة بالمغرب | ميزان الرقمية",
+    title: "ملخصات S1-S6، قاموس قانوني 250 مصطلح ودليل 21 كلية حقوق بالمغرب | ميزان الرقمية",
 
     description:
-      "ميزان الرقمية منصة مغربية مجانية لطلبة القانون، تضم ملخصات دراسية، قاموساً قانونياً، أخباراً، ندوات ودليل كليات الحقوق.",
+      "ميزان الرقمية منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
 
     schema: {
       "@context": "https://schema.org",
       "@type": "WebPage",
       "@id": `${DOMAIN}/#webpage`,
       url: DOMAIN,
-      name: "ميزان الرقمية | المعرفة القانونية للطلبة بالمغرب",
+      name: "ميزان الرقمية | ملخصات S1-S6، قاموس قانوني ودليل كليات الحقوق بالمغرب",
       description:
-        "منصة عربية مغربية للمعرفة القانونية والأكاديمية.",
+        "منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس 250 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
       inLanguage: "ar-MA",
       isPartOf: {
         "@id": `${DOMAIN}/#website`,

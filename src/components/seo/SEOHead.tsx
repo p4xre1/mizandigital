@@ -163,11 +163,11 @@ export function SEOHead({
     logo: {
       "@type": "ImageObject",
       "@id": `${domain}/#logo`,
-      url: `${domain}/icon-512.png`,
-      contentUrl: `${domain}/icon-512.png`,
+      url: `${domain}/logo-white-512.png`,
+      contentUrl: `${domain}/logo-white-512.png`,
       width: 512,
       height: 512,
-      caption: "ميزان الرقمية - شعار المنصة",
+      caption: "ميزان الرقمية - شعار المنصة بخلفية بيضاء",
     },
     image: {
       "@type": "ImageObject",
