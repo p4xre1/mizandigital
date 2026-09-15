@@ -102,6 +102,9 @@ export function Header({
           <NavLink to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className={linkClass}>
             كليات الحقوق
           </NavLink>
+          <NavLink to="/payments" title="شراء الكريدتس ودعم المنصة" className={linkClass}>
+            الكريدتس
+          </NavLink>
         </nav>
         
         <div className="flex items-center gap-2">
@@ -233,6 +236,12 @@ export function Footer() {
             </Link>
             <Link to="/quiz" title="اختبارات قانونية للكلية والمباريات والمقابلات المهنية" className="hover:text-foreground">
               الاختبارات القانونية
+            </Link>
+            <Link to="/payments" title="شراء الكريدتس ودعم المنصة" className="hover:text-foreground">
+              شراء الكريدتس
+            </Link>
+            <Link to="/guidelines" title="إرشادات المجتمع" className="hover:text-foreground">
+              إرشادات المجتمع
             </Link>
           </div>
         </div>

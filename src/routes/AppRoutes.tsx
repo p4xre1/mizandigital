@@ -31,6 +31,8 @@ const CommentsPage = lazy(() => import("@/pages/admin/CommentsPage"))
 const LawsPage = lazy(() => import("@/pages/admin/LawsPage"))
 const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage"))
 const AdminQuizzesPage = lazy(() => import("@/pages/admin/quizzes/QuizzesPage"))
+const ModerationPage = lazy(() => import("@/pages/admin/ModerationPage"))
+const PaymentsAdminPage = lazy(() => import("@/pages/admin/PaymentsAdminPage"))
 
 // محور الاختبارات (4-Tier Quiz System) والبروفايل العام — كلها lazy لأنها
 // ليست في المسار الحرج للصفحة الرئيسية (شوف ملاحظة الأداء أعلى الملف).
@@ -69,6 +71,8 @@ const CookiePolicyPage = lazy(() =>
   import("@/pages/public/CookiePolicyPage").then((m) => ({ default: m.CookiePolicyPage }))
 )
 const TermsPage = lazy(() => import("@/pages/public/TermsPage").then((m) => ({ default: m.TermsPage })))
+const PaymentsPage = lazy(() => import("@/pages/public/PaymentsPage").then((m) => ({ default: m.PaymentsPage })))
+const GuidelinesPage = lazy(() => import("@/pages/public/GuidelinesPage").then((m) => ({ default: m.GuidelinesPage })))
 const NotFound = lazy(() => import("@/pages/public/NotFound").then((m) => ({ default: m.NotFound })))
 
 function ArticleWrapper() { const { slug } = useParams<{ slug: string }>(); return <ArticlePage slug={slug ? decodeURIComponent(slug) : undefined} /> }
@@ -137,12 +141,12 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />
           <Route path="/events" element={<EventsPage />} /><Route path="/events/:slug" element={<EventWrapper />} /><Route path="/schools" element={<SchoolsPage />} /><Route path="/schools/:slug" element={<SchoolWrapper />} />
           <Route path="/quiz" element={<QuizHubPage />} /><Route path="/quiz/university" element={<UniversityQuizPage />} /><Route path="/quiz/general" element={<GeneralQuizPage />} /><Route path="/quiz/concours" element={<ConcoursQuizPage />} /><Route path="/quiz/interview" element={<InterviewQuizPage />} /><Route path="/quiz/placement" element={<PlacementQuizPage />} /><Route path="/profile" element={<MyProfilePage />} /><Route path="/u/:username" element={<PublicProfilePage />} />
-          <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="*" element={<NotFound />} />
+          <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
         </Route>
         <Route path="/login" element={session ? <Navigate to="/admin/dashboard" replace /> : <LoginPage />} />
         <Route path="/admin" element={session === undefined ? <div className="flex min-h-screen items-center justify-center" dir="rtl"><p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p></div> : session === null ? <Navigate to="/login" replace /> : <AdminGate><AdminLayout /></AdminGate>}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} /><Route path="dashboard" element={<DashboardPage />} /><Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorWrapper />} /><Route path="articles/edit/:id" element={<ArticleEditorWrapper />} /><Route path="news" element={<NewsManagementPage />} /><Route path="comments" element={<CommentsPage />} /><Route path="faculties" element={<FacultiesPage />} /><Route path="lexicon" element={<LexiconPageAdmin />} /><Route path="library" element={<LibraryPage />} /><Route path="seminars" element={<SeminarsPage />} /><Route path="laws" element={<LawsPage />} /><Route path="quizzes" element={<AdminQuizzesPage />} /><Route path="settings" element={<SettingsPage />} />
+          <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorWrapper />} /><Route path="articles/edit/:id" element={<ArticleEditorWrapper />} /><Route path="news" element={<NewsManagementPage />} /><Route path="comments" element={<CommentsPage />} /><Route path="faculties" element={<FacultiesPage />} /><Route path="lexicon" element={<LexiconPageAdmin />} /><Route path="library" element={<LibraryPage />} /><Route path="seminars" element={<SeminarsPage />} /><Route path="laws" element={<LawsPage />} /><Route path="quizzes" element={<AdminQuizzesPage />} /><Route path="moderation" element={<ModerationPage />} /><Route path="payments" element={<PaymentsAdminPage />} /><Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Suspense>

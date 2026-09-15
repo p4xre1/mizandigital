@@ -11,6 +11,8 @@ import {
   BookOpen,
   MessageCircle,
   ListChecks,
+  Flag,
+  Coins,
   ChevronsLeft,
   ChevronsRight,
   LogOut,
@@ -48,6 +50,8 @@ const navGroups = [
     items: [
       { label: "التعليقات", path: "/admin/comments", icon: MessageCircle },
       { label: "الكليات والمؤسسات", path: "/admin/faculties", icon: Users },
+      { label: "الحوكمة والبلاغات", path: "/admin/moderation", icon: Flag },
+      { label: "المدفوعات", path: "/admin/payments", icon: Coins },
       { label: "الإعدادات", path: "/admin/settings", icon: Settings },
     ],
   },
