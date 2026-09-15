@@ -163,23 +163,7 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Companies - EduFlex */}
-        <section className="py-8 border-y border-[#f1f5f9] dark:border-[#1e293b] bg-[#f8fafc]/50 dark:bg-[#0f172a]/50">
-          <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-[13px] font-bold text-[#475569] dark:text-[#94a3b8]">
-                More than <span className="text-[#2563eb] font-black">100+ companies</span> collaborate with us
-              </div>
-              <div className="flex items-center gap-6 md:gap-10 text-[12px] font-black tracking-wide text-[#94a3b8] dark:text-[#64748b]">
-                <span>WorkWise</span>
-                <span className="font-mono">NEXGEN</span>
-                <span>ZONTECH</span>
-                <span className="hidden sm:inline">EDUFLEX</span>
-                <span className="hidden sm:inline">MIZAN</span>
-              </div>
-            </div>
-          </div>
-        </section>
+
 
         {/* Why Choose Us - EduFlex */}
         <section className="py-16 bg-white dark:bg-[#0f172a]">
