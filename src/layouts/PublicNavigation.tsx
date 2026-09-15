@@ -2,6 +2,7 @@ import { Link, NavLink } from "react-router-dom"
 import { Scale, Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
 import { isClerkEnabled } from "@/lib/clerk/config"
+import { useEffect } from "react"
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (
@@ -24,8 +25,8 @@ export function Brand({ onClick }: { onClick?: () => void } = {}) {
     <Link to="/" onClick={onClick} className="flex shrink-0 items-center gap-2.5">
       <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black text-[16px] shadow-sm">م</span>
       <span>
-        <span className="block text-[15px] font-black tracking-tight leading-none text-[#0f172a]">ميزان الرقمية</span>
-        <span className="block text-[10px] font-bold text-[#64748b] tracking-wide">المعرفة القانونية للطلبة</span>
+        <span className="block text-[15px] font-black tracking-tight leading-none text-[#0f172a] dark:text-white">ميزان الرقمية</span>
+        <span className="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8] tracking-wide">المعرفة القانونية للطلبة</span>
       </span>
     </Link>
   )
@@ -44,46 +45,50 @@ export function Header({
   onToggleMenu: () => void
   onCloseMenu?: () => void
 }) {
+  // Prevent body scroll when menu open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [menuOpen])
+
   const handleNavClick = () => {
-    if (menuOpen && onCloseMenu) onCloseMenu()
-    else if (menuOpen) onToggleMenu()
+    if (onCloseMenu) onCloseMenu()
   }
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-xl border-b border-[#e2e8f0] dark:border-[#1e293b]">
+    <header className="sticky top-0 z-40 w-full bg-white/90 dark:bg-[#0f172a]/90 backdrop-blur-xl border-b border-[#e2e8f0] dark:border-[#1e293b]">
       <div className="container mx-auto max-w-[1280px] px-4 h-[64px] flex items-center justify-between gap-4">
         <Brand onClick={handleNavClick} />
 
-        <nav className={`${menuOpen ? "flex" : "hidden"} lg:flex absolute lg:static inset-x-0 top-[64px] lg:top-auto z-20 bg-white dark:bg-[#0f172a] lg:bg-transparent flex-col lg:flex-row gap-1 lg:gap-1 p-4 lg:p-0 rounded-b-2xl lg:rounded-none border border-[#e2e8f0] dark:border-[#1e293b] lg:border-0 shadow-xl lg:shadow-none max-h-[80vh] overflow-y-auto`}>
-          <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+        {/* Desktop Nav */}
+        <nav className="hidden lg:flex items-center gap-1">
+          <NavLink to="/" end className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             الرئيسية
           </NavLink>
-          <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+          <NavLink to="/articles" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             المقالات
           </NavLink>
-          <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+          <NavLink to="/news" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             الأخبار
           </NavLink>
-          <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+          <NavLink to="/lexicon" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             القاموس
           </NavLink>
-          <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+          <NavLink to="/schools" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             الكليات
           </NavLink>
-          <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+          <NavLink to="/archive" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             الأرشيف
           </NavLink>
-          <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+          <NavLink to="/quiz" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
             الاختبارات
           </NavLink>
-
-          <div className="lg:hidden mt-3 pt-3 border-t border-[#e2e8f0] flex flex-col gap-2">
-            <button onClick={onToggleTheme} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#f1f5f9] dark:bg-[#1e293b] text-[13px] font-bold">
-              <span>وضع القراءة</span>
-              <span className="flex items-center gap-1.5">{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />} {theme === "dark" ? "فاتح" : "داكن"}</span>
-            </button>
-            <Link to="/search" onClick={handleNavClick} className="px-4 py-2.5 rounded-xl border border-[#e2e8f0] text-[13px] font-bold">بحث</Link>
-          </div>
         </nav>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -102,7 +107,7 @@ export function Header({
             <div className="hidden md:flex items-center gap-2">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="rounded-full border border-[#e2e8f0] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] transition-colors">دخول</button>
+                  <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
                 </SignInButton>
               </SignedOut>
               <SignedIn>
@@ -116,11 +121,81 @@ export function Header({
             <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
           </Link>
 
-          <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full border border-[#e2e8f0] bg-white">
+          <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle menu">
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
       </div>
+
+      {/* Mobile Menu - Fixed overlay, not absolute, prevents crash */}
+      {menuOpen && (
+        <>
+          <div className="lg:hidden fixed inset-0 top-[64px] bg-black/20 backdrop-blur-sm z-30" onClick={onCloseMenu} />
+          <div className="lg:hidden fixed inset-x-0 top-[64px] bottom-0 bg-white dark:bg-[#0f172a] border-t border-[#e2e8f0] dark:border-[#1e293b] z-40 overflow-y-auto">
+            <nav className="p-4 space-y-1">
+              <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>الرئيسية</span>
+                <span>🏠</span>
+              </NavLink>
+              <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>المقالات</span>
+                <span>📚</span>
+              </NavLink>
+              <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>الأخبار</span>
+                <span>📰</span>
+              </NavLink>
+              <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>القاموس</span>
+                <span>📖</span>
+              </NavLink>
+              <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>الكليات</span>
+                <span>🎓</span>
+              </NavLink>
+              <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>الأرشيف</span>
+                <span>🗂️</span>
+              </NavLink>
+              <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center justify-between px-4 py-3 rounded-xl text-[14px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "bg-[#f8fafc] dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155]"}`}>
+                <span>الاختبارات</span>
+                <span>✍️</span>
+              </NavLink>
+
+              <div className="pt-4 mt-4 border-t border-[#e2e8f0] dark:border-[#1e293b] space-y-3">
+                <button onClick={onToggleTheme} className="w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#0f172a] dark:bg-white text-white dark:text-black text-[14px] font-bold">
+                  <span>وضع القراءة</span>
+                  <span className="flex items-center gap-2">
+                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+                    {theme === "dark" ? "فاتح" : "داكن"}
+                  </span>
+                </button>
+
+                <Link to="/search" onClick={handleNavClick} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] text-[14px] font-bold">
+                  <Search size={18} />
+                  بحث
+                </Link>
+
+                {isClerkEnabled && (
+                  <div className="pt-2">
+                    <SignedOut>
+                      <SignInButton mode="modal">
+                        <button className="w-full rounded-xl bg-[#2563eb] text-white py-3 text-[14px] font-bold">تسجيل الدخول</button>
+                      </SignInButton>
+                    </SignedOut>
+                    <SignedIn>
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#f8fafc] dark:bg-[#1e293b]">
+                        <UserButton afterSignOutUrl="/" />
+                        <span className="text-[13px] font-bold">حسابي</span>
+                      </div>
+                    </SignedIn>
+                  </div>
+                )}
+              </div>
+            </nav>
+          </div>
+        </>
+      )}
     </header>
   )
 }

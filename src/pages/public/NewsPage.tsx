@@ -118,7 +118,7 @@ export function NewsPage() {
             <div className="max-w-[720px]">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
                 <Newspaper className="size-3.5" />
-                BREAKING NEWS • {filteredItems.length} خبر
+                {filteredItems.length} خبر
               </span>
               <h1 className="mt-3 text-[28px] md:text-[36px] font-black tracking-[-0.02em] text-[#0f172a] dark:text-white leading-[1.1]">{pageTitle}</h1>
               <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">متابعة دقيقة للمستجدات القانونية والتشريعية الرسمية بالمغرب — تصميم تعليمي نظيف.</p>

@@ -91,7 +91,7 @@ export function SchoolsPage() {
             <div className="max-w-[800px]">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
                 <GraduationCap className="size-3.5" />
-                COURSE CATEGORY • {allSchools.length} كلية • {cities.length} مدينة
+                {allSchools.length} كلية • {cities.length} مدينة
               </span>
               <h1 className="mt-3 text-[28px] md:text-[36px] font-black tracking-[-0.02em] text-[#0f172a] dark:text-white leading-[1.1]">
                 دليل كليات الحقوق والجامعات المغربية

@@ -230,7 +230,7 @@ export function HomePage() {
 
               <div className="lg:col-span-7 space-y-6">
                 <div>
-                  <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">WHY CHOOSE US</span>
+                  <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">لماذا نحن</span>
                   <h2 className="mt-3 text-[24px] md:text-[28px] font-black leading-tight text-[#0f172a] dark:text-white">
                     Discover the Distinct
                     <br />
@@ -265,8 +265,7 @@ export function HomePage() {
         <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
-              <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full px-3 py-1">COURSE CATEGORY</span>
-              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">Explore Our Signature Courses</h2>
+              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
               <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
             </div>
 
