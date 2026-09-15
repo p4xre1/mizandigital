@@ -496,6 +496,12 @@ export function MyProfilePage() {
       {/* سلم الرتب */}
       <section className="mt-6 rounded-3xl border border-border bg-card p-6">
         <h2 className="text-[15px] font-extrabold text-foreground">سلم الرتب في ميزان</h2>
+        <p className="mt-2 text-[12.5px] leading-6 text-muted-foreground">
+          كلما أجبت عن أسئلة QCM بشكل صحيح، تجمع نقاط خبرة <span className="font-bold text-foreground">XP</span>. 
+          تبدأ من <strong>مبتدئ D</strong> (0 XP) وتصعد تدريجياً حتى <strong>النخبة العليا SSS</strong> (4000 XP+). 
+          الرتب العليا تفتح لك مميزات: شهادة توصية، نشر مقالاتك، وظهور بروفايلك كمرجع للطلبة الآخرين. 
+          المنصة 100% مجانية، والرتبة هي مقياس تقدمك الحقيقي، وليست اشتراكاً مدفوعاً.
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {RANKS.map((item) => {
             const reached = progress.xp >= item.minXp
