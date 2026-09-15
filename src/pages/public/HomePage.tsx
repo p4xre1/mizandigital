@@ -80,99 +80,85 @@ export function HomePage() {
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي"]}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground overflow-hidden" dir="rtl">
-        {/* Hero - EduFlex Style */}
-        <section className="relative bg-white dark:bg-[#0f172a]">
-          <div className="container mx-auto max-w-[1280px] px-6 py-12 lg:py-20">
-            <div className="grid lg:grid-cols-12 gap-10 items-center">
-              {/* Left - Text */}
-              <div className="lg:col-span-6 space-y-6">
-                <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
-                  <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
-                  منصة تعليمية عصرية • مجانية 100%
-                </div>
+        {/* Hero - Centered Text as requested */}
+        <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
+          {/* Decorative blur circles */}
+          <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 size-[600px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/15 blur-[80px]" />
+          <div className="pointer-events-none absolute -bottom-20 -right-20 size-[300px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/10 blur-[60px]" />
+          <div className="pointer-events-none absolute -bottom-20 -left-20 size-[300px] rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f]/10 blur-[60px]" />
 
-                <h1 className="text-[32px] md:text-[44px] font-black leading-[1.1] tracking-[-0.02em] text-[#0f172a] dark:text-white">
-                  افتح إمكانياتك مع
-                  <br />
-                  <span className="text-[#2563eb]">التعلم القانوني</span>
-                  <br />
-                  <span className="text-[18px] md:text-[20px] font-bold text-[#475569] dark:text-[#94a3b8] mt-2 block">Online Learning</span>
-                </h1>
+          <div className="container relative mx-auto max-w-[800px] px-6 py-16 lg:py-24 flex flex-col items-center text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
+              <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+              منصة تعليمية عصرية • مجانية 100%
+            </div>
 
-                <p className="text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8] max-w-[480px]">
-                  انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
-                </p>
+            {/* Title - 3 lines centered */}
+            <h1 className="mt-6 text-[36px] md:text-[52px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+              افتح إمكانياتك مع
+              <br />
+              <span className="text-[#2563eb]">التعلم القانوني</span>
+              <br />
+              <span className="text-[22px] md:text-[26px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span>
+            </h1>
 
-                <div className="flex items-center gap-3">
-                  <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-3 text-[13px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:shadow-[0_6px_16px_rgba(37,99,235,0.3)] hover:-translate-y-0.5">
-                    ابدأ الآن
-                    <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
-                  </Link>
-                  <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
-                    اعرف المزيد
-                    <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155]">←</span>
-                  </Link>
-                </div>
+            {/* Description - centered */}
+            <p className="mt-6 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+              انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+            </p>
 
-                <div className="flex items-center gap-4 pt-2">
-                  <div className="flex -space-x-2 rtl:space-x-reverse">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] grid place-items-center text-[10px] font-bold">
-                        {String.fromCharCode(64 + i)}
-                      </div>
-                    ))}
+            {/* Buttons - centered in middle */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_6px_20px_rgba(37,99,235,0.25)] transition-all hover:shadow-[0_8px_24px_rgba(37,99,235,0.35)] hover:-translate-y-0.5">
+                ابدأ الآن
+                <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
+              </Link>
+              <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors shadow-sm">
+                اعرف المزيد
+                <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
+              </Link>
+            </div>
+
+            {/* Small trust row - centered */}
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <div className="flex -space-x-2 rtl:space-x-reverse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">
+                    {String.fromCharCode(64 + i)}
                   </div>
-                  <div className="text-[12px]">
-                    <div className="font-black flex items-center gap-1">
-                      <Users className="size-4 text-[#2563eb]" />
-                      10K+ Student
-                    </div>
-                    <div className="text-[11px] text-[#64748b]">500+ طالب يثقون بنا</div>
-                  </div>
+                ))}
+              </div>
+              <div className="text-right">
+                <div className="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">
+                  <Users className="size-4 text-[#2563eb]" />
+                  500+ طالب يثقون بنا
+                </div>
+                <div className="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
+                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 • منصة مجانية
                 </div>
               </div>
+            </div>
 
-              {/* Right - Clean educational cards, no picture */}
-              <div className="lg:col-span-6 relative">
-                <div className="relative mx-auto max-w-[480px] grid grid-cols-2 gap-4">
-                  {/* Blue circle decoration */}
-                  <div className="absolute -top-10 -right-10 size-32 rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/20 blur-2xl" />
-                  <div className="absolute -bottom-10 -left-10 size-40 rounded-full bg-[#fef3c7] dark:bg-[#78350f]/10 blur-2xl" />
-
-                  {[
-                    { title: "القاموس القانوني", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
-                    { title: "الأرشيف الدراسي", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
-                    { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
-                    { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
-                  ].map((card, i) => (
-                    <div key={i} className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
-                      <div className={`grid size-11 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
-                        <card.icon className="size-5" />
-                      </div>
-                      <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{card.title}</h3>
-                      <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                      <span className="mt-3 inline-flex text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+            {/* Cards row below centered text - still centered */}
+            <div className="mt-12 w-full max-w-[560px] grid grid-cols-2 gap-3">
+              {[
+                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
+                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
+                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
+                { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
+              ].map((card, i) => (
+                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all">
+                  <div className="flex items-center justify-between">
+                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
+                      <card.icon className="size-4" />
                     </div>
-                  ))}
-
-                  {/* Stats card */}
-                  <div className="col-span-2 bg-[#0f172a] dark:bg-black rounded-2xl p-4 flex items-center justify-between text-white">
-                    <div className="flex items-center gap-3">
-                      <div className="size-10 grid place-items-center rounded-xl bg-white/10">
-                        <Users className="size-5" />
-                      </div>
-                      <div>
-                        <div className="font-black text-[13px]">500+ طالب يثقون بنا</div>
-                        <div className="text-[11px] opacity-60">منصة مجانية 100%</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="size-4 fill-[#f59e0b] text-[#f59e0b]" />
-                      <span className="font-black text-[14px]">4.9</span>
-                    </div>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
                   </div>
+                  <h3 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h3>
+                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
