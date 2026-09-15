@@ -19,6 +19,16 @@ export default defineConfig({
     },
     cors: true,
   },
+  preview: {
+    host: "0.0.0.0",
+    port: 4173,
+    allowedHosts: [".e2b.app", ".arena.ai", "localhost", ".e2b.dev"],
+    headers: {
+      "X-Frame-Options": "ALLOWALL",
+      "Content-Security-Policy": "frame-ancestors *",
+    },
+    cors: true,
+  },
   build: {
     target: "es2022",
     cssCodeSplit: true,
