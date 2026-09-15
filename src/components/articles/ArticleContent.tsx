@@ -2,7 +2,7 @@ import { Fragment } from "react"
 import type { ReactNode } from "react"
 import type { ArticleBlock } from "../../lib/content/parseArticleMarkdown"
 // InContentAd removed — ads deleted per file map
-import { renderTextWithInternalLinks } from "../../lib/utils/autoLinker"
+import { renderTextWithInternalLinks, renderTextWithEnhancedLinks } from "../../lib/utils/autoLinker"
 
 // كل كم فقرة نصية نعرض صندوق إعلان تلقائياً بين فقرات المقال/الخبر
 const AD_PARAGRAPH_INTERVAL = 4
@@ -13,7 +13,9 @@ const INLINE_RE = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g
 export interface LinkableLexiconTerm {
   id: string
   term_ar: string
+  term_fr?: string
   slug: string
+  category?: string
 }
 
 function renderInline(
@@ -59,12 +61,16 @@ function renderInline(
         </em>
       )
     }
-    // نص عادي: هنا فقط كنطبقو الربط التلقائي نحو صفحات المعجم (lexicon) —
-    // ماشي داخل روابط/كود/عناصر منسّقة ديجا، حتى ما نكسروش تنسيق موجود.
+    // نص عادي: ربط تلقائي محسن نحو صفحات المعجم (lexicon) —
+    // - مرة واحدة لكل مصطلح عبر المقال كامل
+    // - حد أقصى 15 رابط لتجنب السبام
+    // - المصطلحات الطويلة أولاً
+    // - لا نربط داخل روابط/كود موجودة
     if (lexiconTerms && lexiconTerms.length > 0) {
+      // استخدم النسخة المحسنة التي تدعم الفرنسية وتطبيع العربية
       return (
         <Fragment key={idx}>
-          {renderTextWithInternalLinks(part, lexiconTerms, linkedTermIds)}
+          {renderTextWithEnhancedLinks(part, lexiconTerms as any, linkedTermIds, { maxLinks: 15, includeFrench: false })}
         </Fragment>
       )
     }

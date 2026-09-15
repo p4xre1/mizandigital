@@ -58,6 +58,64 @@ const escapeHtml = (value) =>
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 
+/* -------------------------------------------------------
+   Term auto-linking for server-side prerendering
+   Converts lexicon terms to internal links in articles/news
+------------------------------------------------------- */
+function escapeRegex(s) {
+  return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")
+}
+
+function linkTermsInContent(text, terms, linkedIds = new Set(), maxLinks = 12) {
+  if (!text || !terms || terms.length === 0) return text
+  if (linkedIds.size >= maxLinks) return text
+
+  // Filter and sort by length descending - longest first
+  const sorted = [...terms]
+    .filter(t => t.term_ar && t.term_ar.length >= 4)
+    .sort((a, b) => b.term_ar.length - a.term_ar.length)
+    .slice(0, 60)
+
+  let result = text
+  let linkCount = 0
+
+  for (const term of sorted) {
+    if (linkCount >= maxLinks) break
+    if (linkedIds.has(term.id)) continue
+
+    const regex = new RegExp(escapeRegex(term.term_ar), "g")
+    const matches = result.match(regex)
+    if (matches) {
+      // Replace first occurrence only
+      result = result.replace(regex, (match, offset, full) => {
+        // Avoid replacing inside existing <a> tags - simple check
+        const before = full.slice(Math.max(0, offset - 50), offset)
+        if (before.includes('<a') && !before.includes('</a>')) return match
+        if (linkedIds.has(term.id)) return match
+        if (linkCount >= maxLinks) return match
+        
+        linkedIds.add(term.id)
+        linkCount++
+        return `<a href="/lexicon/${term.slug}" class="mizan-term-link" title="تعريف: ${term.term_ar}">${match}</a>`
+      })
+    }
+  }
+
+  return result
+}
+
+function linkTermsInHtmlContent(htmlContent, terms) {
+  const linkedIds = new Set()
+  // Split by paragraphs and link
+  return htmlContent.split("\n\n").map(para => {
+    if (para.trim().startsWith("#") || para.trim().startsWith("!") || para.trim().startsWith(">") || para.trim().startsWith("-")) {
+      return para
+    }
+    return linkTermsInContent(para, terms, linkedIds, 12)
+  }).join("\n\n")
+}
+
+
 const escapeJsonForHtml = (value) =>
   JSON.stringify(value)
     .replace(/</g, "\\u003c")
@@ -1549,12 +1607,22 @@ function renderTermStaticHtml(item) {
 }
 
 function renderArticleStaticHtml(item) {
-  const content =
-    item.content ||
-    item.body ||
-    item.text ||
-    item.excerpt ||
-    "";
+  const rawBody = item.content || item.body || item.text || item.excerpt || "";
+  const rawContent = Array.isArray(rawBody) ? rawBody.join("\n\n") : rawBody;
+  
+  // Server-side term linking for SEO - link lexicon terms
+  const linkedIds = new Set()
+  let linkedContent = rawContent
+  try {
+    linkedContent = linkTermsInHtmlContent(rawContent, lexiconWithSlugs)
+  } catch (e) {
+    linkedContent = rawContent
+  }
+
+  // For display, escape but keep our term links
+  const escapedWithLinks = escapeHtml(linkedContent)
+    .replace(/&lt;a href=&quot;\/lexicon\/([^&]+)&quot; class=&quot;mizan-term-link&quot; title=&quot;([^&]+)&quot;&gt;([^&]+)&lt;\/a&gt;/g, 
+      '<a href="/lexicon/$1" class="mizan-term-link" title="$2">$3</a>')
 
   return `
     <main dir="rtl" lang="ar-MA">
@@ -1564,13 +1632,13 @@ function renderArticleStaticHtml(item) {
 
         <p>
           <strong>الإجابة المختصرة:</strong>
-          ${escapeHtml(item.excerpt || content.slice(0, 300))}
+          ${escapeHtml(item.excerpt || rawContent.slice(0, 300))}
         </p>
 
         <h2>ما موضوع هذا المقال؟</h2>
 
         <div>
-          ${escapeHtml(content)}
+          ${escapedWithLinks}
         </div>
 
         ${
@@ -1610,11 +1678,27 @@ function renderNewsStaticHtml(item) {
     item.excerpt ||
     "";
 
-  const content =
-    item.content ||
-    item.body ||
-    item.text ||
-    "";
+  const rawBody = item.content || item.body || item.text || "";
+  const rawContent = Array.isArray(rawBody) ? rawBody.join("\n\n") : rawBody;
+
+  // Server-side term linking for news too
+  let linkedSummary = summary
+  let linkedContent = rawContent
+  try {
+    linkedSummary = linkTermsInContent(summary, lexiconWithSlugs, new Set(), 5)
+    linkedContent = linkTermsInHtmlContent(rawContent, lexiconWithSlugs)
+  } catch (e) {
+    linkedSummary = summary
+    linkedContent = rawContent
+  }
+
+  const escapedSummaryWithLinks = escapeHtml(linkedSummary)
+    .replace(/&lt;a href=&quot;\/lexicon\/([^&]+)&quot; class=&quot;mizan-term-link&quot; title=&quot;([^&]+)&quot;&gt;([^&]+)&lt;\/a&gt;/g, 
+      '<a href="/lexicon/$1" class="mizan-term-link" title="$2">$3</a>')
+
+  const escapedContentWithLinks = escapeHtml(linkedContent)
+    .replace(/&lt;a href=&quot;\/lexicon\/([^&]+)&quot; class=&quot;mizan-term-link&quot; title=&quot;([^&]+)&quot;&gt;([^&]+)&lt;\/a&gt;/g, 
+      '<a href="/lexicon/$1" class="mizan-term-link" title="$2">$3</a>')
 
   return `
     <main dir="rtl" lang="ar-MA">
@@ -1627,7 +1711,7 @@ function renderNewsStaticHtml(item) {
         </p>
 
         <p>
-          ${escapeHtml(summary)}
+          ${escapedSummaryWithLinks}
         </p>
 
         ${
@@ -1642,10 +1726,10 @@ function renderNewsStaticHtml(item) {
         }
 
         ${
-          content
+          linkedContent
             ? `
               <h2>تفاصيل الخبر</h2>
-              <div>${escapeHtml(content)}</div>
+              <div>${escapedContentWithLinks}</div>
             `
             : ""
         }
