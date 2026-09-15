@@ -157,11 +157,23 @@ export function SEOHead({
   
   const publisherSchema = {
     "@type": "Organization",
+    "@id": `${domain}/#organization`,
     name: "ميزان الرقمية",
     url: domain,
     logo: {
       "@type": "ImageObject",
+      "@id": `${domain}/#logo`,
       url: `${domain}/icon-512.png`,
+      contentUrl: `${domain}/icon-512.png`,
+      width: 512,
+      height: 512,
+      caption: "ميزان الرقمية - شعار المنصة",
+    },
+    image: {
+      "@type": "ImageObject",
+      url: `${domain}/og-image.png`,
+      width: 1200,
+      height: 630,
     },
     sameAs: [
       "https://www.instagram.com/mizan.page",
