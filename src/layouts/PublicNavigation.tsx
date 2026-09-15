@@ -25,7 +25,7 @@ export function Brand({ onClick }: { onClick?: () => void } = {}) {
       <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black text-[16px] shadow-sm">م</span>
       <span>
         <span className="block text-[15px] font-black tracking-tight leading-none text-[#0f172a]">ميزان الرقمية</span>
-        <span className="block text-[10px] font-bold text-[#2563eb] tracking-wide">EduFlex • منصة تعليمية</span>
+        <span className="block text-[10px] font-bold text-[#64748b] tracking-wide">المعرفة القانونية للطلبة</span>
       </span>
     </Link>
   )
@@ -112,8 +112,8 @@ export function Header({
           )}
 
           <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
-            Get Started
-            <span className="size-5 grid place-items-center rounded-full bg-white/20">→</span>
+            ابدأ الآن
+            <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
           </Link>
 
           <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full border border-[#e2e8f0] bg-white">
@@ -134,11 +134,11 @@ export function Footer() {
             <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black">م</span>
             <span>
               <span className="block text-[15px] font-black">ميزان الرقمية</span>
-              <span className="block text-[11px] text-[#60a5fa] font-bold">EduFlex • منصة تعليمية</span>
+              <span className="block text-[11px] text-[#94a3b8] font-bold">المعرفة القانونية للطلبة</span>
             </span>
           </div>
           <p className="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
-            منصة تعليمية عصرية بتصميم نظيف مستوحى من EduFlex — تعلم القانون بطريقة مرنة وجذابة، مع موارد مجانية للطلبة بالمغرب.
+            منصة تعليمية عصرية بتصميم نظيف — تعلم القانون بطريقة مرنة وجذابة، مع موارد مجانية للطلبة بالمغرب.
           </p>
           <div className="mt-4 flex items-center gap-2">
             <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
@@ -184,10 +184,10 @@ export function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#64748b]">
-          <span>© {new Date().getFullYear()} ميزان الرقمية — EduFlex Inspired • Clean & Modern UI Design</span>
+          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة • منصة تعليمية مجانية</span>
           <span className="flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-            Free Font Used • Organized Layers
+            تصميم عصري • خطوط مجانية
           </span>
         </div>
       </div>

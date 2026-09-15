@@ -88,7 +88,7 @@ export function HomePage() {
               <div className="lg:col-span-6 space-y-6">
                 <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
                   <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
-                  منصة تعليمية عصرية • EduFlex Inspired
+                  منصة تعليمية عصرية • مجانية 100%
                 </div>
 
                 <h1 className="text-[32px] md:text-[44px] font-black leading-[1.1] tracking-[-0.02em] text-[#0f172a] dark:text-white">
@@ -105,12 +105,12 @@ export function HomePage() {
 
                 <div className="flex items-center gap-3">
                   <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-3 text-[13px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:shadow-[0_6px_16px_rgba(37,99,235,0.3)] hover:-translate-y-0.5">
-                    Get Started
-                    <span className="size-5 grid place-items-center rounded-full bg-white/20">→</span>
+                    ابدأ الآن
+                    <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
                   </Link>
                   <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
-                    Learn More
-                    <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155]">→</span>
+                    اعرف المزيد
+                    <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155]">←</span>
                   </Link>
                 </div>
 
@@ -132,44 +132,43 @@ export function HomePage() {
                 </div>
               </div>
 
-              {/* Right - Illustration like EduFlex */}
+              {/* Right - Clean educational cards, no picture */}
               <div className="lg:col-span-6 relative">
-                <div className="relative mx-auto max-w-[480px]">
-                  {/* Light blue circle background */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[380px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/30" />
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[320px] rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f]/20" />
-                  
-                  {/* Sparkles */}
-                  <div className="absolute top-10 right-10 text-[#f59e0b] animate-[float_3s_ease-in-out_infinite]">✦</div>
-                  <div className="absolute top-20 left-10 text-[#2563eb] animate-[float_4s_ease-in-out_infinite_0.5s]">✦</div>
-                  <div className="absolute bottom-20 right-16 text-[#f59e0b] animate-[float_3.5s_ease-in-out_infinite_1s]">✦</div>
-                  <div className="absolute bottom-10 left-10 text-[#2563eb] animate-[float_4s_ease-in-out_infinite_0.2s]">✦</div>
+                <div className="relative mx-auto max-w-[480px] grid grid-cols-2 gap-4">
+                  {/* Blue circle decoration */}
+                  <div className="absolute -top-10 -right-10 size-32 rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/20 blur-2xl" />
+                  <div className="absolute -bottom-10 -left-10 size-40 rounded-full bg-[#fef3c7] dark:bg-[#78350f]/10 blur-2xl" />
 
-                  {/* Graduation cap */}
-                  <div className="absolute -top-4 right-1/4 size-12 grid place-items-center rounded-full bg-white dark:bg-[#1e293b] shadow-lg border border-[#e2e8f0] dark:border-[#334155] animate-[float_3s_ease-in-out_infinite]">
-                    <span className="text-[20px]">🎓</span>
-                  </div>
-
-                  {/* Main image */}
-                  <img src="/edu-hero.png" alt="طالبة قانون" className="relative z-10 w-full h-auto object-contain drop-shadow-xl" />
-
-                  {/* Stats card like EduFlex */}
-                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-20 bg-white dark:bg-[#1e293b] rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-[0_8px_24px_rgba(0,0,0,0.08)] p-3 flex items-center gap-4 w-[90%] max-w-[320px]">
-                    <div className="text-center flex-1">
-                      <div className="font-black text-[14px] text-[#0f172a] dark:text-white">10K+</div>
-                      <div className="text-[10px] text-[#64748b]">Alumni</div>
-                    </div>
-                    <div className="w-px h-8 bg-[#e2e8f0] dark:bg-[#334155]" />
-                    <div className="text-center flex-1">
-                      <div className="font-black text-[14px] flex items-center justify-center gap-1 text-[#0f172a] dark:text-white">
-                        4.6 <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" />
+                  {[
+                    { title: "القاموس القانوني", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
+                    { title: "الأرشيف الدراسي", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
+                    { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
+                    { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
+                  ].map((card, i) => (
+                    <div key={i} className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                      <div className={`grid size-11 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
+                        <card.icon className="size-5" />
                       </div>
-                      <div className="text-[10px] text-[#64748b]">5K+ Reviews</div>
+                      <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{card.title}</h3>
+                      <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                      <span className="mt-3 inline-flex text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
                     </div>
-                    <div className="w-px h-8 bg-[#e2e8f0] dark:bg-[#334155]" />
-                    <div className="text-center flex-1">
-                      <div className="font-black text-[14px] text-[#0f172a] dark:text-white">100+</div>
-                      <div className="text-[10px] text-[#64748b]">Partnerships</div>
+                  ))}
+
+                  {/* Stats card */}
+                  <div className="col-span-2 bg-[#0f172a] dark:bg-black rounded-2xl p-4 flex items-center justify-between text-white">
+                    <div className="flex items-center gap-3">
+                      <div className="size-10 grid place-items-center rounded-xl bg-white/10">
+                        <Users className="size-5" />
+                      </div>
+                      <div>
+                        <div className="font-black text-[13px]">500+ طالب يثقون بنا</div>
+                        <div className="text-[11px] opacity-60">منصة مجانية 100%</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Star className="size-4 fill-[#f59e0b] text-[#f59e0b]" />
+                      <span className="font-black text-[14px]">4.9</span>
                     </div>
                   </div>
                 </div>
@@ -201,17 +200,30 @@ export function HomePage() {
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="grid lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-5">
-                <div className="relative">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[300px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/20" />
-                  <img src="/edu-hero.png" alt="مميزات" className="relative z-10 w-full max-w-[360px] mx-auto rounded-2xl object-contain" style={{ filter: "hue-rotate(10deg)" }} />
+                <div className="relative grid grid-cols-2 gap-3 max-w-[360px] mx-auto">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[300px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/20 blur-3xl" />
                   
-                  <div className="absolute top-10 -left-4 bg-white dark:bg-[#1e293b] rounded-xl border border-[#e2e8f0] dark:border-[#334155] shadow-lg p-2 flex items-center gap-2 z-20">
-                    <div className="size-8 grid place-items-center rounded-full bg-[#eff6ff] text-[#2563eb]">❤</div>
-                    <div className="text-[11px] font-bold">موثوق</div>
+                  <div className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                    <div className="size-10 grid place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb]">📚</div>
+                    <div className="mt-2 font-bold text-[12px]">ملخصات شاملة</div>
+                    <div className="text-[10px] text-muted-foreground">S1-S6</div>
                   </div>
-                  <div className="absolute bottom-10 -right-4 bg-white dark:bg-[#1e293b] rounded-xl border border-[#e2e8f0] dark:border-[#334155] shadow-lg p-2 flex items-center gap-2 z-20">
-                    <div className="size-8 grid place-items-center rounded-full bg-[#fef3c7] text-[#f59e0b]">🎓</div>
-                    <div className="text-[11px] font-bold">معتمد</div>
+                  <div className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm mt-6">
+                    <div className="size-10 grid place-items-center rounded-xl bg-[#fef3c7] text-[#f59e0b]">🎓</div>
+                    <div className="mt-2 font-bold text-[12px]">معتمد</div>
+                    <div className="text-[10px] text-muted-foreground">موثوق 100%</div>
+                  </div>
+                  <div className="relative rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                    <div className="size-10 grid place-items-center rounded-xl bg-[#dcfce7] text-[#16a34a]">⚖️</div>
+                    <div className="mt-2 font-bold text-[12px]">قاموس قانوني</div>
+                    <div className="text-[10px] text-muted-foreground">250 مصطلح</div>
+                  </div>
+                  <div className="relative rounded-2xl bg-[#2563eb] text-white p-4 shadow-lg mt-6">
+                    <div className="font-black text-[18px]">500+</div>
+                    <div className="text-[11px] opacity-80">طالب مستفيد</div>
+                    <div className="mt-2 flex gap-1">
+                      {[1,2,3,4,5].map(i => <Star key={i} className="size-3 fill-white" />)}
+                    </div>
                   </div>
                 </div>
               </div>
