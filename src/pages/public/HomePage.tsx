@@ -91,118 +91,16 @@ export function HomePage() {
         directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تضم 304 سجلاً: 8 مقالات قانونية، 13 خبراً تشريعياً، 250 مصطلحاً قانونياً، 21 كلية حقوق."
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي"]}
       />
-      <main className="min-h-screen bg-[#f8f7f4] text-foreground" dir="rtl">
-        {/* Top Bar - black like Kreeti */}
-        <div className="bg-[#0a0a0a] text-white text-[11px] border-b border-[#222]">
-          <div className="container mx-auto max-w-[1280px] px-4 h-8 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <span className="opacity-70 hidden sm:block">{today}</span>
-              <span className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-                مباشر الآن
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="hidden md:flex items-center gap-2 opacity-60">
-                <span>تابعنا:</span>
-                <span className="flex gap-1">
-                  {["𝕏", "f", "in", "ig"].map((s, i) => (
-                    <span key={i} className="size-5 grid place-items-center rounded-full bg-white/10 hover:bg-white/20 cursor-pointer transition-colors">{s}</span>
-                  ))}
-                </span>
-              </span>
-              <Link to="/about" className="opacity-60 hover:opacity-100">من نحن</Link>
-              <Link to="/contact" className="opacity-60 hover:opacity-100">اتصل بنا</Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Masthead - like The Edrengne */}
-        <div className="bg-white border-b border-black/10">
-          <div className="container mx-auto max-w-[1280px] px-4 py-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-[11px]">
-                <div className="hidden lg:block text-right leading-tight">
-                  <div className="font-bold">النشرة اليومية</div>
-                  <div className="text-muted-foreground">الإصدار الرقمي • مجاني</div>
-                </div>
-                <div className="hidden sm:grid size-10 place-items-center rounded-full border border-black/10">
-                  <Search className="size-4" />
-                </div>
-              </div>
-
-              <div className="text-center flex-1">
-                <h1 className="font-black tracking-[-0.02em] leading-none">
-                  <span className="block text-[11px] font-bold tracking-[0.2em] text-muted-foreground uppercase">Mizan Digital • Since 2024</span>
-                  <span className="block text-[32px] md:text-[42px] mt-1" style={{ fontFamily: "Georgia, serif" }}>ميزان الرقمية</span>
-                  <span className="block text-[11px] font-normal tracking-wide text-muted-foreground mt-1">المرجع القانوني الأول للطلبة والباحثين بالمغرب</span>
-                </h1>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="hidden md:block text-[10px] leading-tight border border-black/10 rounded px-3 py-2 bg-[#f8f7f4]">
-                  <div className="font-bold">BANNER ADVERTISEMENT</div>
-                  <div className="text-muted-foreground">728x90 • احجز مساحتك</div>
-                </div>
-                <div className="size-10 grid place-items-center rounded-full bg-black text-white font-black text-[14px]">م</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Nav - black bar like Kreeti */}
-        <div className="bg-[#111] text-white sticky top-0 z-20 border-b border-black">
-          <div className="container mx-auto max-w-[1280px] px-4 h-11 flex items-center justify-between gap-2 overflow-x-auto scrollbar-none">
-            <nav className="flex items-center gap-1 text-[12px] font-bold whitespace-nowrap">
-              <Link to="/" className="px-3 py-1.5 bg-white text-black rounded">الرئيسية</Link>
-              <Link to="/articles" className="px-3 py-1.5 hover:bg-white/10 rounded transition-colors">المقالات</Link>
-              <Link to="/news" className="px-3 py-1.5 hover:bg-white/10 rounded transition-colors">الأخبار</Link>
-              <Link to="/lexicon" className="px-3 py-1.5 hover:bg-white/10 rounded transition-colors">القاموس</Link>
-              <Link to="/schools" className="px-3 py-1.5 hover:bg-white/10 rounded transition-colors">الكليات</Link>
-              <Link to="/archive" className="px-3 py-1.5 hover:bg-white/10 rounded transition-colors">الأرشيف</Link>
-              <Link to="/quiz" className="px-3 py-1.5 hover:bg-white/10 rounded transition-colors">الاختبارات</Link>
-            </nav>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="hidden md:flex items-center gap-2 bg-white/10 rounded-full pl-1 pr-3 h-7">
-                <div className="size-5 grid place-items-center rounded-full bg-white text-black">
-                  <Search className="size-3" />
-                </div>
-                <input placeholder="ابحث..." className="bg-transparent outline-none text-[11px] w-24 placeholder:text-white/50" />
-              </div>
-              <Link to="/news" className="bg-[#dc2626] hover:bg-[#b91c1c] text-white px-3 py-1.5 rounded text-[11px] font-black flex items-center gap-1 transition-colors">
-                <span className="size-2 rounded-full bg-white animate-pulse" />
-                WATCH ONLINE
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        {/* Popular Tags */}
-        <div className="bg-white border-b border-black/5">
-          <div className="container mx-auto max-w-[1280px] px-4 h-9 flex items-center gap-3 text-[11px] overflow-x-auto scrollbar-none">
-            <span className="font-black flex items-center gap-1 shrink-0">
-              <span className="size-1.5 rounded-full bg-black" />
-              Popular Tags
-            </span>
-            <div className="flex items-center gap-2">
-              {["# مدونة الأسرة", "# المسطرة المدنية", "# القانون الجنائي", "# مباراة المنتدبين", "# الجريدة الرسمية", "# وزارة العدل"].map((tag) => (
-                <Link key={tag} to={`/search?q=${tag.replace("# ", "")}`} className="px-2.5 py-1 rounded-full bg-[#f8f7f4] border border-black/5 hover:border-black/15 hover:bg-white transition-colors whitespace-nowrap">
-                  {tag}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Breaking News Ticker - like Kreeti */}
-        <div className="bg-[#dc2626] text-white">
+      <main className="min-h-screen bg-[#f8f7f4] dark:bg-[#121212] text-foreground" dir="rtl">
+        {/* Breaking News Ticker - only this stays, top bars removed since global header has them */}
+        <div className="bg-[#dc2626] dark:bg-[#991b1b] text-white">
           <div className="container mx-auto max-w-[1280px] px-4 h-9 flex items-center gap-3 text-[12px]">
-            <span className="bg-black px-3 py-1 rounded text-[10px] font-black tracking-wide shrink-0 flex items-center gap-1">
+            <span className="bg-black dark:bg-white dark:text-black px-3 py-1 rounded text-[10px] font-black tracking-wide shrink-0 flex items-center gap-1">
               <span className="size-2 rounded-full bg-red-500 animate-pulse" />
               BREAKING NEWS
             </span>
             <div className="flex-1 overflow-hidden">
-              <div className="flex items-center gap-6 animate-[slideIn_20s_linear_infinite] whitespace-nowrap">
+              <div className="flex items-center gap-6 whitespace-nowrap">
                 {[...latestNews.slice(0, 3), ...latestArticles.slice(0, 2)].map((item, i) => (
                   <span key={i} className="flex items-center gap-2">
                     <span className="opacity-60">•</span>

@@ -1,13 +1,5 @@
 @import "tailwindcss";
 
-/* أداء البناء (vite:css transform): Tailwind v4 كيمسح تلقائياً كل ملفات
-   المشروع (ما عدا .gitignore) بحثاً عن أصناف الأنماط (classes) المستعملة،
-   بما فيها مجلدات ماشي فيها ولو صنف Tailwind واحد فعلياً (تحقّقنا: بحث
-   class=/className= عبر كل واحد منها رجع فارغاً أو أصناف مخصصة/CSS عادية
-   بلا علاقة بـ Tailwind) — public/ (فيها sitemap.xml وfeed.xml اللي كبار
-   نسبياً)، supabase/ (SQL)، functions/، scripts/، tests/، .github/. استثناؤها
-   كيقلّص عدد/حجم الملفات اللي كيتفحصهم محرك المسح فـ كل بناء بلا أي تأثير
-   على الأصناف الفعلية المستعملة فـ الواجهة (كلها فـ index.html وsrc/) */
 @source not "../../public";
 @source not "../../supabase";
 @source not "../../functions";
@@ -20,44 +12,50 @@
 
 :root,
 .light {
-  --background: 210 33% 98%;
-  --foreground: 222 47% 11%;
+  /* Newspaper light - warm paper */
+  --background: 40 20% 97%;
+  --foreground: 0 0% 4%;
   --card: 0 0% 100%;
-  --card-foreground: 222 47% 11%;
+  --card-foreground: 0 0% 4%;
   --primary: 222 73% 29%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 24% 94%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 22% 94%;
-  --muted-foreground: 215 16% 42%;
-  --border: 214 25% 86%;
-  --input: 214 25% 82%;
+  --secondary: 40 15% 94%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 40 10% 94%;
+  --muted-foreground: 0 0% 45%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
   --ring: 222 73% 29%;
   --accent-gold: 40 72% 49%;
   --accent-gold-muted: 40 80% 92%;
+  --newspaper-red: 0 84% 60%;
+  --newspaper-black: 0 0% 4%;
+  --newspaper-paper: 40 20% 97%;
   --radius: 0.8rem;
   --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Amiri لم يعد يُحمَّل (غير مستعمل فعلياً فـ أي مكان بالواجهة — راجع
-     index.html)؛ أي استعمال مستقبلي لـ font-serif سيستعمل خط النظام مباشرة */
   --font-serif: Georgia, serif;
 }
 
 .dark {
-  --background: 222 47% 6%;
-  --foreground: 210 40% 98%;
-  --card: 222 43% 9%;
-  --card-foreground: 210 40% 98%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 217 33% 16%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 14%;
-  --muted-foreground: 215 20% 68%;
-  --border: 217 30% 20%;
-  --input: 217 30% 24%;
-  --ring: 217 91% 60%;
-  --accent-gold: 43 92% 62%;
-  --accent-gold-muted: 43 45% 18%;
+  /* Reading-optimized dark - warm, not pure black, easy on eyes */
+  --background: 30 8% 8%;
+  --foreground: 40 15% 90%;
+  --card: 30 6% 12%;
+  --card-foreground: 40 12% 88%;
+  --primary: 217 91% 65%;
+  --primary-foreground: 0 0% 8%;
+  --secondary: 30 6% 16%;
+  --secondary-foreground: 40 10% 88%;
+  --muted: 30 5% 16%;
+  --muted-foreground: 0 0% 60%;
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 217 91% 65%;
+  --accent-gold: 43 85% 65%;
+  --accent-gold-muted: 43 20% 16%;
+  --newspaper-red: 0 72% 55%;
+  --newspaper-black: 40 10% 90%;
+  --newspaper-paper: 30 8% 8%;
 }
 
 @theme {
@@ -75,6 +73,8 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
   --color-accent-gold: hsl(var(--accent-gold));
+  --color-newspaper-red: hsl(var(--newspaper-red));
+  --color-newspaper-black: hsl(var(--newspaper-black));
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
 }
@@ -87,18 +87,28 @@
     min-height: 100vh;
     overflow-x: hidden;
     background-color: hsl(var(--background));
-    background-image:
-      radial-gradient(at 10% 15%, hsl(var(--primary) / 0.12) 0px, transparent 45%),
-      radial-gradient(at 90% 85%, hsl(var(--accent-gold) / 0.08) 0px, transparent 45%),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4));
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    /* Reading optimized */
+    line-height: 1.6;
   }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   button { cursor: pointer; }
-  ::selection { background: hsl(var(--primary) / 0.25); }
+  ::selection { background: hsl(var(--primary) / 0.2); }
+
+  /* Dark mode reading enhancements */
+  .dark body {
+    /* Slightly warmer, reduced contrast for eye comfort */
+    background-color: hsl(30 8% 8%);
+    color: hsl(40 12% 88%);
+  }
+  .dark {
+    /* Reduce harsh whites */
+    --tw-prose-body: hsl(40 10% 85%);
+    --tw-prose-headings: hsl(40 15% 92%);
+  }
 }
 
 @layer components {
@@ -142,40 +152,26 @@
     border: 1px solid hsl(var(--border));
     border-radius: 18px;
     padding: 20px;
-    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.25));
+    background: hsl(var(--card));
     transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
     position: relative;
     overflow: hidden;
   }
-  .document-card::after, .lexicon-card::after, .content-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top right, hsl(var(--primary) / 0.06), transparent 60%);
-    pointer-events: none;
-  }
   .document-card:hover, .lexicon-card:hover, .content-card:hover {
-    border-color: hsl(var(--primary) / 0.5);
-    transform: translateY(-3px);
-    box-shadow: 0 20px 40px hsl(222 47% 4% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary) / 0.3);
+    transform: translateY(-2px);
   }
 
-  /* Pro animations */
-  .shimmer {
-    position: relative;
-    overflow: hidden;
+  /* Newspaper specific */
+  .newspaper-bg {
+    background-color: hsl(var(--newspaper-paper));
   }
-  .shimmer::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, hsl(var(--foreground) / 0.04), transparent);
-    transform: translateX(-100%);
-    animation: shimmer 2s infinite;
+  .dark .newspaper-bg {
+    background-color: hsl(30 8% 8%);
   }
 }
 
-/* Professional keyframes */
+/* Keyframes */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
@@ -192,8 +188,8 @@
   from { opacity: 0; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
-@keyframes slideLeft {
-  from { opacity: 0; transform: translateX(16px); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
   to { opacity: 1; transform: translateX(0); }
 }
 @keyframes shimmer {
@@ -212,10 +208,6 @@
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-@keyframes pulseSoft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; }
-}
 
 /* Pro utilities */
 .pro-gradient-text {
@@ -231,26 +223,46 @@
   backdrop-filter: blur(16px) saturate(1.2);
   border: 1px solid hsl(var(--border) / 0.5);
 }
-.pro-card-hover {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+/* Dark mode reading - reduce eye strain */
+.dark .bg-white {
+  background-color: hsl(var(--card)) !important;
 }
-.pro-card-hover:hover {
-  transform: translateY(-6px) scale(1.01);
-  box-shadow: 0 20px 60px -15px hsl(var(--primary) / 0.15), 0 0 0 1px hsl(var(--primary) / 0.1);
+.dark .bg-[#f8f7f4] {
+  background-color: hsl(var(--background)) !important;
+}
+.dark .border-black\/5 {
+  border-color: hsl(var(--border)) !important;
+}
+.dark .border-black\/10 {
+  border-color: hsl(var(--border)) !important;
+}
+.dark .text-muted-foreground {
+  color: hsl(var(--muted-foreground)) !important;
+}
+.dark .bg-black {
+  background-color: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+}
+.dark .bg-[#0a0a0a] {
+  background-color: hsl(0 0% 10%) !important;
+}
+.dark .bg-[#111] {
+  background-color: hsl(0 0% 12%) !important;
+}
+.dark .bg-[#dc2626] {
+  background-color: hsl(0 72% 50%) !important;
 }
 
-/* Avoid expensive fixed backgrounds and hover transforms on touch devices. */
 @media (max-width: 639px) {
   html { scroll-behavior: auto; }
-  body { background-image: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4)); }
-  .document-card:hover, .lexicon-card:hover, .content-card:hover { transform: none; box-shadow: none; }
-}
-
-@media (min-width: 640px) {
-  .search-field kbd { display: block; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* Scrollbar for newspaper */
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

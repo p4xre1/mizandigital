@@ -90,47 +90,33 @@ export function SchoolsPage() {
         schema={listSchema}
       />
 
-      <main className="min-h-screen bg-[#f8f7f4]" dir="rtl">
-        <div className="bg-[#0a0a0a] text-white text-[11px] h-8 flex items-center">
-          <div className="container mx-auto max-w-[1280px] px-4 flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              دليل الكليات • {allSchools.length} كلية • {cities.length} مدينة
-            </span>
-            <span className="opacity-60 hidden sm:block">الرئيسية / الكليات</span>
-          </div>
-        </div>
-
-        <div className="bg-white border-b border-black/10">
-          <div className="container mx-auto max-w-[1280px] px-4 py-6">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="size-1 h-5 bg-[#0a0a0a]" />
-                  <h1 className="text-[28px] font-black tracking-[-0.02em]">دليل كليات الحقوق</h1>
-                  <span className="bg-black text-white text-[10px] px-2 py-0.5 rounded font-bold">FSJES & FSJP</span>
-                </div>
-                <p className="text-[13px] text-muted-foreground max-w-[600px]">دليل شامل لـ FSJES و FSJP عبر مختلف مدن المملكة — معلومات التسجيل، التخصصات، والمواقع الرسمية.</p>
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  {cities.slice(0, 8).map(city => (
-                    <button key={city} onClick={() => setSelectedCity(city)} className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${selectedCity === city ? "bg-black text-white border-black" : "bg-[#f8f7f4] border-black/5 hover:border-black/15"}`}>
-                      {city}
-                    </button>
-                  ))}
-                </div>
+      <main className="min-h-screen bg-[#f8f7f4] dark:bg-[#121212]" dir="rtl">
+        <div className="container mx-auto max-w-[1280px] px-4 py-6">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-black dark:border-white pb-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="size-1 h-5 bg-black dark:bg-white" />
+                <h1 className="text-[24px] font-black tracking-[-0.02em]">دليل كليات الحقوق</h1>
+                <span className="bg-black dark:bg-white dark:text-black text-white text-[10px] px-2 py-0.5 rounded font-bold">FSJES • {allSchools.length}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <input type="text" placeholder="ابحث باسم الكلية..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-64 rounded-full border border-black/10 bg-[#f8f7f4] pr-9 pl-3 text-[12px] outline-none focus:border-black/20" />
-                </div>
-                <FilterDropdown className="w-44" value={selectedCity} onChange={setSelectedCity} allLabel="جميع المدن" allCount={allSchools.length} options={cities.map((city) => ({ value: city, label: city }))} />
+              <p className="text-[12px] text-muted-foreground max-w-[600px]">دليل شامل لـ FSJES و FSJP عبر مختلف مدن المملكة.</p>
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {cities.slice(0, 8).map(city => (
+                  <button key={city} onClick={() => setSelectedCity(city)} className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${selectedCity === city ? "bg-black dark:bg-white dark:text-black text-white border-black dark:border-white" : "bg-white dark:bg-[#1e1e1e] border-black/5 dark:border-white/10 hover:border-black/15"}`}>
+                    {city}
+                  </button>
+                ))}
               </div>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input type="text" placeholder="ابحث باسم الكلية..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-64 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1e1e] pr-9 pl-3 text-[12px] outline-none focus:border-black/20 dark:focus:border-white/20" />
+              </div>
+              <FilterDropdown className="w-44" value={selectedCity} onChange={setSelectedCity} allLabel="جميع المدن" allCount={allSchools.length} options={cities.map((city) => ({ value: city, label: city }))} />
+            </div>
           </div>
-        </div>
 
-        <div className="container mx-auto max-w-[1280px] px-4 py-6">
           {loading ? (
             <div className="grid grid-cols-12 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (

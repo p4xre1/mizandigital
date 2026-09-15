@@ -138,53 +138,27 @@ export function ArticlesPage() {
         schema={[listSchema, breadcrumbSchema]}
       />
 
-      <main className="min-h-screen bg-[#f8f7f4]" dir="rtl">
-        {/* Top black bar */}
-        <div className="bg-[#0a0a0a] text-white text-[11px] h-8 flex items-center">
-          <div className="container mx-auto max-w-[1280px] px-4 flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-              المقالات والدراسات • {filteredItems.length} مقال
-            </span>
-            <span className="opacity-60 hidden sm:block">الرئيسية / المقالات</span>
-          </div>
-        </div>
-
-        {/* Header */}
-        <div className="bg-white border-b border-black/10">
-          <div className="container mx-auto max-w-[1280px] px-4 py-6">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="size-1 h-5 bg-[#dc2626]" />
-                  <h1 className="text-[28px] font-black tracking-[-0.02em]">{pageTitle}</h1>
-                </div>
-                <p className="text-[13px] text-muted-foreground max-w-[600px] leading-relaxed">{pageDescription} محتوى موثوق، منهجي، ومراجع — مصمم لمساعدة الطلبة.</p>
+      <main className="min-h-screen bg-[#f8f7f4] dark:bg-[#121212]" dir="rtl">
+        <div className="container mx-auto max-w-[1280px] px-4 py-6">
+          {/* Header - minimal, global header already has nav */}
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-black dark:border-white pb-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="size-1 h-5 bg-[#dc2626]" />
+                <h1 className="text-[24px] font-black tracking-[-0.02em]">{pageTitle}</h1>
+                <span className="bg-black dark:bg-white dark:text-black text-white text-[10px] px-2 py-0.5 rounded font-bold">{filteredItems.length} مقال</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="ابحث..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-9 w-64 rounded-full border border-black/10 bg-[#f8f7f4] pr-9 pl-3 text-[12px] outline-none focus:border-black/20"
-                  />
-                </div>
-                <FilterDropdown
-                  className="w-44"
-                  value={activeCategory}
-                  onChange={setActiveCategory}
-                  allLabel="جميع التصنيفات"
-                  options={availableCategories.map((cat) => ({ value: cat, label: cat }))}
-                />
+              <p className="text-[12px] text-muted-foreground max-w-[600px]">{pageDescription}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input type="text" placeholder="ابحث..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-64 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1e1e] pr-9 pl-3 text-[12px] outline-none focus:border-black/20 dark:focus:border-white/20" />
               </div>
+              <FilterDropdown className="w-44" value={activeCategory} onChange={setActiveCategory} allLabel="جميع التصنيفات" options={availableCategories.map((cat) => ({ value: cat, label: cat }))} />
             </div>
           </div>
-        </div>
 
-        <div className="container mx-auto max-w-[1280px] px-4 py-6">
           {loading ? (
             <div className="grid grid-cols-12 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
