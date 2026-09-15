@@ -23,8 +23,7 @@ export function setStoredConsent(value: ConsentValue) {
   window.localStorage.setItem(CONSENT_STORAGE_KEY, value)
 
   // إعلام Google Consent Mode بالتحديث فوراً دون الحاجة لإعادة تحميل الصفحة
-  // (كوكيز التحليل عبر Google Analytics فقط؛ لا علاقة لهذا بشبكة الإعلانات
-  // المستعملة حالياً — Adsterra ماشي جزء من نظام Google Consent Mode)
+  // (كوكيز التحليل عبر Google Analytics فقط)
   if (typeof window.gtag === "function") {
     window.gtag("consent", "update", {
       analytics_storage: value,

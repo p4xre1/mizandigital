@@ -7,7 +7,6 @@ export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    // نعرض الشريط فقط إن لم يسبق للزائر اتخاذ قرار (لا يوجد قيمة محفوظة بعد)
     if (getStoredConsent() === null) {
       setVisible(true)
     }
@@ -34,9 +33,9 @@ export function CookieConsentBanner() {
             <Cookie size={18} />
           </span>
           <p className="text-xs leading-relaxed text-muted-foreground max-w-2xl">
-            نستخدم ملفات تعريف الارتباط (الكوكيز) لأغراض تحليلية عبر Google Analytics ولعرض إعلانات
-            عبر شبكات إعلانية (مثل Adsterra)، بما قد يشمل إعلانات مخصَّصة حسب اهتماماتكم. يمكنكم قبول ذلك أو رفضه،
-            وسيبقى الموقع يعمل بشكل طبيعي في الحالتين. لمزيد من التفاصيل راجعوا{" "}
+            نستخدم ملفات تعريف الارتباط (الكوكيز) لأغراض تحليلية عبر Google Analytics لتحسين تجربة
+            التصفح وفهم كيفية استخدامكم للمنصة. يمكنكم قبول ذلك أو رفضه، وسيبقى الموقع يعمل بشكل
+            طبيعي في الحالتين. لمزيد من التفاصيل راجعوا{" "}
             <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="underline font-semibold text-primary">
               سياسة الكوكيز
             </Link>
