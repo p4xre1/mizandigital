@@ -32,9 +32,9 @@ function PinterestIcon({ size = 18 }: { size?: number }) {
   )
 }
 
-export function Brand() {
+export function Brand({ onClick }: { onClick?: () => void } = {}) {
   return (
-    <Link to="/" title="ميزان الرقمية — المعرفة القانونية للطلبة" className="flex shrink-0 items-center gap-3">
+    <Link to="/" onClick={onClick} title="ميزان الرقمية — المعرفة القانونية للطلبة" className="flex shrink-0 items-center gap-3">
       <span className="brand-mark" aria-hidden="true">
         <Scale size={21} strokeWidth={2.2} />
       </span>
@@ -55,11 +55,13 @@ export function Header({
   menuOpen,
   onToggleTheme,
   onToggleMenu,
+  onCloseMenu,
 }: {
   theme: "light" | "dark"
   menuOpen: boolean
   onToggleTheme: () => void
   onToggleMenu: () => void
+  onCloseMenu?: () => void
 }) {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     `rounded-full px-3 py-2 text-[0.72rem] font-bold transition lg:px-4 lg:text-sm ${
@@ -68,41 +70,50 @@ export function Header({
         : "text-muted-foreground hover:bg-secondary hover:text-foreground"
     }`
 
+  const handleNavClick = () => {
+    // في الهاتف: عند النقر على أي صفحة، أغلق البرجر منيو تلقائياً
+    if (menuOpen && onCloseMenu) {
+      onCloseMenu()
+    } else if (menuOpen) {
+      onToggleMenu()
+    }
+  }
+
   return (
     <header className="site-header">
       <div className="container-wide flex min-h-[72px] items-center justify-between gap-4">
-        <Brand />
+        <Brand onClick={handleNavClick} />
         <nav
           className={`${
             menuOpen ? "flex" : "hidden"
           } absolute inset-x-4 top-[68px] z-20 flex-col gap-1 rounded-2xl border border-border bg-card p-3 shadow-xl md:static md:flex md:flex-row md:items-center md:gap-0 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
           aria-label="التنقل الرئيسي"
         >
-          <NavLink to="/" end title="الصفحة الرئيسية لمنصة ميزان الرقمية" className={linkClass}>
+          <NavLink to="/" end onClick={handleNavClick} title="الصفحة الرئيسية لمنصة ميزان الرقمية" className={linkClass}>
             الرئيسية
           </NavLink>
-          <NavLink to="/archive" title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className={linkClass}>
+          <NavLink to="/archive" onClick={handleNavClick} title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className={linkClass}>
             المكتبة والملخصات
           </NavLink>
-          <NavLink to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className={linkClass}>
+          <NavLink to="/news" onClick={handleNavClick} title="آخر الأخبار القانونية والقضائية بالمغرب" className={linkClass}>
             الأخبار
           </NavLink>
-          <NavLink to="/articles" title="مقالات ودراسات قانونية معمقة" className={linkClass}>
+          <NavLink to="/articles" onClick={handleNavClick} title="مقالات ودراسات قانونية معمقة" className={linkClass}>
             المقالات
           </NavLink>
-          <NavLink to="/quiz" title="اختبارات قانونية: الكلية، العشوائي، المباريات، المقابلات" className={linkClass}>
+          <NavLink to="/quiz" onClick={handleNavClick} title="اختبارات قانونية: الكلية، العشوائي، المباريات، المقابلات" className={linkClass}>
             الاختبارات
           </NavLink>
-          <NavLink to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className={linkClass}>
+          <NavLink to="/lexicon" onClick={handleNavClick} title="القاموس القانوني — تعريفات المصطلحات القانونية" className={linkClass}>
             القاموس
           </NavLink>
-          <NavLink to="/events" title="الندوات واللقاءات القانونية القادمة" className={linkClass}>
+          <NavLink to="/events" onClick={handleNavClick} title="الندوات واللقاءات القانونية القادمة" className={linkClass}>
             الندوات
           </NavLink>
-          <NavLink to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className={linkClass}>
+          <NavLink to="/schools" onClick={handleNavClick} title="دليل كليات الحقوق بالجامعات المغربية" className={linkClass}>
             كليات الحقوق
           </NavLink>
-          <NavLink to="/payments" title="شراء الكريدتس ودعم المنصة" className={linkClass}>
+          <NavLink to="/payments" onClick={handleNavClick} title="شراء الكريدتس ودعم المنصة" className={linkClass}>
             الكريدتس
           </NavLink>
         </nav>

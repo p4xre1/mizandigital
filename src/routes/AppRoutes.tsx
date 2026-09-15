@@ -129,7 +129,7 @@ function AdminGate({ children }: { children: React.ReactNode }) {
   return allowed ? <>{children}</> : <Navigate to="/" replace />
 }
 
-interface AppRoutesProps { session: Session | null | undefined; theme: "light" | "dark"; menuOpen: boolean; onToggleTheme: () => void; onToggleMenu: () => void }
+interface AppRoutesProps { session: Session | null | undefined; theme: "light" | "dark"; menuOpen: boolean; onToggleTheme: () => void; onToggleMenu: () => void; onCloseMenu?: () => void }
 
 function RouteFallback() {
   return (
@@ -139,11 +139,11 @@ function RouteFallback() {
   )
 }
 
-export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onToggleMenu }: AppRoutesProps) {
+export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onToggleMenu, onCloseMenu }: AppRoutesProps) {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route element={<PublicLayout theme={theme} menuOpen={menuOpen} onToggleTheme={onToggleTheme} onToggleMenu={onToggleMenu} />}>
+        <Route element={<PublicLayout theme={theme} menuOpen={menuOpen} onToggleTheme={onToggleTheme} onToggleMenu={onToggleMenu} onCloseMenu={onCloseMenu} />}>
           <Route path="/" element={<HomePage />} /><Route path="/search" element={<SearchPage />} /><Route path="/archive" element={<ArchiveWrapper />} /><Route path="/pdf/:slug" element={<PdfDownloadPage />} /><Route path="/download/:id" element={<DownloadGatePage />} />
           <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} /><Route path="/s2" element={<Navigate to="/archive?semester=S2" replace />} /><Route path="/s3" element={<Navigate to="/archive?semester=S3" replace />} /><Route path="/s4" element={<Navigate to="/archive?semester=S4" replace />} /><Route path="/s5" element={<Navigate to="/archive?semester=S5" replace />} /><Route path="/s6" element={<Navigate to="/archive?semester=S6" replace />} />
           <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />

@@ -9,11 +9,13 @@ export default function PublicLayout({
   menuOpen,
   onToggleTheme,
   onToggleMenu,
+  onCloseMenu,
 }: {
   theme: "light" | "dark"
   menuOpen: boolean
   onToggleTheme: () => void
   onToggleMenu: () => void
+  onCloseMenu?: () => void
 }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -22,6 +24,7 @@ export default function PublicLayout({
         menuOpen={menuOpen}
         onToggleTheme={onToggleTheme}
         onToggleMenu={onToggleMenu}
+        onCloseMenu={onCloseMenu}
       />
 
       {/* إعلان علوي — وحدة Adsterra (Banner 320x50)، يظهر فـ كل الصفحات العامة */}

@@ -82,6 +82,10 @@ export default function App() {
     setMenuOpen((prev) => !prev)
   }, [])
 
+  const handleCloseMenu = useCallback(() => {
+    setMenuOpen(false)
+  }, [])
+
   return (
     <BrowserRouter>
       {/* يعيد التمرير إلى الأعلى عند كل تنقّل بين الصفحات */}
@@ -94,6 +98,7 @@ export default function App() {
         menuOpen={menuOpen}
         onToggleTheme={toggleTheme}
         onToggleMenu={handleToggleMenu}
+        onCloseMenu={handleCloseMenu}
       />
 
       {/* Global Toast Notification */}
