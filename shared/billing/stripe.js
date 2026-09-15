@@ -366,7 +366,7 @@ export const MIZAN_PRO_PLANS = {
     priceUSD: 5,
     interval: "month",
     credits: 500,
-    features: ["تحميل بلا إنترنت", "شجرة القوانين المتقدمة", "تحديات مميزة", "دعم أولوية"],
+    features: ["شجرة القوانين المتقدمة", "تحديات مميزة", "دعم أولوية"],
   },
   yearly: {
     id: "mizan_pro_yearly",

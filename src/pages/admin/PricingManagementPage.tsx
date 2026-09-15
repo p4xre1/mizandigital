@@ -14,7 +14,7 @@ export default function PricingManagementPage() {
       setPackages(data || [])
       // Mock Pro plans - in real app these would be in a separate table or config
       setProPlans([
-        { id: "monthly", title: "Mizan Pro شهري", price_mad: 49, credits: 500, bonus: 0, popular: false, features: ["تحميل بلا إنترنت", "شجرة قوانين متقدمة", "تحديات مميزة", "دعم أولوية"] },
+        { id: "monthly", title: "Mizan Pro شهري", price_mad: 49, credits: 500, bonus: 0, popular: false, features: ["شجرة قوانين متقدمة", "تحديات مميزة", "دعم أولوية"] },
         { id: "yearly", title: "Mizan Pro سنوي", price_mad: 399, credits: 7000, bonus: 1000, popular: true, features: ["كل مزايا الشهري", "7000 + 1000 هدية", "خصم 32%", "شارات حصرية"] },
       ])
       setLoading(false)

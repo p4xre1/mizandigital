@@ -43,7 +43,7 @@ export function PaymentsPage() {
       <AEOHead
         title="شراء الكريدتس — ميزان الرقمية"
         description="اشترِ حزم الكريدتس لفتح اختبار تحديد المستوى، تجاوز القيود، ودعم منصة ميزان الرقمية. دفع آمن عبر CMI والموزعين المحليين."
-        directAnswer="شراء الكريدتس في ميزان الرقمية لدعم المنصة والوصول لمزايا إضافية: تحميل بلا إنترنت، شجرة قوانين متقدمة، وتحديات مميزة."
+        directAnswer="شراء الكريدتس في ميزان الرقمية لدعم المنصة والوصول لمزايا إضافية: شجرة قوانين متقدمة، وتحديات مميزة."
         breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "شراء الكريدتس — ميزان الرقمية", url: "https://www.mizan.page/paymentspage" }]}
         canonicalUrl="https://www.mizan.page/payments"
       />

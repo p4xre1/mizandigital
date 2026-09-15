@@ -57,7 +57,7 @@ export function TermsPage() {
             <CreditCard size={16} className="text-primary" /> ملخص سياسة الاشتراك (مهم)
           </div>
           <ul className="list-disc pr-5 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
-            <li><strong>Mizan Pro شهري:</strong> 49 د.م — 500 كريدتس، مزايا: تحميل بلا إنترنت، شجرة قوانين متقدمة، تحديات مميزة، دعم أولوية</li>
+            <li><strong>Mizan Pro شهري:</strong> 49 د.م — 500 كريدتس، مزايا: شجرة قوانين متقدمة، تحديات مميزة، دعم أولوية</li>
             <li><strong>Mizan Pro سنوي:</strong> 399 د.م — 7000 كريدتس + 1000 هدية، خصم 32%</li>
             <li><strong>باقات كريدتس:</strong> 100 (19 د.م) — 350 (49 د.م) — 800 (99 د.م) — 2000 (199 د.م)</li>
             <li><strong>البيع نهائي:</strong> لا إلغاء ولا استرداد خلال المدة النشطة</li>
@@ -105,7 +105,7 @@ export function TermsPage() {
                 <Infinity size={16} className="mt-0.5 text-emerald-600" />
                 <div className="text-xs leading-relaxed">
                   <p className="font-bold">بعد الانتهاء: يجب الدفع للاستمرار</p>
-                  <p>عند انتهاء اشتراكك (بعد شهر أو سنة)، <strong>ينتهي الوصول لمزايا Pro تلقائياً</strong>. حسابك يعود لمجاني، والكريدتس المتبقية تبقى، لكن مزايا Pro (تحميل بلا إنترنت، شجرة متقدمة، إلخ) تتوقف. للاستمرار، يجب شراء اشتراك جديد — <strong>لا يوجد تجديد تلقائي إجباري</strong>، أنت تختار التجديد يدوياً من /pricing.</p>
+                  <p>عند انتهاء اشتراكك (بعد شهر أو سنة)، <strong>ينتهي الوصول لمزايا Pro تلقائياً</strong>. حسابك يعود لمجاني، والكريدتس المتبقية تبقى، لكن مزايا Pro (شجرة متقدمة، إلخ) تتوقف. للاستمرار، يجب شراء اشتراك جديد — <strong>لا يوجد تجديد تلقائي إجباري</strong>، أنت تختار التجديد يدوياً من /pricing.</p>
                 </div>
               </div>
 

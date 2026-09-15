@@ -10,7 +10,7 @@ export function ProUpgradeCard() {
         </span>
         <div className="flex-1">
           <h3 className="text-[16px] font-black text-foreground">ارتقِ إلى ميزان برو</h3>
-          <p className="mt-1 text-[13px] leading-6 text-muted-foreground">تحميل بلا إنترنت، شجرة القوانين المتقدمة، تحديات حصرية، ودعم مباشر من الفريق.</p>
+          <p className="mt-1 text-[13px] leading-6 text-muted-foreground">شجرة القوانين المتقدمة، تحديات حصرية، ودعم مباشر من الفريق.</p>
           <div className="mt-4 flex gap-2">
             <Link to="/pricing" className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-[12.5px] font-extrabold text-primary-foreground hover:opacity-90">
               عرض الخطط <ArrowLeft className="size-4" />
