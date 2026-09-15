@@ -519,6 +519,12 @@ export function MyProfilePage() {
             )
           })}
         </div>
+
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4">
+          <p className="text-[12.5px] leading-7 text-amber-900 dark:text-amber-100">
+            <span className="font-black">تنبيه:</span> أسئلة المنصة مُعدّة لأغراض تعليمية وتدريبية انطلاقاً من النصوص القانونية المغربية الجاري بها العمل، وهي لا تُغني عن مراجعة النص الرسمي المنشور في الجريدة الرسمية ولا عن استشارة قانونية متخصصة.
+          </p>
+        </div>
       </section>
 
       <ConfirmDeleteModal
