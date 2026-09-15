@@ -16,6 +16,25 @@ import {
   ChevronsLeft,
   ChevronsRight,
   LogOut,
+  BarChart3,
+  Brain,
+  Gauge,
+  Tag,
+  Database,
+  TrendingUp,
+  Globe,
+  Search,
+  Bookmark,
+  Zap,
+  ShieldCheck,
+  FileQuestion,
+  GraduationCap,
+  Newspaper,
+  Layers,
+  HelpCircle,
+  Info,
+  Mail,
+  Shield,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 
@@ -30,40 +49,55 @@ function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(" ")
 }
 
-// عناصر القائمة مجمّعة فـ قسمين حقيقيين: محتوى المنصة، وإدارة النظام —
-// تجميع فعلي وليس زخرفة، لأن الفرق بين الاثنين له معنى وظيفي حقيقي
 const navGroups = [
+  {
+    label: "نظرة عامة",
+    items: [
+      { label: "لوحة القيادة", path: "/admin/dashboard", icon: LayoutDashboard },
+      { label: "التحكم الكامل", path: "/admin/control", icon: Zap },
+      { label: "التحليلات", path: "/admin/analytics", icon: BarChart3 },
+      { label: "الاستخبارات", path: "/admin/intelligence", icon: Brain },
+    ],
+  },
   {
     label: "المحتوى",
     items: [
-      { label: "لوحة القيادة", path: "/admin", icon: LayoutDashboard },
       { label: "المقالات والبحوث", path: "/admin/articles", icon: FileText },
-      { label: "القاموس القانوني", path: "/admin/lexicon", icon: Tags },
-      { label: "بنك الأسئلة", path: "/admin/quizzes", icon: ListChecks },
+      { label: "الأخبار", path: "/admin/news", icon: Newspaper },
+      { label: "القاموس القانوني", path: "/admin/lexicon", icon: Layers },
+      { label: "الكليات", path: "/admin/faculties", icon: GraduationCap },
       { label: "الأرشيف القانوني", path: "/admin/laws", icon: Scale },
       { label: "مكتبة الوثائق", path: "/admin/library", icon: BookOpen },
-      { label: "الندوات والبثوث", path: "/admin/seminars", icon: Video },
-    ],
-  },
-  {
-    label: "النظام",
-    items: [
+      { label: "الندوات والفعاليات", path: "/admin/seminars", icon: Video },
+      { label: "بنك الأسئلة", path: "/admin/quizzes", icon: ListChecks },
       { label: "التعليقات", path: "/admin/comments", icon: MessageCircle },
-      { label: "الكليات والمؤسسات", path: "/admin/faculties", icon: Users },
-      { label: "الحوكمة والبلاغات", path: "/admin/moderation", icon: Flag },
-      { label: "المدفوعات", path: "/admin/payments", icon: Coins },
-      { label: "الإعدادات", path: "/admin/settings", icon: Settings },
+      { label: "الرائج القانوني", path: "/admin/trends", icon: TrendingUp },
     ],
   },
   {
-    label: "الذكاء والأمان",
+    label: "المستخدمون والحوكمة",
     items: [
-      { label: "مكافحة الاحتيال", path: "/admin/fraud", icon: Flag },
-      { label: "الاستخبارات", path: "/admin/intelligence", icon: LayoutDashboard },
-      { label: "مراقبة الحدود", path: "/admin/limits", icon: Settings },
-      { label: "إدارة التسعير", path: "/admin/pricing", icon: Coins },
       { label: "إدارة المستخدمين", path: "/admin/users", icon: Users },
-      { label: "بيانات المستخدم", path: "/admin/userdata", icon: FileText },
+      { label: "بيانات المستخدم GDPR", path: "/admin/userdata", icon: Database },
+      { label: "الحوكمة والبلاغات", path: "/admin/moderation", icon: Flag },
+      { label: "مكافحة الاحتيال", path: "/admin/fraud", icon: ShieldCheck },
+    ],
+  },
+  {
+    label: "التمويل",
+    items: [
+      { label: "المدفوعات", path: "/admin/payments", icon: Coins },
+      { label: "التسعير Mizan Pro", path: "/admin/pricing", icon: Tag },
+      { label: "مراقبة الحدود", path: "/admin/limits", icon: Gauge },
+    ],
+  },
+  {
+    label: "الموقع والصفحات",
+    items: [
+      { label: "إدارة الرئيسية", path: "/admin/home", icon: Globe },
+      { label: "الصفحات الثابتة", path: "/admin/pages", icon: FileText },
+      { label: "SEO & AI", path: "/admin/seo", icon: Search },
+      { label: "الإعدادات", path: "/admin/settings", icon: Settings },
     ],
   },
 ]
@@ -100,7 +134,6 @@ export default function AdminSidebar({
       )}
       dir="rtl"
     >
-      {/* شعار الموقع */}
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-border px-4">
         <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
           <Scale className="size-[18px]" strokeWidth={2.25} />
@@ -108,12 +141,11 @@ export default function AdminSidebar({
         {!collapsed && (
           <div className="min-w-0 leading-tight">
             <h1 className="truncate text-[13.5px] font-extrabold text-foreground">ميزان الرقمية</h1>
-            <span className="text-[10.5px] font-medium text-muted-foreground">إدارة المحتوى</span>
+            <span className="text-[10.5px] font-medium text-muted-foreground">تحكم كامل • بلا إعلانات</span>
           </div>
         )}
       </div>
 
-      {/* عناصر القائمة مجمّعة */}
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
         {navGroups.map((group) => (
           <div key={group.label}>
@@ -142,7 +174,6 @@ export default function AdminSidebar({
                     )}
                     title={collapsed ? item.label : undefined}
                   >
-                    {/* مؤشر النشاط: خط ذهبي رفيع بدل خلفية صلبة — لمسة واحدة هادئة */}
                     <span
                       className={cn(
                         "absolute right-0 top-1/2 h-4 w-[3px] -translate-y-1/2 rounded-full bg-accent-gold transition-opacity",
@@ -159,8 +190,13 @@ export default function AdminSidebar({
         ))}
       </nav>
 
-      {/* تسجيل الخروج + زر الطي */}
       <div className="shrink-0 space-y-1 border-t border-border p-3">
+        {!collapsed && (
+          <div className="mb-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5">
+            <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">Mizan Pro • بلا Adsterra</p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground">49/399 MAD • بيع نهائي • لا حذف ذاتي</p>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           className={cn(

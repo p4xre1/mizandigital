@@ -4,17 +4,6 @@ import type { Session } from "@supabase/supabase-js"
 import PublicLayout from "@/layouts/PublicLayout"
 import { HomePage } from "@/pages/public/HomePage"
 
-// ملاحظة أداء (LCP): PublicLayout و HomePage كانا محمَّلين بـ lazy() سابقاً،
-// بحيث كل زيارة للصفحة الرئيسية (الأكثر زيارة فـ الموقع) كانت تنتظر Suspense
-// fallback (نص "جارٍ تحميل الصفحة...") لحين وصول شنكين JS إضافيين عبر
-// الشبكة، قبل ما يبان H1 الحقيقي. هاد الانتظار كان هو السبب الرئيسي فـ
-// "render delay" اللي كيبان فـ Lighthouse رغم أن الخادم كيرد بسرعة، ولأن
-// index.html المُصدَّر مسبقاً (prerendered) عنده نفس H1 جاهز أصلاً — مجرد
-// ما كيبدا React يشتغل (createRoot بلا hydration) كيمسح المحتوى الجاهز
-// ويعوّضه بـ Suspense fallback يبان لحين اكتمال التحميل. الحل: نستوردهم
-// بشكل مباشر (static import) بحال باقي الجذر (App.tsx)، حتى يبانو مع أول
-// render بلا أي انتظار شبكي إضافي. باقي الصفحات (admin، المقالات، إلخ)
-// تبقى lazy لأنها أقل زيارة وما محتاجاش تكون فـ المسار الحرج للـ LCP.
 const AdminLayout = lazy(() => import("@/components/layout/AdminLayout"))
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"))
 
@@ -39,9 +28,12 @@ const PricingManagementPage = lazy(() => import("@/pages/admin/PricingManagement
 const LimitsMonitoringPage = lazy(() => import("@/pages/admin/LimitsMonitoringPage"))
 const IntelligencePage = lazy(() => import("@/pages/admin/IntelligencePage"))
 const FraudPreventionPage = lazy(() => import("@/pages/admin/FraudPreventionPage"))
+const SiteControlPage = lazy(() => import("@/pages/admin/SiteControlPage"))
+const PagesManagementPage = lazy(() => import("@/pages/admin/PagesManagementPage"))
+const HomeManagementPage = lazy(() => import("@/pages/admin/HomeManagementPage"))
+const SeoManagementPage = lazy(() => import("@/pages/admin/SeoManagementPage"))
+const TrendingTopicsPage = lazy(() => import("@/pages/admin/TrendingTopicsPage"))
 
-// محور الاختبارات (4-Tier Quiz System) والبروفايل العام — كلها lazy لأنها
-// ليست في المسار الحرج للصفحة الرئيسية (شوف ملاحظة الأداء أعلى الملف).
 const QuizHubPage = lazy(() => import("@/pages/public/quiz/QuizHubPage").then((m) => ({ default: m.QuizHubPage })))
 const UniversityQuizPage = lazy(() => import("@/pages/public/quiz/UniversityQuizPage").then((m) => ({ default: m.UniversityQuizPage })))
 const GeneralQuizPage = lazy(() => import("@/pages/public/quiz/GeneralQuizPage").then((m) => ({ default: m.GeneralQuizPage })))
@@ -89,12 +81,6 @@ function SchoolWrapper() { const { slug } = useParams<{ slug: string }>(); retur
 function TermWrapper() { const { slug } = useParams<{ slug: string }>(); return <TermPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function ArchiveWrapper() { const [searchParams] = useSearchParams(); return <ArchivePage initialSemester={searchParams.get("semester") ?? undefined} /> }
 
-// ملاحظة إصلاح خلل: كان مسار "articles/edit/:id" يُمرّر ArticleEditorPage مباشرة
-// بلا قراءة :id عبر useParams (خلافاً لبقية أغلفة المسارات أعلاه)، فيبقى
-// currentArticleId داخل الصفحة دائماً undefined ولا يتم تحميل المقال المطلوب
-// تعديله أبداً — زر "تعديل" يفتح نموذج "مقال جديد" فارغاً بدل تحميل المقال
-// الفعلي. هاد الغلاف يقرأ :id من الرابط ويمرره كـ prop، ويربط onBack/onNavigate
-// بـ useNavigate الحقيقي بدل الاعتماد على props اختيارية تبقى undefined هنا.
 function ArticleEditorWrapper() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -112,9 +98,6 @@ function AdminGate({ children }: { children: React.ReactNode }) {
   const [allowed, setAllowed] = useState(false)
   useEffect(() => {
     let mounted = true
-    // استيراد ديناميكي: مكتبة Supabase (~50 KiB) خاصها تبقى بعيدة عن
-    // المسار الحرج لأول عرض (LCP)، وهي أصلاً غير مطلوبة إلا للمسارات
-    // الإدارية (/admin) اللي كتشتغل بهاد الغلاف فقط
     import("@/lib/supabase/client").then(({ supabase }) => {
       if (!mounted) return
       supabase.auth.getUser().then(async ({ data }) => {
@@ -153,8 +136,32 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
         </Route>
         <Route path="/login" element={session ? <Navigate to="/admin/dashboard" replace /> : <LoginPage />} />
         <Route path="/admin" element={session === undefined ? <div className="flex min-h-screen items-center justify-center" dir="rtl"><p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p></div> : session === null ? <Navigate to="/login" replace /> : <AdminGate><AdminLayout /></AdminGate>}>
-          <Route index element={<Navigate to="/admin/dashboard" replace />} /><Route path="dashboard" element={<DashboardPage />} /><Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorWrapper />} /><Route path="articles/edit/:id" element={<ArticleEditorWrapper />} /><Route path="news" element={<NewsManagementPage />} /><Route path="comments" element={<CommentsPage />} /><Route path="faculties" element={<FacultiesPage />} /><Route path="lexicon" element={<LexiconPageAdmin />} /><Route path="library" element={<LibraryPage />} /><Route path="seminars" element={<SeminarsPage />} /><Route path="laws" element={<LawsPage />} /><Route path="quizzes" element={<AdminQuizzesPage />} /><Route path="moderation" element={<ModerationPage />} /><Route path="payments" element={<PaymentsAdminPage />} /><Route path="fraud" element={<FraudPreventionPage />} /><Route path="intelligence" element={<IntelligencePage />} /><Route path="limits" element={<LimitsMonitoringPage />} /><Route path="pricing" element={<PricingManagementPage />} /><Route path="users" element={<UsersManagementPage />} /><Route path="userdata" element={<UserDataPage />} /><Route path="settings" element={<SettingsPage />} />
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="control" element={<SiteControlPage />} />
+          <Route path="home" element={<HomeManagementPage />} />
+          <Route path="pages" element={<PagesManagementPage />} />
+          <Route path="seo" element={<SeoManagementPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorWrapper />} /><Route path="articles/edit/:id" element={<ArticleEditorWrapper />} />
+          <Route path="news" element={<NewsManagementPage />} />
+          <Route path="comments" element={<CommentsPage />} />
+          <Route path="faculties" element={<FacultiesPage />} />
+          <Route path="lexicon" element={<LexiconPageAdmin />} />
+          <Route path="library" element={<LibraryPage />} />
+          <Route path="seminars" element={<SeminarsPage />} />
+          <Route path="laws" element={<LawsPage />} />
+          <Route path="quizzes" element={<AdminQuizzesPage />} />
+          <Route path="trends" element={<TrendingTopicsPage />} />
+          <Route path="moderation" element={<ModerationPage />} />
+          <Route path="payments" element={<PaymentsAdminPage />} />
+          <Route path="fraud" element={<FraudPreventionPage />} />
+          <Route path="intelligence" element={<IntelligencePage />} />
+          <Route path="limits" element={<LimitsMonitoringPage />} />
+          <Route path="pricing" element={<PricingManagementPage />} />
+          <Route path="users" element={<UsersManagementPage />} />
+          <Route path="userdata" element={<UserDataPage />} />
+          <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Routes>
     </Suspense>
