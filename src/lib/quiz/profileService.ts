@@ -5,9 +5,6 @@ import type { MizanProfile, QuizProgress } from "@/types/quiz"
  *
  * البروفايل يُبنى محلياً أولاً (يعمل بلا حساب وبلا شبكة)، ثم تُحاول
  * المزامنة مع جدول Supabase `mizan_profiles` عندما تتوفر جلسة صالحة.
- *
- * لماذا لا نعتمد على Supabase وحده؟ لأن أغلب زوار المنصة (طلبة) يستعملونها
- * بلا تسجيل دخول، وتجربة الألعاب (XP/الرتبة) يجب أن تعمل لهم فوراً.
  */
 
 const DIRECTORY_KEY = "mizan:quiz:directory:v1"
@@ -64,33 +61,118 @@ export function getLocalProfile(username: string): PublicProfile | null {
 }
 
 /* ------------------------------------------------------------------ *
- * المزامنة السحابية (اختيارية)
+ * اقتراح أسماء بديلة عند حجز الاسم
  * ------------------------------------------------------------------ */
 
-/** يتحقق من توفّر اسم المستخدم (محلياً ثم في قاعدة البيانات). */
-export async function isUsernameAvailable(username: string): Promise<boolean> {
-  const normalized = username.trim().toLowerCase()
-  if (!/^[a-z0-9_]{3,30}$/.test(normalized)) return false
-  if (getLocalProfile(normalized)) return false
+export function generateUsernameSuggestions(base: string, max = 4): string[] {
+  const clean = base.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20) || "user"
+  const suggestions: string[] = []
+  const rand = () => Math.floor(100 + Math.random() * 900)
+  const candidates = [
+    `${clean}_${rand()}`,
+    `${clean}${rand()}`,
+    `${clean}_law`,
+    `${clean}_ma`,
+    `${clean}_${new Date().getFullYear()}`,
+    `${clean}_1`,
+    `${clean}_2`,
+  ]
+  for (const c of candidates) {
+    if (c.length >= 3 && c.length <= 30 && /^[a-z0-9_]+$/.test(c) && !suggestions.includes(c)) {
+      suggestions.push(c)
+    }
+    if (suggestions.length >= max) break
+  }
+  return suggestions
+}
 
+/* ------------------------------------------------------------------ *
+ * فحص التوفر مع منع التكرار
+ * ------------------------------------------------------------------ */
+
+export interface AvailabilityResult {
+  available: boolean
+  normalized: string
+  reason?: "invalid_format" | "taken_local" | "taken_cloud" | "error"
+  existsIn?: "local" | "cloud"
+  suggestions?: string[]
+}
+
+export async function checkUsernameAvailability(
+  rawUsername: string,
+  currentUsername?: string | null
+): Promise<AvailabilityResult> {
+  const normalized = rawUsername.trim().toLowerCase().replace(/\s+/g, "_")
+
+  if (!/^[a-z0-9_]{3,30}$/.test(normalized)) {
+    return { available: false, normalized, reason: "invalid_format" }
+  }
+
+  // نفس المستخدم الحالي → متاح (يعدّل بروفايله)
+  if (currentUsername && currentUsername.toLowerCase() === normalized) {
+    return { available: true, normalized }
+  }
+
+  // فحص محلي (نفس الجهاز)
+  const local = getLocalProfile(normalized)
+  if (local) {
+    // إذا كان البروفايل المحلي موجوداً لكنه ليس للمستخدم الحالي (نحن في وضع إنشاء جديد)
+    // نعتبره محجوزاً على هذا الجهاز
+    if (!currentUsername || local.username.toLowerCase() !== currentUsername.toLowerCase()) {
+      return {
+        available: false,
+        normalized,
+        reason: "taken_local",
+        existsIn: "local",
+        suggestions: generateUsernameSuggestions(normalized),
+      }
+    }
+  }
+
+  // فحص سحابي (Supabase) — مصدر الحقيقة الوحيد لمنع التكرار عبر الأجهزة
   try {
     const { supabase } = await import("@/lib/supabase/client")
+    // نستخدم ilike بدون % لمطابقة دقيقة غير حساسة لحالة الأحرف،
+    // والفهرس الفريد في قاعدة البيانات هو lower(username)
     const { data, error } = await supabase
       .from("mizan_profiles")
       .select("username")
       .ilike("username", normalized)
       .maybeSingle()
-    if (error) return true // تعذّر التحقق: لا نحجب المستخدم بسبب الشبكة
-    return !data
-  } catch {
-    return true
+
+    if (error) {
+      // خطأ شبكة/صلاحيات: لا نحجب المستخدم، لكن نعيد متاح مع تنبيه
+      console.warn("checkUsernameAvailability supabase error:", error.message)
+      return { available: true, normalized, reason: "error" }
+    }
+
+    if (data) {
+      return {
+        available: false,
+        normalized,
+        reason: "taken_cloud",
+        existsIn: "cloud",
+        suggestions: generateUsernameSuggestions(normalized),
+      }
+    }
+
+    return { available: true, normalized }
+  } catch (e) {
+    console.warn("checkUsernameAvailability exception:", e)
+    return { available: true, normalized, reason: "error" }
   }
 }
 
-/**
- * يجلب بروفايلاً عاماً بالاسم. يبحث في قاعدة البيانات أولاً (حتى تعمل
- * الروابط بين الأجهزة)، ثم في الدليل المحلي كبديل.
- */
+/** واجهة قديمة للتوافق — تعيد boolean فقط */
+export async function isUsernameAvailable(username: string): Promise<boolean> {
+  const result = await checkUsernameAvailability(username)
+  return result.available
+}
+
+/* ------------------------------------------------------------------ *
+ * جلب بروفايل عام
+ * ------------------------------------------------------------------ */
+
 export async function fetchPublicProfile(username: string): Promise<PublicProfile | null> {
   const normalized = username.trim().toLowerCase()
   if (!normalized) return null
@@ -128,15 +210,15 @@ export async function fetchPublicProfile(username: string): Promise<PublicProfil
   return getLocalProfile(normalized)
 }
 
-/**
- * يزامن البروفايل والتقدّم مع قاعدة البيانات. يتطلب جلسة Supabase صالحة
- * (حسابات لوحة التحكم)؛ وبدونها يبقى كل شيء محلياً بلا أي خطأ للمستخدم.
- */
+/* ------------------------------------------------------------------ *
+ * مزامنة سحابية مع معالجة تضارب الاسم المكرر
+ * ------------------------------------------------------------------ */
+
 export async function syncProfileToCloud(
   profile: MizanProfile,
   progress: QuizProgress,
   rank: string
-): Promise<{ synced: boolean; reason?: string }> {
+): Promise<{ synced: boolean; reason?: string; duplicate?: boolean }> {
   publishLocalProfile(profile, progress, rank)
 
   try {
@@ -167,10 +249,36 @@ export async function syncProfileToCloud(
       { onConflict: "owner_id" }
     )
 
-    if (error) throw error
+    if (error) {
+      // كشف تضارب الاسم المكرر (unique violation على lower(username))
+      const msg = error.message || ""
+      const code = (error as any).code || ""
+      const isDuplicate =
+        code === "23505" ||
+        msg.toLowerCase().includes("duplicate") ||
+        msg.toLowerCase().includes("username") ||
+        msg.toLowerCase().includes("mizan_profiles_username_lower_idx")
+
+      if (isDuplicate) {
+        return {
+          synced: false,
+          duplicate: true,
+          reason: `اسم المستخدم "${profile.username}" محجوز من قبل — جرّب اسماً آخر: ${generateUsernameSuggestions(profile.username, 3).join("، ")}`,
+        }
+      }
+      throw error
+    }
     return { synced: true }
   } catch (error) {
     const reason = error instanceof Error ? error.message : "خطأ غير معروف"
+    const isDup = reason.toLowerCase().includes("duplicate") || reason.toLowerCase().includes("23505")
+    if (isDup) {
+      return {
+        synced: false,
+        duplicate: true,
+        reason: `اسم المستخدم "${profile.username}" محجوز — جرّب: ${generateUsernameSuggestions(profile.username, 3).join("، ")}`,
+      }
+    }
     return { synced: false, reason: `تعذّرت المزامنة السحابية: ${reason}` }
   }
 }

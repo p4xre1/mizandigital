@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import {
   UserRound,
@@ -14,6 +14,9 @@ import {
   Trash2,
   ExternalLink,
   Share2,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
@@ -22,7 +25,7 @@ import { XpBar } from "../../components/quiz/XpBar"
 import { useQuizProgress } from "../../hooks/useQuizProgress"
 import { BADGE_BY_ID, RANKS } from "../../lib/quiz/ranks"
 import { formatDuration } from "../../lib/quiz/engine"
-import { isUsernameAvailable, syncProfileToCloud } from "../../lib/quiz/profileService"
+import { checkUsernameAvailability, syncProfileToCloud, generateUsernameSuggestions, type AvailabilityResult } from "../../lib/quiz/profileService"
 import type { MizanProfile, Semester, UserRole } from "../../types/quiz"
 import { ConfirmDeleteModal } from "../../components/ui/ConfirmDeleteModal"
 import {
@@ -75,6 +78,11 @@ export function MyProfilePage() {
   const [syncState, setSyncState] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
 
+  // --- Duplicate slug prevention: live availability check ---
+  const [availability, setAvailability] = useState<AvailabilityResult | null>(null)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const debounceRef = useRef<number | null>(null)
+
   useEffect(() => {
     if (progress.profile) {
       setUsername(progress.profile.username)
@@ -98,6 +106,38 @@ export function MyProfilePage() {
       current.includes(interest) ? current.filter((item) => item !== interest) : [...current, interest]
     )
   }
+
+  // Live check when username changes (debounced 600ms)
+  useEffect(() => {
+    if (!editing) return
+    const raw = username.trim()
+    if (!raw) {
+      setAvailability(null)
+      setSuggestions([])
+      return
+    }
+    if (raw.length < 3) {
+      setAvailability({ available: false, normalized: raw, reason: "invalid_format" })
+      return
+    }
+
+    if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    debounceRef.current = window.setTimeout(async () => {
+      setChecking(true)
+      const result = await checkUsernameAvailability(raw, profile?.username ?? null)
+      setAvailability(result)
+      if (!result.available && result.suggestions) {
+        setSuggestions(result.suggestions)
+      } else {
+        setSuggestions([])
+      }
+      setChecking(false)
+    }, 600) as unknown as number
+
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    }
+  }, [username, editing, profile?.username])
 
   const handleSave = async () => {
     setError(null)
@@ -134,19 +174,25 @@ export function MyProfilePage() {
       return
     }
 
-    // Username availability (server check)
+    // Username availability — final check (prevents race condition)
     setChecking(true)
-    const available = await isUsernameAvailable(uCheck.value)
+    const finalCheck = await checkUsernameAvailability(uCheck.value, profile?.username ?? null)
     setChecking(false)
+    setAvailability(finalCheck)
 
-    const isSameUser = profile?.username === uCheck.value
-    if (!available && !isSameUser) {
-      setError("اسم المستخدم مستعمل من قبل — جرّب اسماً آخر.")
+    if (!finalCheck.available) {
+      if (finalCheck.reason === "invalid_format") {
+        setError("اسم المستخدم يجب أن يكون 3-30 حرفاً، أحرف لاتينية وأرقام و _ فقط.")
+      } else {
+        const sug = finalCheck.suggestions?.length ? ` — جرّب: ${finalCheck.suggestions.slice(0, 3).join("، ")}` : ""
+        setError(`اسم المستخدم "${finalCheck.normalized}" محجوز من قبل — هذا الرابط مأخوذ. جرّب اسماً آخر${sug}`)
+        setSuggestions(finalCheck.suggestions || generateUsernameSuggestions(finalCheck.normalized))
+      }
       return
     }
 
     const next: MizanProfile = {
-      username: uCheck.value,
+      username: finalCheck.normalized,
       displayName: dCheck.value,
       role,
       semester: role === "student" ? semester : null,
@@ -161,6 +207,12 @@ export function MyProfilePage() {
     setEditing(false)
 
     const sync = await syncProfileToCloud(next, progress, rank.id)
+    if (sync.duplicate) {
+      setError(sync.reason || "اسم المستخدم محجوز")
+      setSuggestions(generateUsernameSuggestions(next.username))
+      setEditing(true)
+      return
+    }
     setSyncState(
       sync.synced
         ? "تم نشر بروفايلك العام ومزامنته مع قاعدة البيانات."
@@ -304,20 +356,75 @@ export function MyProfilePage() {
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="username">
                     اسم المستخدم (يظهر في الرابط) — {INPUT_LIMITS.USERNAME_MIN}-{INPUT_LIMITS.USERNAME_MAX} حرف
                   </label>
-                  <input
-                    id="username"
-                    dir="ltr"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value.toLowerCase())}
-                    placeholder="ex: abdo_law"
-                    maxLength={INPUT_LIMITS.USERNAME_MAX}
-                    autoComplete="username"
-                    spellCheck={false}
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
-                  />
-                  <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
-                    mizan.page/u/<span className="text-primary">{username || "…"}</span> — حروف لاتينية وأرقام فقط — {username.length}/{INPUT_LIMITS.USERNAME_MAX}
-                  </p>
+                  <div className="relative">
+                    <input
+                      id="username"
+                      dir="ltr"
+                      value={username}
+                      onChange={(event) => setUsername(event.target.value.toLowerCase())}
+                      placeholder="ex: abdo_law"
+                      maxLength={INPUT_LIMITS.USERNAME_MAX}
+                      autoComplete="username"
+                      spellCheck={false}
+                      className={`w-full rounded-xl border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition pr-10 ${
+                        availability && !availability.available
+                          ? "border-rose-400 focus:border-rose-500"
+                          : availability && availability.available
+                            ? "border-emerald-400 focus:border-emerald-500"
+                            : "border-border focus:border-primary"
+                      }`}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {checking ? (
+                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                      ) : availability && !availability.available ? (
+                        <AlertCircle className="size-4 text-rose-500" />
+                      ) : availability && availability.available && username.length >= 3 ? (
+                        <CheckCircle2 className="size-4 text-emerald-500" />
+                      ) : null}
+                    </span>
+                  </div>
+
+                  {/* Live availability feedback */}
+                  {availability && !availability.available ? (
+                    <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-950/30 p-3">
+                      <p className="text-[11.5px] font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                        <AlertCircle className="size-3.5" />
+                        {availability.reason === "invalid_format"
+                          ? "صيغة غير صالحة — 3-30 حرف، أحرف لاتينية وأرقام و _ فقط."
+                          : `الاسم "${availability.normalized}" محجوز من قبل — هذا الرابط مأخوذ. جرّب اسماً آخر.`}
+                      </p>
+                      {suggestions.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-[11px] font-bold text-muted-foreground mb-1.5">اقتراحات متاحة:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {suggestions.map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setUsername(s)}
+                                className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition"
+                                dir="ltr"
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : availability && availability.available && username.length >= 3 ? (
+                    <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 p-2.5">
+                      <p className="text-[11.5px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                        <CheckCircle2 className="size-3.5" />
+                        الاسم "{availability.normalized}" متاح ✅ — رابطك سيكون mizan.page/u/{availability.normalized}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                      mizan.page/u/<span className="text-primary">{username || "…"}</span> — حروف لاتينية وأرقام فقط — {username.length}/{INPUT_LIMITS.USERNAME_MAX}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -466,7 +573,7 @@ export function MyProfilePage() {
               >
                 {checking ? "جارٍ التحقق من الاسم..." : "حفظ ونشر البروفايل"}
               </button>
-              <p className="mt-2 text-[10px] text-muted-foreground text-center">حماية من السبام: 5 محاولات حفظ في الدقيقة — تنقية تلقائية ضد XSS/SQL</p>
+              <p className="mt-2 text-[10px] text-muted-foreground text-center">حماية من السبام: 5 محاولات حفظ في الدقيقة — تنقية تلقائية ضد XSS/SQL — فحص فوري لعدم التكرار</p>
             </>
           ) : (
             <>
