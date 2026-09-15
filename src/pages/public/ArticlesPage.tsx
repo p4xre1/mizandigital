@@ -271,7 +271,7 @@ export function ArticlesPage() {
             </div>
           </AnimatedSection>
 
-          {/* Featured + Grid */}
+          {/* Featured + Grid - FIXED to show all articles */}
           {loading ? (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -280,55 +280,82 @@ export function ArticlesPage() {
             </div>
           ) : filteredItems.length > 0 ? (
             <>
-              {/* Bento grid with featured */}
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {/* Bento grid with featured hero */}
+              <div className="space-y-6">
                 {featured && (
-                  <AnimatedSection animation="scaleIn" className="sm:col-span-2 lg:col-span-2">
-                    <ProContentCard
-                      href={`/articles/${featured.slug}`}
-                      title={featured.title}
-                      image={featured.image}
-                      imageAlt={featured.imageAlt}
-                      badgeLabel={featured.category || "مقال مميز"}
-                      badgeColor={categoryConfig[featured.category || ""]?.color || "primary"}
-                      formattedDate={featured.date ? new Date(featured.date).toLocaleDateString("ar-MA", { year: "numeric", month: "short", day: "numeric" }) : null}
-                      summary={featured.summary ? truncateCleanText(featured.summary, 160) : null}
-                      readingTime={featured.readingTime || "5 دقائق"}
-                      isFeatured
-                      isTrending
-                      tags={featured.category ? [featured.category, "قانون مغربي"] : ["قانون"]}
-                      variant="hero"
-                      index={0}
-                    />
+                  <AnimatedSection animation="scaleIn">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-2">
+                        <ProContentCard
+                          href={`/articles/${featured.slug}`}
+                          title={featured.title}
+                          image={featured.image}
+                          imageAlt={featured.imageAlt}
+                          badgeLabel={featured.category || "مقال مميز"}
+                          badgeColor={categoryConfig[featured.category || ""]?.color || "primary"}
+                          formattedDate={featured.date ? new Date(featured.date).toLocaleDateString("ar-MA", { year: "numeric", month: "short", day: "numeric" }) : null}
+                          summary={featured.summary ? truncateCleanText(featured.summary, 160) : null}
+                          readingTime={featured.readingTime || "5 دقائق"}
+                          isFeatured
+                          isTrending
+                          tags={featured.category ? [featured.category, "قانون مغربي"] : ["قانون"]}
+                          variant="hero"
+                          index={0}
+                        />
+                      </div>
+                      <div className="space-y-4">
+                        {rest.slice(0, 2).map((item, idx) => {
+                          const cfg = categoryConfig[item.category || ""] || categoryConfig.default
+                          return (
+                            <ProContentCard
+                              key={item.id}
+                              href={`/articles/${item.slug}`}
+                              title={item.title}
+                              image={item.image}
+                              imageAlt={item.imageAlt}
+                              badgeLabel={item.category}
+                              badgeColor={cfg.color}
+                              formattedDate={item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
+                              summary={item.summary ? truncateCleanText(item.summary, 80) : null}
+                              readingTime={item.readingTime || "4 د"}
+                              isNew
+                              index={idx + 1}
+                            />
+                          )
+                        })}
+                      </div>
+                    </div>
                   </AnimatedSection>
                 )}
 
-                <StaggerGrid className="contents" delay={150}>
-                  {rest.map((item, idx) => {
+                {/* Rest of articles - always visible grid */}
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {(featured ? rest.slice(2) : filteredItems).map((item, idx) => {
                     const cfg = categoryConfig[item.category || ""] || categoryConfig.default
                     const isNew = item.date ? (Date.now() - new Date(item.date).getTime()) < 7 * 24 * 3600000 : false
                     const isTrending = idx < 2
 
                     return (
-                      <ProContentCard
-                        key={item.id}
-                        href={`/articles/${item.slug}`}
-                        title={item.title}
-                        image={item.image}
-                        imageAlt={item.imageAlt}
-                        badgeLabel={item.category}
-                        badgeColor={cfg.color}
-                        formattedDate={item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
-                        summary={item.summary ? truncateCleanText(item.summary, 120) : null}
-                        readingTime={item.readingTime || "4 د"}
-                        isNew={isNew}
-                        isTrending={isTrending}
-                        tags={item.category ? [item.category] : undefined}
-                        index={idx + 1}
-                      />
+                      <div key={item.id} className="animate-[fadeUp_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: `${(idx + 3) * 60}ms` }}>
+                        <ProContentCard
+                          href={`/articles/${item.slug}`}
+                          title={item.title}
+                          image={item.image}
+                          imageAlt={item.imageAlt}
+                          badgeLabel={item.category}
+                          badgeColor={cfg.color}
+                          formattedDate={item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
+                          summary={item.summary ? truncateCleanText(item.summary, 120) : null}
+                          readingTime={item.readingTime || "4 د"}
+                          isNew={isNew}
+                          isTrending={isTrending}
+                          tags={item.category ? [item.category] : undefined}
+                          index={idx + 3}
+                        />
+                      </div>
                     )
                   })}
-                </StaggerGrid>
+                </div>
               </div>
 
               {/* Bottom CTA */}

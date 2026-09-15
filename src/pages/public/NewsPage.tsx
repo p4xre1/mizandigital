@@ -283,11 +283,11 @@ export function NewsPage() {
             </div>
           ) : filteredItems.length > 0 ? (
             <>
-              <div className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
-                {viewMode === "grid" ? (
-                  <>
-                    {breakingNews && (
-                      <AnimatedSection animation="scaleIn" className="sm:col-span-2 lg:col-span-2">
+              <div className="space-y-6">
+                {breakingNews && (
+                  <AnimatedSection animation="scaleIn">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-2">
                         <ProContentCard
                           href={`/news/${breakingNews.slug || breakingNews.id}`}
                           title={breakingNews.title}
@@ -303,15 +303,36 @@ export function NewsPage() {
                           variant="hero"
                           index={0}
                         />
-                      </AnimatedSection>
-                    )}
-                    <StaggerGrid className="contents" delay={150}>
-                      {restNews.map((item, idx) => {
-                        const isNew = item.published_at ? (Date.now() - new Date(item.published_at).getTime()) < 2 * 24 * 3600000 : false
-                        const isTrending = idx < 3
-                        return (
+                      </div>
+                      <div className="space-y-4">
+                        {restNews.slice(0, 2).map((item, idx) => (
                           <ProContentCard
                             key={item.id}
+                            href={`/news/${item.slug || item.id}`}
+                            title={item.title}
+                            image={item.image_url}
+                            imageAlt={item.image_alt}
+                            badgeLabel={item.source || item.category || "خبر"}
+                            badgeColor="amber"
+                            formattedDate={item.published_at ? new Date(item.published_at).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : null}
+                            summary={item.summary ? item.summary.slice(0, 80) : ""}
+                            isNew
+                            index={idx + 1}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </AnimatedSection>
+                )}
+
+                <div className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
+                  {viewMode === "grid" ? (
+                    (breakingNews ? restNews.slice(2) : filteredItems).map((item, idx) => {
+                      const isNew = item.published_at ? (Date.now() - new Date(item.published_at).getTime()) < 2 * 24 * 3600000 : false
+                      const isTrending = idx < 3
+                      return (
+                        <div key={item.id} className="animate-[fadeUp_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: `${(idx + 3) * 60}ms` }}>
+                          <ProContentCard
                             href={`/news/${item.slug || item.id}`}
                             title={item.title}
                             image={item.image_url}
@@ -323,31 +344,31 @@ export function NewsPage() {
                             isNew={isNew}
                             isTrending={isTrending}
                             tags={item.category ? [item.category] : undefined}
-                            index={idx + 1}
+                            index={idx + 3}
                           />
-                        )
-                      })}
-                    </StaggerGrid>
-                  </>
-                ) : (
-                  restNews.map((item, idx) => (
-                    <AnimatedSection key={item.id} animation="slideRight" delay={idx * 40}>
-                      <div className="group flex gap-4 rounded-2xl border border-border bg-card p-4 hover:border-primary/20 hover:shadow-lg transition-all">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                            <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold text-red-700">{item.source || "خبر"}</span>
-                            {item.published_at && <span>{new Date(item.published_at).toLocaleDateString("ar-MA")}</span>}
+                        </div>
+                      )
+                    })
+                  ) : (
+                    (breakingNews ? restNews : filteredItems).map((item, idx) => (
+                      <AnimatedSection key={item.id} animation="slideRight" delay={idx * 40}>
+                        <div className="group flex gap-4 rounded-2xl border border-border bg-card p-4 hover:border-primary/20 hover:shadow-lg transition-all">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                              <span className="rounded-full bg-red-500/10 px-2 py-1 text-[10px] font-bold text-red-700">{item.source || "خبر"}</span>
+                              {item.published_at && <span>{new Date(item.published_at).toLocaleDateString("ar-MA")}</span>}
+                            </div>
+                            <h3 className="mt-2 font-bold text-foreground group-hover:text-primary line-clamp-1">{item.title}</h3>
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{item.summary}</p>
                           </div>
-                          <h3 className="mt-2 font-bold text-foreground group-hover:text-primary line-clamp-1">{item.title}</h3>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{item.summary}</p>
+                          <div className="shrink-0 grid place-items-center size-10 rounded-xl bg-muted group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                            <Globe className="size-5" />
+                          </div>
                         </div>
-                        <div className="shrink-0 grid place-items-center size-10 rounded-xl bg-muted group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                          <Globe className="size-5" />
-                        </div>
-                      </div>
-                    </AnimatedSection>
-                  ))
-                )}
+                      </AnimatedSection>
+                    ))
+                  )}
+                </div>
               </div>
 
               <AnimatedSection animation="fadeUp" delay={400} className="mt-12">

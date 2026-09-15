@@ -62,6 +62,13 @@ export function StaggerGrid({ children, className = "", delay = 0 }: { children:
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
+    // If display: contents, IntersectionObserver won't work (no box), so show immediately after delay
+    const isContents = className.includes("contents")
+    if (isContents) {
+      const t = setTimeout(() => setIsVisible(true), delay + 100)
+      return () => clearTimeout(t)
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -69,11 +76,35 @@ export function StaggerGrid({ children, className = "", delay = 0 }: { children:
           observer.unobserve(entry.target)
         }
       },
-      { threshold: 0.05 }
+      { threshold: 0.05, rootMargin: "0px 0px -100px 0px" }
     )
     if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [delay])
+    // Fallback: show after 1s anyway
+    const fallback = setTimeout(() => setIsVisible(true), 1000 + delay)
+    return () => {
+      observer.disconnect()
+      clearTimeout(fallback)
+    }
+  }, [delay, className])
+
+  // For contents display, we need to avoid wrapper that is display:contents having no observer
+  // Instead, render a wrapper with grid and then contents inside
+  if (className.includes("contents")) {
+    return (
+      <>
+        <div ref={ref} className="sr-only" aria-hidden />
+        {children.map((child, i) => (
+          <div
+            key={i}
+            className={isVisible ? "animate-[fadeUp_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" : "opacity-0 translate-y-4"}
+            style={{ animationDelay: isVisible ? `${i * 70}ms` : "0ms" }}
+          >
+            {child}
+          </div>
+        ))}
+      </>
+    )
+  }
 
   return (
     <div ref={ref} className={className}>

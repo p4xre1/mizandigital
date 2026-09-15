@@ -66,9 +66,9 @@ export function ProContentCard({
       {/* Gradient accent top */}
       <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-primary via-violet-500 to-accent-gold opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
       
-      {/* Image */}
+      {/* Image - Pro fallback with category gradient */}
       <Link to={href} className="relative block overflow-hidden">
-        <div className={`relative ${isHero ? "aspect-[16/10]" : "aspect-[16/10]"} bg-gradient-to-br from-primary/5 via-violet-500/5 to-accent-gold/5`}>
+        <div className={`relative ${isHero ? "aspect-[16/10]" : "aspect-[16/10]"} overflow-hidden`}>
           {image ? (
             <>
               <img
@@ -77,14 +77,43 @@ export function ProContentCard({
                 loading="lazy"
                 className="h-full w-full object-cover transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05] group-hover:brightness-[1.02]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-90 group-hover:opacity-70 transition-opacity duration-500" />
+              {/* Subtle pattern overlay */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground)/0.03)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground)/0.03)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-primary/10 to-violet-500/10 text-primary/40 group-hover:scale-110 group-hover:text-primary/60 transition-all duration-500">
-                <BookOpen className="size-8" />
+            <>
+              {/* Pro gradient fallback - category based */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${
+                badgeColor === "blue" ? "from-blue-600 via-cyan-600 to-blue-700" :
+                badgeColor === "violet" ? "from-violet-600 via-purple-600 to-indigo-600" :
+                badgeColor === "emerald" ? "from-emerald-600 via-teal-600 to-green-700" :
+                badgeColor === "amber" ? "from-amber-600 via-orange-600 to-yellow-600" :
+                badgeColor === "rose" ? "from-rose-600 via-pink-600 to-red-600" :
+                "from-primary via-violet-600 to-indigo-700"
+              }`} />
+              {/* Pattern */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,white/10_1px,transparent_1px),linear-gradient(to_bottom,white/10_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/10" />
+              
+              {/* Center content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                <div className="grid size-16 place-items-center rounded-2xl bg-white/15 backdrop-blur-xl border border-white/20 text-white shadow-[0_8px_24px_hsl(0_0%_0%/0.15)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                  <BookOpen className="size-8" />
+                </div>
+                <p className="mt-3 text-[11px] font-black tracking-widest text-white/80 uppercase">
+                  {badgeLabel || "مقال قانوني"}
+                </p>
+                {/* Decorative title hint */}
+                <p className="mt-2 line-clamp-2 text-[12px] font-bold text-white/60 max-w-[80%]">
+                  {title.slice(0, 60)}
+                </p>
               </div>
-            </div>
+
+              {/* Floating orbs */}
+              <div className="absolute top-4 right-4 size-20 rounded-full bg-white/10 blur-xl group-hover:bg-white/15 transition-colors duration-500" />
+              <div className="absolute bottom-4 left-4 size-16 rounded-full bg-black/10 blur-lg" />
+            </>
           )}
 
           {/* Top badges */}

@@ -248,28 +248,29 @@ export function SchoolsPage() {
             </div>
           ) : filteredSchools.length > 0 ? (
             <>
-              <StaggerGrid className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" delay={150}>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredSchools.map((school: any, idx: number) => {
                   const schoolName = school.name || school.name_ar || ""
                   const schoolSlug = school.slug || generateSlug(schoolName) || school.id
                   return (
-                    <ProSchoolCard
-                      key={school.id}
-                      id={school.id}
-                      name={schoolName}
-                      slug={schoolSlug}
-                      city={school.city}
-                      logoUrl={school.logoUrl}
-                      foundedYear={school.foundedYear}
-                      description={school.description}
-                      websiteUrl={school.websiteUrl || school.website}
-                      university={school.university}
-                      isNew={idx < 2}
-                      index={idx}
-                    />
+                    <div key={school.id} className="animate-[fadeUp_0.6s_cubic-bezier(0.16,1,0.3,1)_both]" style={{ animationDelay: `${idx * 50}ms` }}>
+                      <ProSchoolCard
+                        id={school.id}
+                        name={schoolName}
+                        slug={schoolSlug}
+                        city={school.city}
+                        logoUrl={school.logoUrl}
+                        foundedYear={school.foundedYear}
+                        description={school.description}
+                        websiteUrl={school.websiteUrl || school.website}
+                        university={school.university}
+                        isNew={idx < 2}
+                        index={idx}
+                      />
+                    </div>
                   )
                 })}
-              </StaggerGrid>
+              </div>
 
               <AnimatedSection animation="fadeUp" delay={400} className="mt-12">
                 <div className="relative overflow-hidden rounded-[24px] border border-blue-500/10 bg-gradient-to-br from-blue-500/[0.06] via-violet-500/[0.04] to-transparent p-8">
