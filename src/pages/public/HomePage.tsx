@@ -201,21 +201,21 @@ export function HomePage() {
               <div className="lg:col-span-7 space-y-6">
                 <div>
                   <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">لماذا نحن</span>
-                  <h2 className="mt-3 text-[24px] md:text-[28px] font-black leading-tight text-[#0f172a] dark:text-white">
-                    Discover the Distinct
+                  <h2 className="mt-3 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                    اكتشف المزايا المميزة
                     <br />
-                    Advantages of Our Online
+                    لمنصتنا التعليمية
                     <br />
-                    Courses
+                    <span className="text-[#2563eb]">القانونية</span>
                   </h2>
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   {[
-                    { title: "Diverse Courses", desc: "Explore a diverse range of courses tailored to your interests and career goals.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                    { title: "Expert Instructors", desc: "Learn from industry experts dedicated to your educational success.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
-                    { title: "Flexible Schedule", desc: "Enjoy the flexibility of online learning with flexible scheduling options to fit your busy lifestyle.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
-                    { title: "Continuous Support", desc: "Receive ongoing support and access additional resources for an enriching learning journey.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                    { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك وأهدافك المهنية في القانون.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
+                    { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي ومسيرتك القانونية.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
+                    { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة تناسب نمط حياتك المزدحم كطالب.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
+                    { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة تعليمية غنية ومثمرة مع ميزان الرقمية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
                   ].map((feature, i) => (
                     <div key={i} className="rounded-2xl border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all group">
                       <div className={`size-10 grid place-items-center rounded-xl ${feature.color} group-hover:scale-110 transition-transform`}>
