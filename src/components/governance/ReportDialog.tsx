@@ -3,6 +3,7 @@ import { createReport, REPORT_REASONS, type ReportTargetType, type ReportReason 
 import { useUser } from "@clerk/clerk-react";
 import { isClerkEnabled } from "@/lib/clerk/config";
 import { Flag, X, Check } from "lucide-react";
+import { validateReportDetails, getInputErrorMessage, checkRateLimit, RATE_LIMITS, INPUT_LIMITS } from "@/lib/security/inputGuard";
 
 interface Props {
   targetType: ReportTargetType;
@@ -30,12 +31,29 @@ export function ReportDialog({ targetType, targetId, triggerLabel = "إبلاغ"
   const handleSubmit = async () => {
     setSubmitting(true);
     setError(null);
+
+    // Anti-spam: rate limit 5 reports per 5 min
+    const rl = checkRateLimit(RATE_LIMITS.REPORT.key, RATE_LIMITS.REPORT.max, RATE_LIMITS.REPORT.windowMs);
+    if (!rl.allowed) {
+      setError(`لقد أرسلت الكثير من البلاغات. انتظر ${Math.ceil((rl.retryAfterMs || 0) / 1000)} ثانية.`);
+      setSubmitting(false);
+      return;
+    }
+
+    // Anti-XSS + char limit for details
+    const v = validateReportDetails(details);
+    if (!v.ok) {
+      setError(getInputErrorMessage(v.error));
+      setSubmitting(false);
+      return;
+    }
+
     try {
       await createReport({
         targetType,
         targetId,
         reason,
-        details: details.trim() || undefined,
+        details: v.value.trim() || undefined,
         clerkId: clerkUserId,
       });
       setSuccess(true);
@@ -107,11 +125,14 @@ export function ReportDialog({ targetType, targetId, triggerLabel = "إبلاغ"
                 <textarea
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  maxLength={2000}
+                  maxLength={INPUT_LIMITS.REPORT_DETAILS_MAX}
                   rows={3}
                   placeholder="اشرح بإيجاز سبب البلاغ..."
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-[12.5px] text-foreground outline-none focus:border-primary"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2 text-[12.5px] text-foreground outline-none focus:border-primary resize-none"
                 />
+                <p className="mt-1 text-[10px] text-muted-foreground">{details.length}/{INPUT_LIMITS.REPORT_DETAILS_MAX} — بلا روابط، بلا وسوم</p>
               </div>
 
               {error && <p className="text-[11px] font-bold text-rose-600">{error}</p>}

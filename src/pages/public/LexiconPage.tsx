@@ -188,6 +188,9 @@ export function LexiconPage() {
               placeholder="ابحث بالعربية أو الفرنسية (مثال: عقد، Contrat)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              maxLength={100}
+              autoComplete="off"
+              spellCheck={false}
               className="w-full rounded-xl border border-border bg-background pr-11 pl-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
             />
           </div>

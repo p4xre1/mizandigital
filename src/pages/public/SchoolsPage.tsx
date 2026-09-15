@@ -109,7 +109,7 @@ export function SchoolsPage() {
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1 max-w-[400px]">
                   <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
-                  <input type="text" placeholder="ابحث باسم الكلية أو المدينة..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-10 w-full rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] pr-10 pl-4 text-[13px] outline-none focus:border-[#2563eb]/30 focus:ring-2 focus:ring-[#2563eb]/10" />
+                  <input type="text" maxLength={100} autoComplete="off" spellCheck={false} placeholder="ابحث باسم الكلية أو المدينة..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-10 w-full rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] pr-10 pl-4 text-[13px] outline-none focus:border-[#2563eb]/30 focus:ring-2 focus:ring-[#2563eb]/10" />
                 </div>
                 <FilterDropdown className="w-48" value={selectedCity} onChange={setSelectedCity} allLabel="جميع المدن" allCount={allSchools.length} options={cities.map((city) => ({ value: city, label: city }))} />
               </div>

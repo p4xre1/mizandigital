@@ -25,6 +25,16 @@ import { formatDuration } from "../../lib/quiz/engine"
 import { isUsernameAvailable, syncProfileToCloud } from "../../lib/quiz/profileService"
 import type { MizanProfile, Semester, UserRole } from "../../types/quiz"
 import { ConfirmDeleteModal } from "../../components/ui/ConfirmDeleteModal"
+import {
+  INPUT_LIMITS,
+  validateUsername,
+  validateDisplayName,
+  validateCity,
+  validateBio,
+  checkRateLimit,
+  RATE_LIMITS,
+  getInputErrorMessage,
+} from "../../lib/security/inputGuard"
 
 const SEMESTERS: Semester[] = ["S1", "S2", "S3", "S4", "S5", "S6"]
 
@@ -45,12 +55,6 @@ const ROLES: Array<{ id: UserRole; label: string; icon: typeof GraduationCap; hi
   { id: "citizen", label: "مواطن", icon: Users, hint: "تختار اهتماماتك القانونية" },
 ]
 
-const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/
-
-/**
- * صفحة ملفي (/profile): إنشاء البروفايل العام وتحريره، عرض الرتبة
- * والإحصاءات والأوسمة، ومزامنة اختيارية مع قاعدة البيانات.
- */
 export function MyProfilePage() {
   const navigate = useNavigate()
   const { progress, profile, rank, rankProgress, stats, badges, streakDays, updateProfile, reset } = useQuizProgress()
@@ -97,35 +101,59 @@ export function MyProfilePage() {
 
   const handleSave = async () => {
     setError(null)
-    const cleanUsername = username.trim().toLowerCase().replace(/\s+/g, "_")
-    if (!USERNAME_PATTERN.test(cleanUsername)) {
-      setError("اسم المستخدم يجب أن يكون من 3 إلى 30 حرفاً، بالأحرف اللاتينية والأرقام والشرطة السفلية فقط.")
-      return
-    }
-    if (!displayName.trim()) {
-      setError("الاسم المعروض مطلوب (يظهر في بروفايلك العام).")
+
+    // Rate limit: 5 saves per minute
+    const rl = checkRateLimit(RATE_LIMITS.PROFILE_SAVE.key, RATE_LIMITS.PROFILE_SAVE.max, RATE_LIMITS.PROFILE_SAVE.windowMs)
+    if (!rl.allowed) {
+      setError(`لقد حاولت الحفظ كثيراً. انتظر ${Math.ceil((rl.retryAfterMs || 0) / 1000)} ثانية.`)
       return
     }
 
+    // Anti-spam + anti-XSS + char limits for every box
+    const uCheck = validateUsername(username)
+    if (!uCheck.ok) {
+      setError(getInputErrorMessage(uCheck.error))
+      return
+    }
+
+    const dCheck = validateDisplayName(displayName)
+    if (!dCheck.ok) {
+      setError(getInputErrorMessage(dCheck.error))
+      return
+    }
+
+    const cCheck = validateCity(city)
+    if (!cCheck.ok) {
+      setError(getInputErrorMessage(cCheck.error))
+      return
+    }
+
+    const bCheck = validateBio(bio)
+    if (!bCheck.ok) {
+      setError(getInputErrorMessage(bCheck.error))
+      return
+    }
+
+    // Username availability (server check)
     setChecking(true)
-    const available = await isUsernameAvailable(cleanUsername)
+    const available = await isUsernameAvailable(uCheck.value)
     setChecking(false)
 
-    const isSameUser = profile?.username === cleanUsername
+    const isSameUser = profile?.username === uCheck.value
     if (!available && !isSameUser) {
       setError("اسم المستخدم مستعمل من قبل — جرّب اسماً آخر.")
       return
     }
 
     const next: MizanProfile = {
-      username: cleanUsername,
-      displayName: displayName.trim(),
+      username: uCheck.value,
+      displayName: dCheck.value,
       role,
       semester: role === "student" ? semester : null,
-      yearsOfExperience: role === "lawyer" ? Math.max(0, Math.min(60, Number(years) || 0)) : null,
-      interests: role === "citizen" ? interests : [],
-      city: city.trim() || null,
-      bio: bio.trim() || null,
+      yearsOfExperience: role === "lawyer" ? Math.max(INPUT_LIMITS.YEARS_MIN, Math.min(INPUT_LIMITS.YEARS_MAX, Number(years) || 0)) : null,
+      interests: role === "citizen" ? interests.slice(0, 5) : [],
+      city: cCheck.value || null,
+      bio: bCheck.value || null,
       updatedAt: new Date().toISOString(),
     }
 
@@ -173,7 +201,6 @@ export function MyProfilePage() {
       </p>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* بطاقة الرتبة */}
         <section className="rounded-3xl border border-border bg-card p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -265,7 +292,6 @@ export function MyProfilePage() {
           {syncState && <p className="mt-3 text-[12px] font-semibold text-muted-foreground">{syncState}</p>}
         </section>
 
-        {/* نموذج التحرير / الإنشاء */}
         <section className="rounded-3xl border border-border bg-card p-6">
           {editing ? (
             <>
@@ -276,7 +302,7 @@ export function MyProfilePage() {
               <div className="mt-4 space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="username">
-                    اسم المستخدم (يظهر في الرابط)
+                    اسم المستخدم (يظهر في الرابط) — {INPUT_LIMITS.USERNAME_MIN}-{INPUT_LIMITS.USERNAME_MAX} حرف
                   </label>
                   <input
                     id="username"
@@ -284,24 +310,30 @@ export function MyProfilePage() {
                     value={username}
                     onChange={(event) => setUsername(event.target.value.toLowerCase())}
                     placeholder="ex: abdo_law"
+                    maxLength={INPUT_LIMITS.USERNAME_MAX}
+                    autoComplete="username"
+                    spellCheck={false}
                     className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
                   />
                   <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
-                    mizan.page/u/<span className="text-primary">{username || "…"}</span> — حروف لاتينية وأرقام فقط
+                    mizan.page/u/<span className="text-primary">{username || "…"}</span> — حروف لاتينية وأرقام فقط — {username.length}/{INPUT_LIMITS.USERNAME_MAX}
                   </p>
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="displayName">
-                    الاسم المعروض
+                    الاسم المعروض — {INPUT_LIMITS.DISPLAY_NAME_MIN}-{INPUT_LIMITS.DISPLAY_NAME_MAX} حرف
                   </label>
                   <input
                     id="displayName"
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
                     placeholder="عبد الرحمن — طالب قانون"
+                    maxLength={INPUT_LIMITS.DISPLAY_NAME_MAX}
+                    autoComplete="name"
                     className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{displayName.length}/{INPUT_LIMITS.DISPLAY_NAME_MAX}</p>
                 </div>
 
                 <div>
@@ -351,13 +383,13 @@ export function MyProfilePage() {
                 {role === "lawyer" && (
                   <div>
                     <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="years">
-                      سنوات الخبرة
+                      سنوات الخبرة — {INPUT_LIMITS.YEARS_MIN}-{INPUT_LIMITS.YEARS_MAX}
                     </label>
                     <input
                       id="years"
                       type="number"
-                      min={0}
-                      max={60}
+                      min={INPUT_LIMITS.YEARS_MIN}
+                      max={INPUT_LIMITS.YEARS_MAX}
                       value={years}
                       onChange={(event) => setYears(Number(event.target.value))}
                       className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
@@ -367,7 +399,7 @@ export function MyProfilePage() {
 
                 {role === "citizen" && (
                   <div>
-                    <p className="mb-1.5 text-[12.5px] font-extrabold text-foreground">الاهتمامات القانونية</p>
+                    <p className="mb-1.5 text-[12.5px] font-extrabold text-foreground">الاهتمامات القانونية — حد أقصى 5</p>
                     <div className="flex flex-wrap gap-2">
                       {INTERESTS.map((item) => (
                         <button
@@ -389,30 +421,34 @@ export function MyProfilePage() {
 
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="city">
-                    المدينة (اختياري)
+                    المدينة (اختياري) — حتى {INPUT_LIMITS.CITY_MAX} حرف
                   </label>
                   <input
                     id="city"
                     value={city}
                     onChange={(event) => setCity(event.target.value)}
                     placeholder="طنجة"
+                    maxLength={INPUT_LIMITS.CITY_MAX}
+                    autoComplete="address-level2"
                     className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{city.length}/{INPUT_LIMITS.CITY_MAX}</p>
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="bio">
-                    نبذة قصيرة (اختياري)
+                    نبذة قصيرة (اختياري) — حتى {INPUT_LIMITS.BIO_MAX} حرف
                   </label>
                   <textarea
                     id="bio"
                     rows={3}
-                    maxLength={240}
+                    maxLength={INPUT_LIMITS.BIO_MAX}
                     value={bio}
                     onChange={(event) => setBio(event.target.value)}
                     placeholder="طالب بكلية الحقوق، مهتم بالقانون الجنائي والمسطرة الجنائية."
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] leading-6 text-foreground outline-none transition focus:border-primary"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] leading-6 text-foreground outline-none transition focus:border-primary resize-none"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{bio.length}/{INPUT_LIMITS.BIO_MAX} — بلا روابط، بلا وسوم HTML</p>
                 </div>
               </div>
 
@@ -430,6 +466,7 @@ export function MyProfilePage() {
               >
                 {checking ? "جارٍ التحقق من الاسم..." : "حفظ ونشر البروفايل"}
               </button>
+              <p className="mt-2 text-[10px] text-muted-foreground text-center">حماية من السبام: 5 محاولات حفظ في الدقيقة — تنقية تلقائية ضد XSS/SQL</p>
             </>
           ) : (
             <>
@@ -493,7 +530,6 @@ export function MyProfilePage() {
         </section>
       </div>
 
-      {/* سلم الرتب */}
       <section className="mt-6 rounded-3xl border border-border bg-card p-6">
         <h2 className="text-[15px] font-extrabold text-foreground">سلم الرتب في ميزان</h2>
         <p className="mt-2 text-[12.5px] leading-6 text-muted-foreground">

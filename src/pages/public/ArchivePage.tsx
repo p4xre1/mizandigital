@@ -301,6 +301,9 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
                   placeholder="ابحث عن وحدة دراسية (مثلاً: المسطرة المدنية)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  maxLength={100}
+                  autoComplete="off"
+                  spellCheck={false}
                   className="w-full rounded-xl border border-border bg-background pr-10 pl-4 py-2.5 text-xs font-medium text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition"
                 />
               </div>

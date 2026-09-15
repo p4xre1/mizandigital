@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { MessageCircle, Send, Loader2, CheckCircle2 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 import { inspectUserText, describeInspection, LIMITS } from "../../lib/security/payloadGuard"
+import { checkRateLimit, RATE_LIMITS } from "../../lib/security/inputGuard"
 
 interface CommentSectionProps {
   /** أي قسم ينتمي إليه هذا المحتوى: مقال أم خبر */
@@ -130,6 +131,13 @@ export function CommentSection({ table, slug }: CommentSectionProps) {
       return
     }
 
+    // Anti-spam: local rate limit 3 comments per minute
+    const rl = checkRateLimit(RATE_LIMITS.COMMENT.key, RATE_LIMITS.COMMENT.max, RATE_LIMITS.COMMENT.windowMs)
+    if (!rl.allowed) {
+      setErrorMsg(`لقد أرسلت تعليقات كثيرة. انتظر ${Math.ceil((rl.retryAfterMs || 0) / 1000)} ثانية.`)
+      return
+    }
+
     // الفحص هنا لتحسين التجربة فقط (رسالة عربية فورية) — الخادم يعيد
     // الفحص كاملاً ولا يثق بما يأتي من المتصفح.
     const nameCheck = inspectUserText(name, {
@@ -251,23 +259,31 @@ export function CommentSection({ table, slug }: CommentSectionProps) {
             placeholder="اترك هذا الحقل فارغاً"
             className="absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
           />
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="اسمك"
-            maxLength={LIMITS.AUTHOR_NAME_MAX}
-            autoComplete="name"
-            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="اكتب تعليقك هنا..."
-            rows={3}
-            maxLength={LIMITS.BODY_MAX}
-            className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
-          />
+          <div>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="اسمك"
+              maxLength={LIMITS.AUTHOR_NAME_MAX}
+              autoComplete="name"
+              spellCheck={false}
+              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+            <p className="mt-1 text-[10px] text-muted-foreground">{name.length}/{LIMITS.AUTHOR_NAME_MAX} — بلا وسوم HTML، بلا روابط</p>
+          </div>
+          <div>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="اكتب تعليقك هنا..."
+              rows={3}
+              maxLength={LIMITS.BODY_MAX}
+              spellCheck={false}
+              className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            />
+            <p className="mt-1 text-[10px] text-muted-foreground">{body.length}/{LIMITS.BODY_MAX} — بلا وسوم HTML، 3 روابط كحد أقصى</p>
+          </div>
           {errorMsg && <p className="text-xs font-semibold text-red-600">{errorMsg}</p>}
           <button
             type="submit"

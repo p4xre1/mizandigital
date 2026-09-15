@@ -2,6 +2,7 @@ import { StrictMode, lazy, Suspense } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
 import { isClerkEnabled, CLERK_PUBLISHABLE_KEY } from "./lib/clerk/config"
+import "./lib/security/globalGuard"
 import "./styles/fonts.css"
 import "./styles/globals.css"
 

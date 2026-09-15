@@ -4,6 +4,7 @@ import { Search, ArrowLeft, BookOpen, FileText, Newspaper, GraduationCap, Calend
 import { AEOHead } from "../../components/seo/AEOHead"
 import { supabase } from "../../lib/supabase/client"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { validateSearch, checkRateLimit, RATE_LIMITS, INPUT_LIMITS } from "../../lib/security/inputGuard"
 
 interface Result { id: string; title: string; description?: string | null; type: string; typeLabel: string; href: string }
 
@@ -56,7 +57,15 @@ export function SearchPage() {
     return order.map((type) => ({ type, items: results.filter((r) => r.type === type) })).filter((g) => g.items.length)
   }, [results])
 
-  const submit = (event: FormEvent) => { event.preventDefault(); const q = query.trim(); setParams(q ? { q } : {}) }
+  const submit = (event: FormEvent) => {
+    event.preventDefault()
+    const rl = checkRateLimit(RATE_LIMITS.SEARCH.key, RATE_LIMITS.SEARCH.max, RATE_LIMITS.SEARCH.windowMs)
+    if (!rl.allowed) return
+    const v = validateSearch(query)
+    if (!v.ok) return
+    const q = v.value.trim()
+    setParams(q ? { q } : {})
+  }
 
   const icon = (type: string) => ({ article: FileText, news: Newspaper, law: Scale, pdf: BookOpen, term: BookOpen, school: GraduationCap, event: Calendar }[type] || Search)
 
@@ -71,7 +80,7 @@ export function SearchPage() {
           <p className="mt-3 text-sm leading-7 text-muted-foreground">بحث موحد في المقالات والأخبار والقوانين والملخصات والمصطلحات وكليات الحقوق والندوات.</p>
           <form onSubmit={submit} className="mt-7 flex gap-2 rounded-2xl border border-border bg-card p-2 shadow-sm">
             <Search className="m-3 shrink-0 text-muted-foreground" size={21}/>
-            <input value={query} onChange={(e) => setQuery(e.target.value)} aria-label="البحث في جميع محتويات ميزان الرقمية" placeholder="ابحث عن قانون، مصطلح، كلية، ملخص، مقال أو خبر..." className="min-w-0 flex-1 bg-transparent px-2 py-3 text-sm outline-none" autoFocus />
+            <input value={query} onChange={(e) => setQuery(e.target.value)} aria-label="البحث في جميع محتويات ميزان الرقمية" placeholder="ابحث عن قانون، مصطلح، كلية، ملخص، مقال أو خبر..." maxLength={INPUT_LIMITS.SEARCH_MAX} autoComplete="off" spellCheck={false} className="min-w-0 flex-1 bg-transparent px-2 py-3 text-sm outline-none" autoFocus />
             <button type="submit" className="rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground">بحث</button>
           </form>
         </div>

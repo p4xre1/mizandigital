@@ -98,7 +98,7 @@ export function Header({
               <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
                 <Search className="size-4" />
               </div>
-              <input placeholder="ابحث..." className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
+              <input placeholder="ابحث..." maxLength={100} autoComplete="off" spellCheck={false} className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
             </div>
 
             <Link to="/search" className="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Search">
