@@ -92,13 +92,18 @@ export function Header({
           </nav>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Search desktop */}
+            {/* Search desktop input */}
             <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
               <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
                 <Search className="size-4" />
               </div>
               <input placeholder="ابحث..." className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
             </div>
+
+            {/* Search icon - visible on mobile navbar (not in burger) */}
+            <Link to="/search" className="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Search">
+              <Search size={16} />
+            </Link>
 
             {/* Theme toggle - ALWAYS visible on navbar (light/dark) */}
             <button onClick={onToggleTheme} className="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle theme">
@@ -168,11 +173,6 @@ export function Header({
                 </NavLink>
 
                 <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
-                  <Link to="/search" onClick={handleNavClick} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-[#f8fafc] dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8]">
-                    <Search size={14} />
-                    بحث سريع...
-                  </Link>
-
                   <Link to="/articles" onClick={handleNavClick} className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2.5 text-[13px] font-bold shadow-sm">
                     ابدأ الآن ←
                   </Link>
