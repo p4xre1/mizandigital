@@ -11,8 +11,13 @@ export default defineConfig({
     alias: { "@": path.resolve(rootDir, "./src") },
   },
   server: {
-    host: true,
-    allowedHosts: [".e2b.app", ".arena.ai", "localhost"],
+    host: "0.0.0.0",
+    port: 5173,
+    allowedHosts: [".e2b.app", ".arena.ai", "localhost", ".e2b.dev"],
+    headers: {
+      "X-Frame-Options": "ALLOWALL",
+    },
+    cors: true,
   },
   build: {
     chunkSizeWarningLimit: 1000,
