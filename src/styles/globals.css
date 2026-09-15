@@ -12,56 +12,48 @@
 
 :root,
 .light {
-  /* Friendly warm light - cream paper, soft slate */
-  --background: 35 100% 98%;
-  --foreground: 215 25% 20%;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 9%;
   --card: 0 0% 100%;
-  --card-foreground: 215 25% 20%;
-  --primary: 221 83% 53%;
+  --card-foreground: 0 0% 9%;
+  --primary: 222 73% 29%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 35 30% 94%;
-  --secondary-foreground: 215 20% 25%;
-  --muted: 35 20% 94%;
-  --muted-foreground: 215 16% 50%;
-  --border: 35 15% 88%;
-  --input: 35 15% 88%;
-  --ring: 221 83% 53%;
-  --accent-gold: 38 92% 50%;
-  --accent-gold-muted: 38 100% 92%;
-  --newspaper-red: 24 94% 60%;
-  --newspaper-black: 215 25% 20%;
-  --newspaper-paper: 35 100% 98%;
-  --friendly-blue: 221 83% 53%;
-  --friendly-amber: 38 92% 50%;
-  --friendly-sage: 142 30% 45%;
-  --radius: 1rem;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 9%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --border: 0 0% 90%;
+  --input: 0 0% 90%;
+  --ring: 222 73% 29%;
+  --accent-gold: 40 72% 49%;
+  --accent-gold-muted: 40 80% 92%;
+  --newspaper-red: 0 84% 60%;
+  --newspaper-black: 0 0% 9%;
+  --newspaper-paper: 0 0% 100%;
+  --radius: 0.8rem;
   --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: Georgia, serif;
 }
 
 .dark {
-  /* Friendly dark - warm stone, soft, reading optimized */
-  --background: 20 10% 10%;
-  --foreground: 35 20% 92%;
-  --card: 20 8% 14%;
-  --card-foreground: 35 15% 90%;
-  --primary: 214 95% 70%;
-  --primary-foreground: 20 10% 10%;
-  --secondary: 20 8% 18%;
-  --secondary-foreground: 35 15% 88%;
-  --muted: 20 6% 18%;
-  --muted-foreground: 30 8% 60%;
-  --border: 20 8% 20%;
-  --input: 20 8% 20%;
-  --ring: 214 95% 70%;
-  --accent-gold: 38 90% 60%;
-  --accent-gold-muted: 38 20% 18%;
-  --newspaper-red: 24 85% 62%;
-  --newspaper-black: 35 15% 88%;
-  --newspaper-paper: 20 10% 10%;
-  --friendly-blue: 214 95% 70%;
-  --friendly-amber: 38 90% 60%;
-  --friendly-sage: 142 35% 55%;
+  --background: 0 0% 6%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 98%;
+  --primary: 217 91% 65%;
+  --primary-foreground: 0 0% 6%;
+  --secondary: 0 0% 14%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 14%;
+  --muted-foreground: 0 0% 64%;
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
+  --ring: 217 91% 65%;
+  --accent-gold: 43 85% 65%;
+  --accent-gold-muted: 43 20% 16%;
+  --newspaper-red: 0 84% 60%;
+  --newspaper-black: 0 0% 98%;
+  --newspaper-paper: 0 0% 6%;
 }
 
 @theme {
@@ -92,22 +84,20 @@
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: hsl(var(--background));
+    background: #ffffff;
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     line-height: 1.6;
-    /* Friendly: soft warm background */
+  }
+  .dark body {
+    background: #0a0a0a;
+    color: hsl(var(--foreground));
   }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   button { cursor: pointer; }
-  ::selection { background: hsl(var(--primary) / 0.15); }
-
-  .dark body {
-    background-color: hsl(20 10% 10%);
-    color: hsl(35 15% 90%);
-  }
+  ::selection { background: hsl(var(--primary) / 0.2); }
 }
 
 @layer components {
@@ -130,7 +120,6 @@
     color: white;
     font-weight: 800;
   }
-
   .document-card, .lexicon-card, .content-card {
     border: 1px solid hsl(var(--border));
     border-radius: 16px;
@@ -139,13 +128,12 @@
     transition: all 200ms ease;
   }
   .document-card:hover, .lexicon-card:hover, .content-card:hover {
-    border-color: hsl(var(--primary) / 0.2);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px hsl(var(--foreground) / 0.06);
+    border-color: hsl(var(--border));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px hsl(0 0% 0% / 0.06);
   }
 }
 
-/* Keyframes - friendly soft */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
@@ -161,63 +149,6 @@
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(-8px); }
   to { opacity: 1; transform: translateX(0); }
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-
-/* Friendly utilities */
-.friendly-card {
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 16px;
-  transition: all 200ms ease;
-}
-.friendly-card:hover {
-  border-color: hsl(var(--primary) / 0.15);
-  box-shadow: 0 4px 20px hsl(var(--foreground) / 0.05);
-  transform: translateY(-1px);
-}
-.friendly-gradient {
-  background: linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--accent-gold) / 0.08));
-}
-
-/* Dark mode friendly overrides */
-.dark .bg-white {
-  background-color: hsl(var(--card)) !important;
-}
-.dark .bg-[#f8f7f4],
-.dark .bg-[#fffaf0],
-.dark .bg-[#fefcf8] {
-  background-color: hsl(var(--background)) !important;
-}
-.dark .border-black\/5 {
-  border-color: hsl(var(--border)) !important;
-}
-.dark .border-black\/10 {
-  border-color: hsl(var(--border)) !important;
-}
-.dark .bg-black {
-  background-color: hsl(var(--foreground)) !important;
-  color: hsl(var(--background)) !important;
-}
-.dark .bg-[#0a0a0a],
-.dark .bg-[#111],
-.dark .bg-[#1a1a1a] {
-  background-color: hsl(20 8% 14%) !important;
-}
-.dark .bg-[#dc2626],
-.dark .bg-[#991b1b] {
-  background-color: hsl(24 85% 58%) !important;
-}
-
-@media (max-width: 639px) {
-  html { scroll-behavior: auto; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; }
 }
 
 .scrollbar-none::-webkit-scrollbar { display: none; }

@@ -91,11 +91,11 @@ export function HomePage() {
         directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تضم 304 سجلاً: 8 مقالات قانونية، 13 خبراً تشريعياً، 250 مصطلحاً قانونياً، 21 كلية حقوق."
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي"]}
       />
-      <main className="min-h-screen bg-[#fffefb] dark:bg-[#1c1917] text-foreground" dir="rtl">
+      <main className="min-h-screen bg-white dark:bg-black text-foreground" dir="rtl">
         {/* Breaking News Ticker - only this stays, top bars removed since global header has them */}
-        <div className="bg-[#f59e0b] dark:bg-[#d97706] text-white">
+        <div className="bg-red-600 dark:bg-red-700 text-white">
           <div className="container mx-auto max-w-[1280px] px-4 h-9 flex items-center gap-3 text-[12px]">
-            <span className="bg-[#1e293b] dark:bg-white dark:text-black px-3 py-1 rounded text-[10px] font-black tracking-wide shrink-0 flex items-center gap-1">
+            <span className="bg-black dark:bg-white dark:text-black px-3 py-1 rounded text-[10px] font-black tracking-wide shrink-0 flex items-center gap-1">
               <span className="size-2 rounded-full bg-red-500 animate-pulse" />
               BREAKING NEWS
             </span>
@@ -118,7 +118,7 @@ export function HomePage() {
         <div className="container mx-auto max-w-[1280px] px-4 py-6">
           {feedLoading ? (
             <div className="grid grid-cols-12 gap-6">
-              <div className="col-span-12 h-96 animate-pulse bg-white border border-[#e7e5e4] rounded" />
+              <div className="col-span-12 h-96 animate-pulse bg-white border border-border rounded" />
             </div>
           ) : (
             <>
@@ -127,12 +127,12 @@ export function HomePage() {
                 {/* Editor's Picks - Left */}
                 <div className="col-span-12 lg:col-span-3">
                   <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-[#f59e0b]" />
+                    <span className="size-1 h-4 bg-red-600" />
                     <h2 className="font-black text-[13px] tracking-wide uppercase">Editor's Picks</h2>
                   </div>
                   <div className="space-y-4">
                     {editorsPicks.map((item) => (
-                      <Link key={item.id} to={`/articles/${item.slug}`} className="group block bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                      <Link key={item.id} to={`/articles/${item.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
                         <div className="aspect-[16/10] bg-[#eee] overflow-hidden">
                           {item.image ? (
                             <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
@@ -142,10 +142,10 @@ export function HomePage() {
                         </div>
                         <div className="p-3">
                           <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-1.5">
-                            <span className="bg-[#1e293b] text-white px-1.5 py-0.5 rounded text-[9px] font-bold">{item.category || "قانون"}</span>
+                            <span className="bg-black text-white px-1.5 py-0.5 rounded text-[9px] font-bold">{item.category || "قانون"}</span>
                             <span className="flex items-center gap-1"><Clock className="size-3" /> 2 min read</span>
                           </div>
-                          <h3 className="font-bold text-[13px] leading-snug line-clamp-2 group-hover:text-[#f59e0b] transition-colors">{item.title}</h3>
+                          <h3 className="font-bold text-[13px] leading-snug line-clamp-2 group-hover:text-red-600 transition-colors">{item.title}</h3>
                           <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{item.summary}</p>
                         </div>
                       </Link>
@@ -156,13 +156,13 @@ export function HomePage() {
                 {/* Main News - Center */}
                 <div className="col-span-12 lg:col-span-6">
                   <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-[#1e293b]" />
+                    <span className="size-1 h-4 bg-black" />
                     <h2 className="font-black text-[13px] tracking-wide uppercase">Main News</h2>
-                    <span className="ms-auto text-[10px] bg-[#f59e0b] text-white px-2 py-0.5 rounded font-bold">حصري</span>
+                    <span className="ms-auto text-[10px] bg-red-600 text-white px-2 py-0.5 rounded font-bold">حصري</span>
                   </div>
                   {mainArticle && (
-                    <Link to={`/articles/${mainArticle.slug}`} className="group block bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="relative aspect-[16/10] bg-[#334155] overflow-hidden">
+                    <Link to={`/articles/${mainArticle.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                      <div className="relative aspect-[16/10] bg-black overflow-hidden">
                         {mainArticle.image ? (
                           <img src={mainArticle.image} alt={mainArticle.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
                         ) : (
@@ -173,7 +173,7 @@ export function HomePage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                         <div className="absolute bottom-0 p-5 text-white">
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-[#f59e0b] px-2 py-0.5 rounded text-[10px] font-black">عاجل</span>
+                            <span className="bg-red-600 px-2 py-0.5 rounded text-[10px] font-black">عاجل</span>
                             <span className="text-[11px] opacity-80">{mainArticle.category || "تحليل قانوني"}</span>
                           </div>
                           <h2 className="text-[20px] md:text-[24px] font-black leading-tight line-clamp-2">{mainArticle.title}</h2>
@@ -193,12 +193,12 @@ export function HomePage() {
                   {/* Secondary row under main - 2 cols like Bryelef Hoy */}
                   <div className="mt-6">
                     <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                      <span className="size-1 h-4 bg-[#1e293b]" />
+                      <span className="size-1 h-4 bg-black" />
                       <h2 className="font-black text-[13px] tracking-wide uppercase">Bryelef Hoy</h2>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       {[latestArticles[4], latestArticles[5]].filter(Boolean).map((item) => (
-                        <Link key={item!.id} to={`/articles/${item!.slug}`} className="group bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                        <Link key={item!.id} to={`/articles/${item!.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
                           <div className="aspect-[16/10] bg-[#eee] overflow-hidden">
                             {item!.image ? <img src={item!.image} alt={item!.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full grid place-items-center text-[10px]">صورة</div>}
                           </div>
@@ -220,17 +220,17 @@ export function HomePage() {
                 {/* Trending Now - Right */}
                 <div className="col-span-12 lg:col-span-3">
                   <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-[#f59e0b]" />
+                    <span className="size-1 h-4 bg-red-600" />
                     <h2 className="font-black text-[13px] tracking-wide uppercase">Trending Now</h2>
                   </div>
-                  <div className="bg-white border border-[#e7e5e4] rounded divide-y divide-black/5">
+                  <div className="bg-white border border-border rounded divide-y divide-black/5">
                     {trending.map((item, idx) => (
-                      <Link key={item.id} to={item.id.length > 15 || item.slug.startsWith("news") ? `/news/${item.slug}` : `/articles/${item.slug}`} className="group flex gap-3 p-3 hover:bg-[#fffefb] transition-colors">
-                        <span className="shrink-0 size-6 grid place-items-center rounded-full bg-[#1e293b] text-white text-[11px] font-black">
+                      <Link key={item.id} to={item.id.length > 15 || item.slug.startsWith("news") ? `/news/${item.slug}` : `/articles/${item.slug}`} className="group flex gap-3 p-3 hover:bg-white transition-colors">
+                        <span className="shrink-0 size-6 grid place-items-center rounded-full bg-black text-white text-[11px] font-black">
                           {idx + 3}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <h4 className="text-[12px] font-bold leading-snug line-clamp-2 group-hover:text-[#f59e0b]">{item.title}</h4>
+                          <h4 className="text-[12px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h4>
                           <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
                             <span className="truncate">{item.category || "قانون"}</span>
                             <span>•</span>
@@ -244,12 +244,12 @@ export function HomePage() {
                     ))}
                   </div>
 
-                  <div className="mt-6 bg-[#334155] text-white rounded p-4">
+                  <div className="mt-6 bg-black text-white rounded p-4">
                     <h3 className="font-black text-[12px] mb-2">النشرة البريدية</h3>
                     <p className="text-[11px] opacity-70 leading-relaxed mb-3">احصل على أهم الأخبار القانونية يومياً في بريدك</p>
                     <div className="flex gap-1">
                       <input placeholder="بريدك الإلكتروني" className="flex-1 h-8 rounded bg-white/10 border border-white/10 px-2 text-[11px] outline-none placeholder:text-white/40" />
-                      <button className="h-8 px-3 rounded bg-[#f59e0b] text-[11px] font-bold hover:bg-[#b91c1c]">اشتراك</button>
+                      <button className="h-8 px-3 rounded bg-red-600 text-[11px] font-bold hover:bg-[#b91c1c]">اشتراك</button>
                     </div>
                   </div>
                 </div>
@@ -258,26 +258,26 @@ export function HomePage() {
               {/* Featured Posts - 4 cols like Kreeti */}
               <div className="mt-10">
                 <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                  <span className="size-1 h-4 bg-[#1e293b]" />
+                  <span className="size-1 h-4 bg-black" />
                   <h2 className="font-black text-[13px] tracking-wide uppercase">Featured Posts</h2>
                   <span className="ms-auto text-[10px] text-muted-foreground hidden sm:block">أحدث المقالات المميزة</span>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {featuredPosts.map((item) => (
-                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
                       <div className="aspect-[16/10] bg-[#eee] overflow-hidden relative">
                         {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center text-[10px]">صورة</div>}
-                        <span className="absolute bottom-2 left-2 bg-[#1e293b]/80 text-white text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1">
+                        <span className="absolute bottom-2 left-2 bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1">
                           <Clock className="size-3" /> 2 min read
                         </span>
                       </div>
                       <div className="p-3">
                         <div className="flex items-center gap-1 text-[9px] font-bold mb-1.5">
-                          <span className="text-[#f59e0b]">{item.category || "NEWSBEAT"}</span>
+                          <span className="text-red-600">{item.category || "NEWSBEAT"}</span>
                           <span className="text-black/20">•</span>
                           <span className="text-muted-foreground">TECH</span>
                         </div>
-                        <h3 className="font-bold text-[12px] leading-snug line-clamp-2 group-hover:text-[#f59e0b] transition-colors">{item.title}</h3>
+                        <h3 className="font-bold text-[12px] leading-snug line-clamp-2 group-hover:text-red-600 transition-colors">{item.title}</h3>
                         <div className="mt-2 text-[10px] text-muted-foreground">AF themes • 1 year ago • 72</div>
                       </div>
                     </Link>
@@ -289,18 +289,18 @@ export function HomePage() {
               <div className="mt-10 grid grid-cols-12 gap-6">
                 <div className="col-span-12 lg:col-span-8">
                   <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-[#f59e0b]" />
+                    <span className="size-1 h-4 bg-red-600" />
                     <h2 className="font-black text-[13px] tracking-wide uppercase">Express Posts 1</h2>
                   </div>
                   <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-12 md:col-span-7">
                       {expressLeft && (
-                        <Link to={`/news/${expressLeft.slug}`} className="group block bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                          <div className="aspect-[16/10] bg-[#334155] overflow-hidden">
+                        <Link to={`/news/${expressLeft.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                          <div className="aspect-[16/10] bg-black overflow-hidden">
                             {expressLeft.image ? <img src={expressLeft.image} alt={expressLeft.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full grid place-items-center text-white">صورة</div>}
                           </div>
                           <div className="p-4">
-                            <span className="bg-[#1e293b] text-white text-[9px] px-1.5 py-0.5 rounded font-bold">2 min read</span>
+                            <span className="bg-black text-white text-[9px] px-1.5 py-0.5 rounded font-bold">2 min read</span>
                             <h3 className="mt-2 font-black text-[16px] leading-tight">{expressLeft.title}</h3>
                             <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{expressLeft.summary}</p>
                             <div className="mt-3 text-[10px] text-muted-foreground">AF themes • 1 year ago • 72</div>
@@ -310,20 +310,20 @@ export function HomePage() {
                     </div>
                     <div className="col-span-12 md:col-span-5 space-y-4">
                       {expressRight.slice(0, 2).map((item) => (
-                        <Link key={item.id} to={`/news/${item.slug}`} className="group flex gap-3 bg-white border border-[#e7e5e4] rounded p-3 hover:border-[#1e293b]/15 transition-colors">
+                        <Link key={item.id} to={`/news/${item.slug}`} className="group flex gap-3 bg-white border border-border rounded p-3 hover:border-[#1e293b]/15 transition-colors">
                           <div className="shrink-0 size-20 rounded bg-[#eee] overflow-hidden">
                             {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center text-[9px]">IMG</div>}
                           </div>
                           <div className="flex-1 min-w-0">
                             <span className="text-[9px] font-bold text-[#0a7a3b]">BUSINESS</span>
-                            <h4 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-[#f59e0b]">{item.title}</h4>
+                            <h4 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h4>
                             <div className="mt-1 text-[9px] text-muted-foreground">AF themes • 1 year ago • 15</div>
                           </div>
                         </Link>
                       ))}
                       <div className="grid grid-cols-2 gap-3">
                         {expressRight.slice(2, 4).map((item) => (
-                          <Link key={item.id} to={`/news/${item.slug}`} className="group bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                          <Link key={item.id} to={`/news/${item.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
                             <div className="aspect-[4/3] bg-[#eee] overflow-hidden">
                               {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : null}
                             </div>
@@ -339,19 +339,19 @@ export function HomePage() {
 
                 <div className="col-span-12 lg:col-span-4">
                   <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-[#1e293b]" />
+                    <span className="size-1 h-4 bg-black" />
                     <h2 className="font-black text-[13px] tracking-wide uppercase">Express Posts 2</h2>
                   </div>
                   <div className="space-y-3">
                     {[...latestNews.slice(5, 8), ...latestArticles.slice(6, 8)].map((item) => (
-                      <Link key={item.id} to={item.id.length > 10 ? `/news/${item.slug}` : `/articles/${item.slug}`} className="group flex gap-3 bg-white border border-[#e7e5e4] rounded p-3 hover:border-[#1e293b]/15 transition-colors">
+                      <Link key={item.id} to={item.id.length > 10 ? `/news/${item.slug}` : `/articles/${item.slug}`} className="group flex gap-3 bg-white border border-border rounded p-3 hover:border-[#1e293b]/15 transition-colors">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1 text-[8px] font-bold mb-1">
-                            <span className="text-[#f59e0b]">RESEARCH</span>
+                            <span className="text-red-600">RESEARCH</span>
                             <span className="text-black/20">•</span>
                             <span className="text-muted-foreground">TRENDING</span>
                           </div>
-                          <h4 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-[#f59e0b]">{item.title}</h4>
+                          <h4 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h4>
                         </div>
                         <div className="shrink-0 size-14 rounded bg-[#eee] overflow-hidden">
                           {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center text-[8px]">IMG</div>}
@@ -366,12 +366,12 @@ export function HomePage() {
               <div className="mt-10 grid grid-cols-12 gap-6 border-t-2 border-[#1e293b] pt-6">
                 <div className="col-span-12 lg:col-span-8">
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="size-1 h-4 bg-[#1e293b]" />
+                    <span className="size-1 h-4 bg-black" />
                     <h2 className="font-black text-[13px] tracking-wide uppercase">Your Rexau</h2>
                   </div>
                   {bottomLeft && (
-                    <Link to={`/articles/${bottomLeft.slug}`} className="group grid grid-cols-12 gap-4 bg-white border border-[#e7e5e4] rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="col-span-5 aspect-[4/3] bg-[#334155] overflow-hidden">
+                    <Link to={`/articles/${bottomLeft.slug}`} className="group grid grid-cols-12 gap-4 bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
+                      <div className="col-span-5 aspect-[4/3] bg-black overflow-hidden">
                         {bottomLeft.image ? <img src={bottomLeft.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full bg-gradient-to-br from-primary to-violet-600" />}
                       </div>
                       <div className="col-span-7 p-4">
@@ -387,7 +387,7 @@ export function HomePage() {
                   )}
                 </div>
                 <div className="col-span-12 lg:col-span-4">
-                  <div className="bg-white border border-[#e7e5e4] rounded p-4">
+                  <div className="bg-white border border-border rounded p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-black text-[12px]">Naxet o J Bna</h3>
                       <span className="size-5 grid place-items-center rounded bg-[#0a7a3b] text-white text-[10px]">3</span>
@@ -398,13 +398,13 @@ export function HomePage() {
                         { label: "مقالات تحليلية", value: articlesCount },
                         { label: "كليات حقوق", value: schoolsCount },
                       ].map((stat) => (
-                        <div key={stat.label} className="flex items-center justify-between py-2 border-b border-[#e7e5e4] last:border-0">
+                        <div key={stat.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                           <span className="text-[11px]">{stat.label}</span>
                           <span className="text-[11px] font-black"><CountUp to={stat.value} /></span>
                         </div>
                       ))}
                     </div>
-                    <Link to="/lexicon" className="mt-3 flex items-center justify-between text-[11px] font-bold text-[#f59e0b] hover:underline">
+                    <Link to="/lexicon" className="mt-3 flex items-center justify-between text-[11px] font-bold text-red-600 hover:underline">
                       تصفح القاموس
                       <ArrowLeft className="size-3" />
                     </Link>
@@ -413,7 +413,7 @@ export function HomePage() {
               </div>
 
               {/* Stats bar - like Kreeti footer */}
-              <div className="mt-10 bg-[#1e293b] text-white rounded p-4">
+              <div className="mt-10 bg-black text-white rounded p-4">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
                   {[
                     { value: 500, label: "طالب مستفيد", prefix: "+" },

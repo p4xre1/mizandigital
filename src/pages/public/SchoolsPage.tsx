@@ -90,19 +90,19 @@ export function SchoolsPage() {
         schema={listSchema}
       />
 
-      <main className="min-h-screen bg-[#fffefb] dark:bg-[#1c1917]" dir="rtl">
+      <main className="min-h-screen bg-white dark:bg-black" dir="rtl">
         <div className="container mx-auto max-w-[1280px] px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-[#1e293b] dark:border-white pb-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="size-1 h-5 bg-[#1e293b] dark:bg-white" />
+                <span className="size-1 h-5 bg-black dark:bg-white" />
                 <h1 className="text-[24px] font-black tracking-[-0.02em]">دليل كليات الحقوق</h1>
-                <span className="bg-[#1e293b] dark:bg-white dark:text-black text-white text-[10px] px-2 py-0.5 rounded font-bold">FSJES • {allSchools.length}</span>
+                <span className="bg-black dark:bg-white dark:text-black text-white text-[10px] px-2 py-0.5 rounded font-bold">FSJES • {allSchools.length}</span>
               </div>
               <p className="text-[12px] text-muted-foreground max-w-[600px]">دليل شامل لـ FSJES و FSJP عبر مختلف مدن المملكة.</p>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {cities.slice(0, 8).map(city => (
-                  <button key={city} onClick={() => setSelectedCity(city)} className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${selectedCity === city ? "bg-[#1e293b] dark:bg-white dark:text-black text-white border-[#1e293b] dark:border-white" : "bg-white dark:bg-[#292524] border-[#e7e5e4] dark:border-white/10 hover:border-[#1e293b]/15"}`}>
+                  <button key={city} onClick={() => setSelectedCity(city)} className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${selectedCity === city ? "bg-black dark:bg-white dark:text-black text-white border-[#1e293b] dark:border-white" : "bg-white dark:bg-[#1a1a1a] border-border dark:border-white/10 hover:border-[#1e293b]/15"}`}>
                     {city}
                   </button>
                 ))}
@@ -111,7 +111,7 @@ export function SchoolsPage() {
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input type="text" placeholder="ابحث باسم الكلية..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-64 rounded-full border border-[#e7e5e4] dark:border-white/10 bg-white dark:bg-[#292524] pr-9 pl-3 text-[12px] outline-none focus:border-[#1e293b]/20 dark:focus:border-white/20" />
+                <input type="text" placeholder="ابحث باسم الكلية..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-64 rounded-full border border-border dark:border-white/10 bg-white dark:bg-[#1a1a1a] pr-9 pl-3 text-[12px] outline-none focus:border-[#1e293b]/20 dark:focus:border-white/20" />
               </div>
               <FilterDropdown className="w-44" value={selectedCity} onChange={setSelectedCity} allLabel="جميع المدن" allCount={allSchools.length} options={cities.map((city) => ({ value: city, label: city }))} />
             </div>
@@ -120,15 +120,15 @@ export function SchoolsPage() {
           {loading ? (
             <div className="grid grid-cols-12 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="col-span-4 h-40 bg-white border border-[#e7e5e4] rounded animate-pulse" />
+                <div key={i} className="col-span-4 h-40 bg-white border border-border rounded animate-pulse" />
               ))}
             </div>
           ) : filteredSchools.length > 0 ? (
             <>
               <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                <span className="size-1 h-4 bg-[#1e293b]" />
+                <span className="size-1 h-4 bg-black" />
                 <h2 className="font-black text-[12px] uppercase">Featured Posts • كليات الحقوق</h2>
-                <span className="ms-auto text-[10px] bg-[#1e293b] text-white px-2 py-0.5 rounded font-bold">{filteredSchools.length} كلية</span>
+                <span className="ms-auto text-[10px] bg-black text-white px-2 py-0.5 rounded font-bold">{filteredSchools.length} كلية</span>
               </div>
 
               <div className="grid grid-cols-12 gap-4">
@@ -138,10 +138,10 @@ export function SchoolsPage() {
                       const schoolName = school.name || school.name_ar || ""
                       const schoolSlug = school.slug || generateSlug(schoolName) || school.id
                       return (
-                        <Link key={school.id} to={`/schools/${schoolSlug}`} className="group bg-white border border-[#e7e5e4] rounded p-4 hover:border-[#1e293b]/15 transition-colors">
+                        <Link key={school.id} to={`/schools/${schoolSlug}`} className="group bg-white border border-border rounded p-4 hover:border-[#1e293b]/15 transition-colors">
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex gap-3">
-                              <div className="size-10 grid place-items-center rounded bg-[#1e293b] text-white font-black text-[14px] shrink-0">
+                              <div className="size-10 grid place-items-center rounded bg-black text-white font-black text-[14px] shrink-0">
                                 {schoolName.charAt(0)}
                               </div>
                               <div>
@@ -150,11 +150,11 @@ export function SchoolsPage() {
                                   {school.city}
                                   {school.foundedYear && <><span>•</span><span>{school.foundedYear}</span></>}
                                 </div>
-                                <h3 className="font-bold text-[13px] leading-tight mt-1 group-hover:text-[#f59e0b]">{schoolName}</h3>
+                                <h3 className="font-bold text-[13px] leading-tight mt-1 group-hover:text-red-600">{schoolName}</h3>
                                 {school.university && <div className="text-[10px] text-muted-foreground mt-1">{school.university}</div>}
                               </div>
                             </div>
-                            <span className="size-6 grid place-items-center rounded-full border border-[#e7e5e4] group-hover:bg-[#1e293b] group-hover:text-white transition-colors">
+                            <span className="size-6 grid place-items-center rounded-full border border-border group-hover:bg-black group-hover:text-white transition-colors">
                               <span className="text-[12px]">↗</span>
                             </span>
                           </div>
@@ -166,26 +166,26 @@ export function SchoolsPage() {
                 </div>
 
                 <div className="col-span-12 lg:col-span-4 space-y-4">
-                  <div className="bg-white border border-[#e7e5e4] rounded p-4">
+                  <div className="bg-white border border-border rounded p-4">
                     <div className="flex items-center gap-2 mb-3 border-b-2 border-[#1e293b] pb-2">
-                      <span className="size-1 h-4 bg-[#f59e0b]" />
+                      <span className="size-1 h-4 bg-red-600" />
                       <h3 className="font-black text-[12px] uppercase">Trending Now</h3>
                     </div>
                     <div className="space-y-3">
                       {cities.slice(0, 5).map((city, idx) => {
                         const count = allSchools.filter((s: any) => s.city === city).length
                         return (
-                          <button key={city} onClick={() => setSelectedCity(city)} className="w-full flex items-center gap-2 text-right hover:bg-[#fffefb] p-2 rounded transition-colors">
-                            <span className="size-5 grid place-items-center rounded-full bg-[#1e293b] text-white text-[10px] font-black">{idx + 3}</span>
+                          <button key={city} onClick={() => setSelectedCity(city)} className="w-full flex items-center gap-2 text-right hover:bg-white p-2 rounded transition-colors">
+                            <span className="size-5 grid place-items-center rounded-full bg-black text-white text-[10px] font-black">{idx + 3}</span>
                             <span className="flex-1 text-[12px] font-bold">{city}</span>
-                            <span className="text-[10px] bg-[#fffefb] border border-[#e7e5e4] px-2 py-0.5 rounded">{count} كلية</span>
+                            <span className="text-[10px] bg-white border border-border px-2 py-0.5 rounded">{count} كلية</span>
                           </button>
                         )
                       })}
                     </div>
                   </div>
 
-                  <div className="bg-[#334155] text-white rounded p-4">
+                  <div className="bg-black text-white rounded p-4">
                     <h3 className="font-black text-[12px] mb-2">Express Posts</h3>
                     <p className="text-[11px] opacity-60 leading-relaxed mb-3">استكشف كليات الحقوق حسب المدينة — دليل محدث 2026</p>
                     <div className="grid grid-cols-2 gap-2">
@@ -200,12 +200,12 @@ export function SchoolsPage() {
               </div>
             </>
           ) : (
-            <div className="bg-white border border-dashed border-[#e7e5e4] rounded p-12 text-center">
-              <div className="size-12 mx-auto grid place-items-center rounded-full border border-[#e7e5e4]">
+            <div className="bg-white border border-dashed border-border rounded p-12 text-center">
+              <div className="size-12 mx-auto grid place-items-center rounded-full border border-border">
                 <Building2 className="size-5" />
               </div>
               <h3 className="mt-3 font-bold">لم يتم العثور على كلية</h3>
-              <button onClick={() => { setSearchQuery(""); setSelectedCity("all") }} className="mt-4 rounded-full border border-[#e7e5e4] px-4 py-1.5 text-[12px] hover:border-[#1e293b]/20">إعادة ضبط</button>
+              <button onClick={() => { setSearchQuery(""); setSelectedCity("all") }} className="mt-4 rounded-full border border-border px-4 py-1.5 text-[12px] hover:border-[#1e293b]/20">إعادة ضبط</button>
             </div>
           )}
         </div>
