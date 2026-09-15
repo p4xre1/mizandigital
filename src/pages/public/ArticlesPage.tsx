@@ -8,7 +8,7 @@ import { truncateCleanText } from "../../lib/utils/sanitize"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
-import { Search, Clock, Flame, ArrowLeft } from "lucide-react"
+import { Search, Clock, BookOpen } from "lucide-react"
 
 interface ArticleItem {
   id: string
@@ -99,12 +99,9 @@ export function ArticlesPage() {
   }, [items, searchQuery, activeCategory])
 
   const featured = filteredItems[0]
-  const editorsPicks = filteredItems.slice(1, 4)
-  const trending = filteredItems.slice(4, 9)
-  const featuredPosts = filteredItems.slice(1, 5)
 
   const pageTitle = "المقالات والدراسات القانونية"
-  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي."
+  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي — تصميم تعليمي نظيف مستوحى من EduFlex."
 
   const listSchema = {
     "@context": "https://schema.org",
@@ -131,167 +128,87 @@ export function ArticlesPage() {
 
   return (
     <>
-      <AEOHead
-        title={pageTitle}
-        description={pageDescription}
-        keywords={["مقالات قانونية", "شرح القانون المغربي", "دراسات قانونية مغربية"]}
-        schema={[listSchema, breadcrumbSchema]}
-      />
+      <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} schema={[listSchema, breadcrumbSchema]} />
 
-      <main className="min-h-screen bg-white dark:bg-black" dir="rtl">
-        <div className="container mx-auto max-w-[1280px] px-4 py-6">
-          {/* Header - minimal, global header already has nav */}
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 border-b-2 border-[#1e293b] dark:border-white pb-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="size-1 h-5 bg-red-600" />
-                <h1 className="text-[24px] font-black tracking-[-0.02em]">{pageTitle}</h1>
-                <span className="bg-black dark:bg-white dark:text-black text-white text-[10px] px-2 py-0.5 rounded font-bold">{filteredItems.length} مقال</span>
+      <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
+        {/* Header - EduFlex */}
+        <div className="bg-[#f8fafc] dark:bg-[#0f172a] border-b border-[#e2e8f0] dark:border-[#1e293b]">
+          <div className="container mx-auto max-w-[1280px] px-6 py-10">
+            <div className="max-w-[720px]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
+                <BookOpen className="size-3.5" />
+                COURSE CATEGORY • {filteredItems.length} مقال
+              </span>
+              <h1 className="mt-3 text-[28px] md:text-[36px] font-black tracking-[-0.02em] text-[#0f172a] dark:text-white leading-[1.1]">
+                {pageTitle}
+              </h1>
+              <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">{pageDescription}</p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1 max-w-[400px]">
+                  <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
+                  <input type="text" placeholder="ابحث في المقالات..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-10 w-full rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] pr-10 pl-4 text-[13px] outline-none focus:border-[#2563eb]/30 focus:ring-2 focus:ring-[#2563eb]/10" />
+                </div>
+                <FilterDropdown className="w-48" value={activeCategory} onChange={setActiveCategory} allLabel="جميع التصنيفات" options={availableCategories.map((cat) => ({ value: cat, label: cat }))} />
               </div>
-              <p className="text-[12px] text-muted-foreground max-w-[600px]">{pageDescription}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input type="text" placeholder="ابحث..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-64 rounded-full border border-border dark:border-white/10 bg-white dark:bg-[#1a1a1a] pr-9 pl-3 text-[12px] outline-none focus:border-[#1e293b]/20 dark:focus:border-white/20" />
-              </div>
-              <FilterDropdown className="w-44" value={activeCategory} onChange={setActiveCategory} allLabel="جميع التصنيفات" options={availableCategories.map((cat) => ({ value: cat, label: cat }))} />
             </div>
           </div>
+        </div>
 
+        <div className="container mx-auto max-w-[1280px] px-6 py-8">
           {loading ? (
-            <div className="grid grid-cols-12 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="col-span-4 h-64 bg-white border border-border rounded animate-pulse" />
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-64 rounded-2xl bg-[#f1f5f9] dark:bg-[#1e293b] animate-pulse" />
               ))}
             </div>
           ) : filteredItems.length > 0 ? (
             <>
-              {/* Main newspaper grid */}
-              <div className="grid grid-cols-12 gap-6">
-                {/* Editor's Picks */}
-                <div className="col-span-12 lg:col-span-3">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-red-600" />
-                    <h2 className="font-black text-[12px] uppercase">Editor's Picks</h2>
+              {/* Featured hero - EduFlex */}
+              {featured && (
+                <div className="mb-8 rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] grid md:grid-cols-2">
+                  <div className="aspect-[16/10] md:aspect-auto bg-[#f1f5f9] dark:bg-[#334155] relative overflow-hidden">
+                    {featured.image ? <img src={featured.image} alt={featured.title} className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center bg-[#dbeafe] dark:bg-[#1e3a5f]"><BookOpen className="size-12 text-[#2563eb]" /></div>}
+                    <span className="absolute top-3 right-3 bg-[#2563eb] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">مميز</span>
                   </div>
-                  <div className="space-y-3">
-                    {editorsPicks.map((item) => (
-                      <Link key={item.id} to={`/articles/${item.slug}`} className="group flex gap-3 bg-white border border-border rounded p-3 hover:border-[#1e293b]/15 transition-colors">
-                        <div className="shrink-0 size-16 rounded bg-[#eee] overflow-hidden">
-                          {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform" /> : <div className="w-full h-full grid place-items-center text-[9px]">IMG</div>}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <span className="text-[9px] font-bold text-red-600">{item.category || "قانون"}</span>
-                          <h3 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h3>
-                          <span className="text-[9px] text-muted-foreground flex items-center gap-1 mt-1"><Clock className="size-3" /> {item.readingTime}</span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Main */}
-                <div className="col-span-12 lg:col-span-6">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-black" />
-                    <h2 className="font-black text-[12px] uppercase">Main News</h2>
-                    <span className="ms-auto text-[10px] bg-red-600 text-white px-2 py-0.5 rounded font-bold">مميز</span>
-                  </div>
-                  {featured && (
-                    <Link to={`/articles/${featured.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="aspect-[16/10] bg-black relative overflow-hidden">
-                        {featured.image ? <img src={featured.image} alt={featured.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-violet-500/20" />}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                        <div className="absolute bottom-0 p-4 text-white">
-                          <span className="bg-red-600 text-[10px] font-black px-2 py-0.5 rounded">حصري</span>
-                          <h2 className="mt-2 text-[18px] font-black leading-tight line-clamp-2">{featured.title}</h2>
-                          <p className="mt-1 text-[11px] opacity-80 line-clamp-2">{featured.summary ? truncateCleanText(featured.summary, 100) : ""}</p>
-                        </div>
-                      </div>
+                  <div className="p-6 flex flex-col">
+                    <span className="inline-flex w-fit bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[11px] font-bold px-3 py-1 rounded-full border border-[#dbeafe] dark:border-[#334155]">{featured.category || "قانون"}</span>
+                    <h2 className="mt-3 text-[20px] font-black leading-tight text-[#0f172a] dark:text-white">{featured.title}</h2>
+                    <p className="mt-2 text-[13px] leading-6 text-[#475569] dark:text-[#94a3b8] line-clamp-3">{featured.summary ? truncateCleanText(featured.summary, 140) : ""}</p>
+                    <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#94a3b8]">
+                      <Clock className="size-3.5" /> {featured.readingTime} • {featured.date ? new Date(featured.date).toLocaleDateString("ar-MA") : ""}
+                    </div>
+                    <Link to={`/articles/${featured.slug}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#2563eb] text-white px-5 py-2.5 text-[12px] font-bold hover:bg-[#1d4ed8] w-fit">
+                      اقرأ المقال →
                     </Link>
-                  )}
-                </div>
-
-                {/* Trending */}
-                <div className="col-span-12 lg:col-span-3">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-red-600" />
-                    <h2 className="font-black text-[12px] uppercase">Trending Now</h2>
-                  </div>
-                  <div className="bg-white border border-border rounded divide-y divide-black/5">
-                    {trending.map((item, idx) => (
-                      <Link key={item.id} to={`/articles/${item.slug}`} className="group flex gap-2 p-3 hover:bg-white transition-colors">
-                        <span className="size-5 grid place-items-center rounded-full bg-black text-white text-[10px] font-black shrink-0">{idx + 3}</span>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-[11px] font-bold line-clamp-2 group-hover:text-red-600">{item.title}</h4>
-                          <span className="text-[9px] text-muted-foreground">{item.category}</span>
-                        </div>
-                      </Link>
-                    ))}
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Featured Posts */}
-              <div className="mt-8">
-                <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                  <span className="size-1 h-4 bg-black" />
-                  <h2 className="font-black text-[12px] uppercase">Featured Posts</h2>
-                </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  {featuredPosts.map((item) => (
-                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="aspect-[16/10] bg-[#eee] overflow-hidden">
-                        {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full grid place-items-center text-[10px]">صورة</div>}
+              {/* Grid - EduFlex course cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredItems.slice(featured ? 1 : 0).map((item) => (
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                    <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative">
+                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[10px] font-bold px-2 py-1 rounded-full border border-black/5">{item.category || "عام"}</span>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h3>
+                      <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8] line-clamp-2 leading-5">{item.summary ? truncateCleanText(item.summary, 80) : ""}</p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                        <Clock className="size-3" /> {item.readingTime}
                       </div>
-                      <div className="p-3">
-                        <span className="text-[9px] font-bold text-red-600">{item.category}</span>
-                        <h3 className="text-[12px] font-bold leading-snug line-clamp-2 mt-1 group-hover:text-red-600">{item.title}</h3>
-                        <div className="mt-2 text-[10px] text-muted-foreground flex items-center gap-1">
-                          <Clock className="size-3" /> {item.readingTime}
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* All grid */}
-              <div className="mt-8">
-                <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                  <span className="size-1 h-4 bg-black" />
-                  <h2 className="font-black text-[12px] uppercase">جميع المقالات • {filteredItems.length}</h2>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {filteredItems.slice(4).map((item) => (
-                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-border rounded p-3 hover:border-[#1e293b]/15 transition-colors">
-                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-2">
-                        <span className="bg-black text-white px-1.5 py-0.5 rounded text-[9px]">{item.category || "عام"}</span>
-                        <span>{item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : ""}</span>
-                      </div>
-                      <h3 className="font-bold text-[13px] leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h3>
-                      <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2">{item.summary ? truncateCleanText(item.summary, 80) : ""}</p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-8 bg-black text-white rounded p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="size-10 grid place-items-center rounded bg-red-600"><Flame className="size-5" /></div>
-                  <div>
-                    <div className="font-black text-[13px]">هل تبحث عن موضوع محدد؟</div>
-                    <div className="text-[11px] opacity-60">استخدم البحث أو تصفح حسب التصنيف</div>
-                  </div>
-                </div>
-                <div className="text-[11px] bg-white text-black px-3 py-1.5 rounded-full font-bold">{filteredItems.length} مقال متاح</div>
+                    </div>
+                  </Link>
+                ))}
               </div>
             </>
           ) : (
-            <div className="bg-white border border-dashed border-border rounded p-12 text-center">
-              <h3 className="font-bold">لا توجد مقالات مطابقة</h3>
-              <button onClick={() => { setSearchQuery(""); setActiveCategory("all") }} className="mt-4 rounded-full border border-border px-4 py-1.5 text-[12px] hover:border-[#1e293b]/20">إعادة ضبط</button>
+            <div className="bg-white dark:bg-[#1e293b] border border-dashed border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-12 text-center">
+              <BookOpen className="size-10 mx-auto text-[#94a3b8]" />
+              <h3 className="mt-3 font-bold">لا توجد مقالات مطابقة</h3>
+              <button onClick={() => { setSearchQuery(""); setActiveCategory("all") }} className="mt-4 rounded-full bg-[#2563eb] text-white px-4 py-1.5 text-[12px] font-bold">إعادة ضبط</button>
             </div>
           )}
         </div>

@@ -12,48 +12,49 @@
 
 :root,
 .light {
+  /* EduFlex - Clean educational blue */
   --background: 0 0% 100%;
-  --foreground: 0 0% 9%;
+  --foreground: 222 47% 11%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 9%;
-  --primary: 222 73% 29%;
+  --card-foreground: 222 47% 11%;
+  --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 96%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 45%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 222 73% 29%;
-  --accent-gold: 40 72% 49%;
-  --accent-gold-muted: 40 80% 92%;
-  --newspaper-red: 0 84% 60%;
-  --newspaper-black: 0 0% 9%;
-  --newspaper-paper: 0 0% 100%;
-  --radius: 0.8rem;
-  --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --secondary: 214 100% 97%;
+  --secondary-foreground: 221 83% 53%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 221 83% 53%;
+  --accent: 214 100% 97%;
+  --accent-foreground: 221 83% 53%;
+  --edu-blue: 221 83% 53%;
+  --edu-light-blue: 214 100% 97%;
+  --edu-sky: 199 89% 48%;
+  --radius: 1rem;
+  --font-sans: "Cairo", system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
 }
 
 .dark {
-  --background: 0 0% 6%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 10%;
-  --card-foreground: 0 0% 98%;
+  --background: 222 47% 6%;
+  --foreground: 210 40% 98%;
+  --card: 222 40% 10%;
+  --card-foreground: 210 40% 98%;
   --primary: 217 91% 65%;
-  --primary-foreground: 0 0% 6%;
-  --secondary: 0 0% 14%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 14%;
-  --muted-foreground: 0 0% 64%;
-  --border: 0 0% 18%;
-  --input: 0 0% 18%;
+  --primary-foreground: 222 47% 6%;
+  --secondary: 222 30% 14%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 222 30% 14%;
+  --muted-foreground: 215 20% 65%;
+  --border: 222 25% 18%;
+  --input: 222 25% 18%;
   --ring: 217 91% 65%;
-  --accent-gold: 43 85% 65%;
-  --accent-gold-muted: 43 20% 16%;
-  --newspaper-red: 0 84% 60%;
-  --newspaper-black: 0 0% 98%;
-  --newspaper-paper: 0 0% 6%;
+  --accent: 222 30% 14%;
+  --accent-foreground: 210 40% 98%;
+  --edu-blue: 217 91% 65%;
+  --edu-light-blue: 222 30% 14%;
+  --edu-sky: 199 89% 60%;
 }
 
 @theme {
@@ -70,9 +71,10 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --color-accent-gold: hsl(var(--accent-gold));
-  --color-newspaper-red: hsl(var(--newspaper-red));
-  --color-newspaper-black: hsl(var(--newspaper-black));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-edu-blue: hsl(var(--edu-blue));
+  --color-edu-light-blue: hsl(var(--edu-light-blue));
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
 }
@@ -92,45 +94,39 @@
     line-height: 1.6;
   }
   .dark body {
-    background: #0a0a0a;
-    color: hsl(var(--foreground));
+    background: hsl(222 47% 6%);
   }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   button { cursor: pointer; }
-  ::selection { background: hsl(var(--primary) / 0.2); }
+  ::selection { background: hsl(var(--primary) / 0.15); }
 }
 
 @layer components {
   .container-wide { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    border-bottom: 1px solid hsl(var(--border));
-    background: hsl(var(--background) / 0.96);
-    backdrop-filter: blur(12px);
-  }
-  .brand-mark {
-    display: grid;
-    height: 40px;
-    width: 40px;
-    place-items: center;
-    border-radius: 12px;
-    background: hsl(var(--primary));
-    color: white;
-    font-weight: 800;
-  }
-  .document-card, .lexicon-card, .content-card {
+  .edu-card {
+    background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
     border-radius: 16px;
-    padding: 20px;
-    background: hsl(var(--card));
     transition: all 200ms ease;
   }
-  .document-card:hover, .lexicon-card:hover, .content-card:hover {
-    border-color: hsl(var(--border));
-    transform: translateY(-1px);
-    box-shadow: 0 4px 20px hsl(0 0% 0% / 0.06);
+  .edu-card:hover {
+    border-color: hsl(var(--primary) / 0.15);
+    box-shadow: 0 8px 24px hsl(221 83% 53% / 0.08);
+    transform: translateY(-2px);
+  }
+  .edu-blue-badge {
+    background: hsl(214 100% 97%);
+    color: hsl(221 83% 53%);
+    border: 1px solid hsl(214 100% 91%);
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+  }
+  .dark .edu-blue-badge {
+    background: hsl(222 30% 14%);
+    color: hsl(217 91% 65%);
+    border-color: hsl(222 25% 18%);
   }
 }
 
@@ -142,13 +138,9 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.97); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-8px); }
-  to { opacity: 1; transform: translateX(0); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 .scrollbar-none::-webkit-scrollbar { display: none; }

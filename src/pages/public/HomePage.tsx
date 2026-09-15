@@ -3,11 +3,10 @@ import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
-import { generateSlug } from "../../lib/utils/generateSlug"
 import { CountUp } from "../../components/ui/CountUp"
 import { HomeFaqSection } from "../../components/home/HomeFaqSection"
 import {
-  Search, Clock, Flame, ArrowLeft, Play, TrendingUp
+  BookOpen, Scale, GraduationCap, Search, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight
 } from "lucide-react"
 
 interface FeedCard {
@@ -44,12 +43,12 @@ export function HomePage() {
         const remoteArticles: FeedCard[] = (articlesRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug, title: item.title, summary: item.excerpt, category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name, date: item.published_at || item.created_at, image: item.cover_image }))
         const localArticles: FeedCard[] = (articlesData as any[]).map((item) => ({ id: item.id, slug: item.slug, title: item.title, summary: item.excerpt, category: item.category, date: item.publishedAt, image: item.coverImage || item.image }))
         const combinedArticles = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
-        setLatestArticles(diversifyByCategory(combinedArticles, 12))
+        setLatestArticles(diversifyByCategory(combinedArticles, 8))
 
         const remoteNews: FeedCard[] = (newsRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug || item.id, title: item.title, summary: item.summary, category: null, date: item.published_at || item.created_at, image: item.image_url }))
         const localNews: FeedCard[] = (newsData as any[]).filter((item) => item.type === "news").map((item) => ({ id: item.id, slug: item.id, title: item.title, summary: item.summary, category: item.category, date: item.date }))
         const combinedNews = Array.from(new Map([...remoteNews, ...localNews].map((n) => [n.slug, n])).values())
-        setLatestNews(diversifyByCategory(combinedNews, 12))
+        setLatestNews(diversifyByCategory(combinedNews, 8))
       } catch (err) {
         console.error(err)
       } finally {
@@ -72,17 +71,6 @@ export function HomePage() {
     fetchCounts()
   }, [])
 
-  const mainArticle = latestArticles[0]
-  const editorsPicks = latestArticles.slice(1, 4)
-  const trending = [...latestNews.slice(0, 5), ...latestArticles.slice(4, 7)].slice(0, 5)
-  const featuredPosts = [...latestArticles.slice(4, 8)]
-  const expressLeft = latestNews[0]
-  const expressRight = latestNews.slice(1, 5)
-  const bottomLeft = latestArticles[8]
-  const bottomRight = latestArticles[9]
-
-  const today = new Date().toLocaleDateString("ar-MA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
-
   return (
     <>
       <AEOHead
@@ -91,347 +79,258 @@ export function HomePage() {
         directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تضم 304 سجلاً: 8 مقالات قانونية، 13 خبراً تشريعياً، 250 مصطلحاً قانونياً، 21 كلية حقوق."
         keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي"]}
       />
-      <main className="min-h-screen bg-white dark:bg-black text-foreground" dir="rtl">
-        {/* Breaking News Ticker - only this stays, top bars removed since global header has them */}
-        <div className="bg-red-600 dark:bg-red-700 text-white">
-          <div className="container mx-auto max-w-[1280px] px-4 h-9 flex items-center gap-3 text-[12px]">
-            <span className="bg-black dark:bg-white dark:text-black px-3 py-1 rounded text-[10px] font-black tracking-wide shrink-0 flex items-center gap-1">
-              <span className="size-2 rounded-full bg-red-500 animate-pulse" />
-              BREAKING NEWS
-            </span>
-            <div className="flex-1 overflow-hidden">
-              <div className="flex items-center gap-6 whitespace-nowrap">
-                {[...latestNews.slice(0, 3), ...latestArticles.slice(0, 2)].map((item, i) => (
-                  <span key={i} className="flex items-center gap-2">
-                    <span className="opacity-60">•</span>
-                    <Link to={item.slug.includes("news") || item.id.length > 10 ? `/news/${item.slug}` : `/articles/${item.slug}`} className="hover:underline font-medium">
-                      {item.title}
-                    </Link>
-                  </span>
+      <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground overflow-hidden" dir="rtl">
+        {/* Hero - EduFlex Style */}
+        <section className="relative bg-white dark:bg-[#0f172a]">
+          <div className="container mx-auto max-w-[1280px] px-6 py-12 lg:py-20">
+            <div className="grid lg:grid-cols-12 gap-10 items-center">
+              {/* Left - Text */}
+              <div className="lg:col-span-6 space-y-6">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
+                  <span className="size-1.5 rounded-full bg-[#2563eb] animate-pulse" />
+                  منصة تعليمية عصرية • EduFlex Inspired
+                </div>
+
+                <h1 className="text-[32px] md:text-[44px] font-black leading-[1.1] tracking-[-0.02em] text-[#0f172a] dark:text-white">
+                  افتح إمكانياتك مع
+                  <br />
+                  <span className="text-[#2563eb]">التعلم القانوني</span>
+                  <br />
+                  <span className="text-[18px] md:text-[20px] font-bold text-[#475569] dark:text-[#94a3b8] mt-2 block">Online Learning</span>
+                </h1>
+
+                <p className="text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8] max-w-[480px]">
+                  انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-3 text-[13px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-all hover:shadow-[0_6px_16px_rgba(37,99,235,0.3)] hover:-translate-y-0.5">
+                    Get Started
+                    <span className="size-5 grid place-items-center rounded-full bg-white/20">→</span>
+                  </Link>
+                  <Link to="/about" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                    Learn More
+                    <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155]">→</span>
+                  </Link>
+                </div>
+
+                <div className="flex items-center gap-4 pt-2">
+                  <div className="flex -space-x-2 rtl:space-x-reverse">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] grid place-items-center text-[10px] font-bold">
+                        {String.fromCharCode(64 + i)}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-[12px]">
+                    <div className="font-black flex items-center gap-1">
+                      <Users className="size-4 text-[#2563eb]" />
+                      10K+ Student
+                    </div>
+                    <div className="text-[11px] text-[#64748b]">500+ طالب يثقون بنا</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right - Illustration like EduFlex */}
+              <div className="lg:col-span-6 relative">
+                <div className="relative mx-auto max-w-[480px]">
+                  {/* Light blue circle background */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[380px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/30" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[320px] rounded-full bg-[#eff6ff] dark:bg-[#1e3a5f]/20" />
+                  
+                  {/* Sparkles */}
+                  <div className="absolute top-10 right-10 text-[#f59e0b] animate-[float_3s_ease-in-out_infinite]">✦</div>
+                  <div className="absolute top-20 left-10 text-[#2563eb] animate-[float_4s_ease-in-out_infinite_0.5s]">✦</div>
+                  <div className="absolute bottom-20 right-16 text-[#f59e0b] animate-[float_3.5s_ease-in-out_infinite_1s]">✦</div>
+                  <div className="absolute bottom-10 left-10 text-[#2563eb] animate-[float_4s_ease-in-out_infinite_0.2s]">✦</div>
+
+                  {/* Graduation cap */}
+                  <div className="absolute -top-4 right-1/4 size-12 grid place-items-center rounded-full bg-white dark:bg-[#1e293b] shadow-lg border border-[#e2e8f0] dark:border-[#334155] animate-[float_3s_ease-in-out_infinite]">
+                    <span className="text-[20px]">🎓</span>
+                  </div>
+
+                  {/* Main image */}
+                  <img src="/edu-hero.png" alt="طالبة قانون" className="relative z-10 w-full h-auto object-contain drop-shadow-xl" />
+
+                  {/* Stats card like EduFlex */}
+                  <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 z-20 bg-white dark:bg-[#1e293b] rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-[0_8px_24px_rgba(0,0,0,0.08)] p-3 flex items-center gap-4 w-[90%] max-w-[320px]">
+                    <div className="text-center flex-1">
+                      <div className="font-black text-[14px] text-[#0f172a] dark:text-white">10K+</div>
+                      <div className="text-[10px] text-[#64748b]">Alumni</div>
+                    </div>
+                    <div className="w-px h-8 bg-[#e2e8f0] dark:bg-[#334155]" />
+                    <div className="text-center flex-1">
+                      <div className="font-black text-[14px] flex items-center justify-center gap-1 text-[#0f172a] dark:text-white">
+                        4.6 <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" />
+                      </div>
+                      <div className="text-[10px] text-[#64748b]">5K+ Reviews</div>
+                    </div>
+                    <div className="w-px h-8 bg-[#e2e8f0] dark:bg-[#334155]" />
+                    <div className="text-center flex-1">
+                      <div className="font-black text-[14px] text-[#0f172a] dark:text-white">100+</div>
+                      <div className="text-[10px] text-[#64748b]">Partnerships</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Companies - EduFlex */}
+        <section className="py-8 border-y border-[#f1f5f9] dark:border-[#1e293b] bg-[#f8fafc]/50 dark:bg-[#0f172a]/50">
+          <div className="container mx-auto max-w-[1280px] px-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-[13px] font-bold text-[#475569] dark:text-[#94a3b8]">
+                More than <span className="text-[#2563eb] font-black">100+ companies</span> collaborate with us
+              </div>
+              <div className="flex items-center gap-6 md:gap-10 text-[12px] font-black tracking-wide text-[#94a3b8] dark:text-[#64748b]">
+                <span>WorkWise</span>
+                <span className="font-mono">NEXGEN</span>
+                <span>ZONTECH</span>
+                <span className="hidden sm:inline">EDUFLEX</span>
+                <span className="hidden sm:inline">MIZAN</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose Us - EduFlex */}
+        <section className="py-16 bg-white dark:bg-[#0f172a]">
+          <div className="container mx-auto max-w-[1280px] px-6">
+            <div className="grid lg:grid-cols-12 gap-10 items-center">
+              <div className="lg:col-span-5">
+                <div className="relative">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[300px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/20" />
+                  <img src="/edu-hero.png" alt="مميزات" className="relative z-10 w-full max-w-[360px] mx-auto rounded-2xl object-contain" style={{ filter: "hue-rotate(10deg)" }} />
+                  
+                  <div className="absolute top-10 -left-4 bg-white dark:bg-[#1e293b] rounded-xl border border-[#e2e8f0] dark:border-[#334155] shadow-lg p-2 flex items-center gap-2 z-20">
+                    <div className="size-8 grid place-items-center rounded-full bg-[#eff6ff] text-[#2563eb]">❤</div>
+                    <div className="text-[11px] font-bold">موثوق</div>
+                  </div>
+                  <div className="absolute bottom-10 -right-4 bg-white dark:bg-[#1e293b] rounded-xl border border-[#e2e8f0] dark:border-[#334155] shadow-lg p-2 flex items-center gap-2 z-20">
+                    <div className="size-8 grid place-items-center rounded-full bg-[#fef3c7] text-[#f59e0b]">🎓</div>
+                    <div className="text-[11px] font-bold">معتمد</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="lg:col-span-7 space-y-6">
+                <div>
+                  <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] rounded-full px-3 py-1">WHY CHOOSE US</span>
+                  <h2 className="mt-3 text-[24px] md:text-[28px] font-black leading-tight text-[#0f172a] dark:text-white">
+                    Discover the Distinct
+                    <br />
+                    Advantages of Our Online
+                    <br />
+                    Courses
+                  </h2>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    { title: "Diverse Courses", desc: "Explore a diverse range of courses tailored to your interests and career goals.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
+                    { title: "Expert Instructors", desc: "Learn from industry experts dedicated to your educational success.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
+                    { title: "Flexible Schedule", desc: "Enjoy the flexibility of online learning with flexible scheduling options to fit your busy lifestyle.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
+                    { title: "Continuous Support", desc: "Receive ongoing support and access additional resources for an enriching learning journey.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                  ].map((feature, i) => (
+                    <div key={i} className="rounded-2xl border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all group">
+                      <div className={`size-10 grid place-items-center rounded-xl ${feature.color} group-hover:scale-110 transition-transform`}>
+                        <feature.icon className="size-5" />
+                      </div>
+                      <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{feature.title}</h3>
+                      <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Course Category - EduFlex */}
+        <section className="py-16 bg-[#f8fafc] dark:bg-[#0f172a]">
+          <div className="container mx-auto max-w-[1280px] px-6">
+            <div className="text-center mb-8">
+              <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full px-3 py-1">COURSE CATEGORY</span>
+              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">Explore Our Signature Courses</h2>
+              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", color: "from-[#f59e0b] to-[#fbbf24]", href: "/archive" },
+                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },
+              ].map((card) => (
+                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_12px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all duration-300">
+                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                  <div className="flex items-center justify-between">
+                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm group-hover:scale-110 transition-transform`}>
+                      <card.icon className="size-5" />
+                    </div>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+                  </div>
+                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h3>
+                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                  <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-[#2563eb] opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all">
+                    استكشف <ArrowRight className="size-3 rtl:rotate-180" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Latest Articles - EduFlex Course Grid */}
+            <div className="mt-12">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات • Signature Courses</h3>
+                <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {latestArticles.slice(0, 4).map((item) => (
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all">
+                    <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden">
+                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
+                    </div>
+                    <div className="p-4">
+                      <span className="inline-block bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#dbeafe] dark:border-[#334155]">{item.category || "قانون"}</span>
+                      <h4 className="mt-2 font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
+                      <p className="mt-1 text-[11px] text-[#64748b] line-clamp-2">{item.summary}</p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                        <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
+                        <span>•</span>
+                        <span>ميزان الرقمية</span>
+                      </div>
+                    </div>
+                  </Link>
                 ))}
               </div>
             </div>
-            <span className="hidden md:block text-[10px] bg-white/20 px-2 py-1 rounded shrink-0">مباشر</span>
           </div>
-        </div>
+        </section>
 
-        <div className="container mx-auto max-w-[1280px] px-4 py-6">
-          {feedLoading ? (
-            <div className="grid grid-cols-12 gap-6">
-              <div className="col-span-12 h-96 animate-pulse bg-white border border-border rounded" />
+        {/* Stats - EduFlex */}
+        <section className="py-12 bg-[#2563eb] dark:bg-[#1e40af] text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+          <div className="container mx-auto max-w-[1280px] px-6 relative">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+              {[
+                { value: 500, label: "طالب مستفيد", prefix: "+" },
+                { value: counts.lexicon, label: "مصطلح قانوني", prefix: "+" },
+                { value: articlesCount, label: "مقال قانوني", prefix: "+" },
+                { value: schoolsCount, label: "كلية جامعية", prefix: "+" },
+                { value: 100, label: "مجاني", suffix: "%" },
+              ].map((stat, i) => (
+                <div key={i}>
+                  <div className="text-[28px] font-black"><CountUp to={stat.value} prefix={stat.prefix} suffix={stat.suffix} /></div>
+                  <div className="text-[11px] opacity-80 font-bold mt-1">{stat.label}</div>
+                </div>
+              ))}
             </div>
-          ) : (
-            <>
-              {/* Main Grid: Editor's Picks | Main News | Trending Now */}
-              <div className="grid grid-cols-12 gap-6">
-                {/* Editor's Picks - Left */}
-                <div className="col-span-12 lg:col-span-3">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-red-600" />
-                    <h2 className="font-black text-[13px] tracking-wide uppercase">Editor's Picks</h2>
-                  </div>
-                  <div className="space-y-4">
-                    {editorsPicks.map((item) => (
-                      <Link key={item.id} to={`/articles/${item.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                        <div className="aspect-[16/10] bg-[#eee] overflow-hidden">
-                          {item.image ? (
-                            <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" />
-                          ) : (
-                            <div className="w-full h-full grid place-items-center text-[10px] text-muted-foreground">صورة</div>
-                          )}
-                        </div>
-                        <div className="p-3">
-                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mb-1.5">
-                            <span className="bg-black text-white px-1.5 py-0.5 rounded text-[9px] font-bold">{item.category || "قانون"}</span>
-                            <span className="flex items-center gap-1"><Clock className="size-3" /> 2 min read</span>
-                          </div>
-                          <h3 className="font-bold text-[13px] leading-snug line-clamp-2 group-hover:text-red-600 transition-colors">{item.title}</h3>
-                          <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">{item.summary}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Main News - Center */}
-                <div className="col-span-12 lg:col-span-6">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-black" />
-                    <h2 className="font-black text-[13px] tracking-wide uppercase">Main News</h2>
-                    <span className="ms-auto text-[10px] bg-red-600 text-white px-2 py-0.5 rounded font-bold">حصري</span>
-                  </div>
-                  {mainArticle && (
-                    <Link to={`/articles/${mainArticle.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="relative aspect-[16/10] bg-black overflow-hidden">
-                        {mainArticle.image ? (
-                          <img src={mainArticle.image} alt={mainArticle.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-violet-500/20 grid place-items-center">
-                            <span className="text-white font-black text-[24px]">ميزان</span>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                        <div className="absolute bottom-0 p-5 text-white">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-red-600 px-2 py-0.5 rounded text-[10px] font-black">عاجل</span>
-                            <span className="text-[11px] opacity-80">{mainArticle.category || "تحليل قانوني"}</span>
-                          </div>
-                          <h2 className="text-[20px] md:text-[24px] font-black leading-tight line-clamp-2">{mainArticle.title}</h2>
-                          <p className="mt-2 text-[12px] opacity-80 line-clamp-2 hidden md:block">{mainArticle.summary}</p>
-                          <div className="mt-3 flex items-center gap-2 text-[10px] opacity-60">
-                            <span>ميزان الرقمية</span>
-                            <span>•</span>
-                            <span>{mainArticle.date ? new Date(mainArticle.date).toLocaleDateString("ar-MA") : "اليوم"}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1"><Play className="size-3" /> 3 min</span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-
-                  {/* Secondary row under main - 2 cols like Bryelef Hoy */}
-                  <div className="mt-6">
-                    <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                      <span className="size-1 h-4 bg-black" />
-                      <h2 className="font-black text-[13px] tracking-wide uppercase">Bryelef Hoy</h2>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      {[latestArticles[4], latestArticles[5]].filter(Boolean).map((item) => (
-                        <Link key={item!.id} to={`/articles/${item!.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                          <div className="aspect-[16/10] bg-[#eee] overflow-hidden">
-                            {item!.image ? <img src={item!.image} alt={item!.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full grid place-items-center text-[10px]">صورة</div>}
-                          </div>
-                          <div className="p-3">
-                            <span className="inline-block bg-[#0a7a3b] text-white text-[9px] font-bold px-1.5 py-0.5 rounded mb-1.5">NATIONAL • TECH</span>
-                            <h3 className="font-bold text-[12px] leading-snug line-clamp-2">{item!.title}</h3>
-                            <div className="mt-2 text-[10px] text-muted-foreground flex items-center gap-2">
-                              <span>AF themes</span>
-                              <span>•</span>
-                              <span>1 year ago</span>
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Trending Now - Right */}
-                <div className="col-span-12 lg:col-span-3">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-red-600" />
-                    <h2 className="font-black text-[13px] tracking-wide uppercase">Trending Now</h2>
-                  </div>
-                  <div className="bg-white border border-border rounded divide-y divide-black/5">
-                    {trending.map((item, idx) => (
-                      <Link key={item.id} to={item.id.length > 15 || item.slug.startsWith("news") ? `/news/${item.slug}` : `/articles/${item.slug}`} className="group flex gap-3 p-3 hover:bg-white transition-colors">
-                        <span className="shrink-0 size-6 grid place-items-center rounded-full bg-black text-white text-[11px] font-black">
-                          {idx + 3}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-[12px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h4>
-                          <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
-                            <span className="truncate">{item.category || "قانون"}</span>
-                            <span>•</span>
-                            <span>{item.date ? new Date(item.date).toLocaleDateString("ar-MA", { month: "short", day: "numeric" }) : "اليوم"}</span>
-                          </div>
-                        </div>
-                        <div className="shrink-0 size-12 rounded bg-[#eee] overflow-hidden">
-                          {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center text-[8px]">IMG</div>}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-
-                  <div className="mt-6 bg-black text-white rounded p-4">
-                    <h3 className="font-black text-[12px] mb-2">النشرة البريدية</h3>
-                    <p className="text-[11px] opacity-70 leading-relaxed mb-3">احصل على أهم الأخبار القانونية يومياً في بريدك</p>
-                    <div className="flex gap-1">
-                      <input placeholder="بريدك الإلكتروني" className="flex-1 h-8 rounded bg-white/10 border border-white/10 px-2 text-[11px] outline-none placeholder:text-white/40" />
-                      <button className="h-8 px-3 rounded bg-red-600 text-[11px] font-bold hover:bg-[#b91c1c]">اشتراك</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Featured Posts - 4 cols like Kreeti */}
-              <div className="mt-10">
-                <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                  <span className="size-1 h-4 bg-black" />
-                  <h2 className="font-black text-[13px] tracking-wide uppercase">Featured Posts</h2>
-                  <span className="ms-auto text-[10px] text-muted-foreground hidden sm:block">أحدث المقالات المميزة</span>
-                </div>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  {featuredPosts.map((item) => (
-                    <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="aspect-[16/10] bg-[#eee] overflow-hidden relative">
-                        {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center text-[10px]">صورة</div>}
-                        <span className="absolute bottom-2 left-2 bg-black/80 text-white text-[9px] px-1.5 py-0.5 rounded flex items-center gap-1">
-                          <Clock className="size-3" /> 2 min read
-                        </span>
-                      </div>
-                      <div className="p-3">
-                        <div className="flex items-center gap-1 text-[9px] font-bold mb-1.5">
-                          <span className="text-red-600">{item.category || "NEWSBEAT"}</span>
-                          <span className="text-black/20">•</span>
-                          <span className="text-muted-foreground">TECH</span>
-                        </div>
-                        <h3 className="font-bold text-[12px] leading-snug line-clamp-2 group-hover:text-red-600 transition-colors">{item.title}</h3>
-                        <div className="mt-2 text-[10px] text-muted-foreground">AF themes • 1 year ago • 72</div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-              {/* Express Posts 1 & 2 - like Kreeti */}
-              <div className="mt-10 grid grid-cols-12 gap-6">
-                <div className="col-span-12 lg:col-span-8">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-red-600" />
-                    <h2 className="font-black text-[13px] tracking-wide uppercase">Express Posts 1</h2>
-                  </div>
-                  <div className="grid grid-cols-12 gap-4">
-                    <div className="col-span-12 md:col-span-7">
-                      {expressLeft && (
-                        <Link to={`/news/${expressLeft.slug}`} className="group block bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                          <div className="aspect-[16/10] bg-black overflow-hidden">
-                            {expressLeft.image ? <img src={expressLeft.image} alt={expressLeft.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full grid place-items-center text-white">صورة</div>}
-                          </div>
-                          <div className="p-4">
-                            <span className="bg-black text-white text-[9px] px-1.5 py-0.5 rounded font-bold">2 min read</span>
-                            <h3 className="mt-2 font-black text-[16px] leading-tight">{expressLeft.title}</h3>
-                            <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{expressLeft.summary}</p>
-                            <div className="mt-3 text-[10px] text-muted-foreground">AF themes • 1 year ago • 72</div>
-                          </div>
-                        </Link>
-                      )}
-                    </div>
-                    <div className="col-span-12 md:col-span-5 space-y-4">
-                      {expressRight.slice(0, 2).map((item) => (
-                        <Link key={item.id} to={`/news/${item.slug}`} className="group flex gap-3 bg-white border border-border rounded p-3 hover:border-[#1e293b]/15 transition-colors">
-                          <div className="shrink-0 size-20 rounded bg-[#eee] overflow-hidden">
-                            {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center text-[9px]">IMG</div>}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <span className="text-[9px] font-bold text-[#0a7a3b]">BUSINESS</span>
-                            <h4 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h4>
-                            <div className="mt-1 text-[9px] text-muted-foreground">AF themes • 1 year ago • 15</div>
-                          </div>
-                        </Link>
-                      ))}
-                      <div className="grid grid-cols-2 gap-3">
-                        {expressRight.slice(2, 4).map((item) => (
-                          <Link key={item.id} to={`/news/${item.slug}`} className="group bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                            <div className="aspect-[4/3] bg-[#eee] overflow-hidden">
-                              {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : null}
-                            </div>
-                            <div className="p-2">
-                              <h4 className="text-[10px] font-bold leading-snug line-clamp-2">{item.title}</h4>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-span-12 lg:col-span-4">
-                  <div className="flex items-center gap-2 mb-4 border-b-2 border-[#1e293b] pb-2">
-                    <span className="size-1 h-4 bg-black" />
-                    <h2 className="font-black text-[13px] tracking-wide uppercase">Express Posts 2</h2>
-                  </div>
-                  <div className="space-y-3">
-                    {[...latestNews.slice(5, 8), ...latestArticles.slice(6, 8)].map((item) => (
-                      <Link key={item.id} to={item.id.length > 10 ? `/news/${item.slug}` : `/articles/${item.slug}`} className="group flex gap-3 bg-white border border-border rounded p-3 hover:border-[#1e293b]/15 transition-colors">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1 text-[8px] font-bold mb-1">
-                            <span className="text-red-600">RESEARCH</span>
-                            <span className="text-black/20">•</span>
-                            <span className="text-muted-foreground">TRENDING</span>
-                          </div>
-                          <h4 className="text-[11px] font-bold leading-snug line-clamp-2 group-hover:text-red-600">{item.title}</h4>
-                        </div>
-                        <div className="shrink-0 size-14 rounded bg-[#eee] overflow-hidden">
-                          {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center text-[8px]">IMG</div>}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom - Your Rexau style */}
-              <div className="mt-10 grid grid-cols-12 gap-6 border-t-2 border-[#1e293b] pt-6">
-                <div className="col-span-12 lg:col-span-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="size-1 h-4 bg-black" />
-                    <h2 className="font-black text-[13px] tracking-wide uppercase">Your Rexau</h2>
-                  </div>
-                  {bottomLeft && (
-                    <Link to={`/articles/${bottomLeft.slug}`} className="group grid grid-cols-12 gap-4 bg-white border border-border rounded overflow-hidden hover:border-[#1e293b]/15 transition-colors">
-                      <div className="col-span-5 aspect-[4/3] bg-black overflow-hidden">
-                        {bottomLeft.image ? <img src={bottomLeft.image} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" /> : <div className="w-full h-full bg-gradient-to-br from-primary to-violet-600" />}
-                      </div>
-                      <div className="col-span-7 p-4">
-                        <h3 className="font-black text-[16px] leading-tight">{bottomLeft.title}</h3>
-                        <p className="mt-2 text-[11px] text-muted-foreground leading-relaxed line-clamp-3">{bottomLeft.summary}</p>
-                        <div className="mt-3 flex items-center gap-2 text-[10px] text-muted-foreground">
-                          <span>ميزان الرقمية</span>
-                          <span>•</span>
-                          <span>قراءة 3 دقائق</span>
-                        </div>
-                      </div>
-                    </Link>
-                  )}
-                </div>
-                <div className="col-span-12 lg:col-span-4">
-                  <div className="bg-white border border-border rounded p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-black text-[12px]">Naxet o J Bna</h3>
-                      <span className="size-5 grid place-items-center rounded bg-[#0a7a3b] text-white text-[10px]">3</span>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        { label: "مصطلحات قانونية", value: counts.lexicon },
-                        { label: "مقالات تحليلية", value: articlesCount },
-                        { label: "كليات حقوق", value: schoolsCount },
-                      ].map((stat) => (
-                        <div key={stat.label} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-                          <span className="text-[11px]">{stat.label}</span>
-                          <span className="text-[11px] font-black"><CountUp to={stat.value} /></span>
-                        </div>
-                      ))}
-                    </div>
-                    <Link to="/lexicon" className="mt-3 flex items-center justify-between text-[11px] font-bold text-red-600 hover:underline">
-                      تصفح القاموس
-                      <ArrowLeft className="size-3" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stats bar - like Kreeti footer */}
-              <div className="mt-10 bg-black text-white rounded p-4">
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-                  {[
-                    { value: 500, label: "طالب مستفيد", prefix: "+" },
-                    { value: counts.lexicon, label: "مصطلح قانوني", prefix: "+" },
-                    { value: articlesCount, label: "مقال قانوني", prefix: "+" },
-                    { value: schoolsCount, label: "كلية جامعية", prefix: "+" },
-                    { value: 100, label: "مجاني", suffix: "%" },
-                  ].map((stat, i) => (
-                    <div key={i}>
-                      <div className="text-[20px] font-black"><CountUp to={stat.value} prefix={stat.prefix} suffix={stat.suffix} /></div>
-                      <div className="text-[10px] opacity-60">{stat.label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+          </div>
+        </section>
 
         <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={articlesCount} schoolsCount={schoolsCount} />
       </main>

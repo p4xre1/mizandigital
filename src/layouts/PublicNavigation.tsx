@@ -21,11 +21,11 @@ function PinterestIcon({ size = 18 }: { size?: number }) {
 
 export function Brand({ onClick }: { onClick?: () => void } = {}) {
   return (
-    <Link to="/" onClick={onClick} title="ميزان الرقمية — المعرفة القانونية للطلبة" className="flex shrink-0 items-center gap-3">
-      <span className="grid size-9 place-items-center rounded-xl bg-foreground text-background font-black text-[16px]">م</span>
+    <Link to="/" onClick={onClick} className="flex shrink-0 items-center gap-2.5">
+      <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black text-[16px] shadow-sm">م</span>
       <span>
-        <span className="block text-[15px] font-black tracking-tight leading-none">ميزان الرقمية</span>
-        <span className="block text-[10px] font-medium text-muted-foreground tracking-wide">المعرفة القانونية للطلبة</span>
+        <span className="block text-[15px] font-black tracking-tight leading-none text-[#0f172a]">ميزان الرقمية</span>
+        <span className="block text-[10px] font-bold text-[#2563eb] tracking-wide">EduFlex • منصة تعليمية</span>
       </span>
     </Link>
   )
@@ -44,154 +44,81 @@ export function Header({
   onToggleMenu: () => void
   onCloseMenu?: () => void
 }) {
-  const today = new Date().toLocaleDateString("ar-MA", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
-
   const handleNavClick = () => {
     if (menuOpen && onCloseMenu) onCloseMenu()
     else if (menuOpen) onToggleMenu()
   }
 
   return (
-    <header className="sticky top-0 z-30 w-full">
-      {/* Top Bar - white in light, black in dark - crisp */}
-      <div className="bg-white dark:bg-black text-foreground dark:text-white text-[11px] h-8 border-b border-border">
-        <div className="container mx-auto max-w-[1280px] px-4 h-full flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="hidden sm:block opacity-70">{today}</span>
-            <span className="flex items-center gap-2">
-              <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-              <span>مباشر الآن</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onToggleTheme}
-              aria-label={theme === "dark" ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"}
-              className="flex items-center gap-1.5 rounded-full bg-foreground dark:bg-white text-background dark:text-black px-3 py-1 text-[11px] font-bold hover:opacity-90 transition-opacity"
-            >
-              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-              <span className="hidden sm:inline">{theme === "dark" ? "فاتح" : "داكن"}</span>
+    <header className="sticky top-0 z-30 w-full bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-xl border-b border-[#e2e8f0] dark:border-[#1e293b]">
+      <div className="container mx-auto max-w-[1280px] px-4 h-[64px] flex items-center justify-between gap-4">
+        <Brand onClick={handleNavClick} />
+
+        <nav className={`${menuOpen ? "flex" : "hidden"} lg:flex absolute lg:static inset-x-0 top-[64px] lg:top-auto z-20 bg-white dark:bg-[#0f172a] lg:bg-transparent flex-col lg:flex-row gap-1 lg:gap-1 p-4 lg:p-0 rounded-b-2xl lg:rounded-none border border-[#e2e8f0] dark:border-[#1e293b] lg:border-0 shadow-xl lg:shadow-none max-h-[80vh] overflow-y-auto`}>
+          <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            الرئيسية
+          </NavLink>
+          <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            المقالات
+          </NavLink>
+          <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            الأخبار
+          </NavLink>
+          <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            القاموس
+          </NavLink>
+          <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            الكليات
+          </NavLink>
+          <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            الأرشيف
+          </NavLink>
+          <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b]"}`}>
+            الاختبارات
+          </NavLink>
+
+          <div className="lg:hidden mt-3 pt-3 border-t border-[#e2e8f0] flex flex-col gap-2">
+            <button onClick={onToggleTheme} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-[#f1f5f9] dark:bg-[#1e293b] text-[13px] font-bold">
+              <span>وضع القراءة</span>
+              <span className="flex items-center gap-1.5">{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />} {theme === "dark" ? "فاتح" : "داكن"}</span>
             </button>
+            <Link to="/search" onClick={handleNavClick} className="px-4 py-2.5 rounded-xl border border-[#e2e8f0] text-[13px] font-bold">بحث</Link>
+          </div>
+        </nav>
 
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
+            <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
+              <Search className="size-4" />
+            </div>
+            <input placeholder="ابحث..." className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
+          </div>
+
+          <button onClick={onToggleTheme} className="hidden lg:grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle theme">
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {isClerkEnabled && (
             <div className="hidden md:flex items-center gap-2">
-              {isClerkEnabled && (
-                <>
-                  <SignedOut>
-                    <SignInButton mode="modal">
-                      <button className="rounded-full border border-border px-3 py-1 text-[11px] font-bold hover:bg-muted transition-colors">دخول</button>
-                    </SignInButton>
-                  </SignedOut>
-                  <SignedIn>
-                    <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-6" } }} />
-                  </SignedIn>
-                </>
-              )}
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="rounded-full border border-[#e2e8f0] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] transition-colors">دخول</button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-8" } }} />
+              </SignedIn>
             </div>
+          )}
 
-            <button onClick={onToggleMenu} className="md:hidden grid size-7 place-items-center rounded-full border border-border">
-              {menuOpen ? <X size={14} /> : <Menu size={14} />}
-            </button>
-          </div>
-        </div>
-      </div>
+          <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
+            Get Started
+            <span className="size-5 grid place-items-center rounded-full bg-white/20">→</span>
+          </Link>
 
-      {/* Masthead - pure white */}
-      <div className="bg-white dark:bg-black border-b border-border">
-        <div className="container mx-auto max-w-[1280px] px-4 py-5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="hidden lg:flex items-center gap-3 text-[11px]">
-              <div className="text-right leading-tight">
-                <div className="font-bold">النشرة اليومية</div>
-                <div className="text-muted-foreground text-[10px]">الإصدار الرقمي • مجاني</div>
-              </div>
-              <Link to="/search" className="grid size-9 place-items-center rounded-full border border-border hover:bg-muted transition-colors">
-                <Search className="size-4" />
-              </Link>
-            </div>
-
-            <Link to="/" className="text-center flex-1 group">
-              <div className="font-black tracking-[-0.02em] leading-none">
-                <span className="block text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">Mizan Digital • Since 2024</span>
-                <span className="block text-[32px] md:text-[40px] mt-1" style={{ fontFamily: "Georgia, serif" }}>ميزان الرقمية</span>
-                <span className="block text-[11px] font-normal tracking-wide text-muted-foreground mt-1">المرجع القانوني الأول للطلبة والباحثين بالمغرب</span>
-              </div>
-            </Link>
-
-            <div className="hidden md:flex items-center gap-2">
-              <div className="size-10 grid place-items-center rounded-full bg-foreground text-background font-black text-[14px]">م</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Nav - white in light, black in dark - crisp */}
-      <div className="bg-white dark:bg-black text-foreground dark:text-white border-b border-border shadow-sm">
-        <div className="container mx-auto max-w-[1280px] px-4 h-11 flex items-center justify-between gap-2">
-          <nav className={`${menuOpen ? "flex" : "hidden"} md:flex absolute md:static inset-x-0 top-[96px] md:top-auto z-20 bg-white dark:bg-black md:bg-transparent flex-col md:flex-row gap-1 md:gap-1 p-3 md:p-0 rounded-b-2xl md:rounded-none border border-border md:border-0 shadow-xl md:shadow-none max-h-[80vh] overflow-y-auto`}>
-            <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              الرئيسية
-            </NavLink>
-            <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              المقالات
-            </NavLink>
-            <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              الأخبار
-            </NavLink>
-            <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              القاموس
-            </NavLink>
-            <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              الكليات
-            </NavLink>
-            <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              الأرشيف
-            </NavLink>
-            <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `px-3.5 py-1.5 rounded-full text-[12px] font-bold whitespace-nowrap transition-colors ${isActive ? "bg-foreground text-background" : "hover:bg-muted"}`}>
-              الاختبارات
-            </NavLink>
-            
-            <div className="md:hidden mt-3 pt-3 border-t border-border flex flex-col gap-2">
-              <button onClick={onToggleTheme} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-foreground text-background text-[12px] font-bold">
-                <span>وضع القراءة</span>
-                <span className="flex items-center gap-1">{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />} {theme === "dark" ? "فاتح" : "داكن"}</span>
-              </button>
-              <Link to="/search" onClick={handleNavClick} className="px-3 py-2.5 rounded-xl border border-border text-[12px] font-bold">بحث</Link>
-            </div>
-          </nav>
-
-          <div className="flex items-center gap-2 shrink-0 ms-auto md:ms-0">
-            <div className="hidden md:flex items-center gap-2 bg-muted rounded-full pl-1 pr-3 h-8 border border-border">
-              <div className="size-6 grid place-items-center rounded-full bg-foreground text-background">
-                <Search className="size-3.5" />
-              </div>
-              <input placeholder="ابحث..." className="bg-transparent outline-none text-[11px] w-28 placeholder:text-muted-foreground" />
-            </div>
-            <Link to="/news" className="bg-red-600 hover:bg-red-700 text-white px-3.5 py-1.5 rounded-full text-[11px] font-black flex items-center gap-1.5 transition-colors">
-              <span className="size-2 rounded-full bg-white animate-pulse" />
-              مباشر
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Popular Tags - white */}
-      <div className="bg-white dark:bg-black border-b border-border">
-        <div className="container mx-auto max-w-[1280px] px-4 h-10 flex items-center gap-3 text-[11px] overflow-x-auto scrollbar-none">
-          <span className="font-black flex items-center gap-1.5 shrink-0">
-            <span className="size-1.5 rounded-full bg-foreground" />
-            Popular Tags
-          </span>
-          <div className="flex items-center gap-2">
-            {["# مدونة الأسرة", "# المسطرة المدنية", "# القانون الجنائي", "# مباراة المنتدبين", "# الجريدة الرسمية"].map((tag) => (
-              <Link key={tag} to={`/search?q=${tag.replace("# ", "")}`} className="px-3 py-1 rounded-full bg-muted border border-border hover:bg-foreground hover:text-background transition-colors whitespace-nowrap font-medium">
-                {tag}
-              </Link>
-            ))}
-          </div>
-          <span className="ms-auto hidden lg:flex items-center gap-2 text-[10px] text-muted-foreground shrink-0">
-            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            {theme === "dark" ? "وضع ليلي" : "وضع نهاري"} • قراءة مريحة
-          </span>
+          <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full border border-[#e2e8f0] bg-white">
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </div>
     </header>
@@ -200,66 +127,69 @@ export function Header({
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-border bg-card/60 dark:bg-[#111]">
-      <div className="container-wide grid gap-8 py-10 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+    <footer className="mt-20 bg-[#0f172a] text-white">
+      <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
         <div>
-          <Brand />
-          <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
-            منصة عربية مستقلة تجمع الأرشيف الدراسي والمقالات والأخبار والندوات ودليل كليات الحقوق بالمغرب للطالب القانوني. وضع قراءة ليلي مريح للعين.
+          <div className="flex items-center gap-2.5">
+            <span className="grid size-9 place-items-center rounded-xl bg-[#2563eb] text-white font-black">م</span>
+            <span>
+              <span className="block text-[15px] font-black">ميزان الرقمية</span>
+              <span className="block text-[11px] text-[#60a5fa] font-bold">EduFlex • منصة تعليمية</span>
+            </span>
+          </div>
+          <p className="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
+            منصة تعليمية عصرية بتصميم نظيف مستوحى من EduFlex — تعلم القانون بطريقة مرنة وجذابة، مع موارد مجانية للطلبة بالمغرب.
           </p>
-          <a href="mailto:contact@mizan.page" dir="ltr" className="mt-4 inline-block text-sm font-semibold text-muted-foreground hover:text-primary transition text-right">
-            contact@mizan.page
-          </a>
           <div className="mt-4 flex items-center gap-2">
-            <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full border border-border hover:border-foreground/20 transition-colors" aria-label="إنستغرام">
+            <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
               <Instagram size={16} />
             </a>
-            <a href="https://www.facebook.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full border border-border hover:border-foreground/20 transition-colors" aria-label="فيسبوك">
+            <a href="https://www.facebook.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
               <Facebook size={16} />
             </a>
-            <a href="https://www.tiktok.com/@mizan_page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full border border-border hover:border-foreground/20 transition-colors" aria-label="تيك توك">
+            <a href="https://www.tiktok.com/@mizan_page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
               <TikTokIcon size={16} />
             </a>
-            <a href="https://www.pinterest.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full border border-border hover:border-foreground/20 transition-colors" aria-label="بينتيريست">
+            <a href="https://www.pinterest.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
               <PinterestIcon size={16} />
             </a>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-sm font-extrabold">استكشف</p>
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/archive" className="hover:text-foreground">المكتبة والملخصات</Link>
-            <Link to="/news" className="hover:text-foreground">الأخبار</Link>
-            <Link to="/articles" className="hover:text-foreground">المقالات والدراسات</Link>
-            <Link to="/events" className="hover:text-foreground">الندوات واللقاءات</Link>
-            <Link to="/quiz" className="hover:text-foreground">الاختبارات القانونية</Link>
+          <p className="mb-3 text-[13px] font-black">استكشف</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/archive" className="hover:text-white transition-colors">المكتبة والملخصات</Link>
+            <Link to="/news" className="hover:text-white transition-colors">الأخبار</Link>
+            <Link to="/articles" className="hover:text-white transition-colors">المقالات والدراسات</Link>
+            <Link to="/quiz" className="hover:text-white transition-colors">الاختبارات القانونية</Link>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-sm font-extrabold">مراجع سريعة</p>
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/lexicon" className="hover:text-foreground">القاموس القانوني</Link>
-            <Link to="/schools" className="hover:text-foreground">دليل كليات الحقوق</Link>
-            <Link to="/profile" className="hover:text-foreground">ملفي ورتبتي</Link>
-            <Link to="/faq" className="hover:text-foreground">الأسئلة الشائعة</Link>
-            <Link to="/about" className="hover:text-foreground">من نحن</Link>
+          <p className="mb-3 text-[13px] font-black">مراجع سريعة</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/lexicon" className="hover:text-white transition-colors">القاموس القانوني</Link>
+            <Link to="/schools" className="hover:text-white transition-colors">دليل كليات الحقوق</Link>
+            <Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link>
+            <Link to="/about" className="hover:text-white transition-colors">من نحن</Link>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-sm font-extrabold">قانوني</p>
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/terms" className="hover:text-foreground">الشروط والأحكام</Link>
-            <Link to="/privacy" className="hover:text-foreground">سياسة الخصوصية</Link>
-            <Link to="/cookies" className="hover:text-foreground">سياسة الكوكيز</Link>
+          <p className="mb-3 text-[13px] font-black">قانوني</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
+            <Link to="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
+            <Link to="/cookies" className="hover:text-white transition-colors">سياسة الكوكيز</Link>
           </div>
         </div>
       </div>
-      <div className="container-wide border-t border-border py-5 text-xs text-muted-foreground flex flex-col sm:flex-row justify-between gap-2">
-        <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة.</span>
-        <span className="flex items-center gap-2">
-          <span className="size-1.5 rounded-full bg-emerald-500" />
-          وضع قراءة مريح للعين • نهاري وليلي
-        </span>
+      <div className="border-t border-white/10">
+        <div className="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#64748b]">
+          <span>© {new Date().getFullYear()} ميزان الرقمية — EduFlex Inspired • Clean & Modern UI Design</span>
+          <span className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+            Free Font Used • Organized Layers
+          </span>
+        </div>
       </div>
     </footer>
   )
