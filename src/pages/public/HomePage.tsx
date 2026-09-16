@@ -1,21 +1,16 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
-import {
-  generateOrganizationSchema,
-  generateWebSiteSchema,
-  generateLegalServiceSchema,
-} from "../../lib/seo/schema"
+import { AEOHead } from "../../components/seo/AEOHead"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
-import SiteSearchBar from "../../components/search/SiteSearchBar"
 import { generateSlug } from "../../lib/utils/generateSlug"
-import { CountUp } from "../../components/ui/CountUp"
-import { HomeFaqSection } from "../../components/home/HomeFaqSection"
 import {
-  BookOpen, Scale, GraduationCap, Newspaper, Calendar, Search, ArrowLeft,
-  ShieldCheck, FileText, Sparkles, Users, Video, Loader2, Download,
+  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
+  Calendar, MapPin, Languages, GitBranch, Building2
 } from "lucide-react"
+
+const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
+const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
 interface FeedCard {
   id: string
@@ -24,135 +19,612 @@ interface FeedCard {
   summary?: string | null
   category?: string | null
   date?: string | null
+  image?: string | null
+}
+
+interface EventCard {
+  id: string
+  slug: string
+  title: string
+  excerpt?: string
+  city?: string | null
+  date?: string | null
+  image?: string | null
+  organizer?: string | null
+}
+
+interface LexiconCard {
+  id: string
+  term_ar: string
+  term_fr?: string
+  definition: string
+  category: string
+  legal_sources?: any[]
 }
 
 export function HomePage() {
   const [latestArticles, setLatestArticles] = useState<FeedCard[]>([])
-  const [latestNews, setLatestNews] = useState<FeedCard[]>([])
-  const [latestEvents, setLatestEvents] = useState<FeedCard[]>([])
-  const [latestDocs, setLatestDocs] = useState<FeedCard[]>([])
-  const [latestTerms, setLatestTerms] = useState<FeedCard[]>([])
-  const [feedLoading, setFeedLoading] = useState<boolean>(true)
-  // نبدأ بعدد البيانات المحلية (دقيق بما يكفي) كي لا يظهر رقم فارغ قبل
-  // اكتمال الطلب الحي، ثم نحدّثه بالعدد الحقيقي من Supabase إن توفر
-  const [schoolsCount, setSchoolsCount] = useState<number>(counts.schools)
-  const [articlesCount, setArticlesCount] = useState<number>(counts.articles)
+  const [latestEvents, setLatestEvents] = useState<EventCard[]>([])
+  const [latestTerms, setLatestTerms] = useState<LexiconCard[]>([])
+  const [schoolsCount] = useState<number>(counts.schools)
+  const [articlesCount] = useState<number>(counts.articles)
 
   useEffect(() => {
-    const fetchHomeFeed = async () => {
+    const loadLocal = async () => {
       try {
-        // استيراد ديناميكي لـ Supabase (~50 KiB): البطل الرئيسي مبني بلا
-        // انتظار هاد البيانات (شوف الـ hero فـ JSX تحت)، فلا داعي أن تكون
-        // مكتبة Supabase ضمن الحزمة الحرجة لأول عرض — تُجلب هنا بالموازاة
-        // بعد أول render، وما كتأخّرش ظهور H1
-        const { supabase } = await import("../../lib/supabase/client")
-        const [articlesRes, newsRes, seminarsRes, docsRes, termsRes] = await Promise.all([
-          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(15),
-          // Production `news` has no `category` column. Requesting it caused PostgREST HTTP 400.
-          supabase.from("news").select("id, title, slug, summary, published_at, created_at").eq("is_published", true).order("published_at", { ascending: false }).limit(15),
-          supabase.from("seminars").select("id, title, agenda, event_date, status").eq("status", "published").order("event_date", { ascending: false }).limit(6),
-          supabase.from("pdf_summaries").select("id, title, slug, description, semester, created_at").order("created_at", { ascending: false }).limit(6),
-          supabase.from("lexicon_terms").select("id, term_ar, term_fr, definition, category, created_at").order("created_at", { ascending: false }).limit(6),
-        ])
-
-        // P1-3/P1-4: هاد الملفات المحلية (articles/news/events) كبيرة نسبياً
-        // وتُستخدم هنا فقط كاحتياط للدمج مع نتائج Supabase — نجلبها ديناميكياً
-        // (import() غير متزامن) بدل استيرادها بشكل ثابت أعلى الملف، حتى لا
-        // تُحمَّل ضمن الحزمة الأساسية لكل زائر للصفحة الرئيسية
-        const [{ default: articlesData }, { default: newsData }, { default: eventsData }] = await Promise.all([
+        const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
           import("../../data/articles.json"),
-          import("../../data/news.json"),
           import("../../data/events.json"),
+          import("../../data/lexicon.json"),
         ])
+        const localArticles: FeedCard[] = (articlesData as any[])
+          .map((item) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.title,
+            summary: item.excerpt,
+            category: item.category,
+            date: item.publishedAt,
+            image: item.coverImage || item.image,
+          }))
+          .filter((a) => !!a.image && a.image.trim() !== "")
+        setLatestArticles(diversifyByCategory(localArticles, 8))
 
-        const remoteArticles: FeedCard[] = (articlesRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug, title: item.title, summary: item.excerpt, category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name, date: item.published_at || item.created_at }))
-        const localArticles: FeedCard[] = (articlesData as any[]).map((item) => ({ id: item.id, slug: item.slug, title: item.title, summary: item.excerpt, category: item.category, date: item.publishedAt }))
-        const combinedArticles = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
-        setLatestArticles(diversifyByCategory(combinedArticles, 4))
+        const localEvents: EventCard[] = (eventsData as any[])
+          .map((e) => ({
+            id: e.id,
+            slug: e.slug || e.id,
+            title: e.title,
+            excerpt: e.excerpt,
+            city: e.city,
+            date: e.eventDate || e.date,
+            image: e.image,
+            organizer: e.organizer,
+          }))
+          .filter((e) => !!e.image && String(e.image).trim() !== "")
+        setLatestEvents(localEvents.slice(0, 4))
 
-        const remoteNews: FeedCard[] = (newsRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug || item.id, title: item.title, summary: item.summary, category: null, date: item.published_at || item.created_at }))
-        const localNews: FeedCard[] = (newsData as any[]).filter((item) => item.type === "news").map((item) => ({ id: item.id, slug: item.id, title: item.title, summary: item.summary, category: item.category, date: item.date }))
-        const combinedNews = Array.from(new Map([...remoteNews, ...localNews].map((n) => [n.slug, n])).values())
-        setLatestNews(diversifyByCategory(combinedNews, 4))
-
-        const remoteEvents: FeedCard[] = (seminarsRes.data || []).map((item: any) => ({ id: `seminar-${item.id}`, slug: `seminar-${item.id}`, title: item.title, summary: item.agenda, category: "ندوة قانونية", date: item.event_date }))
-        const localEvents: FeedCard[] = (eventsData as any[]).map((item: any) => ({ id: item.id, slug: item.id, title: item.title, summary: item.excerpt, category: item.category, date: item.eventDate }))
-        const combinedEvents = [...remoteEvents, ...localEvents].sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()).slice(0, 3)
-        setLatestEvents(combinedEvents)
-
-        const remoteDocs: FeedCard[] = (docsRes.data || []).map((item: any) => ({ id: item.id, slug: item.slug || `pdf-${item.id}`, title: item.title, summary: item.description, category: item.semester, date: item.created_at }))
-        setLatestDocs(remoteDocs.slice(0, 3))
-
-        const remoteTerms: FeedCard[] = (termsRes.data || []).map((item: any) => ({ id: item.id, slug: generateSlug(item.term_ar), title: item.term_ar, summary: item.term_fr, category: item.category, date: item.created_at }))
-        const fallbackTerms: FeedCard[] = remoteTerms.length > 0
-          ? []
-          : (await import("../../data/lexicon.json")).default.slice(0, 3).map((item: any) => ({ id: item.id, slug: generateSlug(item.term_ar), title: item.term_ar, summary: item.term_fr, category: item.category, date: null }))
-        setLatestTerms(remoteTerms.length > 0 ? remoteTerms.slice(0, 3) : fallbackTerms)
-      } catch (err) {
-        console.error("خطأ أثناء جلب أحدث المستجدات للصفحة الرئيسية:", err)
-      } finally {
-        setFeedLoading(false)
-      }
+        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 6).map((t) => ({
+          id: t.id,
+          term_ar: t.term_ar,
+          term_fr: t.term_fr,
+          definition: t.definition,
+          category: t.category,
+          legal_sources: t.legal_sources || [],
+        }))
+        setLatestTerms(localTerms)
+      } catch {}
     }
-    fetchHomeFeed()
+    loadLocal()
 
-    // عدد الكليات والمقالات الحقيقي من قاعدة البيانات (بلا جلب الصفوف كاملة،
-    // فقط العدد) لعرضه فـ إحصائيات الصفحة الرئيسية. نتجاهل الخطأ بصمت
-    // ونبقي على العدد المحلي كاحتياطي إن تعذّر الطلب
-    const fetchCounts = async () => {
+    const loadRemote = async () => {
       try {
         const { supabase } = await import("../../lib/supabase/client")
-        const [schoolsCountRes, articlesCountRes] = await Promise.all([
-          supabase.from("schools").select("id", { count: "exact", head: true }),
-          supabase.from("articles").select("id", { count: "exact", head: true }).eq("status", "published"),
+        const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
+          import("../../data/articles.json"),
+          import("../../data/events.json"),
+          import("../../data/lexicon.json"),
         ])
-        if (typeof schoolsCountRes.count === "number" && schoolsCountRes.count > 0) {
-          setSchoolsCount(schoolsCountRes.count)
-        }
-        if (typeof articlesCountRes.count === "number" && articlesCountRes.count > 0) {
-          setArticlesCount(articlesCountRes.count)
-        }
-      } catch (err) {
-        console.error("تعذّر جلب إحصائيات الصفحة الرئيسية:", err)
-      }
+
+        const [articlesRes, seminarsRes, termsRes] = await Promise.all([
+          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(30),
+          (supabase as any).from("seminars").select("*").eq("status", "published").order("event_date", { ascending: false }).limit(20),
+          supabase.from("lexicon_terms").select("id, term_ar, term_fr, definition, category").order("created_at", { ascending: false }).limit(20),
+        ])
+
+        const remoteArticles: FeedCard[] = (articlesRes.data || [])
+          .map((item: any) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.title,
+            summary: item.excerpt,
+            category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name,
+            date: item.published_at || item.created_at,
+            image: item.cover_image,
+          }))
+          .filter((a) => !!a.image && String(a.image).trim() !== "")
+
+        const localArticles: FeedCard[] = (articlesData as any[])
+          .map((item) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.title,
+            summary: item.excerpt,
+            category: item.category,
+            date: item.publishedAt,
+            image: item.coverImage || item.image,
+          }))
+          .filter((a) => !!a.image && String(a.image).trim() !== "")
+
+        const combinedArticles = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
+        setLatestArticles(diversifyByCategory(combinedArticles.filter((a) => !!a.image), 8))
+
+        // Events: merge local + remote seminars, only with picture
+        const remoteSeminars: EventCard[] = (seminarsRes.data || [])
+          .map((raw: any) => ({
+            id: `seminar-${raw.id}`,
+            slug: `seminar-${raw.id}`,
+            title: raw.title,
+            excerpt: raw.agenda || "",
+            city: null,
+            date: raw.event_date,
+            image: raw.image_url,
+            organizer: raw.speaker_title || raw.speaker,
+          }))
+          .filter((e) => !!e.image)
+
+        const localEvents: EventCard[] = (eventsData as any[])
+          .map((e) => ({
+            id: e.id,
+            slug: e.slug || e.id,
+            title: e.title,
+            excerpt: e.excerpt,
+            city: e.city,
+            date: e.eventDate,
+            image: e.image,
+            organizer: e.organizer,
+          }))
+          .filter((e) => !!e.image)
+
+        const combinedEvents = Array.from(new Map([...remoteSeminars, ...localEvents].map((e) => [e.id, e])).values())
+        setLatestEvents(combinedEvents.slice(0, 4))
+
+        // Lexicon terms
+        const remoteTerms: LexiconCard[] = (termsRes.data || []).map((t: any) => ({
+          id: t.id,
+          term_ar: t.term_ar,
+          term_fr: t.term_fr,
+          definition: t.definition,
+          category: t.category,
+          legal_sources: [],
+        }))
+
+        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 12).map((t) => ({
+          id: t.id,
+          term_ar: t.term_ar,
+          term_fr: t.term_fr,
+          definition: t.definition,
+          category: t.category,
+          legal_sources: t.legal_sources || [],
+        }))
+
+        const combinedTerms = Array.from(new Map([...remoteTerms, ...localTerms].map((t) => [t.id, t])).values())
+        setLatestTerms(combinedTerms.slice(0, 6))
+      } catch {}
     }
-    fetchCounts()
+
+    if ("requestIdleCallback" in window) {
+      // @ts-ignore
+      requestIdleCallback(loadRemote, { timeout: 3000 })
+    } else {
+      setTimeout(loadRemote, 1500)
+    }
   }, [])
 
   return (
     <>
-      <SEOHead
-        title="المعرفة القانونية للطلبة بالمغرب"
-        description="ميزان الرقمية منصة مغربية مجانية لطلبة القانون، تضم ملخصات دراسية، قاموساً قانونياً، أخباراً، ندوات ودليل كليات الحقوق."
-        keywords={["القانون المغربي", "منصة الميزان الرقمية", "الأرشيف القانوني المغربي", "مدونة الشغل المغربية", "المعجم القانوني المغربي", "كليات الحقوق بالمغرب", "ندوات قانونية", "شرح القانون المغربي", "دروس القانون للطلبة"]}
-        schema={[generateOrganizationSchema(), generateWebSiteSchema(), generateLegalServiceSchema()]}
+      <AEOHead
+        title="ملخصات S1-S6، قاموس قانوني 250 مصطلح ودليل 21 كلية حقوق بالمغرب"
+        description="ميزان الرقمية منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM."
+        directAnswer="ميزان الرقمية منصة مغربية مجانية 100% لطلبة كليات الحقوق بالمغرب، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات تحليلية، أخبار تشريعية محينة واختبارات QCM للتحضير للمباريات."
+        keywords={[
+          "ملخصات القانون S1 S2 S3 S4 S5 S6",
+          "قاموس قانوني عربي فرنسي",
+          "كليات الحقوق المغرب FSJES",
+          "اختبارات QCM قانون",
+          "الأخبار القانونية المغرب",
+          "المستجدات التشريعية المغربية",
+          "منصة ميزان الرقمية",
+          "دروس القانون المغربي مجانا",
+        ]}
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }]}
+        faq={[
+          { question: "ما هي منصة ميزان الرقمية؟", answer: "ميزان الرقمية منصة مغربية مجانية 100% لطلبة القانون، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM." },
+          { question: "هل المحتوى مجاني؟", answer: "نعم، كل الملخصات، القاموس، دليل الكليات، المقالات الأساسية والاختبارات الأساسية مجانية 100% وبدون تسجيل. ميزان برو اختياري لدعم المنصة." },
+          { question: "كم عدد كليات الحقوق في الدليل؟", answer: "دليلنا يضم 21 كلية حقوق وعلوم قانونية واقتصادية FSJES بالمغرب: الرباط، الدار البيضاء، مراكش، فاس، طنجة، أكادير، وجدة، مكناس وغيرها." },
+        ]}
       />
-      <main className="min-h-screen bg-background text-foreground" dir="rtl">
-        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-primary/5 via-background to-background py-16 md:py-24"><div className="container mx-auto max-w-6xl px-4"><div className="mx-auto max-w-3xl text-center"><h1 className="text-3xl font-black tracking-tight text-foreground sm:text-5xl md:text-6xl leading-tight">ميزان الرقمية — <span className="text-primary">المعرفة القانونية</span> للطلبة بالمغرب</h1><p className="mt-6 text-base text-muted-foreground sm:text-lg leading-relaxed max-w-2xl mx-auto">أفضل منصة مجانية لملخصات ومصطلحات القانون لطلبة كليات الحقوق، بأرشيف دراسي كامل، ومعجم قانوني شامل، ومتابعة حية للمستجدات التشريعية والندوات القانونية.</p><div className="mt-8 flex flex-wrap items-center justify-center gap-4"><Link to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-md transition hover:opacity-90 hover:shadow-lg"><BookOpen size={18}/><span>تصفح المعجم القانوني</span></Link><Link to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-bold text-foreground transition hover:bg-muted"><GraduationCap size={18}/><span>دليل كليات الحقوق</span></Link></div><div className="mt-10"><SiteSearchBar /></div></div></div></section>
-        <section className="py-16 bg-muted/30"><div className="container mx-auto max-w-6xl px-4"><div className="text-center mb-12"><h2 className="text-2xl font-black text-foreground sm:text-3xl">خدمات منصة الميزان الرقمية</h2><p className="mt-2 text-sm text-muted-foreground">كل ما يحتاجه طالب القانون والمهني في مكان واحد</p></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md"><div><div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4"><BookOpen size={24}/></div><h3 className="text-lg font-bold text-foreground">المعجم القانوني</h3><p className="mt-2 text-xs text-muted-foreground leading-relaxed">قاموس موحد للمصطلحات والمفاهيم القانونية باللغتين العربية والفرنسية مع الشرح والمراجع.</p></div><div className="mt-6 pt-4 border-t border-border flex items-center text-xs font-bold text-primary gap-1"><span>تصفح المصطلحات</span><ArrowLeft size={14}/></div></Link>
-          <Link to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md"><div><div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4"><GraduationCap size={24}/></div><h3 className="text-lg font-bold text-foreground">دليل الجامعات والكليات</h3><p className="mt-2 text-xs text-muted-foreground leading-relaxed">دليل كليات العلوم القانونية والاقتصادية والاجتماعية (FSJES) عبر مختلف مدن المملكة.</p></div><div className="mt-6 pt-4 border-t border-border flex items-center text-xs font-bold text-primary gap-1"><span>استكشف الكليات</span><ArrowLeft size={14}/></div></Link>
-          <Link to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md"><div><div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4"><Newspaper size={24}/></div><h3 className="text-lg font-bold text-foreground">الأخبار والمدونة</h3><p className="mt-2 text-xs text-muted-foreground leading-relaxed">مستجدات الجريدة الرسمية، التحليلات التشريعية، والدراسات الأكاديمية المعمقة.</p></div><div className="mt-6 pt-4 border-t border-border flex items-center text-xs font-bold text-primary gap-1"><span>قراءة المقالات</span><ArrowLeft size={14}/></div></Link>
-          <Link to="/events" title="الندوات واللقاءات القانونية القادمة" className="group flex flex-col justify-between rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:border-primary/50 hover:shadow-md"><div><div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center mb-4"><Calendar size={24}/></div><h3 className="text-lg font-bold text-foreground">الندوات والأيام الدراسية</h3><p className="mt-2 text-xs text-muted-foreground leading-relaxed">متابعة المؤتمرات والندوات العلمية والأنشطة الأكاديمية في مختلف كليات المغرب.</p></div><div className="mt-6 pt-4 border-t border-border flex items-center text-xs font-bold text-primary gap-1"><span>جدول الندوات</span><ArrowLeft size={14}/></div></Link>
-        </div></div></section>
-        <section className="py-16 border-t border-border"><div className="container mx-auto max-w-6xl px-4"><div className="mb-10 text-center"><div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3"><Sparkles size={14}/><span>محدَّث تلقائياً</span></div><h2 className="text-2xl font-black text-foreground sm:text-3xl">أحدث المستجدات</h2><p className="mt-2 text-sm text-muted-foreground">آخر ما نُشر بمختلف أقسام المنصة، مرتّب حسب الحداثة وتنوّع المواضيع</p></div>
-          {feedLoading ? <div className="min-h-[640px]"><div className="flex h-40 items-center justify-center"><Loader2 className="size-8 animate-spin text-primary"/></div></div> : <div className="space-y-12">
-            {latestArticles.length > 0 && <div><div className="mb-4 flex items-center justify-between"><h3 className="flex items-center gap-2 text-base font-extrabold"><FileText size={18} className="text-primary"/>أحدث المقالات</h3><Link to="/articles" title="مقالات ودراسات قانونية معمقة" className="text-xs font-bold text-primary">عرض الكل <ArrowLeft size={13}/></Link></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{latestArticles.map(item=><Link key={item.slug} to={`/articles/${item.slug}`} title={item.title} className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm">{item.category&&<span className="w-fit rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{item.category}</span>}<h4 className="text-sm font-bold line-clamp-2">{item.title}</h4>{item.summary&&<p className="line-clamp-2 text-[11px] text-muted-foreground">{item.summary}</p>}</Link>)}</div></div>}
-            {latestNews.length > 0 && <div><div className="mb-4 flex items-center justify-between"><h3 className="flex items-center gap-2 text-base font-extrabold"><Newspaper size={18} className="text-primary"/>أحدث الأخبار</h3><Link to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className="text-xs font-bold text-primary">عرض الكل <ArrowLeft size={13}/></Link></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{latestNews.map(item=><Link key={item.slug} to={`/news/${item.slug}`} title={item.title} className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 transition hover:border-primary/50 hover:shadow-sm">{item.category&&<span className="w-fit rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{item.category}</span>}<h4 className="text-sm font-bold line-clamp-2">{item.title}</h4>{item.summary&&<p className="line-clamp-2 text-[11px] text-muted-foreground">{item.summary}</p>}</Link>)}</div></div>}
-            {latestEvents.length > 0 && <div><div className="mb-4 flex items-center justify-between"><h3 className="flex items-center gap-2 text-base font-extrabold"><Calendar size={18} className="text-primary"/>أحدث الندوات والفعاليات</h3><Link to="/events" title="الندوات واللقاءات القانونية القادمة" className="text-xs font-bold text-primary">عرض الكل <ArrowLeft size={13}/></Link></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-3">{latestEvents.map(item=><Link key={item.slug} to={`/events/${item.slug}`} title={item.title} className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4"><span className="w-fit inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary"><Video size={10}/>{item.category||"فعالية"}</span><h4 className="text-sm font-bold line-clamp-2">{item.title}</h4></Link>)}</div></div>}
-            {latestDocs.length > 0 && <div><div className="mb-4 flex items-center justify-between"><h3 className="flex items-center gap-2 text-base font-extrabold"><Download size={18} className="text-primary"/>أحدث وثائق الأرشيف</h3><Link to="/archive" title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className="text-xs font-bold text-primary">عرض الكل <ArrowLeft size={13}/></Link></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-3">{latestDocs.map(item=><Link key={item.slug} to={`/pdf/${item.slug}`} title={`تحميل ${item.title}`} className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4"><span className="w-fit inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary"><FileText size={10}/>{item.category?`الفصل ${item.category}`:"PDF"}</span><h4 className="text-sm font-bold line-clamp-2">{item.title}</h4></Link>)}</div></div>}
-            {latestTerms.length > 0 && <div><div className="mb-4 flex items-center justify-between"><h3 className="flex items-center gap-2 text-base font-extrabold"><Scale size={18} className="text-primary"/>أحدث المصطلحات القانونية</h3><Link to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className="text-xs font-bold text-primary">عرض الكل <ArrowLeft size={13}/></Link></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-3">{latestTerms.map(item=><Link key={item.slug} to={`/lexicon/${item.slug}`} title={item.title} className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4">{item.category&&<span className="w-fit rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">{item.category}</span>}<h4 className="text-sm font-bold">{item.title}</h4>{item.summary&&<p className="text-[11px] text-muted-foreground" dir="ltr">{item.summary}</p>}</Link>)}</div></div>}
-          </div>}
-        </div></section>
-        <section className="py-16 border-t border-border"><div className="container mx-auto max-w-6xl px-4"><div className="grid grid-cols-1 md:grid-cols-3 gap-8"><div className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-card"><div className="rounded-lg bg-primary/10 p-3 text-primary shrink-0"><ShieldCheck size={24}/></div><div><h4 className="font-bold text-base">محتوى موثوق ومراجع</h4><p className="mt-1 text-xs text-muted-foreground leading-relaxed">مادة علمية قانونية مطابقة للتشريعات المغربية النافذة والاجتهادات القضائية.</p></div></div><div className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-card"><div className="rounded-lg bg-primary/10 p-3 text-primary shrink-0"><Search size={24}/></div><div><h4 className="font-bold text-base">بحث سريع وذكي</h4><p className="mt-1 text-xs text-muted-foreground leading-relaxed">محرك بحث متطور يدعم إزالة التشكيل والتطويل للوصول السريع للنصوص والمصطلحات.</p></div></div><div className="flex items-start gap-4 p-4 rounded-xl border border-border/50 bg-card"><div className="rounded-lg bg-primary/10 p-3 text-primary shrink-0"><Users size={24}/></div><div><h4 className="font-bold text-base">مجتمع أكاديمي موحد</h4><p className="mt-1 text-xs text-muted-foreground leading-relaxed">ربط طلبة القانون والباحثين بمستجدات الجامعات والمؤسسات القانونية بالمغرب.</p></div></div></div></div></section>
-        <section className="py-12 bg-primary text-primary-foreground"><div className="container mx-auto max-w-6xl px-4"><div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={500} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">طالب مستفيد من المنصة</div></div>
-          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={counts.lexicon} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">مصطلح قانوني موحد</div></div>
-          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={articlesCount} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">مقال قانوني</div></div>
-          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={schoolsCount} prefix="+" /></div><div className="mt-1 text-xs opacity-90 font-medium">كلية ومؤسسة جامعية</div></div>
-          <div><div className="text-3xl font-black sm:text-4xl"><CountUp to={100} suffix="%" /></div><div className="mt-1 text-xs opacity-90 font-medium">محتوى مفتوح ومجانى</div></div>
-        </div></div></section>
-        <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={articlesCount} schoolsCount={schoolsCount} />
+      <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
+        <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
+          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]" />
+          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
+
+          <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
+              <span className="size-1.5 rounded-full bg-[#2563eb]" />
+              منصة تعليمية عصرية • مجانية 100%
+            </div>
+
+            <h1 className="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+              افتح إمكانياتك مع
+              <br />
+              <span className="text-[#2563eb]">التعلم القانوني</span>
+              <br />
+              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span>
+            </h1>
+
+            <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+              انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+            </p>
+
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">
+                ابدأ الآن
+                <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
+              </Link>
+              <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                اختبر معرفتك القانونية
+                <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
+              </Link>
+            </div>
+
+            <div className="mt-7 flex items-center justify-center gap-4">
+              <div className="flex -space-x-2 rtl:space-x-reverse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">
+                    {String.fromCharCode(64 + i)}
+                  </div>
+                ))}
+              </div>
+              <div className="text-right">
+                <div className="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">
+                  <Users className="size-4 text-[#2563eb]" />
+                  500+ طالب يثقون بنا
+                </div>
+                <div className="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
+                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 • منصة مجانية
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">
+              {[
+                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
+                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
+                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
+                { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
+              ].map((card, i) => (
+                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
+                      <card.icon className="size-4" />
+                    </div>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+                  </div>
+                  <h3 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h3>
+                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
+          <div className="container mx-auto max-w-[1280px] px-6">
+            <div className="text-center mb-8">
+              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
+              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", color: "from-[#f59e0b] to-[#fbbf24]", href: "/archive" },
+                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },
+              ].map((card) => (
+                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all">
+                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60`} />
+                  <div className="flex items-center justify-between">
+                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm`}>
+                      <card.icon className="size-5" />
+                    </div>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">{card.count}</span>
+                  </div>
+                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{card.title}</h3>
+                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                </Link>
+              ))}
+            </div>
+
+            {/* أحدث المقالات — only with pictures */}
+            <div className="mt-12">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
+                <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all flex flex-col">
+                    <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
+                      <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={120} />
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                      <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
+                      <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                        <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
+                        <span>•</span>
+                        <span>ميزان الرقمية</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* الفعاليات — only with pictures */}
+            {latestEvents.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
+                    <span className="grid size-7 place-items-center rounded-full bg-[#f59e0b]/10 text-[#f59e0b]"><Calendar className="size-4" /></span>
+                    الفعاليات والندوات
+                  </h3>
+                  <Link to="/events" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
+                    <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 hover:shadow-[0_8px_24px_rgba(245,158,11,0.10)] hover:-translate-y-0.5 transition-all flex flex-col">
+                      <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
+                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
+                        <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
+                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
+                        <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
+                        <div className="mt-3 flex items-center gap-3 text-[10px] text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                          {ev.city && <span className="flex items-center gap-1"><MapPin className="size-3" />{ev.city}</span>}
+                          {ev.organizer && <span className="flex items-center gap-1 truncate"><Building2 className="size-3" />{ev.organizer.slice(0, 20)}</span>}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* القاموس القانوني — مع شجرة */}
+            {latestTerms.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
+                    <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
+                    القاموس القانوني — مع الشجرة القانونية
+                  </h3>
+                  <Link to="/lexicon" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                </div>
+
+                {/* Featured term with tree */}
+                {latestTerms[0]?.legal_sources && latestTerms[0].legal_sources.length > 0 && (
+                  <div className="mb-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-5 overflow-hidden">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="grid size-8 place-items-center rounded-xl bg-[#2563eb] text-white"><Scale className="size-4" /></span>
+                          <h4 className="font-black text-[16px] text-[#0f172a] dark:text-white">{latestTerms[0].term_ar}</h4>
+                          {latestTerms[0].term_fr && <span className="text-[11px] text-muted-foreground font-mono">({latestTerms[0].term_fr})</span>}
+                        </div>
+                        <p className="mt-2 text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8] max-w-2xl">{latestTerms[0].definition}</p>
+                        <div className="mt-2 flex items-center gap-2 text-[10px]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر • {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
+                          <span className="rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
+                        </div>
+                      </div>
+                      <Link to={`/lexicon/${generateSlug(latestTerms[0].term_ar)}`} className="shrink-0 rounded-full bg-[#2563eb] text-white px-4 py-2 text-[11px] font-bold hover:bg-[#1d4ed8]">التفاصيل →</Link>
+                    </div>
+                    <Suspense fallback={<div className="h-20 grid place-items-center text-[12px] text-muted-foreground">جارٍ تحميل الشجرة...</div>}>
+                      <LegalTermTree termAr={latestTerms[0].term_ar} termFr={latestTerms[0].term_fr} legalSources={latestTerms[0].legal_sources} />
+                    </Suspense>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {latestTerms.slice(1, 7).map((term) => (
+                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all flex flex-col">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="grid size-8 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white transition-colors"><GitBranch className="size-4" /></span>
+                          <div>
+                            <h4 className="font-bold text-[13px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{term.term_ar}</h4>
+                            {term.term_fr && <p className="text-[10px] text-muted-foreground font-mono">{term.term_fr}</p>}
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1 shrink-0">{term.category}</span>
+                      </div>
+                      <p className="mt-3 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-3 flex-1">{term.definition}</p>
+                      {term.legal_sources && term.legal_sources.length > 0 && (
+                        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#2563eb] font-bold border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                          <GitBranch className="size-3" />
+                          <span>{term.legal_sources.length} مصادر قانونية • {term.legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول مرتبطة</span>
+                        </div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
+          <div className="container relative mx-auto max-w-[1280px] px-6">
+            <div className="text-center max-w-[640px] mx-auto">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
+                <span className="size-1.5 rounded-full bg-[#2563eb]" />
+                الأسعار • خطط مرنة
+              </span>
+              <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                خطط تناسب كل
+                <span className="text-[#2563eb]"> طالب قانون</span>
+              </h2>
+              <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">
+                ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع.
+              </p>
+            </div>
+
+            <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
+                    <BookOpen className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[14px] text-[#0f172a] dark:text-white">المجاني</h3>
+                    <p className="text-[11px] text-[#64748b]">للجميع • للأبد</p>
+                  </div>
+                </div>
+                <div className="mt-5">
+                  <span className="text-[28px] font-black text-[#0f172a] dark:text-white">0</span>
+                  <span className="text-[13px] font-bold text-[#64748b]"> د.م / للأبد</span>
+                </div>
+                <ul className="mt-5 space-y-2.5">
+                  {[
+                    "الوصول للأرشيف S1-S6",
+                    "القاموس 250 مصطلح",
+                    "المقالات المجانية",
+                    "الاختبارات الأساسية",
+                    "دليل الكليات 21 كلية",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[12px] text-[#334155] dark:text-[#cbd5e1]">
+                      <span className="grid size-5 place-items-center rounded-full bg-[#dcfce7] text-[#16a34a]"><ShieldCheck className="size-3" /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold">
+                  ابدأ مجاناً ←
+                </Link>
+              </div>
+
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb]">
+                    <Clock className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[14px]">شهري</h3>
+                    <p className="text-[11px] text-[#64748b]">500 كريدتس</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-[28px] font-black">49</span>
+                  <span className="text-[13px] font-bold text-[#64748b]"> د.م / شهر</span>
+                </div>
+                <ul className="mt-5 space-y-2.5">
+                  {[
+                    "شجرة القوانين المتقدمة",
+                    "تحديات مميزة",
+                    "دعم أولوية",
+                    "كل مزايا المجاني",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[12px]">
+                      <span className="grid size-5 place-items-center rounded-full bg-[#eff6ff] text-[#2563eb]"><ShieldCheck className="size-3" /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold">
+                  اختر الشهري ←
+                </Link>
+              </div>
+
+              <div className="rounded-2xl bg-[#0f172a] dark:bg-black border p-6 shadow-lg relative overflow-hidden md:-mt-3">
+                <div className="absolute top-0 inset-x-0 h-1 bg-[#2563eb]" />
+                <span className="absolute top-4 left-4 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[10px] font-black text-white">الأفضل قيمة — خصم 32%</span>
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="grid size-10 place-items-center rounded-xl bg-white/10 text-white">
+                    <Award className="size-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-[14px] text-white">سنوي</h3>
+                    <p className="text-[11px] text-white/60">7000 + 1000 هدية</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex items-baseline gap-1">
+                  <span className="text-[28px] font-black text-white">399</span>
+                  <span className="text-[13px] font-bold text-white/60"> د.م / سنة</span>
+                </div>
+                <p className="mt-1 text-[11px] text-[#f59e0b] font-bold">1000 كريدتس هدية + خصم 32%</p>
+                <ul className="mt-5 space-y-2.5">
+                  {[
+                    "كل مزايا الشهري",
+                    "خصم 32% عن الشهري",
+                    "1000 كريدتس هدية",
+                    "شهادة توصية",
+                    "شارات حصرية",
+                  ].map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[12px] text-white/90">
+                      <span className="grid size-5 place-items-center rounded-full bg-white/10"><ShieldCheck className="size-3" /></span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] text-white py-3 text-[13px] font-bold">
+                  اختر السنوي ←
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
+          <div className="container mx-auto max-w-[1280px] px-6">
+            <div className="max-w-[900px] mx-auto">
+              <div className="text-center max-w-[640px] mx-auto mb-10">
+                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">لماذا نحن</span>
+                <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                  اكتشف المزايا المميزة
+                  <br />
+                  لمنصتنا التعليمية
+                  <span className="text-[#2563eb]"> القانونية</span>
+                </h2>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[
+                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
+                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
+                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة غنية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                ].map((feature, i) => (
+                  <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
+                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
+                      <feature.icon className="size-5" />
+                    </div>
+                    <h3 className="mt-3 font-black text-[13px]">{feature.title}</h3>
+                    <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
+          <div className="container mx-auto max-w-[1280px] px-6 relative">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+              {[
+                { value: "500+", label: "طالب مستفيد" },
+                { value: "250+", label: "مصطلح قانوني" },
+                { value: `${counts.articles}+`, label: "مقال قانوني" },
+                { value: `${counts.schools}+`, label: "كلية جامعية" },
+                { value: "100%", label: "مجاني" },
+              ].map((stat, i) => (
+                <div key={i}>
+                  <div className="text-[24px] font-black">{stat.value}</div>
+                  <div className="text-[11px] opacity-80 font-bold mt-1">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <Suspense fallback={null}>
+          <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={counts.articles} schoolsCount={counts.schools} />
+        </Suspense>
       </main>
     </>
   )

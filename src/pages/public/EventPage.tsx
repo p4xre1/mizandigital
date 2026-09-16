@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { buildMetaDescription } from "../../lib/seo/description"
 import eventsData from "../../data/events.json"
 import { supabase } from "../../lib/supabase/client"
@@ -100,9 +100,10 @@ export function EventPage({ slug }: EventPageProps) {
   if (!event) {
     return (
       <>
-        <SEOHead
+        <AEOHead
           title="الفعالية غير موجودة"
           description="عذراً، لم يتم العثور على هذه الفعالية أو الندوة في الأرشيف الأكاديمي لمنصة الميزان الرقمية. قد تكون غير منشورة بعد أو تم حذفها أو تغيير رابطها."
+        directAnswer="EventPage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
           noindex
         />
         <main className="container mx-auto max-w-4xl px-4 py-20 text-center" dir="rtl">
@@ -166,7 +167,7 @@ export function EventPage({ slug }: EventPageProps) {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={`${event.title} - الندوات والأيام الدراسية`}
         description={buildMetaDescription(description, [
           `تفاصيل وبرنامج فعالية "${event.title}"`,

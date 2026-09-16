@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateFAQSchema, generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { HelpCircle, ChevronDown, Mail } from "lucide-react"
 import faqData from "../../data/faq.json"
@@ -45,18 +45,15 @@ export function FAQPage() {
   const [openKey, setOpenKey] = useState<string | null>(null)
 
   const allFaqs = FAQ_GROUPS.flatMap((group) => group.items)
-  const faqSchema = generateFAQSchema(allFaqs)
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "الرئيسية", url: "/" },
-    { name: "الأسئلة الشائعة", url: "/faq" },
-  ])
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="الأسئلة الشائعة"
         description="إجابات وافية عن أكثر الأسئلة تكراراً حول منصة الميزان الرقمية: طبيعة المحتوى، الاستشارات القانونية، سياسة الخصوصية، وكيفية المساهمة في إثراء المنصة."
-        schema={[faqSchema, breadcrumbSchema]}
+        directAnswer="الأسئلة الشائعة حول ميزان الرقمية: المنصة تعليمية مجانية لطلبة الحقوق بالمغرب، لا تقدم استشارة قانونية، المحتوى يشمل ملخصات S1-S6، قاموس قانوني 250 مصطلح، دليل 21 كلية، واختبارات قانونية."
+        faq={allFaqs}
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الأسئلة الشائعة", url: "https://www.mizan.page/faqpage" }]}
       />
 
       <main className="container mx-auto max-w-3xl px-4 py-10 md:py-14" dir="rtl">

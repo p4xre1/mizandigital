@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react"
 import { Search } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import { validateSearch, checkRateLimit, RATE_LIMITS, INPUT_LIMITS } from "../../lib/security/inputGuard"
 
 interface SiteSearchBarProps {
   className?: string
@@ -12,7 +13,11 @@ export default function SiteSearchBar({ className = "" }: SiteSearchBarProps) {
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    const q = query.trim()
+    const rl = checkRateLimit(RATE_LIMITS.SEARCH.key, RATE_LIMITS.SEARCH.max, RATE_LIMITS.SEARCH.windowMs)
+    if (!rl.allowed) return
+    const v = validateSearch(query)
+    if (!v.ok) return
+    const q = v.value.trim()
     if (q) navigate(`/search?q=${encodeURIComponent(q)}`)
   }
 
@@ -30,6 +35,9 @@ export default function SiteSearchBar({ className = "" }: SiteSearchBarProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="ابحث في المقالات، الأخبار، القوانين، الملخصات، المصطلحات، الكليات والندوات..."
+          maxLength={INPUT_LIMITS.SEARCH_MAX}
+          autoComplete="off"
+          spellCheck={false}
           className="min-w-0 flex-1 bg-transparent px-1 py-2.5 text-sm outline-none"
         />
         <button type="submit" className="shrink-0 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition hover:opacity-90">

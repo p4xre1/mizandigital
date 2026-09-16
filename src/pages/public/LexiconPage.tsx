@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
@@ -148,9 +148,10 @@ export function LexiconPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="القاموس القانوني المغربي"
         description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
+        directAnswer="القاموس القانوني في ميزان الرقمية يضم 250 مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب."
         canonicalUrl="https://www.mizan.page/lexicon"
         keywords={[
           "المعجم القانوني المغربي",
@@ -187,6 +188,9 @@ export function LexiconPage() {
               placeholder="ابحث بالعربية أو الفرنسية (مثال: عقد، Contrat)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              maxLength={100}
+              autoComplete="off"
+              spellCheck={false}
               className="w-full rounded-xl border border-border bg-background pr-11 pl-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
             />
           </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { Link } from "react-router-dom"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
@@ -7,14 +8,7 @@ import { truncateCleanText } from "../../lib/utils/sanitize"
 import { supabase } from "../../lib/supabase/client"
 import articlesData from "../../data/articles.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
-import { ContentCard } from "../../components/content/ContentCard"
-import {
-  BookOpen,
-  Search,
-  Tag,
-  Filter,
-  Loader2,
-} from "lucide-react"
+import { Search, Clock, BookOpen } from "lucide-react"
 
 interface ArticleItem {
   id: string
@@ -24,10 +18,9 @@ interface ArticleItem {
   category?: string | null
   date?: string | null
   image?: string | null
-  imageAlt?: string | null
+  readingTime?: string | null
 }
 
-// توحيد بيانات المقالات القادمة من جدول "articles" في Supabase مع ملف articles.json المحلي
 function normalizeCmsArticle(raw: any): ArticleItem {
   return {
     id: raw.id,
@@ -37,7 +30,7 @@ function normalizeCmsArticle(raw: any): ArticleItem {
     category: raw.category?.name || raw.category?.name_fr || null,
     date: raw.published_at || raw.created_at || null,
     image: raw.cover_image || null,
-    imageAlt: raw.cover_image_alt || null,
+    readingTime: "5 دقائق",
   }
 }
 
@@ -50,7 +43,7 @@ function normalizeLocalArticle(raw: any): ArticleItem {
     category: raw.category || null,
     date: raw.publishedAt || raw.date || null,
     image: raw.image || raw.coverImage || null,
-    imageAlt: raw.imageAlt || raw.coverImageAlt || null,
+    readingTime: raw.readingTime || "4 دقائق",
   }
 }
 
@@ -69,26 +62,21 @@ export function ArticlesPage() {
   const fetchArticles = async () => {
     setLoading(true)
     try {
-      // مقالات لوحة التحكم المنشورة فقط (status = published)، مع اسم التصنيف عبر join
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, slug, excerpt, published_at, created_at, cover_image, cover_image_alt, category:categories(name, name_fr)")
+        .select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name, name_fr)")
         .eq("status", "published")
         .order("published_at", { ascending: false })
 
       if (error) throw error
-
       const cmsItems = (data || []).map(normalizeCmsArticle)
       const localItems = (articlesData as any[]).map(normalizeLocalArticle)
-
-      // إزالة التكرار (بالأولوية لمحتوى لوحة التحكم الحي) عند تطابق الـ slug
       const merged = Array.from(
         new Map([...localItems, ...cmsItems].map((item) => [item.slug, item])).values()
       ).sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime())
-
       setItems(merged)
     } catch (err) {
-      console.error("خطأ في جلب المقالات:", err)
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -110,9 +98,10 @@ export function ArticlesPage() {
     })
   }, [items, searchQuery, activeCategory])
 
+  const featured = filteredItems[0]
+
   const pageTitle = "المقالات والدراسات القانونية"
-  const pageDescription =
-    "شرح القانون المغربي بأسلوب منهجي واضح: مقالات ودراسات تحليلية معمّقة في مختلف فروع القانون المغربي (المدني، التجاري، الجنائي، الشغل...)، موجهة لطلبة كليات الحقوق والباحثين."
+  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي — تصميم تعليمي نظيف مستوحى من EduFlex."
 
   const listSchema = {
     "@context": "https://schema.org",
@@ -139,118 +128,90 @@ export function ArticlesPage() {
 
   return (
     <>
-      <SEOHead
-        title={pageTitle}
-        description={pageDescription}
-        keywords={[
-          "مقالات قانونية",
-          "شرح القانون المغربي",
-          "دراسات قانونية مغربية",
-          "تحليل تشريعي",
-          "بحوث الطلبة القانونية",
-        ]}
-        schema={[listSchema, breadcrumbSchema]}
-      />
+      <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} schema={[listSchema, breadcrumbSchema]} />
 
-      <main className="container mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 md:py-10 lg:px-10" dir="rtl">
-        {/* Header Section */}
-        <header className="mb-6 md:mb-8 text-center md:text-right">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
-            <BookOpen size={16} />
-            <span>المقالات والدراسات</span>
+      <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
+        {/* Header - EduFlex */}
+        <div className="bg-[#f8fafc] dark:bg-[#0f172a] border-b border-[#e2e8f0] dark:border-[#1e293b]">
+          <div className="container mx-auto max-w-[1280px] px-6 py-10">
+            <div className="max-w-[720px]">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
+                <BookOpen className="size-3.5" />
+                {filteredItems.length} مقال
+              </span>
+              <h1 className="mt-3 text-[28px] md:text-[36px] font-black tracking-[-0.02em] text-[#0f172a] dark:text-white leading-[1.1]">
+                {pageTitle}
+              </h1>
+              <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">{pageDescription}</p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1 max-w-[400px]">
+                  <Search className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#94a3b8]" />
+                  <input type="text" maxLength={100} autoComplete="off" spellCheck={false} placeholder="ابحث في المقالات..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-10 w-full rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] pr-10 pl-4 text-[13px] outline-none focus:border-[#2563eb]/30 focus:ring-2 focus:ring-[#2563eb]/10" />
+                </div>
+                <FilterDropdown className="w-48" value={activeCategory} onChange={setActiveCategory} allLabel="جميع التصنيفات" options={availableCategories.map((cat) => ({ value: cat, label: cat }))} />
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-black text-foreground md:text-4xl">{pageTitle}</h1>
-          <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-2xl">
-            {pageDescription}
-          </p>
-        </header>
-
-        {/* Filter & Search Bar */}
-        <div className="mb-6 flex flex-col sm:flex-row gap-3 items-stretch bg-card p-4 rounded-xl border border-border shadow-sm">
-          {/* Search Input */}
-          <div className="relative flex-1 min-w-0">
-            <Search className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <input
-              type="text"
-              placeholder="ابحث في عناوين وملخصات المقالات..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-border bg-background pr-11 pl-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition min-h-[44px]"
-            />
-          </div>
-
-          {/* Category Dropdown */}
-          <FilterDropdown
-            className="sm:w-64 shrink-0"
-            value={activeCategory}
-            onChange={setActiveCategory}
-            allLabel="جميع التصنيفات"
-            icon={<Filter size={14} />}
-            options={availableCategories.map((cat) => ({ value: cat, label: cat }))}
-          />
         </div>
 
-        {/* Results Count */}
-        <div className="mb-6 flex items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
-          <span className="text-xs font-bold text-muted-foreground">
-            عدد المقالات: <span className="text-primary">{filteredItems.length} مقال</span>
-          </span>
+        <div className="container mx-auto max-w-[1280px] px-6 py-8">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="h-64 rounded-2xl bg-[#f1f5f9] dark:bg-[#1e293b] animate-pulse" />
+              ))}
+            </div>
+          ) : filteredItems.length > 0 ? (
+            <>
+              {/* Featured hero - EduFlex */}
+              {featured && (
+                <div className="mb-8 rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] grid md:grid-cols-2">
+                  <div className="aspect-[16/10] md:aspect-auto bg-[#f1f5f9] dark:bg-[#334155] relative overflow-hidden">
+                    {featured.image ? <img src={featured.image} alt={featured.title} className="w-full h-full object-cover" /> : <div className="w-full h-full grid place-items-center bg-[#dbeafe] dark:bg-[#1e3a5f]"><BookOpen className="size-12 text-[#2563eb]" /></div>}
+                    <span className="absolute top-3 right-3 bg-[#2563eb] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">مميز</span>
+                  </div>
+                  <div className="p-6 flex flex-col">
+                    <span className="inline-flex w-fit bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[11px] font-bold px-3 py-1 rounded-full border border-[#dbeafe] dark:border-[#334155]">{featured.category || "قانون"}</span>
+                    <h2 className="mt-3 text-[20px] font-black leading-tight text-[#0f172a] dark:text-white">{featured.title}</h2>
+                    <p className="mt-2 text-[13px] leading-6 text-[#475569] dark:text-[#94a3b8] line-clamp-3">{featured.summary ? truncateCleanText(featured.summary, 140) : ""}</p>
+                    <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#94a3b8]">
+                      <Clock className="size-3.5" /> {featured.readingTime} • {featured.date ? new Date(featured.date).toLocaleDateString("ar-MA") : ""}
+                    </div>
+                    <Link to={`/articles/${featured.slug}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#2563eb] text-white px-5 py-2.5 text-[12px] font-bold hover:bg-[#1d4ed8] w-fit">
+                      اقرأ المقال →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Grid - EduFlex course cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredItems.slice(featured ? 1 : 0).map((item) => (
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                    <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative">
+                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[10px] font-bold px-2 py-1 rounded-full border border-black/5">{item.category || "عام"}</span>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h3>
+                      <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8] line-clamp-2 leading-5">{item.summary ? truncateCleanText(item.summary, 80) : ""}</p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                        <Clock className="size-3" /> {item.readingTime}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="bg-white dark:bg-[#1e293b] border border-dashed border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-12 text-center">
+              <BookOpen className="size-10 mx-auto text-[#94a3b8]" />
+              <h3 className="mt-3 font-bold">لا توجد مقالات مطابقة</h3>
+              <button onClick={() => { setSearchQuery(""); setActiveCategory("all") }} className="mt-4 rounded-full bg-[#2563eb] text-white px-4 py-1.5 text-[12px] font-bold">إعادة ضبط</button>
+            </div>
+          )}
         </div>
-
-        {/* Content Grid */}
-        {loading ? (
-          <div className="flex h-64 items-center justify-center">
-            <Loader2 className="size-8 animate-spin text-primary" />
-          </div>
-        ) : filteredItems.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
-            {filteredItems.map((item) => {
-              const formattedDate = item.date
-                ? new Date(item.date).toLocaleDateString("ar-MA", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
-                : null
-
-              return (
-                <ContentCard
-                  key={item.id}
-                  href={`/articles/${item.slug}`}
-                  title={item.title}
-                  image={item.image}
-                  imageAlt={item.imageAlt}
-                  badgeIcon={<Tag size={12} />}
-                  badgeLabel={item.category}
-                  formattedDate={formattedDate}
-                  summary={item.summary ? truncateCleanText(item.summary, 140) : null}
-                  tags={[item.category]}
-                  footerIcon={<BookOpen size={12} />}
-                  footerLabel="منصة الميزان"
-                  ctaLabel="قراءة المقال"
-                />
-              )
-            })}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-            <BookOpen size={40} className="mx-auto text-muted-foreground mb-3" />
-            <h3 className="text-lg font-bold text-foreground">لا توجد مقالات متاحة</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              لا توجد مقالات مطابقة لبحثك الحالي.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("")
-                setActiveCategory("all")
-              }}
-              className="mt-4 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:opacity-90 min-h-[44px]"
-            >
-              إعادة ضبط البحث
-            </button>
-          </div>
-        )}
       </main>
     </>
   )

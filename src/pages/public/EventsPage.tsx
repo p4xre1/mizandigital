@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import eventsData from "../../data/events.json"
 import { containsText } from "../../lib/utils/search"
 import { supabase } from "../../lib/supabase/client"
@@ -148,9 +148,11 @@ export function EventsPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="الندوات والفعاليات القانونية بالمغرب"
         description="أرشيف الندوات والفعاليات واللقاءات الأكاديمية والقانونية بالمغرب، مع روابط المشاهدة والوثائق المرافقة لكل ندوة قانونية."
+        directAnswer="ندوات وفعاليات قانونية وأكاديمية في كليات الحقوق بالمغرب، مع جدول زمني وروابط التسجيل."
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الندوات والفعاليات القانونية بالمغرب", url: "https://www.mizan.page/eventspage" }]}
         keywords={[
           "ندوات قانونية",
           "ندوات قانونية بالمغرب",
@@ -188,6 +190,9 @@ export function EventsPage() {
                 placeholder="ابحث عن ندوات (عنوان، كلية، أو مدينة)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                maxLength={100}
+                autoComplete="off"
+                spellCheck={false}
                 className="w-full rounded-lg border border-border bg-background pr-10 pl-4 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition"
               />
             </div>

@@ -1,4 +1,4 @@
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
 import { Mail, MessageCircle, Clock, ShieldAlert } from "lucide-react"
 
@@ -12,9 +12,10 @@ export function ContactPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="تواصل معنا"
         description="تواصل مع فريق منصة الميزان الرقمية عبر البريد الإلكتروني لأي استفسار أو ملاحظة أو اقتراح بخصوص المحتوى القانوني أو خدمات المنصة أو الإبلاغ عن مشكلة تقنية."
+        directAnswer="تواصل مع فريق ميزان الرقمية عبر contact@mizan.page للاستفسارات حول المحتوى القانوني أو الإبلاغ عن أخطاء."
         schema={breadcrumbSchema}
       />
 

@@ -1,0 +1,41 @@
+# AI.txt — Mizan Digital
+# https://www.mizan.page/ai.txt
+
+User-Agent: *
+Allow: /
+
+# AI-friendly content declaration
+# Language: ar-MA (Arabic, Morocco)
+# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 9 docs, 3 events
+
+# Primary sections:
+# - /articles — Legal articles
+# - /news — Legislative news
+# - /lexicon — Legal dictionary (250 terms)
+# - /schools — Law faculties (21)
+# - /archive — S1-S6 summaries
+# - /quiz — 4-tier quiz system
+# - /faq — FAQ (AEO)
+
+# Structured data:
+# - JSON-LD: Article, FAQPage, BreadcrumbList, Organization, WebSite, EducationalOrganization
+# - llms.txt: https://www.mizan.page/llms.txt
+# - llms-full.txt: https://www.mizan.page/llms-full.txt
+# - sitemap.xml: https://www.mizan.page/sitemap.xml
+
+# E-E-A-T signals:
+# - Organization schema with logo and sameAs
+# - Author: فريق ميزان الرقمية
+# - Publisher: ميزان الرقمية
+# - Canonical URLs on all pages
+
+# AEO signals:
+# - Direct answers (40-60 words) at top
+# - FAQ schema on all relevant pages
+# - BreadcrumbList
+# - Speakable for voice
+# - HowTo where applicable
+
+# Restrictions: Educational only, not official legislation
+# Verify via: adala.justice.gov.ma, sgg.gov.ma
+# Contact: contact@mizan.page

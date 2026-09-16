@@ -1,4 +1,4 @@
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { GraduationCap, Linkedin, Target, ShieldAlert } from "lucide-react"
@@ -28,9 +28,10 @@ export function AboutPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="حول ميزان الرقمية"
         description="تعرّف على القائم على منصة الميزان الرقمية، طالب قانون خاص بكلية العلوم القانونية والاقتصادية والاجتماعية بطنجة، جامعة عبد المالك السعدي."
+        directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تأسست لتوفير ملخصات، مقالات، قاموس قانوني 250 مصطلح، دليل 21 كلية، واختبارات قانونية، بإشراف فريق تعليمي."
         schema={[breadcrumbSchema, personSchema]}
       />
 

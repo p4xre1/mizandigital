@@ -107,12 +107,20 @@ export interface MizanProfile {
   semester?: Semester | null
   /** سنوات الخبرة (إن كان محامياً). */
   yearsOfExperience?: number | null
-  /** الاهتمامات القانونية (إن كان مواطناً). */
+  /** الاهتمامات القانونية — لكل الصفات، لا للمواطن وحده. */
   interests?: string[]
-  /** المدينة — اختيارية، تظهر في البروفايل العام. */
+  /** المدينة — اختيارية، وتُعرض علناً فقط عند shareLocation. */
   city?: string | null
   /** نبذة قصيرة اختيارية. */
   bio?: string | null
+  /** المهنة أو التخصص الحالي (موثق، محامٍ متمرن، …). */
+  occupation?: string | null
+  /** إذن نشر المدينة. بلا إذن تبقى خاصة حتى لو مُلئت. */
+  shareLocation?: boolean
+  /** إذن نشر النبذة. */
+  bioPublic?: boolean
+  /** هل البروفايل العام ظاهر أصلاً. */
+  isPublic?: boolean
   updatedAt: string
 }
 

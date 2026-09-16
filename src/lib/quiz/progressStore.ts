@@ -51,8 +51,6 @@ function normalize(value: unknown): QuizProgress {
   }
 }
 
-let state: QuizProgress = normalize(isBrowser() ? safeParse(window.localStorage.getItem(STORAGE_KEY)) : null)
-
 function safeParse(raw: string | null): unknown {
   if (!raw) return null
   try {
@@ -62,13 +60,68 @@ function safeParse(raw: string | null): unknown {
   }
 }
 
+function loadInitialState(): QuizProgress {
+  if (!isBrowser()) return { ...EMPTY_PROGRESS }
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    const parsed = safeParse(raw)
+    if (!parsed) return { ...EMPTY_PROGRESS }
+
+    // تحقق من التوقيع إن وجد
+    const checksum = window.localStorage.getItem("mizan:quiz:progress:checksum:v1")
+    if (raw && checksum) {
+      // تحقق غير متزامن — لا نوقف التحميل، فقط نحذر
+      import("./secureProgress")
+        .then(({ verifyProgress, validateProgressIntegrity }) => {
+          const valid = verifyProgress(raw, checksum)
+          if (!valid) {
+            console.warn("[progressStore] checksum mismatch — possible tampering or device change")
+          }
+          const issues = validateProgressIntegrity(normalize(parsed) as any)
+          if (issues.some((i) => i.severity === "error")) {
+            console.warn("[progressStore] integrity errors on load:", issues)
+          }
+        })
+        .catch(() => {})
+    }
+
+    return normalize(parsed)
+  } catch {
+    return { ...EMPTY_PROGRESS }
+  }
+}
+
+let state: QuizProgress = loadInitialState()
+
 const listeners = new Set<() => void>()
 
 function commit(next: QuizProgress): void {
   state = next
   if (isBrowser()) {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      const json = JSON.stringify(state)
+      window.localStorage.setItem(STORAGE_KEY, json)
+      // حماية إضافية: توقيع خفيف لكشف التلاعب (secureProgress.ts)
+      // لا يمنع التلاعب المتعمد 100% لكنه يكشف النسخ/اللصق والتعديل العرضي
+      // الخادم يبقى مصدر الحقيقة النهائي عبر submit_quiz_attempt RPC
+      import("./secureProgress")
+        .then(({ saveChecksum, validateProgressIntegrity, SECURITY_LIMITS }) => {
+          // تحقق من الحدود قبل الحفظ
+          const issues = validateProgressIntegrity(next)
+          const hasError = issues.some((i) => i.severity === "error")
+          if (hasError) {
+            console.warn("[progressStore] integrity issues:", issues)
+            // إذا كان هناك تلاعب واضح، لا نحفظ القيم المتضخمة
+            if (next.xp > SECURITY_LIMITS.maxTotalXp || next.credits > SECURITY_LIMITS.maxTotalCredits) {
+              console.error("[progressStore] blocked save: values out of range")
+              return
+            }
+          }
+          saveChecksum(json)
+        })
+        .catch(() => {
+          /* ignore */
+        })
     } catch {
       /* تجاهل: امتلاء مساحة التخزين لا يجب أن يوقف اللعب */
     }

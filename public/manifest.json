@@ -1,8 +1,8 @@
 {
   "id": "/",
   "short_name": "ميزان",
-  "name": "ميزان الرقمية",
-  "description": "منصة عربية سريعة لملخصات وموارد طلبة القانون بالمغرب.",
+  "name": "ميزان الرقمية - ملخصات S1-S6 وقاموس قانوني",
+  "description": "منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -11,8 +11,12 @@
   "lang": "ar-MA",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
-  "categories": ["education", "reference"],
+  "categories": ["education", "reference", "books"],
   "icons": [
+    { "src": "/logo-white-512.png", "type": "image/png", "sizes": "16x16", "purpose": "any" },
+    { "src": "/logo-white-512.png", "type": "image/png", "sizes": "32x32", "purpose": "any" },
+    { "src": "/logo-white-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/logo-white-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
     { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
     { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
     { "src": "/icon-maskable-192.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
@@ -29,21 +33,31 @@
   ],
   "shortcuts": [
     {
-      "name": "المعجم القانوني",
-      "short_name": "المعجم",
+      "name": "القاموس القانوني 250 مصطلح",
+      "short_name": "القاموس",
+      "description": "قاموس قانوني عربي-فرنسي 250 مصطلح",
       "url": "/lexicon",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "الأرشيف الرقمي",
+      "name": "الأرشيف S1-S6",
       "short_name": "الأرشيف",
+      "description": "ملخصات S1 إلى S6 لطلبة الحقوق",
       "url": "/archive",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "دليل الكليات",
-      "short_name": "كليات",
+      "name": "دليل 21 كلية حقوق",
+      "short_name": "الكليات",
+      "description": "دليل كليات الحقوق FSJES بالمغرب",
       "url": "/schools",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "اختبارات QCM",
+      "short_name": "QCM",
+      "description": "اختبارات قانونية QCM للتحضير للمباريات",
+      "url": "/quiz",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]

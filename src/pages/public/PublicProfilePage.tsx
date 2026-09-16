@@ -14,7 +14,7 @@ import {
   Users,
   MapPin,
 } from "lucide-react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
@@ -68,7 +68,8 @@ export function PublicProfilePage() {
   if (!profile) {
     return (
       <main className="container-wide py-16" dir="rtl">
-        <SEOHead title="البروفايل غير موجود" description="لم نعثر على هذا البروفايل العام على منصة ميزان." noindex />
+        <AEOHead title="البروفايل غير موجود" description="لم نعثر على هذا البروفايل العام على منصة ميزان."
+        directAnswer="PublicProfilePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق." noindex />
         <div className="mx-auto max-w-lg rounded-3xl border border-dashed border-border bg-card p-8 text-center">
           <span className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
             <UserRound className="size-6" strokeWidth={2.2} />
@@ -106,7 +107,7 @@ export function PublicProfilePage() {
 
   return (
     <main className="container-wide py-10" dir="rtl">
-      <SEOHead
+      <AEOHead
         title={`${profile.displayName} — بروفايل ميزان`}
         description={`بروفايل ${profile.displayName} على منصة ميزان الرقمية: الرتبة ${rank.id} (${rank.label})، نقاط الخبرة، والأوسمة القانونية.`}
         canonicalUrl={`https://www.mizan.page/u/${profile.username}`}

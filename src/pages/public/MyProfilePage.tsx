@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useRef } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import {
   UserRound,
@@ -14,17 +14,30 @@ import {
   Trash2,
   ExternalLink,
   Share2,
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
 import { useQuizProgress } from "../../hooks/useQuizProgress"
 import { BADGE_BY_ID, RANKS } from "../../lib/quiz/ranks"
 import { formatDuration } from "../../lib/quiz/engine"
-import { isUsernameAvailable, syncProfileToCloud } from "../../lib/quiz/profileService"
+import { checkUsernameAvailability, syncProfileToCloud, generateUsernameSuggestions, type AvailabilityResult } from "../../lib/quiz/profileService"
 import type { MizanProfile, Semester, UserRole } from "../../types/quiz"
 import { ConfirmDeleteModal } from "../../components/ui/ConfirmDeleteModal"
+import {
+  INPUT_LIMITS,
+  validateUsername,
+  validateDisplayName,
+  validateCity,
+  validateBio,
+  checkRateLimit,
+  RATE_LIMITS,
+  getInputErrorMessage,
+} from "../../lib/security/inputGuard"
 
 const SEMESTERS: Semester[] = ["S1", "S2", "S3", "S4", "S5", "S6"]
 
@@ -45,12 +58,6 @@ const ROLES: Array<{ id: UserRole; label: string; icon: typeof GraduationCap; hi
   { id: "citizen", label: "مواطن", icon: Users, hint: "تختار اهتماماتك القانونية" },
 ]
 
-const USERNAME_PATTERN = /^[a-z0-9_]{3,30}$/
-
-/**
- * صفحة ملفي (/profile): إنشاء البروفايل العام وتحريره، عرض الرتبة
- * والإحصاءات والأوسمة، ومزامنة اختيارية مع قاعدة البيانات.
- */
 export function MyProfilePage() {
   const navigate = useNavigate()
   const { progress, profile, rank, rankProgress, stats, badges, streakDays, updateProfile, reset } = useQuizProgress()
@@ -70,6 +77,11 @@ export function MyProfilePage() {
   const [copied, setCopied] = useState(false)
   const [syncState, setSyncState] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
+
+  // --- Duplicate slug prevention: live availability check ---
+  const [availability, setAvailability] = useState<AvailabilityResult | null>(null)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const debounceRef = useRef<number | null>(null)
 
   useEffect(() => {
     if (progress.profile) {
@@ -95,37 +107,99 @@ export function MyProfilePage() {
     )
   }
 
+  // Live check when username changes (debounced 600ms)
+  useEffect(() => {
+    if (!editing) return
+    const raw = username.trim()
+    if (!raw) {
+      setAvailability(null)
+      setSuggestions([])
+      return
+    }
+    if (raw.length < 3) {
+      setAvailability({ available: false, normalized: raw, reason: "invalid_format" })
+      return
+    }
+
+    if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    debounceRef.current = window.setTimeout(async () => {
+      setChecking(true)
+      const result = await checkUsernameAvailability(raw, profile?.username ?? null)
+      setAvailability(result)
+      if (!result.available && result.suggestions) {
+        setSuggestions(result.suggestions)
+      } else {
+        setSuggestions([])
+      }
+      setChecking(false)
+    }, 600) as unknown as number
+
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    }
+  }, [username, editing, profile?.username])
+
   const handleSave = async () => {
     setError(null)
-    const cleanUsername = username.trim().toLowerCase().replace(/\s+/g, "_")
-    if (!USERNAME_PATTERN.test(cleanUsername)) {
-      setError("اسم المستخدم يجب أن يكون من 3 إلى 30 حرفاً، بالأحرف اللاتينية والأرقام والشرطة السفلية فقط.")
-      return
-    }
-    if (!displayName.trim()) {
-      setError("الاسم المعروض مطلوب (يظهر في بروفايلك العام).")
+
+    // Rate limit: 5 saves per minute
+    const rl = checkRateLimit(RATE_LIMITS.PROFILE_SAVE.key, RATE_LIMITS.PROFILE_SAVE.max, RATE_LIMITS.PROFILE_SAVE.windowMs)
+    if (!rl.allowed) {
+      setError(`لقد حاولت الحفظ كثيراً. انتظر ${Math.ceil((rl.retryAfterMs || 0) / 1000)} ثانية.`)
       return
     }
 
+    // Anti-spam + anti-XSS + char limits for every box
+    const uCheck = validateUsername(username)
+    if (!uCheck.ok) {
+      setError(getInputErrorMessage(uCheck.error))
+      return
+    }
+
+    const dCheck = validateDisplayName(displayName)
+    if (!dCheck.ok) {
+      setError(getInputErrorMessage(dCheck.error))
+      return
+    }
+
+    const cCheck = validateCity(city)
+    if (!cCheck.ok) {
+      setError(getInputErrorMessage(cCheck.error))
+      return
+    }
+
+    const bCheck = validateBio(bio)
+    if (!bCheck.ok) {
+      setError(getInputErrorMessage(bCheck.error))
+      return
+    }
+
+    // Username availability — final check (prevents race condition)
     setChecking(true)
-    const available = await isUsernameAvailable(cleanUsername)
+    const finalCheck = await checkUsernameAvailability(uCheck.value, profile?.username ?? null)
     setChecking(false)
+    setAvailability(finalCheck)
 
-    const isSameUser = profile?.username === cleanUsername
-    if (!available && !isSameUser) {
-      setError("اسم المستخدم مستعمل من قبل — جرّب اسماً آخر.")
+    if (!finalCheck.available) {
+      if (finalCheck.reason === "invalid_format") {
+        setError("اسم المستخدم يجب أن يكون 3-30 حرفاً، أحرف لاتينية وأرقام و _ فقط.")
+      } else {
+        const sug = finalCheck.suggestions?.length ? ` — جرّب: ${finalCheck.suggestions.slice(0, 3).join("، ")}` : ""
+        setError(`اسم المستخدم "${finalCheck.normalized}" محجوز من قبل — هذا الرابط مأخوذ. جرّب اسماً آخر${sug}`)
+        setSuggestions(finalCheck.suggestions || generateUsernameSuggestions(finalCheck.normalized))
+      }
       return
     }
 
     const next: MizanProfile = {
-      username: cleanUsername,
-      displayName: displayName.trim(),
+      username: finalCheck.normalized,
+      displayName: dCheck.value,
       role,
       semester: role === "student" ? semester : null,
-      yearsOfExperience: role === "lawyer" ? Math.max(0, Math.min(60, Number(years) || 0)) : null,
-      interests: role === "citizen" ? interests : [],
-      city: city.trim() || null,
-      bio: bio.trim() || null,
+      yearsOfExperience: role === "lawyer" ? Math.max(INPUT_LIMITS.YEARS_MIN, Math.min(INPUT_LIMITS.YEARS_MAX, Number(years) || 0)) : null,
+      interests: role === "citizen" ? interests.slice(0, 5) : [],
+      city: cCheck.value || null,
+      bio: bCheck.value || null,
       updatedAt: new Date().toISOString(),
     }
 
@@ -133,6 +207,12 @@ export function MyProfilePage() {
     setEditing(false)
 
     const sync = await syncProfileToCloud(next, progress, rank.id)
+    if (sync.duplicate) {
+      setError(sync.reason || "اسم المستخدم محجوز")
+      setSuggestions(generateUsernameSuggestions(next.username))
+      setEditing(true)
+      return
+    }
     setSyncState(
       sync.synced
         ? "تم نشر بروفايلك العام ومزامنته مع قاعدة البيانات."
@@ -153,9 +233,10 @@ export function MyProfilePage() {
 
   return (
     <main className="container-wide py-10" dir="rtl">
-      <SEOHead
+      <AEOHead
         title="ملفي الشخصي — رتبتي ونقاط خبرتي"
         description="أنشئ بروفايلك العام على ميزان: رابط خاص بك، رتبتك، نقاط خبرتك، أوسمتك، وسجل اختباراتك القانونية."
+        directAnswer="MyProfilePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
         canonicalUrl="https://www.mizan.page/profile"
         noindex
         schema={[
@@ -172,7 +253,6 @@ export function MyProfilePage() {
       </p>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* بطاقة الرتبة */}
         <section className="rounded-3xl border border-border bg-card p-6">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -264,7 +344,6 @@ export function MyProfilePage() {
           {syncState && <p className="mt-3 text-[12px] font-semibold text-muted-foreground">{syncState}</p>}
         </section>
 
-        {/* نموذج التحرير / الإنشاء */}
         <section className="rounded-3xl border border-border bg-card p-6">
           {editing ? (
             <>
@@ -275,32 +354,93 @@ export function MyProfilePage() {
               <div className="mt-4 space-y-4">
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="username">
-                    اسم المستخدم (يظهر في الرابط)
+                    اسم المستخدم (يظهر في الرابط) — {INPUT_LIMITS.USERNAME_MIN}-{INPUT_LIMITS.USERNAME_MAX} حرف
                   </label>
-                  <input
-                    id="username"
-                    dir="ltr"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value.toLowerCase())}
-                    placeholder="ex: abdo_law"
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
-                  />
-                  <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
-                    mizan.page/u/<span className="text-primary">{username || "…"}</span> — حروف لاتينية وأرقام فقط
-                  </p>
+                  <div className="relative">
+                    <input
+                      id="username"
+                      dir="ltr"
+                      value={username}
+                      onChange={(event) => setUsername(event.target.value.toLowerCase())}
+                      placeholder="ex: abdo_law"
+                      maxLength={INPUT_LIMITS.USERNAME_MAX}
+                      autoComplete="username"
+                      spellCheck={false}
+                      className={`w-full rounded-xl border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition pr-10 ${
+                        availability && !availability.available
+                          ? "border-rose-400 focus:border-rose-500"
+                          : availability && availability.available
+                            ? "border-emerald-400 focus:border-emerald-500"
+                            : "border-border focus:border-primary"
+                      }`}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {checking ? (
+                        <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                      ) : availability && !availability.available ? (
+                        <AlertCircle className="size-4 text-rose-500" />
+                      ) : availability && availability.available && username.length >= 3 ? (
+                        <CheckCircle2 className="size-4 text-emerald-500" />
+                      ) : null}
+                    </span>
+                  </div>
+
+                  {/* Live availability feedback */}
+                  {availability && !availability.available ? (
+                    <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50 dark:bg-rose-950/30 p-3">
+                      <p className="text-[11.5px] font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
+                        <AlertCircle className="size-3.5" />
+                        {availability.reason === "invalid_format"
+                          ? "صيغة غير صالحة — 3-30 حرف، أحرف لاتينية وأرقام و _ فقط."
+                          : `الاسم "${availability.normalized}" محجوز من قبل — هذا الرابط مأخوذ. جرّب اسماً آخر.`}
+                      </p>
+                      {suggestions.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-[11px] font-bold text-muted-foreground mb-1.5">اقتراحات متاحة:</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {suggestions.map((s) => (
+                              <button
+                                key={s}
+                                type="button"
+                                onClick={() => setUsername(s)}
+                                className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1 text-[11px] font-bold text-primary hover:bg-primary hover:text-primary-foreground transition"
+                                dir="ltr"
+                              >
+                                {s}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : availability && availability.available && username.length >= 3 ? (
+                    <div className="mt-2 rounded-xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 p-2.5">
+                      <p className="text-[11.5px] font-bold text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
+                        <CheckCircle2 className="size-3.5" />
+                        الاسم "{availability.normalized}" متاح ✅ — رابطك سيكون mizan.page/u/{availability.normalized}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
+                      mizan.page/u/<span className="text-primary">{username || "…"}</span> — حروف لاتينية وأرقام فقط — {username.length}/{INPUT_LIMITS.USERNAME_MAX}
+                    </p>
+                  )}
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="displayName">
-                    الاسم المعروض
+                    الاسم المعروض — {INPUT_LIMITS.DISPLAY_NAME_MIN}-{INPUT_LIMITS.DISPLAY_NAME_MAX} حرف
                   </label>
                   <input
                     id="displayName"
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
                     placeholder="عبد الرحمن — طالب قانون"
+                    maxLength={INPUT_LIMITS.DISPLAY_NAME_MAX}
+                    autoComplete="name"
                     className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{displayName.length}/{INPUT_LIMITS.DISPLAY_NAME_MAX}</p>
                 </div>
 
                 <div>
@@ -350,13 +490,13 @@ export function MyProfilePage() {
                 {role === "lawyer" && (
                   <div>
                     <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="years">
-                      سنوات الخبرة
+                      سنوات الخبرة — {INPUT_LIMITS.YEARS_MIN}-{INPUT_LIMITS.YEARS_MAX}
                     </label>
                     <input
                       id="years"
                       type="number"
-                      min={0}
-                      max={60}
+                      min={INPUT_LIMITS.YEARS_MIN}
+                      max={INPUT_LIMITS.YEARS_MAX}
                       value={years}
                       onChange={(event) => setYears(Number(event.target.value))}
                       className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
@@ -366,7 +506,7 @@ export function MyProfilePage() {
 
                 {role === "citizen" && (
                   <div>
-                    <p className="mb-1.5 text-[12.5px] font-extrabold text-foreground">الاهتمامات القانونية</p>
+                    <p className="mb-1.5 text-[12.5px] font-extrabold text-foreground">الاهتمامات القانونية — حد أقصى 5</p>
                     <div className="flex flex-wrap gap-2">
                       {INTERESTS.map((item) => (
                         <button
@@ -388,30 +528,34 @@ export function MyProfilePage() {
 
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="city">
-                    المدينة (اختياري)
+                    المدينة (اختياري) — حتى {INPUT_LIMITS.CITY_MAX} حرف
                   </label>
                   <input
                     id="city"
                     value={city}
                     onChange={(event) => setCity(event.target.value)}
                     placeholder="طنجة"
+                    maxLength={INPUT_LIMITS.CITY_MAX}
+                    autoComplete="address-level2"
                     className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{city.length}/{INPUT_LIMITS.CITY_MAX}</p>
                 </div>
 
                 <div>
                   <label className="mb-1.5 block text-[12.5px] font-extrabold text-foreground" htmlFor="bio">
-                    نبذة قصيرة (اختياري)
+                    نبذة قصيرة (اختياري) — حتى {INPUT_LIMITS.BIO_MAX} حرف
                   </label>
                   <textarea
                     id="bio"
                     rows={3}
-                    maxLength={240}
+                    maxLength={INPUT_LIMITS.BIO_MAX}
                     value={bio}
                     onChange={(event) => setBio(event.target.value)}
                     placeholder="طالب بكلية الحقوق، مهتم بالقانون الجنائي والمسطرة الجنائية."
-                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] leading-6 text-foreground outline-none transition focus:border-primary"
+                    className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] leading-6 text-foreground outline-none transition focus:border-primary resize-none"
                   />
+                  <p className="mt-1 text-[11px] text-muted-foreground">{bio.length}/{INPUT_LIMITS.BIO_MAX} — بلا روابط، بلا وسوم HTML</p>
                 </div>
               </div>
 
@@ -429,6 +573,7 @@ export function MyProfilePage() {
               >
                 {checking ? "جارٍ التحقق من الاسم..." : "حفظ ونشر البروفايل"}
               </button>
+              <p className="mt-2 text-[10px] text-muted-foreground text-center">حماية من السبام: 5 محاولات حفظ في الدقيقة — تنقية تلقائية ضد XSS/SQL — فحص فوري لعدم التكرار</p>
             </>
           ) : (
             <>
@@ -492,9 +637,14 @@ export function MyProfilePage() {
         </section>
       </div>
 
-      {/* سلم الرتب */}
       <section className="mt-6 rounded-3xl border border-border bg-card p-6">
         <h2 className="text-[15px] font-extrabold text-foreground">سلم الرتب في ميزان</h2>
+        <p className="mt-2 text-[12.5px] leading-6 text-muted-foreground">
+          كلما أجبت عن أسئلة QCM بشكل صحيح، تجمع نقاط خبرة <span className="font-bold text-foreground">XP</span>. 
+          تبدأ من <strong>مبتدئ D</strong> (0 XP) وتصعد تدريجياً حتى <strong>النخبة العليا SSS</strong> (4000 XP+). 
+          الرتب العليا تفتح لك مميزات: شهادة توصية، نشر مقالاتك، وظهور بروفايلك كمرجع للطلبة الآخرين. 
+          المنصة 100% مجانية، والرتبة هي مقياس تقدمك الحقيقي، وليست اشتراكاً مدفوعاً.
+        </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {RANKS.map((item) => {
             const reached = progress.xp >= item.minXp
@@ -511,6 +661,12 @@ export function MyProfilePage() {
               </div>
             )
           })}
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4">
+          <p className="text-[12.5px] leading-7 text-amber-900 dark:text-amber-100">
+            <span className="font-black">تنبيه:</span> أسئلة المنصة مُعدّة لأغراض تعليمية وتدريبية انطلاقاً من النصوص القانونية المغربية الجاري بها العمل، وهي لا تُغني عن مراجعة النص الرسمي المنشور في الجريدة الرسمية ولا عن استشارة قانونية متخصصة.
+          </p>
         </div>
       </section>
 

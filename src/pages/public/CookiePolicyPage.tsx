@@ -1,17 +1,17 @@
 import { useState } from "react"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { getStoredConsent, setStoredConsent, type ConsentValue } from "../../lib/utils/cookieConsent"
-import { Cookie, Check, X } from "lucide-react"
+import { Cookie, Check, X, ShieldCheck, CreditCard, Bookmark, Trophy } from "lucide-react"
 
-const LAST_UPDATED = "25 غشت 2026"
+const LAST_UPDATED = "15 شتنبر 2026"
 
 const COOKIE_TABLE = [
   {
     name: "mizan_theme",
     provider: "الميزان الرقمية (محلي)",
-    purpose: "حفظ تفضيلكم للوضع الليلي أو النهاري للموقع.",
+    purpose: "حفظ تفضيلكم للوضع الليلي أو النهاري.",
     duration: "دائم (حتى المسح اليدوي)",
     type: "ضروري / وظيفي",
   },
@@ -19,29 +19,64 @@ const COOKIE_TABLE = [
     name: "mizan-cookie-consent",
     provider: "الميزان الرقمية (محلي)",
     purpose: "حفظ قراركم بخصوص قبول أو رفض كوكيز التحليل.",
-    duration: "دائم (حتى المسح اليدوي)",
+    duration: "دائم",
     type: "ضروري",
+  },
+  {
+    name: "__clerk_* , __session",
+    provider: "Clerk (المصادقة)",
+    purpose: "إدارة جلسة تسجيل الدخول، حماية الحساب، وتخزين توكن المصادقة.",
+    duration: "جلسة + حتى 30 يوماً",
+    type: "ضروري / مصادقة",
+  },
+  {
+    name: "mizan:subscription:v1",
+    provider: "الميزان الرقمية (محلي)",
+    purpose: "حفظ حالة اشتراك Mizan Pro (شهري/سنوي) والكريدتس المتبقية.",
+    duration: "دائم",
+    type: "وظيفي",
+  },
+  {
+    name: "mizan:saved:content:v1",
+    provider: "الميزان الرقمية (محلي)",
+    purpose: "حفظ المحتوى المحفوظ (مقالات، أخبار، مصطلحات) للوصول السريع.",
+    duration: "دائم",
+    type: "وظيفي",
+  },
+  {
+    name: "mizan_quiz_progress",
+    provider: "الميزان الرقمية (محلي)",
+    purpose: "حفظ تقدم الاختبارات، الرتبة (D-SSS)، نقاط الخبرة XP، والإجابات.",
+    duration: "دائم",
+    type: "وظيفي",
+  },
+  {
+    name: "mizan:analytics:queue",
+    provider: "الميزان الرقمية (محلي)",
+    purpose: "طابور مؤقت لتتبع التفاعلات (page_view, quiz, reaction) قبل الإرسال.",
+    duration: "مؤقت (يُفرغ كل 10 ثوان)",
+    type: "تحليلي محلي",
   },
   {
     name: "_ga، _ga_*",
     provider: "Google Analytics",
-    purpose: "تمييز الزوار وقياس الاستخدام والتنقل داخل الموقع بشكل مجهول إحصائياً.",
+    purpose: "قياس الاستخدام والتنقل بشكل مجهول إحصائياً.",
     duration: "حتى سنتين",
-    type: "تحليلي (يتطلب موافقتكم)",
+    type: "تحليلي (يتطلب موافقة)",
   },
   {
     name: "_gid",
     provider: "Google Analytics",
-    purpose: "تمييز الزوار خلال 24 ساعة لأغراض إحصائية.",
+    purpose: "تمييز الزوار خلال 24 ساعة.",
     duration: "24 ساعة",
-    type: "تحليلي (يتطلب موافقتكم)",
+    type: "تحليلي (يتطلب موافقة)",
   },
   {
-    name: "كوكيز إعلانية متعددة (حسب الوحدة الإعلانية المفعّلة)",
-    provider: "Adsterra",
-    purpose: "قياس أداء الإعلانات، تحديد عدد مرات ظهورها، وعرض إعلانات ذات صلة باهتمامات الزائر عبر مواقع مختلفة.",
-    duration: "تختلف حسب نوع الكوكي (راجع سياسة كوكيز Adsterra)",
-    type: "إعلاني (يتطلب موافقتكم)",
+    name: "sb-* , supabase-auth-token",
+    provider: "Supabase",
+    purpose: "مصادقة قاعدة البيانات وحفظ الجلسة للملفات المحمية.",
+    duration: "جلسة",
+    type: "ضروري / وظيفي",
   },
 ]
 
@@ -60,10 +95,19 @@ export function CookiePolicyPage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title="سياسة الكوكيز"
-        description="تعرّف على ملفات تعريف الارتباط (الكوكيز) التي تستخدمها منصة الميزان الرقمية، أنواعها، الغرض من كل نوع، وكيفية التحكم بها أو تعطيلها من إعدادات متصفحك."
-        schema={breadcrumbSchema}
+        description="سياسة الكوكيز في ميزان الرقمية بعد إزالة Adsterra: كوكيز ضرورية للمصادقة (Clerk)، الاشتراك (Mizan Pro)، المحفوظات، تقدم الاختبارات، وتحليلات مجهولة بموافقتكم."
+        directAnswer="سياسة الكوكيز المحدثة في ميزان الرقمية: لا إعلانات Adsterra بعد الآن. نستخدم كوكيز ضرورية للمصادقة (Clerk)، اشتراك Mizan Pro، المحفوظات، تقدم الاختبارات، وتحليلات Google Analytics بموافقتكم فقط."
+        breadcrumbs={[
+          { name: "الرئيسية", url: "https://www.mizan.page/" },
+          { name: "سياسة الكوكيز", url: "https://www.mizan.page/cookies" },
+        ]}
+        faq={[
+          { question: "هل تستخدمون Adsterra؟", answer: "لا، تمت إزالة Adsterra وكل شبكات الإعلانات الخارجية نهائياً. الموقع الآن بلا إعلانات." },
+          { question: "ما هي الكوكيز الضرورية؟", answer: "مصادقة Clerk، حالة اشتراك Mizan Pro، المحتوى المحفوظ، تقدم الاختبارات والرتبة، وتفضيل المظهر." },
+          { question: "هل يمكنني رفض التحليلات؟", answer: "نعم، يمكنك رفض كوكيز Google Analytics من الأداة أعلاه، وسيستمر الموقع بالعمل بشكل كامل." },
+        ]}
       />
 
       <main className="container mx-auto max-w-3xl px-4 py-10 md:py-14" dir="rtl">
@@ -72,14 +116,26 @@ export function CookiePolicyPage() {
             <Cookie size={26} />
           </div>
           <h1 className="text-2xl font-black text-foreground md:text-3xl">سياسة الكوكيز</h1>
-          <p className="mt-2 text-xs text-muted-foreground">آخر تحديث: {LAST_UPDATED}</p>
+          <p className="mt-2 text-xs text-muted-foreground">آخر تحديث: {LAST_UPDATED} — تمت إزالة Adsterra</p>
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+            <ShieldCheck size={12} /> بلا إعلانات خارجية — لا Adsterra ولا شبكات تتبع إعلاني
+          </div>
         </header>
 
-        {/* أداة التحكم بالموافقة مباشرة من الصفحة */}
+        <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+          <h2 className="mb-2 text-sm font-extrabold text-emerald-900 dark:text-emerald-100">تحديث مهم: إزالة الإعلانات</h2>
+          <p className="text-xs leading-relaxed text-emerald-800 dark:text-emerald-200">
+            ابتداءً من 15 شتنبر 2026، تمت <strong>إزالة Adsterra وكل شبكات الإعلانات</strong> نهائياً من ميزان الرقمية. 
+            لا نستخدم أي كوكيز إعلانية، لا تتبع بين المواقع، ولا بيع بيانات لمعلنين. 
+            التمويل الآن عبر <strong>Mizan Pro</strong> (اشتراك شهري 49 د.م / سنوي 399 د.م) وباقات الكريدتس فقط.
+          </p>
+        </div>
+
+        {/* أداة التحكم بالموافقة */}
         <div className="mb-8 rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-2 text-sm font-extrabold text-foreground">إدارة تفضيلاتكم الحالية</h2>
           <p className="mb-4 text-xs text-muted-foreground">
-            حالة الموافقة الحالية على كوكيز التحليل والإعلانات (Google Analytics وAdsterra):{" "}
+            حالة الموافقة الحالية على كوكيز التحليل (Google Analytics فقط — لا إعلانات):{" "}
             <span
               className={
                 consent === "granted"
@@ -98,27 +154,26 @@ export function CookiePolicyPage() {
               onClick={() => handleChoice("granted")}
               className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:opacity-90"
             >
-              <Check size={14} /> قبول كوكيز التحليل والإعلانات
+              <Check size={14} /> قبول التحليلات
             </button>
             <button
               type="button"
               onClick={() => handleChoice("denied")}
               className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-background px-4 py-2 text-xs font-bold text-foreground transition hover:bg-muted"
             >
-              <X size={14} /> رفض كوكيز التحليل والإعلانات
+              <X size={14} /> رفض التحليلات
             </button>
           </div>
         </div>
 
         <div className="space-y-8">
-          <Section title="1. ما هي ملفات تعريف الارتباط (الكوكيز)؟">
+          <Section title="1. ما هي ملفات تعريف الارتباط؟">
             <p>
-              الكوكيز هي ملفات نصية صغيرة تُحفظ على جهازكم عند زيارة موقع إلكتروني، وتُستخدم لتذكّر
-              تفضيلاتكم أو لتحليل كيفية استخدامكم للموقع.
+              الكوكيز هي ملفات نصية صغيرة تُحفظ على جهازكم. في ميزان الرقمية نستخدمها فقط لتذكّر تفضيلاتكم (المظهر، الاشتراك، المحفوظات، تقدم الاختبارات) ولقياس الاستخدام المجهول بموافقتكم.
             </p>
           </Section>
 
-          <Section title="2. الكوكيز التي نستخدمها">
+          <Section title="2. الكوكيز التي نستخدمها (محدثة - بلا Adsterra)">
             <div className="overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-right text-xs">
                 <thead className="bg-muted/50">
@@ -147,47 +202,53 @@ export function CookiePolicyPage() {
             </div>
           </Section>
 
-          <Section title="3. أنواع الكوكيز">
-            <ul className="list-disc pr-5 space-y-1.5">
+          <Section title="3. أنواع الكوكيز (بعد إزالة الإعلانات)">
+            <ul className="list-disc pr-5 space-y-2">
               <li>
-                <strong>كوكيز ضرورية:</strong> لازمة لعمل الموقع الأساسي (مثل حفظ تفضيل الوضع
-                الليلي/النهاري وقرار الموافقة نفسه)، ولا تتطلب موافقة مسبقة.
+                <strong>ضرورية / مصادقة:</strong> Clerk (__clerk_*, __session) + Supabase (sb-*) — لازمة لتسجيل الدخول وحماية الحساب. لا يمكن تعطيلها دون فقدان تسجيل الدخول.
               </li>
               <li>
-                <strong>كوكيز تحليلية:</strong> عبر Google Analytics، تساعدنا على فهم استخدام الموقع
-                وتحسينه. لا تُفعَّل إلا بعد موافقتكم الصريحة، وفق وضع الموافقة من Google (Google
-                Consent Mode).
+                <strong>وظيفية:</strong>
+                <ul className="mt-1 list-disc pr-5 space-y-1">
+                  <li className="flex items-center gap-2"><CreditCard size={12} /> <span><code>mizan:subscription:v1</code> — حالة Mizan Pro (شهري 49 د.م / سنوي 399 د.م) والكريدتس</span></li>
+                  <li className="flex items-center gap-2"><Bookmark size={12} /> <span><code>mizan:saved:content:v1</code> — المحتوى المحفوظ (مقالات، أخبار، مصطلحات)</span></li>
+                  <li className="flex items-center gap-2"><Trophy size={12} /> <span><code>mizan_quiz_progress</code> — الرتبة D-SSS، XP، تقدم الاختبارات</span></li>
+                  <li><code>mizan_theme</code> — الوضع الليلي/النهاري</li>
+                  <li><code>mizan-cookie-consent</code> — قرار الموافقة نفسه</li>
+                </ul>
               </li>
               <li>
-                <strong>كوكيز إعلانية:</strong> عبر شبكة الإعلانات Adsterra، تُستخدم لعرض
-                إعلانات على الموقع وقد تُستخدم لعرض إعلانات أقرب لاهتماماتكم بناءً على تصفحكم. لا
-                تُفعَّل إلا بعد موافقتكم الصريحة. يمكنكم مراجعة{" "}
-                <a
-                  href="https://adsterra.com/cookies/"
-                  title="سياسة الكوكيز الخاصة بـ Adsterra"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline font-semibold text-primary"
-                >
-                  سياسة كوكيز Adsterra
-                </a>
-                .
+                <strong>تحليلية محلية:</strong> <code>mizan:analytics:queue</code> — طابور مؤقت للتفاعلات (page_view, quiz, reaction, save) يُفرغ كل 10 ثوان عبر sendBeacon إلى /api/analytics. لا يحتوي IP خام، بل بصمة مجردة.
+              </li>
+              <li>
+                <strong>تحليلية خارجية (بموافقة):</strong> Google Analytics (_ga, _gid) — لقياس الاستخدام المجهول فقط. لا تُفعَّل إلا بعد موافقتكم عبر شريط الكوكيز (Google Consent Mode). يمكن رفضها ويستمر الموقع كاملاً.
+              </li>
+              <li>
+                <strong>لا يوجد كوكيز إعلانية:</strong> تمت إزالة Adsterra نهائياً. لا كوكيز تتبع بين المواقع، لا بيع بيانات لمعلنين.
               </li>
             </ul>
           </Section>
 
           <Section title="4. كيف تتحكمون في الكوكيز؟">
+            <ul className="list-disc pr-5 space-y-1.5">
+              <li>التحكم في التحليلات: استعملوا الأداة أعلى هذه الصفحة (قبول/رفض).</li>
+              <li>المحفوظات والاشتراك: يمكن مسحها من إعدادات المتصفح → Local Storage → مفاتيح mizan:*</li>
+              <li>Clerk: تسجيل الخروج يحذف كوكيز الجلسة. لا يمكن تعطيل كوكيز المصادقة مع بقاء تسجيل الدخول.</li>
+              <li>حذف الحساب: لا يمكن حذف الحساب ذاتياً من الواجهة. يجب التواصل عبر contact@mizan.page لطلب الحذف وفق GDPR — سيُحذف كل شيء (الملف، المحاولات، المدفوعات، التفاعلات) باستثناء السجلات القانونية.</li>
+            </ul>
+          </Section>
+
+          <Section title="5. الاشتراك والمدفوعات والكوكيز">
             <p>
-              يمكنكم تغيير قراركم في أي وقت من خلال الأداة أعلى هذه الصفحة، أو من إعدادات المتصفح
-              لديكم لحظر أو حذف الكوكيز، أو من خلال مسح بيانات الموقع المحلية (Local Storage). لاحظوا
-              أن تعطيل الكوكيز الضرورية بالكامل قد يؤثر على بعض وظائف الموقع مثل حفظ تفضيل المظهر.
+              عند شراء <strong>Mizan Pro</strong> (شهري 49 د.م أو سنوي 399 د.م) أو باقات الكريدتس (100-2000 كريدتس)، يُحفظ اشتراككم في <code>mizan:subscription:v1</code> محلياً وفي قاعدة البيانات. 
+              <strong>لا يمكن إلغاء الاشتراك خلال المدة النشطة</strong> — البيع نهائي. بعد انتهاء المدة (شهر أو سنة)، ينتهي الوصول لمزايا Pro تلقائياً ويجب الدفع مجدداً للاستمرار. لا تجديد تلقائي إجباري — يمكنك اختيار عدم التجديد.
             </p>
           </Section>
 
-          <Section title="5. تواصل معنا">
+          <Section title="6. تواصل معنا">
             <p>
-              لأي استفسار بخصوص هذه السياسة، راسلونا على{" "}
-              <a href="mailto:contact@mizan.page" title="راسلنا عبر البريد الإلكتروني" className="underline font-semibold text-primary" dir="ltr">
+              لأي استفسار بخصوص الكوكيز أو الاشتراك أو حذف الحساب، راسلونا على{" "}
+              <a href="mailto:contact@mizan.page" className="underline font-semibold text-primary" dir="ltr">
                 contact@mizan.page
               </a>
               .

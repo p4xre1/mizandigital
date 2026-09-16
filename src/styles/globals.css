@@ -1,13 +1,5 @@
 @import "tailwindcss";
 
-/* أداء البناء (vite:css transform): Tailwind v4 كيمسح تلقائياً كل ملفات
-   المشروع (ما عدا .gitignore) بحثاً عن أصناف الأنماط (classes) المستعملة،
-   بما فيها مجلدات ماشي فيها ولو صنف Tailwind واحد فعلياً (تحقّقنا: بحث
-   class=/className= عبر كل واحد منها رجع فارغاً أو أصناف مخصصة/CSS عادية
-   بلا علاقة بـ Tailwind) — public/ (فيها sitemap.xml وfeed.xml اللي كبار
-   نسبياً)، supabase/ (SQL)، functions/، scripts/، tests/، .github/. استثناؤها
-   كيقلّص عدد/حجم الملفات اللي كيتفحصهم محرك المسح فـ كل بناء بلا أي تأثير
-   على الأصناف الفعلية المستعملة فـ الواجهة (كلها فـ index.html وsrc/) */
 @source not "../../public";
 @source not "../../supabase";
 @source not "../../functions";
@@ -20,44 +12,49 @@
 
 :root,
 .light {
-  --background: 210 33% 98%;
+  /* EduFlex - Clean educational blue */
+  --background: 0 0% 100%;
   --foreground: 222 47% 11%;
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
-  --primary: 222 73% 29%;
+  --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 210 24% 94%;
-  --secondary-foreground: 222 47% 11%;
-  --muted: 210 22% 94%;
-  --muted-foreground: 215 16% 42%;
-  --border: 214 25% 86%;
-  --input: 214 25% 82%;
-  --ring: 222 73% 29%;
-  --accent-gold: 40 72% 49%;
-  --accent-gold-muted: 40 80% 92%;
-  --radius: 0.8rem;
-  --font-sans: "Cairo", system-ui, -apple-system, "Segoe UI", sans-serif;
-  /* Amiri لم يعد يُحمَّل (غير مستعمل فعلياً فـ أي مكان بالواجهة — راجع
-     index.html)؛ أي استعمال مستقبلي لـ font-serif سيستعمل خط النظام مباشرة */
+  --secondary: 214 100% 97%;
+  --secondary-foreground: 221 83% 53%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 221 83% 53%;
+  --accent: 214 100% 97%;
+  --accent-foreground: 221 83% 53%;
+  --edu-blue: 221 83% 53%;
+  --edu-light-blue: 214 100% 97%;
+  --edu-sky: 199 89% 48%;
+  --radius: 1rem;
+  --font-sans: "Cairo", system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
 }
 
 .dark {
   --background: 222 47% 6%;
   --foreground: 210 40% 98%;
-  --card: 222 43% 9%;
+  --card: 222 40% 10%;
   --card-foreground: 210 40% 98%;
-  --primary: 217 91% 60%;
-  --primary-foreground: 222 47% 11%;
-  --secondary: 217 33% 16%;
+  --primary: 217 91% 65%;
+  --primary-foreground: 222 47% 6%;
+  --secondary: 222 30% 14%;
   --secondary-foreground: 210 40% 98%;
-  --muted: 217 33% 14%;
-  --muted-foreground: 215 20% 68%;
-  --border: 217 30% 20%;
-  --input: 217 30% 24%;
-  --ring: 217 91% 60%;
-  --accent-gold: 43 92% 62%;
-  --accent-gold-muted: 43 45% 18%;
+  --muted: 222 30% 14%;
+  --muted-foreground: 215 20% 65%;
+  --border: 222 25% 18%;
+  --input: 222 25% 18%;
+  --ring: 217 91% 65%;
+  --accent: 222 30% 14%;
+  --accent-foreground: 210 40% 98%;
+  --edu-blue: 217 91% 65%;
+  --edu-light-blue: 222 30% 14%;
+  --edu-sky: 199 89% 60%;
 }
 
 @theme {
@@ -74,7 +71,10 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-  --color-accent-gold: hsl(var(--accent-gold));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-edu-blue: hsl(var(--edu-blue));
+  --color-edu-light-blue: hsl(var(--edu-light-blue));
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
 }
@@ -86,92 +86,62 @@
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    background-color: hsl(var(--background));
-    background-image:
-      radial-gradient(at 10% 15%, hsl(var(--primary) / 0.12) 0px, transparent 45%),
-      radial-gradient(at 90% 85%, hsl(var(--accent-gold) / 0.08) 0px, transparent 45%),
-      linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4));
+    background: #ffffff;
     color: hsl(var(--foreground));
     font-family: var(--font-sans);
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+  }
+  .dark body {
+    background: hsl(222 47% 6%);
   }
   button, a, input { -webkit-tap-highlight-color: transparent; }
   button { cursor: pointer; }
-  ::selection { background: hsl(var(--primary) / 0.25); }
+  ::selection { background: hsl(var(--primary) / 0.15); }
 }
 
 @layer components {
   .container-wide { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    border-bottom: 1px solid hsl(var(--border));
-    background: hsl(var(--background) / 0.96);
-  }
-  .brand-mark {
-    display: grid;
-    height: 40px;
-    width: 40px;
-    place-items: center;
-    border: 1px solid hsl(var(--primary) / 0.3);
-    border-radius: 13px;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.05));
-    color: hsl(var(--primary));
-    box-shadow: 0 0 15px hsl(var(--primary) / 0.15);
-  }
-
-  .view-mode-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
-    color: hsl(var(--muted-foreground));
-    border: 1px solid transparent;
-  }
-  .view-mode-button.active { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
-  .view-mode-button:not(.active):hover { background: hsl(var(--secondary)); color: hsl(var(--foreground)); border-color: hsl(var(--border)); }
-
-  .document-card, .lexicon-card, .content-card {
+  .edu-card {
+    background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
-    border-radius: 18px;
-    padding: 20px;
-    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary) / 0.25));
-    transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
-    position: relative;
-    overflow: hidden;
+    border-radius: 16px;
+    transition: all 200ms ease;
   }
-  .document-card::after, .lexicon-card::after, .content-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top right, hsl(var(--primary) / 0.06), transparent 60%);
-    pointer-events: none;
+  .edu-card:hover {
+    border-color: hsl(var(--primary) / 0.15);
+    box-shadow: 0 8px 24px hsl(221 83% 53% / 0.08);
+    transform: translateY(-2px);
   }
-  .document-card:hover, .lexicon-card:hover, .content-card:hover {
-    border-color: hsl(var(--primary) / 0.5);
-    transform: translateY(-3px);
-    box-shadow: 0 20px 40px hsl(222 47% 4% / 0.25), 0 0 0 1px hsl(var(--primary) / 0.2);
+  .edu-blue-badge {
+    background: hsl(214 100% 97%);
+    color: hsl(221 83% 53%);
+    border: 1px solid hsl(214 100% 91%);
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+  }
+  .dark .edu-blue-badge {
+    background: hsl(222 30% 14%);
+    color: hsl(217 91% 65%);
+    border-color: hsl(222 25% 18%);
   }
 }
 
-/* Avoid expensive fixed backgrounds and hover transforms on touch devices. */
-@media (max-width: 639px) {
-  html { scroll-behavior: auto; }
-  body { background-image: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card) / 0.4)); }
-  .document-card:hover, .lexicon-card:hover, .content-card:hover { transform: none; box-shadow: none; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
-@media (min-width: 640px) {
-  .search-field kbd { display: block; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-}
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

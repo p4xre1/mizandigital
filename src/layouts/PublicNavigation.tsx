@@ -1,18 +1,12 @@
 import { Link, NavLink } from "react-router-dom"
-import { Scale, Sun, Moon, X, Menu, Instagram, Facebook } from "lucide-react"
+import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
 import { isClerkEnabled } from "@/lib/clerk/config"
+import { useEffect } from "react"
 
-// أيقونات غير متوفرة ضمن lucide-react (تيك توك وبينتيريست)
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M16.6 5.82c-1.02-.9-1.6-2.19-1.6-3.6V2h-3.4v13.4a2.6 2.6 0 1 1-2.6-2.6c.27 0 .53.03.78.1V9.44a5.99 5.99 0 0 0-.78-.05A6 6 0 1 0 15 15.4V9.2a7.6 7.6 0 0 0 4.4 1.4V7.2a4.85 4.85 0 0 1-2.8-1.38Z" />
     </svg>
   )
@@ -20,31 +14,19 @@ function TikTokIcon({ size = 18 }: { size?: number }) {
 
 function PinterestIcon({ size = 18 }: { size?: number }) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12.02 2C6.5 2 2 6.4 2 11.9c0 4.15 2.53 7.7 6.14 9.2-.08-.78-.16-1.98.03-2.83.18-.77 1.16-4.9 1.16-4.9s-.3-.6-.3-1.48c0-1.39.8-2.43 1.8-2.43.85 0 1.26.64 1.26 1.4 0 .86-.55 2.14-.83 3.33-.24.99.5 1.8 1.48 1.8 1.78 0 3.15-1.88 3.15-4.58 0-2.4-1.72-4.07-4.18-4.07-2.85 0-4.52 2.13-4.52 4.34 0 .86.33 1.78.75 2.28a.3.3 0 0 1 .07.29c-.08.33-.26 1.03-.29 1.18-.05.2-.16.24-.37.14-1.37-.64-2.22-2.63-2.22-4.24 0-3.45 2.5-6.62 7.22-6.62 3.79 0 6.74 2.7 6.74 6.31 0 3.77-2.37 6.79-5.67 6.79-1.1 0-2.14-.58-2.5-1.26l-.68 2.6c-.25.94-.91 2.13-1.36 2.85.99.31 2.04.47 3.13.47 5.52 0 10-4.4 10-9.9C22 6.4 17.52 2 12.02 2Z" />
     </svg>
   )
 }
 
-export function Brand() {
+export function Brand({ onClick }: { onClick?: () => void } = {}) {
   return (
-    <Link to="/" title="ميزان الرقمية — المعرفة القانونية للطلبة" className="flex shrink-0 items-center gap-3">
-      <span className="brand-mark" aria-hidden="true">
-        <Scale size={21} strokeWidth={2.2} />
-      </span>
+    <Link to="/" onClick={onClick} className="flex shrink-0 items-center gap-2.5">
+      <img src="/Logo.svg" alt="ميزان الرقمية" className="size-9 rounded-xl shadow-sm object-cover" width={36} height={36} loading="eager" />
       <span>
-        <span className="block text-base font-extrabold tracking-tight text-foreground">
-          ميزان الرقمية
-        </span>
-        <span className="block text-[10px] font-semibold text-muted-foreground">
-          المعرفة القانونية للطلبة
-        </span>
+        <span className="block text-[15px] font-black tracking-tight leading-none text-[#0f172a] dark:text-white">ميزان الرقمية</span>
+        <span className="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8] tracking-wide">المعرفة القانونية للطلبة</span>
       </span>
     </Link>
   )
@@ -55,227 +37,234 @@ export function Header({
   menuOpen,
   onToggleTheme,
   onToggleMenu,
+  onCloseMenu,
 }: {
   theme: "light" | "dark"
   menuOpen: boolean
   onToggleTheme: () => void
   onToggleMenu: () => void
+  onCloseMenu?: () => void
 }) {
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `rounded-full px-3 py-2 text-[0.72rem] font-bold transition lg:px-4 lg:text-sm ${
-      isActive
-        ? "bg-primary text-primary-foreground shadow-sm"
-        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-    }`
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [menuOpen])
+
+  const handleNavClick = () => {
+    if (onCloseMenu) onCloseMenu()
+  }
 
   return (
-    <header className="site-header">
-      <div className="container-wide flex min-h-[72px] items-center justify-between gap-4">
-        <Brand />
-        <nav
-          className={`${
-            menuOpen ? "flex" : "hidden"
-          } absolute inset-x-4 top-[68px] z-20 flex-col gap-1 rounded-2xl border border-border bg-card p-3 shadow-xl md:static md:flex md:flex-row md:items-center md:gap-0 md:border-0 md:bg-transparent md:p-0 md:shadow-none`}
-          aria-label="التنقل الرئيسي"
-        >
-          <NavLink to="/" end title="الصفحة الرئيسية لمنصة ميزان الرقمية" className={linkClass}>
-            الرئيسية
-          </NavLink>
-          <NavLink to="/archive" title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className={linkClass}>
-            المكتبة والملخصات
-          </NavLink>
-          <NavLink to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className={linkClass}>
-            الأخبار
-          </NavLink>
-          <NavLink to="/articles" title="مقالات ودراسات قانونية معمقة" className={linkClass}>
-            المقالات
-          </NavLink>
-          <NavLink to="/quiz" title="اختبارات قانونية: الكلية، العشوائي، المباريات، المقابلات" className={linkClass}>
-            الاختبارات
-          </NavLink>
-          <NavLink to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className={linkClass}>
-            القاموس
-          </NavLink>
-          <NavLink to="/events" title="الندوات واللقاءات القانونية القادمة" className={linkClass}>
-            الندوات
-          </NavLink>
-          <NavLink to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className={linkClass}>
-            كليات الحقوق
-          </NavLink>
-        </nav>
-        
-        <div className="flex items-center gap-2">
-          {/*
-            نظام المصادقة عبر Clerk
-            ملاحظة إصلاح خلل: <SignedIn>/<SignedOut> تحتاج <ClerkProvider>
-            فـ الشجرة الأب (main.tsx). كان الكود القديم كيرندري هاد
-            المكوّنات بلا أي شرط، وكان main.tsx كيرمي Error ويوقف التطبيق
-            بأكمله إذا كان VITE_CLERK_PUBLISHABLE_KEY غير مضبوط — فزر
-            "دخول" ما كان يبان أصلاً (ولا حتى باقي الموقع). دابا نتحقق من
-            isClerkEnabled (نفس الفحص المستعمل فـ main.tsx) قبل ما نرندري
-            هاد المكوّنات، حتى لا تنهار الصفحة إذا كان Clerk غير مفعّل،
-            وباش زر الدخول يبان بشكل طبيعي بمجرد ما يكون المفتاح مضبوطاً.
-          */}
-          {isClerkEnabled && (
-            <>
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button
-                    type="button"
-                    className="rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-sm transition hover:opacity-90 lg:text-sm"
-                  >
-                    دخول
-                  </button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-9" } }} />
-              </SignedIn>
-            </>
-          )}
+    <>
+      <header className="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
+        <div className="container mx-auto max-w-[1280px] px-4 h-16 flex items-center justify-between gap-3">
+          <Brand onClick={handleNavClick} />
 
-          <button
-            type="button"
-            className="icon-button"
-            onClick={onToggleTheme}
-            aria-label={theme === "dark" ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن"}
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
-          <button
-            type="button"
-            className="icon-button md:hidden"
-            onClick={onToggleMenu}
-            aria-label={menuOpen ? "إغلاق القائمة" : "فتح القائمة"}
-          >
-            {menuOpen ? <X size={19} /> : <Menu size={19} />}
-          </button>
+          <nav className="hidden lg:flex items-center gap-1">
+            <NavLink to="/" end className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الرئيسية
+            </NavLink>
+            <NavLink to="/articles" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              المقالات
+            </NavLink>
+            <NavLink to="/news" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الأخبار
+            </NavLink>
+            <NavLink to="/lexicon" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              القاموس
+            </NavLink>
+            <NavLink to="/schools" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الكليات
+            </NavLink>
+            <NavLink to="/archive" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الأرشيف
+            </NavLink>
+            <NavLink to="/events" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الفعاليات
+            </NavLink>
+            <NavLink to="/quiz" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              الاختبارات
+            </NavLink>
+          </nav>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
+              <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
+                <Search className="size-4" />
+              </div>
+              <input placeholder="ابحث..." maxLength={100} autoComplete="off" spellCheck={false} className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
+            </div>
+
+            <Link to="/search" className="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Search">
+              <Search size={16} />
+            </Link>
+
+            <button onClick={onToggleTheme} className="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Toggle theme">
+              {theme === "dark" ? <Sun size={16} className="text-[#f59e0b]" /> : <Moon size={16} className="text-[#475569]" />}
+            </button>
+
+            {isClerkEnabled && (
+              <div className="hidden md:flex items-center gap-2">
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
+                  </SignInButton>
+                </SignedOut>
+                <SignedIn>
+                  <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-8" } }} />
+                </SignedIn>
+              </div>
+            )}
+
+            <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
+              ابدأ الآن
+              <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
+            </Link>
+
+            <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="Toggle menu">
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {menuOpen && (
+        <>
+          <div className="lg:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-[1px] z-[60]" onClick={onCloseMenu} aria-hidden="true" />
+          <div className="lg:hidden fixed right-3 top-[70px] w-[300px] max-w-[calc(100vw-24px)] z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
+              <nav className="p-2.5 space-y-1 max-h-[70vh] overflow-y-auto">
+                <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الرئيسية
+                </NavLink>
+                <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  المقالات
+                </NavLink>
+                <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الأخبار
+                </NavLink>
+                <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  القاموس
+                </NavLink>
+                <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الكليات
+                </NavLink>
+                <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الأرشيف
+                </NavLink>
+                <NavLink to="/events" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الفعاليات
+                </NavLink>
+                <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  الاختبارات
+                </NavLink>
+
+                <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
+                  <Link to="/articles" onClick={handleNavClick} className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2.5 text-[13px] font-bold shadow-sm">
+                    ابدأ الآن ←
+                  </Link>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </>
+      )}
+    </>
   )
 }
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-border bg-card/60">
-      <div className="container-wide grid gap-8 py-10 md:grid-cols-[1.2fr_0.8fr_0.8fr_0.8fr]">
+    <footer className="mt-20 bg-[#0f172a] text-white">
+      <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_0.9fr]">
         <div>
-          <Brand />
-          <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground">
-            منصة عربية مستقلة تجمع الأرشيف الدراسي والمقالات والأخبار والندوات ودليل كليات الحقوق بالمغرب للطالب القانوني.
+          <div className="flex items-center gap-2.5">
+            <img src="/Logo.svg" alt="ميزان الرقمية" className="size-9 rounded-xl shadow-sm object-cover" width={36} height={36} loading="lazy" />
+            <span>
+              <span className="block text-[15px] font-black">ميزان الرقمية</span>
+              <span className="block text-[11px] text-[#94a3b8] font-bold">المعرفة القانونية للطلبة</span>
+            </span>
+          </div>
+          <p className="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
+            منصة تعليمية عصرية بتصميم نظيف — تعلم القانون بطريقة مرنة وجذابة، مع موارد مجانية للطلبة بالمغرب.
           </p>
-          <a
-            href="mailto:contact@mizan.page"
-            title="راسلنا عبر البريد الإلكتروني"
-            dir="ltr"
-            className="mt-4 inline-block text-sm font-semibold text-muted-foreground hover:text-primary transition text-right"
-          >
-            contact@mizan.page
-          </a>
           <div className="mt-4 flex items-center gap-2">
-            <a
-              href="https://www.instagram.com/mizan.page"
-              title="تابعنا على إنستغرام"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="icon-button"
-              aria-label="إنستغرام"
-            >
-              <Instagram size={18} />
+            <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
+              <Instagram size={16} />
             </a>
-            <a
-              href="https://www.facebook.com/mizan.page"
-              title="تابعنا على فيسبوك"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="icon-button"
-              aria-label="فيسبوك"
-            >
-              <Facebook size={18} />
+            <a href="https://www.facebook.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
+              <Facebook size={16} />
             </a>
-            <a
-              href="https://www.tiktok.com/@mizan_page"
-              title="تابعنا على تيك توك"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="icon-button"
-              aria-label="تيك توك"
-            >
-              <TikTokIcon size={18} />
+            <a href="https://www.tiktok.com/@mizan_page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
+              <TikTokIcon size={16} />
             </a>
-            <a
-              href="https://www.pinterest.com/mizan.page"
-              title="تابعنا على بينتيريست"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="icon-button"
-              aria-label="بينتيريست"
-            >
-              <PinterestIcon size={18} />
+            <a href="https://www.pinterest.com/mizan.page" target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-full bg-white/10 hover:bg-white/15 transition-colors">
+              <PinterestIcon size={16} />
             </a>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-sm font-extrabold text-foreground">استكشف</p>
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/archive" title="أرشيف الملخصات والمحاضرات والامتحانات القانونية" className="hover:text-foreground">
-              المكتبة والملخصات
-            </Link>
-            <Link to="/news" title="آخر الأخبار القانونية والقضائية بالمغرب" className="hover:text-foreground">
-              الأخبار
-            </Link>
-            <Link to="/articles" title="مقالات ودراسات قانونية معمقة" className="hover:text-foreground">
-              المقالات والدراسات
-            </Link>
-            <Link to="/events" title="الندوات واللقاءات القانونية القادمة" className="hover:text-foreground">
-              الندوات واللقاءات
-            </Link>
-            <Link to="/quiz" title="اختبارات قانونية للكلية والمباريات والمقابلات المهنية" className="hover:text-foreground">
-              الاختبارات القانونية
-            </Link>
+          <p className="mb-3 text-[13px] font-black">استكشف المحتوى</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/" className="hover:text-white transition-colors">الرئيسية</Link>
+            <Link to="/archive" className="hover:text-white transition-colors">المكتبة والملخصات</Link>
+            <Link to="/articles" className="hover:text-white transition-colors">المقالات</Link>
+            <Link to="/news" className="hover:text-white transition-colors">الأخبار القانونية</Link>
+            <Link to="/lexicon" className="hover:text-white transition-colors">القاموس القانوني</Link>
+            <Link to="/schools" className="hover:text-white transition-colors">دليل الكليات</Link>
+            <Link to="/events" className="hover:text-white transition-colors">الفعاليات</Link>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-sm font-extrabold text-foreground">مراجع سريعة</p>
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/lexicon" title="القاموس القانوني — تعريفات المصطلحات القانونية" className="hover:text-foreground">
-              القاموس القانوني
-            </Link>
-            <Link to="/schools" title="دليل كليات الحقوق بالجامعات المغربية" className="hover:text-foreground">
-              دليل كليات الحقوق
-            </Link>
-            <Link to="/profile" title="ملفي الشخصي — رتبتي ونقاط خبرتي وبروفايلي العام" className="hover:text-foreground">
-              ملفي ورتبتي
-            </Link>
-            <Link to="/faq" title="الأسئلة الشائعة حول منصة ميزان الرقمية" className="hover:text-foreground">
-              الأسئلة الشائعة
-            </Link>
-            <Link to="/about" title="من نحن — تعرف على منصة ميزان الرقمية" className="hover:text-foreground">
-              من نحن
-            </Link>
-            <Link to="/contact" title="اتصل بفريق ميزان الرقمية" className="hover:text-foreground">
-              اتصل بنا
-            </Link>
+          <p className="mb-3 text-[13px] font-black">التعلم</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/quiz" className="hover:text-white transition-colors">مركز الاختبارات</Link>
+            <Link to="/quiz/university" className="hover:text-white transition-colors">اختبارات S1-S6</Link>
+            <Link to="/quiz/general" className="hover:text-white transition-colors">الثقافة العامة</Link>
+            <Link to="/quiz/concours" className="hover:text-white transition-colors">مباريات التوظيف</Link>
+            <Link to="/quiz/interview" className="hover:text-white transition-colors">المقابلات الشفوية</Link>
+            <Link to="/quiz/placement" className="hover:text-white transition-colors">تحديد المستوى</Link>
+            <Link to="/search" className="hover:text-white transition-colors">البحث</Link>
           </div>
         </div>
         <div>
-          <p className="mb-3 text-sm font-extrabold text-foreground">قانوني</p>
-          <div className="flex flex-col items-start gap-2 text-sm text-muted-foreground">
-            <Link to="/terms" title="الشروط والأحكام الخاصة باستخدام المنصة" className="hover:text-foreground">
-              الشروط والأحكام
-            </Link>
-            <Link to="/privacy" title="سياسة الخصوصية وحماية البيانات" className="hover:text-foreground">
-              سياسة الخصوصية
-            </Link>
-            <Link to="/cookies" title="سياسة استخدام ملفات تعريف الارتباط (الكوكيز)" className="hover:text-foreground">
-              سياسة الكوكيز
-            </Link>
+          <p className="mb-3 text-[13px] font-black">المنصة</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/about" className="hover:text-white transition-colors">من نحن</Link>
+            <Link to="/contact" className="hover:text-white transition-colors">اتصل بنا</Link>
+            <Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link>
+            <Link to="/pricing" className="hover:text-white transition-colors">الأسعار</Link>
+            <Link to="/payments" className="hover:text-white transition-colors">شراء كريدتس</Link>
+            <Link to="/saved" className="hover:text-white transition-colors">المحفوظات</Link>
+            <Link to="/profile" className="hover:text-white transition-colors">حسابي</Link>
+          </div>
+        </div>
+        <div>
+          <p className="mb-3 text-[13px] font-black">قانوني</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
+            <Link to="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
+            <Link to="/cookies" className="hover:text-white transition-colors">سياسة الكوكيز</Link>
+            <Link to="/guidelines" className="hover:text-white transition-colors">إرشادات المجتمع</Link>
+            <a href="/sitemap.xml" className="hover:text-white transition-colors">خريطة الموقع</a>
+            <a href="/feed.xml" className="hover:text-white transition-colors">RSS</a>
           </div>
         </div>
       </div>
-      <div className="container-wide border-t border-border py-5 text-xs text-muted-foreground">
-        © {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة. منصة تعليمية وليست بديلاً عن الاستشارة القانونية المتخصصة.
+      <div className="border-t border-white/10">
+        <div className="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#64748b]">
+          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة • منصة تعليمية مجانية</span>
+          <span className="flex items-center gap-2">
+            <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+            تصميم عصري • خطوط مجانية
+          </span>
+        </div>
       </div>
     </footer>
   )

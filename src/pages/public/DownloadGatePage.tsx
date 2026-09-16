@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useLocation, Link } from "react-router-dom"
-import { SEOHead } from "../../components/seo/SEOHead"
+import { AEOHead } from "../../components/seo/AEOHead"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import { useTrackView } from "@/hooks/useTrackView"
@@ -92,9 +92,11 @@ export function DownloadGatePage() {
   if (!target || !target.downloadUrl || target.downloadUrl === "#") {
     return (
       <>
-        <SEOHead
+        <AEOHead
           title="الملف غير متاح"
           description="تعذّر العثور على رابط تحميل صالح لهذا الملف ضمن أرشيف منصة الميزان الرقمية. قد يكون الملف غير متاح مؤقتاً أو تم نقله إلى قسم آخر من الأرشيف."
+        directAnswer="DownloadGatePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
+        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الملف غير متاح", url: "https://www.mizan.page/downloadgatepage" }]}
           noindex
         />
         <main className="container mx-auto max-w-xl px-4 py-20 text-center" dir="rtl">
@@ -120,7 +122,7 @@ export function DownloadGatePage() {
 
   return (
     <>
-      <SEOHead
+      <AEOHead
         title={`تحميل: ${target.title}`}
         description={buildMetaDescription(null, [
           `حمّل مجاناً ملف "${target.title}" من أرشيف منصة الميزان الرقمية`,
