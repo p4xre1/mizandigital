@@ -361,9 +361,7 @@ const homeHeaderHtml = `
               <button type="button" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="تبديل الوضع الليلي">${svgIcon(ICON.moon, "text-[#475569]", 16)}</button>
               <div class="hidden md:flex items-center gap-2">
                 <a href="/login" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</a>
-                <a href="/login?mode=signup" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] px-4 py-2 text-[13px] font-bold text-white shadow-sm hover:bg-[#1d4ed8] transition-colors">حساب جديد</a>
               </div>
-              <a href="/articles" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20">←</span></a>
               <button type="button" class="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="فتح القائمة">${svgIcon(ICON.menu, "", 18)}</button>
             </div>
           </div>

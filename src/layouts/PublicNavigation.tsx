@@ -30,22 +30,13 @@ function MobileAccountCard({ onNavigate }: { onNavigate?: () => void }) {
 
   if (!user) {
     return (
-      <div className="grid grid-cols-2 gap-2">
-        <Link
-          to="/login"
-          onClick={onNavigate}
-          className="flex items-center justify-center rounded-xl border border-[#e2e8f0] dark:border-[#334155] py-2.5 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors"
-        >
-          دخول
-        </Link>
-        <Link
-          to="/login?mode=signup"
-          onClick={onNavigate}
-          className="flex items-center justify-center rounded-xl bg-[#0f172a] dark:bg-white py-2.5 text-[13px] font-bold text-white dark:text-black hover:opacity-90 transition-opacity"
-        >
-          حساب جديد
-        </Link>
-      </div>
+      <Link
+        to="/login"
+        onClick={onNavigate}
+        className="flex items-center justify-center rounded-xl bg-[#0f172a] dark:bg-white py-2.5 text-[13px] font-bold text-white dark:text-black hover:opacity-90 transition-opacity"
+      >
+        دخول
+      </Link>
     )
   }
 
@@ -174,11 +165,6 @@ export function Header({
             <AuthControls onNavigate={handleNavClick} />
             <AuthControls className="flex items-center gap-2 md:hidden" compact onNavigate={handleNavClick} />
 
-            <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
-              ابدأ الآن
-              <span className="size-5 grid place-items-center rounded-full bg-white/20">←</span>
-            </Link>
-
             <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="Toggle menu">
               {menuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
@@ -219,9 +205,6 @@ export function Header({
 
                 <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
                   <MobileAccountCard onNavigate={handleNavClick} />
-                  <Link to="/articles" onClick={handleNavClick} className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2.5 text-[13px] font-bold shadow-sm">
-                    ابدأ الآن ←
-                  </Link>
                 </div>
               </nav>
             </div>

@@ -10,7 +10,8 @@ import { AuthErrorBoundary } from "./AuthErrorBoundary"
  * AuthControls — منطقة المصادقة في الشريط العلوي (Supabase Auth).
  * -----------------------------------------------------------------------
  * بديل SafeClerkAuth/UserButton بعد إزالة Clerk:
- *   • زائر          → زرا «دخول» و«حساب جديد» نحو /login.
+ *   • زائر          → زر «دخول» واحد نحو /login (إنشاء الحساب من داخل
+ *                     صفحة الدخول نفسها، عبر مُبدّل «حساب جديد»).
  *   • مستخدم مسجّل  → صورة/حرف أول + شارة الرتبة + قائمة منسدلة فيها
  *                     البروفايل، الرابط العام، المحفوظات، لوحة التحكم
  *                     (للإدارة فقط) وتسجيل الخروج.
@@ -80,16 +81,6 @@ function AuthControlsInner({ className = "hidden md:flex items-center gap-2", co
         >
           دخول
         </Link>
-        {!compact && (
-          <Link
-            to="/login?mode=signup"
-            onClick={onNavigate}
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] px-4 py-2 text-[13px] font-bold text-white shadow-sm hover:bg-[#1d4ed8] transition-colors"
-          >
-            <UserRound className="size-4" />
-            حساب جديد
-          </Link>
-        )}
       </div>
     )
   }
