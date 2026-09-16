@@ -19,7 +19,7 @@ const supabaseAnonKey =
  * عميل Supabase — مصدر المصادقة الوحيد في التطبيق بعد إزالة Clerk.
  *
  * خيارات auth مضبوطة صراحةً (لا نتركها للافتراضيات) لأن:
- *   • persistSession    → الجلسة تبقى بعد إعادة التحميل (كوكي sb-*).
+ *   • persistSession    → الجلسة تبقى بعد إعادة التحميل (مفتاح sb-mizan-auth).
  *   • autoRefreshToken  → لا تنقطع الجلسة في صفحة مفتوحة طويلاً.
  *   • detectSessionInUrl→ ضروري لعودة Google OAuth ورابط استعادة كلمة المرور.
  *   • flowType: pkce    → الأكثر أماناً لتطبيق SPA بلا خادم خلفي.

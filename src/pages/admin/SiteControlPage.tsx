@@ -226,7 +226,7 @@ export default function SiteControlPage() {
             <li>التمويل: Mizan Pro 49/399 MAD + كريدتس 19-199</li>
             <li>البيع نهائي، لا إلغاء خلال المدة، بعد الانتهاء يجب الدفع</li>
             <li>لا حذف ذاتي للحساب — عبر contact@mizan.page GDPR</li>
-            <li>كوكيز: sb-* (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan_quiz_progress, mizan:analytics:queue</li>
+            <li>كوكيز: sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
           </ul>
         </div>
       </div>

@@ -1,5 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { buildLlmsTxt } from "./lib/llms-content.mjs";
+import { policyToHtml } from "../src/content/legal/markup.js";
+import {
+  PRIVACY_POLICY,
+  COOKIE_POLICY,
+  TERMS_POLICY,
+} from "../src/content/legal/policies.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -1311,73 +1317,26 @@ pages.push(
 
   {
     path: "/privacy",
-    title: "سياسة الخصوصية | ميزان الرقمية",
-    description:
-      "سياسة الخصوصية الخاصة بمنصة ميزان الرقمية.",
-    staticBody: `
-      <main dir="rtl" lang="ar-MA">
-        <article>
-          <h1>سياسة الخصوصية</h1>
-
-          <p>
-            نحترم خصوصية زوار المنصة ونسعى إلى توضيح
-            كيفية التعامل مع البيانات والمعلومات التقنية.
-          </p>
-
-          <h2>ما البيانات التي قد يتم جمعها؟</h2>
-
-          <p>
-            قد يتم تسجيل معلومات تقنية ضرورية لتشغيل الموقع
-            وتحسين الأداء والأمان وفق الخدمات المستخدمة.
-          </p>
-        </article>
-      </main>
-    `,
+    title: PRIVACY_POLICY.title,
+    description: PRIVACY_POLICY.description,
+    // يُبنى من نفس بيانات صفحة React — لا نسخة يدوية مختصرة.
+    staticBody: policyToHtml(PRIVACY_POLICY),
   },
 
   {
     path: "/terms",
-    title: "الشروط والأحكام | ميزان الرقمية",
-    description:
-      "الشروط والأحكام الخاصة باستخدام منصة ميزان الرقمية.",
-    staticBody: `
-      <main dir="rtl" lang="ar-MA">
-        <article>
-          <h1>الشروط والأحكام</h1>
-
-          <p>
-            باستخدام الموقع، يوافق الزائر على استخدام المحتوى
-            لأغراض قانونية وتعليمية وعدم إساءة استخدام الخدمات.
-          </p>
-
-          <h2>الاستخدام التعليمي</h2>
-
-          <p>
-            المحتوى مخصص للمساعدة التعليمية والبحثية
-            ولا يشكل استشارة قانونية مهنية.
-          </p>
-        </article>
-      </main>
-    `,
+    title: TERMS_POLICY.title,
+    description: TERMS_POLICY.description,
+    // يُبنى من نفس بيانات صفحة React — لا نسخة يدوية مختصرة.
+    staticBody: policyToHtml(TERMS_POLICY),
   },
 
   {
     path: "/cookies",
-    title: "سياسة الكوكيز | ميزان الرقمية",
-    description:
-      "تعرّف على ملفات تعريف الارتباط (الكوكيز) التي تستخدمها منصة الميزان الرقمية، أنواعها، والغرض من كل نوع، وكيفية التحكم بها أو تعطيلها من إعدادات متصفحك.",
-    staticBody: `
-      <main dir="rtl" lang="ar-MA">
-        <article>
-          <h1>سياسة الكوكيز</h1>
-
-          <p>
-            قد تستخدم المنصة ملفات ارتباط وتقنيات مشابهة
-            لتحسين تجربة المستخدم والأداء والأمان.
-          </p>
-        </article>
-      </main>
-    `,
+    title: COOKIE_POLICY.title,
+    description: COOKIE_POLICY.description,
+    // يُبنى من نفس بيانات صفحة React — لا نسخة يدوية مختصرة.
+    staticBody: policyToHtml(COOKIE_POLICY),
   }
 );
 

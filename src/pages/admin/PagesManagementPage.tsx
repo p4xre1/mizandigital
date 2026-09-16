@@ -37,7 +37,7 @@ export default function PagesManagementPage() {
     { key: "guidelines", label: "الإرشادات", path: "/guidelines", icon: BookOpen, status: "ok", lastUpdated: "15 شتنبر 2026", description: "قواعد الاستخدام + الحوكمة", seo: "AEOHead", aeo: true, hasAdmin: false },
     { key: "terms", label: "الشروط والأحكام", path: "/terms", icon: Shield, status: "updated", lastUpdated: "15 شتنبر 2026", description: "بلا Adsterra + Mizan Pro بيع نهائي + لا حذف ذاتي", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
     { key: "privacy", label: "سياسة الخصوصية", path: "/privacy", icon: ShieldCheck, status: "updated", lastUpdated: "15 شتنبر 2026", description: "GDPR + بيانات الاشتراك + لا بيع بيانات + حذف عبر البريد", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
-    { key: "cookies", label: "سياسة الكوكيز", path: "/cookies", icon: Settings, status: "updated", lastUpdated: "15 شتنبر 2026", description: "بلا Adsterra + sb-* (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan_quiz_progress", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
+    { key: "cookies", label: "سياسة الكوكيز", path: "/cookies", icon: Settings, status: "updated", lastUpdated: "15 شتنبر 2026", description: "بلا Adsterra + sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
     { key: "saved", label: "المحفوظات", path: "/saved", icon: Bookmark, status: "ok", lastUpdated: "15 شتنبر 2026", description: "mizan:saved:content:v1 + تفاعلات", seo: "AEOHead", aeo: true, hasAdmin: false },
   ]
 
@@ -136,7 +136,7 @@ export default function PagesManagementPage() {
         <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
           <li>تمت إزالة Adsterra نهائياً من /cookies, /terms, /privacy — لا إعلانات خارجية</li>
           <li>/terms و /privacy و /cookies محدثة بـ Mizan Pro 49/399 MAD بيع نهائي لا إلغاء خلال المدة، بعد الانتهاء يجب الدفع، لا حذف ذاتي للحساب</li>
-          <li>كوكيز جديدة: sb-* (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan_quiz_progress (D-SSS), mizan:analytics:queue</li>
+          <li>كوكيز محدثة: sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue (D-SSS)</li>
           <li>كل الصفحات الآن AEOHead مع directAnswer + breadcrumbs + FAQ + speakable</li>
           <li>الصفحات الثابتة (About, Contact, FAQ, Guidelines) تحتاج لوحة تحرير مستقبلية — حالياً تعديل عبر الكود</li>
         </ul>

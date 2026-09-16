@@ -70,7 +70,7 @@ export default function LimitsMonitoringPage() {
             <div className="flex justify-between"><span>21 school + 250 lexicon</span><span className="font-bold text-emerald-700">✅</span></div>
             <div className="flex justify-between"><span>بلا Adsterra</span><span className="font-bold text-emerald-700">✅ منذ 15 شتنبر</span></div>
             <div className="flex justify-between"><span>Mizan Pro 49/399 MAD</span><span className="font-bold text-emerald-700">✅ بيع نهائي</span></div>
-            <div className="flex justify-between"><span>كوكيز جديدة</span><span className="font-bold text-emerald-700">sb-*, mizan:*</span></div>
+            <div className="flex justify-between"><span>كوكيز محدثة</span><span className="font-bold text-emerald-700">sb-mizan-auth, mizan:*</span></div>
           </div>
         </div>
       </div>

@@ -26,7 +26,7 @@ import {
  * (أُزيل Clerk بالكامل: لا ClerkProvider ولا useUser ولا مفتاح VITE_CLERK_*.)
  *
  * ماذا يوفّر هذا المزوّد؟
- *   • session / user       — جلسة Supabase الحالية (من الكوكي sb-*).
+ *   • session / user       — جلسة Supabase الحالية (من المفتاح sb-mizan-auth).
  *   • profile              — صف mizan_profiles الخاص بالحساب (owner_id = auth.uid()).
  *   • rank / rankProgress  — رتبة البروفايل كما رجّعتها القاعدة (مشتقة من xp).
  *   • isAdmin              — من profiles.admin_god_mode أو role editor/super_admin.
