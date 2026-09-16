@@ -236,8 +236,16 @@ describe("تقسيم حزم البناء", () => {
   });
 
   test("المكتبات الثقيلة المؤجَّلة لها مجموعاتها الخاصة", () => {
-    for (const group of ["vendor-supabase", "vendor-clerk", "vendor-pdfjs", "vendor-react"]) {
+    for (const group of ["vendor-supabase", "vendor-pdfjs", "vendor-react"]) {
       expect(viteConfig).toContain(`name: "${group}"`);
     }
+  });
+
+  test("حزمة Clerk اختفت مع انتقال المصادقة إلى Supabase Auth", () => {
+    // كان vendor-clerk ≈ 225KB يُحمَّل فقط لأجل أزرار الدخول. نتحقق من غياب
+    // مجموعة التقسيم ومن غياب أي اختبار regex لحزمة @clerk (الاسم قد يظهر
+    // في تعليق يشرح الاختفاء، وهذا مقصود).
+    expect(viteConfig).not.toContain('name: "vendor-clerk"');
+    expect(viteConfig).not.toMatch(/test:\s*\/@clerk/);
   });
 });

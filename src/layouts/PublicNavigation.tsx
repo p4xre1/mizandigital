@@ -1,6 +1,8 @@
 import { Link, NavLink } from "react-router-dom"
 import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
-import { SafeClerkAuth } from "@/components/auth/SafeClerkAuth"
+import { AuthControls } from "@/components/auth/AuthControls"
+import { useAuth } from "@/lib/auth/AuthProvider"
+import { RankBadge } from "@/components/quiz/RankBadge"
 import { useEffect } from "react"
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
@@ -16,6 +18,67 @@ function PinterestIcon({ size = 18 }: { size?: number }) {
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M12.02 2C6.5 2 2 6.4 2 11.9c0 4.15 2.53 7.7 6.14 9.2-.08-.78-.16-1.98.03-2.83.18-.77 1.16-4.9 1.16-4.9s-.3-.6-.3-1.48c0-1.39.8-2.43 1.8-2.43.85 0 1.26.64 1.26 1.4 0 .86-.55 2.14-.83 3.33-.24.99.5 1.8 1.48 1.8 1.78 0 3.15-1.88 3.15-4.58 0-2.4-1.72-4.07-4.18-4.07-2.85 0-4.52 2.13-4.52 4.34 0 .86.33 1.78.75 2.28a.3.3 0 0 1 .07.29c-.08.33-.26 1.03-.29 1.18-.05.2-.16.24-.37.14-1.37-.64-2.22-2.63-2.22-4.24 0-3.45 2.5-6.62 7.22-6.62 3.79 0 6.74 2.7 6.74 6.31 0 3.77-2.37 6.79-5.67 6.79-1.1 0-2.14-.58-2.5-1.26l-.68 2.6c-.25.94-.91 2.13-1.36 2.85.99.31 2.04.47 3.13.47 5.52 0 10-4.4 10-9.9C22 6.4 17.52 2 12.02 2Z" />
     </svg>
+  )
+}
+
+/**
+ * بطاقة الحساب داخل قائمة الموبايل: رتبة البروفايل + اختصارات الحساب
+ * (Supabase Auth). للزائر تعرض زري الدخول وإنشاء الحساب.
+ */
+function MobileAccountCard({ onNavigate }: { onNavigate?: () => void }) {
+  const { user, profile, rank } = useAuth()
+
+  if (!user) {
+    return (
+      <div className="grid grid-cols-2 gap-2">
+        <Link
+          to="/login"
+          onClick={onNavigate}
+          className="flex items-center justify-center rounded-xl border border-[#e2e8f0] dark:border-[#334155] py-2.5 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors"
+        >
+          دخول
+        </Link>
+        <Link
+          to="/login?mode=signup"
+          onClick={onNavigate}
+          className="flex items-center justify-center rounded-xl bg-[#0f172a] dark:bg-white py-2.5 text-[13px] font-bold text-white dark:text-black hover:opacity-90 transition-opacity"
+        >
+          حساب جديد
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a]/40 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-[13px] font-extrabold text-[#0f172a] dark:text-white">
+            {profile?.displayName || user.email?.split("@")[0] || "حسابي"}
+          </p>
+          <p className="truncate text-[11px] font-bold text-[#94a3b8]" dir="ltr">
+            {profile?.username ? `@${profile.username}` : user.email}
+          </p>
+        </div>
+        <RankBadge rank={profile?.rank ?? rank.id} size="sm" />
+      </div>
+      <div className="mt-2.5 grid grid-cols-2 gap-2">
+        <Link
+          to="/profile"
+          onClick={onNavigate}
+          className="flex items-center justify-center rounded-lg bg-[#2563eb] py-2 text-[12px] font-bold text-white hover:bg-[#1d4ed8] transition-colors"
+        >
+          بروفايلي
+        </Link>
+        <Link
+          to="/saved"
+          onClick={onNavigate}
+          className="flex items-center justify-center rounded-lg border border-[#e2e8f0] dark:border-[#334155] py-2 text-[12px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-white dark:hover:bg-[#334155] transition-colors"
+        >
+          المحفوظات
+        </Link>
+      </div>
+    </div>
   )
 }
 
@@ -108,11 +171,8 @@ export function Header({
               {theme === "dark" ? <Sun size={16} className="text-[#f59e0b]" /> : <Moon size={16} className="text-[#475569]" />}
             </button>
 
-            <SafeClerkAuth
-              signInChildren={
-                <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
-              }
-            />
+            <AuthControls onNavigate={handleNavClick} />
+            <AuthControls className="flex items-center gap-2 md:hidden" compact onNavigate={handleNavClick} />
 
             <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
               ابدأ الآن
@@ -158,6 +218,7 @@ export function Header({
                 </NavLink>
 
                 <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
+                  <MobileAccountCard onNavigate={handleNavClick} />
                   <Link to="/articles" onClick={handleNavClick} className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white py-2.5 text-[13px] font-bold shadow-sm">
                     ابدأ الآن ←
                   </Link>

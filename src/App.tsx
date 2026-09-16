@@ -1,11 +1,11 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react"
 import { BrowserRouter } from "react-router-dom"
 import { ScrollToTop } from "@/components/ScrollToTop"
-import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
 import { useTheme } from "@/hooks/useTheme"
-import { isClerkEnabled } from "@/lib/clerk/config"
-import { ClerkErrorBoundary } from "@/components/auth/ClerkErrorBoundary"
+import { useAuth } from "@/lib/auth/AuthProvider"
+import { useProgressionSync } from "@/hooks/useProgressionSync"
+import { AuthErrorBoundary } from "@/components/auth/AuthErrorBoundary"
 
 const Toast = lazy(() => import("@/components/Toast").then((m) => ({ default: m.Toast })))
 const CookieConsentBanner = lazy(() => import("@/components/CookieConsentBanner").then((m) => ({ default: m.CookieConsentBanner })))
@@ -13,43 +13,24 @@ const OnboardingGate = lazy(() => import("@/components/onboarding/OnboardingGate
 
 const DOWNLOAD_TOAST_EVENT = "mizan:toast"
 
+/**
+ * App — الهيكل العام.
+ *
+ * الجلسة تأتي من AuthProvider (Supabase Auth) بدل إدارتها هنا، والتقدّم
+ * (XP/الرتبة) يُزامن مع البروفايل السحابي عبر useProgressionSync.
+ */
+function ProgressionBridge() {
+  // مكوّن بلا واجهة: وظيفته ربط مخزن التقدّم المحلي ببروفايل الحساب
+  useProgressionSync()
+  return null
+}
+
 export default function App() {
   const { theme, toggleTheme } = useTheme()
+  const { session, initialized } = useAuth()
 
   const [menuOpen, setMenuOpen] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
-  const [session, setSession] = useState<Session | null | undefined>(undefined)
-
-  // Defer Supabase auth to idle - not critical for first paint (LCP)
-  useEffect(() => {
-    let isMounted = true
-    let unsubscribe: (() => void) | undefined
-
-    const initAuth = () => {
-      import("@/lib/supabase/client").then(({ supabase }) => {
-        if (!isMounted) return
-        supabase.auth.getSession().then(({ data }) => {
-          if (isMounted) setSession(data.session)
-        })
-        const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-          if (isMounted) setSession(nextSession)
-        })
-        unsubscribe = () => subscription.subscription.unsubscribe()
-      })
-    }
-
-    if ("requestIdleCallback" in window) {
-      // @ts-ignore
-      requestIdleCallback(initAuth, { timeout: 2000 })
-    } else {
-      setTimeout(initAuth, 1000)
-    }
-
-    return () => {
-      isMounted = false
-      unsubscribe?.()
-    }
-  }, [])
 
   useEffect(() => {
     let hideTimer: number | undefined
@@ -75,7 +56,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <AppRoutes
-        session={session}
+        session={initialized ? session : undefined}
         theme={theme}
         menuOpen={menuOpen}
         onToggleTheme={toggleTheme}
@@ -91,13 +72,16 @@ export default function App() {
         <CookieConsentBanner />
       </Suspense>
 
-      {isClerkEnabled && (
-        <ClerkErrorBoundary>
-          <Suspense fallback={null}>
-            <OnboardingGate />
-          </Suspense>
-        </ClerkErrorBoundary>
-      )}
+      {/* مزامنة الرتب: أي XP يُكتسب في أي اختبار يصل إلى بروفايل الحساب */}
+      <AuthErrorBoundary>
+        <ProgressionBridge />
+      </AuthErrorBoundary>
+
+      <AuthErrorBoundary>
+        <Suspense fallback={null}>
+          <OnboardingGate />
+        </Suspense>
+      </AuthErrorBoundary>
     </BrowserRouter>
   )
 }

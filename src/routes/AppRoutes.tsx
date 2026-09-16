@@ -138,7 +138,12 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/quiz" element={<QuizHubPage />} /><Route path="/quiz/university" element={<UniversityQuizPage />} /><Route path="/quiz/general" element={<GeneralQuizPage />} /><Route path="/quiz/concours" element={<ConcoursQuizPage />} /><Route path="/quiz/interview" element={<InterviewQuizPage />} /><Route path="/quiz/placement" element={<PlacementQuizPage />} /><Route path="/profile" element={<MyProfilePage />} /><Route path="/u/:username" element={<PublicProfilePage />} />
           <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
         </Route>
-        <Route path="/login" element={session ? <Navigate to="/admin/dashboard" replace /> : <LoginPage />} />
+        {/* صفحة المصادقة الموحّدة (Supabase Auth) تتكفّل بتحويل المستخدم
+            المسجّل إلى وجهته: /admin/dashboard للإدارة و/profile للبقية. */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<Navigate to="/login?mode=signup" replace />} />
+        <Route path="/signin" element={<Navigate to="/login" replace />} />
+        <Route path="/forgot-password" element={<Navigate to="/login?mode=password" replace />} />
         <Route path="/admin" element={session === undefined ? <div className="flex min-h-screen items-center justify-center" dir="rtl"><p className="text-sm font-bold text-muted-foreground">جارٍ التحقق من الجلسة...</p></div> : session === null ? <Navigate to="/login" replace /> : <AdminGate><AdminLayout /></AdminGate>}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />

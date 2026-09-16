@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { createReport, REPORT_REASONS, type ReportTargetType, type ReportReason } from "@/lib/governance/service";
-import { useUser } from "@clerk/clerk-react";
-import { isClerkEnabled } from "@/lib/clerk/config";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import { Flag, X, Check } from "lucide-react";
 import { validateReportDetails, getInputErrorMessage, checkRateLimit, RATE_LIMITS, INPUT_LIMITS } from "@/lib/security/inputGuard";
 
@@ -20,17 +19,9 @@ export function ReportDialog({ targetType, targetId, triggerLabel = "إبلاغ"
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // useUser() تُنادى دائماً (حتى لا نخالف قواعد hooks) لكن داخل try/catch:
-  // بدون <ClerkProvider> ترمي Clerk خطأ، فنبتلعه ونكمل كمستخدم مجهول.
-  // النتيجة لا تُستعمل إلا إذا كان Clerk مفعلاً فعلاً (isClerkEnabled).
-  let clerkUserId: string | null = null;
-  try {
-    const { user } = useUser();
-    if (isClerkEnabled) clerkUserId = user?.id || null;
-  } catch {
-    // Clerk not mounted — نتصرف كمستخدم مجهول بدل رمي خطأ
-    clerkUserId = null;
-  }
+  // Supabase Auth: useAuth() لا يرمي أبداً — للزائر user = null فنبقى مجهولين.
+  const { user } = useAuth();
+  const reporterId = user?.id ?? null;
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -58,7 +49,7 @@ export function ReportDialog({ targetType, targetId, triggerLabel = "إبلاغ"
         targetId,
         reason,
         details: v.value.trim() || undefined,
-        clerkId: clerkUserId,
+        reporterId,
       });
       setSuccess(true);
       setTimeout(() => {

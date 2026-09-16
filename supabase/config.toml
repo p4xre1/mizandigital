@@ -355,11 +355,12 @@ enabled = false
 # user_pool_id = "my-user-pool-id"
 # user_pool_region = "us-east-1"
 
-# Use Clerk as a third-party provider alongside Supabase Auth.
+# Clerk أُزيل نهائياً من المشروع (2026-09): Supabase Auth هو مزوّد الهوية
+# الوحيد — شوف src/lib/auth/AuthProvider.tsx والترحيل
+# supabase/migrations/20260924000000_supabase_auth_profiles_and_ranks.sql.
+# يبقى هذا القسم معطّلاً عن قصد: لا تربط Clerk بالمشروع مرة أخرى.
 [auth.third_party.clerk]
 enabled = false
-# Obtain from https://clerk.com/setup/supabase
-# domain = "example.clerk.accounts.dev"
 
 # OAuth server configuration
 [auth.oauth_server]
@@ -384,21 +385,13 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
-# ملاحظة مهمة (onboarding function): هاذ الدالة كتاخد Clerk session token
-# (JWT موقّع من طرف Clerk) عوض Supabase JWT/anon key فـ هيدر Authorization
-# — لأن تسجيل الدخول العام كيمر عبر Clerk وليس Supabase Auth (شوف
-# src/lib/onboarding/api.ts). بوابة Supabase الافتراضية كتحاول تتحقق من
-# أي JWT فـ Authorization بمفتاح Supabase الخاص بيها، وغادي ترفضو (401)
-# قبل ما توصل الطلبية أصلاً لكود الدالة، لأن توقيع Clerk مختلف. لازم
-# نعطلو التحقق التلقائي هنا، ونديرو التحقق يدوياً من JWKS ديال Clerk
-# داخل كود الدالة نفسها (supabase/functions/onboarding/index.ts).
-#
-# ⚠️ هاذ الإعداد كيخدم محلياً (supabase start) فقط. عند النشر (supabase
-# functions deploy onboarding)، خاصك تزيد --no-verify-jwt للأمر، أو
-# تعطّل "Enforce JWT Verification" لهاذ الدالة يدوياً من لوحة تحكم
-# Supabase → Edge Functions → onboarding → Details.
+# ملاحظة (onboarding function): بعد إزالة Clerk صارت الدالة تستقبل Supabase
+# access_token العادي فـ هيدر Authorization، فبوابة Supabase تقدر تتحقق من
+# التوقيع تلقائياً (verify_jwt = true) — وهذا هو الوضع الآمن الافتراضي.
+# الدالة كزيد تتحقق مرة أخرى عبر auth.getUser() باش تضمن أن المستخدم موجود
+# فعلاً وماشي فقط رمز صالح الشكل (supabase/functions/onboarding/index.ts).
 [functions.onboarding]
-verify_jwt = false
+verify_jwt = true
 
 [analytics]
 enabled = true

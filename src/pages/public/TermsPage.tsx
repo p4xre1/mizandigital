@@ -81,7 +81,7 @@ export function TermsPage() {
           </Section>
 
           <Section title="3. إنشاء الحساب والمصادقة">
-            <p>التسجيل عبر <strong>Clerk</strong> (يدعم Google). عند التسجيل:</p>
+            <p>التسجيل عبر <strong>Supabase Auth</strong> (بالبريد الإلكتروني أو حساب Google). عند التسجيل:</p>
             <ul className="list-disc pr-5 space-y-1.5">
               <li>يجب تقديم بريد صحيح واسم مستعار فريد</li>
               <li>أنت مسؤول عن سرية حسابك</li>

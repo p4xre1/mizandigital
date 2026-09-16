@@ -18,6 +18,7 @@ export type PaymentProvider = "manual" | "stripe" | "paypal" | "mopay" | "wafaca
 export type Payment = {
   id: string;
   user_ref: string | null;
+  /** LEGACY — Clerk أُزيل؛ العمود باقٍ في القاعدة لصفوف تاريخية فقط. */
   clerk_user_id: string | null;
   package_id: string | null;
   amount_mad: number;
@@ -37,6 +38,7 @@ export type CreditTransactionType = "earn" | "spend" | "purchase" | "refund" | "
 export type CreditTransaction = {
   id: string;
   user_ref: string;
+  /** LEGACY — Clerk أُزيل؛ العمود باقٍ في القاعدة لصفوف تاريخية فقط. */
   clerk_user_id: string | null;
   type: CreditTransactionType;
   amount: number;

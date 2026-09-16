@@ -17,8 +17,8 @@ export function PrivacyPolicyPage() {
     <>
       <AEOHead
         title="سياسة الخصوصية"
-        description="سياسة الخصوصية المحدثة: بلا Adsterra، بيانات الاشتراك والكريدتس والاختبارات والتفاعلات، مصادقة Clerk، ولا بيع بيانات، وحذف الحساب عبر طلب GDPR فقط."
-        directAnswer="سياسة الخصوصية المحدثة: ميزان الرقمية بلا إعلانات Adsterra منذ 15 شتنبر 2026، نجمع بيانات الاشتراك Mizan Pro والكريدتس والاختبارات والتفاعلات والمحفوظات، المصادقة عبر Clerk، لا بيع بيانات، وحذف الحساب عبر طلب إلى contact@mizan.page فقط."
+        description="سياسة الخصوصية المحدثة: بلا Adsterra، بيانات الاشتراك والكريدتس والاختبارات والتفاعلات، مصادقة Supabase Auth، ولا بيع بيانات، وحذف الحساب عبر طلب GDPR فقط."
+        directAnswer="سياسة الخصوصية المحدثة: ميزان الرقمية بلا إعلانات Adsterra منذ 15 شتنبر 2026، نجمع بيانات الاشتراك Mizan Pro والكريدتس والاختبارات والتفاعلات والمحفوظات، المصادقة عبر Supabase Auth، لا بيع بيانات، وحذف الحساب عبر طلب إلى contact@mizan.page فقط."
         breadcrumbs={[
           { name: "الرئيسية", url: "https://www.mizan.page/" },
           { name: "سياسة الخصوصية", url: "https://www.mizan.page/privacy" },
@@ -56,7 +56,7 @@ export function PrivacyPolicyPage() {
               <div>
                 <h4 className="flex items-center gap-2 text-sm font-bold"><CreditCard size={14} /> بيانات الاشتراك والمدفوعات</h4>
                 <ul className="mt-1 list-disc pr-5 space-y-1 text-xs leading-relaxed">
-                  <li>معرف المستخدم (user_ref, clerk_user_id)، الباقة (package_id)، المبلغ (amount_mad/amount_usd)، الكريدتس المشتراة + البونص</li>
+                  <li>معرف المستخدم (user_ref / auth.uid())، الباقة (package_id)، المبلغ (amount_mad/amount_usd)، الكريدتس المشتراة + البونص</li>
                   <li>معرف الدفع الخارجي (provider_payment_id)، حالة الدفع (pending/completed/failed)، المزود (Stripe)</li>
                   <li>تاريخ الإنشاء والإكمال، metadata (بلد البطاقة، بلد IP، كود الرفض إن وجد)</li>
                   <li>لا نرى رقم البطاقة — Stripe Radar يحمي من الاحتيال (declines_per_ip, card_country)</li>
@@ -93,7 +93,7 @@ export function PrivacyPolicyPage() {
               <div>
                 <h4 className="text-sm font-bold">المصادقة والحساب</h4>
                 <ul className="mt-1 list-disc pr-5 space-y-1 text-xs">
-                  <li>Clerk: البريد، معرف المستخدم (user_*), جلسة __clerk_*, __session — لإدارة تسجيل الدخول عبر Google وغيره</li>
+                  <li>Supabase Auth: البريد، معرف المستخدم (auth.users.id)، كوكيز الجلسة sb-* — لإدارة تسجيل الدخول عبر البريد أو Google</li>
                   <li>Supabase profiles: البريد، bonus_credits, referred_by, referral_code, full_name, bio, avatar_url, is_frozen, ads_exempt, preferred_lang, last_ip_address (مجردة بملح)</li>
                   <li>البلاغات (reports): نوع الهدف، السبب، التفاصيل، الحالة، ملاحظة المشرف</li>
                   <li>إجراءات الإشراف (moderation_actions): المشرف، الإجراء، السبب</li>
@@ -118,7 +118,7 @@ export function PrivacyPolicyPage() {
           <Section title="4. مشاركة البيانات مع أطراف ثالثة (محدثة — بلا Adsterra)">
             <p>قد تتم مشاركة بيانات مجهولة أو ضرورية مع:</p>
             <ul className="list-disc pr-5 space-y-1.5 text-xs">
-              <li><strong>Clerk</strong> (المصادقة): لإدارة تسجيل الدخول — يخضع لسياسة Clerk</li>
+              <li><strong>Supabase</strong> (المصادقة وقاعدة البيانات): لإدارة تسجيل الدخول وتخزين البروفايل والرتب — يخضع لسياسة Supabase</li>
               <li><strong>Supabase</strong> (قاعدة البيانات): لتخزين الملفات، المحاولات، المدفوعات، التفاعلات — RLS يحمي البيانات</li>
               <li><strong>Stripe</strong> (المدفوعات): لمعالجة الدفع — لا نرى رقم البطاقة، يخضع لسياسة Stripe و Radar</li>
               <li><strong>Google Analytics</strong> (بموافقة فقط): لقياس الاستخدام المجهول — IP مجهول</li>
@@ -132,7 +132,7 @@ export function PrivacyPolicyPage() {
           <Section title="5. الكوكيز والتخزين المحلي (مطابق لسياسة الكوكيز)">
             <p>نستخدم:</p>
             <ul className="list-disc pr-5 space-y-1 text-xs">
-              <li>ضرورية: __clerk_*, __session, sb-*, mizan-cookie-consent</li>
+              <li>ضرورية: sb-* (جلسة Supabase Auth), mizan-cookie-consent</li>
               <li>وظيفية: mizan:subscription:v1 (اشتراك Pro)، mizan:saved:content:v1 (محفوظات)، mizan_quiz_progress (رتبة/XP)، mizan_theme</li>
               <li>تحليلية محلية مؤقتة: mizan:analytics:queue (يُفرغ كل 10 ثوان)</li>
               <li>تحليلية خارجية بموافقة: _ga, _gid (Google Analytics)</li>
@@ -190,7 +190,7 @@ export function PrivacyPolicyPage() {
           <Section title="7. أمان البيانات">
             <p>نتخذ إجراءات معقولة:</p>
             <ul className="list-disc pr-5 space-y-1 text-xs">
-              <li>Clerk: تشفير الجلسة، JWKS verification عبر functions/_shared/clerk.js</li>
+              <li>Supabase Auth: تشفير الجلسة، والتحقق من الرمز عبر GoTrue (‎/auth/v1/user) في functions/_shared/auth.js</li>
               <li>Supabase: RLS، triggers تمنع تعديل XP/Rank من الواجهة (20260920000000_protect_progression_and_quiz_answers)</li>
               <li>Stripe: توقيع webhook عبر timingSafeEqualStr (مقارنة بزمن ثابت)، WebCrypto HMAC</li>
               <li>Cloudflare: _headers (CSP, HSTS, X-Frame-Options), Turnstile CAPTCHA, rate limiting KV + memory fallback, IP مجرد بملح IP_HASH_SALT</li>

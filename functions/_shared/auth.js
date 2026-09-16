@@ -44,6 +44,34 @@ export async function requireAdmin(request, env) {
   return { id: user.id, email: user.email }
 }
 
+/**
+ * requireUser — تحقّق من هوية أي مستخدم مسجّل (بلا شرط الإدارة).
+ * بديل verifyClerkToken بعد إزالة Clerk: نتحقق من Supabase access_token
+ * عبر GoTrue نفسه (‎/auth/v1/user)، فلا نحتاج JWKS ولا مفتاحاً سرياً.
+ *
+ * @returns {Promise<{ id: string, email: string, token: string } | null>}
+ */
+export async function requireUser(request, env) {
+  const authHeader = request.headers.get("Authorization") || ""
+  const token = authHeader.replace(/^Bearer\s+/i, "").trim()
+  if (!token) return null
+
+  const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL
+  const anonKey = env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !anonKey) {
+    throw new Error("Supabase env vars missing on the server (SUPABASE_URL / SUPABASE_ANON_KEY)")
+  }
+
+  const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+    headers: { Authorization: `Bearer ${token}`, apikey: anonKey },
+  })
+  if (!userRes.ok) return null
+  const user = await userRes.json()
+  if (!user || !user.id) return null
+
+  return { id: user.id, email: user.email, token }
+}
+
 export function jsonResponse(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,

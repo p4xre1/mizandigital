@@ -33,6 +33,7 @@ export interface Database {
           ban_reason: string | null
           banned_at: string | null
           banned_by: string | null
+          role: string | null
         }
         Insert: {
           id: string
@@ -57,6 +58,7 @@ export interface Database {
           ban_reason?: string | null
           banned_at?: string | null
           banned_by?: string | null
+          role?: string | null
         }
         Update: {
           id?: string
@@ -81,6 +83,7 @@ export interface Database {
           ban_reason?: string | null
           banned_at?: string | null
           banned_by?: string | null
+          role?: string | null
         }
         Relationships: []
       }
@@ -107,9 +110,11 @@ export interface Database {
         Relationships: []
       }
       onboarding_responses: {
-        Row: { id: string; clerk_user_id: string; user_type: string; referral_source: string; interests: string[]; created_at: string; updated_at: string }
-        Insert: { id?: string; clerk_user_id: string; user_type: string; referral_source: string; interests?: string[]; created_at?: string; updated_at?: string }
-        Update: { id?: string; clerk_user_id?: string; user_type?: string; referral_source?: string; interests?: string[]; created_at?: string; updated_at?: string }
+        // user_id = auth.users (Supabase Auth). clerk_user_id LEGACY: بقا
+        // nullable للصفوف التاريخية فقط (الترحيل 20260924000000).
+        Row: { id: string; user_id: string | null; clerk_user_id: string | null; user_type: string; referral_source: string; interests: string[]; created_at: string; updated_at: string }
+        Insert: { id?: string; user_id?: string | null; clerk_user_id?: string | null; user_type: string; referral_source: string; interests?: string[]; created_at?: string; updated_at?: string }
+        Update: { id?: string; user_id?: string | null; clerk_user_id?: string | null; user_type?: string; referral_source?: string; interests?: string[]; created_at?: string; updated_at?: string }
         Relationships: []
       }
       // محور الاختبارات ونظام الرتب — أنشئت في ترقية 20260914000000
@@ -269,6 +274,7 @@ export interface Database {
         Row: {
           id: string
           owner_id: string | null
+          /** LEGACY — Clerk أُزيل؛ العمود باقٍ لصفوف تاريخية فقط. */
           clerk_user_id: string | null
           username: string
           display_name: string
@@ -278,13 +284,34 @@ export interface Database {
           interests: string[]
           city: string | null
           bio: string | null
+          occupation: string | null
+          share_location: boolean
+          bio_public: boolean
+          avatar_url: string | null
+          cover_url: string | null
+          headline: string | null
+          website_url: string | null
+          linkedin_url: string | null
+          theme_color: string | null
+          show_xp: boolean
+          show_badges: boolean
+          show_attempts: boolean
+          show_rank: boolean
           xp: number
           credits: number
           rank: string
+          highest_rank: string | null
+          rank_updated_at: string | null
           badges: string[]
           streak_days: number
           placement_completed: boolean
           is_public: boolean
+          is_pro: boolean
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_ends_at: string | null
+          subscription_current_period_end: string | null
+          subscription_status: string | null
           created_at: string
           updated_at: string
         }
@@ -300,13 +327,34 @@ export interface Database {
           interests?: string[]
           city?: string | null
           bio?: string | null
+          occupation?: string | null
+          share_location?: boolean
+          bio_public?: boolean
+          avatar_url?: string | null
+          cover_url?: string | null
+          headline?: string | null
+          website_url?: string | null
+          linkedin_url?: string | null
+          theme_color?: string | null
+          show_xp?: boolean
+          show_badges?: boolean
+          show_attempts?: boolean
+          show_rank?: boolean
           xp?: number
           credits?: number
           rank?: string
+          highest_rank?: string | null
+          rank_updated_at?: string | null
           badges?: string[]
           streak_days?: number
           placement_completed?: boolean
           is_public?: boolean
+          is_pro?: boolean
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_ends_at?: string | null
+          subscription_current_period_end?: string | null
+          subscription_status?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -322,13 +370,107 @@ export interface Database {
           interests: string[]
           city: string | null
           bio: string | null
+          occupation: string | null
+          share_location: boolean
+          bio_public: boolean
+          avatar_url: string | null
+          cover_url: string | null
+          headline: string | null
+          website_url: string | null
+          linkedin_url: string | null
+          theme_color: string | null
+          show_xp: boolean
+          show_badges: boolean
+          show_attempts: boolean
+          show_rank: boolean
           xp: number
           credits: number
           rank: string
+          highest_rank: string | null
+          rank_updated_at: string | null
           badges: string[]
           streak_days: number
           placement_completed: boolean
           is_public: boolean
+          is_pro: boolean
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_ends_at: string | null
+          subscription_current_period_end: string | null
+          subscription_status: string | null
+          created_at: string
+          updated_at: string
+        }>
+        Relationships: []
+      }
+
+      rank_capabilities: {
+        Row: {
+          rank: string
+          level: number
+          label_ar: string
+          description_ar: string
+          min_xp: number
+          max_xp: number | null
+          glyph: string
+          can_comment: boolean
+          can_react: boolean
+          can_save_content: boolean
+          can_suggest_content: boolean
+          can_help_peers: boolean
+          can_publish_article: boolean
+          recommendation_cert: boolean
+          advisor_panel: boolean
+          hall_of_fame: boolean
+          max_daily_reports: number
+          max_daily_comments: number
+          perks_ar: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          rank: string
+          level: number
+          label_ar: string
+          description_ar: string
+          min_xp: number
+          max_xp?: number | null
+          glyph?: string
+          can_comment?: boolean
+          can_react?: boolean
+          can_save_content?: boolean
+          can_suggest_content?: boolean
+          can_help_peers?: boolean
+          can_publish_article?: boolean
+          recommendation_cert?: boolean
+          advisor_panel?: boolean
+          hall_of_fame?: boolean
+          max_daily_reports?: number
+          max_daily_comments?: number
+          perks_ar?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<{
+          rank: string
+          level: number
+          label_ar: string
+          description_ar: string
+          min_xp: number
+          max_xp: number | null
+          glyph: string
+          can_comment: boolean
+          can_react: boolean
+          can_save_content: boolean
+          can_suggest_content: boolean
+          can_help_peers: boolean
+          can_publish_article: boolean
+          recommendation_cert: boolean
+          advisor_panel: boolean
+          hall_of_fame: boolean
+          max_daily_reports: number
+          max_daily_comments: number
+          perks_ar: string[]
           created_at: string
           updated_at: string
         }>
@@ -346,6 +488,11 @@ export interface Database {
       complete_payment_and_grant_credits: { Args: { p_payment_id: string }; Returns: boolean }
       quiz_leaderboard: { Args: { p_limit?: number }; Returns: { user_ref: string; label: string; score: number; xp_earned: number; created_at: string }[] }
       compute_quiz_xp: { Args: { p_correct: boolean; p_difficulty: string; p_elapsed_ms: number; p_streak: number }; Returns: number }
+      profile_rank_board: { Args: { p_limit?: number }; Returns: { username: string; display_name: string; avatar_url: string | null; role: string; rank: string; rank_label: string; level: number; xp: number; badges: string[] }[] }
+      mizan_rank_matrix: { Args: Record<PropertyKey, never>; Returns: { rank: string; level: number; label_ar: string; description_ar: string; min_xp: number; max_xp: number | null; glyph: string; can_comment: boolean; can_react: boolean; can_save_content: boolean; can_suggest_content: boolean; can_help_peers: boolean; can_publish_article: boolean; recommendation_cert: boolean; advisor_panel: boolean; hall_of_fame: boolean; max_daily_reports: number; max_daily_comments: number; perks_ar: string[] }[] }
+      mizan_rank_for_xp: { Args: { p_xp: number }; Returns: string }
+      current_user_rank: { Args: Record<PropertyKey, never>; Returns: string }
+      has_rank_at_least: { Args: { p_rank: string }; Returns: boolean }
     }
     Enums: { [_ in never]: never }
     CompositeTypes: { [_ in never]: never }

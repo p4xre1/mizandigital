@@ -129,7 +129,7 @@ export default function HomeManagementPage() {
                 <li>✅ AEOHead + directAnswer + breadcrumbs + FAQ + speakable</li>
                 <li>✅ 320 route prerendered + 21 school + 250 lexicon</li>
                 <li>✅ Mizan Pro 49/399 MAD + باقات 19-199 MAD</li>
-                <li>✅ كوكيز جديدة: __clerk_*, sb-*, mizan:subscription:v1, mizan:saved:content:v1, mizan_quiz_progress, mizan:analytics:queue</li>
+                <li>✅ كوكيز جديدة: sb-* (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan_quiz_progress, mizan:analytics:queue</li>
                 <li>⚠️ لوحة تحرير مرئية للرئيسية مستقبلاً (حالياً عبر الكود)</li>
               </ul>
             </div>

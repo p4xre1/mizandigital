@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchReactions, toggleReaction, REACTION_META, type ReactionType, type TargetType, type ReactionSummary } from "@/lib/reactions/service";
-import { useUser } from "@clerk/clerk-react";
-import { isClerkEnabled } from "@/lib/clerk/config";
+import { useAuth } from "@/lib/auth/AuthProvider";
 
 interface Props {
   targetType: TargetType;
@@ -16,17 +15,10 @@ export function ReactionBar({ targetType, targetId, className, allowed = ["like"
   const [busy, setBusy] = useState<ReactionType | null>(null);
   const [myReactions, setMyReactions] = useState<Set<ReactionType>>(new Set());
 
-  // useUser() تُنادى دائماً (حتى لا نخالف قواعد hooks) لكن داخل try/catch:
-  // بدون <ClerkProvider> ترمي Clerk خطأ، فنبتلعه ونكمل كمستخدم مجهول.
-  // النتيجة لا تُستعمل إلا إذا كان Clerk مفعلاً فعلاً (isClerkEnabled).
-  let clerkUserId: string | null = null;
-  try {
-    const { user } = useUser();
-    if (isClerkEnabled) clerkUserId = user?.id || null;
-  } catch {
-    // Clerk not mounted — نتصرف كمستخدم مجهول بدل رمي خطأ
-    clerkUserId = null;
-  }
+  // Supabase Auth: useAuth() لا يرمي أبداً — للزائر يرجع user = null فنتصرف
+  // كمجهول (معرّف جهاز) بدل رمي خطأ أو حجب التفاعل.
+  const { user } = useAuth();
+  const signedInUserId = user?.id ?? null;
 
   useEffect(() => {
     let mounted = true;
@@ -47,7 +39,7 @@ export function ReactionBar({ targetType, targetId, className, allowed = ["like"
     if (busy) return;
     setBusy(type);
     try {
-      const result = await toggleReaction(targetType, targetId, type, clerkUserId);
+      const result = await toggleReaction(targetType, targetId, type, signedInUserId);
       setSummary(result.summary);
       setMyReactions((prev) => {
         const next = new Set(prev);

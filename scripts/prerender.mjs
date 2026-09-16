@@ -1,5 +1,4 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { loadEnv } from "vite";
 import { buildLlmsTxt } from "./lib/llms-content.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -327,12 +326,10 @@ const NAV_BASE = "px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap
 const NAV_ACTIVE = "bg-[#2563eb] text-white shadow-sm";
 const NAV_IDLE = "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white";
 
-// هل Clerk مفعّل وقت البناء؟ — يحدّد إن كان زر «دخول» يظهر في الـ Header.
-// نستعمل loadEnv بدل process.env مباشرة لأن المفتاح قد يأتي من ملف .env
-// (الذي لا يقرأه سكربت Node عادي) لا من متغيرات البيئة فقط؛ لو اختلف
-// الظنّ عن الواقع يظهر فرق أفقي بسيط في الـ Header على الشاشات المتوسطة.
-const buildEnv = loadEnv(process.env.NODE_ENV || "production", process.cwd(), "VITE_");
-const clerkEnabled = Boolean(buildEnv.VITE_CLERK_PUBLISHABLE_KEY);
+// المصادقة صارت Supabase Auth (أُزيل Clerk): زر «دخول» يظهر دائماً في
+// الهيكل المُسبق (prerender)، ولا يعتمد على أي مفتاح وقت البناء. حالة
+// الجلسة تُحسم في المتصفح، وAuthControls يعرض هيكلاً بنفس العرض حتى لا
+// يقفز الشريط (CLS) ريثما تُقرأ الجلسة من كوكي sb-*.
 
 const homeHeaderHtml = `
         <header class="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
@@ -356,11 +353,10 @@ const homeHeaderHtml = `
               </div>
               <a href="/search" class="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="البحث">${svgIcon(ICON.search, "", 16)}</a>
               <button type="button" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="تبديل الوضع الليلي">${svgIcon(ICON.moon, "text-[#475569]", 16)}</button>
-              <div class="hidden md:flex items-center gap-2">${
-                clerkEnabled
-                  ? `<button type="button" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>`
-                  : ""
-              }</div>
+              <div class="hidden md:flex items-center gap-2">
+                <a href="/login" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</a>
+                <a href="/login?mode=signup" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] px-4 py-2 text-[13px] font-bold text-white shadow-sm hover:bg-[#1d4ed8] transition-colors">حساب جديد</a>
+              </div>
               <a href="/articles" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20">←</span></a>
               <button type="button" class="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="فتح القائمة">${svgIcon(ICON.menu, "", 18)}</button>
             </div>

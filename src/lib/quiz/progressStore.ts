@@ -308,6 +308,37 @@ export function saveProfile(profile: MizanProfile): void {
   commit({ ...state, profile })
 }
 
+/**
+ * دمج التقدّم السحابي (mizan_profiles) في المخزن المحلي عند تسجيل الدخول.
+ *
+ * القاعدة: لا نخسر تقدّماً أبداً — نأخذ الأعلى من القيمتين (الجهاز/السحابة)
+ * ونوحّد الأوسمة. هكذا مستخدم تدرّب على جهازين يجد رتبته الصحيحة، والرتبة
+ * نفسها تُشتق من xp في القاعدة عبر المشغّل apply_profile_rank.
+ */
+export interface CloudProgression {
+  xp: number
+  credits: number
+  badges: string[]
+  streakDays: number
+  placementCompleted: boolean
+  profile?: MizanProfile | null
+}
+
+export function mergeCloudProgression(cloud: CloudProgression): QuizProgress {
+  const current = state
+  const next: QuizProgress = {
+    ...current,
+    xp: Math.max(current.xp, Math.max(0, Math.round(cloud.xp ?? 0))),
+    credits: Math.max(current.credits, Math.max(0, Math.round(cloud.credits ?? 0))),
+    streakDays: Math.max(current.streakDays, Math.max(0, Math.round(cloud.streakDays ?? 0))),
+    placementCompleted: current.placementCompleted || cloud.placementCompleted === true,
+    badges: Array.from(new Set([...current.badges, ...(cloud.badges ?? [])])),
+    profile: cloud.profile ?? current.profile,
+  }
+  commit(next)
+  return next
+}
+
 export function resetProgress(): void {
   commit({ ...EMPTY_PROGRESS })
 }

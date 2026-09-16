@@ -42,6 +42,22 @@ export interface SecureSubmitResult {
 const SUBMIT_COOLDOWN_MS = 3000;
 let lastSubmitAt = 0;
 
+/**
+ * user_ref للمحاولة:
+ *   1) معرّف حساب Supabase (uuid) إن كان المستخدم مسجلاً — يُسند التجربة
+ *      للحساب نفسه عبر كل الأجهزة (وبالتالي للبروفايل ورتبته).
+ *   2) وإلا معرّف محلي/مجهول ثابت على الجهاز.
+ */
+async function resolveUserRef(supabase: { auth: { getUser: () => Promise<{ data?: { user?: { id: string } | null } }> } }): Promise<string | null> {
+  try {
+    const { data } = await supabase.auth.getUser();
+    if (data?.user?.id) return data.user.id;
+  } catch {
+    /* نكمل بالمعرّف المحلي */
+  }
+  return getUserRef();
+}
+
 function getUserRef(): string | null {
   try {
     const progress = getProgressSnapshot();
@@ -96,7 +112,7 @@ export async function submitAttemptSecure(payload: SecureSubmitPayload): Promise
       p_tier: payload.tier,
       p_answers: answersJson as unknown as string, // supabase-js يقبل jsonb كـ object
       p_duration_ms: payload.durationMs,
-      p_user_ref: getUserRef(),
+      p_user_ref: await resolveUserRef(supabase),
     });
 
     if (error) {

@@ -48,9 +48,10 @@ export async function createReport(params: {
   targetId: string;
   reason: ReportReason;
   details?: string;
-  clerkId?: string | null;
+  /** معرّف حساب Supabase للمبلّغ المسجّل (auth.uid()) — يجعل البلاغ قابلاً للتتبع. */
+  reporterId?: string | null;
 }): Promise<string> {
-  const userRef = getUserRef();
+  const userRef = params.reporterId || getUserRef();
 
   try {
     const { supabase } = await import("@/lib/supabase/client");
@@ -60,7 +61,6 @@ export async function createReport(params: {
       p_target_id: params.targetId,
       p_reason: params.reason,
       p_details: params.details?.slice(0, 2000) || null,
-      p_reporter_clerk_id: params.clerkId || null,
     });
 
     if (error) throw error;

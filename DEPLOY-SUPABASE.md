@@ -36,6 +36,7 @@ missing.** الترتيب الزمني مهم لأن أجسام الدوال ت�
 | 8 | `20260919000000_user_role_add_member.sql` | ⚠ انظر التحذير |
 | 9 | `20260919010000_user_role_default_member_and_demote.sql` | ⚠ انظر التحذير |
 | 10 | `20260920000000_protect_progression_and_quiz_answers.sql` | 🛑 **لا تطبّقه الآن** |
+| 11 | `20260924000000_supabase_auth_profiles_and_ranks.sql` | 🔁 **إزالة Clerk** — طبّقه بعد 10 |
 
 ### ✅ عملياً: لصقتان فقط تكفيان (مُثبَت بالاختبار)
 
@@ -85,6 +86,51 @@ SEPARATELY paste 2:   ok
 الملف (المُشغّل + `award_quiz_result`) وتأجيل القسم 3. لكن القسم 1 وحده
 سيجعل حفظ البروفايل يفشل حتى تُحذف `xp`/`rank` من `syncProfileToCloud`.
 
+### 🔁 الملف 11 — إزالة Clerk: Supabase Auth + بروفايلات مخصصة + كل الرتب
+
+`20260924000000_supabase_auth_profiles_and_ranks.sql` هو الترحيل الذي ينقل
+المنصة إلى مزوّد هوية واحد. طبّقه **بعد** الملف 10 (يعتمد على مشغّلاته
+`check_profile_xp_jump` وعلى `public.is_admin()`).
+
+ماذا يفعل:
+
+| البند | التفاصيل |
+|---|---|
+| `handle_new_user` | ينشئ `profiles` **و** `mizan_profiles` معاً عند كل تسجيل جديد — بروفايل عام مخصص واسم مستخدم فريد ورتبة D |
+| `on_auth_user_created` | المشغّل نفسه مثبَّت صراحة على `auth.users` (لم يكن معلناً في أي ترحيل سابق) |
+| `rank_capabilities` | سلم الرتب D→SSS في القاعدة: العتبات، المستوى 1..7، والصلاحيات |
+| `mizan_rank_for_xp(xp)` | نفس منطق `getRankForXp` في TypeScript |
+| `apply_profile_rank` | مشغّل BEFORE INSERT/UPDATE يشتق `rank` من `xp` ويحدّث `highest_rank` و`rank_updated_at` |
+| أعمدة البروفايل المخصص | `avatar_url, cover_url, headline, website_url, linkedin_url, theme_color, show_xp, show_badges, show_attempts, show_rank, highest_rank, rank_updated_at` |
+| `mizan_profiles_owner_read` | المالك يقرأ بروفايله حتى لو `is_public = false` |
+| `onboarding_responses.user_id` | uuid → `auth.users`، و`clerk_user_id` صار nullable/تراثياً |
+| `profile_rank_board(limit)` | لوحة الرتب العامة |
+| `mizan_rank_matrix()` | مصفوفة الرتب الكاملة للواجهة |
+
+لماذا هذا يُصلح تحفّظ الملف 10: الواجهة ما زالت ترسل `xp` في الـ upsert، لكن
+`rank` لم يعد قراراً من العميل — المشغّل يعيد حسابه من `xp` في كل كتابة،
+و`check_profile_xp_jump` يمنع أي قفزة أكبر من 3000 XP لغير الإدارة. أي
+محاولة لكتابة `rank: 'SSS'` مع `xp: 0` تُصحَّح تلقائياً إلى `D`.
+
+تحقّق بعد التطبيق:
+
+```sql
+select rank, level, min_xp, max_xp from public.rank_capabilities order by level;
+
+-- يجب أن يعيد 0: كل حساب له بروفايل عام
+select count(*) from public.profiles p
+ where not exists (select 1 from public.mizan_profiles mp where mp.owner_id = p.id);
+
+-- الرتبة مطبّقة من الخبرة على كل الصفوف
+select count(*) from public.mizan_profiles where rank <> public.mizan_rank_for_xp(xp);
+```
+
+> **أعمدة Clerk الباقية:** `mizan_profiles.clerk_user_id` و
+> `reactions.clerk_user_id` و`reports.reporter_clerk_id` و
+> `comments.clerk_user_id` لم تُحذف — هي أعمدة nullable لصفوف تاريخية، ولا
+> يقرأها أو يكتبها أي كود بعد الآن. احذفها في ترحيل لاحق بعد تسوية الصفوف
+> القديمة (أو تجاهلها: لا أثر لها على الأمان أو السلوك).
+
 ---
 
 ## 2) خطوة يدوية بعد الملف 9 — إعادة ترقية المحرّرين الحقيقيين
@@ -117,7 +163,6 @@ ORDER BY created_at DESC LIMIT 5;
 ```
 VITE_SUPABASE_URL=https://YOUR-REF.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon key>
-VITE_CLERK_PUBLISHABLE_KEY=pk_...
 VITE_SITE_URL=https://mizan.ma
 VITE_SITE_NAME="ميزان الرقمية"
 VITE_GA_ID=            # اختياري
@@ -133,7 +178,6 @@ SUPABASE_SERVICE_ROLE_KEY     # ⚠ secret، لا تضعه في VITE_
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 STRIPE_PRICE_ID
-CLERK_JWT_ISSUER              # مثال: https://xxx.clerk.accounts.dev
 TURNSTILE_SECRET_KEY
 IP_HASH_SALT
 SITE_URL
@@ -148,9 +192,30 @@ npx wrangler pages secret put SUPABASE_SERVICE_ROLE_KEY --project-name mizandigi
 
 ```bash
 npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...
-npx supabase secrets set CLERK_JWT_ISSUER=https://xxx.clerk.accounts.dev
 npx supabase functions deploy onboarding
 ```
+
+> بعد إزالة Clerk لم تعد الدالة تحتاج `CLERK_JWT_ISSUER`: تتحقق من
+> Supabase access_token عبر `auth.getUser()`، و`verify_jwt = true` في
+> `supabase/config.toml`. إن كنت نشرت النسخة القديمة بـ `--no-verify-jwt`
+> فأعد النشر بدونها.
+
+### Supabase Auth (مزوّد الهوية الوحيد)
+
+من لوحة التحكم → Authentication:
+
+1. **Providers → Email**: مفعّل. اختر هل تريد تأكيد البريد (Confirm email).
+2. **Providers → Google**: Client ID/Secret من Google Cloud Console، مع
+   إضافة `https://YOUR-REF.supabase.co/auth/v1/callback` إلى Authorized
+   redirect URIs في Google.
+3. **URL Configuration**:
+   - Site URL = `https://mizan.ma`
+   - Redirect URLs = `https://mizan.ma/profile`, `https://mizan.ma/login`,
+     `http://localhost:5173/profile`
+4. **حسابات الإدارة**: أنشئ الحساب ثم من SQL Editor:
+   ```sql
+   update public.profiles set admin_god_mode = true where email = 'admin@mizan.ma';
+   ```
 
 ---
 
@@ -175,7 +240,7 @@ npx supabase functions deploy onboarding
 ## 5) البناء والنشر
 
 ```bash
-pnpm install          # يرقّي @clerk/clerk-react إلى 5.61.9 (ثغرة عالية)
+pnpm install          # بلا أي اعتمادية Clerk (أُزيلت كلها)
 pnpm typecheck        # يجب أن يمر بلا أخطاء
 pnpm test             # 353 اختباراً في 11 ملفاً
 pnpm build            # 321 مساراً

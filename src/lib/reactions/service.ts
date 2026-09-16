@@ -27,11 +27,6 @@ function getUserRef(): string {
   }
 }
 
-function getClerkId(): string | null {
-  // Clerk ID سيأتي من useUser() في المكونات، هنا نمرره كـ param
-  return null;
-}
-
 // ذاكرة محلية للتفاعلات (optimistic UI)
 const localReactions = new Map<string, Set<ReactionType>>();
 
@@ -57,13 +52,17 @@ export async function fetchReactions(targetType: TargetType, targetId: string): 
   }
 }
 
+/**
+ * @param signedInUserId معرّف حساب Supabase (auth.uid()) إن كان المستخدم
+ * مسجلاً — يجعل تفاعلاته ثابتة عبر الأجهزة. للزائر نستعمل معرّف الجهاز.
+ */
 export async function toggleReaction(
   targetType: TargetType,
   targetId: string,
   reactionType: ReactionType,
-  clerkUserId?: string | null
+  signedInUserId?: string | null
 ): Promise<{ action: "added" | "removed"; count: number; summary: ReactionSummary[] }> {
-  const userRef = getUserRef();
+  const userRef = signedInUserId || getUserRef();
   const key = keyFor(targetType, targetId);
 
   // Optimistic update
@@ -77,7 +76,6 @@ export async function toggleReaction(
       p_target_type: targetType,
       p_target_id: targetId,
       p_reaction_type: reactionType,
-      p_clerk_user_id: clerkUserId || null,
     });
 
     if (error) throw error;

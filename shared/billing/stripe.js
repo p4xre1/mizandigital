@@ -214,7 +214,7 @@ export const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing"])
  *             currency?: string, invoiceId?: string, paymentIntentId?: string,
  *             billingReason?: string, periodEnd?: string|null, declineCode?: string|null,
  *             paymentMethodId?: string, ipCountry?: string|null, cardCountry?: string|null,
- *             errorCode?: string|null, clerkUserId?: string|null,
+ *             errorCode?: string|null, clerkUserId?: string|null, // LEGACY
  *             endsAt?: string|null, userId?: string|null } | null}
  */
 export function reduceStripeEvent(event) {
@@ -226,11 +226,12 @@ export function reduceStripeEvent(event) {
   // metadata قد تكون على الجلسة أو على الاشتراك أو على العميل
   const md = obj.metadata || obj.subscription_details?.metadata || {}
 
-  // ── فصل هويتين لا يجوز خلطهما ──────────────────────────────────────────
-  // Mizan له مسارا مصادقة: Supabase Auth (profiles.id، وهو UUID) و Clerk
-  // (mizan_profiles.clerk_user_id، وشكله user_…). المسودة الأولى كانت تُسند
-  // client_reference_id إلى userId مباشرة، فأي جلسة Clerk كانت ستُعامَل
-  // كمعرّف Supabase وتفشل الكتابة بصمت.
+  // ── هوية واحدة + تراث قديم ──────────────────────────────────────────────
+  // Clerk أُزيل من المشروع: الهوية الوحيدة الآن Supabase Auth
+  // (profiles.id / mizan_profiles.owner_id، وهو UUID). ما زالت أحداث Stripe
+  // القديمة تحمل metadata.clerkUserId أو client_reference_id بصيغة user_…،
+  // فنُخرجها في حقل clerkUserId التراثي (لا يستهلكه أي كود) بدل أن تُخلط
+  // مع userId وتفسد الكتابة في الجدول.
   const refId = typeof obj.client_reference_id === "string" ? obj.client_reference_id : null
   const isClerkId = (v) => typeof v === "string" && /^user_[A-Za-z0-9]{8,}$/.test(v)
 
