@@ -2,7 +2,31 @@
 <html lang="ar-MA" dir="rtl" class="dark">
   <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <!--
+      Theme bootstrap — يجب أن يُنفَّذ قبل أي رسم.
+      سابقاً كان <html class="dark"> ثابتاً في المستند، ثم بعد تحميل React
+      يقوم useTheme() بتبديله إلى light حسب تفضيل النظام. النتيجة: وميض
+      داكن→فاتح على كل زيارة، وإعادة رسم لكل عناصر transition-colors/
+      transition-all (رصد Lighthouse منها 49 عنصر «non-composited animation»).
+      هذا السكربت يطبّق السمة الصحيحة قبل أول رسم فيختفي الوميض والسبب معه.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("mizan_theme");
+          var theme = (stored === "light" || stored === "dark")
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          var root = document.documentElement;
+          root.classList.remove("light", "dark");
+          root.classList.add(theme);
+          root.style.colorScheme = theme;
+        } catch (e) {}
+      })();
+    </script>
     <meta name="theme-color" content="#0b1220">
     <meta name="msapplication-TileColor" content="#0b1220">
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -20,13 +44,20 @@
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="bingbot" content="index, follow, max-image-preview:large">
 
-    <!-- Performance: preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <!--
+      Performance: الخطوط
+      سابقاً كان يُطلب ملف CSS من fonts.googleapis.com أولاً، ومن داخله فقط
+      يُكتشف ملف woff2 — أي جولتا شبكة قبل بدء تنزيل الخط، فيظهر النص بخط
+      بديل ثم يُستبدل (font swap) ويتحرك تخطيط الصفحة (مساهم رئيسي في CLS).
+      الآن @font-face مضمّن مباشرة في src/styles/fonts.css وملفا woff2
+      (العربي واللاتيني) يُحمَّلان مسبقاً بأعلى أولوية، فيصل الخط عادة قبل
+      أول رسم فلا يحدث استبدال ولا انزياح.
+    -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap"></noscript>
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cairo/v31/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS4J0.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cairo/v31/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscRiyS.woff2">
 
     <!-- Canonical & Hreflang -->
     <link rel="canonical" href="https://www.mizan.page/">

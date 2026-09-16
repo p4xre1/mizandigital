@@ -37,21 +37,28 @@ export default defineConfig({
     cssMinify: true,
     rollupOptions: {
       output: {
-        manualChunks(id: string) {
-          if (id.includes("node_modules")) {
-            if (id.includes("@supabase")) return "vendor-supabase";
-            if (id.includes("@clerk")) return "vendor-clerk";
-            if (id.includes("pdfjs-dist")) return "pdf-worker";
-            if (id.includes("lucide-react")) return "vendor-lucide";
-            if (id.includes("react") || id.includes("react-dom") || id.includes("react-router")) {
-              return "vendor-react";
-            }
-            return "vendor";
-          }
-          if (id.includes("quiz-questions.json")) return "quiz-questions";
-          if (id.includes("lexicon.json")) return "lexicon";
-          if (id.includes("schools.json")) return "schools";
-          if (id.includes("mizanScore")) return "mizanScore";
+        // ── لماذا advancedChunks بدل manualChunks ────────────────────────────
+        // مع manualChunks كان Rolldown يضع الوحدة المشتركة الصغيرة
+        // "vite/preload-helper" داخل أول chunk ضخم يستعملها (vendor-clerk ثم
+        // pdf-worker). النتيجة: entry الصفحة الرئيسية كان يستورد رمزاً واحداً
+        // صغيراً من chunk حجمه 428KB، فيُحمَّل pdfjs + Clerk (655KB) ويحلَّل
+        // في الخيط الرئيسي على أول زيارة دون أي استعمال — وهو بالضبط ما
+        // رصده Lighthouse في "unused JavaScript ≈ 467 KiB" و TBT/main-thread.
+        // مجموعة preload-helper ذات الأولوية الأعلى تعزله في ملف ~1KB.
+        advancedChunks: {
+          groups: [
+            { name: "preload-helper", test: /vite\/preload-helper/, priority: 100 },
+            { name: "vendor-lucide", test: /lucide-react/, priority: 90 },
+            { name: "vendor-react", test: /node_modules\/(?:react|react-dom|scheduler|react-router|react-router-dom)\//, priority: 80 },
+            { name: "vendor-supabase", test: /@supabase/, priority: 70 },
+            { name: "vendor-clerk", test: /@clerk/, priority: 60 },
+            { name: "vendor-pdfjs", test: /pdfjs-dist/, priority: 50 },
+            { name: "quiz-questions", test: /quiz-questions\.json/, priority: 40 },
+            { name: "lexicon", test: /lexicon\.json/, priority: 40 },
+            { name: "schools", test: /schools\.json/, priority: 40 },
+            { name: "mizanScore", test: /mizanScore/, priority: 40 },
+            { name: "vendor", test: /node_modules/, priority: 10 },
+          ],
         },
       },
     },

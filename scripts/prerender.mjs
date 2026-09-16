@@ -1,4 +1,6 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { loadEnv } from "vite";
+import { buildLlmsTxt } from "./lib/llms-content.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -273,6 +275,151 @@ const websiteSchema = {
 };
 
 /* -------------------------------------------------------
+   Critical shell — الهيكل الأولي المُصمَّم للصفحة الرئيسية
+-------------------------------------------------------
+
+  لماذا يوجد هذا؟
+  ────────────────
+  كان #root يُملأ بنص SEO مجرد من أي كلاسّات (عناوين وفقرات بالتنسيق
+  الافتراضي للمتصفح)، ثم يستبدله React بالكامل عند mount عبر
+  createRoot().render(). أي أن أول رسم يعرض مستنداً نصياً plain، والرسم
+  الثاني يعرض الواجهة الحقيقية — فينتقل كل عنصر ظاهر في إطار العرض من
+  مكانه. هذا هو السبب المباشر لـ CLS = 0.44 في تقرير Lighthouse،
+  ولأن عنصر LCP (عنوان الصفحة) كان يُستبدل فيتأخر إلى 5.3 ثانية.
+
+  الحل: أن يُطابق الهيكل المُهيّأ مسبقاً ما يرسمه React فوق خط الطي
+  (header + hero) بنفس الكلاسّات والبنية والبيانات، فيصبح الاستبدال
+  غير محسوس بصرياً ولا يحرّك شيئاً داخل إطار العرض. كل الكلاسّات
+  المستعملة هنا موجودة أصلاً في src (Header/PublicNavigation/HomePage)
+  فهي ضمن حزمة CSS المبنية دون أي إضافة.
+
+  ملاحظة صيانة: عند تغيير hero الصفحة الرئيسية أو الـ Header، حدّث هذا
+  الهيكل معه — أي فرق في البنية يعود فيظهر كانزياح تخطيط.
+------------------------------------------------------- */
+
+const svgIcon = (body, cls, size = 24) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}" aria-hidden="true">${body}</svg>`;
+
+const ICON = {
+  search: `<circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>`,
+  moon: `<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>`,
+  menu: `<line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line>`,
+  users: `<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>`,
+  star: `<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path>`,
+  scale: `<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>`,
+  library: `<path d="m16 6 4 14"></path><path d="M12 6v14"></path><path d="M8 8v12"></path><path d="M4 4v16"></path>`,
+  bookOpen: `<path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>`,
+  cap: `<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path>`,
+};
+
+const NAV_LINKS = [
+  ["الرئيسية", "/", true],
+  ["المقالات", "/articles", false],
+  ["الأخبار", "/news", false],
+  ["القاموس", "/lexicon", false],
+  ["الكليات", "/schools", false],
+  ["الأرشيف", "/archive", false],
+  ["الفعاليات", "/events", false],
+  ["الاختبارات", "/quiz", false],
+];
+
+const NAV_BASE = "px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all";
+const NAV_ACTIVE = "bg-[#2563eb] text-white shadow-sm";
+const NAV_IDLE = "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white";
+
+// هل Clerk مفعّل وقت البناء؟ — يحدّد إن كان زر «دخول» يظهر في الـ Header.
+// نستعمل loadEnv بدل process.env مباشرة لأن المفتاح قد يأتي من ملف .env
+// (الذي لا يقرأه سكربت Node عادي) لا من متغيرات البيئة فقط؛ لو اختلف
+// الظنّ عن الواقع يظهر فرق أفقي بسيط في الـ Header على الشاشات المتوسطة.
+const buildEnv = loadEnv(process.env.NODE_ENV || "production", process.cwd(), "VITE_");
+const clerkEnabled = Boolean(buildEnv.VITE_CLERK_PUBLISHABLE_KEY);
+
+const homeHeaderHtml = `
+        <header class="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
+          <div class="container mx-auto max-w-[1280px] px-4 h-16 flex items-center justify-between gap-3">
+            <a href="/" class="flex shrink-0 items-center gap-2.5">
+              <img src="/Logo.svg" alt="ميزان الرقمية" class="size-9 rounded-xl shadow-sm object-cover" width="36" height="36" loading="eager" fetchpriority="high" decoding="async">
+              <span>
+                <span class="block text-[15px] font-black tracking-tight leading-none text-[#0f172a] dark:text-white">ميزان الرقمية</span>
+                <span class="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8] tracking-wide">المعرفة القانونية للطلبة</span>
+              </span>
+            </a>
+            <nav class="hidden lg:flex items-center gap-1">${NAV_LINKS.map(
+              ([label, href, active]) =>
+                `\n              <a href="${href}"${active ? ` aria-current="page"` : ""} class="${NAV_BASE} ${active ? NAV_ACTIVE : NAV_IDLE}">${label}</a>`
+            ).join("")}
+            </nav>
+            <div class="flex items-center gap-2 shrink-0">
+              <div class="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
+                <div class="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">${svgIcon(ICON.search, "size-4", 16)}</div>
+                <input placeholder="ابحث..." maxlength="100" autocomplete="off" spellcheck="false" class="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]">
+              </div>
+              <a href="/search" class="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="البحث">${svgIcon(ICON.search, "", 16)}</a>
+              <button type="button" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="تبديل الوضع الليلي">${svgIcon(ICON.moon, "text-[#475569]", 16)}</button>
+              <div class="hidden md:flex items-center gap-2">${
+                clerkEnabled
+                  ? `<button type="button" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>`
+                  : ""
+              }</div>
+              <a href="/articles" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20">←</span></a>
+              <button type="button" class="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="فتح القائمة">${svgIcon(ICON.menu, "", 18)}</button>
+            </div>
+          </div>
+        </header>`;
+
+const homeStatCards = [
+  ["القاموس", "250 مصطلح", ICON.scale, "bg-[#2563eb]", String(statistics.lexicon)],
+  ["الأرشيف", "S1-S6", ICON.library, "bg-[#f59e0b]", "S1-S6"],
+  ["المقالات", `${statistics.articles} مقال`, ICON.bookOpen, "bg-[#10b981]", String(statistics.articles)],
+  ["الأخبار", "مباشر", ICON.cap, "bg-[#ec4899]", "مباشر"],
+];
+
+const homeHeroHtml = `
+          <section class="relative bg-white dark:bg-[#0f172a] overflow-hidden">
+            <div class="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]"></div>
+            <div class="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]"></div>
+            <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
+              <div class="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
+                <span class="size-1.5 rounded-full bg-[#2563eb]"></span>
+                منصة تعليمية عصرية • مجانية 100%
+              </div>
+              <h1 class="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">افتح إمكانياتك مع<br><span class="text-[#2563eb]">التعلم القانوني</span><br><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span></h1>
+              <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
+              <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
+                <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
+                <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
+              </div>
+              <div class="mt-7 flex items-center justify-center gap-4">
+                <div class="flex -space-x-2 rtl:space-x-reverse">${[1, 2, 3, 4]
+                  .map(
+                    (i) =>
+                      `\n                  <div class="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">${String.fromCharCode(64 + i)}</div>`
+                  )
+                  .join("")}
+                </div>
+                <div class="text-right">
+                  <div class="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">${svgIcon(ICON.users, "size-4 text-[#2563eb]", 16)}500+ طالب يثقون بنا</div>
+                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 • منصة مجانية</div>
+                </div>
+              </div>
+              <div class="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">${homeStatCards
+                .map(
+                  ([title, desc, icon, color, badge]) => `
+                <div class="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                  <div class="flex items-center justify-between">
+                    <div class="grid size-9 place-items-center rounded-xl ${color} text-white shadow-sm">${svgIcon(icon, "size-4", 16)}</div>
+                    <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
+                  </div>
+                  <h2 class="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">${title}</h2>
+                  <p class="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">${desc}</p>
+                </div>`
+                )
+                .join("")}
+              </div>
+            </div>
+          </section>`;
+
+/* -------------------------------------------------------
    Static pages
 ------------------------------------------------------- */
 
@@ -352,11 +499,13 @@ const pages = [
     },
 
     staticBody: `
-      <main dir="rtl" lang="ar-MA">
+      <div class="min-h-screen bg-background text-foreground">${homeHeaderHtml}
+        <main class="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl" lang="ar-MA">${homeHeroHtml}
 
-        <article>
+        <section class="bg-white dark:bg-[#0f172a] py-14 border-t border-[#f1f5f9] dark:border-[#1e293b]">
+        <article class="container mx-auto max-w-[800px] px-6 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
 
-          <h1>ميزان الرقمية — المعرفة القانونية للطلبة بالمغرب</h1>
+          <h2 class="text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ميزان الرقمية — المعرفة القانونية للطلبة بالمغرب</h2>
 
           <p>
             <strong>ميزان الرقمية هي منصة عربية مغربية مجانية للمعرفة القانونية والأكاديمية.</strong>
@@ -369,8 +518,8 @@ const pages = [
             الموجهة لطلبة كليات الحقوق بالمغرب، وذلك دون الحاجة لإنشاء حساب أو دفع أي اشتراك.
           </p>
 
-          <section>
-            <h2>ماذا تقدم ميزان الرقمية؟</h2>
+          <section class="mt-10">
+            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان الرقمية؟</h3>
 
             <p>
               تجمع المنصة حالياً
@@ -389,8 +538,8 @@ const pages = [
             </p>
           </section>
 
-          <section>
-            <h2>كيف يمكن للطالب استخدام ميزان الرقمية؟</h2>
+          <section class="mt-10">
+            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">كيف يمكن للطالب استخدام ميزان الرقمية؟</h3>
 
             <p>
               <strong>أفضل نقطة بداية هي تحديد نوع المعلومة التي تبحث عنها.</strong>
@@ -432,8 +581,8 @@ const pages = [
             </ul>
           </section>
 
-          <section>
-            <h2>ما هو القاموس القانوني في ميزان الرقمية؟</h2>
+          <section class="mt-10">
+            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هو القاموس القانوني في ميزان الرقمية؟</h3>
 
             <p>
               <strong>القاموس القانوني هو أداة بحث للمصطلحات القانونية.</strong>
@@ -454,8 +603,8 @@ const pages = [
             </p>
           </section>
 
-          <section>
-            <h2>ما هي مراحل الدراسة S1 إلى S6؟</h2>
+          <section class="mt-10">
+            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هي مراحل الدراسة S1 إلى S6؟</h3>
 
             <p>
               يقسم الأرشيف الدراسي في ميزان الرقمية المواد إلى ستة فصول:
@@ -473,8 +622,8 @@ const pages = [
             </ol>
           </section>
 
-          <section>
-            <h2>ما هي مصادر المعلومات القانونية؟</h2>
+          <section class="mt-10">
+            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هي مصادر المعلومات القانونية؟</h3>
 
             <p>
               يجب التعامل مع ميزان الرقمية باعتبارها منصة تعليمية وبحثية،
@@ -489,8 +638,8 @@ const pages = [
             </p>
           </section>
 
-          <section>
-            <h2>من يقف وراء ميزان الرقمية؟</h2>
+          <section class="mt-10">
+            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">من يقف وراء ميزان الرقمية؟</h3>
 
             <p>
               ميزان الرقمية مشروع معرفي عربي موجه أساساً إلى طلبة القانون
@@ -520,8 +669,10 @@ const pages = [
           </footer>
 
         </article>
+        </section>
 
       </main>
+      </div>
     `,
   },
 
@@ -1936,90 +2087,34 @@ for (const page of pages) {
    llms.txt
 ------------------------------------------------------- */
 
-const llmsTxt = `# llms.txt
+/*
+  llms.txt — دليل الموقع لوكلاء الذكاء الاصطناعي.
 
-site: ميزان الرقمية (Mizan Digital)
-site_url: ${DOMAIN}/
-primary_language: ar-MA
-secondary_reference_language: fr (بعض المصطلحات القانونية فقط، دون ترجمة كاملة للمحتوى)
-audience: طلبة كليات الحقوق بالمغرب، الباحثون القانونيون، والمهتمون بالقانون المغربي
-last_generated: ${NOW}
+  كان هذا الملف يُكتب هنا بصيغة «شبه YAML» (مفاتيح + مسافات بادئة + عناوين
+  مجرّدة على شكل سطور)، فيستبدل النسخة Markdown الصحيحة التي يولّدها
+  scripts/generate-llms.mjs أثناء prebuild. النتيجة أن /llms.txt المنشور
+  كان بلا أي رابط Markdown — وهو سبب فشل تدقيق llms-txt في Lighthouse
+  («يبدو أنّ الملف لا يحتوي على أي روابط») وضياع درجة «التصفّح المستنِد
+  إلى الذكاء الاصطناعي الوكيل».
 
-summary:
-منصة مغربية تعليمية مجانية للمعرفة القانونية والأكاديمية، تقدّم مقالات قانونية محكّمة، مستجدات تشريعية وقضائية،
-معجماً قانونياً ثنائي اللغة (عربي/فرنسي)، أرشيفاً دراسياً مصنفاً حسب الفصول من S1 إلى S6، دليلاً وطنياً لكليات
-الحقوق، وفعاليات أكاديمية. لا تتطلب المنصة إنشاء حساب للاستخدام الأساسي.
+  الصيغة الآن تتبع مواصفة llmstxt.org حرفياً:
+    عنوان H1 واحد → وصف في اقتباس (>) → فقرات/قوائم اختيارية
+    → أقسام H2 بقوائم من الروابط [العنوان](الرابط): الوصف
+    → قسم Optional للروابط الثانوية.
+  كل البيانات الوصفية السابقة (الأعداد، المجالات القانونية، التغطية
+  الجغرافية، تلميحات الزحف) محفوظة، لكن بصيغة Markdown قابلة للتفسير.
+*/
 
-start_urls:
-- ${DOMAIN}/
-- ${DOMAIN}/articles
-- ${DOMAIN}/news
-- ${DOMAIN}/lexicon
-- ${DOMAIN}/archive
-- ${DOMAIN}/events
-- ${DOMAIN}/schools
-- ${DOMAIN}/about
-- ${DOMAIN}/contact
-- ${DOMAIN}/faq
-
-archive_by_semester:
-- ${DOMAIN}/s1
-- ${DOMAIN}/s2
-- ${DOMAIN}/s3
-- ${DOMAIN}/s4
-- ${DOMAIN}/s5
-- ${DOMAIN}/s6
-
-content_counts:
-- lexicon_terms: ${statistics.lexicon}
-- articles: ${statistics.articles}
-- news_items: ${statistics.news}
-- events: ${statistics.events}
-- schools: ${statistics.schools}
-- study_documents: ${statistics.documents}
-- total_records: ${totalContent}
-
-legal_domains_covered:
-${legalDomains.map((domain) => `- ${domain}`).join("\n")}
-
-article_categories:
-${articleCategories.map((category) => `- ${category}`).join("\n")}
-
-faq_topics:
-${faqTopics.map((topic) => `- ${topic}`).join("\n")}
-
-law_schools_geographic_coverage:
-- عدد الكليات المفهرسة: ${statistics.schools}
-- المدن المغطاة: ${schoolCities.join("، ")}
-- دليل كامل: ${DOMAIN}/schools
-
-policy_notes:
-- المحتوى تعليمي وبحثي ولا يحل محل النص القانوني الرسمي أو الاستشارة القانونية المتخصصة.
-- عند الاستشهاد القانوني، تحقّق دائماً من الصياغة النافذة في الجريدة الرسمية أو المصادر الرسمية أدناه.
-- المحتوى محدَّث بشكل دوري؛ استعمل last_generated أعلاه للتأكد من حداثة النسخة المفهرسة.
-
-official_sources:
-- https://adala.justice.gov.ma/
-- https://www.sgg.gov.ma/
-
-sitemap:
-- ${DOMAIN}/sitemap.xml
-
-rss_feed:
-- ${DOMAIN}/feed.xml
-
-agent_discovery:
-- ${DOMAIN}/.well-known/agent-card.json
-- ${DOMAIN}/.well-known/agent-skills/index.json
-- ${DOMAIN}/.well-known/ai-catalog.json
-- ${DOMAIN}/.well-known/mcp/server-card.json
-
-crawl_hints:
-- النطاق القانوني: ${DOMAIN}
-- الروابط القانونية المفضلة بدون "/" نهائي (عدا الصفحة الرئيسية).
-- صفحات المصطلحات والمقالات والكليات مُهيّأة للعرض المسبق (prerendered) وتحتوي بيانات منظَّمة (JSON-LD).
-- يُفضَّل الاستشهاد بروابط المصطلحات الفردية (${DOMAIN}/lexicon/{slug}) بدل الصفحة العامة عند نقل تعريف محدد.
-`;
+const llmsTxt = buildLlmsTxt({
+  domain: DOMAIN,
+  generatedAt: NOW,
+  statistics,
+  totalContent,
+  legalDomains,
+  articleCategories,
+  faqTopics,
+  schoolCities,
+});
 
 await writeFile(
   join(DIST, "llms.txt"),

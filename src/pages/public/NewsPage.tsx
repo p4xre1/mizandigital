@@ -153,7 +153,7 @@ export function NewsPage() {
                     <span className="inline-flex w-fit bg-[#fef2f2] dark:bg-[#450a0a] text-red-600 dark:text-red-400 text-[11px] font-bold px-3 py-1 rounded-full border border-red-200 dark:border-red-900/30">{featured.source || "خبر"}</span>
                     <h2 className="mt-3 text-[20px] font-black leading-tight text-[#0f172a] dark:text-white">{featured.title}</h2>
                     <p className="mt-2 text-[13px] leading-6 text-[#475569] dark:text-[#94a3b8] line-clamp-3">{featured.summary}</p>
-                    <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#94a3b8]">
+                    <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#64748b] dark:text-[#94a3b8]">
                       <Clock className="size-3.5" /> {featured.published_at ? new Date(featured.published_at).toLocaleDateString("ar-MA") : ""}
                     </div>
                     <Link to={`/news/${featured.slug || featured.id}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#2563eb] text-white px-5 py-2.5 text-[12px] font-bold hover:bg-[#1d4ed8] w-fit">
@@ -173,7 +173,7 @@ export function NewsPage() {
                     <div className="p-4">
                       <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h3>
                       <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8] line-clamp-2 leading-5">{item.summary}</p>
-                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8]">
                         <Clock className="size-3" /> {item.published_at ? new Date(item.published_at).toLocaleDateString("ar-MA") : ""}
                       </div>
                     </div>
