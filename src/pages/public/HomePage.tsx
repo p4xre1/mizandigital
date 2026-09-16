@@ -3,11 +3,14 @@ import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
+import { generateSlug } from "../../lib/utils/generateSlug"
 import {
-  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight
+  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
+  Calendar, MapPin, Languages, GitBranch, Building2
 } from "lucide-react"
 
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
+const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
 interface FeedCard {
   id: string
@@ -19,16 +22,42 @@ interface FeedCard {
   image?: string | null
 }
 
+interface EventCard {
+  id: string
+  slug: string
+  title: string
+  excerpt?: string
+  city?: string | null
+  date?: string | null
+  image?: string | null
+  organizer?: string | null
+}
+
+interface LexiconCard {
+  id: string
+  term_ar: string
+  term_fr?: string
+  definition: string
+  category: string
+  legal_sources?: any[]
+}
+
 export function HomePage() {
   const [latestArticles, setLatestArticles] = useState<FeedCard[]>([])
+  const [latestEvents, setLatestEvents] = useState<EventCard[]>([])
+  const [latestTerms, setLatestTerms] = useState<LexiconCard[]>([])
   const [schoolsCount] = useState<number>(counts.schools)
   const [articlesCount] = useState<number>(counts.articles)
 
   useEffect(() => {
     const loadLocal = async () => {
       try {
-        const [{ default: articlesData }] = await Promise.all([import("../../data/articles.json")])
-        const local: FeedCard[] = (articlesData as any[])
+        const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
+          import("../../data/articles.json"),
+          import("../../data/events.json"),
+          import("../../data/lexicon.json"),
+        ])
+        const localArticles: FeedCard[] = (articlesData as any[])
           .map((item) => ({
             id: item.id,
             slug: item.slug,
@@ -39,7 +68,31 @@ export function HomePage() {
             image: item.coverImage || item.image,
           }))
           .filter((a) => !!a.image && a.image.trim() !== "")
-        setLatestArticles(diversifyByCategory(local, 8))
+        setLatestArticles(diversifyByCategory(localArticles, 8))
+
+        const localEvents: EventCard[] = (eventsData as any[])
+          .map((e) => ({
+            id: e.id,
+            slug: e.slug || e.id,
+            title: e.title,
+            excerpt: e.excerpt,
+            city: e.city,
+            date: e.eventDate || e.date,
+            image: e.image,
+            organizer: e.organizer,
+          }))
+          .filter((e) => !!e.image && String(e.image).trim() !== "")
+        setLatestEvents(localEvents.slice(0, 4))
+
+        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 6).map((t) => ({
+          id: t.id,
+          term_ar: t.term_ar,
+          term_fr: t.term_fr,
+          definition: t.definition,
+          category: t.category,
+          legal_sources: t.legal_sources || [],
+        }))
+        setLatestTerms(localTerms)
       } catch {}
     }
     loadLocal()
@@ -47,10 +100,18 @@ export function HomePage() {
     const loadRemote = async () => {
       try {
         const { supabase } = await import("../../lib/supabase/client")
-        const [{ default: articlesData }] = await Promise.all([import("../../data/articles.json")])
-        const [articlesRes] = await Promise.all([
-          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(30),
+        const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
+          import("../../data/articles.json"),
+          import("../../data/events.json"),
+          import("../../data/lexicon.json"),
         ])
+
+        const [articlesRes, seminarsRes, termsRes] = await Promise.all([
+          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(30),
+          (supabase as any).from("seminars").select("*").eq("status", "published").order("event_date", { ascending: false }).limit(20),
+          supabase.from("lexicon_terms").select("id, term_ar, term_fr, definition, category").order("created_at", { ascending: false }).limit(20),
+        ])
+
         const remoteArticles: FeedCard[] = (articlesRes.data || [])
           .map((item: any) => ({
             id: item.id,
@@ -75,9 +136,60 @@ export function HomePage() {
           }))
           .filter((a) => !!a.image && String(a.image).trim() !== "")
 
-        const combined = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
-        const withImages = combined.filter((a) => !!a.image)
-        setLatestArticles(diversifyByCategory(withImages, 8))
+        const combinedArticles = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
+        setLatestArticles(diversifyByCategory(combinedArticles.filter((a) => !!a.image), 8))
+
+        // Events: merge local + remote seminars, only with picture
+        const remoteSeminars: EventCard[] = (seminarsRes.data || [])
+          .map((raw: any) => ({
+            id: `seminar-${raw.id}`,
+            slug: `seminar-${raw.id}`,
+            title: raw.title,
+            excerpt: raw.agenda || "",
+            city: null,
+            date: raw.event_date,
+            image: raw.image_url,
+            organizer: raw.speaker_title || raw.speaker,
+          }))
+          .filter((e) => !!e.image)
+
+        const localEvents: EventCard[] = (eventsData as any[])
+          .map((e) => ({
+            id: e.id,
+            slug: e.slug || e.id,
+            title: e.title,
+            excerpt: e.excerpt,
+            city: e.city,
+            date: e.eventDate,
+            image: e.image,
+            organizer: e.organizer,
+          }))
+          .filter((e) => !!e.image)
+
+        const combinedEvents = Array.from(new Map([...remoteSeminars, ...localEvents].map((e) => [e.id, e])).values())
+        setLatestEvents(combinedEvents.slice(0, 4))
+
+        // Lexicon terms
+        const remoteTerms: LexiconCard[] = (termsRes.data || []).map((t: any) => ({
+          id: t.id,
+          term_ar: t.term_ar,
+          term_fr: t.term_fr,
+          definition: t.definition,
+          category: t.category,
+          legal_sources: [],
+        }))
+
+        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 12).map((t) => ({
+          id: t.id,
+          term_ar: t.term_ar,
+          term_fr: t.term_fr,
+          definition: t.definition,
+          category: t.category,
+          legal_sources: t.legal_sources || [],
+        }))
+
+        const combinedTerms = Array.from(new Map([...remoteTerms, ...localTerms].map((t) => [t.id, t])).values())
+        setLatestTerms(combinedTerms.slice(0, 6))
       } catch {}
     }
 
@@ -215,6 +327,7 @@ export function HomePage() {
               ))}
             </div>
 
+            {/* أحدث المقالات — only with pictures */}
             <div className="mt-12">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
@@ -224,15 +337,7 @@ export function HomePage() {
                 {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
                   <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all flex flex-col">
                     <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
-                      <img
-                        src={item.image!}
-                        alt={item.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                        width={320}
-                        height={120}
-                      />
+                      <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={120} />
                       <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
                     </div>
                     <div className="p-4 flex flex-col flex-1">
@@ -247,12 +352,100 @@ export function HomePage() {
                   </Link>
                 ))}
               </div>
-              {latestArticles.filter((a) => !!a.image).length === 0 && (
-                <div className="rounded-2xl border border-dashed border-border bg-white dark:bg-[#1e293b] p-8 text-center">
-                  <p className="text-[13px] text-muted-foreground">لا توجد مقالات بصور حالياً — سيتم عرضها هنا فور توفرها.</p>
-                </div>
-              )}
             </div>
+
+            {/* الفعاليات — only with pictures */}
+            {latestEvents.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
+                    <span className="grid size-7 place-items-center rounded-full bg-[#f59e0b]/10 text-[#f59e0b]"><Calendar className="size-4" /></span>
+                    الفعاليات والندوات
+                  </h3>
+                  <Link to="/events" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
+                    <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 hover:shadow-[0_8px_24px_rgba(245,158,11,0.10)] hover:-translate-y-0.5 transition-all flex flex-col">
+                      <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
+                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
+                        <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
+                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
+                        <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
+                        <div className="mt-3 flex items-center gap-3 text-[10px] text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                          {ev.city && <span className="flex items-center gap-1"><MapPin className="size-3" />{ev.city}</span>}
+                          {ev.organizer && <span className="flex items-center gap-1 truncate"><Building2 className="size-3" />{ev.organizer.slice(0, 20)}</span>}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* القاموس القانوني — مع شجرة */}
+            {latestTerms.length > 0 && (
+              <div className="mt-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
+                    <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
+                    القاموس القانوني — مع الشجرة القانونية
+                  </h3>
+                  <Link to="/lexicon" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                </div>
+
+                {/* Featured term with tree */}
+                {latestTerms[0]?.legal_sources && latestTerms[0].legal_sources.length > 0 && (
+                  <div className="mb-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-5 overflow-hidden">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="grid size-8 place-items-center rounded-xl bg-[#2563eb] text-white"><Scale className="size-4" /></span>
+                          <h4 className="font-black text-[16px] text-[#0f172a] dark:text-white">{latestTerms[0].term_ar}</h4>
+                          {latestTerms[0].term_fr && <span className="text-[11px] text-muted-foreground font-mono">({latestTerms[0].term_fr})</span>}
+                        </div>
+                        <p className="mt-2 text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8] max-w-2xl">{latestTerms[0].definition}</p>
+                        <div className="mt-2 flex items-center gap-2 text-[10px]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر • {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
+                          <span className="rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
+                        </div>
+                      </div>
+                      <Link to={`/lexicon/${generateSlug(latestTerms[0].term_ar)}`} className="shrink-0 rounded-full bg-[#2563eb] text-white px-4 py-2 text-[11px] font-bold hover:bg-[#1d4ed8]">التفاصيل →</Link>
+                    </div>
+                    <Suspense fallback={<div className="h-20 grid place-items-center text-[12px] text-muted-foreground">جارٍ تحميل الشجرة...</div>}>
+                      <LegalTermTree termAr={latestTerms[0].term_ar} termFr={latestTerms[0].term_fr} legalSources={latestTerms[0].legal_sources} />
+                    </Suspense>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {latestTerms.slice(1, 7).map((term) => (
+                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all flex flex-col">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="grid size-8 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white transition-colors"><GitBranch className="size-4" /></span>
+                          <div>
+                            <h4 className="font-bold text-[13px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{term.term_ar}</h4>
+                            {term.term_fr && <p className="text-[10px] text-muted-foreground font-mono">{term.term_fr}</p>}
+                          </div>
+                        </div>
+                        <span className="text-[9px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1 shrink-0">{term.category}</span>
+                      </div>
+                      <p className="mt-3 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-3 flex-1">{term.definition}</p>
+                      {term.legal_sources && term.legal_sources.length > 0 && (
+                        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#2563eb] font-bold border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                          <GitBranch className="size-3" />
+                          <span>{term.legal_sources.length} مصادر قانونية • {term.legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول مرتبطة</span>
+                        </div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
