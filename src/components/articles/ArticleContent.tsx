@@ -147,7 +147,7 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
           }
           case "paragraph":
             blockNode = (
-              <p className="leading-[1.9] text-[15px] md:text-[16px] text-foreground/85 font-[450] tracking-[-0.01em] first-letter:font-black first-letter:text-[1.1em] selection:bg-primary/20">
+              <p className="leading-[1.9] text-[15px] md:text-[16px] text-foreground/85 font-[450] tracking-[-0.01em] selection:bg-primary/20">
                 {renderInline(block.text, lexiconTerms, linkedTermIds)}
               </p>
             )
