@@ -20,13 +20,17 @@ export function ReportDialog({ targetType, targetId, triggerLabel = "إبلاغ"
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const clerkEnabled = isClerkEnabled;
+  // useUser() تُنادى دائماً (حتى لا نخالف قواعد hooks) لكن داخل try/catch:
+  // بدون <ClerkProvider> ترمي Clerk خطأ، فنبتلعه ونكمل كمستخدم مجهول.
+  // النتيجة لا تُستعمل إلا إذا كان Clerk مفعلاً فعلاً (isClerkEnabled).
   let clerkUserId: string | null = null;
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { user } = clerkEnabled ? useUser() : { user: null as never };
-    clerkUserId = user?.id || null;
-  } catch {}
+    const { user } = useUser();
+    if (isClerkEnabled) clerkUserId = user?.id || null;
+  } catch {
+    // Clerk not mounted — نتصرف كمستخدم مجهول بدل رمي خطأ
+    clerkUserId = null;
+  }
 
   const handleSubmit = async () => {
     setSubmitting(true);

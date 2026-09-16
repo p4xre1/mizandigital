@@ -22,11 +22,29 @@ const ClerkProviderWrapper = lazy(async () => {
   }
 })
 
+// Fallback آمن أثناء تحميل حزمة Clerk (vendor-clerk): نعرض سبينر خفيف
+// بدلاً من <App /> — لأن عرض App قبل اكتمال <ClerkProvider> كان يجعل
+// SignedIn/SignedOut ترمي: "SignedOut can only be used within the
+// <ClerkProvider /> component" فتُسقط التطبيق في شاشة بيضاء.
+function ClerkBootFallback() {
+  return (
+    <div className="grid min-h-dvh place-items-center bg-background" dir="rtl">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <span
+          aria-hidden="true"
+          className="size-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+        />
+        <span className="text-sm font-semibold">جارٍ التحميل…</span>
+      </div>
+    </div>
+  )
+}
+
 function Root() {
   if (isClerkEnabled) {
     return (
       <StrictMode>
-        <Suspense fallback={<App />}>
+        <Suspense fallback={<ClerkBootFallback />}>
           <ClerkProviderWrapper>
             <App />
           </ClerkProviderWrapper>

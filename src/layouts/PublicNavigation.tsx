@@ -1,7 +1,6 @@
 import { Link, NavLink } from "react-router-dom"
 import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react"
-import { isClerkEnabled } from "@/lib/clerk/config"
+import { SafeClerkAuth } from "@/components/auth/SafeClerkAuth"
 import { useEffect } from "react"
 
 function TikTokIcon({ size = 18 }: { size?: number }) {
@@ -109,18 +108,11 @@ export function Header({
               {theme === "dark" ? <Sun size={16} className="text-[#f59e0b]" /> : <Moon size={16} className="text-[#475569]" />}
             </button>
 
-            {isClerkEnabled && (
-              <div className="hidden md:flex items-center gap-2">
-                <SignedOut>
-                  <SignInButton mode="modal">
-                    <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
-                  </SignInButton>
-                </SignedOut>
-                <SignedIn>
-                  <UserButton afterSignOutUrl="/" appearance={{ elements: { avatarBox: "size-8" } }} />
-                </SignedIn>
-              </div>
-            )}
+            <SafeClerkAuth
+              signInChildren={
+                <button className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>
+              }
+            />
 
             <Link to="/articles" className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">
               ابدأ الآن

@@ -151,7 +151,7 @@ export function HomePage() {
             image: raw.image_url,
             organizer: raw.speaker_title || raw.speaker,
           }))
-          .filter((e) => !!e.image)
+          .filter((e: EventCard) => !!e.image)
 
         const localEvents: EventCard[] = (eventsData as any[])
           .map((e) => ({
