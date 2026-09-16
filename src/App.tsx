@@ -5,6 +5,7 @@ import type { Session } from "@supabase/supabase-js"
 import AppRoutes from "@/routes/AppRoutes"
 import { useTheme } from "@/hooks/useTheme"
 import { isClerkEnabled } from "@/lib/clerk/config"
+import { ClerkErrorBoundary } from "@/components/auth/ClerkErrorBoundary"
 
 const Toast = lazy(() => import("@/components/Toast").then((m) => ({ default: m.Toast })))
 const CookieConsentBanner = lazy(() => import("@/components/CookieConsentBanner").then((m) => ({ default: m.CookieConsentBanner })))
@@ -91,9 +92,11 @@ export default function App() {
       </Suspense>
 
       {isClerkEnabled && (
-        <Suspense fallback={null}>
-          <OnboardingGate />
-        </Suspense>
+        <ClerkErrorBoundary>
+          <Suspense fallback={null}>
+            <OnboardingGate />
+          </Suspense>
+        </ClerkErrorBoundary>
       )}
     </BrowserRouter>
   )

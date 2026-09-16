@@ -7,6 +7,7 @@ import {
 } from "@clerk/clerk-react"
 import { Scale, LogIn } from "lucide-react"
 import { isClerkEnabled } from "@/lib/clerk/config"
+import { ClerkErrorBoundary } from "@/components/auth/ClerkErrorBoundary"
 
 /**
  * Header / Navbar
@@ -47,10 +48,11 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* منطقة المصادقة */}
+        {/* منطقة المصادقة — مغلفة بـ ClerkErrorBoundary حتى لا يُسقط أي خطأ
+            من Clerk (مثل غياب <ClerkProvider>) التطبيق كاملاً. */}
         <div className="flex shrink-0 items-center gap-3">
           {isClerkEnabled && (
-            <>
+            <ClerkErrorBoundary>
               <SignedOut>
                 <SignInButton mode="modal">
                   <button
@@ -73,7 +75,7 @@ export default function Header() {
                   }}
                 />
               </SignedIn>
-            </>
+            </ClerkErrorBoundary>
           )}
         </div>
       </div>
