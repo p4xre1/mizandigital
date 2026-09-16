@@ -84,7 +84,8 @@ export async function getContentAnalytics(timeWindow: "24h" | "7d" | "30d" = "7d
       (supabase as any).rpc("get_top_content", { p_content_type: "article", p_since: since24h, p_limit: 15 }),
       (supabase as any).rpc("get_top_content", { p_content_type: "article", p_since: previousSince, p_limit: 20 }),
       supabase.from("content_stats").select("source_type, source_slug, views_count").order("views_count", { ascending: false }).limit(20),
-      (supabase as any).from("reaction_counts").select("*").order("total_count", { ascending: false }).limit(10),
+      // العمود اسمه count وليس total_count — reaction_counts(target_type, target_id, reaction_type, count, updated_at)
+      (supabase as any).from("reaction_counts").select("*").order("count", { ascending: false }).limit(10),
     ])
 
     const totalViews = Number(totalRes.data || 0)
@@ -176,7 +177,7 @@ export async function getContentAnalytics(timeWindow: "24h" | "7d" | "30d" = "7d
       id: r.target_id,
       type: r.target_type as TrackableType,
       title: r.target_id,
-      reactions: Number(r.total_count || 0),
+      reactions: Number(r.count || 0),
       comments: 0,
       views: 0,
     }))
