@@ -88,9 +88,11 @@ Deny‑all by design (RLS on, zero policies, service‑role only) — **correct,
 
 24 triggers survive. These tables declare `updated_at … NOT NULL DEFAULT now()` but have **no `BEFORE UPDATE` trigger**, so the column never advances:
 
-`articles` · `pdf_summaries` · `lexicon_terms` · `transactions` · **`payments`**
+`articles` · `pdf_summaries` · `lexicon_terms` · `transactions`
 
-`payments` is the worst case: `20260921000000_payments_and_credits.sql:31` attaches `set_credit_packages_updated_at` to `credit_packages` only, so a payment going `pending → completed` leaves `updated_at` at the insert time.
+`20260921000000_payments_and_credits.sql:31` attaches `set_credit_packages_updated_at` to `credit_packages` only.
+
+> **Correction:** an earlier version of this report listed `payments` here. That was wrong — `payments` has **no `updated_at` column at all** (0 occurrences in its `CREATE TABLE`), and nothing in `src` reads one. It tracks state changes via `completed_at`. No trigger is needed and none is created.
 
 ## 6. Storage bucket `documents` is never created
 
@@ -135,19 +137,22 @@ Currently **latent**: `trackContentView`, `getContentViews`, `getTrendingForHome
 
 ## 10. Missing indexes on hot read paths
 
-`CREATE INDEX` count per table, measured across all migrations:
+Every row below is backed by a query that actually exists in `src/`. An earlier version of this table also listed `articles.category_id` / `faculty_id` / `is_featured`, `news.category_id`, `audit_logs.created_at` and `index_status.content_type` — those were **removed**: grep finds **0** uses of `.eq("category_id"`, `.eq("faculty_id"`, `.eq("is_featured"`, `.eq("content_type"` and **0** `from("audit_logs")` calls in `src`. Indexes with no query behind them are pure write overhead.
 
-| 0 indexes (PK / UNIQUE only) | actual query that needs one |
+| table | the query that justifies it |
 |---|---|
-| `articles` | `ArticlesPage.tsx:68‑69` `.eq("status","published").order("published_at" desc)` — also `category_id`, `faculty_id`, `is_featured` |
-| `news` | `.eq("is_published").order("published_at")`, `category_id` |
-| `content_stats` | `contentTracking.ts:86` `.order("views_count" desc)` |
-| `community_guidelines` | `governance/service.ts:87` `.eq("is_active").order("sort_order")` — `slug` is not unique either |
+| `articles` | `ArticlesPage.tsx:68‑69` `.eq("status","published").order("published_at" desc)` |
+| `news` | `NewsPage.tsx:51‑52` `.eq("is_published", true).order("published_at" desc)` |
+| `content_stats` | `contentTracking.ts:86` `.order("views_count" desc).limit(20)` |
+| `community_guidelines` | `governance/service.ts:87` `.eq("is_active", true).order("sort_order")` |
 | `seminars` | `SeminarsPage.tsx:95` `.order("event_date" desc)` |
-| `audit_logs` | admin list ordered by `created_at` |
-| `index_status` | `content_type`, `is_indexed` |
-| `categories`, `faculties`, `pdf_summaries`, `schools` | embedded-resource joins on `id` (PK, fine) + admin filters |
-| `credit_packages`, `interest_options`, `subscription_plans` | `is_active` / `sort_order` (small tables — low priority) |
+| `index_status` | `AnalyticsPage.tsx:324` `.order("checked_at" desc).limit(30)` |
+| `credit_packages` | `payments/service.ts:45‑46` `.eq("is_active", true).order("sort_order")` |
+| `law_trends` (new table) | `lawTrendsService.ts:165` `.order("interest" desc).limit(20)` |
+
+> **Correction:** `community_guidelines.slug` **is** already `text NOT NULL UNIQUE` (`20260923000000_governance_and_reports.sql:56`). An earlier version claimed it was not, and the first draft of the fix migration created a redundant unique index for it. Removed.
+>
+> `interest_options` and `subscription_plans` have **0** query sites in `src` (they are read by SQL functions, not PostgREST), so they get no index.
 
 Well indexed already: `comments` (8), `profiles` (6), `credit_transactions` (6), `transactions` (5), `page_views` (4), `interaction_events` (4), `content_reactions` (4), `reactions` (4), `reports` (4), `payments` (3), `payment_risk_events` (3), `quiz_questions` (3), `quiz_attempts` (3).
 

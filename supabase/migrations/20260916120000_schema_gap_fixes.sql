@@ -1,70 +1,76 @@
 -- ============================================================================
 -- 20260916120000_schema_gap_fixes.sql
 --
--- Fixes the gaps found by the audit in supabase/AUDIT-schema-gaps.md.
--- Idempotent: safe to re-run. Nothing here is destructive.
+-- Fixes the gaps found by supabase/AUDIT-schema-gaps.md.
+-- Idempotent: safe to re-run. Nothing here drops data.
 --
---   §1  missing tables        : integrations, law_trends
---   §3.1 column drift         : seminars.image_url
---   §4  RLS                   : articles admin write policies
---   §5  updated_at triggers   : articles, pdf_summaries, lexicon_terms,
---                               transactions, payments
---   §6  storage               : "documents" bucket + policies
---   §10 indexes               : hot read paths
+--   §1  missing tables      : integrations, law_trends
+--   §3.1 column drift       : seminars.image_url
+--   §4  RLS                 : articles admin write policies
+--   §5  updated_at triggers : articles, pdf_summaries, lexicon_terms, transactions
+--   §6  storage             : "documents" bucket + policies
+--   §10 indexes             : only the ones a real query in src/ justifies
+--
+-- Every statement below was checked against the migration that creates the
+-- object it touches. Four earlier drafts of this file were wrong and are fixed:
+--   * payments has NO updated_at column, so it gets no trigger
+--   * community_guidelines.slug is already UNIQUE, so no new unique index
+--   * the bucket allows .doc/.docx because PdfDropzone accepts them
+--   * indexes with no query behind them were removed
 --
 -- NOT included on purpose (needs a product decision, not SQL):
 --   §2  dead functions referencing tenants / user_bookmarks / documents_library
---   §7  the six stubbed migrations (content is unknown — restore from prod)
+--   §7  the six stubbed migrations (content unknown — restore from prod)
 --   §9  interaction_events writer + /api/analytics/track endpoint
 --   §11 duplicate reactions / identity / payment systems
 -- ============================================================================
 
 -- ============================================================================
--- §3.1  seminars.image_url — the admin form already sends it
+-- §3.1  seminars.image_url
+--       SeminarsPage.tsx:170 already sends it; the column does not exist, so
+--       every save fails with PGRST204.
 -- ============================================================================
 ALTER TABLE public.seminars ADD COLUMN IF NOT EXISTS image_url text;
 
 -- ============================================================================
 -- §1  integrations — Gmail (and future) token store
---       Used by src/lib/integrations/gmailService.ts (select/upsert/delete by
---       `provider`). Tokens are credentials: RLS on, zero client policies,
---       service_role only — same pattern as stripe_webhook_events.
+--       gmailService.ts:202/253/278 select/upsert/delete by `provider`.
+--       Tokens are credentials: RLS on, zero client policies, service_role only
+--       — the same pattern already used for stripe_webhook_events.
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.integrations (
-  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  provider      text NOT NULL UNIQUE
-                CHECK (char_length(provider) BETWEEN 2 AND 40),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider        text NOT NULL UNIQUE
+                  CHECK (char_length(provider) BETWEEN 2 AND 40),
   -- ciphertext only; never store a plaintext token
   encrypted_token text,
-  token_type    text,
-  scope         text,
-  expires_at    timestamptz,
-  email         text,
-  metadata      jsonb NOT NULL DEFAULT '{}'::jsonb,
-  created_by    uuid,
-  created_at    timestamptz NOT NULL DEFAULT timezone('utc', now()),
-  updated_at    timestamptz NOT NULL DEFAULT timezone('utc', now())
+  token_type      text,
+  scope           text,
+  expires_at      timestamptz,
+  email           text,
+  metadata        jsonb NOT NULL DEFAULT '{}'::jsonb,
+  created_by      uuid,
+  created_at      timestamptz NOT NULL DEFAULT timezone('utc', now()),
+  updated_at      timestamptz NOT NULL DEFAULT timezone('utc', now())
 );
 ALTER TABLE public.integrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.integrations OWNER TO postgres;
 COMMENT ON TABLE public.integrations IS
   'OAuth tokens for third-party integrations. Service-role only: no client policy exists, so anon/authenticated are denied by RLS.';
 
-CREATE INDEX IF NOT EXISTS integrations_provider_idx ON public.integrations (provider);
-
 -- ============================================================================
--- §1  law_trends — cached trend feed for src/lib/integrations/lawTrendsService.ts
---       (select("*").order("interest" desc).limit(20))
+-- §1  law_trends — cached trend feed
+--       lawTrendsService.ts:165  select("*").order("interest" desc).limit(20)
 -- ============================================================================
 CREATE TABLE IF NOT EXISTS public.law_trends (
-  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  term         text NOT NULL,
-  interest     integer NOT NULL DEFAULT 0,
-  source       text,
-  source_url   text,
-  region       text,
-  metadata     jsonb NOT NULL DEFAULT '{}'::jsonb,
-  fetched_at   timestamptz NOT NULL DEFAULT timezone('utc', now()),
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  term       text NOT NULL,
+  interest   integer NOT NULL DEFAULT 0,
+  source     text,
+  source_url text,
+  region     text,
+  metadata   jsonb NOT NULL DEFAULT '{}'::jsonb,
+  fetched_at timestamptz NOT NULL DEFAULT timezone('utc', now()),
   CONSTRAINT law_trends_term_source_key UNIQUE (term, source)
 );
 ALTER TABLE public.law_trends ENABLE ROW LEVEL SECURITY;
@@ -86,10 +92,10 @@ CREATE POLICY "law trends admin write"
 CREATE INDEX IF NOT EXISTS law_trends_interest_idx ON public.law_trends (interest DESC);
 
 -- ============================================================================
--- §4  articles — admin write policies.
---       The CMS writes through PostgREST with the anon/authenticated client
---       (ArticleEditorPage.tsx insert/update, ArticlesPage.tsx delete), but
---       articles only ever had "Public and Admin Read Articles" FOR SELECT.
+-- §4  articles — admin write policies
+--       articles only ever had "Public and Admin Read Articles" FOR SELECT, but
+--       ArticleEditorPage.tsx:211/217 and ArticlesPage.tsx:84 write through
+--       PostgREST with the anon/authenticated client.
 --       Mirrors the news_admin_* policies from 20260904120000.
 -- ============================================================================
 DROP POLICY IF EXISTS "articles_admin_insert" ON public.articles;
@@ -113,6 +119,9 @@ CREATE POLICY "articles_admin_delete"
 
 -- ============================================================================
 -- §5  updated_at triggers
+--       Only for tables that actually HAVE an updated_at column:
+--       articles, pdf_summaries, lexicon_terms, transactions, integrations.
+--       payments has none (verified against 20260921000000) — no trigger.
 -- ============================================================================
 CREATE OR REPLACE FUNCTION public.set_articles_updated_at()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
@@ -127,10 +136,6 @@ RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 BEGIN NEW.updated_at := timezone('utc'::text, now()); RETURN NEW; END; $$;
 
 CREATE OR REPLACE FUNCTION public.set_transactions_updated_at()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
-BEGIN NEW.updated_at := timezone('utc'::text, now()); RETURN NEW; END; $$;
-
-CREATE OR REPLACE FUNCTION public.set_payments_updated_at()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 BEGIN NEW.updated_at := timezone('utc'::text, now()); RETURN NEW; END; $$;
 
@@ -154,34 +159,23 @@ DROP TRIGGER IF EXISTS set_transactions_updated_at ON public.transactions;
 CREATE TRIGGER set_transactions_updated_at BEFORE UPDATE ON public.transactions
   FOR EACH ROW EXECUTE FUNCTION public.set_transactions_updated_at();
 
--- payments: pending -> completed must move updated_at
-DROP TRIGGER IF EXISTS set_payments_updated_at ON public.payments;
-CREATE TRIGGER set_payments_updated_at BEFORE UPDATE ON public.payments
-  FOR EACH ROW EXECUTE FUNCTION public.set_payments_updated_at();
-
 DROP TRIGGER IF EXISTS set_integrations_updated_at ON public.integrations;
 CREATE TRIGGER set_integrations_updated_at BEFORE UPDATE ON public.integrations
   FOR EACH ROW EXECUTE FUNCTION public.set_integrations_updated_at();
 
 -- ============================================================================
 -- §6  the "documents" storage bucket
---       Used by LibraryPage.tsx (library/<file>) and LawsPage.tsx (laws/<file>).
---       Private bucket: reads go through getPublicUrl on an already-uploaded
---       object, so keep it public-read only if that is what production does.
---       Flip `public` to false and issue signed URLs if these are meant to be
---       gated by the download flow.
+--       LibraryPage.tsx:58/68/210 and LawsPage.tsx:49/57 upload here and call
+--       getPublicUrl(), so the bucket must be public.
+--       allowed_mime_types is left NULL on purpose: PdfDropzone accepts
+--       "application/pdf,.doc,.docx" (PdfDropzone.tsx:65), and restricting it
+--       here would silently break Word uploads.
 -- ============================================================================
-INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES (
-  'documents',
-  'documents',
-  true,
-  52428800, -- 50 MB
-  ARRAY['application/pdf']
-)
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('documents', 'documents', true, 52428800) -- 50 MB
 ON CONFLICT (id) DO NOTHING;
 
--- admins upload/delete; everyone reads
+-- admins upload/rename/delete; everyone reads
 DROP POLICY IF EXISTS "documents_admin_upload" ON storage.objects;
 CREATE POLICY "documents_admin_upload"
   ON storage.objects FOR INSERT
@@ -208,44 +202,49 @@ CREATE POLICY "documents_public_read"
   USING (bucket_id = 'documents');
 
 -- ============================================================================
--- §10  indexes for the queries the app actually runs
+-- §10  Indexes — one per query that actually exists in src/
 -- ============================================================================
--- ArticlesPage.tsx: .eq("status","published").order("published_at" desc)
+-- ArticlesPage.tsx:68-69   .eq("status","published").order("published_at" desc)
 CREATE INDEX IF NOT EXISTS articles_status_published_at_idx
   ON public.articles (status, published_at DESC);
-CREATE INDEX IF NOT EXISTS articles_category_id_idx ON public.articles (category_id);
-CREATE INDEX IF NOT EXISTS articles_faculty_id_idx  ON public.articles (faculty_id);
-CREATE INDEX IF NOT EXISTS articles_is_featured_idx ON public.articles (is_featured)
-  WHERE is_featured = true;
 
--- NewsPage: .eq("is_published", true).order("published_at" desc)
+-- NewsPage.tsx:51-52       .eq("is_published", true).order("published_at" desc)
 CREATE INDEX IF NOT EXISTS news_published_at_idx
   ON public.news (is_published, published_at DESC);
-CREATE INDEX IF NOT EXISTS news_category_id_idx ON public.news (category_id);
 
--- contentTracking.ts: .order("views_count" desc).limit(20)
-CREATE INDEX IF NOT EXISTS content_stats_views_idx ON public.content_stats (views_count DESC);
+-- contentTracking.ts:86    .order("views_count" desc).limit(20)
+CREATE INDEX IF NOT EXISTS content_stats_views_idx
+  ON public.content_stats (views_count DESC);
 
--- governance/service.ts: .eq("is_active", true).order("sort_order")
+-- governance/service.ts:87 .eq("is_active", true).order("sort_order")
 CREATE INDEX IF NOT EXISTS community_guidelines_active_sort_idx
   ON public.community_guidelines (is_active, sort_order);
-CREATE UNIQUE INDEX IF NOT EXISTS community_guidelines_slug_key
-  ON public.community_guidelines (slug);
 
--- SeminarsPage.tsx: .order("event_date" desc)
-CREATE INDEX IF NOT EXISTS seminars_event_date_idx ON public.seminars (event_date DESC);
+-- SeminarsPage.tsx:95      .order("event_date" desc)
+CREATE INDEX IF NOT EXISTS seminars_event_date_idx
+  ON public.seminars (event_date DESC);
 
--- admin audit log listing
-CREATE INDEX IF NOT EXISTS audit_logs_created_at_idx ON public.audit_logs (created_at DESC);
+-- AnalyticsPage.tsx:324    .order("checked_at" desc).limit(30)
+CREATE INDEX IF NOT EXISTS index_status_checked_idx
+  ON public.index_status (checked_at DESC);
 
--- gsc-index-status edge function
-CREATE INDEX IF NOT EXISTS index_status_type_idx    ON public.index_status (content_type);
-CREATE INDEX IF NOT EXISTS index_status_checked_idx ON public.index_status (checked_at DESC);
-
--- small lookup tables filtered by is_active + sort_order
-CREATE INDEX IF NOT EXISTS interest_options_active_sort_idx
-  ON public.interest_options (is_active, sort_order);
-CREATE INDEX IF NOT EXISTS subscription_plans_active_idx
-  ON public.subscription_plans (is_active, sort_order);
+-- payments/service.ts:45-46 .eq("is_active", true).order("sort_order")
 CREATE INDEX IF NOT EXISTS credit_packages_active_sort_idx
   ON public.credit_packages (is_active, sort_order);
+
+-- ============================================================================
+-- Post-flight check: run this after the script and eyeball the counts.
+-- ============================================================================
+-- SELECT
+--   (SELECT count(*) FROM information_schema.columns
+--     WHERE table_schema='public' AND table_name='seminars' AND column_name='image_url') AS seminars_image_url,
+--   (SELECT count(*) FROM pg_policies WHERE schemaname='public' AND tablename='articles')  AS articles_policies,
+--   (SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid
+--     WHERE NOT t.tgisinternal AND c.relname IN
+--       ('articles','pdf_summaries','lexicon_terms','transactions','integrations'))        AS updated_at_triggers,
+--   (SELECT count(*) FROM storage.buckets WHERE id='documents')                            AS documents_bucket,
+--   (SELECT count(*) FROM pg_indexes WHERE schemaname='public' AND indexname IN
+--     ('articles_status_published_at_idx','news_published_at_idx','content_stats_views_idx',
+--      'community_guidelines_active_sort_idx','seminars_event_date_idx',
+--      'index_status_checked_idx','credit_packages_active_sort_idx','law_trends_interest_idx')) AS new_indexes;
+-- Expected: 1, 4, 5, 1, 8
