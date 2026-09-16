@@ -17,6 +17,11 @@ import { useAuth } from "@/lib/auth/AuthProvider"
 import { AEOHead } from "@/components/seo/AEOHead"
 import { RANKS } from "@/lib/quiz/ranks"
 import { INPUT_LIMITS, validateDisplayName, validateUsername } from "@/lib/security/inputGuard"
+import {
+  POLICY_VERSION,
+  captureConsent,
+  hasCurrentConsent,
+} from "@/lib/legal/consent"
 
 /**
  * صفحة المصادقة الموحّدة — Supabase Auth (بلا Clerk).
@@ -80,6 +85,11 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
+  // موافقة سياسات الخصوصية — خانة إلزامية قبل إنشاء الحساب أو المتابعة عبر Google.
+  // لا تُؤشَّر مسبقاً أبداً (الصناديق المُؤشَّرة مسبقاً لا تُعد موافقة صحيحة).
+  const [alreadyConsented] = useState<boolean>(() => hasCurrentConsent())
+  const [agreed, setAgreed] = useState(false)
+
   // وضع Recovery: Supabase يعيدنا بـ type=recovery بعد رابط استعادة كلمة المرور
   const isRecovery =
     searchParams.get("type") === "recovery" ||
@@ -121,6 +131,23 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
     window.history.replaceState({}, "", url.toString())
   }
 
+  const consentRequired = !alreadyConsented && !isRecovery && mode !== "password"
+  const CONSENT_ERROR = "يجب الموافقة على سياسة الخصوصية والشروط والأحكام للمتابعة."
+
+  /**
+   * يلتقط الموافقة *قبل* استدعاء الشبكة: مسار Google يغادر الصفحة ويعود
+   * إليها، فلو انتظرنا النجاح لضاع وقت الموافقة.
+   */
+  const ensureConsent = (method: "email" | "google"): boolean => {
+    if (!consentRequired) return true
+    if (!agreed) {
+      setError(CONSENT_ERROR)
+      return false
+    }
+    captureConsent(method)
+    return true
+  }
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError(null)
@@ -150,6 +177,7 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
     setLoading(true)
 
     if (mode === "signup") {
+      if (!ensureConsent("email")) return
       let chosenUsername = username.trim().toLowerCase()
       if (chosenUsername) {
         const check = validateUsername(chosenUsername)
@@ -217,6 +245,7 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
 
   const handleGoogle = async () => {
     setError(null)
+    if (!ensureConsent("google")) return
     setLoading(true)
     const result = await signInWithGoogle(
       typeof window === "undefined" ? undefined : `${window.location.origin}${destination}`
@@ -227,6 +256,61 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
 
   const inputClass =
     "w-full rounded-xl border border-border bg-background py-2.5 pr-10 pl-4 text-xs text-foreground outline-none transition focus:border-primary"
+
+  /**
+   * خانة الموافقة الإلزامية.
+   * تُعرض فقط حين تكون مطلوبة فعلاً: في وضع "حساب جديد" أمام زر الإنشاء،
+   * وفي وضع الدخول أمام زر Google (لأن Google قد ينشئ حساباً جديداً).
+   */
+  const consentRow = consentRequired ? (
+    <div className="rounded-xl border border-border bg-muted/40 p-3">
+      <label htmlFor="legalConsent" className="flex cursor-pointer items-start gap-2.5">
+        <input
+          id="legalConsent"
+          type="checkbox"
+          required
+          checked={agreed}
+          onChange={(event) => {
+            setAgreed(event.target.checked)
+            if (event.target.checked) setError(null)
+          }}
+          className="mt-0.5 size-4 shrink-0 cursor-pointer accent-primary"
+        />
+        <span className="text-[11px] leading-6 text-muted-foreground">
+          أوافق على{" "}
+          <Link
+            to="/privacy"
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold text-primary underline"
+          >
+            سياسة الخصوصية
+          </Link>{" "}
+          و{" "}
+          <Link
+            to="/terms"
+            target="_blank"
+            rel="noreferrer"
+            className="font-bold text-primary underline"
+          >
+            الشروط والأحكام
+          </Link>
+          . أعلم أن حسابي ينشئ <strong className="text-foreground">بروفايلاً عاماً</strong> برتبة D
+          يمكنني إخفاؤه لاحقاً من بروفايلي.
+          <span className="mt-1 block text-[10px] text-muted-foreground/80">
+            نُسجّل موافقتك مع التاريخ ونسخة السياسة ({POLICY_VERSION}) كإثبات قانوني.
+          </span>
+        </span>
+      </label>
+    </div>
+  ) : alreadyConsented && !isRecovery && mode !== "password" ? (
+    <p className="flex items-start gap-1.5 text-[10.5px] leading-5 text-muted-foreground">
+      <Check className="mt-0.5 size-3.5 shrink-0 text-emerald-600" />
+      <span>
+        موافقتك على سياسة الخصوصية مسجّلة لهذه النسخة ({POLICY_VERSION}).
+      </span>
+    </p>
+  ) : null
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12" dir="rtl">
@@ -396,6 +480,8 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
               </div>
             </div>
 
+            {mode === "signup" && consentRow}
+
             <button
               type="submit"
               disabled={loading}
@@ -428,6 +514,8 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
                 <span className="text-[10.5px] font-bold text-muted-foreground">أو</span>
                 <span className="h-px flex-1 bg-border" />
               </div>
+
+              {mode === "signin" && consentRow}
 
               <button
                 type="button"

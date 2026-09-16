@@ -37,6 +37,7 @@ missing.** الترتيب الزمني مهم لأن أجسام الدوال ت�
 | 9 | `20260919010000_user_role_default_member_and_demote.sql` | ⚠ انظر التحذير |
 | 10 | `20260920000000_protect_progression_and_quiz_answers.sql` | 🛑 **لا تطبّقه الآن** |
 | 11 | `20260924000000_supabase_auth_profiles_and_ranks.sql` | 🔁 **إزالة Clerk** — طبّقه بعد 10 |
+| 12 | `20260925000000_legal_consents.sql` | ✅ إثبات الموافقة على الخصوصية |
 
 ### ✅ عملياً: لصقتان فقط تكفيان (مُثبَت بالاختبار)
 
@@ -275,6 +276,57 @@ FROM public.subscription_plans WHERE is_active;
 
 وفي المتصفح: `/profile/saved` و `/pricing` و `/admin/pricing` و
 `/admin/user-data` يجب أن تفتح.
+
+---
+
+### ✅ الملف 12 — سجل إثبات الموافقة على السياسات
+
+`20260925000000_legal_consents.sql` يضيف الجدول الذي يجعل خانة الموافقة في
+`/login?mode=signup` ذات قيمة قانونية. الخانة وحدها لا تكفي: المادة 7(1) من
+GDPR تتطلب أن تتمكّن من **إثبات** أن الشخص وافق.
+
+ماذا يفعل:
+
+- جدول `public.legal_consents`: `user_id` (→ `auth.users` بـ `ON DELETE
+  CASCADE`)، `document` (privacy/terms/cookies)، `policy_version`، `method`
+  (email/google)، `agreed_at`، `user_agent`.
+- فهرس فريد على `(user_id, document, policy_version)` — موافقة واحدة لكل نسخة،
+  فتكرار الاستدعاء آمن ولا يولّد صفوف مكررة.
+- RLS: `legal_consents_owner_insert` (يكتب موافقته فقط) و
+  `legal_consents_owner_select` (يقرأها هو أو المشرف). **لا UPDATE ولا DELETE**
+  من الواجهة — السجل دليل قانوني فلا يعدّله صاحبه.
+- RPC `public.record_legal_consent(document, policy_version, method,
+  user_agent)`: `SECURITY DEFINER`، يثبّت `user_id` من `auth.uid()` لا من
+  المُدخل، ويرفض النسخة الفارغة أو المستند/الطريقة غير المعروفة.
+
+مسار الموافقة في الواجهة:
+
+1. المستخدم يؤشّر الخانة → `captureConsent()` يحفظ الوقت والنسخة محلياً في
+   `mizan:legal:consent:v1` **قبل** أي نداء شبكة.
+2. تنجح المصادقة → `AuthProvider` يستدعي `syncPendingConsent()`.
+3. تُكتب الصفوف عبر RPC. مسار Google مغطى: الموافقة تُلتقط قبل إعادة التوجيه
+   وتُكتب عند العودة حين يصير `user_id` معروفاً.
+4. نسخة إضافية تُحفظ في `auth.users.raw_user_meta_data`
+   (`legal_consent_version`, `legal_consent_at`).
+
+`POLICY_VERSION` هو `LEGAL_LAST_UPDATED` في `src/content/legal/policies.js` —
+نفس الثابت الذي يعرضه نص السياسة. فحين تغيّر التاريخ، تُطلب الموافقة من جديد
+تلقائياً عند أول دخول. **لا تعدّل التاريخ دون قصد**: تعديله يعيد سؤال كل
+المستخدمين.
+
+التحقق بعد التطبيق:
+
+```sql
+select document, policy_version, method, count(*)
+  from public.legal_consents group by 1,2,3 order by 4 desc;
+
+-- الحسابات بلا موافقة مسجّلة (السابقة للترحيل — ستُطلب عند أول دخول):
+select count(*) from auth.users u
+  where not exists (select 1 from public.legal_consents lc where lc.user_id = u.id);
+```
+
+> ⚠ الترحيل **لا يلفّق** موافقة بأثر رجعي للحسابات القائمة. هذا مقصود:
+> تسجيل موافقة لم تحدث فعلياً أسوأ من عدم وجود سجل.
 
 ---
 

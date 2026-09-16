@@ -19,6 +19,7 @@ import {
   type MyProfile,
   type SyncResult,
 } from "@/lib/profiles/service"
+import { readStoredConsent, syncPendingConsent } from "@/lib/legal/consent"
 
 /**
  * AuthProvider — Supabase Auth هو مزوّد الهوية الوحيد في ميزان.
@@ -190,6 +191,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (current?.user) {
         await loadAdminFlag(supabase, current.user.id)
         await loadProfile(current.user.id)
+        // يغطي عودة Google من إعادة التوجيه: الموافقة التُقطت قبل المغادرة
+        // وتُكتب الآن بعدما صار لدينا user_id. لا يحجب الواجهة ولا يرمي.
+        void syncPendingConsent()
       }
 
       const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
@@ -200,6 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSyncError(null)
           await loadAdminFlag(supabase, nextSession.user.id)
           await loadProfile(nextSession.user.id)
+          void syncPendingConsent()
         } else {
           setProfile(null)
           setIsAdmin(false)
@@ -254,6 +259,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             data: {
               full_name: input.fullName?.trim() || input.email.split("@")[0],
               username: input.username?.trim().toLowerCase() || undefined,
+              // إثبات إضافي داخل auth.users نفسها، يبقى ولو تعذّرت مزامنة الجدول.
+              legal_consent_version: readStoredConsent()?.policyVersion ?? null,
+              legal_consent_at: readStoredConsent()?.agreedAt ?? null,
             },
           },
         })

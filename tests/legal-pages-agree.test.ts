@@ -18,9 +18,7 @@ import { join } from "node:path";
 const ROOT = join(__dirname, "..");
 const read = (p: string) => readFileSync(join(ROOT, p), "utf8");
 
-// @ts-expect-error — وحدة JS مشتركة مع Node (prerender.mjs)
 import { policyToHtml, inlineToHtml, tokenizeInline } from "../src/content/legal/markup.js";
-// @ts-expect-error — نفسها
 import {
   PRIVACY_POLICY,
   COOKIE_POLICY,

@@ -25,6 +25,8 @@ const TABLES_BY_OWNER = [
   ["credit_transactions", "user_ref"],
   ["content_reactions", "owner_id"],
   ["profiles", "id"],
+  // مرتبطة بـ auth.users بـ ON DELETE CASCADE، فنحذفها صراحةً هنا أيضاً.
+  ["legal_consents", "user_id"],
 ];
 
 /**

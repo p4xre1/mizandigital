@@ -476,6 +476,40 @@ export interface Database {
         }>
         Relationships: []
       }
+      /** سجل إثبات الموافقة على سياسة الخصوصية والشروط (20260925000000). */
+      legal_consents: {
+        Row: {
+          id: string
+          user_id: string
+          document: string
+          policy_version: string
+          method: string
+          agreed_at: string
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          document?: string
+          policy_version: string
+          method?: string
+          agreed_at?: string
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          document?: string
+          policy_version?: string
+          method?: string
+          agreed_at?: string
+          user_agent?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: { [_ in never]: never }
 
@@ -493,6 +527,16 @@ export interface Database {
       mizan_rank_for_xp: { Args: { p_xp: number }; Returns: string }
       current_user_rank: { Args: Record<PropertyKey, never>; Returns: string }
       has_rank_at_least: { Args: { p_rank: string }; Returns: boolean }
+      /** إثبات الموافقة على السياسات — UPSERT على (user_id, document, policy_version). */
+      record_legal_consent: {
+        Args: {
+          p_document?: string
+          p_policy_version?: string
+          p_method?: string
+          p_user_agent?: string | null
+        }
+        Returns: string
+      }
     }
     Enums: { [_ in never]: never }
     CompositeTypes: { [_ in never]: never }
