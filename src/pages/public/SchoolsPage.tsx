@@ -143,7 +143,7 @@ export function SchoolsPage() {
                             {school.foundedYear && <><span>•</span><span>{school.foundedYear}</span></>}
                           </div>
                           <h3 className="font-bold text-[13px] leading-tight mt-1 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{schoolName}</h3>
-                          {school.university && <div className="text-[10px] text-[#94a3b8] mt-1">{school.university}</div>}
+                          {school.university && <div className="text-[10px] text-[#64748b] dark:text-[#94a3b8] mt-1">{school.university}</div>}
                         </div>
                       </div>
                       <span className="size-7 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] group-hover:bg-[#2563eb] group-hover:text-white transition-colors">
@@ -153,7 +153,7 @@ export function SchoolsPage() {
                     {school.description && <p className="mt-3 text-[11px] text-[#64748b] dark:text-[#94a3b8] leading-relaxed line-clamp-2">{school.description}</p>}
                     <div className="mt-3 flex items-center gap-2">
                       <span className="text-[10px] bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] px-2 py-0.5 rounded-full border border-[#dbeafe] dark:border-[#334155] font-bold">{school.city}</span>
-                      {school.foundedYear && <span className="text-[10px] text-[#94a3b8]">تأسست {school.foundedYear}</span>}
+                      {school.foundedYear && <span className="text-[10px] text-[#64748b] dark:text-[#94a3b8]">تأسست {school.foundedYear}</span>}
                     </div>
                   </Link>
                 )

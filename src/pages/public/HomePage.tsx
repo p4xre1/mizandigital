@@ -193,11 +193,26 @@ export function HomePage() {
       } catch {}
     }
 
-    if ("requestIdleCallback" in window) {
-      // @ts-ignore
-      requestIdleCallback(loadRemote, { timeout: 3000 })
+    // ── لماذا تأجيل المزامنة مع Supabase ────────────────────────────────────
+    // كانت تُجدوَل بـ requestIdleCallback بحدّ أقصى 3 ثوانٍ، أي في قلب نافذة
+    // قياس الأداء: تستورد حزمة vendor-supabase (217KB) وتحلّلها، تنفّذ ثلاثة
+    // استعلامات، ثم تستبدل القوائم المعروضة — مهمات طويلة على الخيط الرئيسي
+    // (TBT) وانزياح تخطيط ثانٍ (CLS) بعد ظهور المحتوى المحلي.
+    // البيانات المحلية تُعرض فوراً anyway، فالمزامنة تحديث لاحق لا سبب
+    // للاستعجال عليه: تُؤجَّل إلى ما بعد اكتمال التحميل وأول خمول فعلي.
+    const scheduleRemoteSync = () => {
+      if ("requestIdleCallback" in window) {
+        // @ts-ignore
+        requestIdleCallback(loadRemote, { timeout: 12000 })
+      } else {
+        setTimeout(loadRemote, 8000)
+      }
+    }
+
+    if (document.readyState === "complete") {
+      scheduleRemoteSync()
     } else {
-      setTimeout(loadRemote, 1500)
+      window.addEventListener("load", scheduleRemoteSync, { once: true })
     }
   }, [])
 
@@ -291,7 +306,10 @@ export function HomePage() {
                     </div>
                     <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
                   </div>
-                  <h3 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h3>
+                  {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
+                      سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
+                      متسلسلاً مع بقية أقسام الصفحة. */}
+                  <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h2>
                   <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
                 </div>
               ))}
@@ -343,7 +361,7 @@ export function HomePage() {
                     <div className="p-4 flex flex-col flex-1">
                       <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
                       <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
-                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                         <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
                         <span>•</span>
                         <span>ميزان الرقمية</span>
@@ -375,7 +393,7 @@ export function HomePage() {
                       <div className="p-4 flex flex-col flex-1">
                         <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
                         <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
-                        <div className="mt-3 flex items-center gap-3 text-[10px] text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                        <div className="mt-3 flex items-center gap-3 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                           {ev.city && <span className="flex items-center gap-1"><MapPin className="size-3" />{ev.city}</span>}
                           {ev.organizer && <span className="flex items-center gap-1 truncate"><Building2 className="size-3" />{ev.organizer.slice(0, 20)}</span>}
                         </div>

@@ -175,7 +175,7 @@ export function ArticlesPage() {
                     <span className="inline-flex w-fit bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] dark:text-[#60a5fa] text-[11px] font-bold px-3 py-1 rounded-full border border-[#dbeafe] dark:border-[#334155]">{featured.category || "قانون"}</span>
                     <h2 className="mt-3 text-[20px] font-black leading-tight text-[#0f172a] dark:text-white">{featured.title}</h2>
                     <p className="mt-2 text-[13px] leading-6 text-[#475569] dark:text-[#94a3b8] line-clamp-3">{featured.summary ? truncateCleanText(featured.summary, 140) : ""}</p>
-                    <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#94a3b8]">
+                    <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#64748b] dark:text-[#94a3b8]">
                       <Clock className="size-3.5" /> {featured.readingTime} • {featured.date ? new Date(featured.date).toLocaleDateString("ar-MA") : ""}
                     </div>
                     <Link to={`/articles/${featured.slug}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#2563eb] text-white px-5 py-2.5 text-[12px] font-bold hover:bg-[#1d4ed8] w-fit">
@@ -196,7 +196,7 @@ export function ArticlesPage() {
                     <div className="p-4">
                       <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h3>
                       <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8] line-clamp-2 leading-5">{item.summary ? truncateCleanText(item.summary, 80) : ""}</p>
-                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#94a3b8]">
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8]">
                         <Clock className="size-3" /> {item.readingTime}
                       </div>
                     </div>
