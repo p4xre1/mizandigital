@@ -1,6 +1,7 @@
 import { Link, NavLink } from "react-router-dom"
 import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
 import { AuthControls } from "@/components/auth/AuthControls"
+import { NavbarSearch } from "@/components/nav/NavbarSearch"
 import { useAuth } from "@/lib/auth/AuthProvider"
 import { RankBadge } from "@/components/quiz/RankBadge"
 import { useEffect } from "react"
@@ -146,14 +147,16 @@ export function Header({
             </NavLink>
           </nav>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
-              <div className="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">
-                <Search className="size-4" />
-              </div>
-              <input placeholder="ابحث..." maxLength={100} autoComplete="off" spellCheck={false} className="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]" />
-            </div>
+          {/*
+            البحث في وسط الشريط (سطح المكتب فقط). الغلاف flex-1 يمتص كل
+            المساحة الحرة و justify-center يوسّط الحقل داخلها، فيبقى وسط
+            الشريط سواء ظهرت روابط التنقل (lg+) أم لم تظهر (md–lg).
+          */}
+          <div className="hidden md:flex min-w-0 flex-1 justify-center px-2">
+            <NavbarSearch className="w-full max-w-[320px]" onNavigate={handleNavClick} />
+          </div>
 
+          <div className="flex items-center gap-2 shrink-0">
             <Link to="/search" className="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Search">
               <Search size={16} />
             </Link>
