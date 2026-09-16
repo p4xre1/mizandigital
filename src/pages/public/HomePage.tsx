@@ -25,52 +25,59 @@ export function HomePage() {
   const [articlesCount] = useState<number>(counts.articles)
 
   useEffect(() => {
-    // Fast local load - no supabase, immediate after paint
     const loadLocal = async () => {
       try {
         const [{ default: articlesData }] = await Promise.all([import("../../data/articles.json")])
-        const local: FeedCard[] = (articlesData as any[]).slice(0, 8).map((item) => ({
-          id: item.id,
-          slug: item.slug,
-          title: item.title,
-          summary: item.excerpt,
-          category: item.category,
-          date: item.publishedAt,
-          image: item.coverImage || item.image,
-        }))
+        const local: FeedCard[] = (articlesData as any[])
+          .map((item) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.title,
+            summary: item.excerpt,
+            category: item.category,
+            date: item.publishedAt,
+            image: item.coverImage || item.image,
+          }))
+          .filter((a) => !!a.image && a.image.trim() !== "")
         setLatestArticles(diversifyByCategory(local, 8))
       } catch {}
     }
     loadLocal()
 
-    // Defer heavy supabase to idle - not critical for LCP
     const loadRemote = async () => {
       try {
         const { supabase } = await import("../../lib/supabase/client")
         const [{ default: articlesData }] = await Promise.all([import("../../data/articles.json")])
         const [articlesRes] = await Promise.all([
-          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(20),
+          supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(30),
         ])
-        const remoteArticles: FeedCard[] = (articlesRes.data || []).map((item: any) => ({
-          id: item.id,
-          slug: item.slug,
-          title: item.title,
-          summary: item.excerpt,
-          category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name,
-          date: item.published_at || item.created_at,
-          image: item.cover_image,
-        }))
-        const localArticles: FeedCard[] = (articlesData as any[]).map((item) => ({
-          id: item.id,
-          slug: item.slug,
-          title: item.title,
-          summary: item.excerpt,
-          category: item.category,
-          date: item.publishedAt,
-          image: item.coverImage || item.image,
-        }))
+        const remoteArticles: FeedCard[] = (articlesRes.data || [])
+          .map((item: any) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.title,
+            summary: item.excerpt,
+            category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name,
+            date: item.published_at || item.created_at,
+            image: item.cover_image,
+          }))
+          .filter((a) => !!a.image && String(a.image).trim() !== "")
+
+        const localArticles: FeedCard[] = (articlesData as any[])
+          .map((item) => ({
+            id: item.id,
+            slug: item.slug,
+            title: item.title,
+            summary: item.excerpt,
+            category: item.category,
+            date: item.publishedAt,
+            image: item.coverImage || item.image,
+          }))
+          .filter((a) => !!a.image && String(a.image).trim() !== "")
+
         const combined = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
-        setLatestArticles(diversifyByCategory(combined, 8))
+        const withImages = combined.filter((a) => !!a.image)
+        setLatestArticles(diversifyByCategory(withImages, 8))
       } catch {}
     }
 
@@ -106,9 +113,7 @@ export function HomePage() {
         ]}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
-        {/* Hero - Centered Text - Optimized: smaller blur, no heavy animations */}
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          {/* Lightweight decorative - hidden on mobile for speed */}
           <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]" />
           <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
 
@@ -182,7 +187,6 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Course Category - BEFORE subscription - content-visibility for speed */}
         <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
@@ -217,22 +221,18 @@ export function HomePage() {
                 <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                {latestArticles.slice(0, 4).map((item) => (
+                {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
                   <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all flex flex-col">
                     <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                          width={320}
-                          height={120}
-                        />
-                      ) : (
-                        <div className="w-full h-full grid place-items-center"><BookOpen className="size-7 text-[#94a3b8]" /></div>
-                      )}
+                      <img
+                        src={item.image!}
+                        alt={item.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                        width={320}
+                        height={120}
+                      />
                       <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
                     </div>
                     <div className="p-4 flex flex-col flex-1">
@@ -247,11 +247,15 @@ export function HomePage() {
                   </Link>
                 ))}
               </div>
+              {latestArticles.filter((a) => !!a.image).length === 0 && (
+                <div className="rounded-2xl border border-dashed border-border bg-white dark:bg-[#1e293b] p-8 text-center">
+                  <p className="text-[13px] text-muted-foreground">لا توجد مقالات بصور حالياً — سيتم عرضها هنا فور توفرها.</p>
+                </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Pricing */}
         <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
           <div className="container relative mx-auto max-w-[1280px] px-6">
             <div className="text-center max-w-[640px] mx-auto">
@@ -373,7 +377,6 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Why Choose Us */}
         <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="max-w-[900px] mx-auto">
@@ -407,7 +410,6 @@ export function HomePage() {
           </div>
         </section>
 
-        {/* Stats - lightweight, no animation */}
         <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
           <div className="container mx-auto max-w-[1280px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
