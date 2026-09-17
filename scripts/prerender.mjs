@@ -1,6 +1,11 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { loadEnv } from "vite";
 import { buildLlmsTxt } from "./lib/llms-content.mjs";
+import { policyToHtml } from "../src/content/legal/markup.js";
+import {
+  PRIVACY_POLICY,
+  COOKIE_POLICY,
+  TERMS_POLICY,
+} from "../src/content/legal/policies.js";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -248,10 +253,12 @@ const publisherSchema = {
     height: 630,
   },
   sameAs: [
-    "https://www.facebook.com/mizan.page",
+    "https://www.facebook.com/profile.php?id=61593607157317",
     "https://www.instagram.com/mizan.page",
     "https://www.tiktok.com/@mizan_page",
-    "https://www.pinterest.com/mizan.page",
+    "https://www.pinterest.com/mohamedredayassinn/",
+    "https://x.com/MIZANPAGE",
+    "https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m",
     "https://github.com/p4xre1/mizandigital",
   ],
 };
@@ -327,12 +334,10 @@ const NAV_BASE = "px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap
 const NAV_ACTIVE = "bg-[#2563eb] text-white shadow-sm";
 const NAV_IDLE = "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white";
 
-// هل Clerk مفعّل وقت البناء؟ — يحدّد إن كان زر «دخول» يظهر في الـ Header.
-// نستعمل loadEnv بدل process.env مباشرة لأن المفتاح قد يأتي من ملف .env
-// (الذي لا يقرأه سكربت Node عادي) لا من متغيرات البيئة فقط؛ لو اختلف
-// الظنّ عن الواقع يظهر فرق أفقي بسيط في الـ Header على الشاشات المتوسطة.
-const buildEnv = loadEnv(process.env.NODE_ENV || "production", process.cwd(), "VITE_");
-const clerkEnabled = Boolean(buildEnv.VITE_CLERK_PUBLISHABLE_KEY);
+// المصادقة صارت Supabase Auth (أُزيل Clerk): زر «دخول» يظهر دائماً في
+// الهيكل المُسبق (prerender)، ولا يعتمد على أي مفتاح وقت البناء. حالة
+// الجلسة تُحسم في المتصفح، وAuthControls يعرض هيكلاً بنفس العرض حتى لا
+// يقفز الشريط (CLS) ريثما تُقرأ الجلسة من كوكي sb-*.
 
 const homeHeaderHtml = `
         <header class="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
@@ -349,19 +354,25 @@ const homeHeaderHtml = `
                 `\n              <a href="${href}"${active ? ` aria-current="page"` : ""} class="${NAV_BASE} ${active ? NAV_ACTIVE : NAV_IDLE}">${label}</a>`
             ).join("")}
             </nav>
+            <!-- البحث في وسط الشريط (سطح المكتب). نفس بنية NavbarSearch.tsx؛
+                 form حقيقي بـ method=get فيعمل Enter حتى قبل تحميل JS،
+                 و React يستبدله عند الـ hydration بحقل مرتبط بـ validateSearch
+                 وباختصار K. -->
+            <div class="hidden md:flex min-w-0 flex-1 justify-center px-2">
+              <form action="/search" method="get" role="search" aria-label="البحث في ميزان الرقمية" class="relative flex w-full max-w-[320px] items-center">
+                <div class="flex h-9 w-full items-center gap-2 rounded-full border border-[#e2e8f0] bg-[#f8fafc] pr-1 pl-2 dark:border-[#334155] dark:bg-[#1e293b]">
+                  <div class="grid size-7 shrink-0 place-items-center rounded-full bg-[#2563eb] text-white">${svgIcon(ICON.search, "size-4", 16)}</div>
+                  <input type="search" name="q" placeholder="ابحث..." maxlength="100" autocomplete="off" spellcheck="false" aria-label="ابحث في المقالات والأخبار والقاموس والكليات" class="min-w-0 flex-1 bg-transparent text-[13px] font-bold text-[#0f172a] outline-none placeholder:font-normal placeholder:text-[#94a3b8] dark:text-white">
+                  <kbd class="grid h-6 shrink-0 place-items-center rounded-md border border-[#e2e8f0] bg-white px-1.5 font-sans text-[11px] font-black text-[#64748b] dark:border-[#334155] dark:bg-[#0f172a] dark:text-[#94a3b8]" title="اختصار البحث: K">K</kbd>
+                </div>
+              </form>
+            </div>
             <div class="flex items-center gap-2 shrink-0">
-              <div class="hidden md:flex items-center gap-2 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-full pl-1 pr-3 h-9">
-                <div class="size-7 grid place-items-center rounded-full bg-[#2563eb] text-white">${svgIcon(ICON.search, "size-4", 16)}</div>
-                <input placeholder="ابحث..." maxlength="100" autocomplete="off" spellcheck="false" class="bg-transparent outline-none text-[13px] w-24 placeholder:text-[#94a3b8]">
-              </div>
               <a href="/search" class="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="البحث">${svgIcon(ICON.search, "", 16)}</a>
               <button type="button" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="تبديل الوضع الليلي">${svgIcon(ICON.moon, "text-[#475569]", 16)}</button>
-              <div class="hidden md:flex items-center gap-2">${
-                clerkEnabled
-                  ? `<button type="button" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</button>`
-                  : ""
-              }</div>
-              <a href="/articles" class="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-5 py-2 text-[13px] font-bold shadow-sm transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20">←</span></a>
+              <div class="hidden md:flex items-center gap-2">
+                <a href="/login" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</a>
+              </div>
               <button type="button" class="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="فتح القائمة">${svgIcon(ICON.menu, "", 18)}</button>
             </div>
           </div>
@@ -381,7 +392,7 @@ const homeHeroHtml = `
             <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
               <div class="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
                 <span class="size-1.5 rounded-full bg-[#2563eb]"></span>
-                منصة تعليمية عصرية • مجانية 100%
+                منصة تعليمية عصرية • الأساسي مجاني والمتقدم باشتراك
               </div>
               <h1 class="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">افتح إمكانياتك مع<br><span class="text-[#2563eb]">التعلم القانوني</span><br><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span></h1>
               <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
@@ -399,7 +410,7 @@ const homeHeroHtml = `
                 </div>
                 <div class="text-right">
                   <div class="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">${svgIcon(ICON.users, "size-4 text-[#2563eb]", 16)}500+ طالب يثقون بنا</div>
-                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 • منصة مجانية</div>
+                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 • محتوى أساسي مجاني</div>
                 </div>
               </div>
               <div class="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">${homeStatCards
@@ -429,7 +440,7 @@ const pages = [
     title: "ملخصات S1-S6، قاموس قانوني 250 مصطلح ودليل 21 كلية حقوق بالمغرب | ميزان الرقمية",
 
     description:
-      "ميزان الرقمية منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
+      "ميزان الرقمية منصة مغربية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
 
     schema: {
       "@context": "https://schema.org",
@@ -438,7 +449,7 @@ const pages = [
       url: DOMAIN,
       name: "ميزان الرقمية | ملخصات S1-S6، قاموس قانوني ودليل كليات الحقوق بالمغرب",
       description:
-        "منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس 250 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
+        "منصة مغربية لطلبة القانون بأساس مجاني ومزايا متقدمة باشتراك: ملخصات S1-S6، قاموس 250 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
       inLanguage: "ar-MA",
       isPartOf: {
         "@id": `${DOMAIN}/#website`,
@@ -508,14 +519,19 @@ const pages = [
           <h2 class="text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ميزان الرقمية — المعرفة القانونية للطلبة بالمغرب</h2>
 
           <p>
-            <strong>ميزان الرقمية هي منصة عربية مغربية مجانية للمعرفة القانونية والأكاديمية.</strong>
+            <strong>ميزان الرقمية هي منصة عربية مغربية للمعرفة القانونية والأكاديمية، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك.</strong>
             توفر للطلبة والباحثين أدوات للبحث في المصطلحات القانونية،
             والمقالات، والأخبار، والندوات، والمواد الدراسية وكليات الحقوق بالمغرب.
           </p>
 
           <p>
-            تُعد ميزان الرقمية من أبرز المنصات المجانية لملخصات ومصطلحات القانون
-            الموجهة لطلبة كليات الحقوق بالمغرب، وذلك دون الحاجة لإنشاء حساب أو دفع أي اشتراك.
+            تُعد ميزان الرقمية من المنصات المغربية المتخصصة في ملخصات ومصطلحات القانون
+            الموجهة لطلبة كليات الحقوق بالمغرب. يتاح محتواها الأساسي — المعجم والأرشيف
+            الدراسي والمقالات والأخبار ودليل الكليات — مجاناً دون إنشاء حساب، بينما
+            تُؤدّى المزايا المتقدمة عبر اشتراك ميزان برو أو حزم الكريدتس.
+            المنصة تعليمية ولا تقدّم استشارات قانونية؛ فتقديم الاستشارات في الميدان
+            القانوني من مهام المحامي بمقتضى القانون رقم 28.08، ويدير المنصة طالب
+            قانون لا محامٍ مقيّد.
           </p>
 
           <section class="mt-10">
@@ -650,6 +666,8 @@ const pages = [
               <a href="/about">تعرف على المنصة وفريقها</a>
               —
               <a href="/contact">تواصل معنا</a>
+              —
+              <a href="/faq">الأسئلة الشائعة</a>
             </p>
           </section>
 
@@ -1315,73 +1333,26 @@ pages.push(
 
   {
     path: "/privacy",
-    title: "سياسة الخصوصية | ميزان الرقمية",
-    description:
-      "سياسة الخصوصية الخاصة بمنصة ميزان الرقمية.",
-    staticBody: `
-      <main dir="rtl" lang="ar-MA">
-        <article>
-          <h1>سياسة الخصوصية</h1>
-
-          <p>
-            نحترم خصوصية زوار المنصة ونسعى إلى توضيح
-            كيفية التعامل مع البيانات والمعلومات التقنية.
-          </p>
-
-          <h2>ما البيانات التي قد يتم جمعها؟</h2>
-
-          <p>
-            قد يتم تسجيل معلومات تقنية ضرورية لتشغيل الموقع
-            وتحسين الأداء والأمان وفق الخدمات المستخدمة.
-          </p>
-        </article>
-      </main>
-    `,
+    title: PRIVACY_POLICY.title,
+    description: PRIVACY_POLICY.description,
+    // يُبنى من نفس بيانات صفحة React — لا نسخة يدوية مختصرة.
+    staticBody: policyToHtml(PRIVACY_POLICY),
   },
 
   {
     path: "/terms",
-    title: "الشروط والأحكام | ميزان الرقمية",
-    description:
-      "الشروط والأحكام الخاصة باستخدام منصة ميزان الرقمية.",
-    staticBody: `
-      <main dir="rtl" lang="ar-MA">
-        <article>
-          <h1>الشروط والأحكام</h1>
-
-          <p>
-            باستخدام الموقع، يوافق الزائر على استخدام المحتوى
-            لأغراض قانونية وتعليمية وعدم إساءة استخدام الخدمات.
-          </p>
-
-          <h2>الاستخدام التعليمي</h2>
-
-          <p>
-            المحتوى مخصص للمساعدة التعليمية والبحثية
-            ولا يشكل استشارة قانونية مهنية.
-          </p>
-        </article>
-      </main>
-    `,
+    title: TERMS_POLICY.title,
+    description: TERMS_POLICY.description,
+    // يُبنى من نفس بيانات صفحة React — لا نسخة يدوية مختصرة.
+    staticBody: policyToHtml(TERMS_POLICY),
   },
 
   {
     path: "/cookies",
-    title: "سياسة الكوكيز | ميزان الرقمية",
-    description:
-      "تعرّف على ملفات تعريف الارتباط (الكوكيز) التي تستخدمها منصة الميزان الرقمية، أنواعها، والغرض من كل نوع، وكيفية التحكم بها أو تعطيلها من إعدادات متصفحك.",
-    staticBody: `
-      <main dir="rtl" lang="ar-MA">
-        <article>
-          <h1>سياسة الكوكيز</h1>
-
-          <p>
-            قد تستخدم المنصة ملفات ارتباط وتقنيات مشابهة
-            لتحسين تجربة المستخدم والأداء والأمان.
-          </p>
-        </article>
-      </main>
-    `,
+    title: COOKIE_POLICY.title,
+    description: COOKIE_POLICY.description,
+    // يُبنى من نفس بيانات صفحة React — لا نسخة يدوية مختصرة.
+    staticBody: policyToHtml(COOKIE_POLICY),
   }
 );
 

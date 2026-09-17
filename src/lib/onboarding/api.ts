@@ -19,19 +19,23 @@ export interface OnboardingPayload {
 }
 
 /**
- * getToken هو نفسه اللي كترجعه useAuth() ديال Clerk — Function دالة
- * async كترجع رمز الدخول (JWT) الحالي أو null إذا كان المستخدم غير موصول.
+ * استبيان الترحيب — بعد إزالة Clerk صار الرمز المستعمل هو access_token
+ * الخاص بـ Supabase Auth، والدالة الحافية (Edge Function) تتحقق من توقيعه
+ * عبر JWKS الخاص بـ Supabase (شوف supabase/functions/onboarding/index.ts).
  */
-type GetClerkToken = () => Promise<string | null>
 
-async function callOnboardingFunction(
-  getToken: GetClerkToken,
-  init: { method: "GET" | "POST"; body?: OnboardingPayload }
-) {
-  const token = await getToken()
-  console.log("Clerk Token Debug:", token ? "Token exists (Length: " + token.length + ")" : "Token is NULL!")
-  
-  if (!token) throw new Error("لا توجد جلسة Clerk صالحة")
+async function getAccessToken(): Promise<string | null> {
+  try {
+    const { data } = await supabase.auth.getSession()
+    return data.session?.access_token ?? null
+  } catch {
+    return null
+  }
+}
+
+async function callOnboardingFunction(init: { method: "GET" | "POST"; body?: OnboardingPayload }) {
+  const token = await getAccessToken()
+  if (!token) throw new Error("لا توجد جلسة Supabase صالحة — سجّل الدخول أولاً.")
 
   const { data, error } = await supabase.functions.invoke("onboarding", {
     method: init.method,
@@ -42,13 +46,14 @@ async function callOnboardingFunction(
   if (error) throw error
   return data
 }
-/** يتحقق واش المستخدم الحالي (Clerk) كمّل استبيان الترحيب من قبل. */
-export async function checkOnboardingCompleted(getToken: GetClerkToken): Promise<boolean> {
-  const data = await callOnboardingFunction(getToken, { method: "GET" })
+
+/** يتحقق واش المستخدم الحالي كمّل استبيان الترحيب من قبل. */
+export async function checkOnboardingCompleted(): Promise<boolean> {
+  const data = await callOnboardingFunction({ method: "GET" })
   return Boolean(data?.completed)
 }
 
 /** يسجّل إجابات استبيان الترحيب. */
-export async function submitOnboarding(getToken: GetClerkToken, payload: OnboardingPayload): Promise<void> {
-  await callOnboardingFunction(getToken, { method: "POST", body: payload })
+export async function submitOnboarding(payload: OnboardingPayload): Promise<void> {
+  await callOnboardingFunction({ method: "POST", body: payload })
 }

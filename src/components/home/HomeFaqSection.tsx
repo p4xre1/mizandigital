@@ -1,5 +1,8 @@
 import { useState } from "react"
-import { ChevronDown, HelpCircle } from "lucide-react"
+import { Link } from "react-router-dom"
+import { jsonLdProps } from "@/lib/seo/jsonLd"
+import { ArrowRight, ChevronDown, HelpCircle } from "lucide-react"
+import faqGroups from "@/data/faq.json"
 
 interface FaqItem {
   question: string
@@ -40,6 +43,14 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
     },
   ]
 
+  // صفحة /faq تُغذّى من src/data/faq.json، فنعدّ من المصدر نفسه كي يبقى
+  // الوصف تحت الرابط مطابقاً للمحتوى الحقيقي دون صيانة يدوية.
+  const totalFaqCount = faqGroups.reduce(
+    (total, group) => total + (group.items?.length ?? 0),
+    0,
+  )
+  const faqTopics = faqGroups.map((group) => group.title).join("، ")
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -52,7 +63,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
 
   return (
     <section className="py-16 border-t border-border" aria-labelledby="home-faq-heading">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script {...jsonLdProps(faqSchema)} />
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
@@ -96,6 +107,21 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
               </div>
             )
           })}
+        </div>
+
+        {/* ما سبق خلاصة؛ الباقي في صفحة الأسئلة الشائعة. الرابط نسبي
+            (لا نطاق مطلق) فيعمل على المعاينة وعلى الإنتاج دون إعادة تحميل. */}
+        <div className="mt-8 text-center">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-6 py-3 text-[13px] font-bold text-primary transition-colors hover:border-primary/45 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            المزيد من الأسئلة والأجوبة
+            <ArrowRight className="size-4 rtl:rotate-180" />
+          </Link>
+          <p className="mt-3 text-[11.5px] font-semibold leading-relaxed text-muted-foreground">
+            {totalFaqCount} سؤالاً في {faqGroups.length} مواضيع: {faqTopics}
+          </p>
         </div>
       </div>
     </section>

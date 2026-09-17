@@ -5,6 +5,130 @@
 
 ---
 
+<!-- ─────────────────────────────────────────────────────────────────────────
+     تحذير النشر — مُحدَّث 2026-09-17 من تفريغ مخطط القاعدة الحية
+     ───────────────────────────────────────────────────────────────────────── -->
+
+## 🔴 القاعدة الحية متأخرة عن سجل الترحيلات
+
+قورن تفريغ مخطط قاعدة البيانات الإنتاجية بسجل الترحيلات في هذا المستودع.
+النتيجة: **الترحيلات من 11 إلى 14 غير مطبَّقة على القاعدة الحية.**
+
+| الترحيل | الحالة على القاعدة الحية | الدليل من التفريغ |
+|---|---|---|
+| ≤ `20260923000000` | ✅ مطبَّقة | كل جداولها موجودة |
+| `20260924000000` إزالة Clerk / بروفايلات ورتب Supabase | ❌ **غير مطبَّق** | `onboarding_responses.clerk_user_id` ما زال `NOT NULL UNIQUE` وبلا عمود `user_id`؛ `mizan_profiles` بلا `avatar_url`/`cover_url`/`headline`؛ لا وجود لـ `rank_capabilities` |
+| `20260925000000` الموافقات القانونية | ❌ **غير مطبَّق** | لا جدول `legal_consents` |
+| `20260926000000` الحذف الناعم والتدقيق | ❌ غير مطبَّق | لا جدول `admin_audit_logs` |
+| `20260927000000` إصلاح منح الرصيد | ❌ غير مطبَّق | — |
+
+**لماذا هذا خطير لا مجرد تأخير:** كود التطبيق في هذا المستودع صار يتوقّع
+الترحيل 11. المشغّل `handle_new_user` الذي ينشئ صفّ `profiles` وصفّ
+`mizan_profiles` معاً عند التسجيل موجود في الترحيل 11 — فبدونه **قد لا يُنشأ
+بروفايل للمستخدمين الجدد أصلاً**، و`onboarding_responses.clerk_user_id NOT
+NULL` سيرفض الإدراج من كود لم يعد يرسل معرّف Clerk. كذلك خانة الموافقة على
+سياسة الخصوصية (الترحيل 12) تجمع موافقات **لا مكان لحفظها** في القاعدة الحية.
+
+**قبل أي نشر للواجهة:** طبّق الترحيلات 11 → 14 بالترتيب على القاعدة الحية.
+الترتيب إلزامي: الترحيل 13 يستعمل `is_admin()` كما أعاد تعريفها الترحيل
+`20260904120000`، والترحيل 14 يعيد إنشاء دالة من الترحيل `20260921000000`.
+
+---
+
+## 🔴 `credit_transactions` معرَّف مرّتين بشكلين متعارضين — التثبيت الجديد ينتج قاعدة مختلفة
+
+ترحيلان ينشئان الجدول نفسه، وكلاهما بـ `CREATE TABLE IF NOT EXISTS`:
+
+| الترحيل | الأعمدة |
+|---|---|
+| `20260915000000` | `user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE`، `direction credit_direction NOT NULL`، `amount CHECK (amount > 0)` |
+| `20260921000000` | `user_ref text NOT NULL`، `clerk_user_id text`، `type text CHECK(...)`، `amount CHECK (amount <> 0)`، `balance_after` |
+
+`IF NOT EXISTS` يعني أن **الأسبق بالاسم يفوز والثاني يصبح لا-عملية صامتة**.
+`20260915000000` يسبق `20260921000000`، فقاعدة تُبنى من الصفر تأخذ شكل
+20260915.
+
+لكن القاعدة الحية تحمل شكل 20260921 (`user_ref` و`type`). أي أن **الإنتاج
+والتثبيت الجديد ليسا القاعدة نفسها** — انحراف مخطط بنيوي لا حادث عارض.
+
+الأثر: كل كود يكتب في الجدول يستعمل شكل 20260921:
+
+- `complete_payment_and_grant_credits` (20260921) → `INSERT INTO credit_transactions (user_ref, clerk_user_id, type, ...)`
+- `admin_adjust_credits` (20260926) → الأعمدة نفسها
+- `anonymize_orphaned_billing` (20260926) → `UPDATE ... SET user_ref`
+
+على قاعدة مبنيّة من الصفر هذه الأعمدة غير موجودة ⇒ **كل إكمال دفعة يرمي
+خطأً**. نظام الفوترة يعمل على الإنتاج بالصدفة (لأن شكل الجدول هناك هو
+20260921)، لا بالبناء.
+
+**لا تُبنَ بيئة (تجريبي/إنتاج جديد) من سجل الترحيلات قبل توحيد التعريف.**
+يلزم ترحيل توفيق يفحص الشكل القائم ويحوّله إلى شكل 20260921، وهو الشكل الذي
+يستعمله كل من التطبيق والدوال. لم يُكتب بعد لأنه قرار يحتاج موافقة: قد يكون
+في قواعد أخرى صفوف بالشكل القديم يلزم ترحيل بياناتها لا مجرد ترحيل مخطط.
+
+للتحقق من شكل قاعدة بعينها:
+
+```sql
+SELECT column_name FROM information_schema.columns
+WHERE table_schema='public' AND table_name='credit_transactions'
+ORDER BY ordinal_position;
+-- user_ref/type  ⇒ شكل 20260921 (ما يتوقعه الكود)
+-- user_id/direction ⇒ شكل 20260915 (الكود سيفشل عليه)
+```
+
+---
+
+## ⚠️ تناقض يحتاج تحققاً يدوياً: ON DELETE CASCADE
+
+ملف الترحيل `20260823182123_remote_schema.sql:1351` ينشئ القيد:
+
+```sql
+ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id")
+  REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+```
+
+لكن التفريغ الحيّ يعرضه **بلا** `ON DELETE CASCADE`:
+
+```sql
+CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+```
+
+كذلك `mizan_profiles_owner_id_fkey` و`audit_logs_user_id_fkey` تظهر بلا شلال.
+
+لهذا أثر مباشر على الحذف النهائي: تصميم الإخفاء في الترحيل 13 يفترض أن حذف
+مستخدم `auth` عبر Auth Admin API يتكفّل بـ `profiles` و`mizan_profiles`. فإن
+كان الشلال غائباً فعلاً فالحذف **سيرفضه PostgreSQL** بانتهاك مفتاح أجنبي،
+وتبقى الحسابات غير قابلة للمحو — مخالفة للقانون 09-08.
+
+التفريغ نفسه يحذّر أنه «للسياق فقط وقد لا تكون القيود صالحة للتنفيذ»، فاحتمال
+أن تكون أداة التفريغ حذفت أفعال الإحالة قائم. **لا تُبنَ خطة الحذف على أيّ من
+الفرضيتين قبل التحقق:**
+
+```sql
+SELECT con.conname, con.confdeltype, tbl.relname AS on_table
+FROM pg_constraint con
+JOIN pg_class tbl ON tbl.oid = con.conrelid
+JOIN pg_namespace nsp ON nsp.oid = tbl.relnamespace
+WHERE nsp.nspname = 'public'
+  AND con.contype = 'f'
+  AND con.confrelid = 'auth.users'::regclass
+ORDER BY tbl.relname;
+-- confdeltype: a = NO ACTION, r = RESTRICT, c = CASCADE, n = SET NULL
+```
+
+إن ظهرت `a` أو `r` فالحذف النهائي يحتاج إما إضافة الشلال:
+
+```sql
+ALTER TABLE public.profiles DROP CONSTRAINT profiles_id_fkey;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_id_fkey
+  FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+```
+
+أو حذف الصفوف التابعة صراحةً قبل نداء Auth Admin API. القرار مؤجَّل عمداً حتى
+يُعرف الجواب، فلا يُكتب ترحيل يصلح قيداً قد يكون سليماً أصلاً.
+
+---
+
 ## 0) قبل أي شيء: هل الترحيلات مطبَّقة أصلاً؟
 
 ```bash
@@ -36,6 +160,10 @@ missing.** الترتيب الزمني مهم لأن أجسام الدوال ت�
 | 8 | `20260919000000_user_role_add_member.sql` | ⚠ انظر التحذير |
 | 9 | `20260919010000_user_role_default_member_and_demote.sql` | ⚠ انظر التحذير |
 | 10 | `20260920000000_protect_progression_and_quiz_answers.sql` | 🛑 **لا تطبّقه الآن** |
+| 11 | `20260924000000_supabase_auth_profiles_and_ranks.sql` | 🔁 **إزالة Clerk** — طبّقه بعد 10 |
+| 12 | `20260925000000_legal_consents.sql` | ✅ إثبات الموافقة على الخصوصية |
+| 13 | `20260926000000_admin_actions_soft_delete_and_audit.sql` | ⚖️ الحذف الناعم + سجل التدقيق + وعاء Pro |
+| 14 | `20260927000000_fix_credit_grant_balance.sql` | 🔴 **إصلاح المال**: الدفعة كانت تُكمَل بلا زيادة رصيد |
 
 ### ✅ عملياً: لصقتان فقط تكفيان (مُثبَت بالاختبار)
 
@@ -85,6 +213,51 @@ SEPARATELY paste 2:   ok
 الملف (المُشغّل + `award_quiz_result`) وتأجيل القسم 3. لكن القسم 1 وحده
 سيجعل حفظ البروفايل يفشل حتى تُحذف `xp`/`rank` من `syncProfileToCloud`.
 
+### 🔁 الملف 11 — إزالة Clerk: Supabase Auth + بروفايلات مخصصة + كل الرتب
+
+`20260924000000_supabase_auth_profiles_and_ranks.sql` هو الترحيل الذي ينقل
+المنصة إلى مزوّد هوية واحد. طبّقه **بعد** الملف 10 (يعتمد على مشغّلاته
+`check_profile_xp_jump` وعلى `public.is_admin()`).
+
+ماذا يفعل:
+
+| البند | التفاصيل |
+|---|---|
+| `handle_new_user` | ينشئ `profiles` **و** `mizan_profiles` معاً عند كل تسجيل جديد — بروفايل عام مخصص واسم مستخدم فريد ورتبة D |
+| `on_auth_user_created` | المشغّل نفسه مثبَّت صراحة على `auth.users` (لم يكن معلناً في أي ترحيل سابق) |
+| `rank_capabilities` | سلم الرتب D→SSS في القاعدة: العتبات، المستوى 1..7، والصلاحيات |
+| `mizan_rank_for_xp(xp)` | نفس منطق `getRankForXp` في TypeScript |
+| `apply_profile_rank` | مشغّل BEFORE INSERT/UPDATE يشتق `rank` من `xp` ويحدّث `highest_rank` و`rank_updated_at` |
+| أعمدة البروفايل المخصص | `avatar_url, cover_url, headline, website_url, linkedin_url, theme_color, show_xp, show_badges, show_attempts, show_rank, highest_rank, rank_updated_at` |
+| `mizan_profiles_owner_read` | المالك يقرأ بروفايله حتى لو `is_public = false` |
+| `onboarding_responses.user_id` | uuid → `auth.users`، و`clerk_user_id` صار nullable/تراثياً |
+| `profile_rank_board(limit)` | لوحة الرتب العامة |
+| `mizan_rank_matrix()` | مصفوفة الرتب الكاملة للواجهة |
+
+لماذا هذا يُصلح تحفّظ الملف 10: الواجهة ما زالت ترسل `xp` في الـ upsert، لكن
+`rank` لم يعد قراراً من العميل — المشغّل يعيد حسابه من `xp` في كل كتابة،
+و`check_profile_xp_jump` يمنع أي قفزة أكبر من 3000 XP لغير الإدارة. أي
+محاولة لكتابة `rank: 'SSS'` مع `xp: 0` تُصحَّح تلقائياً إلى `D`.
+
+تحقّق بعد التطبيق:
+
+```sql
+select rank, level, min_xp, max_xp from public.rank_capabilities order by level;
+
+-- يجب أن يعيد 0: كل حساب له بروفايل عام
+select count(*) from public.profiles p
+ where not exists (select 1 from public.mizan_profiles mp where mp.owner_id = p.id);
+
+-- الرتبة مطبّقة من الخبرة على كل الصفوف
+select count(*) from public.mizan_profiles where rank <> public.mizan_rank_for_xp(xp);
+```
+
+> **أعمدة Clerk الباقية:** `mizan_profiles.clerk_user_id` و
+> `reactions.clerk_user_id` و`reports.reporter_clerk_id` و
+> `comments.clerk_user_id` لم تُحذف — هي أعمدة nullable لصفوف تاريخية، ولا
+> يقرأها أو يكتبها أي كود بعد الآن. احذفها في ترحيل لاحق بعد تسوية الصفوف
+> القديمة (أو تجاهلها: لا أثر لها على الأمان أو السلوك).
+
 ---
 
 ## 2) خطوة يدوية بعد الملف 9 — إعادة ترقية المحرّرين الحقيقيين
@@ -117,8 +290,7 @@ ORDER BY created_at DESC LIMIT 5;
 ```
 VITE_SUPABASE_URL=https://YOUR-REF.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon key>
-VITE_CLERK_PUBLISHABLE_KEY=pk_...
-VITE_SITE_URL=https://mizan.ma
+VITE_SITE_URL=https://www.mizan.page
 VITE_SITE_NAME="ميزان الرقمية"
 VITE_GA_ID=            # اختياري
 VITE_TURNSTILE_SITE_KEY=
@@ -133,7 +305,6 @@ SUPABASE_SERVICE_ROLE_KEY     # ⚠ secret، لا تضعه في VITE_
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 STRIPE_PRICE_ID
-CLERK_JWT_ISSUER              # مثال: https://xxx.clerk.accounts.dev
 TURNSTILE_SECRET_KEY
 IP_HASH_SALT
 SITE_URL
@@ -148,9 +319,30 @@ npx wrangler pages secret put SUPABASE_SERVICE_ROLE_KEY --project-name mizandigi
 
 ```bash
 npx supabase secrets set SUPABASE_SERVICE_ROLE_KEY=...
-npx supabase secrets set CLERK_JWT_ISSUER=https://xxx.clerk.accounts.dev
 npx supabase functions deploy onboarding
 ```
+
+> بعد إزالة Clerk لم تعد الدالة تحتاج `CLERK_JWT_ISSUER`: تتحقق من
+> Supabase access_token عبر `auth.getUser()`، و`verify_jwt = true` في
+> `supabase/config.toml`. إن كنت نشرت النسخة القديمة بـ `--no-verify-jwt`
+> فأعد النشر بدونها.
+
+### Supabase Auth (مزوّد الهوية الوحيد)
+
+من لوحة التحكم → Authentication:
+
+1. **Providers → Email**: مفعّل. اختر هل تريد تأكيد البريد (Confirm email).
+2. **Providers → Google**: Client ID/Secret من Google Cloud Console، مع
+   إضافة `https://YOUR-REF.supabase.co/auth/v1/callback` إلى Authorized
+   redirect URIs في Google.
+3. **URL Configuration**:
+   - Site URL = `https://www.mizan.page`
+   - Redirect URLs = `https://www.mizan.page/profile`, `https://www.mizan.page/login`,
+     `http://localhost:5173/profile`
+4. **حسابات الإدارة**: أنشئ الحساب ثم من SQL Editor:
+   ```sql
+   update public.profiles set admin_god_mode = true where email = 'admin@mizan.ma';
+   ```
 
 ---
 
@@ -160,10 +352,15 @@ npx supabase functions deploy onboarding
    الملف 6 (`20260917000000_profiles_governance_and_plans.sql:101`) بـ 4900
    وحدة صغرى = 49.00 MAD، ومعها خطة `free` بـ 0.
 2. ضع `STRIPE_PRICE_ID`.
-3. أنشئ Webhook endpoint يشير إلى `https://mizan.ma/api/billing/webhook`
-   واستمع إلى: `checkout.session.completed`, `invoice.paid`,
-   `invoice.payment_failed`, `customer.subscription.updated`,
-   `customer.subscription.deleted`.
+3. أنشئ Webhook endpoint يشير إلى `https://www.mizan.page/api/billing/webhook`
+   واستمع إلى: `payment_intent.succeeded`, `checkout.session.completed`,
+   `invoice.paid`, `invoice.payment_succeeded`, `invoice.payment_failed`,
+   `customer.subscription.updated`, `customer.subscription.deleted`.
+
+   > `payment_intent.succeeded` إلزامي لمسار Stripe Elements (الدفع داخل
+   > الموقع بلا تحويل). بدونه تُقبض الأموال ولا يُمنح العميل شيئاً.
+   > الترويسة `Stripe-Signature` تُتحقَّق الآن فعلاً في المعالج — بلا
+   > `STRIPE_WEBHOOK_SECRET` يعيد الطرف 500 ويرفض كل حدث.
 4. ضع `STRIPE_WEBHOOK_SECRET` (`whsec_...`).
 5. أضف قواعد Radar (من التوثيق الرسمي، لا من الكود):
    - `Request 3D Secure if :card_country: != 'MA'`
@@ -175,7 +372,7 @@ npx supabase functions deploy onboarding
 ## 5) البناء والنشر
 
 ```bash
-pnpm install          # يرقّي @clerk/clerk-react إلى 5.61.9 (ثغرة عالية)
+pnpm install          # بلا أي اعتمادية Clerk (أُزيلت كلها)
 pnpm typecheck        # يجب أن يمر بلا أخطاء
 pnpm test             # 353 اختباراً في 11 ملفاً
 pnpm build            # 321 مساراً
@@ -213,11 +410,75 @@ FROM public.subscription_plans WHERE is_active;
 
 ---
 
+### ✅ الملف 12 — سجل إثبات الموافقة على السياسات
+
+`20260925000000_legal_consents.sql` يضيف الجدول الذي يجعل خانة الموافقة في
+`/login?mode=signup` ذات قيمة قانونية. الخانة وحدها لا تكفي: المادة 7(1) من
+GDPR تتطلب أن تتمكّن من **إثبات** أن الشخص وافق.
+
+ماذا يفعل:
+
+- جدول `public.legal_consents`: `user_id` (→ `auth.users` بـ `ON DELETE
+  CASCADE`)، `document` (privacy/terms/cookies)، `policy_version`، `method`
+  (email/google)، `agreed_at`، `user_agent`.
+- فهرس فريد على `(user_id, document, policy_version)` — موافقة واحدة لكل نسخة،
+  فتكرار الاستدعاء آمن ولا يولّد صفوف مكررة.
+- RLS: `legal_consents_owner_insert` (يكتب موافقته فقط) و
+  `legal_consents_owner_select` (يقرأها هو أو المشرف). **لا UPDATE ولا DELETE**
+  من الواجهة — السجل دليل قانوني فلا يعدّله صاحبه.
+- RPC `public.record_legal_consent(document, policy_version, method,
+  user_agent)`: `SECURITY DEFINER`، يثبّت `user_id` من `auth.uid()` لا من
+  المُدخل، ويرفض النسخة الفارغة أو المستند/الطريقة غير المعروفة.
+
+مسار الموافقة في الواجهة:
+
+1. المستخدم يؤشّر الخانة → `captureConsent()` يحفظ الوقت والنسخة محلياً في
+   `mizan:legal:consent:v1` **قبل** أي نداء شبكة.
+2. تنجح المصادقة → `AuthProvider` يستدعي `syncPendingConsent()`.
+3. تُكتب الصفوف عبر RPC. مسار Google مغطى: الموافقة تُلتقط قبل إعادة التوجيه
+   وتُكتب عند العودة حين يصير `user_id` معروفاً.
+4. نسخة إضافية تُحفظ في `auth.users.raw_user_meta_data`
+   (`legal_consent_version`, `legal_consent_at`).
+
+`POLICY_VERSION` هو `LEGAL_LAST_UPDATED` في `src/content/legal/policies.js` —
+نفس الثابت الذي يعرضه نص السياسة. فحين تغيّر التاريخ، تُطلب الموافقة من جديد
+تلقائياً عند أول دخول. **لا تعدّل التاريخ دون قصد**: تعديله يعيد سؤال كل
+المستخدمين.
+
+التحقق بعد التطبيق:
+
+```sql
+select document, policy_version, method, count(*)
+  from public.legal_consents group by 1,2,3 order by 4 desc;
+
+-- الحسابات بلا موافقة مسجّلة (السابقة للترحيل — ستُطلب عند أول دخول):
+select count(*) from auth.users u
+  where not exists (select 1 from public.legal_consents lc where lc.user_id = u.id);
+```
+
+> ⚠ الترحيل **لا يلفّق** موافقة بأثر رجعي للحسابات القائمة. هذا مقصود:
+> تسجيل موافقة لم تحدث فعلياً أسوأ من عدم وجود سجل.
+
+---
+
 ## 7) ما لم يُتحقَّق منه — للإفصاح
 
 - **لا ترحيل طُبّق يوماً على مشروع Supabase الحقيقي.** كل التحقق تم على
   PostgreSQL مضمَّن، بما في ذلك إعادة الثغرتين ثم إغلاقهما.
 - مسار المتصفح → PostgREST للتفاعلات لم يُختبر end-to-end ضد قاعدة حقيقية.
-- لا نداء Stripe حقيقي تم؛ توقيع الـ webhook مُختبَر وحدوياً فقط.
+- **الترحيل 13 لم يُختبر على PostgreSQL حقيقي.** الاختبارات ساكنة على نص
+  الترحيل (سياسات، صلاحيات، search_path، قيود) والتحليل النحوي تم عبر
+  libpg-query. لكن libpg-query **لا يفحص أجسام plpgsql**، فالبنية الداخلية
+  للدوال لم تُنفَّذ قط. قبل الإنتاج تحقّق يدوياً:
+  1. طبّق الترحيل على مشروع تجريبي.
+  2. `select public.request_account_deletion('طلب اختباري')` كمستخدم مسجّل.
+  3. `select * from public.pending_deletions;` — يجب أن يظهر العدّاد 30 يوماً.
+  4. `select public.admin_adjust_credits('<uid>', 10, 'تعويض عن فشل webhook', '<admin_uid>', null, null);`
+     ثم `select * from public.admin_audit_logs;`.
+  5. `select public.anonymize_orphaned_billing();` مرّتين — الاستدعاء الثاني يجب أن يعيد 0/0 (قابلية التكرار).
+  6. تأكّد أن `select public.is_admin_or_dev();` صار يرمي «function does not exist».
+- لا نداء Stripe حقيقي تم. لكن التحقق من `Stripe-Signature` موصول الآن
+  بالمعالج `functions/api/billing/webhook.js` ومُختبَر ضد حدث مزوَّر وتوقيع
+  بالسرّ الخطأ وإعادة إرسال قديمة (`tests/billing-webhook.test.ts`).
 - `ProUpgradeCard.tsx` غير مرسوم في أي صفحة.
 - صفحة لوحة التحكم لمحرك SEO ما زالت غير مبنية.

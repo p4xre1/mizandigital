@@ -54,15 +54,47 @@ export function useSubscription() {
           return;
         }
 
-        // Try to fetch from profiles or a subscriptions table if exists
-        const { data } = await (supabase as any).from("profiles").select("bonus_credits, ads_exempt").eq("id", user.id).maybeSingle();
-        if (data) {
-          const isPro = !!data.ads_exempt || (data.bonus_credits || 0) > 1000;
+        // مصدر الحقيقة لاشتراك Mizan Pro هو mizan_profiles (الترحيل
+        // 20260916000000) المرتبط بـ owner_id = auth.uid(). صف profiles يبقى
+        // كاحتياط للحسابات القديمة (ads_exempt / bonus_credits).
+        const [mizanRes, profilesRes] = await Promise.all([
+          (supabase as any)
+            .from("mizan_profiles")
+            .select("is_pro, credits, subscription_status, subscription_current_period_end, rank")
+            .eq("owner_id", user.id)
+            .maybeSingle(),
+          (supabase as any)
+            .from("profiles")
+            .select("bonus_credits, ads_exempt")
+            .eq("id", user.id)
+            .maybeSingle(),
+        ]);
+
+        const mizan = mizanRes?.data as
+          | {
+              is_pro?: boolean | null;
+              credits?: number | null;
+              subscription_status?: string | null;
+              subscription_current_period_end?: string | null;
+              rank?: string | null;
+            }
+          | null;
+        const legacy = profilesRes?.data as { bonus_credits?: number | null; ads_exempt?: boolean | null } | null;
+
+        if (mizan || legacy) {
+          const isPro = Boolean(
+            mizan?.is_pro ||
+              (mizan?.subscription_status && ["active", "trialing"].includes(mizan.subscription_status)) ||
+              legacy?.ads_exempt ||
+              (legacy?.bonus_credits || 0) > 1000
+          );
           const sub: Subscription = {
-            status: isPro ? "pro" : "free",
-            planSlug: isPro ? "pro_monthly" : null,
-            currentPeriodEnd: null,
-            credits: data.bonus_credits || 0,
+            status: isPro
+              ? ((mizan?.subscription_status as SubscriptionStatus) ?? "pro")
+              : "free",
+            planSlug: isPro ? "mizan_pro_monthly" : null,
+            currentPeriodEnd: mizan?.subscription_current_period_end ?? null,
+            credits: mizan?.credits ?? legacy?.bonus_credits ?? 0,
             isPro,
           };
           writeSub(sub);

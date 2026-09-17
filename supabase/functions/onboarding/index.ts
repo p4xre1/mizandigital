@@ -1,40 +1,29 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
-import * as jose from "https://esm.sh/jose@5"
 
 /**
  * onboarding (Edge Function)
  * -----------------------------------------------------------------------
- * الغرض: استبيان الترحيب (3 أسئلة) اللي كيبان مرة وحدة بعد أول تسجيل
- * دخول عبر Clerk. بما أن تسجيل الدخول العام كيمر عبر Clerk (وليس
- * Supabase Auth)، ما نقدروش نعتمدو على RLS المبنية على auth.uid() بشكل
- * مباشر — Supabase ما كيعرفش شكون هو المستخدم الموصول عبر Clerk.
+ * الغرض: استبيان الترحيب (3 أسئلة) اللي كيبان مرة وحدة بعد أول تسجيل دخول.
  *
- * الحل: هاد الدالة كتاخد Clerk session token (JWT) من هيدر
- * Authorization، كتحقق من توقيعه بنفسها عبر JWKS ديال Clerk (بلا حاجة
- * لأي مكتبة Node ديال Clerk، وبلا حاجة لإعادة ضبط "Third-party auth"
- * فـ لوحة تحكم Supabase)، وبعد التحقق كتستعمل مفتاح service_role
- * (اللي كيتجاوز RLS) باش تقرا/تكتب فـ جدول onboarding_responses.
- * الفرونت إند (المتصفح) ما عندوش وصول مباشر لهاد الجدول أبداً.
+ * بعد إزالة Clerk صار Supabase Auth هو مزوّد الهوية الوحيد، والتحقق من الجلسة
+ * كيتم بطريقة مدعومة في كل مشاريع Supabase (HS256 بالمفتاح السري أو مفاتيح
+ * غير متماثلة مع JWKS): كنرسلو access_token ديال المستخدم إلى
+ * `auth.getUser()` عبر عميل service_role، وGoTrue كيتحقق من التوقيع والصلاحية
+ * وكيرجع لنا المستخدم الحقيقي. بلا هاد التحقق ما كنستعملو service_role أبداً.
  *
- * GET  -> كيرجع { completed: boolean } لمعرفة واش المستخدم كمّل الاستبيان
- * POST -> كيسجل الإجابات { user_type, referral_source, interests }
+ * التخزين: onboarding_responses.user_id (uuid → auth.users). العمود القديم
+ * clerk_user_id بقا nullable للتوافق مع الصفوف التاريخية (شوف الترحيل
+ * 20260924000000_supabase_auth_profiles_and_ranks.sql).
  *
- * متغيرات البيئة المطلوبة (تُضبط فـ لوحة تحكم Supabase → Edge Functions
- * → Secrets):
- *   - SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY: موجودين تلقائياً.
- *   - CLERK_JWT_ISSUER: عنوان "Frontend API" ديال Clerk (يبان فـ لوحة
- *     تحكم Clerk → Configure → API Keys، أو هو نفسه النطاق اللي ضفناه
- *     فـ public/_headers، مثلاً: https://clerk.mizan.page أو
- *     https://xxxx.clerk.accounts.dev).
+ * GET  -> { completed: boolean }
+ * POST -> يسجّل { user_type, referral_source, interests }
+ *
+ * متغيرات البيئة: SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY (موجودان تلقائياً
+ * في Supabase Edge Functions). لا حاجة لأي secret خاص بمزوّد خارجي.
  */
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-// القيمة الافتراضية هنا مؤكدة فعلياً (JWKS كيرجع مفتاح حقيقي):
-// https://clerk.mizan.page/.well-known/jwks.json
-// نخلي CLERK_JWT_ISSUER قابل للتجاوز عبر secret فـ حالة تغيير النطاق
-// مستقبلاً، لكن الدالة كتخدم بشكل صحيح حتى بلا ضبط الـ secret يدوياً.
-const CLERK_JWT_ISSUER = Deno.env.get("CLERK_JWT_ISSUER") ?? "https://clerk.mizan.page"
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -51,27 +40,23 @@ const jsonResponse = (body: unknown, status = 200) =>
 const USER_TYPES = ["student", "teacher", "normal", "license", "master", "doctorate", "startup", "company"]
 const INTERESTS = ["lexicon", "schools", "pdfs", "articles", "news", "events"]
 
-let cachedJwks: ReturnType<typeof jose.createRemoteJWKSet> | null = null
-function getJwks() {
-  if (!CLERK_JWT_ISSUER) return null
-  if (!cachedJwks) {
-    cachedJwks = jose.createRemoteJWKSet(new URL(`${CLERK_JWT_ISSUER.replace(/\/$/, "")}/.well-known/jwks.json`))
-  }
-  return cachedJwks
-}
-
-/** يتحقق من توقيع Clerk session token ويرجّع معرّف المستخدم (sub). */
-async function verifyClerkToken(authHeader: string | null): Promise<string> {
+/** يتحقق من Supabase access_token ويرجّع معرّف المستخدم (uuid). */
+async function verifySupabaseUser(authHeader: string | null): Promise<string> {
   if (!authHeader?.startsWith("Bearer ")) {
     throw new Error("رمز الدخول (Authorization) مفقود")
   }
-  const token = authHeader.slice("Bearer ".length)
-  const jwks = getJwks()!
-  
-  // إزالة التحقق الصارم من الissuer لتجنب أخطاء المطابقة 401
-  const { payload } = await jose.jwtVerify(token, jwks)
-  if (!payload.sub) throw new Error("رمز الدخول لا يحتوي على معرّف مستخدم")
-  return payload.sub
+  const token = authHeader.slice("Bearer ".length).trim()
+  if (!token) throw new Error("رمز الدخول فارغ")
+
+  const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
+
+  const { data, error } = await admin.auth.getUser(token)
+  if (error || !data?.user?.id) {
+    throw new Error("جلسة غير صالحة أو منتهية")
+  }
+  return data.user.id
 }
 
 Deno.serve(async (req) => {
@@ -80,14 +65,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const clerkUserId = await verifyClerkToken(req.headers.get("Authorization"))
+    const userId = await verifySupabaseUser(req.headers.get("Authorization"))
     const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
     if (req.method === "GET") {
       const { data, error } = await supabaseAdmin
         .from("onboarding_responses")
         .select("id")
-        .eq("clerk_user_id", clerkUserId)
+        .eq("user_id", userId)
         .maybeSingle()
 
       if (error) throw error
@@ -112,12 +97,12 @@ Deno.serve(async (req) => {
 
       const { error } = await supabaseAdmin.from("onboarding_responses").upsert(
         {
-          clerk_user_id: clerkUserId,
+          user_id: userId,
           user_type: userType,
           referral_source: referralSource.trim().slice(0, 200),
           interests,
         },
-        { onConflict: "clerk_user_id" }
+        { onConflict: "user_id" }
       )
 
       if (error) throw error

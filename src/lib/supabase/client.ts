@@ -15,4 +15,21 @@ const supabaseAnonKey =
     ? envKey.trim()
     : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmaGptdGRibG1hcmhsZmZ0bG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTE5NzgsImV4cCI6MjA5OTc4Nzk3OH0.uI2_WCQSERz0jgYPuy1-AiWuVtDcJlFKd7hZsaQ1r5Q'
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+/**
+ * عميل Supabase — مصدر المصادقة الوحيد في التطبيق بعد إزالة Clerk.
+ *
+ * خيارات auth مضبوطة صراحةً (لا نتركها للافتراضيات) لأن:
+ *   • persistSession    → الجلسة تبقى بعد إعادة التحميل (مفتاح sb-mizan-auth).
+ *   • autoRefreshToken  → لا تنقطع الجلسة في صفحة مفتوحة طويلاً.
+ *   • detectSessionInUrl→ ضروري لعودة Google OAuth ورابط استعادة كلمة المرور.
+ *   • flowType: pkce    → الأكثر أماناً لتطبيق SPA بلا خادم خلفي.
+ */
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    storageKey: 'sb-mizan-auth',
+  },
+})

@@ -39,19 +39,21 @@ export default defineConfig({
       output: {
         // ── لماذا advancedChunks بدل manualChunks ────────────────────────────
         // مع manualChunks كان Rolldown يضع الوحدة المشتركة الصغيرة
-        // "vite/preload-helper" داخل أول chunk ضخم يستعملها (vendor-clerk ثم
-        // pdf-worker). النتيجة: entry الصفحة الرئيسية كان يستورد رمزاً واحداً
-        // صغيراً من chunk حجمه 428KB، فيُحمَّل pdfjs + Clerk (655KB) ويحلَّل
-        // في الخيط الرئيسي على أول زيارة دون أي استعمال — وهو بالضبط ما
-        // رصده Lighthouse في "unused JavaScript ≈ 467 KiB" و TBT/main-thread.
+        // "vite/preload-helper" داخل أول chunk ضخم يستعملها (ثم pdf-worker).
+        // النتيجة: entry الصفحة الرئيسية كان يستورد رمزاً واحداً صغيراً من
+        // chunk حجمه 428KB، فيُحمَّل pdfjs (655KB) ويحلَّل في الخيط الرئيسي
+        // على أول زيارة دون أي استعمال — وهو بالضبط ما رصده Lighthouse في
+        // "unused JavaScript ≈ 467 KiB" و TBT/main-thread.
         // مجموعة preload-helper ذات الأولوية الأعلى تعزله في ملف ~1KB.
+        //
+        // ملاحظة: chunk "vendor-clerk" (225KB) اختفى مع إزالة Clerk — المصادقة
+        // صارت داخل vendor-supabase المستعمل فعلاً في كل صفحة.
         advancedChunks: {
           groups: [
             { name: "preload-helper", test: /vite\/preload-helper/, priority: 100 },
             { name: "vendor-lucide", test: /lucide-react/, priority: 90 },
             { name: "vendor-react", test: /node_modules\/(?:react|react-dom|scheduler|react-router|react-router-dom)\//, priority: 80 },
             { name: "vendor-supabase", test: /@supabase/, priority: 70 },
-            { name: "vendor-clerk", test: /@clerk/, priority: 60 },
             { name: "vendor-pdfjs", test: /pdfjs-dist/, priority: 50 },
             { name: "quiz-questions", test: /quiz-questions\.json/, priority: 40 },
             { name: "lexicon", test: /lexicon\.json/, priority: 40 },
@@ -65,7 +67,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ["react", "react-dom", "react-router-dom", "lucide-react"],
-    exclude: ["@clerk/clerk-react", "@supabase/supabase-js", "pdfjs-dist"],
+    exclude: ["@supabase/supabase-js", "pdfjs-dist"],
   },
   test: {
     globals: true,

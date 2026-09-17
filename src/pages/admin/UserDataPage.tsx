@@ -74,7 +74,7 @@ export default function UserDataPage() {
       await (supabase as any).from("reports").delete().eq("reporter_ref", data.uid)
       await (supabase as any).from("mizan_profiles").delete().eq("id", data.uid)
       await (supabase as any).from("profiles").delete().eq("id", data.uid)
-      alert("تم حذف المستخدم وكل بياناته — تذكر حذف Clerk أيضاً من لوحة Clerk")
+      alert("تم حذف المستخدم وكل بياناته — لحذف الحساب نهائياً أزل مستخدم auth.users من لوحة Supabase (Authentication → Users)")
       setData(null)
     } catch (e) {
       alert(e instanceof Error ? e.message : "فشل الحذف")

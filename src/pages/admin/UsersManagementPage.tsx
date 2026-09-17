@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
 import { supabase } from "@/lib/supabase/client"
 import { Users, Ban, Shield, Search, Trophy, Coins, Mail, Calendar, Filter, CheckCircle2, AlertTriangle, Zap } from "lucide-react"
+import { RankBadge } from "@/components/quiz/RankBadge"
+import { RANKS, getRankDefinition } from "@/lib/quiz/ranks"
 
 export default function UsersManagementPage() {
   const [users, setUsers] = useState<any[]>([])
@@ -25,6 +28,26 @@ export default function UsersManagementPage() {
     }
     load()
   }, [])
+
+  /** فهرس البروفايلات العامة حسب owner_id (= auth.users.id) */
+  const profileByOwner = useMemo(() => {
+    const map = new Map<string, any>()
+    for (const profile of mizanProfiles) {
+      if (profile?.owner_id) map.set(profile.owner_id, profile)
+    }
+    return map
+  }, [mizanProfiles])
+
+  /** توزيع البروفايلات على سلم الرتب D → SSS */
+  const rankDistribution = useMemo(
+    () =>
+      RANKS.map((rank) => ({
+        rank,
+        count: mizanProfiles.filter((profile) => getRankDefinition(profile?.rank).id === rank.id).length,
+      })),
+    [mizanProfiles]
+  )
+  const distributionMax = Math.max(1, ...rankDistribution.map((entry) => entry.count))
 
   const filtered = users.filter(u => {
     if (q && !((u.email || "").toLowerCase().includes(q.toLowerCase()) || (u.full_name || "").includes(q))) return false
@@ -51,7 +74,7 @@ export default function UsersManagementPage() {
           <span className="grid size-11 place-items-center rounded-2xl bg-orange-500/10 text-orange-600"><Users className="size-6" /></span>
           <div>
             <h1 className="text-xl font-black text-foreground">إدارة المستخدمين — تحكم كامل</h1>
-            <p className="text-[12px] text-muted-foreground">Clerk + Supabase + Mizan Profiles + XP + Ranks D-SSS + Pro + تجميد</p>
+            <p className="text-[12px] text-muted-foreground">Supabase Auth + Mizan Profiles + بروفايل مخصص + XP + رتب D-SSS مطبّقة من القاعدة + Pro + تجميد</p>
           </div>
         </div>
       </div>
@@ -82,12 +105,32 @@ export default function UsersManagementPage() {
           {loading ? <p className="py-10 text-center text-sm text-muted-foreground">جارٍ التحميل...</p> : (
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full text-right text-[12px]">
-                <thead className="bg-muted text-[11px]"><tr><th className="p-3">البريد</th><th className="p-3">الاسم</th><th className="p-3">كريدتس</th><th className="p-3">Pro</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th></tr></thead>
+                <thead className="bg-muted text-[11px]"><tr><th className="p-3">البريد</th><th className="p-3">الاسم</th><th className="p-3">البروفايل</th><th className="p-3">الرتبة</th><th className="p-3">كريدتس</th><th className="p-3">Pro</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th></tr></thead>
                 <tbody>
                   {filtered.map(u => (
                     <tr key={u.id} className="border-t border-border">
                       <td className="p-3 font-mono text-[11px]" dir="ltr">{u.email}</td>
                       <td className="p-3 font-bold">{u.full_name || "—"}</td>
+                      <td className="p-3">
+                        {profileByOwner.get(u.id) ? (
+                          <Link
+                            to={`/u/${profileByOwner.get(u.id).username}`}
+                            className="font-mono text-[11px] font-bold text-primary hover:underline"
+                            dir="ltr"
+                          >
+                            @{profileByOwner.get(u.id).username}
+                          </Link>
+                        ) : (
+                          <span className="text-[10px] text-muted-foreground">بلا بروفايل</span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {profileByOwner.get(u.id) ? (
+                          <RankBadge rank={getRankDefinition(profileByOwner.get(u.id).rank).id} size="sm" />
+                        ) : (
+                          <RankBadge rank="D" size="sm" showLabel={false} />
+                        )}
+                      </td>
                       <td className="p-3">{u.bonus_credits || 0}</td>
                       <td className="p-3">{u.ads_exempt ? <span className="rounded-full bg-violet-100 px-2 py-1 text-[10px] font-bold text-violet-700">Pro</span> : <span className="text-[10px] text-muted-foreground">—</span>}</td>
                       <td className="p-3">{u.is_frozen ? <span className="rounded-full bg-rose-100 px-2 py-1 text-[10px] text-rose-700">مجمد</span> : <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] text-emerald-700">نشط</span>}</td>
@@ -121,6 +164,29 @@ export default function UsersManagementPage() {
             </div>
           </div>
 
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-foreground">
+              <Zap className="size-4 text-primary" /> توزيع الرتب على البروفايلات
+            </h3>
+            <p className="mt-1 text-[10.5px] leading-5 text-muted-foreground">
+              الرتبة مشتقة من XP داخل القاعدة (المشغّل apply_profile_rank) — لا تُعدَّل يدوياً.
+            </p>
+            <div className="mt-3 space-y-1.5">
+              {rankDistribution.map(({ rank, count }) => (
+                <div key={rank.id} className="flex items-center gap-2">
+                  <span className={`w-9 shrink-0 text-center text-[11px] font-black ${rank.tone}`}>{rank.id}</span>
+                  <span className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <span
+                      className={`block h-full rounded-full ${rank.chip.split(" ")[0]}`}
+                      style={{ width: `${Math.max(2, (count / distributionMax) * 100)}%` }}
+                    />
+                  </span>
+                  <span className="w-8 shrink-0 text-left text-[11px] font-bold text-muted-foreground" dir="ltr">{count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
             <h3 className="flex items-center gap-2 text-[12px] font-extrabold text-amber-900 dark:text-amber-200"><Shield className="size-4" /> سياسات</h3>
             <ul className="mt-2 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
@@ -128,6 +194,7 @@ export default function UsersManagementPage() {
               <li>Mizan Pro: ads_exempt — وصول Pro 49/399 MAD</li>
               <li>لا حذف ذاتي — عبر contact@mizan.page GDPR</li>
               <li>XP/Rank محمي بـ trigger — لا تعديل من الواجهة</li>
+              <li>كل حساب Supabase جديد ينشئ له بروفايل عام تلقائياً (handle_new_user)</li>
               <li>البيع نهائي — لا إلغاء خلال المدة</li>
             </ul>
           </div>

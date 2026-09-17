@@ -13,12 +13,15 @@ import {
   BriefcaseBusiness,
   Users,
   MapPin,
+  Link2,
+  BadgeCheck,
+  Sparkles,
 } from "lucide-react"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
-import { BADGE_BY_ID, getRankDefinition, getRankProgress } from "../../lib/quiz/ranks"
+import { BADGE_BY_ID, RANKS, getRankDefinition, getRankProgress } from "../../lib/quiz/ranks"
 import { fetchPublicProfile, type PublicProfile } from "../../lib/quiz/profileService"
 import { buildProfileShare, copyToClipboard, openExternalShare } from "../../lib/quiz/shareCard"
 
@@ -129,22 +132,65 @@ export function PublicProfilePage() {
         ]}
       />
 
-      <div className="mx-auto max-w-3xl rounded-3xl border border-border bg-card p-6 sm:p-8">
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-border bg-card">
+        {profile.coverUrl && (
+          <div
+            className="h-32 w-full bg-cover bg-center sm:h-40"
+            style={{ backgroundImage: `url("${profile.coverUrl}")` }}
+            role="img"
+            aria-label={`غلاف بروفايل ${profile.displayName}`}
+          />
+        )}
+
+        <div className="p-6 sm:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
-              <UserRound className="size-7" strokeWidth={2.2} />
-            </span>
+            {profile.avatarUrl ? (
+              <img
+                src={profile.avatarUrl}
+                alt=""
+                className="size-16 rounded-2xl border border-border object-cover"
+                width={64}
+                height={64}
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span
+                className="grid size-16 place-items-center rounded-2xl text-primary"
+                style={{ backgroundColor: `${profile.themeColor ?? "hsl(var(--primary))"}1a` }}
+              >
+                <UserRound className="size-7" strokeWidth={2.2} />
+              </span>
+            )}
             <div>
-              <h1 className="text-xl font-black text-foreground">{profile.displayName}</h1>
+              <h1 className="flex flex-wrap items-center gap-2 text-xl font-black text-foreground">
+                {profile.displayName}
+                {rank.capabilities.recommendationCert && (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full border border-accent-gold/40 bg-accent-gold/10 px-2 py-0.5 text-[10px] font-black text-accent-gold"
+                    title="رتبة خبير فما فوق — شهادة توصية معتمدة"
+                  >
+                    <BadgeCheck className="size-3" aria-hidden="true" />
+                    خبير موثق
+                  </span>
+                )}
+              </h1>
               <p className="text-[12.5px] font-semibold text-muted-foreground" dir="ltr">
                 mizan.page/u/{profile.username}
               </p>
+              {profile.headline && (
+                <p className="mt-1 text-[12.5px] font-bold text-foreground">{profile.headline}</p>
+              )}
               <div className="mt-2 flex flex-wrap items-center gap-2 text-[11.5px] font-bold text-muted-foreground">
                 <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1">
                   <roleMeta.icon className="size-3" aria-hidden="true" />
                   {roleMeta.label}
                 </span>
+                {profile.occupation && (
+                  <span className="rounded-full border border-border bg-background px-2.5 py-1">
+                    {profile.occupation}
+                  </span>
+                )}
                 {profile.semester && (
                   <span className="rounded-full border border-accent-gold/40 bg-accent-gold/10 px-2.5 py-1 text-accent-gold">
                     {profile.semester}
@@ -165,7 +211,7 @@ export function PublicProfilePage() {
             </div>
           </div>
 
-          <RankBadge rank={rank} size="lg" />
+          {profile.showRank !== false && <RankBadge rank={rank} size="lg" />}
         </div>
 
         {profile.bio && (
@@ -174,9 +220,11 @@ export function PublicProfilePage() {
           </p>
         )}
 
-        <div className="mt-6">
-          <XpBar rankProgress={rankProgress} xp={profile.xp} credits={profile.credits} />
-        </div>
+        {profile.showXp !== false && (
+          <div className="mt-6">
+            <XpBar rankProgress={rankProgress} xp={profile.xp} credits={profile.credits} />
+          </div>
+        )}
 
         <div className="mt-6 grid grid-cols-3 gap-3">
           {[
@@ -194,7 +242,7 @@ export function PublicProfilePage() {
           ))}
         </div>
 
-        {profile.badges.length > 0 && (
+        {profile.showBadges !== false && profile.badges.length > 0 && (
           <div className="mt-6">
             <p className="mb-2 text-[12.5px] font-extrabold text-foreground">الأوسمة</p>
             <div className="flex flex-wrap gap-2">
@@ -231,6 +279,68 @@ export function PublicProfilePage() {
           </div>
         )}
 
+        {(profile.websiteUrl || profile.linkedinUrl) && (
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            {profile.websiteUrl && (
+              <a
+                href={profile.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-[12px] font-bold text-foreground transition hover:border-primary/50"
+              >
+                <Link2 className="size-3.5" aria-hidden="true" />
+                الموقع الشخصي
+              </a>
+            )}
+            {profile.linkedinUrl && (
+              <a
+                href={profile.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+                className="inline-flex items-center gap-1.5 rounded-full border border-sky-500/40 bg-sky-500/10 px-3 py-1.5 text-[12px] font-bold text-sky-700 transition hover:bg-sky-500/20 dark:text-sky-300"
+              >
+                <Link2 className="size-3.5" aria-hidden="true" />
+                لينكد إن
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* صلاحيات الرتبة المطبّقة على هذا البروفايل */}
+        <div className="mt-6 rounded-2xl border border-border bg-background p-4">
+          <p className="flex items-center gap-1.5 text-[12.5px] font-extrabold text-foreground">
+            <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
+            صلاحيات الرتبة {rank.id} — {rank.label}
+          </p>
+          <ul className="mt-2.5 grid gap-1.5 sm:grid-cols-2">
+            {rank.perks.map((perk) => (
+              <li key={perk} className="flex items-start gap-1.5 text-[11.5px] font-bold leading-5 text-muted-foreground">
+                <span className={`mt-1 size-1.5 shrink-0 rounded-full ${rank.chip.split(" ")[0]}`} aria-hidden="true" />
+                {perk}
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2.5 text-[10.5px] font-bold text-muted-foreground" dir="ltr">
+            مستوى {rank.level}/7 · {rank.minXp} XP{rank.maxXp ? ` — ${rank.maxXp} XP` : "+"}
+            {profile.highestRank && profile.highestRank !== rank.id ? ` · أعلى رتبة: ${profile.highestRank}` : ""}
+          </p>
+        </div>
+
+        {/* السلم الكامل حتى يعرف الزائر ما ينتظره */}
+        <div className="mt-4 flex flex-wrap items-center gap-1.5">
+          {RANKS.map((item) => (
+            <span
+              key={item.id}
+              title={`${item.label} — ${item.minXp} XP${item.maxXp ? ` إلى ${item.maxXp}` : "+"}`}
+              className={`rounded-lg border px-2 py-1 text-[10.5px] font-black ${item.chip} ${
+                item.id === rank.id ? "ring-2 ring-primary/40" : "opacity-60"
+              }`}
+            >
+              {item.glyph}
+            </span>
+          ))}
+        </div>
+
         <div className="mt-7 flex flex-wrap items-center gap-2 border-t border-border pt-5">
           <button
             type="button"
@@ -263,6 +373,7 @@ export function PublicProfilePage() {
             أنشئ بروفايلك وابدأ الاختبارات
             <ArrowLeft className="size-4" aria-hidden="true" />
           </Link>
+        </div>
         </div>
       </div>
     </main>

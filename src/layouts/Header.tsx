@@ -1,26 +1,18 @@
 import { Link } from "react-router-dom"
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/clerk-react"
-import { Scale, LogIn } from "lucide-react"
-import { isClerkEnabled } from "@/lib/clerk/config"
-import { ClerkErrorBoundary } from "@/components/auth/ClerkErrorBoundary"
+import { Scale } from "lucide-react"
+import { AuthControls, SignInButton } from "@/components/auth/AuthControls"
 
 /**
  * Header / Navbar
  * -----------------------------------------------------------------------
  * - يعرض شعار "ميزان الرقمية".
- * - عند تسجيل الخروج: زر "تسجيل الدخول / إنشاء حساب" يفتح نافذة Clerk
- *   المنبثقة (modal)، والتي تدعم تسجيل الدخول عبر Google تلقائياً طالما
- *   تم تفعيله من لوحة تحكم Clerk (Social Connections).
- * - عند تسجيل الدخول: يظهر UserButton الخاص بـ Clerk (صورة المستخدم +
- *   قائمة الحساب وتسجيل الخروج).
+ * - عند تسجيل الخروج: زرا «دخول» و«حساب جديد» نحو /login (صفحة مصادقة
+ *   Supabase: بريد + كلمة مرور، Google، ورابط سحري).
+ * - عند تسجيل الدخول: قائمة الحساب مع شارة الرتبة (D → SSS) ورابط البروفايل
+ *   العام ولوحة التحكم للمشرفين.
  *
- * ملاحظة: يفترض هذا المكوّن أن <ClerkProvider> موجود بالفعل في main.tsx
- * (وهو الحال في هذا المشروع).
+ * المصادقة كلها Supabase Auth — أُزيل Clerk (لا ClerkProvider ولا
+ * VITE_CLERK_PUBLISHABLE_KEY).
  */
 export default function Header() {
   return (
@@ -48,35 +40,12 @@ export default function Header() {
           </span>
         </Link>
 
-        {/* منطقة المصادقة — مغلفة بـ ClerkErrorBoundary حتى لا يُسقط أي خطأ
-            من Clerk (مثل غياب <ClerkProvider>) التطبيق كاملاً. */}
+        {/* منطقة المصادقة (Supabase) — مغلفة بـ AuthErrorBoundary داخل AuthControls */}
         <div className="flex shrink-0 items-center gap-3">
-          {isClerkEnabled && (
-            <ClerkErrorBoundary>
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-[0.98] sm:px-5 sm:text-sm"
-                  >
-                    <LogIn size={16} strokeWidth={2.3} />
-                    <span>تسجيل الدخول / إنشاء حساب</span>
-                  </button>
-                </SignInButton>
-              </SignedOut>
-
-              <SignedIn>
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: "size-9",
-                    },
-                  }}
-                />
-              </SignedIn>
-            </ClerkErrorBoundary>
-          )}
+          <AuthControls className="hidden items-center gap-2 md:flex" />
+          <div className="md:hidden">
+            <SignInButton label="دخول" className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[13px] font-bold text-primary-foreground shadow-sm transition hover:opacity-90 active:scale-[0.98]" />
+          </div>
         </div>
       </div>
     </header>

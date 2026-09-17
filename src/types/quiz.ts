@@ -121,6 +121,26 @@ export interface MizanProfile {
   bioPublic?: boolean
   /** هل البروفايل العام ظاهر أصلاً. */
   isPublic?: boolean
+  /** صورة البروفايل (رابط عام أو مسار في Supabase Storage). */
+  avatarUrl?: string | null
+  /** صورة الغلاف. */
+  coverUrl?: string | null
+  /** سطر تعريفي قصير يظهر تحت الاسم. */
+  headline?: string | null
+  /** رابط شخصي (موقع، مدونة…). */
+  websiteUrl?: string | null
+  /** رابط لينكد إن. */
+  linkedinUrl?: string | null
+  /** لون تمييز البروفايل (#rrggbb). */
+  themeColor?: string | null
+  /** إظهار نقاط الخبرة publicly. */
+  showXp?: boolean
+  /** إظهار الأوسمة publicly. */
+  showBadges?: boolean
+  /** إظهار سجل الاختبارات publicly (خاص افتراضاً). */
+  showAttempts?: boolean
+  /** إظهار الرتبة publicly. */
+  showRank?: boolean
   updatedAt: string
 }
 

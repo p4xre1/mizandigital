@@ -211,10 +211,13 @@ export const ACTIVE_SUBSCRIPTION_STATUSES = new Set(["active", "trialing"])
  * @param {any} event حدث Stripe
  * @returns {{ kind: string, customerId?: string, subscriptionId?: string,
  *             status?: string, sessionId?: string, amount?: number,
- *             currency?: string, invoiceId?: string, paymentIntentId?: string,
+ *             amountReceived?: number, currency?: string, invoiceId?: string,
+ *             paymentIntentId?: string, paymentId?: string, userId?: string,
+ *             clerkUserId?: string, paymentMethodId?: string, ipCountry?: string,
+ *             declineCode?: string, errorCode?: string, billingReason?: string,
  *             billingReason?: string, periodEnd?: string|null, declineCode?: string|null,
  *             paymentMethodId?: string, ipCountry?: string|null, cardCountry?: string|null,
- *             errorCode?: string|null, clerkUserId?: string|null,
+ *             errorCode?: string|null, clerkUserId?: string|null, // LEGACY
  *             endsAt?: string|null, userId?: string|null } | null}
  */
 export function reduceStripeEvent(event) {
@@ -226,11 +229,12 @@ export function reduceStripeEvent(event) {
   // metadata قد تكون على الجلسة أو على الاشتراك أو على العميل
   const md = obj.metadata || obj.subscription_details?.metadata || {}
 
-  // ── فصل هويتين لا يجوز خلطهما ──────────────────────────────────────────
-  // Mizan له مسارا مصادقة: Supabase Auth (profiles.id، وهو UUID) و Clerk
-  // (mizan_profiles.clerk_user_id، وشكله user_…). المسودة الأولى كانت تُسند
-  // client_reference_id إلى userId مباشرة، فأي جلسة Clerk كانت ستُعامَل
-  // كمعرّف Supabase وتفشل الكتابة بصمت.
+  // ── هوية واحدة + تراث قديم ──────────────────────────────────────────────
+  // Clerk أُزيل من المشروع: الهوية الوحيدة الآن Supabase Auth
+  // (profiles.id / mizan_profiles.owner_id، وهو UUID). ما زالت أحداث Stripe
+  // القديمة تحمل metadata.clerkUserId أو client_reference_id بصيغة user_…،
+  // فنُخرجها في حقل clerkUserId التراثي (لا يستهلكه أي كود) بدل أن تُخلط
+  // مع userId وتفسد الكتابة في الجدول.
   const refId = typeof obj.client_reference_id === "string" ? obj.client_reference_id : null
   const isClerkId = (v) => typeof v === "string" && /^user_[A-Za-z0-9]{8,}$/.test(v)
 
@@ -243,6 +247,14 @@ export function reduceStripeEvent(event) {
     (typeof md.userId === "string" && md.userId) ||
     (typeof md.user_id === "string" && md.user_id) ||
     (refId && !isClerkId(refId) ? refId : null) ||
+    null
+
+  // معرّف صفّ public.payments الذي أنشأناه نحن وحملناه في metadata.
+  // المطابقة به أدقّ من المطابقة بمعرّف Stripe: نحن من يكتبه وقت الإنشاء،
+  // فلا يعتمد على أن يكون provider_payment_id قد حُفظ أصلاً.
+  const paymentId =
+    (typeof md.paymentId === "string" && md.paymentId) ||
+    (typeof md.payment_id === "string" && md.payment_id) ||
     null
 
   if (type === "checkout.session.completed") {
@@ -262,6 +274,7 @@ export function reduceStripeEvent(event) {
       // المعرّف فقط، ويسترجع الـ webhook البلد من Stripe.
       paymentMethodId: typeof obj.payment_method === "string" ? obj.payment_method : obj.payment_method?.id,
       ipCountry: typeof md.ipCountry === "string" && md.ipCountry.length === 2 ? md.ipCountry : null,
+      paymentId,
       userId,
       clerkUserId,
     }
@@ -306,6 +319,25 @@ export function reduceStripeEvent(event) {
       currency: typeof obj.currency === "string" ? obj.currency.toLowerCase() : null,
       status: "past_due",
       userId,
+    }
+  }
+
+  if (type === "payment_intent.succeeded") {
+    // هذا هو حدث الدفع في مسار Stripe Elements (دفعة واحدة بلا اشتراك):
+    // المتصفح ينشئ PaymentIntent ويؤكّده، ثم Stripe يخبرنا هنا أن المال وصل.
+    // مصدَر الحقيقة الوحيد لمنح الكريدتس — لا نصدّق المتصفح إطلاقاً.
+    return {
+      kind: "intent_succeeded",
+      paymentIntentId: obj.id,
+      customerId: typeof obj.customer === "string" ? obj.customer : obj.customer?.id,
+      amount: Number.isFinite(obj.amount) ? obj.amount : null,
+      amountReceived: Number.isFinite(obj.amount_received) ? obj.amount_received : null,
+      currency: typeof obj.currency === "string" ? obj.currency.toLowerCase() : null,
+      status: obj.status,
+      paymentMethodId: typeof obj.payment_method === "string" ? obj.payment_method : obj.payment_method?.id,
+      paymentId,
+      userId,
+      clerkUserId,
     }
   }
 

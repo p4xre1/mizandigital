@@ -1,3 +1,5 @@
+import { jsonLdProps } from "@/lib/seo/jsonLd"
+
 export interface SchemaOrgProps {
   schema: Record<string, any> | Record<string, any>[]
 }
@@ -8,29 +10,13 @@ export interface SchemaOrgProps {
  * - Supports multiple schemas (array)
  * - Optimized for AI crawlers (ChatGPT, Perplexity, Claude) and AEO
  */
-function escapeJsonLd(json: string): string {
-  return json
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029")
-}
-
 export function SchemaOrg({ schema }: SchemaOrgProps) {
   if (!schema || (Array.isArray(schema) && schema.length === 0)) {
     return null
   }
 
-  const json = JSON.stringify(schema)
-  const escaped = escapeJsonLd(json)
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: escaped }}
-    />
-  )
+  // الهرّب في jsonLdProps — لا نكرّره هنا حتى لا تتباعد النسخ.
+  return <script {...jsonLdProps(schema)} />
 }
 
 // AEO helpers — Answer Engine Optimization
@@ -133,16 +119,18 @@ export function generateOrganizationSchema() {
       height: 630,
     },
     description:
-      "منصة مغربية مجانية 100% للمعرفة القانونية: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل كليات الحقوق 21 كلية FSJES، مقالات تحليلية، أخبار تشريعية واختبارات QCM لطلبة القانون بالمغرب.",
+      "منصة مغربية للمعرفة القانونية، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل كليات الحقوق 21 كلية FSJES، مقالات تحليلية، أخبار تشريعية واختبارات QCM لطلبة القانون بالمغرب.",
     slogan: "المعرفة القانونية للطلبة",
     foundingDate: "2024",
     areaServed: { "@type": "Country", name: "Morocco" },
     knowsLanguage: ["ar", "ar-MA", "fr"],
     sameAs: [
       "https://www.instagram.com/mizan.page",
-      "https://www.facebook.com/mizan.page",
+      "https://www.facebook.com/profile.php?id=61593607157317",
       "https://www.tiktok.com/@mizan_page",
-      "https://www.pinterest.com/mizan.page",
+      "https://www.pinterest.com/mohamedredayassinn/",
+      "https://x.com/MIZANPAGE",
+      "https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m",
     ],
     address: {
       "@type": "PostalAddress",

@@ -15,7 +15,7 @@ export default function LimitsMonitoringPage() {
       { key: "storage", label: "تخزين Supabase", current: 2.3, max: 8, unit: "GB", desc: "قاعدة البيانات + التخزين", icon: Database },
       { key: "bandwidth", label: "نطاق R2", current: 12, max: 100, unit: "GB", desc: "تحميل PDF + صور", icon: HardDrive },
       { key: "checkout", label: "Checkout / دقيقة / IP", current: 2, max: 10, unit: "", desc: "Stripe + مكافحة الاحتيال", icon: Zap },
-      { key: "auth", label: "تسجيل دخول / دقيقة / IP", current: 3, max: 15, unit: "", desc: "Clerk + Supabase Auth", icon: Database },
+      { key: "auth", label: "تسجيل دخول / دقيقة / IP", current: 3, max: 15, unit: "", desc: "Supabase Auth", icon: Database },
     ])
   }, [])
 
@@ -70,7 +70,7 @@ export default function LimitsMonitoringPage() {
             <div className="flex justify-between"><span>21 school + 250 lexicon</span><span className="font-bold text-emerald-700">✅</span></div>
             <div className="flex justify-between"><span>بلا Adsterra</span><span className="font-bold text-emerald-700">✅ منذ 15 شتنبر</span></div>
             <div className="flex justify-between"><span>Mizan Pro 49/399 MAD</span><span className="font-bold text-emerald-700">✅ بيع نهائي</span></div>
-            <div className="flex justify-between"><span>كوكيز جديدة</span><span className="font-bold text-emerald-700">__clerk_*, sb-*, mizan:*</span></div>
+            <div className="flex justify-between"><span>كوكيز محدثة</span><span className="font-bold text-emerald-700">sb-mizan-auth, mizan:*</span></div>
           </div>
         </div>
       </div>

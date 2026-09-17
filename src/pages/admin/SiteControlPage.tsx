@@ -66,7 +66,7 @@ export default function SiteControlPage() {
     { key: "pdf_summaries", label: "Library", labelAr: "مكتبة الوثائق", count: stats["pdf_summaries"] || 0, icon: BookOpen, path: "/admin/library", color: "text-indigo-600 bg-indigo-500/10", status: (stats["pdf_summaries"] || 0) > 0 ? "ok" : "empty", description: "9 مستندات PDF" },
     { key: "seminars", label: "Seminars", labelAr: "الندوات والفعاليات", count: stats["seminars"] || 0, icon: Video, path: "/admin/seminars", color: "text-rose-600 bg-rose-500/10", status: (stats["seminars"] || 0) > 0 ? "ok" : "empty", description: "3 فعاليات + بثوث" },
     { key: "quiz_attempts", label: "Quizzes", labelAr: "بنك الأسئلة", count: stats["quiz_attempts"] || 0, icon: ListChecks, path: "/admin/quizzes", color: "text-cyan-600 bg-cyan-500/10", status: "ok", description: "4 مسارات: جامعي، عام، مباريات، مقابلات + رتب D-SSS" },
-    { key: "profiles", label: "Users", labelAr: "المستخدمون", count: stats["profiles"] || 0, icon: Users, path: "/admin/users", color: "text-orange-600 bg-orange-500/10", status: (stats["profiles"] || 0) > 0 ? "ok" : "empty", description: "Clerk + Supabase + تجميد" },
+    { key: "profiles", label: "Users", labelAr: "المستخدمون", count: stats["profiles"] || 0, icon: Users, path: "/admin/users", color: "text-orange-600 bg-orange-500/10", status: (stats["profiles"] || 0) > 0 ? "ok" : "empty", description: "Supabase Auth + Mizan Profiles + تجميد" },
     { key: "mizan_profiles", label: "Mizan Profiles", labelAr: "ملفات ميزان", count: stats["mizan_profiles"] || 0, icon: BookMarked, path: "/admin/users", color: "text-pink-600 bg-pink-500/10", status: "ok", description: "XP، كريدتس، رتب، شارات" },
     { key: "credit_packages", label: "Pricing", labelAr: "التسعير والباقات", count: stats["credit_packages"] || 0, icon: Tag, path: "/admin/pricing", color: "text-emerald-700 bg-emerald-500/10", status: (stats["credit_packages"] || 0) > 0 ? "ok" : "warning", description: "Mizan Pro 49/399 MAD + باقات كريدتس 19-199" },
     { key: "payments", label: "Payments", labelAr: "المدفوعات", count: stats["payments"] || 0, icon: Coins, path: "/admin/payments", color: "text-green-600 bg-green-500/10", status: "ok", description: "Stripe + Radar + بيع نهائي" },
@@ -119,7 +119,7 @@ export default function SiteControlPage() {
       <div className="grid gap-3 sm:grid-cols-4">
         {[
           { k: "db", label: "قاعدة البيانات", ok: health.db },
-          { k: "auth", label: "Clerk + Supabase Auth", ok: health.auth },
+          { k: "auth", label: "Supabase Auth", ok: health.auth },
           { k: "payments", label: "Stripe + التسعير", ok: health.payments },
           { k: "analytics", label: "التحليلات + GA4", ok: health.analytics },
         ].map(h => (
@@ -226,7 +226,7 @@ export default function SiteControlPage() {
             <li>التمويل: Mizan Pro 49/399 MAD + كريدتس 19-199</li>
             <li>البيع نهائي، لا إلغاء خلال المدة، بعد الانتهاء يجب الدفع</li>
             <li>لا حذف ذاتي للحساب — عبر contact@mizan.page GDPR</li>
-            <li>كوكيز: __clerk_*, sb-*, mizan:subscription:v1, mizan:saved:content:v1, mizan_quiz_progress, mizan:analytics:queue</li>
+            <li>كوكيز: sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
           </ul>
         </div>
       </div>
