@@ -38,6 +38,7 @@ missing.** الترتيب الزمني مهم لأن أجسام الدوال ت�
 | 10 | `20260920000000_protect_progression_and_quiz_answers.sql` | 🛑 **لا تطبّقه الآن** |
 | 11 | `20260924000000_supabase_auth_profiles_and_ranks.sql` | 🔁 **إزالة Clerk** — طبّقه بعد 10 |
 | 12 | `20260925000000_legal_consents.sql` | ✅ إثبات الموافقة على الخصوصية |
+| 13 | `20260926000000_admin_actions_soft_delete_and_audit.sql` | ⚖️ الحذف الناعم + سجل التدقيق + وعاء Pro |
 
 ### ✅ عملياً: لصقتان فقط تكفيان (مُثبَت بالاختبار)
 
@@ -340,6 +341,17 @@ select count(*) from auth.users u
 - **لا ترحيل طُبّق يوماً على مشروع Supabase الحقيقي.** كل التحقق تم على
   PostgreSQL مضمَّن، بما في ذلك إعادة الثغرتين ثم إغلاقهما.
 - مسار المتصفح → PostgREST للتفاعلات لم يُختبر end-to-end ضد قاعدة حقيقية.
+- **الترحيل 13 لم يُختبر على PostgreSQL حقيقي.** الاختبارات ساكنة على نص
+  الترحيل (سياسات، صلاحيات، search_path، قيود) والتحليل النحوي تم عبر
+  libpg-query. لكن libpg-query **لا يفحص أجسام plpgsql**، فالبنية الداخلية
+  للدوال لم تُنفَّذ قط. قبل الإنتاج تحقّق يدوياً:
+  1. طبّق الترحيل على مشروع تجريبي.
+  2. `select public.request_account_deletion('طلب اختباري')` كمستخدم مسجّل.
+  3. `select * from public.pending_deletions;` — يجب أن يظهر العدّاد 30 يوماً.
+  4. `select public.admin_adjust_credits('<uid>', 10, 'تعويض عن فشل webhook', '<admin_uid>', null, null);`
+     ثم `select * from public.admin_audit_logs;`.
+  5. `select public.anonymize_orphaned_billing();` مرّتين — الاستدعاء الثاني يجب أن يعيد 0/0 (قابلية التكرار).
+  6. تأكّد أن `select public.is_admin_or_dev();` صار يرمي «function does not exist».
 - لا نداء Stripe حقيقي تم. لكن التحقق من `Stripe-Signature` موصول الآن
   بالمعالج `functions/api/billing/webhook.js` ومُختبَر ضد حدث مزوَّر وتوقيع
   بالسرّ الخطأ وإعادة إرسال قديمة (`tests/billing-webhook.test.ts`).
