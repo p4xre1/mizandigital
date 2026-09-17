@@ -90,3 +90,38 @@ describe("البروفايل: لا اختصار إلى لوحة التحكم", (
     expect(routes).toContain('path="/admin"')
   })
 })
+
+describe("القائمة المنسدلة للصورة: لا مدخل إلى لوحة التحكم", () => {
+  // التعليق التوثيقي أعلى الملف يذكر «لوحة التحكم» ليشرح سبب غيابها،
+  // فنقتطع من return الخاص بالمكوّن فصاعداً حيث JSX الفعلي.
+  // الانتباه: "return (" وحدها تلتقط تنظيف useEffect (return () => {...).
+  const anchor = AUTH.indexOf("  return (\n    <div ref=")
+  expect(anchor, "component main return must be locatable").toBeGreaterThan(-1)
+  const jsx = AUTH.slice(anchor)
+
+  it("لا عنصر «لوحة التحكم» في القائمة", () => {
+    expect(jsx).not.toContain("لوحة التحكم")
+    expect(jsx).not.toContain('go("/admin/dashboard")')
+    expect(jsx).not.toContain("/admin")
+  })
+
+  it("isAdmin لم يعد يُقرأ في المكوّن — فلا حاجة إليه", () => {
+    expect(AUTH).not.toMatch(/isAdmin/)
+  })
+
+  it("خاصية accent أُزيلت مع مستعملها الوحيد", () => {
+    expect(AUTH).not.toContain("accent")
+  })
+
+  it("باقي عناصر القائمة سليمة", () => {
+    for (const item of ["بروفايلي ورتبتي", "المحتوى المحفوظ", "الاختبارات"]) {
+      expect(jsx, `menu item ${item}`).toContain(item)
+    }
+  })
+
+  it("تسجيل الخروج يبقى — آخر عنصر في القائمة", () => {
+    expect(jsx).toContain("تسجيل الخروج")
+    // الدالة نفسها تُنادى في المعالج أعلى المكوّن، لا داخل JSX.
+    expect(AUTH).toContain("signOut()")
+  })
+})

@@ -12,9 +12,11 @@ import { AuthErrorBoundary } from "./AuthErrorBoundary"
  * بديل SafeClerkAuth/UserButton بعد إزالة Clerk:
  *   • زائر          → زر «دخول» واحد نحو /login (إنشاء الحساب من داخل
  *                     صفحة الدخول نفسها، عبر مُبدّل «حساب جديد»).
- *   • مستخدم مسجّل  → صورة/حرف أول + شارة الرتبة + قائمة منسدلة فيها
- *                     البروفايل، الرابط العام، المحفوظات، لوحة التحكم
- *                     (للإدارة فقط) وتسجيل الخروج.
+ *   • مستخدم مسجّل  → دائرة صورة البروفايل وحدها في الشريط (الاسم والرتبة
+ *                     داخل القائمة) + قائمة منسدلة فيها البروفايل، الرابط
+ *                     العام، المحفوظات، الاختبارات وتسجيل الخروج.
+ *                     لا مدخل إلى لوحة التحكم من هنا ولا من صفحة البروفايل:
+ *                     للإدارة مسارها الخاص /admin المحميّ بـ AdminGate.
  *   • أثناء قراءة الجلسة → هيكل بنفس العرض حتى لا يقفز الشريط (CLS).
  */
 
@@ -33,7 +35,7 @@ function initials(name?: string | null, username?: string | null): string {
 }
 
 function AuthControlsInner({ className = "hidden md:flex items-center gap-2", onNavigate }: AuthControlsProps) {
-  const { initialized, user, profile, isAdmin, rank, signOut } = useAuth()
+  const { initialized, user, profile, rank, signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -169,14 +171,6 @@ function AuthControlsInner({ className = "hidden md:flex items-center gap-2", on
             )}
             <MenuItem icon={<Crown className="size-4" />} label="المحتوى المحفوظ" onClick={() => go("/saved")} />
             <MenuItem icon={<LayoutDashboard className="size-4" />} label="الاختبارات" onClick={() => go("/quiz")} />
-            {isAdmin && (
-              <MenuItem
-                icon={<LayoutDashboard className="size-4" />}
-                label="لوحة التحكم"
-                onClick={() => go("/admin/dashboard")}
-                accent
-              />
-            )}
           </nav>
 
           <div className="border-t border-[#e2e8f0] dark:border-[#334155] p-1.5">
@@ -201,24 +195,18 @@ function MenuItem({
   label,
   hint,
   onClick,
-  accent = false,
 }: {
   icon: React.ReactNode
   label: string
   hint?: string
   onClick: () => void
-  accent?: boolean
 }) {
   return (
     <button
       type="button"
       role="menuitem"
       onClick={onClick}
-      className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-colors ${
-        accent
-          ? "text-[#2563eb] hover:bg-[#eff6ff] dark:hover:bg-[#1e3a5f]/40"
-          : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"
-      }`}
+      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] transition-colors hover:bg-[#f8fafc] dark:hover:bg-[#334155]"
     >
       {icon}
       <span className="min-w-0 flex-1 text-right">
