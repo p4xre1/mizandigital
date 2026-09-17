@@ -69,12 +69,11 @@ CREATE INDEX IF NOT EXISTS profiles_pending_deletion_idx
   ON public.profiles (deletion_requested_at)
   WHERE account_status = 'pending_deletion';
 
--- عمود انتهاء Pro: بدونه «التمديد» لا معنى له، ولا يمكن إبطال Pro تلقائياً.
--- يُضاف هنا لا عند الدالة التي تستعمله: أجسام plpgsql لا يُتحقَّق منها عند
--- CREATE FUNCTION، فترتيب كهذا كان سيُخفي خطأً حتى أول تشغيل.
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS pro_expires_at timestamptz NULL;
-CREATE INDEX IF NOT EXISTS profiles_pro_expires_idx
-  ON public.profiles (pro_expires_at) WHERE is_pro = true;
+-- لا عمود انتهاء جديداً: profiles.subscription_ends_at موجود أصلاً في القاعدة
+-- الحية (وكذلك subscription_current_period_end). إضافة pro_expires_at كانت
+-- ستصنع عمود انتهاء ثالثاً يتنافسون على الحقيقة.
+CREATE INDEX IF NOT EXISTS profiles_pro_ends_idx
+  ON public.profiles (subscription_ends_at) WHERE is_pro = true;
 
 -- ============================================================================
 -- 2) admin_audit_logs — سجل الإجراءات الإدارية
@@ -278,7 +277,7 @@ BEGIN
   END IF;
 
   SELECT jsonb_build_object('is_pro', is_pro, 'subscription_status', subscription_status::text,
-                            'pro_expires_at', to_jsonb(pro_expires_at))
+                            'subscription_ends_at', to_jsonb(subscription_ends_at))
     INTO v_before
   FROM public.profiles WHERE id = p_target_user_id;
 
@@ -293,15 +292,24 @@ BEGIN
          -- 'active' قيمة enum موجودة فعلاً؛ لا نبتدع قيمة جديدة.
          subscription_status = CASE WHEN v_active THEN 'active'::public.subscription_status
                                     ELSE 'canceled'::public.subscription_status END,
-         pro_expires_at = CASE
-           WHEN v_active THEN GREATEST(COALESCE(pro_expires_at, timezone('utc', now())), timezone('utc', now()))
+         subscription_ends_at = CASE
+           WHEN v_active THEN GREATEST(COALESCE(subscription_ends_at, timezone('utc', now())), timezone('utc', now()))
                               + make_interval(days => p_days)
            ELSE NULL END,
          updated_at = timezone('utc', now())
    WHERE id = p_target_user_id
   RETURNING jsonb_build_object('is_pro', is_pro, 'subscription_status', subscription_status::text,
-                               'pro_expires_at', to_jsonb(pro_expires_at))
+                               'subscription_ends_at', to_jsonb(subscription_ends_at))
     INTO v_after;
+
+  -- is_pro مكرَّر على mizan_profiles أيضاً (البروفايل العام). تحديث profiles
+  -- وحده كان سيترك نسختين متعارضتين، والواجهة العامة تقرأ الثانية.
+  UPDATE public.mizan_profiles
+     SET is_pro = v_active,
+         subscription_status = CASE WHEN v_active THEN 'active' ELSE 'canceled' END,
+         subscription_ends_at = (SELECT subscription_ends_at FROM public.profiles WHERE id = p_target_user_id),
+         updated_at = timezone('utc', now())
+   WHERE owner_id = p_target_user_id;
 
   PERFORM public.admin_log_action(
     p_actor_id, CASE WHEN v_active THEN 'pro.extend' ELSE 'pro.revoke' END,

@@ -5,6 +5,87 @@
 
 ---
 
+<!-- ─────────────────────────────────────────────────────────────────────────
+     تحذير النشر — مُحدَّث 2026-09-17 من تفريغ مخطط القاعدة الحية
+     ───────────────────────────────────────────────────────────────────────── -->
+
+## 🔴 القاعدة الحية متأخرة عن سجل الترحيلات
+
+قورن تفريغ مخطط قاعدة البيانات الإنتاجية بسجل الترحيلات في هذا المستودع.
+النتيجة: **الترحيلات من 11 إلى 14 غير مطبَّقة على القاعدة الحية.**
+
+| الترحيل | الحالة على القاعدة الحية | الدليل من التفريغ |
+|---|---|---|
+| ≤ `20260923000000` | ✅ مطبَّقة | كل جداولها موجودة |
+| `20260924000000` إزالة Clerk / بروفايلات ورتب Supabase | ❌ **غير مطبَّق** | `onboarding_responses.clerk_user_id` ما زال `NOT NULL UNIQUE` وبلا عمود `user_id`؛ `mizan_profiles` بلا `avatar_url`/`cover_url`/`headline`؛ لا وجود لـ `rank_capabilities` |
+| `20260925000000` الموافقات القانونية | ❌ **غير مطبَّق** | لا جدول `legal_consents` |
+| `20260926000000` الحذف الناعم والتدقيق | ❌ غير مطبَّق | لا جدول `admin_audit_logs` |
+| `20260927000000` إصلاح منح الرصيد | ❌ غير مطبَّق | — |
+
+**لماذا هذا خطير لا مجرد تأخير:** كود التطبيق في هذا المستودع صار يتوقّع
+الترحيل 11. المشغّل `handle_new_user` الذي ينشئ صفّ `profiles` وصفّ
+`mizan_profiles` معاً عند التسجيل موجود في الترحيل 11 — فبدونه **قد لا يُنشأ
+بروفايل للمستخدمين الجدد أصلاً**، و`onboarding_responses.clerk_user_id NOT
+NULL` سيرفض الإدراج من كود لم يعد يرسل معرّف Clerk. كذلك خانة الموافقة على
+سياسة الخصوصية (الترحيل 12) تجمع موافقات **لا مكان لحفظها** في القاعدة الحية.
+
+**قبل أي نشر للواجهة:** طبّق الترحيلات 11 → 14 بالترتيب على القاعدة الحية.
+الترتيب إلزامي: الترحيل 13 يستعمل `is_admin()` كما أعاد تعريفها الترحيل
+`20260904120000`، والترحيل 14 يعيد إنشاء دالة من الترحيل `20260921000000`.
+
+---
+
+## ⚠️ تناقض يحتاج تحققاً يدوياً: ON DELETE CASCADE
+
+ملف الترحيل `20260823182123_remote_schema.sql:1351` ينشئ القيد:
+
+```sql
+ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id")
+  REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+```
+
+لكن التفريغ الحيّ يعرضه **بلا** `ON DELETE CASCADE`:
+
+```sql
+CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+```
+
+كذلك `mizan_profiles_owner_id_fkey` و`audit_logs_user_id_fkey` تظهر بلا شلال.
+
+لهذا أثر مباشر على الحذف النهائي: تصميم الإخفاء في الترحيل 13 يفترض أن حذف
+مستخدم `auth` عبر Auth Admin API يتكفّل بـ `profiles` و`mizan_profiles`. فإن
+كان الشلال غائباً فعلاً فالحذف **سيرفضه PostgreSQL** بانتهاك مفتاح أجنبي،
+وتبقى الحسابات غير قابلة للمحو — مخالفة للقانون 09-08.
+
+التفريغ نفسه يحذّر أنه «للسياق فقط وقد لا تكون القيود صالحة للتنفيذ»، فاحتمال
+أن تكون أداة التفريغ حذفت أفعال الإحالة قائم. **لا تُبنَ خطة الحذف على أيّ من
+الفرضيتين قبل التحقق:**
+
+```sql
+SELECT con.conname, con.confdeltype, tbl.relname AS on_table
+FROM pg_constraint con
+JOIN pg_class tbl ON tbl.oid = con.conrelid
+JOIN pg_namespace nsp ON nsp.oid = tbl.relnamespace
+WHERE nsp.nspname = 'public'
+  AND con.contype = 'f'
+  AND con.confrelid = 'auth.users'::regclass
+ORDER BY tbl.relname;
+-- confdeltype: a = NO ACTION, r = RESTRICT, c = CASCADE, n = SET NULL
+```
+
+إن ظهرت `a` أو `r` فالحذف النهائي يحتاج إما إضافة الشلال:
+
+```sql
+ALTER TABLE public.profiles DROP CONSTRAINT profiles_id_fkey;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_id_fkey
+  FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+```
+
+أو حذف الصفوف التابعة صراحةً قبل نداء Auth Admin API. القرار مؤجَّل عمداً حتى
+يُعرف الجواب، فلا يُكتب ترحيل يصلح قيداً قد يكون سليماً أصلاً.
+
+---
+
 ## 0) قبل أي شيء: هل الترحيلات مطبَّقة أصلاً؟
 
 ```bash
@@ -39,6 +120,7 @@ missing.** الترتيب الزمني مهم لأن أجسام الدوال ت�
 | 11 | `20260924000000_supabase_auth_profiles_and_ranks.sql` | 🔁 **إزالة Clerk** — طبّقه بعد 10 |
 | 12 | `20260925000000_legal_consents.sql` | ✅ إثبات الموافقة على الخصوصية |
 | 13 | `20260926000000_admin_actions_soft_delete_and_audit.sql` | ⚖️ الحذف الناعم + سجل التدقيق + وعاء Pro |
+| 14 | `20260927000000_fix_credit_grant_balance.sql` | 🔴 **إصلاح المال**: الدفعة كانت تُكمَل بلا زيادة رصيد |
 
 ### ✅ عملياً: لصقتان فقط تكفيان (مُثبَت بالاختبار)
 

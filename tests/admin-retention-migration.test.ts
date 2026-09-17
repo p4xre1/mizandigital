@@ -227,6 +227,29 @@ describe("حدود الصلاحيات", () => {
     expect(body).toContain("abs(p_days) > 3650")
   })
 
+  it("لا يبتدع عمود انتهاء — subscription_ends_at موجود في القاعدة الحية", () => {
+    // كان في المسودة الأولى عمود pro_expires_at جديد، وهو ثالث عمود انتهاء
+    // بجانب subscription_ends_at وsubscription_current_period_end.
+    // نفحص التعريف والاستعمال لا ذكر الاسم في تعليق يشرح لماذا رُفض.
+    expect(sql).not.toMatch(/ADD COLUMN IF NOT EXISTS pro_expires_at/)
+    expect(sql).not.toMatch(/SET pro_expires_at|pro_expires_at =/)
+    expect(sql).toContain("subscription_ends_at")
+  })
+
+  it("يحدّث نسختي is_pro معاً — profiles وmizan_profiles", () => {
+    // is_pro مكرَّر على الجدولين، والواجهة العامة تقرأ mizan_profiles.
+    const body = fnBody("admin_set_pro")
+    expect(body).toContain("UPDATE public.mizan_profiles")
+    expect(body).toMatch(/SET is_pro = v_active/)
+    expect(body).toContain("WHERE owner_id = p_target_user_id")
+  })
+
+  it("يعدّل رصيد الاستهلاك الصحيح: bonus_credits على profiles", () => {
+    // mizan_profiles.credits عملة تقدّم RPG مختلفة، لا رصيداً مشتريً.
+    expect(fnBody("admin_adjust_credits")).not.toContain("mizan_profiles")
+    expect(fnBody("admin_adjust_credits")).toContain("INSERT INTO public.credit_transactions")
+  })
+
   it("الاستعادة ترفض حساباً ليس في مهلة الحذف بدل نجاح كاذب", () => {
     expect(fnBody("admin_restore_account")).toContain("account is not pending deletion")
   })
