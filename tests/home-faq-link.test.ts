@@ -6,7 +6,7 @@
  * dist موجوداً (فالرئيسية تُهيَّأ من React، فالرابط يجب أن يظهر فيه).
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, test } from "vitest"
 import faqGroups from "@/data/faq.json"
 
 const SRC = readFileSync("src/components/home/HomeFaqSection.tsx", "utf8")
@@ -60,32 +60,36 @@ describe("رابط صفحة الأسئلة الشائعة في الرئيسية"
   })
 })
 
-describe.skipIf(!hasDist)("البناء الناتج", () => {
-  // الرئيسية تُبنى بـ createRoot().render() لا hydrateRoot، فالمتن الثابت
-  // موجّه للزاحف وحده ويستبدله React عند الإقلاع. لذلك نفحص شقّين:
-  // الرابط في HTML الثابت، ونصوص المكوّن في حزمة JS.
-  const html = readFileSync(DIST, "utf8")
-  const assets = readdirSync("dist/assets")
+// ملاحظة: describe.skipIf تُنفّذ متن الوصف لجمع الاختبارات وإن وُسِمت
+// skipped، فقراءة dist هناك ترمي ENOENT في CI حيث لا يُبنى dist. القراءة
+// تكون داخل كل اختبار — وهو اصطلاح tests/legal-pages-agree.test.ts.
+const readAssets = () =>
+  readdirSync("dist/assets")
     .filter((f) => f.endsWith(".js"))
     .map((f) => readFileSync(`dist/assets/${f}`, "utf8"))
     .join("\n")
 
-  it("HTML الرئيسية الثابت يربط إلى /faq للزاحف", () => {
-    expect(html).toContain('href="/faq"')
+describe("البناء الناتج", () => {
+  // الرئيسية تُبنى بـ createRoot().render() لا hydrateRoot، فالمتن الثابت
+  // موجّه للزاحف وحده ويستبدله React عند الإقلاع. لذلك نفحص شقّين:
+  // الرابط في HTML الثابت، ونصوص المكوّن في حزمة JS.
+
+  test.skipIf(!hasDist)("HTML الرئيسية الثابت يربط إلى /faq للزاحف", () => {
+    expect(readFileSync(DIST, "utf8")).toContain('href="/faq"')
   })
 
-  it("نص الرابط مشحون في حزمة JavaScript", () => {
-    expect(assets).toContain("المزيد من الأسئلة والأجوبة")
+  test.skipIf(!hasDist)("نص الرابط مشحون في حزمة JavaScript", () => {
+    expect(readAssets()).toContain("المزيد من الأسئلة والأجوبة")
   })
 
-  it("العدد المحسوب من faq.json يصل إلى الحزمة", () => {
-    // الرقم نفسه لا يُطبع ثابتاً في الحزمة بل يُحسب وقت التشغيل، لكن
-    // قالب الجملة يجب أن يكون موجوداً.
+  test.skipIf(!hasDist)("قالب جملة العدد المحسوب من faq.json يصل إلى الحزمة", () => {
+    // الرقم نفسه يُحسب وقت التشغيل فلا يُطبع ثابتاً، لكن القالب موجود.
+    const assets = readAssets()
     expect(assets).toContain("سؤالاً في")
     expect(assets).toContain("مواضيع")
   })
 
-  it("صفحة /faq نفسها مُهيَّأة", () => {
+  test.skipIf(!hasDist)("صفحة /faq نفسها مُهيَّأة", () => {
     expect(existsSync("dist/faq.html")).toBe(true)
   })
 })
