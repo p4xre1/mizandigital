@@ -24,6 +24,9 @@ const SURFACES = [
   "scripts/prerender.mjs", // المتن الثابت الموجّه للزاحف
 ]
 
+const X = "https://x.com/MIZANPAGE"
+const WHATSAPP = "https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m"
+
 const OLD_PINTEREST = "https://www.pinterest.com/mizan.page"
 const OLD_FACEBOOK = "https://www.facebook.com/mizan.page"
 
@@ -100,5 +103,92 @@ describe("أمان الروابط الخارجية في الواجهة", () => {
   test("زرّا بنترست وفيسبوك لهما وصف لقارئ الشاشة", () => {
     expect(nav).toContain('aria-label="صفحة ميزان الرقمية على فيسبوك"')
     expect(nav).toContain('aria-label="حساب ميزان الرقمية على بنترست"')
+  })
+})
+
+describe("إكس وقناة واتساب مضافتان في كل سطح", () => {
+  test.each(SURFACES)("%s يحمل حساب إكس", (file) => {
+    expect(read(file)).toContain(X)
+  })
+
+  test.each(SURFACES)("%s يحمل قناة واتساب", (file) => {
+    expect(read(file)).toContain(WHATSAPP)
+  })
+
+  test("رابط واتساب هو رابط القناة نفسه بلا تعديل", () => {
+    expect(WHATSAPP).toBe("https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m")
+  })
+})
+
+describe("التذييل المرئي", () => {
+  const nav = read("src/layouts/PublicNavigation.tsx")
+
+  test("زرّ إكس وزر واتساب في صف الأيقونات", () => {
+    expect(nav).toContain(`href="${X}"`)
+    expect(nav).toContain(`href="${WHATSAPP}"`)
+    expect(nav).toContain("<XIcon size={16} />")
+    expect(nav).toContain("<WhatsAppIcon size={16} />")
+  })
+
+  test("الأيقونتان معرّفتان — lucide لا يحمل شعارات العلامات", () => {
+    expect(nav).toContain("function XIcon(")
+    expect(nav).toContain("function WhatsAppIcon(")
+    expect(nav).toContain('viewBox="0 0 24 24"')
+  })
+
+  test("دعوة مجتمع واتساب ظاهرة بذاتها لا أيقونة فقط", () => {
+    expect(nav).toContain("انضمّ إلى مجتمع الطلبة على واتساب")
+    // واتساب يظهر مرتين: أيقونة في الصف + دعوة مجتمعية
+    expect(nav.match(new RegExp(WHATSAPP.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"))?.length).toBe(2)
+  })
+
+  test("المنصات كلها ستّ في التذييل", () => {
+    for (const url of [
+      "https://www.instagram.com/mizan.page",
+      "https://www.facebook.com/profile.php?id=61593607157317",
+      "https://www.tiktok.com/@mizan_page",
+      "https://www.pinterest.com/mohamedredayassinn/",
+      X,
+      WHATSAPP,
+    ]) {
+      expect(nav, url).toContain(url)
+    }
+  })
+
+  test("وسم twitter:site يطابق معرّف إكس", () => {
+    const seo = read("src/components/seo/SEOHead.tsx")
+    expect(seo).toContain('"twitter:site", "@mizan_page"')
+    expect(X.toLowerCase()).toContain("mizanpage")
+  })
+})
+
+describe("البيانات المهيكلة تبقى سليمة", () => {
+  test("sameAs في index.html قابل للتحليل JSON", () => {
+    const html = read("index.html")
+    const block = html.match(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/)
+    expect(block, "a JSON-LD block must exist").not.toBeNull()
+    const data: unknown = JSON.parse(block![1])
+
+    // sameAs ليست في الجذر بل داخل عقدة المنظمة، فنبحث عنها في أي عمق.
+    const found: string[][] = []
+    const walk = (node: unknown): void => {
+      if (Array.isArray(node)) return void node.forEach(walk)
+      if (node && typeof node === "object") {
+        for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+          if (key === "sameAs" && Array.isArray(value)) found.push(value as string[])
+          else walk(value)
+        }
+      }
+    }
+    walk(data)
+
+    expect(found.length, "a sameAs array must exist").toBeGreaterThan(0)
+    const sameAs = found[0]
+    expect(sameAs).toContain(X)
+    expect(sameAs).toContain(WHATSAPP)
+    // الإدراج لم يكسر الفواصل ولا أسقط عنصراً قائماً
+    expect(sameAs).toContain("https://github.com/p4xre1/mizandigital")
+    expect(sameAs).toContain("https://www.facebook.com/profile.php?id=61593607157317")
+    expect(sameAs.length).toBeGreaterThanOrEqual(7)
   })
 })

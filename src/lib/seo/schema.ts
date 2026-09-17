@@ -65,6 +65,8 @@ export function generateOrganizationSchema() {
       "https://www.facebook.com/profile.php?id=61593607157317",
       "https://www.tiktok.com/@mizan_page",
       "https://www.pinterest.com/mohamedredayassinn/",
+      "https://x.com/MIZANPAGE",
+      "https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m",
     ],
     address: {
       "@type": "PostalAddress",
