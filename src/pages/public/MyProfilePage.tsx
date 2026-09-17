@@ -1083,15 +1083,6 @@ export function MyProfilePage() {
                   <Share2 className="size-4" />
                   اختبار جديد
                 </button>
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => navigate("/admin/dashboard")}
-                    className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-[12.5px] font-extrabold text-foreground transition hover:border-primary/50"
-                  >
-                    لوحة التحكم
-                  </button>
-                )}
                 <button
                   type="button"
                   onClick={() => setConfirmReset(true)}

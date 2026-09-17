@@ -166,7 +166,7 @@ export function Header({
             </button>
 
             <AuthControls onNavigate={handleNavClick} />
-            <AuthControls className="flex items-center gap-2 md:hidden" compact onNavigate={handleNavClick} />
+            <AuthControls className="flex items-center gap-2 md:hidden" onNavigate={handleNavClick} />
 
             <button onClick={onToggleMenu} className="lg:hidden grid size-9 place-items-center rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black hover:opacity-90 transition-opacity" aria-label="Toggle menu">
               {menuOpen ? <X size={18} /> : <Menu size={18} />}

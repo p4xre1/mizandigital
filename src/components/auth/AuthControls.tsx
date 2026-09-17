@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Check, ChevronDown, Crown, LayoutDashboard, LogIn, LogOut, UserRound } from "lucide-react"
+import { Check, Crown, LayoutDashboard, LogIn, LogOut, UserRound } from "lucide-react"
 import { useAuth } from "@/lib/auth/AuthProvider"
 import { getRankDefinition } from "@/lib/quiz/ranks"
 import { RankBadge } from "@/components/quiz/RankBadge"
@@ -21,7 +21,6 @@ import { AuthErrorBoundary } from "./AuthErrorBoundary"
 interface AuthControlsProps {
   className?: string
   /** نمط مضغوط للشاشات الصغيرة. */
-  compact?: boolean
   /** يُنادى بعد إغلاق القائمة (مثلاً لإغلاق قائمة الموبايل). */
   onNavigate?: () => void
 }
@@ -33,7 +32,7 @@ function initials(name?: string | null, username?: string | null): string {
   return source.slice(0, 2).toUpperCase()
 }
 
-function AuthControlsInner({ className = "hidden md:flex items-center gap-2", compact = false, onNavigate }: AuthControlsProps) {
+function AuthControlsInner({ className = "hidden md:flex items-center gap-2", onNavigate }: AuthControlsProps) {
   const { initialized, user, profile, isAdmin, rank, signOut } = useAuth()
   const [open, setOpen] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -100,13 +99,16 @@ function AuthControlsInner({ className = "hidden md:flex items-center gap-2", co
 
   return (
     <div ref={containerRef} className={`${className} relative`}>
+      {/* الاسم لم يعد ظاهراً كنص، فننقله إلى aria-label وtitle حتى لا تُفقد
+          المعلومة عن قارئ الشاشة وعمّن يمرّر المؤشر فوق الدائرة. */}
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="قائمة الحساب"
-        className="flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] py-1 pr-1 pl-2.5 hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors"
+        aria-label={`قائمة الحساب — ${displayName}`}
+        title={displayName}
+        className="flex items-center justify-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-1 hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors"
       >
         {profile?.avatarUrl ? (
           <img
@@ -123,15 +125,8 @@ function AuthControlsInner({ className = "hidden md:flex items-center gap-2", co
             {initials(displayName, profile?.username)}
           </span>
         )}
-        {!compact && (
-          <span className="hidden max-w-[92px] truncate text-[12.5px] font-bold text-[#334155] dark:text-[#e2e8f0] sm:block">
-            {displayName}
-          </span>
-        )}
-        <span className={`hidden text-[10px] font-black sm:inline ${rankDefinition.tone}`} title={`الرتبة ${rankDefinition.id}`}>
-          {rankDefinition.glyph}
-        </span>
-        <ChevronDown className={`size-3.5 text-[#94a3b8] transition-transform ${open ? "rotate-180" : ""}`} />
+        {/* لا اسم ولا رمز رتبة ولا سهم — الدائرة وحدها كما طُلب.
+            الرتبة والاسم يبقيان داخل القائمة المنسدلة عند الفتح. */}
       </button>
 
       {open && (
