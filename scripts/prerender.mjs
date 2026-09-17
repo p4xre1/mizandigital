@@ -659,6 +659,8 @@ const pages = [
               <a href="/about">تعرف على المنصة وفريقها</a>
               —
               <a href="/contact">تواصل معنا</a>
+              —
+              <a href="/faq">الأسئلة الشائعة</a>
             </p>
           </section>
 

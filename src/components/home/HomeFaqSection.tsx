@@ -1,6 +1,8 @@
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { jsonLdProps } from "@/lib/seo/jsonLd"
-import { ChevronDown, HelpCircle } from "lucide-react"
+import { ArrowRight, ChevronDown, HelpCircle } from "lucide-react"
+import faqGroups from "@/data/faq.json"
 
 interface FaqItem {
   question: string
@@ -40,6 +42,14 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
       answer: "يجب التعامل مع ميزان الرقمية باعتبارها منصة تعليمية وبحثية، وليس بديلاً عن النص القانوني الرسمي. عند دراسة قاعدة قانونية، يُنصح بالرجوع إلى الجريدة الرسمية والنص التشريعي الرسمي والمصادر الجامعية أو المؤسساتية ذات الصلة.",
     },
   ]
+
+  // صفحة /faq تُغذّى من src/data/faq.json، فنعدّ من المصدر نفسه كي يبقى
+  // الوصف تحت الرابط مطابقاً للمحتوى الحقيقي دون صيانة يدوية.
+  const totalFaqCount = faqGroups.reduce(
+    (total, group) => total + (group.items?.length ?? 0),
+    0,
+  )
+  const faqTopics = faqGroups.map((group) => group.title).join("، ")
 
   const faqSchema = {
     "@context": "https://schema.org",
@@ -97,6 +107,21 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
               </div>
             )
           })}
+        </div>
+
+        {/* ما سبق خلاصة؛ الباقي في صفحة الأسئلة الشائعة. الرابط نسبي
+            (لا نطاق مطلق) فيعمل على المعاينة وعلى الإنتاج دون إعادة تحميل. */}
+        <div className="mt-8 text-center">
+          <Link
+            to="/faq"
+            className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-6 py-3 text-[13px] font-bold text-primary transition-colors hover:border-primary/45 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+          >
+            المزيد من الأسئلة والأجوبة
+            <ArrowRight className="size-4 rtl:rotate-180" />
+          </Link>
+          <p className="mt-3 text-[11.5px] font-semibold leading-relaxed text-muted-foreground">
+            {totalFaqCount} سؤالاً في {faqGroups.length} مواضيع: {faqTopics}
+          </p>
         </div>
       </div>
     </section>
