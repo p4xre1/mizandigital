@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { jsonLdProps } from "@/lib/seo/jsonLd"
 import { ChevronDown, HelpCircle } from "lucide-react"
 
 interface FaqItem {
@@ -52,7 +53,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
 
   return (
     <section className="py-16 border-t border-border" aria-labelledby="home-faq-heading">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <script {...jsonLdProps(faqSchema)} />
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">

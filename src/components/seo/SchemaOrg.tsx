@@ -1,3 +1,5 @@
+import { jsonLdProps } from "@/lib/seo/jsonLd"
+
 export interface SchemaOrgProps {
   schema: Record<string, any> | Record<string, any>[]
 }
@@ -8,29 +10,13 @@ export interface SchemaOrgProps {
  * - Supports multiple schemas (array)
  * - Optimized for AI crawlers (ChatGPT, Perplexity, Claude) and AEO
  */
-function escapeJsonLd(json: string): string {
-  return json
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026")
-    .replace(/\u2028/g, "\\u2028")
-    .replace(/\u2029/g, "\\u2029")
-}
-
 export function SchemaOrg({ schema }: SchemaOrgProps) {
   if (!schema || (Array.isArray(schema) && schema.length === 0)) {
     return null
   }
 
-  const json = JSON.stringify(schema)
-  const escaped = escapeJsonLd(json)
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: escaped }}
-    />
-  )
+  // الهرّب في jsonLdProps — لا نكرّره هنا حتى لا تتباعد النسخ.
+  return <script {...jsonLdProps(schema)} />
 }
 
 // AEO helpers — Answer Engine Optimization

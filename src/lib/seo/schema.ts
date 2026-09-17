@@ -1,4 +1,5 @@
 // /workspaces/mizandigital/src/lib/seo/schema.ts
+import { jsonLdProps } from "./jsonLd"
 
 export const SITE_CONFIG = {
   name: "منصة الميزان الرقمية",
@@ -239,10 +240,8 @@ export function generateLegalServiceSchema() {
  * 8. دالة مساعدة لحقن البيانات المهيكلة في عناصر JSX
  */
 export function renderSchemaScript(schemaData: Record<string, unknown> | Array<Record<string, unknown>>) {
-  return {
-    type: "application/ld+json",
-    dangerouslySetInnerHTML: {
-      __html: JSON.stringify(schemaData),
-    },
-  }
+  // كان هنا `JSON.stringify(schemaData)` خاماً داخل dangerouslySetInnerHTML:
+  // أي حقل من نظام إدارة المحتوى يحوي `</script>` كان يكسر الوسم ويفتح XSS.
+  // صار يمرّ عبر jsonLdProps المهرِّب.
+  return jsonLdProps(schemaData)
 }
