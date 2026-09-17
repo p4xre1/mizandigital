@@ -194,23 +194,29 @@ export function generateEducationalResourceSchema(resource: EducationalResourceI
 }
 
 /**
- * 7. مخطط الخدمة القانونية/المرجعية (LegalService Schema)
- * يُستخدم على الصفحة الرئيسية وصفحة "من نحن" لتعزيز إشارات E-E-A-T
- * وربط المنصة بفئة "الخدمات القانونية" في نتائج البحث والذكاء الاصطناعي.
- * ملاحظة: Mizan Digital منصة تعليمية مجانية ولا تقدم استشارات قانونية
- * مدفوعة، لذلك يُحدَّد hasOfferCatalog كموارد تعليمية مجانية فقط.
+ * 7. مخطط الجهة التعليمية (EducationalOrganization Schema)
+ * يُستخدم على الصفحة الرئيسية وصفحة "من نحن" لتعزيز إشارات E-E-A-T.
+ *
+ * كان النوع هنا `LegalService` فصُحِّح إلى `EducationalOrganization` لسببين:
+ *   1) قانوني — المادة 2 من القانون رقم 28.08 المتعلق بمهنة المحاماة تقصر
+ *      ممارسة المهنة ومهامها، ومنها تقديم الاستشارات في الميدان القانوني
+ *      (البند 5)، على المحامين المقيدين بجدول الهيئات. والمنصة يديرها طالب
+ *      قانون لا محامٍ، فالإعلان عن نفسنا «خدمة قانونية» في البيانات المهيكلة
+ *      إشارة لا نريدها ولا تستند إلى أساس.
+ *   2) تجاري — لم يعُد نموذج التشغيل مجانياً بالكامل؛ صار فيه اشتراك ميزان برو وحزم
+ *      كريدتس، فـ priceRange «مجاني» بيان غير مطابق للواقع.
  */
 export function generateLegalServiceSchema() {
   return {
     "@context": "https://schema.org",
-    "@type": "LegalService",
+    "@type": "EducationalOrganization",
     "@id": `${SITE_CONFIG.url}/#legalservice`,
     name: SITE_CONFIG.name,
     alternateName: SITE_CONFIG.altName,
     url: SITE_CONFIG.url,
     image: SITE_CONFIG.defaultImage,
     description:
-      "منصة مغربية تعليمية مجانية للمعرفة القانونية، تقدّم مقالات ومعجماً قانونياً وأرشيفاً دراسياً لطلبة القانون والمهتمين بالقانون المغربي. لا تقدم المنصة استشارات قانونية فردية.",
+      "منصة مغربية تعليمية للمعرفة القانونية، تقدّم مقالات ومعجماً قانونياً وأرشيفاً دراسياً لطلبة القانون والمهتمين بالقانون المغربي. محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك. لا تقدم المنصة استشارات قانونية فردية وليست مكتب محاماة.",
     areaServed: {
       "@type": "Country",
       name: "المغرب",
@@ -219,18 +225,30 @@ export function generateLegalServiceSchema() {
       "@type": "PostalAddress",
       addressCountry: SITE_CONFIG.country,
     },
-    priceRange: "مجاني",
+    // صريح بدل «مجاني»: الأساسي مجاني وأعلى اشتراك 399 درهم سنوياً.
+    priceRange: "0-399 MAD",
     knowsLanguage: ["ar", "fr"],
     parentOrganization: {
       "@id": `${SITE_CONFIG.url}/#organization`,
+    },
+    // الإفصاح عن هوية من يقف وراء المنصة دعمٌ للشفافية ولإشارات E-E-A-T،
+    // وتأكيدٌ صريح على أن الصفة طالب قانون لا محامٍ ممارس.
+    founder: {
+      "@type": "Person",
+      name: "محمد رضا ياسين",
+      address: { "@type": "PostalAddress", addressLocality: "طنجة", addressCountry: "MA" },
+      description:
+        "طالب بالسنة الثالثة من سلك الإجازة في القانون الخاص بالمغرب. ليس محامياً مقيّداً ولا يقدّم استشارات قانونية.",
     },
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "الموارد القانونية التعليمية",
       itemListElement: [
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "معجم قانوني ثنائي اللغة" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "أرشيف دراسي حسب الفصول (S1-S6)" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "مقالات ومستجدات تشريعية وقضائية" } },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "معجم قانوني ثنائي اللغة" }, price: "0", priceCurrency: "MAD" },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "أرشيف دراسي حسب الفصول (S1-S6)" }, price: "0", priceCurrency: "MAD" },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "مقالات ومستجدات تشريعية وقضائية" }, price: "0", priceCurrency: "MAD" },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "اشتراك ميزان برو الشهري" }, price: "49", priceCurrency: "MAD" },
+        { "@type": "Offer", itemOffered: { "@type": "Service", name: "اشتراك ميزان برو السنوي" }, price: "399", priceCurrency: "MAD" },
       ],
     },
   }

@@ -390,7 +390,7 @@ const homeHeroHtml = `
             <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
               <div class="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
                 <span class="size-1.5 rounded-full bg-[#2563eb]"></span>
-                منصة تعليمية عصرية • مجانية 100%
+                منصة تعليمية عصرية • الأساسي مجاني والمتقدم باشتراك
               </div>
               <h1 class="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">افتح إمكانياتك مع<br><span class="text-[#2563eb]">التعلم القانوني</span><br><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span></h1>
               <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
@@ -408,7 +408,7 @@ const homeHeroHtml = `
                 </div>
                 <div class="text-right">
                   <div class="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">${svgIcon(ICON.users, "size-4 text-[#2563eb]", 16)}500+ طالب يثقون بنا</div>
-                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 • منصة مجانية</div>
+                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 • محتوى أساسي مجاني</div>
                 </div>
               </div>
               <div class="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">${homeStatCards
@@ -438,7 +438,7 @@ const pages = [
     title: "ملخصات S1-S6، قاموس قانوني 250 مصطلح ودليل 21 كلية حقوق بالمغرب | ميزان الرقمية",
 
     description:
-      "ميزان الرقمية منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
+      "ميزان الرقمية منصة مغربية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
 
     schema: {
       "@context": "https://schema.org",
@@ -447,7 +447,7 @@ const pages = [
       url: DOMAIN,
       name: "ميزان الرقمية | ملخصات S1-S6، قاموس قانوني ودليل كليات الحقوق بالمغرب",
       description:
-        "منصة مغربية مجانية 100% لطلبة القانون: ملخصات S1-S6، قاموس 250 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
+        "منصة مغربية لطلبة القانون بأساس مجاني ومزايا متقدمة باشتراك: ملخصات S1-S6، قاموس 250 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
       inLanguage: "ar-MA",
       isPartOf: {
         "@id": `${DOMAIN}/#website`,
@@ -517,14 +517,19 @@ const pages = [
           <h2 class="text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ميزان الرقمية — المعرفة القانونية للطلبة بالمغرب</h2>
 
           <p>
-            <strong>ميزان الرقمية هي منصة عربية مغربية مجانية للمعرفة القانونية والأكاديمية.</strong>
+            <strong>ميزان الرقمية هي منصة عربية مغربية للمعرفة القانونية والأكاديمية، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك.</strong>
             توفر للطلبة والباحثين أدوات للبحث في المصطلحات القانونية،
             والمقالات، والأخبار، والندوات، والمواد الدراسية وكليات الحقوق بالمغرب.
           </p>
 
           <p>
-            تُعد ميزان الرقمية من أبرز المنصات المجانية لملخصات ومصطلحات القانون
-            الموجهة لطلبة كليات الحقوق بالمغرب، وذلك دون الحاجة لإنشاء حساب أو دفع أي اشتراك.
+            تُعد ميزان الرقمية من المنصات المغربية المتخصصة في ملخصات ومصطلحات القانون
+            الموجهة لطلبة كليات الحقوق بالمغرب. يتاح محتواها الأساسي — المعجم والأرشيف
+            الدراسي والمقالات والأخبار ودليل الكليات — مجاناً دون إنشاء حساب، بينما
+            تُؤدّى المزايا المتقدمة عبر اشتراك ميزان برو أو حزم الكريدتس.
+            المنصة تعليمية ولا تقدّم استشارات قانونية؛ فتقديم الاستشارات في الميدان
+            القانوني من مهام المحامي بمقتضى القانون رقم 28.08، ويدير المنصة طالب
+            قانون لا محامٍ مقيّد.
           </p>
 
           <section class="mt-10">

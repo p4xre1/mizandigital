@@ -231,7 +231,7 @@ export function Footer() {
             </span>
           </div>
           <p className="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
-            منصة تعليمية عصرية بتصميم نظيف — تعلم القانون بطريقة مرنة وجذابة، مع موارد مجانية للطلبة بالمغرب.
+            منصة تعليمية عصرية بتصميم نظيف — تعلم القانون بطريقة مرنة وجذابة، بمحتوى أساسي مجاني ومزايا متقدمة باشتراك للطلبة بالمغرب.
           </p>
           <div className="mt-4 flex items-center gap-2">
             <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إنستغرام" title="إنستغرام" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
@@ -303,7 +303,7 @@ export function Footer() {
           color-contrast في Lighthouse. #94a3b8 على نفس الخلفية = 6.96:1.
         */}
         <div className="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#94a3b8]">
-          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة • منصة تعليمية مجانية</span>
+          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة • منصة تعليمية، المحتوى الأساسي مجاني</span>
           <span className="flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" aria-hidden="true" />
             تصميم عصري • خطوط مجانية
