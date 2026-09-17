@@ -1,39 +1,39 @@
 /**
  * DELETE /api/account/delete
- * GDPR — حذف بيانات المستخدم
  *
- * بعد إزالة Clerk صارت الهوية Supabase Auth: نتحقق من access_token عبر
- * requireUser (‎/auth/v1/user) ثم نحذف صفوف الحساب من الجداول المرتبطة
- * بـ auth.uid(). حذف حساب auth.users نفسه يتم من لوحة تحكم Supabase (أو
- * عبر Admin API بمفتاح service_role) لأن المتصفح لا يملك صلاحية ذلك.
+ * القانون 09-08 — طلب محو الحساب.
+ *
+ * ── ما تغيّر ────────────────────────────────────────────────────────────────
+ * كان هذا الطرف يحذف الصفوف فوراً: mizan_profiles وonboarding_responses
+ * وreactions وreports و**payments وcredit_transactions** وprofiles وlegal_consents.
+ * مشكلتان:
+ *
+ *   1) حذف payments وcredit_transactions يُتلف السجل المحاسبي الذي توجب
+ *      المادة 26 من مدونة التجارة الاحتفاظ به عشر سنوات. الامتثال لقانون
+ *      الخصوصية كان يكسر قانوناً آخر.
+ *   2) لا رجعة: ضغطة واحدة (أو طلب مكرر من سكربت) تنهي الحساب نهائياً،
+ *      بلا مهلة للتراجع وبلا سجل بما جرى.
+ *
+ * صار الطلب **حذفاً ناعماً**: تُضبط الحالة `pending_deletion` مع تاريخ الطلب،
+ * وتمتد مهلة 30 يوماً يمكن للمستخدم التراجع فيها بنفسه
+ * (POST /api/account/restore) أو تطلب فيها الإدارة الاستعادة.
+ *
+ * الإخفاء النهائي ليس هنا: مهمة مجدولة تنفّذ
+ *   list_expired_deletions → Auth Admin API DELETE → anonymize_orphaned_billing
+ * فتحذف حساب auth (الشلال يزيل الصفوف التابعة) وتفصل الهوية عن السجلات
+ * المالية مع إبقاء المبالغ والتواريخ ومعرّفات Stripe.
+ *
+ * ── صفر ثقة ────────────────────────────────────────────────────────────────
+ * لا نستعمل مفتاح service_role هنا إطلاقاً. ننادي الدالة برمزية المستخدم
+ * نفسه، فتُقيَّم RLS وتعمل auth.uid() داخل الدالة. المتصفح لا يستطيع طلب
+ * حذف حساب غيره لأن الدالة لا تأخذ معرّفاً — تقرأه من الرمز.
  */
 
 import { requireUser, jsonResponse } from "../../_shared/auth.js";
+import { checkRateLimit } from "../../_shared/guard.js";
 
-/**
- * جداول مرتبطة بمعرّف الحساب (uuid) في عمود محدد.
- *
- * ملاحظة: سياسة الخصوصية (/privacy §6) تعد بحذف profiles و quiz_attempts أيضاً،
- * وكانا غائبين هنا — فالحذف كان جزئياً مع رسالة نجاح كاملة.
- */
-const TABLES_BY_OWNER = [
-  ["mizan_profiles", "owner_id"],
-  ["onboarding_responses", "user_id"],
-  ["reactions", "user_ref"],
-  ["reports", "reporter_ref"],
-  ["payments", "user_ref"],
-  ["credit_transactions", "user_ref"],
-  ["content_reactions", "owner_id"],
-  ["profiles", "id"],
-  // مرتبطة بـ auth.users بـ ON DELETE CASCADE، فنحذفها صراحةً هنا أيضاً.
-  ["legal_consents", "user_id"],
-];
-
-/**
- * quiz_attempts.user_ref نصّي: الحسابات المسجّلة تستعمل uuid، والقديمة تستعمل
- * local:<username> أو معرّف جهاز مجهول. نحذف المطابق لـ uuid ولـ username معاً.
- */
-const ATTEMPTS_TABLE = "quiz_attempts";
+/** مهلة التراجع بالأيام — يجب أن تطابق ما تعرضه الواجهة وما في الترحيل. */
+export const GRACE_PERIOD_DAYS = 30;
 
 export async function onRequestDelete(context) {
   const { request, env } = context;
@@ -43,76 +43,85 @@ export async function onRequestDelete(context) {
     return jsonResponse({ error: "غير مصرّح — سجّل الدخول أولاً" }, 401);
   }
 
-  const supabaseUrl = env.SUPABASE_URL;
-  const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceKey) {
+  const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const anonKey = env.SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
     return jsonResponse({ error: "إعدادات الخادم ناقصة" }, 500);
   }
 
-  const deleted = [];
-  const failed = [];
-
-  // نقرأ اسم المستخدم قبل حذف mizan_profiles لنعرف صفوف المحاولات القديمة.
-  let username = null;
+  // تحديد المعدل: الطلب رخيص لكنه يغيّر حالة الحساب، فلا نريده في حلقة.
   try {
-    const profileResponse = await fetch(
-      `${supabaseUrl}/rest/v1/mizan_profiles?owner_id=eq.${encodeURIComponent(user.id)}&select=username`,
-      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-    );
-    if (profileResponse.ok) {
-      const rows = await profileResponse.json();
-      if (Array.isArray(rows) && rows[0]?.username) username = rows[0].username;
-    }
-  } catch {
-    /* نتابع بالحذف عبر uuid وحده */
-  }
-
-  // المحاولات أولاً: بعدها يختفي البروفايل الذي نستمد منه username.
-  try {
-    // اسم المستخدم مقيّد بـ [a-zA-Z0-9_] في generate_profile_username،
-    // ومع ذلك نمرّر القيمة عبر encodeURIComponent لا عبر شرط كامل.
-    const conditions = [`user_ref.eq.${encodeURIComponent(user.id)}`];
-    if (username) conditions.push(`user_ref.eq.local:${encodeURIComponent(username)}`);
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/${ATTEMPTS_TABLE}?or=(${conditions.join(",")})`,
-      {
-        method: "DELETE",
-        headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
-      }
-    );
-    if (response.ok || response.status === 404) deleted.push(ATTEMPTS_TABLE);
-    else failed.push(ATTEMPTS_TABLE);
-  } catch {
-    failed.push(ATTEMPTS_TABLE);
-  }
-
-  for (const [table, column] of TABLES_BY_OWNER) {
-    try {
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/${table}?${column}=eq.${encodeURIComponent(user.id)}`,
-        {
-          method: "DELETE",
-          headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
-        }
+    const limited = await checkRateLimit({
+      kv: env.RATE_LIMIT_KV,
+      bucket: "account_delete",
+      key: user.id,
+      limit: 5,
+      windowSeconds: 3600,
+    });
+    if (!limited.allowed) {
+      return jsonResponse(
+        { error: "محاولات كثيرة — أعد المحاولة لاحقاً", retryAfterSeconds: limited.retryAfterSeconds },
+        429
       );
-      // 404/42P01 = الجدول غير موجود في هذا المشروع: لا نعتبره فشلاً
-      if (response.ok || response.status === 404) deleted.push(table);
-      else failed.push(table);
-    } catch {
-      failed.push(table);
     }
+  } catch {
+    // فشل KV ليس سبباً لرفض طلب مشروع؛ تحديد المعدل هنا best-effort.
   }
 
-  // حساب auth.users نفسه لا يُحذف من هنا: يتطلب Supabase Admin API ولا يُنجز
-  // إلا عبر المشرف (لوحة Supabase → Authentication → Users). لا نعد بما لا نفعله.
+  // سبب اختياري: يفيد في فهم سبب المغادرة، ولا يُشترط للمحو.
+  // نُقلّم أولاً: فراغان فقط ليسا سبباً، وتمريرهما كان يخزّن قيمة عديمة المعنى.
+  const rawReason = new URL(request.url).searchParams.get("reason");
+  const reason = rawReason ? rawReason.trim() : "";
+
+  const res = await fetch(`${supabaseUrl}/rest/v1/rpc/request_account_deletion`, {
+    method: "POST",
+    headers: {
+      apikey: anonKey,
+      Authorization: `Bearer ${user.token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ p_reason: reason ? reason.slice(0, 500) : null }),
+  });
+
+  // 404 من PostgREST = الدالة غير موجودة = الترحيل 13 غير مطبَّق على القاعدة.
+  // رسالة صريحة أفضل من «خطأ في الخادم»: هذا بالضبط ما حدث في القاعدة الحية.
+  if (res.status === 404) {
+    return jsonResponse(
+      {
+        error: "طلب الحذف غير متاح بعد",
+        detail:
+          "الدالة request_account_deletion غير موجودة في قاعدة البيانات. طبّق الترحيل 20260926000000_admin_actions_soft_delete_and_audit.sql",
+      },
+      503
+    );
+  }
+
+  if (!res.ok) {
+    const detail = await res.text();
+    return jsonResponse(
+      { error: "تعذّر تسجيل طلب الحذف", detail: detail.slice(0, 300) },
+      500
+    );
+  }
+
+  const data = await res.json().catch(() => ({}));
+
+  // طلب مكرر: المهلة قائمة أصلاً ولا تُعاد تصفيرها (وإلا امتدت إلى الأبد).
+  if (data?.already_requested) {
+    return jsonResponse({
+      ok: true,
+      alreadyRequested: true,
+      accountStatus: "pending_deletion",
+      gracePeriodDays: GRACE_PERIOD_DAYS,
+      message: `طلبك مسجّل مسبقاً — الحساب يُحذف نهائياً بعد انتهاء المهلة، ويمكن التراجع قبل ذلك.`,
+    });
+  }
+
   return jsonResponse({
-    ok: failed.length === 0,
-    message:
-      failed.length === 0
-        ? "تم حذف بياناتك. لإزالة الحساب نهائياً (auth.users) راسل contact@mizan.page"
-        : "حُذفت بعض بياناتك — راسل contact@mizan.page لإكمال الحذف",
-    deleted,
-    failed,
-    authUserRemoved: false,
+    ok: true,
+    accountStatus: "pending_deletion",
+    gracePeriodDays: GRACE_PERIOD_DAYS,
+    restorePath: "/api/account/restore",
+    message: `تم تسجيل طلب حذف الحساب. لديك ${GRACE_PERIOD_DAYS} يوماً للتراجع قبل الإخفاء النهائي.`,
   });
 }

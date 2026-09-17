@@ -442,6 +442,56 @@ ALTER FUNCTION public.request_account_deletion(text) OWNER TO postgres;
 REVOKE ALL ON FUNCTION public.request_account_deletion(text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.request_account_deletion(text) TO authenticated;
 
+-- 5.1) إلغاء الطلب من المستخدم نفسه خلال المهلة
+-- ----------------------------------------------------------------------------
+-- admin_restore_account أعلاه إجراء إداري (service_role). لكن من طلب الحذف
+-- بنفسه يجب أن يستطيع التراجع بنفسه ما دامت المهلة قائمة: إلزامه بمراسلة
+-- الإدارة لتراجع عن طلبه احتكاك بلا فائدة، والقانون 09-08 يجعل الموافقة
+-- قابلة للسحب، وطلب المحو موافقة على المحو.
+--
+-- بعد انتهاء المهلة لا يعمل هذا: الإخفاء يكون قد جرى وحُذف حساب auth.
+CREATE OR REPLACE FUNCTION public.cancel_account_deletion()
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_uid uuid := (SELECT auth.uid());
+  v_status text;
+BEGIN
+  IF v_uid IS NULL THEN
+    RAISE EXCEPTION 'authentication required';
+  END IF;
+
+  SELECT account_status INTO v_status FROM public.profiles WHERE id = v_uid;
+  IF v_status IS NULL THEN
+    RAISE EXCEPTION 'profile not found';
+  END IF;
+
+  -- حساب نشط أصلاً: ليس خطأً، بل لا شيء للتراجع عنه.
+  IF v_status <> 'pending_deletion' THEN
+    RETURN jsonb_build_object('success', true, 'already_active', true,
+                              'account_status', v_status);
+  END IF;
+
+  -- القيد profiles_deletion_state_consistent يفرض تصفير التاريخ مع الحالة.
+  UPDATE public.profiles
+     SET account_status = 'active',
+         deletion_requested_at = NULL,
+         deletion_reason = NULL,
+         updated_at = timezone('utc', now())
+   WHERE id = v_uid;
+
+  RETURN jsonb_build_object('success', true, 'account_status', 'active',
+                            'canceled', true);
+END;
+$$;
+
+ALTER FUNCTION public.cancel_account_deletion() OWNER TO postgres;
+REVOKE ALL ON FUNCTION public.cancel_account_deletion() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.cancel_account_deletion() TO authenticated;
+
 -- ============================================================================
 -- 6) عرض اللوحة: الحسابات المعلقة مع العدّاد التنازلي
 -- ============================================================================

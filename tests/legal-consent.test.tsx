@@ -334,9 +334,16 @@ describe("the consent store is backed by the database", () => {
   it("the account-deletion path removes consent rows and the docs say so", async () => {
     const { readFileSync } = await import("node:fs");
     const { DELETED_TABLES } = await import("@/content/legal/policies.js");
+    // لم يعد الطرف يحذف الصفوف: صار يسجّل طلب حذف ناعم، وحذف legal_consents
+    // يتم عبر ON DELETE CASCADE عند الإخفاء النهائي (user_id → auth.users).
     const deleteFn = readFileSync("functions/api/account/delete.js", "utf8");
-    expect(deleteFn).toContain('["legal_consents", "user_id"]');
+    expect(deleteFn).toContain("rpc/request_account_deletion");
     expect(DELETED_TABLES).toContain("legal_consents");
+    const consentSql = readFileSync(
+      "supabase/migrations/20260925000000_legal_consents.sql",
+      "utf8"
+    );
+    expect(consentSql).toMatch(/user_id\s+uuid NOT NULL REFERENCES auth\.users\(id\) ON DELETE CASCADE/);
   });
 
   it("the RPC name used by the client matches the migration", async () => {

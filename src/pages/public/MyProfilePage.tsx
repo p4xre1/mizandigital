@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { DeleteAccountSection } from "@/components/profile/DeleteAccountSection"
 import {
   AlertCircle,
   BriefcaseBusiness,
@@ -1146,6 +1147,10 @@ export function MyProfilePage() {
           </ul>
         </section>
       )}
+
+      {/* منطقة الخطر: حذف الحساب بمهلة 30 يوماً. آخر الصفحة عمداً —
+          لا نضع إجراءً ينهي الحساب بجانب أزرار الحفظ اليومية. */}
+      <DeleteAccountSection username={username} />
 
       <ConfirmDeleteModal
         isOpen={confirmReset}

@@ -259,10 +259,10 @@ describe("حدود الصلاحيات", () => {
       expect(fnBody(name).length, name).toBeGreaterThan(0)
     }
     const defs = [...sql.matchAll(/CREATE OR REPLACE FUNCTION public\.([a-z_]+)\(([\s\S]*?)\$\$;/g)]
-    // ثماني دوال: admin_log_action, admin_adjust_credits, admin_set_pro,
+    // تسع دوال: admin_log_action, admin_adjust_credits, admin_set_pro,
     // admin_restore_account, admin_log_session_revocation, request_account_deletion,
-    // list_expired_deletions, anonymize_orphaned_billing.
-    expect(defs.length, "should have found every function").toBe(8)
+    // cancel_account_deletion, list_expired_deletions, anonymize_orphaned_billing.
+    expect(defs.length, "should have found every function").toBe(9)
     for (const [, name, block] of defs) {
       expect(block, `${name} must pin search_path`).toMatch(/SET search_path = public/)
     }

@@ -43,6 +43,12 @@ export declare const LEGAL_LAST_UPDATED: string
 export declare const ADSTERRA_REMOVED_ON: string
 export declare const AUTH_STORAGE_KEY: string
 export declare const DELETED_TABLES: string[]
+/**
+ * سجلات مالية تُفصل عن الهوية ولا تُحذف — المادة 26 من مدونة التجارة
+ * (احتفاظ محاسبي عشر سنوات). قائمة منفصلة عن DELETED_TABLES عمداً: الوعد
+ * بحذفها كان سيكون مخالفاً للقانون، وهذا ما كانت تفعله النسخة السابقة.
+ */
+export declare const ANONYMIZED_TABLES: string[]
 export declare const RETAINED_TABLES: string[]
 export declare const PUBLIC_PROFILE_FIELDS: string[]
 export declare const PRIVATE_PROFILE_FIELDS: string[]

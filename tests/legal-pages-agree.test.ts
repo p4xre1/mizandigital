@@ -26,6 +26,7 @@ import {
   LEGAL_POLICIES,
   COOKIE_TABLE,
   DELETED_TABLES,
+  ANONYMIZED_TABLES,
   RETAINED_TABLES,
   PUBLIC_PROFILE_FIELDS,
   PRIVATE_PROFILE_FIELDS,
@@ -209,17 +210,50 @@ describe("the public profile is actually disclosed", () => {
 });
 
 describe("the deletion promise matches the deletion code", () => {
-  function deletedTables(): Set<string> {
-    const tables = new Set<string>();
-    for (const m of DELETE_FN.matchAll(/\[\s*"([a-z_]+)"\s*,\s*"[a-z_]+"\s*\]/g)) tables.add(m[1]);
-    const attempts = DELETE_FN.match(/ATTEMPTS_TABLE\s*=\s*"([a-z_]+)"/);
-    if (attempts) tables.add(attempts[1]);
-    return tables;
-  }
+  const PURGE_MIGRATION = read(
+    "supabase/migrations/20260926000000_admin_actions_soft_delete_and_audit.sql"
+  );
 
-  test("DELETED_TABLES is exactly what the endpoint deletes", () => {
-    const actual = deletedTables();
-    expect([...DELETED_TABLES].sort()).toEqual([...actual].sort());
+  test("the endpoint requests a soft delete and removes no rows", () => {
+    // كان يحذف صفوفاً مباشرةً — ومن ضمنها payments وcredit_transactions.
+    expect(DELETE_FN).toContain("rpc/request_account_deletion");
+    expect(DELETE_FN).not.toContain("TABLES_BY_OWNER");
+    expect(DELETE_FN).not.toContain("ATTEMPTS_TABLE");
+    expect(DELETE_FN, "browser path must not use the service key").not.toContain(
+      "SUPABASE_SERVICE_ROLE_KEY"
+    );
+  });
+
+  test("financial records are anonymised, never promised as deleted", () => {
+    // المادة 26 من مدونة التجارة: احتفاظ محاسبي عشر سنوات.
+    for (const t of ANONYMIZED_TABLES) {
+      expect(DELETED_TABLES, `${t} must not be promised as deleted`).not.toContain(t);
+      expect(PURGE_MIGRATION, `${t} must be handled by the anonymiser`).toContain(t);
+    }
+    expect(new Set([...DELETED_TABLES, ...ANONYMIZED_TABLES]).size).toBe(
+      DELETED_TABLES.length + ANONYMIZED_TABLES.length
+    );
+  });
+
+  test("all three pages name the anonymised tables too", () => {
+    for (const [name, html] of [["privacy", PRIVACY_HTML], ["cookies", COOKIES_HTML], ["terms", TERMS_HTML]] as const) {
+      for (const t of ANONYMIZED_TABLES) {
+        expect(html, `${name} omits anonymised table ${t}`).toContain(t);
+      }
+      // نصّ الاستشهاد «مدونة التجارة»؛ صياغة رقم المادة تختلف بين الصفحات.
+      expect(html, `${name} must cite the Commercial Code`).toContain("مدونة التجارة");
+    }
+  });
+
+  test("the grace period and self-service path are stated", () => {
+    for (const html of [PRIVACY_HTML, TERMS_HTML]) {
+      expect(html).toContain("30 يوماً");
+    }
+    // الحالة بالاسم ذُكرت في صفحة الخصوصية؛ صفحة الشروط تصف المهلة بلا مصطلح تقني.
+    expect(PRIVACY_HTML).toContain("pending_deletion");
+    // لم تعد السياسة تدّعي أن الحذف الذاتي مستحيل
+    expect(PRIVACY_HTML).not.toContain("لا يمكن حذف الحساب ذاتياً");
+    expect(TERMS_HTML).not.toContain("لا يمكن حذف الحساب ذاتياً");
   });
 
   test("all three pages promise the same deletion list", () => {
@@ -230,13 +264,15 @@ describe("the deletion promise matches the deletion code", () => {
     }
   });
 
-  test("no page claims the auth.users account itself is deleted automatically", () => {
+  test("auth.users removal is the scheduled job's, never the browser's", () => {
+    // الطرف الذي يصله المتصفح لا ينادي Auth Admin API — الإخفاء مهمة مجدولة.
     expect(DELETE_FN).not.toContain("/auth/v1/admin/users");
-    expect(DELETE_FN).toContain("authUserRemoved: false");
-    for (const html of [PRIVACY_HTML, COOKIES_HTML, TERMS_HTML]) {
-      expect(html).toContain("auth.users");
-      expect(html).toContain("يدوياً");
-    }
+    // السياسة تصفه الآن بأنه آلي بعد المهلة، لا يدوي من مشرف.
+    expect(PRIVACY_HTML).toContain("auth.users");
+    expect(PRIVACY_HTML).toContain("آلياً");
+    expect(PRIVACY_HTML).not.toContain("يُزال حساب auth.users يدوياً من طرف المشرف");
+    // ومسار الإخفاء موثّق في الترحيل
+    expect(PURGE_MIGRATION).toContain("auth/v1/admin/users");
   });
 
   test("retained legal tables are named consistently everywhere", () => {
