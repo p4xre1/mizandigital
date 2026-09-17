@@ -35,6 +35,49 @@ NULL` سيرفض الإدراج من كود لم يعد يرسل معرّف Cler
 
 ---
 
+## 🔴 `credit_transactions` معرَّف مرّتين بشكلين متعارضين — التثبيت الجديد ينتج قاعدة مختلفة
+
+ترحيلان ينشئان الجدول نفسه، وكلاهما بـ `CREATE TABLE IF NOT EXISTS`:
+
+| الترحيل | الأعمدة |
+|---|---|
+| `20260915000000` | `user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE`، `direction credit_direction NOT NULL`، `amount CHECK (amount > 0)` |
+| `20260921000000` | `user_ref text NOT NULL`، `clerk_user_id text`، `type text CHECK(...)`، `amount CHECK (amount <> 0)`، `balance_after` |
+
+`IF NOT EXISTS` يعني أن **الأسبق بالاسم يفوز والثاني يصبح لا-عملية صامتة**.
+`20260915000000` يسبق `20260921000000`، فقاعدة تُبنى من الصفر تأخذ شكل
+20260915.
+
+لكن القاعدة الحية تحمل شكل 20260921 (`user_ref` و`type`). أي أن **الإنتاج
+والتثبيت الجديد ليسا القاعدة نفسها** — انحراف مخطط بنيوي لا حادث عارض.
+
+الأثر: كل كود يكتب في الجدول يستعمل شكل 20260921:
+
+- `complete_payment_and_grant_credits` (20260921) → `INSERT INTO credit_transactions (user_ref, clerk_user_id, type, ...)`
+- `admin_adjust_credits` (20260926) → الأعمدة نفسها
+- `anonymize_orphaned_billing` (20260926) → `UPDATE ... SET user_ref`
+
+على قاعدة مبنيّة من الصفر هذه الأعمدة غير موجودة ⇒ **كل إكمال دفعة يرمي
+خطأً**. نظام الفوترة يعمل على الإنتاج بالصدفة (لأن شكل الجدول هناك هو
+20260921)، لا بالبناء.
+
+**لا تُبنَ بيئة (تجريبي/إنتاج جديد) من سجل الترحيلات قبل توحيد التعريف.**
+يلزم ترحيل توفيق يفحص الشكل القائم ويحوّله إلى شكل 20260921، وهو الشكل الذي
+يستعمله كل من التطبيق والدوال. لم يُكتب بعد لأنه قرار يحتاج موافقة: قد يكون
+في قواعد أخرى صفوف بالشكل القديم يلزم ترحيل بياناتها لا مجرد ترحيل مخطط.
+
+للتحقق من شكل قاعدة بعينها:
+
+```sql
+SELECT column_name FROM information_schema.columns
+WHERE table_schema='public' AND table_name='credit_transactions'
+ORDER BY ordinal_position;
+-- user_ref/type  ⇒ شكل 20260921 (ما يتوقعه الكود)
+-- user_id/direction ⇒ شكل 20260915 (الكود سيفشل عليه)
+```
+
+---
+
 ## ⚠️ تناقض يحتاج تحققاً يدوياً: ON DELETE CASCADE
 
 ملف الترحيل `20260823182123_remote_schema.sql:1351` ينشئ القيد:
