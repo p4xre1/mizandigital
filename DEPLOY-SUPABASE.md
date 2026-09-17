@@ -164,7 +164,7 @@ ORDER BY created_at DESC LIMIT 5;
 ```
 VITE_SUPABASE_URL=https://YOUR-REF.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon key>
-VITE_SITE_URL=https://mizan.ma
+VITE_SITE_URL=https://www.mizan.page
 VITE_SITE_NAME="ميزان الرقمية"
 VITE_GA_ID=            # اختياري
 VITE_TURNSTILE_SITE_KEY=
@@ -210,8 +210,8 @@ npx supabase functions deploy onboarding
    إضافة `https://YOUR-REF.supabase.co/auth/v1/callback` إلى Authorized
    redirect URIs في Google.
 3. **URL Configuration**:
-   - Site URL = `https://mizan.ma`
-   - Redirect URLs = `https://mizan.ma/profile`, `https://mizan.ma/login`,
+   - Site URL = `https://www.mizan.page`
+   - Redirect URLs = `https://www.mizan.page/profile`, `https://www.mizan.page/login`,
      `http://localhost:5173/profile`
 4. **حسابات الإدارة**: أنشئ الحساب ثم من SQL Editor:
    ```sql
@@ -226,10 +226,15 @@ npx supabase functions deploy onboarding
    الملف 6 (`20260917000000_profiles_governance_and_plans.sql:101`) بـ 4900
    وحدة صغرى = 49.00 MAD، ومعها خطة `free` بـ 0.
 2. ضع `STRIPE_PRICE_ID`.
-3. أنشئ Webhook endpoint يشير إلى `https://mizan.ma/api/billing/webhook`
-   واستمع إلى: `checkout.session.completed`, `invoice.paid`,
-   `invoice.payment_failed`, `customer.subscription.updated`,
-   `customer.subscription.deleted`.
+3. أنشئ Webhook endpoint يشير إلى `https://www.mizan.page/api/billing/webhook`
+   واستمع إلى: `payment_intent.succeeded`, `checkout.session.completed`,
+   `invoice.paid`, `invoice.payment_succeeded`, `invoice.payment_failed`,
+   `customer.subscription.updated`, `customer.subscription.deleted`.
+
+   > `payment_intent.succeeded` إلزامي لمسار Stripe Elements (الدفع داخل
+   > الموقع بلا تحويل). بدونه تُقبض الأموال ولا يُمنح العميل شيئاً.
+   > الترويسة `Stripe-Signature` تُتحقَّق الآن فعلاً في المعالج — بلا
+   > `STRIPE_WEBHOOK_SECRET` يعيد الطرف 500 ويرفض كل حدث.
 4. ضع `STRIPE_WEBHOOK_SECRET` (`whsec_...`).
 5. أضف قواعد Radar (من التوثيق الرسمي، لا من الكود):
    - `Request 3D Secure if :card_country: != 'MA'`
@@ -335,6 +340,8 @@ select count(*) from auth.users u
 - **لا ترحيل طُبّق يوماً على مشروع Supabase الحقيقي.** كل التحقق تم على
   PostgreSQL مضمَّن، بما في ذلك إعادة الثغرتين ثم إغلاقهما.
 - مسار المتصفح → PostgREST للتفاعلات لم يُختبر end-to-end ضد قاعدة حقيقية.
-- لا نداء Stripe حقيقي تم؛ توقيع الـ webhook مُختبَر وحدوياً فقط.
+- لا نداء Stripe حقيقي تم. لكن التحقق من `Stripe-Signature` موصول الآن
+  بالمعالج `functions/api/billing/webhook.js` ومُختبَر ضد حدث مزوَّر وتوقيع
+  بالسرّ الخطأ وإعادة إرسال قديمة (`tests/billing-webhook.test.ts`).
 - `ProUpgradeCard.tsx` غير مرسوم في أي صفحة.
 - صفحة لوحة التحكم لمحرك SEO ما زالت غير مبنية.
