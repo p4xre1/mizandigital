@@ -237,13 +237,13 @@ export function Footer() {
             <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إنستغرام" title="إنستغرام" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
               <Instagram size={16} aria-hidden="true" />
             </a>
-            <a href="https://www.facebook.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="صفحة ميزان الرقمية على فيسبوك" title="فيسبوك" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
+            <a href="https://www.facebook.com/profile.php?id=61593607157317" target="_blank" rel="noopener noreferrer" aria-label="صفحة ميزان الرقمية على فيسبوك" title="فيسبوك" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
               <Facebook size={16} aria-hidden="true" />
             </a>
             <a href="https://www.tiktok.com/@mizan_page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على تيك توك" title="تيك توك" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
               <TikTokIcon size={16} />
             </a>
-            <a href="https://www.pinterest.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على بنترست" title="بنترست" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
+            <a href="https://www.pinterest.com/mohamedredayassinn/" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على بنترست" title="بنترست" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
               <PinterestIcon size={16} />
             </a>
           </div>

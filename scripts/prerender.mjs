@@ -253,10 +253,10 @@ const publisherSchema = {
     height: 630,
   },
   sameAs: [
-    "https://www.facebook.com/mizan.page",
+    "https://www.facebook.com/profile.php?id=61593607157317",
     "https://www.instagram.com/mizan.page",
     "https://www.tiktok.com/@mizan_page",
-    "https://www.pinterest.com/mizan.page",
+    "https://www.pinterest.com/mohamedredayassinn/",
     "https://github.com/p4xre1/mizandigital",
   ],
 };

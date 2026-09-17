@@ -126,9 +126,9 @@ export function generateOrganizationSchema() {
     knowsLanguage: ["ar", "ar-MA", "fr"],
     sameAs: [
       "https://www.instagram.com/mizan.page",
-      "https://www.facebook.com/mizan.page",
+      "https://www.facebook.com/profile.php?id=61593607157317",
       "https://www.tiktok.com/@mizan_page",
-      "https://www.pinterest.com/mizan.page",
+      "https://www.pinterest.com/mohamedredayassinn/",
     ],
     address: {
       "@type": "PostalAddress",
