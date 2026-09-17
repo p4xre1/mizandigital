@@ -528,7 +528,28 @@ export function getLocalProfile(username: string): PublicProfile | null {
 export function generateUsernameSuggestions(base: string, max = 4): string[] {
   const clean = base.toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 20) || "user"
   const suggestions: string[] = []
-  const rand = () => Math.floor(100 + Math.random() * 900)
+  /**
+   * لاحقة رقمية ثلاثية لاقتراح اسم مستخدم متاح.
+   *
+   * كانت Math.random()، فأشار CodeQL إلى «عشوائية غير آمنة في سياق أمني»
+   * (تنبيهان عالِيا الخطورة). القيمة هنا ليست سرّاً — إنها اقتراح اسم مستخدم
+   * عام يراه المستخدم ويعدّله — لكن crypto.getRandomValues متاحة في كل
+   * المتصفحات المدعومة وفي Node، وكلفتها مهملة، فلا سبب للبقاء على
+   * مولّد قابل للتنبؤ في حقل يتصل بمعرّفات الحسابات.
+   *
+   * تُستخدم إعادة الرفض (rejection sampling) لإلغاء انحياز باقي القسمة:
+   * ‎2^32 % 900 ≠ 0‎، فبدونها تنحرف القيم الأولى احتمالاً قليلاً.
+   */
+  const rand = (): number => {
+    const buffer = new Uint32Array(1)
+    const limit = 0x100000000 - (0x100000000 % 900)
+    let value = 0
+    do {
+      crypto.getRandomValues(buffer)
+      value = buffer[0]
+    } while (value >= limit)
+    return 100 + (value % 900)
+  }
   const candidates = [
     `${clean}_${rand()}`,
     `${clean}${rand()}`,
