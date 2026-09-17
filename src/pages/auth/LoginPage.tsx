@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { safeRedirectPath, safeRedirectUrl } from "@/lib/auth/safeRedirect"
+import { describeAuthError } from "@/lib/auth/AuthProvider"
 import {
   ArrowRight,
   AtSign,
@@ -45,7 +47,13 @@ interface LoginPageProps {
   onNavigate?: (path: string) => void
 }
 
-const MIN_PASSWORD = 6
+/**
+ * الحد الأدنى لطول كلمة المرور.
+ * رُفع من 6 إلى 8: ستة أحرف دونها كل أدوات الكسر المتاحة، ولا تحقق الحد
+ * الأدنى في إرشادات NIST SP 800-63B. التحقق في الخادم (GoTrue) يبقى
+ * مستقلاً، فتشديد جهة العميل لا يكسر شيئاً — أما تخفيفه فممنوع.
+ */
+const MIN_PASSWORD = 8
 
 function GoogleIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -107,7 +115,13 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
     }
   }, [searchParams])
 
-  const destination = useMemo(() => next || (isAdmin ? "/admin/dashboard" : "/profile"), [next, isAdmin])
+  // كان: next || ... — قيمة ?next= تمرّ كما هي إلى navigate()، فيكفي
+  // ‎?next=//evil.com‎ لإخراج المستخدم من النطاق بعد تسجيل الدخول.
+  // صار يمرّ عبر safeRedirectPath الذي لا يقبل إلا مساراً داخليّاً.
+  const destination = useMemo(
+    () => safeRedirectPath(next, isAdmin ? "/admin/dashboard" : "/profile"),
+    [next, isAdmin],
+  )
 
   // مستخدم مسجّل مسبقاً → لا نُبقيه في صفحة الدخول
   useEffect(() => {
@@ -221,13 +235,16 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
         const { supabase } = await import("@/lib/supabase/client")
         const { error: updateError } = await supabase.auth.updateUser({ password })
         if (updateError) {
-          setError(updateError.message)
+          // كانت updateError.message تُعرض كما وردت من الخادم، وقد تحمل
+          // تفاصيل داخلية. تمرّ الآن عبر نفس مُعرِّب الأخطاء المعتمد.
+          setError(describeAuthError(updateError))
           return
         }
         setNotice("تم تحديث كلمة المرور — يمكنك الآن متابعة استخدام حسابك.")
         navigate(destination, { replace: true })
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "تعذّر تحديث كلمة المرور.")
+      } catch {
+        // لا نُظهر رسالة الاستثناء الخام: قد تكشف مسارات أو تفاصيل داخلية.
+        setError("تعذّر تحديث كلمة المرور. حاول مجدداً أو اطلب رابط استعادة جديداً.")
       } finally {
         setLoading(false)
       }
@@ -247,8 +264,12 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
     setError(null)
     if (!ensureConsent("google")) return
     setLoading(true)
+    // لا نلصق الوجهة الخام بعد الأصل: إن احتوت // أو مخطّطاً ينتج رابط
+    // مشوّه أو خارج النطاق. safeRedirectUrl تتحقق ثم تبني.
     const result = await signInWithGoogle(
-      typeof window === "undefined" ? undefined : `${window.location.origin}${destination}`
+      typeof window === "undefined"
+        ? undefined
+        : safeRedirectUrl(next, isAdmin ? "/admin/dashboard" : "/profile"),
     )
     setLoading(false)
     if (result.error) setError(result.error)

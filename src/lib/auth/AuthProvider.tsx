@@ -79,17 +79,22 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 const OAUTH_PROVIDER = "google" as const
 
-function describeAuthError(error: unknown): string {
+/** مُعرِّب أخطاء المصادقة — مصدر وحيد لرسائل المستخدم، بلا نص خام من الخادم. */
+export function describeAuthError(error: unknown): string {
   const message = error instanceof Error ? error.message : String((error as { message?: string })?.message ?? "")
   const lower = message.toLowerCase()
   if (lower.includes("invalid login credentials")) return "بيانات الدخول غير صحيحة. تحقق من البريد وكلمة المرور."
   if (lower.includes("email not confirmed")) return "بريدك الإلكتروني غير مؤكَّد بعد — افتح رابط التأكيد في رسالتنا."
   if (lower.includes("already registered") || lower.includes("already been registered"))
     return "هذا البريد مسجَّل مسبقاً — جرّب تسجيل الدخول."
-  if (lower.includes("password should be at least")) return "كلمة المرور قصيرة جداً (6 أحرف على الأقل)."
+  if (lower.includes("password should be at least")) return "كلمة المرور قصيرة جداً (8 أحرف على الأقل)."
   if (lower.includes("rate limit") || lower.includes("too many")) return "محاولات كثيرة في وقت قصير — انتظر دقيقة."
   if (lower.includes("failed to fetch") || lower.includes("network")) return "تعذّر الاتصال بالخادم — تحقق من الإنترنت."
-  return message || "حدث خطأ غير متوقع."
+  // كان `return message` يعرض نص الخادم الخام على أي خطأ غير معروف، وفيه
+  // تسريب محتمل لتفاصيل داخلية. صار النص الخام يُسجَّل للمطوّر وحده
+  // وتُعرض رسالة عامة للمستخدم.
+  if (message) console.warn("[auth] unclassified auth error:", message)
+  return "تعذّر إتمام العملية. تحقّق من بياناتك أو حاول بعد قليل."
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
