@@ -33,7 +33,12 @@ beforeAll(async () => {
     await db.query('INSERT INTO profiles(id,account_status,admin) VALUES ($1,$2,$3)', [id, id === suspended ? 'suspended' : 'active', id === admin]);
     await db.query("INSERT INTO mizan_profiles VALUES ($1,$2,$3,now() + $4::interval,NULL)", [id, id !== free, id === canceled ? 'canceled' : 'active', id === expired ? '-1 day' : '1 day']);
   }
-  await db.exec(readFileSync('supabase/migrations/20260928000000_pro_legal_tools.sql', 'utf8'));
+  const migration = readFileSync('supabase/migrations/20260928000000_pro_legal_tools.sql', 'utf8');
+  await db.exec(migration);
+  // The migration must be idempotent: re-applying it (e.g. after a partial
+  // earlier run) must succeed without losing the seeded catalog rows.
+  await db.exec(migration);
+  expect((await db.query("SELECT count(*)::int AS n FROM pro_tools")).rows).toEqual([{ n: 6 }]);
   await asUser(admin);
   await db.exec("UPDATE pro_tools SET enabled=true WHERE slug='cases'");
   await db.exec(`INSERT INTO pro_tool_entries(tool_slug,title,topic,source_url,source_reference,reviewed_by,reviewed_on,published,payload) VALUES

@@ -31,7 +31,8 @@ All amendment feed content is manually published through the CMS.
    The new migration needs `profiles.account_status`, `mizan_profiles.owner_id`,
    the existing subscription columns, `auth.uid()` and `public.is_admin()`.
 3. Apply `supabase/migrations/20260928000000_pro_legal_tools.sql` through the normal
-   Supabase migration process. It runs transactionally and should be applied once.
+   Supabase migration process. It runs transactionally and is idempotent: re-running
+   it on a partially-applied schema is safe and never deletes data.
 4. Deploy the frontend. No new secrets or API keys are required. The normal
    Supabase URL and anon key are sufficient; never put a service-role key in Vite.
 5. Open `/admin/pro-tools`. The workspace starts enabled. The other five tools
