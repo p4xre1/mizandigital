@@ -4,6 +4,9 @@ import type { Session } from "@supabase/supabase-js"
 import PublicLayout from "@/layouts/PublicLayout"
 import { HomePage } from "@/pages/public/HomePage"
 
+const ProToolsPage = lazy(() => import("@/pages/public/ProToolsPage"))
+const ProToolsManagementPage = lazy(() => import("@/pages/admin/ProToolsManagementPage"))
+
 const AdminLayout = lazy(() => import("@/components/layout/AdminLayout"))
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"))
 
@@ -131,6 +134,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route element={<PublicLayout theme={theme} menuOpen={menuOpen} onToggleTheme={onToggleTheme} onToggleMenu={onToggleMenu} onCloseMenu={onCloseMenu} />}>
+          <Route path="/pro-tools" element={<ProToolsPage />} /><Route path="/pro-tools/:slug" element={<ProToolsPage />} />
           <Route path="/" element={<HomePage />} /><Route path="/search" element={<SearchPage />} /><Route path="/archive" element={<ArchiveWrapper />} /><Route path="/pdf/:slug" element={<PdfDownloadPage />} /><Route path="/download/:id" element={<DownloadGatePage />} />
           <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} /><Route path="/s2" element={<Navigate to="/archive?semester=S2" replace />} /><Route path="/s3" element={<Navigate to="/archive?semester=S3" replace />} /><Route path="/s4" element={<Navigate to="/archive?semester=S4" replace />} /><Route path="/s5" element={<Navigate to="/archive?semester=S5" replace />} /><Route path="/s6" element={<Navigate to="/archive?semester=S6" replace />} />
           <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />
@@ -171,6 +175,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="fraud" element={<FraudPreventionPage />} />
           <Route path="intelligence" element={<IntelligencePage />} />
           <Route path="limits" element={<LimitsMonitoringPage />} />
+          <Route path="pro-tools" element={<ProToolsManagementPage />} />
           <Route path="pricing" element={<PricingManagementPage />} />
           <Route path="users" element={<UsersManagementPage />} />
           <Route path="userdata" element={<UserDataPage />} />

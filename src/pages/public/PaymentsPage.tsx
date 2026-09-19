@@ -48,7 +48,7 @@ export function PaymentsPage() {
         canonicalUrl="https://www.mizan.page/payments"
       />
 
-      <div className="mb-8 rounded-3xl border border-border bg-gradient-to-l from-primary/10 via-card to-amber-500/10 p-6">
+      <div className="mb-8 rounded-2xl border border-border bg-card p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-extrabold text-primary">
@@ -64,7 +64,7 @@ export function PaymentsPage() {
             <p className="mt-1 flex items-center gap-2 text-lg font-black text-foreground">
               <Coins className="size-5 text-amber-500" /> {progress.credits} كريدتس
             </p>
-            <p className="mt-1 text-[11px] text-muted-foreground">{progress.xp} XP • رتبة {progress.placementRank || "—"}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">{progress.xp} XP - رتبة {progress.placementRank || "—"}</p>
           </div>
         </div>
 

@@ -600,7 +600,7 @@ export function MyProfilePage() {
                 ))}
               </ul>
               <p className="mt-2.5 text-[10.5px] font-bold text-muted-foreground" dir="ltr">
-                {capabilities.maxDailyComments} تعليقات/يوم · {capabilities.maxDailyReports} بلاغات/يوم
+                {capabilities.maxDailyComments} تعليقات/يوم - {capabilities.maxDailyReports} بلاغات/يوم
               </p>
             </div>
 
@@ -1022,7 +1022,7 @@ export function MyProfilePage() {
                 {checking ? "جارٍ التحقق من الاسم..." : saving ? "جارٍ الحفظ والمزامنة..." : "حفظ ونشر البروفايل"}
               </button>
               <p className="mt-2 text-center text-[10px] leading-5 text-muted-foreground">
-                حماية من السبام: 5 محاولات حفظ في الدقيقة · تنقية ضد XSS · فحص فوري لتكرار الاسم · الرتبة تُحسب في
+                حماية من السبام: 5 محاولات حفظ في الدقيقة - تنقية ضد XSS - فحص فوري لتكرار الاسم - الرتبة تُحسب في
                 الخادم من نقاط خبرتك ولا يمكن تعديلها يدوياً
               </p>
             </>
@@ -1066,8 +1066,8 @@ export function MyProfilePage() {
                         </span>
                       </div>
                       <p className="mt-1 text-[11.5px] font-semibold text-muted-foreground">
-                        {attempt.correct}/{attempt.total} صحيحة · +{attempt.xpEarned} XP ·{" "}
-                        {formatDuration(attempt.durationMs)} · {new Date(attempt.finishedAt).toLocaleDateString("ar-MA")}
+                        {attempt.correct}/{attempt.total} صحيحة - +{attempt.xpEarned} XP -{" "}
+                        {formatDuration(attempt.durationMs)} - {new Date(attempt.finishedAt).toLocaleDateString("ar-MA")}
                       </p>
                     </li>
                   ))}
@@ -1127,7 +1127,7 @@ export function MyProfilePage() {
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[12.5px] font-extrabold text-foreground">{entry.displayName}</span>
                       <span className="block truncate text-[10.5px] font-bold text-muted-foreground" dir="ltr">
-                        @{entry.username} · {entry.xp.toLocaleString("en-US")} XP
+                        @{entry.username} - {entry.xp.toLocaleString("en-US")} XP
                       </span>
                     </span>
                     <span className={`shrink-0 text-[11px] font-black ${entryRank.tone}`}>{entryRank.id}</span>
@@ -1233,7 +1233,7 @@ function RankLadder({ xp, currentRank }: { xp: number; currentRank?: string }) {
               </ul>
 
               <p className="mt-2.5 text-[11px] font-bold text-muted-foreground" dir="ltr">
-                {item.minXp} XP{item.maxXp ? ` — ${item.maxXp}` : "+"} · مستوى {item.level}/7
+                {item.minXp} XP{item.maxXp ? ` — ${item.maxXp}` : "+"} - مستوى {item.level}/7
               </p>
             </div>
           )

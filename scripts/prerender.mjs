@@ -390,11 +390,7 @@ const homeHeroHtml = `
             <div class="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]"></div>
             <div class="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]"></div>
             <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
-              <div class="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
-                <span class="size-1.5 rounded-full bg-[#2563eb]"></span>
-                منصة تعليمية عصرية • الأساسي مجاني والمتقدم باشتراك
-              </div>
-              <h1 class="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">افتح إمكانياتك مع<br><span class="text-[#2563eb]">التعلم القانوني</span><br><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span></h1>
+              <h1 class="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white"><span>افتح إمكانياتك مع</span><span class="text-[#2563eb]">التعلم القانوني</span><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span></h1>
               <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
               <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
@@ -410,7 +406,7 @@ const homeHeroHtml = `
                 </div>
                 <div class="text-right">
                   <div class="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">${svgIcon(ICON.users, "size-4 text-[#2563eb]", 16)}500+ طالب يثقون بنا</div>
-                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 • محتوى أساسي مجاني</div>
+                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 - محتوى أساسي مجاني</div>
                 </div>
               </div>
               <div class="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">${homeStatCards

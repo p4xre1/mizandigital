@@ -88,7 +88,7 @@ export function SavedContentPage() {
                   <Link to={`/${item.type === "article" ? "articles" : item.type === "news" ? "news" : item.type === "lexicon_term" ? "lexicon" : "archive"}/${item.slug}`} className="text-[13px] font-bold text-foreground hover:text-primary">
                     {item.title}
                   </Link>
-                  <p className="text-[10px] text-muted-foreground">{new Date(item.savedAt).toLocaleDateString("ar-MA")} • {item.type}</p>
+                  <p className="text-[10px] text-muted-foreground">{new Date(item.savedAt).toLocaleDateString("ar-MA")} - {item.type}</p>
                 </div>
               </div>
               <button onClick={() => remove(item.id)} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground">

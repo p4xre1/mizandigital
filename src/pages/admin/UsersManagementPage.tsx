@@ -156,7 +156,7 @@ export default function UsersManagementPage() {
                 <div key={p.id} className="flex items-center justify-between rounded-xl border border-border/50 bg-background p-2.5">
                   <div className="flex items-center gap-2">
                     <span className="grid size-6 place-items-center rounded-full bg-amber-500/10 text-[10px] font-black text-amber-700">{i + 1}</span>
-                    <div><p className="text-[11px] font-bold text-foreground">{p.username || p.display_name || "مجهول"}</p><p className="text-[10px] text-muted-foreground">{p.rank || "D"} • {p.xp || 0} XP</p></div>
+                    <div><p className="text-[11px] font-bold text-foreground">{p.username || p.display_name || "مجهول"}</p><p className="text-[10px] text-muted-foreground">{p.rank || "D"} - {p.xp || 0} XP</p></div>
                   </div>
                   <span className="text-[10px] font-bold">{p.credits || 0} cr</span>
                 </div>

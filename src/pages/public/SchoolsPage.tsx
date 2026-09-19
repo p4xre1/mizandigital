@@ -91,12 +91,12 @@ export function SchoolsPage() {
             <div className="max-w-[800px]">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-bold text-[#2563eb] dark:text-[#60a5fa]">
                 <GraduationCap className="size-3.5" />
-                {allSchools.length} كلية • {cities.length} مدينة
+                {allSchools.length} كلية - {cities.length} مدينة
               </span>
               <h1 className="mt-3 text-[28px] md:text-[36px] font-black tracking-[-0.02em] text-[#0f172a] dark:text-white leading-[1.1]">
                 دليل كليات الحقوق والجامعات المغربية
               </h1>
-              <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">دليل شامل لـ FSJES و FSJP عبر مختلف مدن المملكة — تصميم تعليمي نظيف مستوحى من EduFlex.</p>
+              <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">دليل شامل لـ FSJES و FSJP عبر مختلف مدن المملكة.</p>
 
               <div className="flex flex-wrap gap-2 mt-4">
                 {cities.slice(0, 8).map(city => (
@@ -140,7 +140,7 @@ export function SchoolsPage() {
                           <div className="flex items-center gap-1.5 text-[10px] text-[#64748b] dark:text-[#94a3b8]">
                             <MapPin className="size-3" />
                             {school.city}
-                            {school.foundedYear && <><span>•</span><span>{school.foundedYear}</span></>}
+                            {school.foundedYear && <><span>-</span><span>{school.foundedYear}</span></>}
                           </div>
                           <h3 className="font-bold text-[13px] leading-tight mt-1 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{schoolName}</h3>
                           {school.university && <div className="text-[10px] text-[#64748b] dark:text-[#94a3b8] mt-1">{school.university}</div>}

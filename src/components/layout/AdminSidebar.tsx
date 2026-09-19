@@ -73,6 +73,7 @@ const navGroups = [
       { label: "الأرشيف القانوني", path: "/admin/laws", icon: Scale },
       { label: "مكتبة الوثائق", path: "/admin/library", icon: BookOpen },
       { label: "الندوات والفعاليات", path: "/admin/seminars", icon: Video },
+      { label: "أدوات Pro القانونية", path: "/admin/pro-tools", icon: Scale },
       { label: "بنك الأسئلة", path: "/admin/quizzes", icon: ListChecks },
       { label: "التعليقات", path: "/admin/comments", icon: MessageCircle },
       { label: "الرائج القانوني", path: "/admin/trends", icon: TrendingUp },
@@ -145,7 +146,7 @@ export default function AdminSidebar({
         {!collapsed && (
           <div className="min-w-0 leading-tight">
             <h1 className="truncate text-[13.5px] font-extrabold text-foreground">ميزان الرقمية</h1>
-            <span className="text-[10.5px] font-medium text-muted-foreground">تحكم كامل • بلا إعلانات</span>
+            <span className="text-[10.5px] font-medium text-muted-foreground">تحكم كامل - بلا إعلانات</span>
           </div>
         )}
       </div>
@@ -197,8 +198,8 @@ export default function AdminSidebar({
       <div className="shrink-0 space-y-1 border-t border-border p-3">
         {!collapsed && (
           <div className="mb-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5">
-            <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">Mizan Pro • بلا Adsterra</p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">49/399 MAD • بيع نهائي • لا حذف ذاتي</p>
+            <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">Mizan Pro - بلا Adsterra</p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground">49/399 MAD - بيع نهائي - لا حذف ذاتي</p>
           </div>
         )}
         <button

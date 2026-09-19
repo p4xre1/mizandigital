@@ -17,8 +17,8 @@ export default function SeoManagementPage() {
 
   useEffect(() => {
     setFiles([
-      { name: "llms.txt", path: "/llms.txt", size: "39KB • 248 lines • 317 records", status: "ok", desc: "لـ ChatGPT, Perplexity, Claude — كل الصفحات + المميزات" },
-      { name: "llms-full.txt", path: "/llms-full.txt", size: "87KB • 535 lines", status: "ok", desc: "نسخة كاملة مفصلة للذكاء الاصطناعي" },
+      { name: "llms.txt", path: "/llms.txt", size: "39KB - 248 lines - 317 records", status: "ok", desc: "لـ ChatGPT, Perplexity, Claude — كل الصفحات + المميزات" },
+      { name: "llms-full.txt", path: "/llms-full.txt", size: "87KB - 535 lines", status: "ok", desc: "نسخة كاملة مفصلة للذكاء الاصطناعي" },
       { name: "ai.txt", path: "/ai.txt", size: "1.3KB", status: "ok", desc: "توجيه للذكاء الاصطناعي" },
       { name: "ai-sitemap.xml", path: "/ai-sitemap.xml", size: "959B", status: "ok", desc: "خريطة للذكاء الاصطناعي" },
       { name: "sitemap.xml", path: "/sitemap.xml", size: "320 routes", status: "ok", desc: "320 مسار prerendered" },

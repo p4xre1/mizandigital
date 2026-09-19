@@ -219,7 +219,7 @@ export default function LawTrendsPage() {
                   <div key={t.id} className="flex items-center justify-between rounded-xl border border-border/50 bg-background p-3">
                     <div className="min-w-0 flex-1">
                       <p className="text-[12px] font-bold text-foreground truncate">{t.keyword_ar}</p>
-                      <p className="text-[10px] text-muted-foreground">{t.category} • {t.interest}/100</p>
+                      <p className="text-[10px] text-muted-foreground">{t.category} - {t.interest}/100</p>
                     </div>
                     <span className="rounded-full bg-red-100 px-2 py-1 text-[10px] font-bold text-red-700">عالي</span>
                   </div>
@@ -233,7 +233,7 @@ export default function LawTrendsPage() {
                 {filtered.slice(0, 5).map(t => (
                   <div key={t.id} className="rounded-xl border border-blue-200 bg-blue-50 p-3 dark:bg-blue-950/20">
                     <p className="text-[11px] font-bold text-foreground">شرح {t.keyword_ar}</p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">حجم بحث: {t.search_volume.toLocaleString()} • {t.category}</p>
+                    <p className="mt-1 text-[10px] text-muted-foreground">حجم بحث: {t.search_volume.toLocaleString()} - {t.category}</p>
                     <div className="mt-2 flex gap-1">
                       <Link to={`/admin/articles/new`} className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-bold text-white">اكتب مقال</Link>
                       <span className="text-[10px] text-muted-foreground">SEO: {t.interest}/100</span>
@@ -248,7 +248,7 @@ export default function LawTrendsPage() {
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             <div className="border-b border-border p-4 flex items-center justify-between">
               <h2 className="text-sm font-bold text-foreground flex items-center gap-2"><BarChart3 className="size-4 text-primary" /> ترند القوانين في المغرب - Google Trends ({filtered.length})</h2>
-              <span className="text-[11px] text-muted-foreground">MA • {timeframe} • فئة القانون</span>
+              <span className="text-[11px] text-muted-foreground">MA - {timeframe} - فئة القانون</span>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -269,7 +269,7 @@ export default function LawTrendsPage() {
                       <td className="p-3">
                         <div>
                           <p className="font-bold text-foreground">{trend.keyword_ar}</p>
-                          <p className="text-[11px] text-muted-foreground">{trend.keyword_fr} • {trend.search_volume.toLocaleString()} بحث</p>
+                          <p className="text-[11px] text-muted-foreground">{trend.keyword_fr} - {trend.search_volume.toLocaleString()} بحث</p>
                         </div>
                       </td>
                       <td className="p-3"><span className="rounded-full bg-muted px-2 py-1 text-[10px] font-bold">{trend.category}</span></td>
@@ -314,7 +314,7 @@ export default function LawTrendsPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h2 className="text-lg font-black text-foreground">{selected.keyword_ar}</h2>
-                    <p className="text-sm text-muted-foreground">{selected.keyword_fr} • {selected.category}</p>
+                    <p className="text-sm text-muted-foreground">{selected.keyword_fr} - {selected.category}</p>
                   </div>
                   <button onClick={() => setSelected(null)} className="rounded-xl border border-border px-3 py-1 text-xs">إغلاق</button>
                 </div>
@@ -362,7 +362,7 @@ export default function LawTrendsPage() {
                   <div className="mt-2 space-y-2">
                     {selected.news_articles.map((news, i) => (
                       <a key={i} href={news.url} target="_blank" className="flex items-center justify-between rounded-xl border border-border p-3 hover:bg-muted">
-                        <div><p className="text-[12px] font-bold">{news.title}</p><p className="text-[11px] text-muted-foreground">{news.source} • {new Date(news.date).toLocaleDateString("ar-MA")}</p></div>
+                        <div><p className="text-[12px] font-bold">{news.title}</p><p className="text-[11px] text-muted-foreground">{news.source} - {new Date(news.date).toLocaleDateString("ar-MA")}</p></div>
                         <ExternalLink className="size-4 text-muted-foreground" />
                       </a>
                     ))}

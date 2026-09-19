@@ -281,7 +281,7 @@ export default function GmailInboxPage() {
                     <h2 className="text-[14px] font-black text-foreground">{selected.subject}</h2>
                     <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
                       <span className="flex items-center gap-1"><User className="size-3" />{selected.fromName || selected.from}</span>
-                      <span>•</span>
+                      <span>-</span>
                       <span className="flex items-center gap-1"><Clock className="size-3" />{new Date(selected.date).toLocaleString("ar-MA")}</span>
                     </div>
                   </div>
@@ -325,7 +325,7 @@ export default function GmailInboxPage() {
                 </button>
                 <button className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground">تحويل</button>
                 <button className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-muted-foreground">أرشفة</button>
-                <span className="mr-auto text-[10px] text-muted-foreground">MCP: gmail_read_message • {selected.id}</span>
+                <span className="mr-auto text-[10px] text-muted-foreground">MCP: gmail_read_message - {selected.id}</span>
               </div>
             </>
           ) : (

@@ -53,12 +53,12 @@ export default function PricingManagementPage() {
         <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4 dark:bg-violet-950/20">
           <div className="flex items-center gap-2"><Crown className="size-4 text-violet-600" /><p className="text-[12px] font-bold text-violet-800 dark:text-violet-300">Mizan Pro شهري</p></div>
           <p className="mt-1 text-xl font-black text-foreground">49 MAD</p>
-          <p className="text-[11px] text-muted-foreground">500 كريدتس • بيع نهائي • لا إلغاء خلال الشهر</p>
+          <p className="text-[11px] text-muted-foreground">500 كريدتس - بيع نهائي - لا إلغاء خلال الشهر</p>
         </div>
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:bg-amber-950/20">
           <div className="flex items-center gap-2"><Crown className="size-4 text-amber-600" /><p className="text-[12px] font-bold text-amber-800 dark:text-amber-300">Mizan Pro سنوي — الأكثر توفيراً</p></div>
           <p className="mt-1 text-xl font-black text-foreground">399 MAD</p>
-          <p className="text-[11px] text-muted-foreground">7000 + 1000 هدية • خصم 32% • بيع نهائي</p>
+          <p className="text-[11px] text-muted-foreground">7000 + 1000 هدية - خصم 32% - بيع نهائي</p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:bg-emerald-950/20">
           <div className="flex items-center gap-2"><Coins className="size-4 text-emerald-600" /><p className="text-[12px] font-bold text-emerald-800 dark:text-emerald-300">باقات كريدتس</p></div>
@@ -86,7 +86,7 @@ export default function PricingManagementPage() {
               {proPlans.map(plan => (
                 <div key={plan.id} className={`rounded-2xl border p-5 ${plan.popular ? "border-amber-300 bg-amber-50/50 dark:bg-amber-950/20" : "border-border bg-card"}`}>
                   <div className="flex items-start justify-between">
-                    <div><p className="text-[14px] font-black text-foreground">{plan.title}</p><p className="mt-1 text-[12px] font-bold text-foreground">{plan.price_mad} MAD • {plan.credits} + {plan.bonus} هدية</p></div>
+                    <div><p className="text-[14px] font-black text-foreground">{plan.title}</p><p className="mt-1 text-[12px] font-bold text-foreground">{plan.price_mad} MAD - {plan.credits} + {plan.bonus} هدية</p></div>
                     {plan.popular && <span className="rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-bold text-white">الأكثر توفيراً</span>}
                   </div>
                   <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">

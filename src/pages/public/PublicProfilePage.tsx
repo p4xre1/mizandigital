@@ -321,8 +321,8 @@ export function PublicProfilePage() {
             ))}
           </ul>
           <p className="mt-2.5 text-[10.5px] font-bold text-muted-foreground" dir="ltr">
-            مستوى {rank.level}/7 · {rank.minXp} XP{rank.maxXp ? ` — ${rank.maxXp} XP` : "+"}
-            {profile.highestRank && profile.highestRank !== rank.id ? ` · أعلى رتبة: ${profile.highestRank}` : ""}
+            مستوى {rank.level}/7 - {rank.minXp} XP{rank.maxXp ? ` — ${rank.maxXp} XP` : "+"}
+            {profile.highestRank && profile.highestRank !== rank.id ? ` - أعلى رتبة: ${profile.highestRank}` : ""}
           </p>
         </div>
 
