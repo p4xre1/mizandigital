@@ -123,7 +123,7 @@ export async function renderShareCard(input: ShareCardInput): Promise<Blob | nul
   ctx.fillStyle = "rgba(255,255,255,0.78)"
   ctx.font = "600 28px 'Cairo', system-ui, sans-serif"
   ctx.fillText(
-    `${input.xpEarned ? `+${input.xpEarned} نقطة خبرة · ` : ""}mizan.page/quiz`,
+    `${input.xpEarned ? `+${input.xpEarned} نقطة خبرة - ` : ""}mizan.page/quiz`,
     WIDTH / 2,
     885
   )

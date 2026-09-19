@@ -261,7 +261,7 @@ export default function ContentOptimizationPage() {
                 <p className="mt-2 line-clamp-2 text-[11px] text-muted-foreground">{item.seo.description}</p>
                 <div className="mt-2 flex gap-1">
                   <Link to={`/articles/${item.slug}`} className="text-[10px] font-bold text-primary hover:underline">معاينة</Link>
-                  <span className="text-[10px] text-muted-foreground">•</span>
+                  <span className="text-[10px] text-muted-foreground">-</span>
                   <Link to={`/admin/articles/edit/${item.id}`} className="text-[10px] font-bold text-muted-foreground hover:text-foreground">تعديل</Link>
                 </div>
               </div>
@@ -284,7 +284,7 @@ export default function ContentOptimizationPage() {
               <div key={term.id} className="flex items-center justify-between rounded-xl border border-border bg-card p-3">
                 <div>
                   <p className="text-[12px] font-bold text-foreground">{term.term_ar}</p>
-                  <p className="text-[10px] text-muted-foreground">{term.category} • {count} ذكر</p>
+                  <p className="text-[10px] text-muted-foreground">{term.category} - {count} ذكر</p>
                 </div>
                 <Link to={`/lexicon/${term.slug}`} className="rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary hover:bg-primary hover:text-primary-foreground">
                   {term.term_fr || "تعريف"}

@@ -147,7 +147,7 @@ export function DownloadGatePage() {
 
           {target.fileSize && (
             <p className="mt-1 text-xs font-mono text-muted-foreground">
-              {target.fileSize} {target.fileFormat ? `· ${target.fileFormat}` : ""}
+              {target.fileSize} {target.fileFormat ? `- ${target.fileFormat}` : ""}
             </p>
           )}
 

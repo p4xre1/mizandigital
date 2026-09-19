@@ -120,7 +120,7 @@ export default function ContentAnalyticsPage() {
               <div className="grid size-10 place-items-center rounded-xl bg-violet-500/10 text-violet-600"><FileText className="size-5" /></div>
               <p className="mt-4 text-3xl font-black text-foreground">{analytics.contentHealth.totalContent}</p>
               <p className="mt-1 text-xs font-semibold text-muted-foreground">إجمالي المحتوى</p>
-              <p className="mt-1 text-[11px] text-muted-foreground">{analytics.contentHealth.viewedContent} تمت مشاهدته • {analytics.contentHealth.unviewedContent} لم يشاهد</p>
+              <p className="mt-1 text-[11px] text-muted-foreground">{analytics.contentHealth.viewedContent} تمت مشاهدته - {analytics.contentHealth.unviewedContent} لم يشاهد</p>
             </div>
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
               <div className="grid size-10 place-items-center rounded-xl bg-amber-500/10 text-amber-600"><Flame className="size-5" /></div>

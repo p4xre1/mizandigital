@@ -176,7 +176,7 @@ export function ArticlesPage() {
                     <h2 className="mt-3 text-[20px] font-black leading-tight text-[#0f172a] dark:text-white">{featured.title}</h2>
                     <p className="mt-2 text-[13px] leading-6 text-[#475569] dark:text-[#94a3b8] line-clamp-3">{featured.summary ? truncateCleanText(featured.summary, 140) : ""}</p>
                     <div className="mt-auto pt-4 flex items-center gap-2 text-[11px] text-[#64748b] dark:text-[#94a3b8]">
-                      <Clock className="size-3.5" /> {featured.readingTime} • {featured.date ? new Date(featured.date).toLocaleDateString("ar-MA") : ""}
+                      <Clock className="size-3.5" /> {featured.readingTime} - {featured.date ? new Date(featured.date).toLocaleDateString("ar-MA") : ""}
                     </div>
                     <Link to={`/articles/${featured.slug}`} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#2563eb] text-white px-5 py-2.5 text-[12px] font-bold hover:bg-[#1d4ed8] w-fit">
                       اقرأ المقال →

@@ -3,9 +3,9 @@ import { Link } from "react-router-dom";
 
 export function ProUpgradeCard() {
   return (
-    <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-l from-amber-500/10 via-card to-primary/10 p-6" dir="rtl">
+    <div className="rounded-2xl border border-border bg-card p-6" dir="rtl">
       <div className="flex items-start gap-4">
-        <span className="grid size-12 place-items-center rounded-2xl bg-amber-500 text-white">
+        <span className="grid size-12 place-items-center rounded-2xl bg-muted text-muted-foreground">
           <Crown className="size-6" />
         </span>
         <div className="flex-1">

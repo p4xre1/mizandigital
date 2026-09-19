@@ -13,11 +13,10 @@ export function PackageCard({ pkg, onSelect, loading }: Props) {
 
   return (
     <div
-      className={`relative rounded-3xl border bg-card p-6 shadow-sm transition hover:shadow-md
-        ${pkg.is_popular ? "border-primary/40 ring-2 ring-primary/10" : "border-border"}`}
+      className="relative rounded-2xl border border-border bg-card p-6"
     >
       {pkg.is_popular && (
-        <span className="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-[10px] font-black text-primary-foreground">
+        <span className="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full border border-border bg-muted px-3 py-1 text-[10px] font-bold text-foreground">
           <Star className="size-3" /> الأكثر مبيعاً
         </span>
       )}
@@ -27,7 +26,7 @@ export function PackageCard({ pkg, onSelect, loading }: Props) {
           <h3 className="text-[16px] font-black text-foreground">{pkg.title}</h3>
           {pkg.description && <p className="mt-1 text-[12px] text-muted-foreground">{pkg.description}</p>}
         </div>
-        <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+        <span className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground">
           {pkg.slug === "elite" ? <Crown className="size-5" /> : pkg.slug === "pro" ? <Zap className="size-5" /> : <Gift className="size-5" />}
         </span>
       </div>

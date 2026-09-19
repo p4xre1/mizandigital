@@ -226,7 +226,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-red-950/20"><span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-blue-600" />استفسار S3 - أحمد</span><span className="text-[10px] text-muted-foreground">منذ ساعتين</span></div>
             <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-red-950/20"><span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-violet-600" />شراكة - محامية فاطمة ⭐</span><span className="text-[10px] text-muted-foreground">منذ 5 ساعات</span></div>
           </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">MCP Tools: gmail_list_messages, gmail_search_contact_messages • WebMCP ready</p>
+          <p className="mt-2 text-[10px] text-muted-foreground">MCP Tools: gmail_list_messages, gmail_search_contact_messages - WebMCP ready</p>
         </div>
 
         <div className="rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-fuchsia-50 p-5 dark:from-violet-950/20 dark:to-fuchsia-950/20">
@@ -240,10 +240,10 @@ export default function DashboardPage() {
             <div className="rounded-xl bg-amber-100 p-2.5 dark:bg-amber-900/20"><p className="text-[11px] font-bold text-amber-700">قادم ⏳</p><p className="text-lg font-black text-amber-800">4</p></div>
           </div>
           <div className="mt-3 space-y-1.5 text-[11px]">
-            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-violet-950/20"><span className="font-bold">تعديل مدونة الأسرة</span><span className="flex items-center gap-1 text-emerald-600"><TrendingUp className="size-3" />+78% • 94/100</span></div>
-            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-violet-950/20"><span className="font-bold">المسطرة المدنية الجديدة</span><span className="flex items-center gap-1 text-emerald-600"><TrendingUp className="size-3" />+45% • 87/100</span></div>
+            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-violet-950/20"><span className="font-bold">تعديل مدونة الأسرة</span><span className="flex items-center gap-1 text-emerald-600"><TrendingUp className="size-3" />+78% - 94/100</span></div>
+            <div className="flex items-center justify-between rounded-lg bg-white p-2 dark:bg-violet-950/20"><span className="font-bold">المسطرة المدنية الجديدة</span><span className="flex items-center gap-1 text-emerald-600"><TrendingUp className="size-3" />+45% - 87/100</span></div>
           </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">Google Trends MA • MCP: law_trends_get_trending • اقتراحات محتوى SEO</p>
+          <p className="mt-2 text-[10px] text-muted-foreground">Google Trends MA - MCP: law_trends_get_trending - اقتراحات محتوى SEO</p>
         </div>
       </div>
 
@@ -322,8 +322,8 @@ export default function DashboardPage() {
         <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
           <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-violet-900 dark:text-violet-200"><Brain className="size-4" /> AI SEO</h3>
           <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
-            <li>llms.txt 39KB • 317 records</li>
-            <li>llms-full.txt 87KB • 535 lines</li>
+            <li>llms.txt 39KB - 317 records</li>
+            <li>llms-full.txt 87KB - 535 lines</li>
             <li>320 route prerendered</li>
             <li>27 صفحة AEOHead</li>
             <li>بلا Adsterra — تمويل Pro فقط</li>

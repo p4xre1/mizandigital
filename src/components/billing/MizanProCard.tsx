@@ -13,10 +13,10 @@ export function MizanProCard({ onSelect, currentPlan }: Props) {
         const isCurrent = currentPlan === plan.slug;
         const isYearly = plan.interval === "year";
         return (
-          <div key={plan.id} className={`relative rounded-3xl border bg-card p-6 shadow-sm ${isYearly ? "border-amber-500/40 ring-2 ring-amber-500/10" : "border-border"}`}>
-            {isYearly && <span className="absolute -top-3 right-6 rounded-full bg-amber-500 px-3 py-1 text-[10px] font-black text-white">الأفضل قيمة — خصم 32%</span>}
+          <div key={plan.id} className="relative rounded-2xl border border-border bg-card p-6">
+            {isYearly && <span className="absolute -top-3 right-6 rounded-full border border-border bg-muted px-3 py-1 text-[10px] font-bold text-foreground">الأفضل قيمة — خصم 32%</span>}
             <div className="mb-4 flex items-center gap-3">
-              <span className={`grid size-10 place-items-center rounded-xl ${isYearly ? "bg-amber-500/10 text-amber-600" : "bg-primary/10 text-primary"}`}>
+              <span className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground">
                 {isYearly ? <Crown className="size-5" /> : <Zap className="size-5" />}
               </span>
               <div>

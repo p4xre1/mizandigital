@@ -86,8 +86,8 @@ export default function FraudPreventionPage() {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-[11px] font-bold" dir="ltr">{p.user_ref?.slice(0, 24) || "مجهول"}</span>
-                    <span className="rounded-full bg-card px-2 py-1 text-[11px] font-bold border border-border">{p.amount_mad} MAD • {p.credits_purchased + (p.bonus_credits || 0)} كريدتس</span>
-                    <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${p.risk.level === "high" ? "bg-rose-500 text-white" : "bg-amber-500 text-white"}`}>{p.risk.level} • {p.risk.score} نقطة</span>
+                    <span className="rounded-full bg-card px-2 py-1 text-[11px] font-bold border border-border">{p.amount_mad} MAD - {p.credits_purchased + (p.bonus_credits || 0)} كريدتس</span>
+                    <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${p.risk.level === "high" ? "bg-rose-500 text-white" : "bg-amber-500 text-white"}`}>{p.risk.level} - {p.risk.score} نقطة</span>
                     <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${p.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{p.status}</span>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-2 text-[11px] text-muted-foreground">

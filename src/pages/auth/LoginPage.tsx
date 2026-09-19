@@ -12,7 +12,6 @@ import {
   Lock,
   Mail,
   ShieldCheck,
-  Sparkles,
   UserRound,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth/AuthProvider"
@@ -516,10 +515,7 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
               ) : isRecovery ? (
                 "حفظ كلمة المرور الجديدة"
               ) : mode === "signup" ? (
-                <>
-                  <Sparkles className="size-4" />
-                  إنشاء الحساب والبروفايل
-                </>
+                "إنشاء الحساب والبروفايل"
               ) : mode === "password" ? (
                 "إرسال رابط الاستعادة"
               ) : (

@@ -245,17 +245,11 @@ export function HomePage() {
           <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
 
           <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-4 py-1.5 text-[11px] font-black tracking-wide text-[#2563eb] dark:text-[#60a5fa]">
-              <span className="size-1.5 rounded-full bg-[#2563eb]" />
-              منصة تعليمية عصرية • الأساسي مجاني والمتقدم باشتراك
-            </div>
 
-            <h1 className="mt-6 text-[34px] md:text-[48px] font-black leading-[1.05] tracking-[-0.03em] text-[#0f172a] dark:text-white">
-              افتح إمكانياتك مع
-              <br />
+            <h1 className="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+              <span>افتح إمكانياتك مع</span>
               <span className="text-[#2563eb]">التعلم القانوني</span>
-              <br />
-              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] mt-1 block">Online Learning</span>
+              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
             </h1>
 
             <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
@@ -287,7 +281,7 @@ export function HomePage() {
                   500+ طالب يثقون بنا
                 </div>
                 <div className="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
-                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 • محتوى أساسي مجاني
+                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 - محتوى أساسي مجاني
                 </div>
               </div>
             </div>
@@ -363,7 +357,7 @@ export function HomePage() {
                       <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
                       <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                         <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
-                        <span>•</span>
+                        <span>-</span>
                         <span>ميزان الرقمية</span>
                       </div>
                     </div>
@@ -427,7 +421,7 @@ export function HomePage() {
                         </div>
                         <p className="mt-2 text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8] max-w-2xl">{latestTerms[0].definition}</p>
                         <div className="mt-2 flex items-center gap-2 text-[10px]">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر • {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر - {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
                           <span className="rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
                         </div>
                       </div>
@@ -456,7 +450,7 @@ export function HomePage() {
                       {term.legal_sources && term.legal_sources.length > 0 && (
                         <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#2563eb] font-bold border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                           <GitBranch className="size-3" />
-                          <span>{term.legal_sources.length} مصادر قانونية • {term.legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول مرتبطة</span>
+                          <span>{term.legal_sources.length} مصادر قانونية - {term.legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول مرتبطة</span>
                         </div>
                       )}
                     </Link>
@@ -471,8 +465,7 @@ export function HomePage() {
           <div className="container relative mx-auto max-w-[1280px] px-6">
             <div className="text-center max-w-[640px] mx-auto">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
-                <span className="size-1.5 rounded-full bg-[#2563eb]" />
-                الأسعار • خطط مرنة
+                الأسعار - خطط مرنة
               </span>
               <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                 خطط تناسب كل
@@ -484,14 +477,14 @@ export function HomePage() {
             </div>
 
             <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-sm">
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
                     <BookOpen className="size-5" />
                   </div>
                   <div>
                     <h3 className="font-black text-[14px] text-[#0f172a] dark:text-white">المجاني</h3>
-                    <p className="text-[11px] text-[#64748b]">للجميع • للأبد</p>
+                    <p className="text-[11px] text-[#64748b]">للجميع - للأبد</p>
                   </div>
                 </div>
                 <div className="mt-5">
@@ -517,7 +510,7 @@ export function HomePage() {
                 </Link>
               </div>
 
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6 shadow-sm">
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb]">
                     <Clock className="size-5" />
@@ -549,23 +542,22 @@ export function HomePage() {
                 </Link>
               </div>
 
-              <div className="rounded-2xl bg-[#0f172a] dark:bg-black border p-6 shadow-lg relative overflow-hidden md:-mt-3">
-                <div className="absolute top-0 inset-x-0 h-1 bg-[#2563eb]" />
-                <span className="absolute top-4 left-4 rounded-full bg-[#f59e0b] px-2.5 py-1 text-[10px] font-black text-white">الأفضل قيمة — خصم 32%</span>
+              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
+                <span className="inline-block mb-3 rounded-full border border-border bg-muted px-2.5 py-1 text-[10px] font-bold text-foreground">الأفضل قيمة — خصم 32%</span>
                 <div className="flex items-center gap-3 mt-1">
-                  <div className="grid size-10 place-items-center rounded-xl bg-white/10 text-white">
+                  <div className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground">
                     <Award className="size-5" />
                   </div>
                   <div>
-                    <h3 className="font-black text-[14px] text-white">سنوي</h3>
-                    <p className="text-[11px] text-white/60">7000 + 1000 هدية</p>
+                    <h3 className="font-black text-[14px] text-foreground">سنوي</h3>
+                    <p className="text-[11px] text-muted-foreground">7000 + 1000 هدية</p>
                   </div>
                 </div>
                 <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-[28px] font-black text-white">399</span>
-                  <span className="text-[13px] font-bold text-white/60"> د.م / سنة</span>
+                  <span className="text-[28px] font-black text-foreground">399</span>
+                  <span className="text-[13px] font-bold text-muted-foreground"> د.م / سنة</span>
                 </div>
-                <p className="mt-1 text-[11px] text-[#f59e0b] font-bold">1000 كريدتس هدية + خصم 32%</p>
+                <p className="mt-1 text-[11px] text-muted-foreground font-bold">1000 كريدتس هدية + خصم 32%</p>
                 <ul className="mt-5 space-y-2.5">
                   {[
                     "كل مزايا الشهري",
@@ -574,8 +566,8 @@ export function HomePage() {
                     "شهادة توصية",
                     "شارات حصرية",
                   ].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[12px] text-white/90">
-                      <span className="grid size-5 place-items-center rounded-full bg-white/10"><ShieldCheck className="size-3" /></span>
+                    <li key={f} className="flex items-center gap-2 text-[12px] text-foreground">
+                      <span className="grid size-5 place-items-center rounded-full bg-muted"><ShieldCheck className="size-3" /></span>
                       {f}
                     </li>
                   ))}

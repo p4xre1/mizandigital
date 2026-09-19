@@ -148,7 +148,7 @@ export default function IntelligencePage() {
             <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-emerald-900 dark:text-emerald-200"><CheckCircle2 className="size-4" /> حالة المنصة</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[11px]">
               <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">بلا إعلانات</p><p className="text-muted-foreground">Adsterra أُزيلت 15 شتنبر 2026</p></div>
-              <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">Mizan Pro</p><p className="text-muted-foreground">49 MAD شهري / 399 سنوي • بيع نهائي</p></div>
+              <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">Mizan Pro</p><p className="text-muted-foreground">49 MAD شهري / 399 سنوي - بيع نهائي</p></div>
               <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">GDPR</p><p className="text-muted-foreground">لا حذف ذاتي — عبر contact@mizan.page</p></div>
             </div>
           </div>

@@ -168,7 +168,7 @@ export function LexiconPage() {
         <header className="mb-6 md:mb-8 text-center md:text-right">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
             <BookOpen size={16} />
-            <span>المعجم الموحد للمصطلحات · {terms.length} مصطلح قانوني</span>
+            <span>المعجم الموحد للمصطلحات - {terms.length} مصطلح قانوني</span>
           </div>
           <h1 className="text-2xl font-black text-foreground md:text-4xl">
             القاموس القانوني المغربي

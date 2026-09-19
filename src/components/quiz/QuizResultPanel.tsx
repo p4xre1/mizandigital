@@ -247,7 +247,7 @@ export function QuizResultPanel({
                   )}
                   <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
                     مستوى السؤال: {DIFFICULTY_LABEL[question.difficulty]}
-                    {answer.xp > 0 && <> · نقاط هذا السؤال: +{answer.xp}</>}
+                    {answer.xp > 0 && <> - نقاط هذا السؤال: +{answer.xp}</>}
                   </p>
                 </div>
               </div>

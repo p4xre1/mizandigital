@@ -459,7 +459,7 @@ export function QuizRunner({
         {/* أزرار التنقل */}
         <div className="mt-5 flex items-center justify-between gap-3">
           <p className="text-[11px] font-semibold text-muted-foreground">
-            اختصارات: 1–4 للإجابة · Enter للسؤال الموالي
+            اختصارات: 1–4 للإجابة - Enter للسؤال الموالي
           </p>
           {revealed ? (
             <button

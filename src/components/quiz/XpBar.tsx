@@ -22,14 +22,14 @@ export function XpBar({
       <div className="mb-1.5 flex items-baseline justify-between gap-2">
         <span className="flex items-center gap-2">
           <span className={`text-sm font-extrabold ${rank.tone}`}>
-            {rank.id} · {rank.label}
+            {rank.id} - {rank.label}
           </span>
           {next && <span className="text-[11px] font-semibold text-muted-foreground">→ {next.id}</span>}
         </span>
         {showNumbers && (
           <span className="text-[11px] font-bold text-muted-foreground" dir="ltr">
             {xp.toLocaleString("ar-MA")} XP
-            {typeof credits === "number" && <> · {credits.toLocaleString("ar-MA")} كريدت</>}
+            {typeof credits === "number" && <> - {credits.toLocaleString("ar-MA")} كريدت</>}
           </span>
         )}
       </div>

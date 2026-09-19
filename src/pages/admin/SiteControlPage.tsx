@@ -159,7 +159,7 @@ export default function SiteControlPage() {
                   </div>
                   <div>
                     <p className="text-[13px] font-black text-foreground">{m.labelAr}</p>
-                    <p className="text-[10px] text-muted-foreground">{m.label} • {m.count} سجل</p>
+                    <p className="text-[10px] text-muted-foreground">{m.label} - {m.count} سجل</p>
                     <p className="mt-1 text-[11px] leading-5 text-muted-foreground">{m.description}</p>
                   </div>
                 </button>

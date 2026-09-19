@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { AEOHead } from "@/components/seo/AEOHead";
 import { MizanProCard } from "@/components/billing/MizanProCard";
 import { PackageCard } from "@/components/payments/PackageCard";
@@ -25,6 +26,8 @@ export function PricingPage() {
         <h1 className="text-3xl font-black text-foreground">خطط تناسب كل طالب قانون</h1>
         <p className="mt-3 text-[14px] leading-7 text-muted-foreground">ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع.</p>
       </div>
+
+      <div className="mt-6 text-center"><Link to="/pro-tools" className="font-bold text-primary underline">استكشف أدوات Pro القانونية وإتاحتها الحالية</Link></div>
 
       <section className="mt-10">
         <h2 className="mb-4 text-lg font-extrabold text-foreground">ميزان برو</h2>
