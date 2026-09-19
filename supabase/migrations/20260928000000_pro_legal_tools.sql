@@ -1,5 +1,38 @@
 -- Pro legal tools: no legal material is seeded. Publish reviewed sources in the CMS.
+-- Idempotent: safe to re-run on a partially-applied schema. It never deletes
+-- existing tables or data; it converges the schema to the expected state.
 BEGIN;
+
+-- Fail fast with a clear message instead of a confusing object error.
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                 WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'account_status')
+     OR NOT EXISTS (SELECT 1 FROM information_schema.columns
+                    WHERE table_schema = 'public' AND table_name = 'mizan_profiles' AND column_name = 'owner_id')
+     OR NOT EXISTS (SELECT 1 FROM pg_proc p
+                    WHERE p.pronamespace = 'public'::regnamespace AND p.proname = 'is_admin' AND p.prokind = 'f')
+  THEN
+    RAISE EXCEPTION 'Pro tools prerequisites missing (profiles.account_status / mizan_profiles.owner_id / public.is_admin()). Apply the earlier migrations first.';
+  END IF;
+  IF to_regclass('public.pro_tools') IS NOT NULL THEN
+    IF NOT (EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pro_tools' AND column_name = 'title')
+        AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pro_tools' AND column_name = 'description')
+        AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'pro_tools' AND column_name = 'enabled')) THEN
+      RAISE EXCEPTION 'public.pro_tools already exists with an unexpected shape. Stop, inspect it manually, and do not delete it blindly.';
+    END IF;
+    IF NOT EXISTS (SELECT 1
+                   FROM pg_constraint con
+                   JOIN pg_attribute a ON a.attrelid = con.conrelid AND a.attnum = con.conkey[1]
+                   WHERE con.conrelid = 'public.pro_tools'::regclass
+                     AND con.contype IN ('p', 'u')
+                     AND array_length(con.conkey, 1) = 1
+                     AND a.attname = 'slug') THEN
+      RAISE EXCEPTION 'public.pro_tools exists but has no single-column unique key on slug. Stop and inspect manually.';
+    END IF;
+  END IF;
+END$$;
+
 CREATE OR REPLACE FUNCTION public.has_pro_tools_access()
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
   SELECT EXISTS (
@@ -15,7 +48,7 @@ ALTER FUNCTION public.has_pro_tools_access() OWNER TO postgres;
 REVOKE ALL ON FUNCTION public.has_pro_tools_access() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.has_pro_tools_access() TO authenticated;
 
-CREATE TABLE public.pro_tools (
+CREATE TABLE IF NOT EXISTS public.pro_tools (
   slug text PRIMARY KEY CHECK (slug IN ('versions','cases','references','workspace','alerts','deadlines')),
   title text NOT NULL CHECK (char_length(title) BETWEEN 1 AND 120),
   description text NOT NULL CHECK (char_length(description) <= 1000),
@@ -27,7 +60,8 @@ INSERT INTO public.pro_tools (slug,title,description,enabled) VALUES
  ('references','خريطة الإحالات القانونية','ابحث عن الروابط بين النصوص ومصادرها.',false),
  ('workspace','ملف البحث القانوني','احفظ ملاحظاتك ومراجعك وصدّر ملف بحثك.',true),
  ('alerts','راقب النص','تابع مواضيعك واطلع على تحديثاتها المنشورة داخل المنصة.',false),
- ('deadlines','حاسبة الآجال المسطرية','حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.',false);
+ ('deadlines','حاسبة الآجال المسطرية','حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.',false)
+ON CONFLICT (slug) DO NOTHING;
 
 CREATE OR REPLACE FUNCTION public.can_use_pro_tool(tool text)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public, pg_temp AS $$
@@ -37,7 +71,7 @@ ALTER FUNCTION public.can_use_pro_tool(text) OWNER TO postgres;
 REVOKE ALL ON FUNCTION public.can_use_pro_tool(text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.can_use_pro_tool(text) TO authenticated;
 
-CREATE TABLE public.pro_tool_entries (
+CREATE TABLE IF NOT EXISTS public.pro_tool_entries (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  tool_slug text NOT NULL REFERENCES public.pro_tools(slug) CHECK (tool_slug <> 'workspace'),
  title text NOT NULL CHECK (char_length(title) BETWEEN 1 AND 200),
@@ -52,10 +86,10 @@ CREATE TABLE public.pro_tool_entries (
  updated_at timestamptz NOT NULL DEFAULT now(),
  CHECK (NOT published OR (source_url <> '' AND source_reference <> '' AND reviewed_by <> '' AND reviewed_on IS NOT NULL))
 );
-CREATE INDEX ON public.pro_tool_entries(tool_slug, published, topic);
+CREATE INDEX IF NOT EXISTS pro_tool_entries_tool_published_topic ON public.pro_tool_entries(tool_slug, published, topic);
 
 -- Private notes and practice answers are never accessible to other members or CMS editors.
-CREATE TABLE public.pro_tool_notes (
+CREATE TABLE IF NOT EXISTS public.pro_tool_notes (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
  owner_id uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
  tool_slug text NOT NULL REFERENCES public.pro_tools(slug) CHECK (tool_slug IN ('workspace','cases')),
@@ -64,14 +98,14 @@ CREATE TABLE public.pro_tool_notes (
  citation text NOT NULL DEFAULT '' CHECK (char_length(citation) <= 2000),
  created_at timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX ON public.pro_tool_notes(owner_id,tool_slug);
-CREATE TABLE public.pro_tool_follows (
+CREATE INDEX IF NOT EXISTS pro_tool_notes_owner_tool ON public.pro_tool_notes(owner_id,tool_slug);
+CREATE TABLE IF NOT EXISTS public.pro_tool_follows (
  owner_id uuid NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
  topic text NOT NULL CHECK (char_length(topic) BETWEEN 1 AND 120),
  created_at timestamptz NOT NULL DEFAULT now(),
  PRIMARY KEY (owner_id,topic)
 );
-CREATE TABLE public.pro_tools_audit (
+CREATE TABLE IF NOT EXISTS public.pro_tools_audit (
  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  actor_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
  table_name text NOT NULL,
@@ -90,8 +124,6 @@ END;
 $$;
 ALTER FUNCTION public.audit_pro_tools_change() OWNER TO postgres;
 REVOKE ALL ON FUNCTION public.audit_pro_tools_change() FROM PUBLIC, anon, authenticated;
-CREATE TRIGGER pro_tools_audit AFTER INSERT OR UPDATE OR DELETE ON public.pro_tools FOR EACH ROW EXECUTE FUNCTION public.audit_pro_tools_change();
-CREATE TRIGGER pro_entries_audit AFTER INSERT OR UPDATE OR DELETE ON public.pro_tool_entries FOR EACH ROW EXECUTE FUNCTION public.audit_pro_tools_change();
 
 CREATE OR REPLACE FUNCTION public.validate_pro_tool_entry()
 RETURNS trigger LANGUAGE plpgsql SET search_path = public, pg_temp AS $$
@@ -125,6 +157,24 @@ BEGIN
  RETURN NEW;
 END;
 $$;
+
+-- Remove any leftover triggers from partial earlier runs, then (re)create ours.
+DO $$
+DECLARE t record;
+BEGIN
+  FOR t IN SELECT x.tgname, x.tgrelid::regclass::text AS rel
+           FROM pg_trigger x
+           JOIN pg_class c ON c.oid = x.tgrelid
+           JOIN pg_namespace n ON n.oid = c.relnamespace
+           WHERE n.nspname = 'public'
+             AND c.relname IN ('pro_tools','pro_tool_entries')
+             AND NOT x.tgisinternal
+  LOOP
+    EXECUTE format('DROP TRIGGER %I ON %s', t.tgname, t.rel);
+  END LOOP;
+END$$;
+CREATE TRIGGER pro_tools_audit AFTER INSERT OR UPDATE OR DELETE ON public.pro_tools FOR EACH ROW EXECUTE FUNCTION public.audit_pro_tools_change();
+CREATE TRIGGER pro_entries_audit AFTER INSERT OR UPDATE OR DELETE ON public.pro_tool_entries FOR EACH ROW EXECUTE FUNCTION public.audit_pro_tools_change();
 CREATE TRIGGER pro_entry_validation BEFORE INSERT OR UPDATE ON public.pro_tool_entries FOR EACH ROW EXECUTE FUNCTION public.validate_pro_tool_entry();
 
 ALTER TABLE public.pro_tools ENABLE ROW LEVEL SECURITY;
@@ -137,6 +187,21 @@ GRANT SELECT ON public.pro_tools TO anon,authenticated;
 GRANT UPDATE ON public.pro_tools TO authenticated;
 GRANT SELECT,INSERT,UPDATE,DELETE ON public.pro_tool_entries,public.pro_tool_notes,public.pro_tool_follows TO authenticated;
 GRANT SELECT ON public.pro_tools_audit TO authenticated;
+
+-- Replace all existing policies on these tables (also clears leftovers from partial runs).
+DO $$
+DECLARE p record;
+BEGIN
+  FOR p IN SELECT pol.polname, pol.polrelid::regclass::text AS rel
+           FROM pg_policy pol
+           JOIN pg_class c ON c.oid = pol.polrelid
+           JOIN pg_namespace n ON n.oid = c.relnamespace
+           WHERE n.nspname = 'public'
+             AND c.relname IN ('pro_tools','pro_tool_entries','pro_tool_notes','pro_tool_follows','pro_tools_audit')
+  LOOP
+    EXECUTE format('DROP POLICY %I ON %s', p.polname, p.rel);
+  END LOOP;
+END$$;
 CREATE POLICY tools_catalog ON public.pro_tools FOR SELECT TO anon,authenticated USING (true);
 CREATE POLICY tools_admin ON public.pro_tools FOR UPDATE TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 CREATE POLICY entries_pro ON public.pro_tool_entries FOR SELECT TO authenticated USING (published AND public.can_use_pro_tool(tool_slug));
