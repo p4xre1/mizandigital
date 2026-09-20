@@ -51,7 +51,7 @@ interface LexiconCard {
  */
 const TONES = {
   blue: { text: "text-[#2563eb]", rule: "bg-[#2563eb]", soft: "bg-[#2563eb]/10 text-[#2563eb]" },
-  gold: { text: "text-[#b45309]", rule: "bg-[#b45309]", soft: "bg-[#b45309]/10 text-[#b45309]" },
+  gold: { text: "text-[#fcd34d]", rule: "bg-[#f59e0b]", soft: "bg-[#f59e0b]/15 text-[#fcd34d]" },
   green: { text: "text-[#047857]", rule: "bg-[#047857]", soft: "bg-[#047857]/10 text-[#047857]" },
   red: { text: "text-[#b91c1c]", rule: "bg-[#b91c1c]", soft: "bg-[#b91c1c]/10 text-[#b91c1c]" },
 } as const;
@@ -442,7 +442,7 @@ export function HomePage() {
             <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, numeric: counts.lexicon, href: "/lexicon" },
-                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6", href: "/archive" },
+                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#b45309]", count: "S1-S6", href: "/archive" },
                 { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}`, numeric: articlesCount, href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}`, numeric: counts.news, href: "/news" },
               ].map((card, i) => (
@@ -489,7 +489,7 @@ export function HomePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
                 { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, numeric: counts.lexicon, tone: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]", link: "استعمل البحث والتصنيف", href: "/lexicon" },
-                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#f59e0b]/10 text-[#b45309]", bar: "bg-[#f59e0b]", link: "تصفّح الملخصات", href: "/archive" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#b45309]/10 text-[#b45309]", bar: "bg-[#b45309]", link: "تصفّح الملخصات", href: "/archive" },
                 { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, numeric: articlesCount, tone: "bg-[#10b981]/10 text-[#047857]", bar: "bg-[#10b981]", link: "اقرأ التحليلات", href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: `${counts.news}`, numeric: counts.news, tone: "bg-[#ef4444]/10 text-[#b91c1c]", bar: "bg-[#ef4444]", link: "تابع المستجدات", href: "/news" },
               ].map((card) => (
@@ -546,7 +546,7 @@ export function HomePage() {
               <div className="mt-12">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
-                    <span className="grid size-7 place-items-center rounded-full bg-[#f59e0b]/10 text-[#f59e0b]"><Calendar className="size-4" /></span>
+                    <span className="grid size-7 place-items-center rounded-full bg-[#b45309]/10 text-[#b45309]"><Calendar className="size-4" /></span>
                     الفعاليات والندوات
                   </h3>
                   <Link to="/events" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
@@ -554,13 +554,13 @@ export function HomePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                   {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
                     <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 transition-colors flex flex-col">
-                      <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
+                      <div className="h-[130px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
                         <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover" width={320} height={130} />
-                        <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
+                        <span className="absolute top-2 right-2 bg-[#b45309] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">ندوة</span>
                         {ev.date && <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
                       </div>
                       <div className="p-4 flex flex-col flex-1">
-                        <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
+                        <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#b45309] transition-colors">{ev.title}</h4>
                         <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
                         <div className="mt-3 flex items-center gap-3 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                           {ev.city && <span className="flex items-center gap-1"><MapPin className="size-3" />{ev.city}</span>}
@@ -637,33 +637,33 @@ export function HomePage() {
         </section>
 
         {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
-        <section className="relative overflow-hidden py-14 bg-[#fffbeb] dark:bg-[#1b1a15] border-y border-[#fde68a] dark:border-[#3f3a24] [content-visibility:auto] [contain-intrinsic-size:700px]">
-          <div className="pattern-zellige pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
+        <section className="relative overflow-hidden py-14 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:700px]">
+          <div className="pattern-zellige-light pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="container mx-auto max-w-[1120px] px-6">
             <div className="text-center mb-8">
               <SectionLabel step="٠٢" tone="gold">أدوات ميزان برو</SectionLabel>
-              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
-              <p className="mt-2 text-[13px] text-[#64748b] dark:text-[#94a3b8] max-w-[620px] mx-auto">
+              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
+              <p className="mt-2 text-[13px] text-[#cbd5e1] max-w-[620px] mx-auto">
                 أدوات عملية داخل المنصة: مقارنة النصوص، وتمارين الواقعة إلى الحل، وخريطة الإحالات، والتنبيهات، وحساب الآجال، وملف بحث خاص بك.
               </p>
             </div>
 
-            <div className="grid gap-px overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { title: "قانون عبر الزمن", desc: "قارن نسختين موثّقتين من النصّ نفسه، مع إبراز الفروق كلمة بكلمة.", icon: GitCompare, tone: "bg-[#2563eb]/10 text-[#2563eb]" },
-                { title: "من الواقعة إلى الحل", desc: "تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.", icon: Scale, tone: "bg-[#047857]/10 text-[#047857]" },
-                { title: "خريطة الإحالات القانونية", desc: "تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.", icon: Link2, tone: "bg-[#b45309]/10 text-[#b45309]" },
-                { title: "راقب النصّ", desc: "احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.", icon: BellRing, tone: "bg-[#b91c1c]/10 text-[#b91c1c]" },
-                { title: "حاسبة الآجال المسطرية", desc: "حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.", icon: CalendarClock, tone: "bg-[#0f766e]/10 text-[#0f766e]" },
-                { title: "ملف البحث القانوني", desc: "احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.", icon: FolderOpen, tone: "bg-[#7c2d12]/10 text-[#9a3412]" },
+                { title: "قانون عبر الزمن", desc: "قارن نسختين موثّقتين من النصّ نفسه، مع إبراز الفروق كلمة بكلمة.", icon: GitCompare, tone: "bg-[#3b82f6]/15 text-[#93c5fd]" },
+                { title: "من الواقعة إلى الحل", desc: "تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.", icon: Scale, tone: "bg-[#10b981]/15 text-[#6ee7b7]" },
+                { title: "خريطة الإحالات القانونية", desc: "تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.", icon: Link2, tone: "bg-[#f59e0b]/15 text-[#fcd34d]" },
+                { title: "راقب النصّ", desc: "احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.", icon: BellRing, tone: "bg-[#ef4444]/15 text-[#fca5a5]" },
+                { title: "حاسبة الآجال المسطرية", desc: "حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.", icon: CalendarClock, tone: "bg-[#14b8a6]/15 text-[#5eead4]" },
+                { title: "ملف البحث القانوني", desc: "احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.", icon: FolderOpen, tone: "bg-[#fb923c]/15 text-[#fdba74]" },
               ].map((tool, i) => (
-                <Reveal key={i} delay={i * 60} className="bg-white dark:bg-[#1e293b]">
+                <Reveal key={i} delay={i * 60} className="bg-[#0f172a]/85 dark:bg-[#0b1220]/85">
                   <article className="group flex h-full flex-col p-5">
                     <span className={`grid size-10 place-items-center rounded-xl ${tool.tone}`} aria-hidden="true">
                       <tool.icon className="size-5" />
                     </span>
-                    <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{tool.title}</h3>
-                    <p className="mt-1.5 text-[12px] leading-6 text-[#64748b] dark:text-[#94a3b8]">{tool.desc}</p>
+                    <h3 className="mt-4 font-black text-[14px] text-white">{tool.title}</h3>
+                    <p className="mt-1.5 text-[12px] leading-6 text-[#cbd5e1]">{tool.desc}</p>
                   </article>
                 </Reveal>
               ))}
@@ -674,7 +674,7 @@ export function HomePage() {
                 تعرّف على الأدوات
                 <ArrowRight className="link-arrow size-3.5 rtl:rotate-180" aria-hidden="true" />
               </Link>
-              <Link to="/pricing" className="text-[#2563eb] hover:underline">الأسعار</Link>
+              <Link to="/pricing" className="text-[#93c5fd] hover:underline">الأسعار</Link>
             </div>
           </div>
         </section>

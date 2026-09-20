@@ -872,21 +872,21 @@ const pages = [
 
           <!-- أدوات ميزان برو — نفس القسم المعروض في الصفحة الحيّة،
                حتى يرى الزائر والزاحف المزايا المدفوعة قبل قسم الاشتراك. -->
-          <section class="mt-10 rounded-2xl border border-[#fde68a] dark:border-[#3f3a24] bg-[#fffbeb] dark:bg-[#1b1a15] p-6">
-            <h2 class="accent-rule accent-rule-gold text-[20px] font-black text-[#0f172a] dark:text-white">ما هي أدوات ميزان برو الستّ؟</h2>
+          <section class="mt-10 rounded-2xl border border-[#1e3a5f] bg-[#0f172a] dark:bg-[#0b1220] p-6 text-[#cbd5e1]">
+            <h2 class="accent-rule accent-rule-gold text-[20px] font-black text-white">ما هي أدوات ميزان برو الستّ؟</h2>
             <p class="mt-3">
               أدوات عملية داخل المنصة تتطلب اشتراكاً نشطاً، ويبقى القاموس والأرشيف والمقالات مجانياً للجميع:
             </p>
             <ul class="mt-4 grid gap-3 sm:grid-cols-2">
-              <li><strong>قانون عبر الزمن</strong> — قارن نسختين موثّقتين من النصّ نفسه مع إبراز الفروق كلمة بكلمة.</li>
-              <li><strong>من الواقعة إلى الحل</strong> — تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.</li>
-              <li><strong>خريطة الإحالات القانونية</strong> — تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.</li>
-              <li><strong>راقب النصّ</strong> — احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.</li>
-              <li><strong>حاسبة الآجال المسطرية</strong> — حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.</li>
-              <li><strong>ملف البحث القانوني</strong> — احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.</li>
+              <li><strong class="text-white">قانون عبر الزمن</strong> — قارن نسختين موثّقتين من النصّ نفسه مع إبراز الفروق كلمة بكلمة.</li>
+              <li><strong class="text-white">من الواقعة إلى الحل</strong> — تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.</li>
+              <li><strong class="text-white">خريطة الإحالات القانونية</strong> — تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.</li>
+              <li><strong class="text-white">راقب النصّ</strong> — احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.</li>
+              <li><strong class="text-white">حاسبة الآجال المسطرية</strong> — حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.</li>
+              <li><strong class="text-white">ملف البحث القانوني</strong> — احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.</li>
             </ul>
             <p class="mt-4">
-              <a href="/pro-tools">تعرّف على الأدوات</a> — <a href="/pricing">الأسعار</a>
+              <a href="/pro-tools" class="font-bold text-[#93c5fd]">تعرّف على الأدوات</a> — <a href="/pricing" class="font-bold text-[#93c5fd]">الأسعار</a>
             </p>
           </section>
 

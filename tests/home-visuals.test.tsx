@@ -126,13 +126,14 @@ describe("الصفحة الرئيسية — اللون والنقش والحرك
     const container = renderHome();
     const html = container.innerHTML;
     // حدّ لوني أعلى البطاقات (شريط 1px) بكل لون تصنيف
-    for (const bar of ["bg-[#2563eb]", "bg-[#f59e0b]", "bg-[#10b981]", "bg-[#ef4444]"]) {
+    for (const bar of ["bg-[#2563eb]", "bg-[#b45309]", "bg-[#10b981]", "bg-[#ef4444]"]) {
       expect(html, bar).toContain(bar);
     }
-    // خلفية ذهبية هادئة لقسم أدوات ميزان برو
-    expect(html).toContain("bg-[#fffbeb]");
+    // قسم أدوات ميزان برو على سطح كحلي راقٍ (لا خلفية صفراء)
+    expect(html).toContain("bg-[#0f172a] dark:bg-[#0b1220]");
+    expect(html).not.toContain("bg-[#fffbeb]");
     // أيقونات الأدوات الستّ ليست بلون واحد
-    for (const tone of ["bg-[#2563eb]/10", "bg-[#047857]/10", "bg-[#b45309]/10", "bg-[#b91c1c]/10"]) {
+    for (const tone of ["bg-[#3b82f6]/15", "bg-[#10b981]/15", "bg-[#f59e0b]/15", "bg-[#ef4444]/15"]) {
       expect(html, tone).toContain(tone);
     }
   });
