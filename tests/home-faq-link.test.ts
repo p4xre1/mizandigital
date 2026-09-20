@@ -31,7 +31,19 @@ describe("رابط صفحة الأسئلة الشائعة في الرئيسية"
   it("نصّه واضح ويحمل سهم الاتجاه المتّبع في الموقع", () => {
     expect(SRC).toContain("المزيد من الأسئلة والأجوبة")
     // نفس اصطلاح باقي روابط «عرض الكل»: سهم ينقلب في RTL.
-    expect(SRC).toContain('ArrowRight className="size-4 rtl:rotate-180"')
+    // نفس اصطلاح باقي الروابط: سهم ينقلب في RTL ثم ينزلق عند التحويم.
+    expect(SRC).toMatch(/ArrowRight className="[^"]*\brtl:rotate-180\b[^"]*"/)
+    expect(SRC).toContain("link-arrow")
+  })
+
+  it("نصّ لا شارة دائرية حوله", () => {
+    // النصّ وحده يحمل الدعوة: بلا خلفية ولا حدّ ولا شكل حبّي.
+    expect(SRC).not.toContain("rounded-full")
+    expect(SRC).not.toMatch(/bg-primary\/5|border-primary\/25|border-primary\/45/)
+    // ولون الهوية يبقى علامة الرابط النصّي
+    expect(SRC).toContain("text-primary")
+    // والوصف الإحصائي تحت الرابط ما زال هناك
+    expect(SRC).toContain("totalFaqCount")
   })
 
   it("موضوع بعد القائمة لا قبلها", () => {

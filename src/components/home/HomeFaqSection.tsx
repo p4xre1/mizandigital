@@ -119,10 +119,10 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
         <div className="mt-8 text-center">
           <Link
             to="/faq"
-            className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/5 px-6 py-3 text-[13px] font-bold text-primary transition-colors hover:border-primary/45 hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+            className="group inline-flex items-center gap-2 rounded text-[13px] font-black text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
           >
             المزيد من الأسئلة والأجوبة
-            <ArrowRight className="size-4 rtl:rotate-180" />
+            <ArrowRight className="link-arrow size-4 rtl:rotate-180" aria-hidden="true" />
           </Link>
           <p className="mt-3 text-[11.5px] font-semibold leading-relaxed text-muted-foreground">
             {totalFaqCount} سؤالاً في {faqGroups.length} مواضيع: {faqTopics}
