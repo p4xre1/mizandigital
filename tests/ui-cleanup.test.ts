@@ -21,6 +21,27 @@ describe("clean UI presentation", () => {
     expect(read("src/pages/auth/LoginPage.tsx")).toContain('placeholder="••••••••"');
   });
 
+  it("does not wrap the FAQ heading in a pill or a circle icon", () => {
+    const homeFaq = read("src/components/home/HomeFaqSection.tsx");
+    const faqPage = read("src/pages/public/FAQPage.tsx");
+    // كلاهما بلا أيقونة دائرية وبلا شارة دائرية حول العنوان
+    for (const [path, src] of [
+      ["HomeFaqSection", homeFaq],
+      ["FAQPage", faqPage],
+    ] as const) {
+      expect(src, path).not.toContain("HelpCircle");
+      // شارة العنوان (خلفية وحدّ بلون الهوية) لا تعود — مع بقاء أزرار
+      // الأسئلة على شكلها الحبّي المعتاد في الموقع.
+      expect(src, path).not.toMatch(/rounded-full bg-primary\/10/);
+      expect(src, path).not.toMatch(/border-primary\/20/);
+    }
+    // والنصّ باقٍ في الموضعين
+    expect(homeFaq).toContain("الأسئلة الشائعة");
+    expect(homeFaq).toContain('id="home-faq-heading"');
+    expect(faqPage).toContain(">الأسئلة الشائعة</h1>");
+    expect(faqPage).toContain("تجمع هذه الصفحة أكثر الأسئلة");
+  });
+
   it("does not put a «best value» badge on any plan card", () => {
     for (const path of ["src/pages/public", "src/components"].flatMap(filesIn)) {
       expect(read(path), path).not.toContain("الأفضل قيمة");

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { jsonLdProps } from "@/lib/seo/jsonLd"
-import { ArrowRight, ChevronDown, HelpCircle } from "lucide-react"
+import { ArrowRight, ChevronDown } from "lucide-react"
 import faqGroups from "@/data/faq.json"
 
 interface FaqItem {
@@ -66,14 +66,16 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
       <script {...jsonLdProps(faqSchema)} />
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
-            <HelpCircle size={14} />
-            <span>الأسئلة الشائعة</span>
-          </div>
+          {/* بلا شارة دائرية ولا أيقونة: النصّ وحده بنفس إيقاع علامات الأقسام */}
+          <p className="flex items-center justify-center gap-3 text-[11px] font-black tracking-[0.14em] uppercase text-primary">
+            <span className="tabular-nums text-muted-foreground">٠٦</span>
+            <span className="h-px w-6 bg-primary" aria-hidden="true" />
+            الأسئلة الشائعة
+          </p>
           {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان «كل ما
               تحتاج معرفته عن المنصة»؛ والأسئلة تحته كلها عن الاستعمال
               الفعلي للمنصة في المراجعة. */}
-          <h2 id="home-faq-heading" className="text-2xl font-black text-foreground sm:text-3xl">
+          <h2 id="home-faq-heading" className="mt-3 text-2xl font-black text-foreground sm:text-3xl">
             كيف تستعمل منصة ميزان في مراجعتك؟
           </h2>
         </div>

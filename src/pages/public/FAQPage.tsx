@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateFAQSchema, generateBreadcrumbSchema } from "../../lib/seo/schema"
-import { HelpCircle, ChevronDown, Mail } from "lucide-react"
+import { ChevronDown, Mail } from "lucide-react"
 import faqData from "../../data/faq.json"
 
 interface FaqItem {
@@ -58,9 +58,6 @@ export function FAQPage() {
 
       <main className="container mx-auto max-w-3xl px-4 py-10 md:py-14" dir="rtl">
         <header className="mb-8 text-center">
-          <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
-            <HelpCircle size={26} />
-          </div>
           <h1 className="text-2xl font-black text-foreground md:text-3xl">الأسئلة الشائعة</h1>
           <p className="mt-2 text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
             تجمع هذه الصفحة أكثر الأسئلة التي تصلنا حول طبيعة المنصة ومحتواها واستخدامها.
