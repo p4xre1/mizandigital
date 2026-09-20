@@ -49,7 +49,7 @@ describe("clean UI presentation", () => {
     }
     // وعلامة قسم الأسعار في الرئيسية صارت بنفس نمط بقية علامات الأقسام
     const home = read("src/pages/public/HomePage.tsx");
-    expect(home).toContain('<SectionLabel step="٠٤" tone="blue">الأسعار - خطط مرنة</SectionLabel>');
+    expect(home).toContain('<SectionLabel step="٠٥" tone="blue">الأسعار - خطط مرنة</SectionLabel>');
   });
 
   it("does not wrap the FAQ heading in a pill or a circle icon", () => {

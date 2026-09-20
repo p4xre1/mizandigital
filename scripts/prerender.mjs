@@ -579,10 +579,10 @@ const homeHeaderHtml = `
         </header>`;
 
 const homeStatCards = [
-  ["الأرشيف", "ملخصات S1-S6", ICON.library, "bg-[#b45309]", "S1-S6"],
-  ["القاموس", "250 مصطلح", ICON.scale, "bg-[#2563eb]", String(statistics.lexicon)],
-  ["المقالات", `${statistics.articles} مقال`, ICON.bookOpen, "bg-[#10b981]", String(statistics.articles)],
-  ["الأخبار", "مستجدات تشريعية", ICON.cap, "bg-[#b91c1c]", String(statistics.news)],
+  ["الأرشيف", "ملخصات S1-S6", ICON.library, "bg-[#b45309]", "/archive"],
+  ["القاموس", `${statistics.lexicon} مصطلح قانوني`, ICON.scale, "bg-[#2563eb]", "/lexicon"],
+  ["المقالات", "تحليلات ودراسات", ICON.bookOpen, "bg-[#047857]", "/articles"],
+  ["الأخبار", "مستجدات تشريعية", ICON.cap, "bg-[#b91c1c]", "/news"],
 ];
 
 const heroTerm =
@@ -600,28 +600,30 @@ const homeHeroHtml = `
                     <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">منصة مغربية مستقلة لطلبة الحقوق</span>
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true"></span>
                   </p>
-                  <h1 class="mt-4 text-[31px] md:text-[42px] font-black leading-[1.18] tracking-[-0.025em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
+                  <h1 class="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
                   <div class="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
                     <span class="h-1 w-14 rounded-full bg-[#2563eb]"></span>
                     <span class="h-px w-full max-w-[220px] bg-[#e2e8f0] dark:bg-[#334155]"></span>
                   </div>
-                  <div class="relative mt-6 overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#1e293b] p-4 ps-5">
-                    <span class="absolute inset-y-0 right-0 w-1 bg-[#2563eb]" aria-hidden="true"></span>
-                    <p class="lead text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
+                  <div class="mt-6">
+                    <p class="lead border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
                   </div>
                   <p class="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
                     ${svgIcon(ICON.compass, "mt-1 size-4 shrink-0 text-[#2563eb]", 16)}
                     <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
                   </p>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                    <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
-                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
+                    <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span></a>
+                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3.5 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-md bg-[#f1f5f9] dark:bg-[#334155] text-[12px]" aria-hidden="true">←</span></a>
                   </div>
-                  <ul class="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-2 lg:grid-cols-4">
-                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
-                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.badgeCheck, "size-4 text-[#2563eb]", 16)}بلا إعلانات</li>
-                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.landmark, "size-4 text-[#2563eb]", 16)}مصادر رسمية محالة</li>
-                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات S1-S6</li>
+                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
+                    <li aria-hidden="true" class="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block"></li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.badgeCheck, "size-4 text-[#2563eb]", 16)}بلا إعلانات</li>
+                    <li aria-hidden="true" class="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block"></li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.landmark, "size-4 text-[#2563eb]", 16)}مصادر رسمية محالة</li>
+                    <li aria-hidden="true" class="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block"></li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات S1-S6</li>
                   </ul>
                 </div>
 
@@ -660,7 +662,7 @@ const homeHeroHtml = `
                         </div>
                         <div class="rounded-lg border border-[#2563eb]/30 bg-[#eff6ff] dark:bg-[#1e3a5f]/30 px-2 py-2">
                           <span class="block text-[10px] font-bold text-[#2563eb]">النتيجة</span>
-                          <span class="mt-1 block text-[12px] font-black tabular-nums text-[#2563eb]">2026-02-04</span>
+                          <span class="mt-1 block text-[12px] font-black tabular-nums text-[#2563eb]">2026-02-24</span>
                         </div>
                       </div>
                       <p class="mt-2 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">أيام تقويمية، ويوم الحدث مستبعد — بلا احتساب العطل.</p>
@@ -669,20 +671,19 @@ const homeHeroHtml = `
                 </figure>
               </div>
 
-              <div class="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">${homeStatCards
+              <nav aria-label="مداخل المحتوى" class="mt-12 grid grid-cols-2 gap-2.5 lg:grid-cols-4">${homeStatCards
                 .map(
-                  ([title, desc, icon, color, badge], i) => `
-                <a href="${title === "الأرشيف" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="grad-card rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
-                  <div class="flex items-center justify-between">
-                    <div class="grid size-9 place-items-center rounded-xl ${color} text-white">${svgIcon(icon, "size-4", 16)}</div>
-                    <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
-                  </div>
-                  <h2 class="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">${title}</h2>
-                  <p class="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">${desc}</p>
+                  ([title, desc, icon, color, href], i) => `
+                <a href="${href}" style="animation-delay:${120 + i * 60}ms" class="rise group hover-lift flex items-center gap-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white/70 dark:bg-[#1e293b]/70 px-3.5 py-3 hover:bg-white dark:hover:bg-[#1e293b]">
+                  <span class="grid size-9 shrink-0 place-items-center rounded-lg ${color} text-white" aria-hidden="true">${svgIcon(icon, "size-4", 16)}</span>
+                  <span class="min-w-0">
+                    <span class="block text-[13px] font-black text-[#0f172a] dark:text-white">${title}</span>
+                    <span class="block truncate text-[11px] text-[#64748b] dark:text-[#94a3b8]">${desc}</span>
+                  </span>
                 </a>`
                 )
                 .join("")}
-              </div>
+              </nav>
             </div>
           </section>`;
 

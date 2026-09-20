@@ -318,7 +318,7 @@ export function HomePage() {
                   <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true" />
                 </p>
 
-                <h1 className="mt-4 text-[31px] md:text-[42px] font-black leading-[1.18] tracking-[-0.025em] text-[#0f172a] dark:text-white">
+                <h1 className="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">
                   المعرفة القانونية لطلبة الحقوق في المغرب
                 </h1>
 
@@ -331,12 +331,9 @@ export function HomePage() {
                 {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
                     Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
                     SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
-                <div className="relative mt-6 overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#1e293b] p-4 ps-5">
-                  <span className="absolute inset-y-0 right-0 w-1 bg-[#2563eb]" aria-hidden="true" />
-                  <p className="lead text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">
-                    ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
-                  </p>
-                </div>
+                <p className="lead mt-6 border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">
+                  ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
+                </p>
 
                 <p className="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
                   <Compass className="mt-1 size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
@@ -346,22 +343,25 @@ export function HomePage() {
                 <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                   {/* زرّ أساسي واحد فقط للفعل الأهم (طلب المستخدم: المراجعة
                       قبل الامتحان). الزرّ الثانوي إطار بلا تعبئة (Von Restorff). */}
-                  <Link to="/archive" className="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
+                  <Link to="/archive" className="btn-accent inline-flex items-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3.5 text-[15px] font-black transition-colors">
                     ابدأ المراجعة — مجاناً
-                    <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
+                    <span className="grid size-5 place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span>
                   </Link>
-                  <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                  <Link to="/quiz" className="inline-flex items-center gap-2 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3.5 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
                     قِس مستواك في ٣ دقائق
-                    <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
+                    <span className="grid size-5 place-items-center rounded-md bg-[#f1f5f9] dark:bg-[#334155] text-[12px]" aria-hidden="true">←</span>
                   </Link>
                 </div>
 
                 {/* دليل ثقة: أربع حقائق قابلة للتحقّق (لا أرقام مُختلقة) */}
-                <ul className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-2 lg:grid-cols-4">
-                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
-                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><BadgeCheck className="size-4 text-[#2563eb]" aria-hidden="true" />بلا إعلانات</li>
-                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Landmark className="size-4 text-[#2563eb]" aria-hidden="true" />مصادر رسمية محالة</li>
-                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات S1-S6</li>
+                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
+                  <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
+                  <li aria-hidden="true" className="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block" />
+                  <li className="flex items-center gap-1.5"><BadgeCheck className="size-4 text-[#2563eb]" aria-hidden="true" />بلا إعلانات</li>
+                  <li aria-hidden="true" className="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block" />
+                  <li className="flex items-center gap-1.5"><Landmark className="size-4 text-[#2563eb]" aria-hidden="true" />مصادر رسمية محالة</li>
+                  <li aria-hidden="true" className="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block" />
+                  <li className="flex items-center gap-1.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات S1-S6</li>
                 </ul>
               </Reveal>
 
@@ -430,7 +430,7 @@ export function HomePage() {
                       </div>
                       <div className="rounded-lg border border-[#2563eb]/30 bg-[#eff6ff] dark:bg-[#1e3a5f]/30 px-2 py-2">
                         <span className="block text-[10px] font-bold text-[#2563eb]">النتيجة</span>
-                        <span className="mt-1 block text-[12px] font-black tabular-nums text-[#2563eb]">2026-02-04</span>
+                        <span className="mt-1 block text-[12px] font-black tabular-nums text-[#2563eb]">2026-02-24</span>
                       </div>
                     </div>
                     <p className="mt-2 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">أيام تقويمية، ويوم الحدث مستبعد — بلا احتساب العطل.</p>
@@ -440,40 +440,52 @@ export function HomePage() {
               </Reveal>
             </div>
 
-            {/* روابط سريعة للمحتوى */}
-            <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {/* شريط تنقّل سريع: أربعة مداخل بحجم سطر واحد، الأرشيف أولاً
+                لأنه المدخل الأعلى نيّة لدى الطالب قبل الامتحان. */}
+            <nav aria-label="مداخل المحتوى" className="mt-12 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
               {[
-                { title: "الأرشيف", desc: "ملخصات S1-S6", icon: Library, color: "bg-[#b45309]", count: "S1-S6", href: "/archive" },
-                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, numeric: counts.lexicon, href: "/lexicon" },
-                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}`, numeric: articlesCount, href: "/articles" },
-                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}`, numeric: counts.news, href: "/news" },
+                { title: "الأرشيف", desc: "ملخصات S1-S6", icon: Library, color: "bg-[#b45309]", href: "/archive" },
+                { title: "القاموس", desc: `${counts.lexicon} مصطلح قانوني`, icon: Scale, color: "bg-[#2563eb]", href: "/lexicon" },
+                { title: "المقالات", desc: "تحليلات ودراسات", icon: BookOpen, color: "bg-[#047857]", href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", href: "/news" },
               ].map((card, i) => (
-                <Reveal key={i} delay={i * 70} className="h-full">
-                <Link to={card.href} className={`group flex h-full flex-col text-right overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] hover-lift`}>
-                  <span className={`h-1 w-full ${card.color}`} aria-hidden="true" />
-                  <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white`}>
+                <Reveal key={i} delay={i * 60}>
+                  <Link to={card.href} className="group hover-lift flex items-center gap-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white/70 dark:bg-[#1e293b]/70 px-3.5 py-3 hover:bg-white dark:hover:bg-[#1e293b]">
+                    <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${card.color} text-white`} aria-hidden="true">
                       <card.icon className="size-4" />
-                    </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">
-                      {card.numeric ? <CountUp value={card.numeric} /> : card.count}
                     </span>
-                  </div>
-                  {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
-                      سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
-                      متسلسلاً مع بقية أقسام الصفحة. */}
-                  <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h2>
-                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                  <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-[#2563eb]">
-                    فتح القسم
-                    <ArrowRight className="link-arrow size-3 rtl:rotate-180" aria-hidden="true" />
-                  </span>
-                  </div>
-                </Link>
+                    <span className="min-w-0">
+                      <span className="block text-[13px] font-black text-[#0f172a] dark:text-white transition-colors group-hover:text-[#2563eb]">{card.title}</span>
+                      <span className="block truncate text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</span>
+                    </span>
+                  </Link>
                 </Reveal>
               ))}
+            </nav>
+          </div>
+        </section>
+
+        <section className="grad-accent relative overflow-hidden py-12 md:py-14 bg-[#2563eb] dark:bg-[#1e40af] text-white">
+          <div className="container mx-auto max-w-[1200px] px-6 relative">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
+              {[
+                { value: `${counts.lexicon}`, label: "مصطلح قانوني" },
+                { value: "S1-S6", label: "فصول دراسية" },
+                { value: `${counts.articles}`, label: "مقال تحليلي" },
+                { value: `${counts.schools}`, label: "كلية للحقوق" },
+                { value: `${counts.docs}`, label: "ملف دراسي" },
+              ].map((stat, i) => (
+                <div key={i} className="px-2">
+                  <div className="text-[28px] md:text-[34px] font-black leading-none tabular-nums">
+                    {/^\d+$/.test(stat.value) ? <CountUp value={Number(stat.value)} /> : stat.value}
+                  </div>
+                  <div className="mt-1 text-[11px] font-bold text-white/80">{stat.label}</div>
+                </div>
+              ))}
             </div>
+            <p className="relative mt-7 text-center text-[11.5px] font-bold text-white/75">
+              كل مصطلح في المعجم يحمل تاريخ مراجعة موثّقاً، وكل ملف دراسي يحمل تاريخ تحديث.
+            </p>
           </div>
         </section>
 
@@ -483,7 +495,7 @@ export function HomePage() {
               {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                   «استكشف مساراتنا المميزة»؛ النصّ نفسه في الـ prerender. */}
               <SectionLabel step="٠١" tone="blue">المحتوى</SectionLabel>
-              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
+              <h2 className="mt-3 text-[26px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
               <p className="mt-3 text-[13px] text-[#64748b] max-w-[680px] mx-auto">كل ما يحتاجه طالب القانون المغربي في مكان واحد: القاموس، والملخصات، والمقالات، ودليل الكليات.</p>
             </div>
 
@@ -497,14 +509,14 @@ export function HomePage() {
                 <Link key={card.href} to={card.href} className="grad-card group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover-lift">
                   <span className={`absolute inset-x-0 top-0 h-1 ${card.bar}`} aria-hidden="true" />
                   
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-start justify-between gap-3">
                     <div className={`grid size-11 place-items-center rounded-xl ${card.tone}`}>
                       <card.icon className="size-5" />
                     </div>
-                  <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">
-                    {card.numeric ? <CountUp value={card.numeric} /> : card.count}
-                  </span>
-                </div>
+                    <span className="text-[30px] font-black leading-none tabular-nums text-[#0f172a] dark:text-white">
+                      {card.numeric ? <CountUp value={card.numeric} /> : card.count}
+                    </span>
+                  </div>
                 <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{card.title}</h3>
                 <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
                 <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-[#2563eb]">
@@ -514,21 +526,35 @@ export function HomePage() {
               </Link>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* ٠٢ — أحدث ما نُشر: المقالات والندوات والمصطلحات في قسم واحد.
+            كان مبعثراً داخل قسم المحتوى، فأصبح له موضع ومستوى خاصّان. */}
+        <section className="grad-soft relative overflow-hidden border-y border-[#f1f5f9] dark:border-[#1e293b] bg-white dark:bg-[#0f172a] py-16 md:py-24 [content-visibility:auto] [contain-intrinsic-size:1600px]">
+          <div className="container mx-auto max-w-[1200px] px-6">
+            <div className="mb-10 text-center md:mb-14">
+              <SectionLabel step="٠٢" tone="gold">أحدث ما نُشر</SectionLabel>
+              <h2 className="mt-3 text-[26px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">آخر ما أُضيف إلى المنصة</h2>
+              <p className="mt-3 mx-auto max-w-[680px] text-[13px] leading-7 text-[#64748b] dark:text-[#94a3b8]">
+                مقالات تحليلية، وندوات وفعاليات، ومصطلحات من القاموس — كلها منشورة فعلاً في المنصة.
+              </p>
+            </div>
 
             {/* أحدث المقالات — only with pictures */}
-            <div className="mt-14 md:mt-16">
+            <div>
               <div className="flex items-center justify-between mb-6 md:mb-8">
                 <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
                 <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
-                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 transition-colors flex flex-col">
-                    <div className="zoom-frame h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] relative shrink-0">
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group hover-lift flex flex-col overflow-hidden rounded-xl border border-[#e2e8f0] bg-white dark:border-[#334155] dark:bg-[#1e293b]">
+                    <div className="zoom-frame relative h-[168px] shrink-0 bg-[#f1f5f9] dark:bg-[#334155]">
                       <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" width={320} height={120} />
-                      <span className="absolute top-2 right-2 bg-white/95 dark:bg-black/70 text-[9px] font-bold px-2 py-1 rounded-full border border-[#2563eb]/20 text-[#1d4ed8] dark:text-[#93c5fd]">{item.category || "قانون"}</span>
+                      <span className="absolute top-2 right-2 bg-white/95 dark:bg-black/70 text-[9px] font-bold px-2 py-1 rounded-md border border-[#2563eb]/20 text-[#1d4ed8] dark:text-[#93c5fd]">{item.category || "قانون"}</span>
                     </div>
-                    <div className="p-5 md:p-6 flex flex-col flex-1">
+                    <div className="flex flex-1 flex-col p-4">
                       <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
                       <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
                       <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
@@ -547,20 +573,20 @@ export function HomePage() {
               <div className="mt-14 md:mt-16">
                 <div className="flex items-center justify-between mb-6 md:mb-8">
                   <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
-                    <span className="grid size-7 place-items-center rounded-full bg-[#b45309]/10 text-[#b45309]"><Calendar className="size-4" /></span>
+                    <span className="grid size-7 place-items-center rounded-lg bg-[#b45309]/10 text-[#b45309]"><Calendar className="size-4" /></span>
                     الفعاليات والندوات
                   </h3>
                   <Link to="/events" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
-                    <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 transition-colors flex flex-col">
-                      <div className="h-[130px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
-                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover" width={320} height={130} />
-                        <span className="absolute top-2 right-2 bg-[#b45309] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">ندوة</span>
-                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
+                    <Link key={ev.id} to={`/events/${ev.slug}`} className="group hover-lift flex flex-col overflow-hidden rounded-xl border border-[#e2e8f0] bg-white dark:border-[#334155] dark:bg-[#1e293b]">
+                      <div className="relative h-[168px] shrink-0 overflow-hidden bg-[#f1f5f9] dark:bg-[#334155]">
+                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover" width={320} height={168} />
+                        <span className="absolute top-2 right-2 bg-[#b45309] text-white text-[9px] font-bold px-2.5 py-1 rounded-md">ندوة</span>
+                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
                       </div>
-                      <div className="p-5 md:p-6 flex flex-col flex-1">
+                      <div className="flex flex-1 flex-col p-4">
                         <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#b45309] transition-colors">{ev.title}</h4>
                         <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
                         <div className="mt-3 flex items-center gap-3 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
@@ -579,7 +605,7 @@ export function HomePage() {
               <div className="mt-14 md:mt-16">
                 <div className="flex items-center justify-between mb-6 md:mb-8">
                   <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
-                    <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
+                    <span className="grid size-7 place-items-center rounded-lg bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
                     القاموس القانوني — مع الشجرة القانونية
                   </h3>
                   <Link to="/lexicon" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
@@ -587,7 +613,7 @@ export function HomePage() {
 
                 {/* Featured term with tree */}
                 {latestTerms[0]?.legal_sources && latestTerms[0].legal_sources.length > 0 && (
-                  <div className="mb-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-5 overflow-hidden">
+                  <div className="grad-card mb-6 overflow-hidden rounded-xl border border-[#e2e8f0] bg-white p-4 dark:border-[#334155] dark:bg-[#1e293b] md:p-5">
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
                         <div className="flex items-center gap-2">
@@ -597,11 +623,11 @@ export function HomePage() {
                         </div>
                         <p className="mt-2 text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8] max-w-2xl">{latestTerms[0].definition}</p>
                         <div className="mt-2 flex items-center gap-2 text-[10px]">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر - {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
-                          <span className="rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
+                          <span className="inline-flex items-center gap-1 rounded-md bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر - {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
+                          <span className="rounded-md bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
                         </div>
                       </div>
-                      <Link to={`/lexicon/${generateSlug(latestTerms[0].term_ar)}`} className="shrink-0 rounded-full bg-[#2563eb] text-white px-4 py-2 text-[11px] font-bold hover:bg-[#1d4ed8]">التفاصيل →</Link>
+                      <Link to={`/lexicon/${generateSlug(latestTerms[0].term_ar)}`} className="shrink-0 rounded-md bg-[#2563eb] text-white px-4 py-2 text-[11px] font-bold hover:bg-[#1d4ed8]">التفاصيل →</Link>
                     </div>
                     <Suspense fallback={<div className="h-20 grid place-items-center text-[12px] text-muted-foreground">جارٍ تحميل الشجرة...</div>}>
                       <LegalTermTree termAr={latestTerms[0].term_ar} termFr={latestTerms[0].term_fr} legalSources={latestTerms[0].legal_sources} />
@@ -611,7 +637,7 @@ export function HomePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {latestTerms.slice(1, 7).map((term) => (
-                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 transition-colors flex flex-col">
+                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group hover-lift flex flex-col rounded-xl border border-[#e2e8f0] bg-white p-4 dark:border-[#334155] dark:bg-[#1e293b]">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="grid size-8 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white transition-colors"><GitBranch className="size-4" /></span>
@@ -620,7 +646,7 @@ export function HomePage() {
                             {term.term_fr && <p className="text-[10px] text-muted-foreground font-mono">{term.term_fr}</p>}
                           </div>
                         </div>
-                        <span className="text-[9px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1 shrink-0">{term.category}</span>
+                        <span className="text-[9px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-md px-2 py-1 shrink-0">{term.category}</span>
                       </div>
                       <p className="mt-3 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-3 flex-1">{term.definition}</p>
                       {term.legal_sources && term.legal_sources.length > 0 && (
@@ -642,8 +668,8 @@ export function HomePage() {
         <section className="py-16 md:py-24 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
           <div className="container mx-auto max-w-[1200px] px-6">
             <div className="text-center mb-10 md:mb-14">
-              <SectionLabel step="٠٢" tone="blue">كيف تبدأ</SectionLabel>
-              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ثلاث خطوات قبل الامتحان</h2>
+              <SectionLabel step="٠٣" tone="blue">كيف تبدأ</SectionLabel>
+              <h2 className="mt-3 text-[26px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ثلاث خطوات قبل الامتحان</h2>
               <p className="mt-3 text-[13px] text-[#64748b] dark:text-[#94a3b8] max-w-[680px] mx-auto">
                 لا تحتاج حساباً ولا دفعاً: افتح، راجع، ثم اختبر نفسك.
               </p>
@@ -664,7 +690,7 @@ export function HomePage() {
                       <span className={`grid size-10 place-items-center rounded-xl ${step.tone}`} aria-hidden="true">
                         <step.icon className="size-5" />
                       </span>
-                      <span className="text-[26px] font-black tabular-nums text-[#e2e8f0] dark:text-[#334155]">{step.n}</span>
+                      <span className="text-[34px] font-black leading-none tabular-nums text-[#e2e8f0] dark:text-[#334155]">{step.n}</span>
                     </div>
                     <h3 className="mt-4 font-black text-[15px] text-[#0f172a] dark:text-white">{step.title}</h3>
                     <p className="mt-2 text-[12.5px] leading-6 text-[#64748b] dark:text-[#94a3b8] flex-1">{step.desc}</p>
@@ -679,14 +705,14 @@ export function HomePage() {
             </ol>
 
             <Reveal delay={240}>
-              <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] sm:grid-cols-3">
+              <div className="mt-12 grid gap-8 border-t border-[#e2e8f0] pt-10 dark:border-[#334155] sm:grid-cols-3">
                 {[
                   { icon: MousePointerClick, title: "بلا حساب للقراءة", desc: "المعجم والأرشيف والمقالات مفتوحة للزائر مباشرة." },
                   { icon: BadgeCheck, title: "بلا إعلانات", desc: "لا شبكات إعلانية ولا نوافذ منبثقة ولا محتوى مدفوع بالضغط." },
                   { icon: Download, title: "ليست استشارة قانونية", desc: "محتوى تعليمي بإحالات إلى المصادر الرسمية، والنصّ النافذ يُراجع فيها." },
                 ].map((item, i) => (
-                  <div key={i} className="bg-[#f8fafc] dark:bg-[#0f172a] p-5">
-                    <span className="grid size-9 place-items-center rounded-xl bg-white dark:bg-[#1e293b] text-[#2563eb]" aria-hidden="true">
+                  <div key={i}>
+                    <span className="grid size-9 place-items-center rounded-lg bg-[#f1f5f9] text-[#2563eb] dark:bg-[#334155]" aria-hidden="true">
                       <item.icon className="size-4" />
                     </span>
                     <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{item.title}</h3>
@@ -702,14 +728,14 @@ export function HomePage() {
         <section className="grad-band relative overflow-hidden py-14 md:py-20 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1200px] px-6">
             <div className="text-center mb-10 md:mb-12">
-              <SectionLabel step="٠٣" tone="gold">أدوات ميزان برو</SectionLabel>
-              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
+              <SectionLabel step="٠٤" tone="gold">أدوات ميزان برو</SectionLabel>
+              <h2 className="mt-3 text-[26px] md:text-[34px] font-black leading-[1.15] text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
               <p className="mt-3 text-[13px] text-[#cbd5e1] max-w-[680px] mx-auto">
                 أدوات عملية داخل المنصة: مقارنة النصوص، وتمارين الواقعة إلى الحل، وخريطة الإحالات، والتنبيهات، وحساب الآجال، وملف بحث خاص بك.
               </p>
             </div>
 
-            <div className="grid gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { title: "قانون عبر الزمن", desc: "قارن نسختين موثّقتين من النصّ نفسه، مع إبراز الفروق كلمة بكلمة.", icon: GitCompare, tone: "bg-[#3b82f6]/15 text-[#93c5fd]" },
                 { title: "من الواقعة إلى الحل", desc: "تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.", icon: Scale, tone: "bg-[#10b981]/15 text-[#6ee7b7]" },
@@ -718,8 +744,8 @@ export function HomePage() {
                 { title: "حاسبة الآجال المسطرية", desc: "حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.", icon: CalendarClock, tone: "bg-[#14b8a6]/15 text-[#5eead4]" },
                 { title: "ملف البحث القانوني", desc: "احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.", icon: FolderOpen, tone: "bg-[#fb923c]/15 text-[#fdba74]" },
               ].map((tool, i) => (
-                <Reveal key={i} delay={i * 60} className="bg-[#0f172a]/85 dark:bg-[#0b1220]/85">
-                  <article className="group flex h-full flex-col p-5">
+                <Reveal key={i} delay={i * 60} className="h-full">
+                  <article className="group flex h-full flex-col rounded-xl border border-white/10 bg-white/5 p-5 transition-colors hover:border-[#3b82f6]/40 hover:bg-white/[0.08]">
                     <span className={`grid size-10 place-items-center rounded-xl ${tool.tone}`} aria-hidden="true">
                       <tool.icon className="size-5" />
                     </span>
@@ -731,7 +757,7 @@ export function HomePage() {
             </div>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-[12px] font-bold">
-              <Link to="/pro-tools" className="group inline-flex items-center gap-2 rounded-full bg-[#b45309] hover:bg-[#92400e] text-white px-6 py-2.5 transition-colors">
+              <Link to="/pro-tools" className="group inline-flex items-center gap-2 rounded-xl bg-[#b45309] hover:bg-[#92400e] text-white px-6 py-2.5 transition-colors">
                 تعرّف على الأدوات
                 <ArrowRight className="link-arrow size-3.5 rtl:rotate-180" aria-hidden="true" />
               </Link>
@@ -743,8 +769,8 @@ export function HomePage() {
         <section className="py-16 md:py-24 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:1000px]">
           <div className="container relative mx-auto max-w-[1200px] px-6">
             <div className="text-center max-w-[680px] mx-auto">
-              <SectionLabel step="٠٤" tone="blue">الأسعار - خطط مرنة</SectionLabel>
-              <h2 className="mt-3 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+              <SectionLabel step="٠٥" tone="blue">الأسعار - خطط مرنة</SectionLabel>
+              <h2 className="mt-3 text-[26px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                 خطط تناسب كل
                 <span className="text-[#2563eb]"> طالب قانون</span>
               </h2>
@@ -777,12 +803,12 @@ export function HomePage() {
                     "دليل الكليات 21 كلية",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-[12px] text-[#334155] dark:text-[#cbd5e1]">
-                      <span className="grid size-5 place-items-center rounded-full bg-[#dcfce7] text-[#16a34a]"><ShieldCheck className="size-3" /></span>
+                      <ShieldCheck className="size-3.5 shrink-0 text-[#16a34a] dark:text-[#4ade80]" aria-hidden="true" />
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold">
+                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold">
                   ابدأ مجاناً ←
                 </Link>
               </div>
@@ -809,19 +835,19 @@ export function HomePage() {
                     "كل مزايا المجاني",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-[12px]">
-                      <span className="grid size-5 place-items-center rounded-full bg-[#eff6ff] text-[#2563eb]"><ShieldCheck className="size-3" /></span>
+                      <ShieldCheck className="size-3.5 shrink-0 text-[#2563eb] dark:text-[#93c5fd]" aria-hidden="true" />
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold">
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold">
                   اختر الشهري ←
                 </Link>
               </div>
 
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
+              <div className="rounded-2xl border border-[#2563eb]/35 bg-white p-6 dark:border-[#2563eb]/40 dark:bg-[#1e293b]">
                 <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground">
+                  <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb] dark:bg-[#1e3a5f]">
                     <Award className="size-5" />
                   </div>
                   <div>
@@ -843,12 +869,12 @@ export function HomePage() {
                     "شارات حصرية",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-[12px] text-foreground">
-                      <span className="grid size-5 place-items-center rounded-full bg-muted"><ShieldCheck className="size-3" /></span>
+                      <ShieldCheck className="size-3.5 shrink-0 text-[#2563eb] dark:text-[#93c5fd]" aria-hidden="true" />
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] text-white py-3 text-[13px] font-bold">
+                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563eb] text-white py-3 text-[13px] font-bold">
                   اختر السنوي ←
                 </Link>
               </div>
@@ -860,10 +886,10 @@ export function HomePage() {
           <div className="container mx-auto max-w-[1200px] px-6">
             <div className="max-w-[1000px] mx-auto">
               <div className="text-center max-w-[680px] mx-auto mb-10 md:mb-14">
-                <SectionLabel step="٠٥" tone="green">لماذا نحن</SectionLabel>
+                <SectionLabel step="٠٦" tone="green">لماذا نحن</SectionLabel>
                 {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                     «اكتشف المزايا المميزة لمنصتنا التعليمية القانونية». */}
-                <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                <h2 className="mt-3 text-[26px] md:text-[34px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                   لماذا تختار منصة ميزان الرقمية؟
                 </h2>
               </div>
@@ -927,49 +953,26 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="grad-accent relative overflow-hidden py-12 md:py-16 bg-[#2563eb] dark:bg-[#1e40af] text-white">
-          <div className="container mx-auto max-w-[1200px] px-6 relative">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
-              {[
-                { value: `${counts.lexicon}`, label: "مصطلح قانوني" },
-                { value: "S1-S6", label: "فصول دراسية" },
-                { value: `${counts.articles}`, label: "مقال تحليلي" },
-                { value: `${counts.schools}`, label: "كلية للحقوق" },
-                { value: `${counts.docs}`, label: "ملف دراسي" },
-              ].map((stat, i) => (
-                <div key={i} className="px-2">
-                  <div className="text-[26px] font-black tabular-nums">
-                    {/^\d+$/.test(stat.value) ? <CountUp value={Number(stat.value)} /> : stat.value}
-                  </div>
-                  <div className="mt-1 text-[11px] font-bold text-white/80">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-            <p className="relative mt-8 text-center text-[11.5px] font-bold text-white/75">
-              كل مصطلح في المعجم يحمل تاريخ مراجعة موثّقاً، وكل ملف دراسي يحمل تاريخ تحديث.
-            </p>
-          </div>
-        </section>
 
         <Suspense fallback={null}>
           <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={counts.articles} schoolsCount={counts.schools} />
         </Suspense>
 
         {/* الشريط الختامي: آخر ما يبقى في الذاكرة فعل واحد واضح مع تقليل المخاطرة */}
-        <section className="grad-soft border-t border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] py-16 md:py-24">
-          <div className="container mx-auto max-w-[1200px] px-6 text-center">
-            <h2 className="text-[24px] md:text-[30px] font-black leading-tight text-[#0f172a] dark:text-white">
+        <section className="grad-band relative overflow-hidden bg-[#0f172a] py-16 text-white md:py-24 dark:bg-[#0b1220]">
+          <div className="container relative mx-auto max-w-[1200px] px-6 text-center">
+            <h2 className="text-[26px] md:text-[34px] font-black leading-[1.15]">
               ابدأ من الفصل الذي تدرسه اليوم
             </h2>
-            <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8] max-w-[680px] mx-auto">
+            <p className="mx-auto mt-3 max-w-[680px] text-[14px] leading-7 text-[#cbd5e1]">
               افتح الأرشيف، اختر الفصل والمادة، ثم اختبر نفسك. المحتوى الأساسي مجاني وبلا حساب.
             </p>
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/archive" className="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
+              <Link to="/archive" className="btn-accent inline-flex items-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3.5 text-[15px] font-black transition-colors">
                 تصفّح الأرشيف الدراسي
                 <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
               </Link>
-              <Link to="/quiz" className="text-[13px] font-bold text-[#2563eb] hover:underline">
+              <Link to="/quiz" className="text-[13px] font-bold text-[#93c5fd] hover:underline">
                 أو جرّب اختباراً سريعاً
               </Link>
             </div>

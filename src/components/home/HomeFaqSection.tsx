@@ -68,7 +68,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
         <div className="mb-10 text-center">
           {/* بلا شارة دائرية ولا أيقونة: النصّ وحده بنفس إيقاع علامات الأقسام */}
           <p className="flex items-center justify-center gap-3 text-[11px] font-black tracking-[0.14em] uppercase text-primary">
-            <span className="tabular-nums text-muted-foreground">٠٦</span>
+            <span className="tabular-nums text-muted-foreground">٠٧</span>
             <span className="h-px w-6 bg-primary" aria-hidden="true" />
             الأسئلة الشائعة
           </p>

@@ -13,6 +13,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { MemoryRouter } from "react-router-dom";
 
 import { HomePage } from "../src/pages/public/HomePage";
+import { calculateCalendarDeadline } from "../src/lib/pro-tools/model";
 
 (globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -49,9 +50,16 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
     expect(text).toContain("القاموس القانوني");
     expect(text).toContain("خريطة الإحالات");
     expect(text).toContain("حاسبة الآجال");
-    // النتيجة المعروضة هي نفسها التي يحسبها محرّك الآجال (أيام تقويمية).
+    // النتيجة المعروضة تُشتقّ من محرّك الآجال نفسه (أيام تقويمية،
+    // ويوم الحدث مستبعد) — لا رقم مكتوب بخط اليد يمكن أن يتخلّف عن المحرّك.
     expect(text).toContain("2026-01-25");
-    expect(text).toContain("2026-02-04");
+    const engineResult = calculateCalendarDeadline("2026-01-25", {
+      days: "30",
+      valid_from: "2020-01-01",
+      valid_until: "2030-12-31",
+    });
+    expect(engineResult).toBe("2026-02-24");
+    expect(text).toContain(engineResult);
   });
 
   it("تعرض شبكة أدوات ميزان برو الستّ مع رابط القسم", () => {
@@ -89,12 +97,12 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
   it("ترقّم الأقسام وتُبقي إيقاعاً واحداً للعناوين", () => {
     const container = renderHome();
     const text = container.textContent ?? "";
-    for (const step of ["٠١", "٠٢", "٠٣", "٠٤", "٠٥"]) {
+    for (const step of ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦"]) {
       expect(text, step).toContain(step);
     }
-    // العلامات الخمس كلها من مكوّن واحد: لا شارة دائرية لقسم واحد بينها.
+    // العلامات الستّ كلها من مكوّن واحد: لا شارة دائرية لقسم واحد بينها.
     const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
-    expect(src.split("<SectionLabel step=").length - 1).toBe(5);
+    expect(src.split("<SectionLabel step=").length - 1).toBe(6);
     // h1 واحد في الصفحة، وبعده h2 فقط (لا قفز في التسلسل).
     expect(container.querySelectorAll("h1")).toHaveLength(1);
     expect(container.querySelectorAll("h3").length).toBeGreaterThan(0);
@@ -212,10 +220,11 @@ describe("الصفحة الرئيسية — إيقاع المسافات", () => 
       expect(Number(mobile), `py-${mobile}`).toBeGreaterThanOrEqual(12);
       if (desktop) expect(Number(desktop), `md:py-${desktop}`).toBeGreaterThan(Number(mobile));
     }
-    // الأقسام الرئيسية تتنفّس 16→24، وشريط برو 14→20، وشريط الأرقام 12→16
+    // الأقسام الرئيسية تتنفّس 16→24، وشريط برو والرأس 14→20،
+    // وشريط الأرقام 12→14 (لأنه صار ملتصقاً بالرأس كإثبات مبكر).
     expect(src).toContain("py-16 md:py-24");
     expect(src).toContain("py-14 md:py-20");
-    expect(src).toContain("py-12 md:py-16");
+    expect(src).toContain("py-12 md:py-14");
   });
 
   it("توحّد فواصل الشبكات ورؤوس الأقسام", () => {
