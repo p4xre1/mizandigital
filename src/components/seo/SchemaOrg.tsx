@@ -1,4 +1,5 @@
 import { jsonLdProps } from "@/lib/seo/jsonLd"
+import { BRAND, BRAND_ALTERNATE_NAMES } from "../../../shared/seo/meta-copy.js"
 
 export interface SchemaOrgProps {
   schema: Record<string, any> | Record<string, any>[]
@@ -66,7 +67,7 @@ export function generateArticleSchema({
     },
     publisher: {
       "@type": "Organization",
-      name: "ميزان الرقمية",
+      name: BRAND,
       url: "https://www.mizan.page",
       logo: {
         "@type": "ImageObject",
@@ -100,8 +101,8 @@ export function generateOrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     "@id": "https://www.mizan.page/#organization",
-    name: "ميزان الرقمية",
-    alternateName: ["Mizan Digital", "Mizan.page", "منصة الميزان الرقمية"],
+    name: BRAND,
+    alternateName: BRAND_ALTERNATE_NAMES,
     url: "https://www.mizan.page",
     logo: {
       "@type": "ImageObject",
@@ -145,8 +146,8 @@ export function generateWebsiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "ميزان الرقمية",
-    alternateName: "Mizan Digital",
+    name: BRAND,
+    alternateName: BRAND_ALTERNATE_NAMES,
     url: "https://www.mizan.page",
     description:
       "منصة مغربية للمعرفة القانونية لطلبة كليات الحقوق: ملخصات، مقالات، أخبار تشريعية، قاموس قانوني، دليل كليات، واختبارات.",

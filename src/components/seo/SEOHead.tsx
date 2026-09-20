@@ -2,6 +2,11 @@ import { useEffect } from "react"
 import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
 import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl, isIndexablePath } from "../../lib/canonical"
 import { fitTitle } from "../../lib/seo/description"
+// العلامة من المصدر الواحد (shared/seo/meta-copy.js): كانت «ميزان الرقمية»
+// مكتوبة هنا حرفياً بينما العقدة المنشورة من src/lib/seo/schema.ts تُسمّي
+// الكيان «منصة الميزان الرقمية» — تسميتان لكيان واحد (Brand Consistency في
+// تدقيق GEO). المعرّف الآن واحد في <title> وog:site_name والبيانات المهيكلة.
+import { BRAND, BRAND_ALTERNATE_NAMES } from "../../../shared/seo/meta-copy.js"
 import { SchemaOrg, generateOrganizationSchema, generateWebsiteSchema } from "./SchemaOrg"
 
 /**
@@ -117,7 +122,7 @@ export function SEOHead({
     }
 
     // OpenGraph — Enhanced for AI + Social
-    setMeta("og:site_name", "ميزان الرقمية", "property")
+    setMeta("og:site_name", BRAND, "property")
     setMeta("og:title", fullTitle, "property")
     setMeta("og:description", description, "property")
     setMeta("og:type", ogType, "property")
@@ -130,7 +135,7 @@ export function SEOHead({
     // Published/modified time for articles
     if (publishedTime && ogType === "article") {
       setMeta("article:published_time", publishedTime, "property")
-      setMeta("article:author", "ميزان الرقمية", "property")
+      setMeta("article:author", BRAND, "property")
       setMeta("article:section", "القانون المغربي", "property")
     }
     if (modifiedTime && ogType === "article") {
@@ -147,7 +152,7 @@ export function SEOHead({
     setMeta("twitter:image:alt", title)
 
     // Additional SEO
-    setMeta("author", "ميزان الرقمية")
+    setMeta("author", BRAND)
     setMeta("language", "ar")
     setMeta("geo.region", "MA")
     setMeta("geo.placename", "المغرب")
@@ -193,7 +198,10 @@ export function SEOHead({
   const publisherSchema = {
     "@type": "Organization",
     "@id": `${domain}/#organization`,
-    name: "ميزان الرقمية",
+    name: BRAND,
+    // نفس أسماء العلامة البديلة المنشورة في src/lib/seo/schema.ts
+    // وSchemaOrg.tsx: عقدة #organization واحدة بأسماء واحدة في كل طبقة.
+    alternateName: BRAND_ALTERNATE_NAMES,
     url: domain,
     logo: {
       "@type": "ImageObject",

@@ -1,7 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
-import { canonicalHome } from "../../lib/canonical"
+import { BASE_URL, canonicalHome } from "../../lib/canonical"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
@@ -217,6 +217,38 @@ export function HomePage() {
     }
   }, [])
 
+  /*
+   * ── عقدة WebPage الصريحة للرئيسية (GEO) ──────────────────────────────────
+   * كانت AEOHead تُمرَّر بـ schema فارغ، فلا تُنشر عقدة محتوى للصفحة إلا عقدة
+   * speakable وحدها بلا about ولا primaryTopic — وهو ما رصده تدقيق GEO تحت
+   * «Content Schema / Answer-First». العقدة هنا تحمل @id الصفحة نفسه المستعمل
+   * في index.html وscripts/prerender.mjs، فتُدمج معها ككيان واحد موصوف بدل
+   * عقدتين متنافستين على الرابط نفسه، ويُقرأ `about` و`primaryTopic` مباشرة.
+   */
+  const homePageSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${BASE_URL}/#webpage`,
+    url: BASE_URL,
+    name: "ميزان الرقمية – منصة طلبة الحقوق في المغرب",
+    description:
+      "منصة ميزان الرقمية تجمع ملخصات القانون، المصطلحات القانونية، ومعلومات كليات الحقوق في مكان واحد. محتواها الأساسي مجاني لطلبة الحقوق بالمغرب، ومزاياها المتقدمة باشتراك ميزان برو.",
+    inLanguage: "ar-MA",
+    isPartOf: { "@type": "WebSite", "@id": `${BASE_URL}/#website` },
+    // مرجع الكيان يبقى أولاً، ويُضاف وصف موضوعي مسمّى كما يطلبه تدقيق GEO
+    // (about بـ Thing مسمّى لا مرجع مجرّد).
+    about: [
+      { "@id": `${BASE_URL}/#organization` },
+      { "@type": "Thing", name: "التعليم القانوني في المغرب" },
+    ],
+    primaryTopic: {
+      "@type": "Thing",
+      name: "ملخصات ومصطلحات قانونية لطلبة الحقوق",
+    },
+    publisher: { "@id": `${BASE_URL}/#organization` },
+    isAccessibleForFree: true,
+  }
+
   return (
     <>
       <AEOHead
@@ -234,6 +266,7 @@ export function HomePage() {
           "دروس القانون المغربي مجانا",
         ]}
         canonicalUrl={canonicalHome()}
+        schema={homePageSchema}
         faq={[
           { question: "ما هي منصة ميزان الرقمية؟", answer: "ميزان الرقمية منصة مغربية تعليمية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM." },
           { question: "هل المحتوى مجاني؟", answer: "المحتوى الأساسي مجاني دون تسجيل: القاموس القانوني، وملخصات الأرشيف S1-S6، ودليل الكليات، والمقالات، والأخبار. المزايا المتقدمة مؤدّاة عبر اشتراك ميزان برو (49 درهماً شهرياً أو 399 درهماً سنوياً) أو عبر حزم الكريدتس. المنصة لم تعد مجانية بالكامل كما كانت في مرحلة سابقة، وهذا معلن في صفحة الأسعار." },
@@ -252,6 +285,13 @@ export function HomePage() {
               <span className="text-[#2563eb]">التعلم القانوني</span>
               <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
             </h1>
+
+            {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
+                Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
+                SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
+            <p className="lead mt-5 max-w-[620px] text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">
+              ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
+            </p>
 
             <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
               انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
@@ -315,7 +355,9 @@ export function HomePage() {
         <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
-              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
+              {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
+                  «استكشف مساراتنا المميزة»؛ النصّ نفسه في الـ prerender. */}
+              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
               <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
             </div>
 
@@ -586,11 +628,10 @@ export function HomePage() {
             <div className="max-w-[900px] mx-auto">
               <div className="text-center max-w-[640px] mx-auto mb-10">
                 <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">لماذا نحن</span>
+                {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
+                    «اكتشف المزايا المميزة لمنصتنا التعليمية القانونية». */}
                 <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
-                  اكتشف المزايا المميزة
-                  <br />
-                  لمنصتنا التعليمية
-                  <span className="text-[#2563eb]"> القانونية</span>
+                  لماذا تختار منصة ميزان الرقمية؟
                 </h2>
               </div>
 
@@ -610,6 +651,31 @@ export function HomePage() {
                   </div>
                 ))}
               </div>
+
+              {/* مصادر رسمية مسمّاة (GEO: Citations & Quotations). روابط
+                  خارجية صريحة بـ rel="noopener noreferrer" — النسب يُقرأ
+                  فيُربط المحتوى التعليمي بمصدر التحقق، وهو نفسه المذكور في
+                  نسخة prerender الثابتة فلا تختلف نسختا الصفحة. */}
+              <p className="mt-8 text-center text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8]">
+                جميع النصوص القانونية والقواعد المذكورة في منصة ميزان الرقمية محالة إلى مصادر رسمية يمكن التحقق منها مباشرة:{" "}
+                <a
+                  href="https://www.sgg.gov.ma"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-[#2563eb] hover:underline"
+                >
+                  البوابة الرسمية للجريدة الرسمية (الأمانة العامة للحكومة)
+                </a>{" "}
+                و{" "}
+                <a
+                  href="https://adala.justice.gov.ma"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-[#2563eb] hover:underline"
+                >
+                  بوابة العدالة الرقمية (وزارة العدل)
+                </a>.
+              </p>
             </div>
           </div>
         </section>

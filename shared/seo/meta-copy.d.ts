@@ -1,5 +1,6 @@
 export declare const BRAND: string;
 export declare const BRAND_SUFFIX: string;
+export declare const BRAND_ALTERNATE_NAMES: string[];
 export declare const MIN_TITLE: number;
 export declare const MAX_TITLE: number;
 export declare const HARD_MAX_TITLE: number;

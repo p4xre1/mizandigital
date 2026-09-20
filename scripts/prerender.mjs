@@ -429,7 +429,9 @@ const publisherSchema = {
   "@type": "Organization",
   "@id": `${DOMAIN}/#organization`,
   name: "ميزان الرقمية",
-  alternateName: ["Mizan Digital", "Mizan.page", "منصة الميزان الرقمية"],
+  // نفس أسماء العلامة البديلة في index.html وSchemaOrg.tsx وschema.ts:
+  // كيان واحد بتسمية واحدة في كل الطبقات (Brand Consistency في GEO).
+  alternateName: ["Mizan Digital", "Mizan"],
   url: DOMAIN,
   logo: {
     "@type": "ImageObject",
@@ -585,7 +587,8 @@ const homeHeroHtml = `
             <div class="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]"></div>
             <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
               <h1 class="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white"><span>افتح إمكانياتك مع</span><span class="text-[#2563eb]">التعلم القانوني</span><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span></h1>
-              <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
+              <p class="lead mt-5 max-w-[620px] text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
+              <p class="mt-4 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
               <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
                 <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
@@ -644,8 +647,17 @@ const pages = [
       isPartOf: {
         "@id": `${DOMAIN}/#website`,
       },
-      about: {
-        "@id": `${DOMAIN}/#organization`,
+      // GEO (Content Schema): عقدة WebPage كانت تحمل مرجع الكيان وحده، فيقرأ
+      // التدقيق صفحة بلا موضوع معلن. `about` يحمل الآن المرجع + Thing مسمّى،
+      // و`primaryTopic` يعلن الموضوع الرئيسي صراحةً — كما في index.html
+      // وفي عقدة src/pages/public/HomePage.tsx، فالعقدة الثلاثية واحدة.
+      about: [
+        { "@id": `${DOMAIN}/#organization` },
+        { "@type": "Thing", name: "التعليم القانوني في المغرب" },
+      ],
+      primaryTopic: {
+        "@type": "Thing",
+        name: "ملخصات ومصطلحات قانونية لطلبة الحقوق",
       },
       publisher: {
         "@id": `${DOMAIN}/#organization`,
@@ -699,6 +711,57 @@ const pages = [
       },
     },
 
+    /*
+     * GEO (Content Schema): كانت نسخة الزاحف تحمل WebPage وحدها — بلا أي
+     * عقدة محتوى من النوع الذي تعدّه أنظمة الاستشهاد (Article/FAQPage/HowTo).
+     * الصفحة تعرض أسئلة وأجوبة فعلية في متنها الثابت، فتُنشر هنا FAQPage
+     * بالأسئلة نفسها وبأجوبة مطابقة لما يُقرأ في الصفحة (شرط Google: الجواب
+     * المرئي هو نفسه المُنمذج).
+     */
+    extraSchema: [
+      {
+        "@type": "FAQPage",
+        "@id": `${DOMAIN}/#home-faq`,
+        url: DOMAIN,
+        name: "أسئلة شائعة حول منصة ميزان الرقمية",
+        inLanguage: "ar-MA",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "ما هي منصة ميزان الرقمية؟",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "ميزان الرقمية منصة عربية مغربية تعليمية للمعرفة القانونية والأكاديمية، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك. توفر للطلبة والباحثين ملخصات الأرشيف الدراسي S1-S6، والقاموس القانوني، والمقالات، والأخبار، ودليل كليات الحقوق بالمغرب.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "ماذا تقدم ميزان لطلبة الحقوق؟",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: `تجمع المنصة ${statistics.lexicon} مصطلحاً قانونياً، و${statistics.articles} مقالاً، و${statistics.news} خبراً، و${statistics.events} فعالية أو ندوة، إضافة إلى دليل يضم ${statistics.schools} كلية أو مؤسسة جامعية في البيانات المتاحة للمنصة.`,
+            },
+          },
+          {
+            "@type": "Question",
+            name: "كيف تستعمل منصة ميزان في مراجعتك؟",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "حدّد أولاً نوع المعلومة التي تحتاجها: القاموس للمصطلحات القانونية، والأرشيف للمواد الدراسية المصنفة حسب الفصل S1-S6، والمقالات للمنهجية والتحليل، والأخبار للمستجدات، ودليل الكليات لمعلومات المؤسسات الجامعية.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "ما هي مصادر المعلومات القانونية في منصة ميزان الرقمية؟",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "المنصة تعليمية وبحثية وليست بديلاً عن النص القانوني الرسمي: يُراجع النص النافذ في البوابة الرسمية للجريدة الرسمية (sgg.gov.ma) وبوابة العدالة الرقمية لوزارة العدل (adala.justice.gov.ma)، مع الإحالات التشريعية المتاحة في بيانات كل مصطلح.",
+            },
+          },
+        ],
+      },
+    ],
+
     staticBody: `
       <div class="min-h-screen bg-background text-foreground">${homeHeaderHtml}
         <main class="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl" lang="ar-MA">${homeHeroHtml}
@@ -706,7 +769,7 @@ const pages = [
         <section class="bg-white dark:bg-[#0f172a] py-14 border-t border-[#f1f5f9] dark:border-[#1e293b]">
         <article class="container mx-auto max-w-[800px] px-6 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
 
-          <h2 class="text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ميزان الرقمية — المعرفة القانونية للطلبة بالمغرب</h2>
+          <h2 class="text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ما هي منصة ميزان الرقمية؟</h2>
 
           <p>
             <strong>ميزان الرقمية هي منصة عربية مغربية للمعرفة القانونية والأكاديمية، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك.</strong>
@@ -725,7 +788,7 @@ const pages = [
           </p>
 
           <section class="mt-10">
-            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان الرقمية؟</h3>
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
 
             <p>
               تجمع المنصة حالياً
@@ -744,8 +807,26 @@ const pages = [
             </p>
           </section>
 
+          <!-- عنوان بصيغة سؤال (GEO: Question-Style Headings) وجوابه فوراً
+               بعده (Answer-First): المحتوى نفسه معروض في الصفحة الحيّة. -->
           <section class="mt-10">
-            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">كيف يمكن للطالب استخدام ميزان الرقمية؟</h3>
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">لماذا تختار منصة ميزان الرقمية؟</h2>
+
+            <p>
+              <strong>لأن المحتوى مكتوب بالعربية التي يدرس بها الطالب، ومنظّم حسب الفصل الذي يدرسه الآن لا حسب موضوع عام.</strong>
+              ويبقى أساسه مجانياً، مع فصل صريح بين الشرح التعليمي والنص القانوني الرسمي.
+            </p>
+
+            <ul>
+              <li>المصطلح والنص والملخّص في مسار واحد: بطاقة المصطلح لا تكتفي بالتعريف.</li>
+              <li>المقابل الفرنسي لكل مصطلح، لأن جزءاً من المراجع الجامعية يُقرأ بالفرنسية.</li>
+              <li>أرشيف مصنّف حسب الفصل S1 → S6، فيصل الطالب إلى ما يدرسه هذا الفصل مباشرة.</li>
+              <li>المصادر الرسمية معلنة ومربوطة، ويمكن التحقق من كل قاعدة في نصها النافذ.</li>
+            </ul>
+          </section>
+
+          <section class="mt-10">
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">كيف تستعمل منصة ميزان في مراجعتك؟</h2>
 
             <p>
               <strong>أفضل نقطة بداية هي تحديد نوع المعلومة التي تبحث عنها.</strong>
@@ -788,7 +869,7 @@ const pages = [
           </section>
 
           <section class="mt-10">
-            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هو القاموس القانوني في ميزان الرقمية؟</h3>
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هو القاموس القانوني في ميزان الرقمية؟</h2>
 
             <p>
               <strong>القاموس القانوني هو أداة بحث للمصطلحات القانونية.</strong>
@@ -810,7 +891,7 @@ const pages = [
           </section>
 
           <section class="mt-10">
-            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هي مراحل الدراسة S1 إلى S6؟</h3>
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هي مراحل الدراسة S1 إلى S6؟</h2>
 
             <p>
               يقسم الأرشيف الدراسي في ميزان الرقمية المواد إلى ستة فصول:
@@ -829,7 +910,7 @@ const pages = [
           </section>
 
           <section class="mt-10">
-            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هي مصادر المعلومات القانونية؟</h3>
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">ما هي مصادر المعلومات القانونية؟</h2>
 
             <p>
               يجب التعامل مع ميزان الرقمية باعتبارها منصة تعليمية وبحثية،
@@ -842,10 +923,22 @@ const pages = [
               تقدم المنصة روابط وإحالات عندما تكون متاحة في بيانات المحتوى،
               مع محاولة الحفاظ على الفصل بين المحتوى التعليمي والمصدر القانوني الأصلي.
             </p>
+
+            <!-- استشهادات بمصادر رسمية مسمّاة (GEO: Citations & Quotations).
+                 الروابط الخارجية بـ rel="noopener noreferrer" وبلا nofollow:
+                 مصادر رسمية نرشد إليها القارئ، لا روابط مدفوعة. -->
+            <p>
+              جميع النصوص القانونية والقواعد المذكورة في منصة ميزان الرقمية
+              محالة إلى مصادر رسمية يمكن التحقق منها مباشرة:
+              <a href="https://www.sgg.gov.ma" target="_blank" rel="noopener noreferrer">البوابة الرسمية للجريدة الرسمية (الأمانة العامة للحكومة)</a>
+              و<a href="https://adala.justice.gov.ma" target="_blank" rel="noopener noreferrer">بوابة العدالة الرقمية (وزارة العدل)</a>.
+              النصّ المنشور في الجريدة الرسمية يبقى المرجع النهائي عند كل خلاف
+              على عبارة أو على تاريخ سريان.
+            </p>
           </section>
 
           <section class="mt-10">
-            <h3 class="text-[20px] font-black text-[#0f172a] dark:text-white">من يقف وراء ميزان الرقمية؟</h3>
+            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">من يقف وراء ميزان الرقمية؟</h2>
 
             <p>
               ميزان الرقمية مشروع معرفي عربي موجه أساساً إلى طلبة القانون

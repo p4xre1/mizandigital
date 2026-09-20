@@ -70,8 +70,11 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
             <HelpCircle size={14} />
             <span>الأسئلة الشائعة</span>
           </div>
+          {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان «كل ما
+              تحتاج معرفته عن المنصة»؛ والأسئلة تحته كلها عن الاستعمال
+              الفعلي للمنصة في المراجعة. */}
           <h2 id="home-faq-heading" className="text-2xl font-black text-foreground sm:text-3xl">
-            كل ما تحتاج معرفته عن المنصة
+            كيف تستعمل منصة ميزان في مراجعتك؟
           </h2>
         </div>
 

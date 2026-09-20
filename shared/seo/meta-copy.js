@@ -21,6 +21,15 @@ import { isIndexablePath, normalizePath } from "./url-policy.js";
 export const BRAND = "ميزان الرقمية";
 export const BRAND_SUFFIX = ` | ${BRAND}`;
 
+/*
+ * الأسماء البديلة للعلامة — للسياقات الإنجليزية/التقنية وحدها، تُنشر في
+ * JSON-LD تحت alternateName (Organization/WebSite). وُضعت هنا بجانب BRAND
+ * لأن تدقيق GEO رصد تبايناً في التسمية بين <title> وog:site_name والبيانات
+ * المهيكلة: كانت العقدة تُسمّى «منصة الميزان الرقمية» مرة و«Mizan.page»
+ * أخرى. الآن الثلاث طبقات تقرأ الاسم الواحد من هذا الملف.
+ */
+export const BRAND_ALTERNATE_NAMES = ["Mizan Digital", "Mizan"];
+
 export const MIN_TITLE = 20;
 export const MAX_TITLE = 60;
 export const HARD_MAX_TITLE = 65;

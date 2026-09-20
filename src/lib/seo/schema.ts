@@ -1,16 +1,22 @@
 // /workspaces/mizandigital/src/lib/seo/schema.ts
 import { jsonLdProps } from "./jsonLd"
 import { BASE_URL, canonicalUrl } from "../canonical"
+import { BRAND, BRAND_ALTERNATE_NAMES } from "../../../shared/seo/meta-copy.js"
 
 /**
  * إعدادات الموقع. النطاق لم يُترك سلسلة مكتوبة باليد: جاء من سياسة الروابط
  * (shared/seo/url-policy.js) وإلا انقسم الموقع على نطاقين في البيانات
  * المهيكلة (mizan.page مقابل www.mizan.page) وهو أخطر على الفهرسة من شرطة
  * نهاية زائدة.
+ *
+ * والاسم كذلك لم يُترك مكتوباً هنا: كان «منصة الميزان الرقمية» بينما
+ * <title> وog:site_name يقولان «ميزان الرقمية»، فقرأ تدقيق GEO تسميتين
+ * لكيان واحد (Brand Consistency). الآن تُقرأ العلامة وأسماؤها البديلة من
+ * shared/seo/meta-copy.js — المصدر نفسه الذي يبني العناوين.
  */
 export const SITE_CONFIG = {
-  name: "منصة الميزان الرقمية",
-  altName: "الميزان الرقمي - Mizan Digital",
+  name: BRAND,
+  altName: BRAND_ALTERNATE_NAMES,
   url: BASE_URL,
   /*
    * شعار يُقرأ في البيانات المهيكلة (Organization.logo): PNG مربّع معتّم 512×512
