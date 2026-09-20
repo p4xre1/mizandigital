@@ -510,6 +510,7 @@ const ICON = {
   scale: `<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>`,
   library: `<path d="m16 6 4 14"></path><path d="M12 6v14"></path><path d="M8 8v12"></path><path d="M4 4v16"></path>`,
   bookOpen: `<path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>`,
+  compass: `<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>`,
   link: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>`,
   shieldCheck: `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path>`,
   clock: `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`,
@@ -592,22 +593,36 @@ const homeHeroHtml = `
             <div class="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
               <div class="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
                 <div class="text-center lg:text-right">
-                  <p class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</p>
-                  <h1 class="mt-3 text-[30px] md:text-[40px] font-black leading-[1.22] tracking-[-0.02em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
-                  <p class="lead mt-5 text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
-                  <p class="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</p>
+                  <p class="flex items-center justify-center gap-3 lg:justify-start">
+                    <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true"></span>
+                    <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</span>
+                    <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true"></span>
+                  </p>
+                  <h1 class="mt-4 text-[31px] md:text-[42px] font-black leading-[1.18] tracking-[-0.025em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
+                  <div class="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
+                    <span class="h-1 w-14 rounded-full bg-[#2563eb]"></span>
+                    <span class="h-px w-full max-w-[220px] bg-[#e2e8f0] dark:bg-[#334155]"></span>
+                  </div>
+                  <div class="relative mt-6 overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#1e293b] p-4 ps-5">
+                    <span class="absolute inset-y-0 right-0 w-1 bg-[#2563eb]" aria-hidden="true"></span>
+                    <p class="lead text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
+                  </div>
+                  <p class="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+                    ${svgIcon(ICON.compass, "mt-1 size-4 shrink-0 text-[#2563eb]", 16)}
+                    <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
+                  </p>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                     <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold transition-colors">تصفّح المحتوى<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
                     <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
                   </div>
-                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.clock, "size-4 text-[#2563eb]", 16)}تحديث مستمر للمستجدات</li>
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات الفصول S1-S6</li>
+                  <ul class="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-3">
+                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
+                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.clock, "size-4 text-[#2563eb]", 16)}تحديث مستمر للمستجدات</li>
+                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات الفصول S1-S6</li>
                   </ul>
                 </div>
 
-                <figure aria-label="معاينة من المنصة" class="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+<figure aria-label="معاينة من المنصة" class="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
                   <figcaption class="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
                     <span class="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">${svgIcon(ICON.scale, "size-3.5 text-[#2563eb]", 14)}معاينة من المنصة</span>
                     <span class="text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">مثال توضيحي</span>

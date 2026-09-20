@@ -7,7 +7,7 @@ import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import {
   BookOpen, Scale, GraduationCap, Award, Library, ShieldCheck, Clock, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2, Video, GitCompare, BellRing,
+  Calendar, MapPin, Languages, GitBranch, Building2, Video, GitCompare, BellRing, Compass,
   CalendarClock, FolderOpen, Link2, Landmark, ExternalLink
 } from "lucide-react"
 
@@ -295,20 +295,35 @@ export function HomePage() {
 
               {/* العمود النصّي */}
               <div className="text-center lg:text-right">
-                <p className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</p>
-                <h1 className="mt-3 text-[30px] md:text-[40px] font-black leading-[1.22] tracking-[-0.02em] text-[#0f172a] dark:text-white">
+                <p className="flex items-center justify-center gap-3 lg:justify-start">
+                  <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
+                  <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</span>
+                  <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true" />
+                </p>
+
+                <h1 className="mt-4 text-[31px] md:text-[42px] font-black leading-[1.18] tracking-[-0.025em] text-[#0f172a] dark:text-white">
                   المعرفة القانونية لطلبة الحقوق في المغرب
                 </h1>
+
+                {/* مسطرة تأكيد أسفل العنوان: قطعة سميكة + خطّ رفيع يمتدّ. */}
+                <div className="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
+                  <span className="h-1 w-14 rounded-full bg-[#2563eb]" />
+                  <span className="h-px w-full max-w-[220px] bg-[#e2e8f0] dark:bg-[#334155]" />
+                </div>
 
                 {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
                     Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
                     SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
-                <p className="lead mt-5 text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">
-                  ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
-                </p>
+                <div className="relative mt-6 overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#1e293b] p-4 ps-5">
+                  <span className="absolute inset-y-0 right-0 w-1 bg-[#2563eb]" aria-hidden="true" />
+                  <p className="lead text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">
+                    ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
+                  </p>
+                </div>
 
-                <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-                  ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.
+                <p className="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+                  <Compass className="mt-1 size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
+                  <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
@@ -322,10 +337,10 @@ export function HomePage() {
                   </Link>
                 </div>
 
-                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
-                  <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
-                  <li className="flex items-center gap-1.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
-                  <li className="flex items-center gap-1.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
+                <ul className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-3">
+                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
+                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
+                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
                 </ul>
               </div>
 

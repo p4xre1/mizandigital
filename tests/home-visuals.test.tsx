@@ -104,4 +104,18 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
     });
     expect(heroLinks.length).toBeGreaterThanOrEqual(4);
   });
+
+  it("تحفظ فقرة الإجابة المباشرة بنصّها وصنفها الذي تقرأه القراءة الصوتية", () => {
+    const container = renderHome();
+    const lead = container.querySelector("p.lead");
+    expect(lead).not.toBeNull();
+    expect(lead?.textContent?.trim()).toBe(
+      "ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.",
+    );
+    // البنية التحريرية للترويسة: مسطرة تحت العنوان + لوحة بشريط لوني.
+    expect(container.querySelector("h1")?.textContent?.trim()).toBe(
+      "المعرفة القانونية لطلبة الحقوق في المغرب",
+    );
+    expect(container.textContent).toContain("ابدأ من الأرشيف الدراسي بملخصات الفصول");
+  });
 });
