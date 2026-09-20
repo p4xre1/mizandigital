@@ -24,7 +24,7 @@ function result(pass, score, issues = [], details = []) {
   return { pass, score: Math.max(0, Math.min(100, Math.round(score))), issues, details }
 }
 
-import { isIndexablePath } from "./url-policy.js"
+import { canonicalUrl, isIndexablePath } from "./url-policy.js"
 
 const URL_RE = /https?:\/\/[^\s"'<>)]+/g
 
@@ -187,9 +187,14 @@ export function checkCanonicalPolicy(html, { url = "", siteUrl = "https://www.mi
       issues.push(`canonical خارج النطاق القانوني ${siteUrl}: ${canonical}`)
     }
     if (url) {
-      const expected = siteUrl && url.startsWith("http") ? url : `${siteUrl}${url === "/" ? "" : url}`
+      // الرابط المتوقع من `canonicalUrl` لا من لصق النص خلف النطاق: مسار يبدأ
+      // بـ«//» أو بـ«@host» يصبح مضيفاً آخر بمجرد الإلصاق، وnormalizePath
+      // يدمج الشرطات ويسقط المعاملات فيبقى الرابط على نطاقنا دائماً. تمرير
+      // رابط مطلق هنا يعادل مقارنته بمساره فقط — أي أن canonical يشير إلى
+      // نطاق آخر يُرفض بدل أن يُقبل لمجرد أنه كُتب مطلقاً.
+      const expected = canonicalUrl(url, { origin: siteUrl })
       if (canonical !== expected) {
-        issues.push(`canonical (${canonical}) لا يطابق رابط الصفحة حرفياً (${expected}).`)
+        issues.push(`canonical (${canonical}) لا يطابق رابط الصفحة القانوني (${expected}).`)
       }
     }
   }
