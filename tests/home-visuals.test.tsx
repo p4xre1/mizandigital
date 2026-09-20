@@ -92,6 +92,9 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
     for (const step of ["٠١", "٠٢", "٠٣", "٠٤", "٠٥"]) {
       expect(text, step).toContain(step);
     }
+    // العلامات الخمس كلها من مكوّن واحد: لا شارة دائرية لقسم واحد بينها.
+    const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
+    expect(src.split("<SectionLabel step=").length - 1).toBe(5);
     // h1 واحد في الصفحة، وبعده h2 فقط (لا قفز في التسلسل).
     expect(container.querySelectorAll("h1")).toHaveLength(1);
     expect(container.querySelectorAll("h3").length).toBeGreaterThan(0);

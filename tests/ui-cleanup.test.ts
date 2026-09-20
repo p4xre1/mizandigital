@@ -21,6 +21,23 @@ describe("clean UI presentation", () => {
     expect(read("src/pages/auth/LoginPage.tsx")).toContain('placeholder="••••••••"');
   });
 
+  it("does not wrap page counters in a pill", () => {
+    const counters = [
+      ["src/pages/public/ArticlesPage.tsx", "{filteredItems.length} مقال"],
+      ["src/pages/public/NewsPage.tsx", "{filteredItems.length} خبر"],
+      ["src/pages/public/SchoolsPage.tsx", "{allSchools.length} كلية - {cities.length} مدينة"],
+    ] as const;
+    for (const [path, text] of counters) {
+      const src = read(path);
+      // الشارة الدائرية تزول والأيقونة معها، والنصّ وحده يبقى
+      expect(src, path).not.toContain("rounded-full bg-[#eff6ff]");
+      expect(src, path).toContain(text);
+    }
+    // وعلامة قسم الأسعار في الرئيسية صارت بنفس نمط بقية علامات الأقسام
+    const home = read("src/pages/public/HomePage.tsx");
+    expect(home).toContain('<SectionLabel step="٠٤" tone="blue">الأسعار - خطط مرنة</SectionLabel>');
+  });
+
   it("does not wrap the FAQ heading in a pill or a circle icon", () => {
     const homeFaq = read("src/components/home/HomeFaqSection.tsx");
     const faqPage = read("src/pages/public/FAQPage.tsx");

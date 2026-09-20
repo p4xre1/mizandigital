@@ -743,10 +743,8 @@ export function HomePage() {
         <section className="py-16 md:py-24 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:1000px]">
           <div className="container relative mx-auto max-w-[1200px] px-6">
             <div className="text-center max-w-[680px] mx-auto">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
-                ٠٤ — الأسعار - خطط مرنة
-              </span>
-              <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+              <SectionLabel step="٠٤" tone="blue">الأسعار - خطط مرنة</SectionLabel>
+              <h2 className="mt-3 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                 خطط تناسب كل
                 <span className="text-[#2563eb]"> طالب قانون</span>
               </h2>
