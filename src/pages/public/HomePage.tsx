@@ -7,7 +7,8 @@ import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import {
   BookOpen, Scale, GraduationCap, Award, Library, ShieldCheck, Clock, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2, Video
+  Calendar, MapPin, Languages, GitBranch, Building2, Video, GitCompare, BellRing,
+  CalendarClock, FolderOpen, Link2, Landmark, ExternalLink
 } from "lucide-react"
 
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
@@ -41,6 +42,20 @@ interface LexiconCard {
   definition: string
   category: string
   legal_sources?: any[]
+}
+
+/**
+ * علامة قسم موحّدة: رقم القسم + خطّ رفيع + عنوان صغير.
+ * تعطي إيقاعاً بصرياً واضحاً للصفحة بدل شرائح ملوّنة متفرّقة.
+ */
+function SectionLabel({ step, children }: { step: string; children: React.ReactNode }) {
+  return (
+    <p className="flex items-center justify-center gap-3 text-[11px] font-black tracking-[0.14em] text-[#2563eb] uppercase">
+      <span className="tabular-nums text-[#64748b] dark:text-[#94a3b8]">{step}</span>
+      <span className="h-px w-6 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
+      {children}
+    </p>
+  )
 }
 
 export function HomePage() {
@@ -274,52 +289,128 @@ export function HomePage() {
         ]}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
-        <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
+        <section className="relative bg-white dark:bg-[#0f172a]">
+          <div className="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
+            <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
 
-            <p className="text-[13px] font-bold tracking-[0.08em] text-[#2563eb]">ميزان الرقمية</p>
-            <h1 className="mt-3 text-[30px] md:text-[42px] font-black leading-[1.25] tracking-[-0.02em] text-[#0f172a] dark:text-white">
-              المعرفة القانونية لطلبة الحقوق في المغرب
-            </h1>
+              {/* العمود النصّي */}
+              <div className="text-center lg:text-right">
+                <p className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</p>
+                <h1 className="mt-3 text-[30px] md:text-[40px] font-black leading-[1.22] tracking-[-0.02em] text-[#0f172a] dark:text-white">
+                  المعرفة القانونية لطلبة الحقوق في المغرب
+                </h1>
 
-            {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
-                Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
-                SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
-            <p className="lead mt-5 max-w-[620px] text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">
-              ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
-            </p>
+                {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
+                    Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
+                    SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
+                <p className="lead mt-5 text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">
+                  ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
+                </p>
 
-            <p className="mt-4 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-              ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.
-            </p>
+                <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+                  ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.
+                </p>
 
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-sm transition-colors">
-                ابدأ الآن
-                <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
-              </Link>
-              <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
-                اختبر معرفتك القانونية
-                <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
-              </Link>
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                  <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold transition-colors">
+                    تصفّح المحتوى
+                    <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
+                  </Link>
+                  <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                    اختبر معرفتك القانونية
+                    <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
+                  </Link>
+                </div>
+
+                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
+                  <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
+                  <li className="flex items-center gap-1.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
+                  <li className="flex items-center gap-1.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
+                </ul>
+              </div>
+
+              {/* لوحة المعاينة: محتوى حقيقي من المنصة (مصطلح + سلسلة إحالة + حاسبة) */}
+              <figure aria-label="معاينة من المنصة" className="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+                <figcaption className="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
+                  <span className="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">
+                    <Scale className="size-3.5 text-[#2563eb]" aria-hidden="true" />
+                    معاينة من المنصة
+                  </span>
+                  <span className="text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">مثال توضيحي</span>
+                </figcaption>
+
+                <div className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
+                  <div className="p-4">
+                    <p className="flex items-center gap-2 text-[10px] font-black tracking-wide text-[#2563eb]">
+                      <BookOpen className="size-3.5" aria-hidden="true" />القاموس القانوني
+                    </p>
+                    {latestTerms[0] ? (
+                      <>
+                        <p className="mt-2 text-[15px] font-black text-[#0f172a] dark:text-white">
+                          {latestTerms[0].term_ar}
+                          {latestTerms[0].term_fr && <span className="ms-2 text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8]">{latestTerms[0].term_fr}</span>}
+                        </p>
+                        <p className="mt-1 line-clamp-2 text-[12px] leading-6 text-[#475569] dark:text-[#94a3b8]">{latestTerms[0].definition}</p>
+                      </>
+                    ) : (
+                      <span className="mt-2 block space-y-2">
+                        <span className="block h-4 w-32 rounded bg-muted animate-pulse" />
+                        <span className="block h-3 w-full rounded bg-muted animate-pulse" />
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-4">
+                    <p className="flex items-center gap-2 text-[10px] font-black tracking-wide text-[#2563eb]">
+                      <Link2 className="size-3.5" aria-hidden="true" />خريطة الإحالات
+                    </p>
+                    <ol className="mt-3 flex flex-wrap items-center gap-1.5 text-[11px] font-bold text-[#334155] dark:text-[#cbd5e1]">
+                      <li className="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-1">النصّ القانوني</li>
+                      <li aria-hidden="true" className="text-[#64748b] dark:text-[#94a3b8]">←</li>
+                      <li className="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-1">
+                        {latestTerms[0]?.legal_sources?.[0]?.code_short || "النصّ المرجعي"}
+                        {latestTerms[0]?.legal_sources?.[0]?.articles?.[0]?.number ? ` — المادة ${latestTerms[0].legal_sources[0].articles[0].number}` : ""}
+                      </li>
+                      <li aria-hidden="true" className="text-[#64748b] dark:text-[#94a3b8]">←</li>
+                      <li className="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-1">المصدر الرسمي</li>
+                    </ol>
+                  </div>
+
+                  <div className="p-4">
+                    <p className="flex items-center gap-2 text-[10px] font-black tracking-wide text-[#2563eb]">
+                      <CalendarClock className="size-3.5" aria-hidden="true" />حاسبة الآجال
+                    </p>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                      <div className="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-2">
+                        <span className="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">تاريخ الحدث</span>
+                        <span className="mt-1 block text-[12px] font-black tabular-nums text-[#0f172a] dark:text-white">2026-01-25</span>
+                      </div>
+                      <div className="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-2">
+                        <span className="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">المدة</span>
+                        <span className="mt-1 block text-[12px] font-black tabular-nums text-[#0f172a] dark:text-white">30 يوماً</span>
+                      </div>
+                      <div className="rounded-lg border border-[#2563eb]/30 bg-[#eff6ff] dark:bg-[#1e3a5f]/30 px-2 py-2">
+                        <span className="block text-[10px] font-bold text-[#2563eb]">النتيجة</span>
+                        <span className="mt-1 block text-[12px] font-black tabular-nums text-[#2563eb]">2026-02-04</span>
+                      </div>
+                    </div>
+                    <p className="mt-2 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">أيام تقويمية، ويوم الحدث مستبعد — بلا احتساب العطل.</p>
+                  </div>
+                </div>
+              </figure>
             </div>
 
-            <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8]">
-              <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
-              <li className="flex items-center gap-1.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
-              <li className="flex items-center gap-1.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
-            </ul>
-
-            <div className="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">
+            {/* روابط سريعة للمحتوى */}
+            <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
-                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
-                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
-                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}` },
+                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, href: "/lexicon" },
+                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6", href: "/archive" },
+                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}`, href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}`, href: "/news" },
               ].map((card, i) => (
-                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                <Link key={i} to={card.href} className="group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover:border-[#2563eb]/30 transition-colors">
                   <div className="flex items-center justify-between">
-                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
+                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white`}>
                       <card.icon className="size-4" />
                     </div>
                     <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
@@ -327,9 +418,9 @@ export function HomePage() {
                   {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
                       سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
                       متسلسلاً مع بقية أقسام الصفحة. */}
-                  <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h2>
+                  <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h2>
                   <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
@@ -340,7 +431,8 @@ export function HomePage() {
             <div className="text-center mb-8">
               {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                   «استكشف مساراتنا المميزة»؛ النصّ نفسه في الـ prerender. */}
-              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
+              <SectionLabel step="٠١">المحتوى</SectionLabel>
+              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
               <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">كل ما يحتاجه طالب القانون المغربي في مكان واحد: القاموس، والملخصات، والمقالات، ودليل الكليات.</p>
             </div>
 
@@ -487,11 +579,51 @@ export function HomePage() {
           </div>
         </section>
 
+        {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
+        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:700px]">
+          <div className="container mx-auto max-w-[1120px] px-6">
+            <div className="text-center mb-8">
+              <SectionLabel step="٠٢">أدوات ميزان برو</SectionLabel>
+              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
+              <p className="mt-2 text-[13px] text-[#64748b] dark:text-[#94a3b8] max-w-[620px] mx-auto">
+                أدوات عملية داخل المنصة: مقارنة النصوص، وتمارين الواقعة إلى الحل، وخريطة الإحالات، والتنبيهات، وحساب الآجال، وملف بحث خاص بك.
+              </p>
+            </div>
+
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { title: "قانون عبر الزمن", desc: "قارن نسختين موثّقتين من النصّ نفسه، مع إبراز الفروق كلمة بكلمة.", icon: GitCompare },
+                { title: "من الواقعة إلى الحل", desc: "تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.", icon: Scale },
+                { title: "خريطة الإحالات القانونية", desc: "تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.", icon: Link2 },
+                { title: "راقب النصّ", desc: "احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.", icon: BellRing },
+                { title: "حاسبة الآجال المسطرية", desc: "حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.", icon: CalendarClock },
+                { title: "ملف البحث القانوني", desc: "احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.", icon: FolderOpen },
+              ].map((tool, i) => (
+                <article key={i} className="bg-white dark:bg-[#1e293b] p-5">
+                  <span className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f]/30 text-[#2563eb]" aria-hidden="true">
+                    <tool.icon className="size-5" />
+                  </span>
+                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{tool.title}</h3>
+                  <p className="mt-1.5 text-[12px] leading-6 text-[#64748b] dark:text-[#94a3b8]">{tool.desc}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-4 text-[12px] font-bold">
+              <Link to="/pro-tools" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-2.5 transition-colors">
+                تعرّف على الأدوات
+                <ArrowRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+              </Link>
+              <Link to="/pricing" className="text-[#2563eb] hover:underline">الأسعار</Link>
+            </div>
+          </div>
+        </section>
+
         <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
           <div className="container relative mx-auto max-w-[1280px] px-6">
             <div className="text-center max-w-[640px] mx-auto">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
-                الأسعار - خطط مرنة
+                ٠٣ — الأسعار - خطط مرنة
               </span>
               <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                 خطط تناسب كل
@@ -610,7 +742,7 @@ export function HomePage() {
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="max-w-[900px] mx-auto">
               <div className="text-center max-w-[640px] mx-auto mb-10">
-                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">لماذا نحن</span>
+                <SectionLabel step="٠٤">لماذا نحن</SectionLabel>
                 {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                     «اكتشف المزايا المميزة لمنصتنا التعليمية القانونية». */}
                 <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
@@ -639,33 +771,44 @@ export function HomePage() {
                   خارجية صريحة بـ rel="noopener noreferrer" — النسب يُقرأ
                   فيُربط المحتوى التعليمي بمصدر التحقق، وهو نفسه المذكور في
                   نسخة prerender الثابتة فلا تختلف نسختا الصفحة. */}
-              <p className="mt-8 text-center text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8]">
-                جميع النصوص القانونية والقواعد المذكورة في منصة ميزان الرقمية محالة إلى مصادر رسمية يمكن التحقق منها مباشرة:{" "}
-                <a
-                  href="https://www.sgg.gov.ma"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-[#2563eb] hover:underline"
-                >
-                  البوابة الرسمية للجريدة الرسمية (الأمانة العامة للحكومة)
-                </a>{" "}
-                و{" "}
-                <a
-                  href="https://adala.justice.gov.ma"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-[#2563eb] hover:underline"
-                >
-                  بوابة العدالة الرقمية (وزارة العدل)
-                </a>.
-              </p>
+              <div className="mt-8 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-4 sm:p-5">
+                <p className="text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8]">
+                  جميع النصوص القانونية والقواعد المذكورة في منصة ميزان الرقمية محالة إلى مصادر رسمية يمكن التحقق منها مباشرة.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <a
+                    href="https://www.sgg.gov.ma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] px-3.5 py-3 text-[12px] font-bold text-[#0f172a] dark:text-white hover:border-[#2563eb]/40 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Landmark className="size-4 text-[#2563eb]" aria-hidden="true" />
+                      الجريدة الرسمية — الأمانة العامة للحكومة
+                    </span>
+                    <ExternalLink className="size-3.5 text-[#64748b]" aria-hidden="true" />
+                  </a>
+                  <a
+                    href="https://adala.justice.gov.ma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] px-3.5 py-3 text-[12px] font-bold text-[#0f172a] dark:text-white hover:border-[#2563eb]/40 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Landmark className="size-4 text-[#2563eb]" aria-hidden="true" />
+                      بوابة العدالة الرقمية — وزارة العدل
+                    </span>
+                    <ExternalLink className="size-3.5 text-[#64748b]" aria-hidden="true" />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
           <div className="container mx-auto max-w-[1280px] px-6 relative">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
               {[
                 { value: `${counts.lexicon}`, label: "مصطلح قانوني" },
                 { value: "S1-S6", label: "فصول دراسية" },

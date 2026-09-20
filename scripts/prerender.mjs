@@ -510,6 +510,7 @@ const ICON = {
   scale: `<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>`,
   library: `<path d="m16 6 4 14"></path><path d="M12 6v14"></path><path d="M8 8v12"></path><path d="M4 4v16"></path>`,
   bookOpen: `<path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>`,
+  link: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>`,
   shieldCheck: `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path>`,
   clock: `<circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>`,
   cap: `<path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path><path d="M22 10v6"></path><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"></path>`,
@@ -581,34 +582,85 @@ const homeStatCards = [
   ["الأخبار", "مستجدات تشريعية", ICON.cap, "bg-[#b91c1c]", String(statistics.news)],
 ];
 
-const homeHeroHtml = `
-          <section class="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-            <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
-              <p class="text-[13px] font-bold tracking-[0.08em] text-[#2563eb]">ميزان الرقمية</p>
-              <h1 class="mt-3 text-[30px] md:text-[42px] font-black leading-[1.25] tracking-[-0.02em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
-              <p class="lead mt-5 max-w-[620px] text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
-              <p class="mt-4 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</p>
-              <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
-                <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
-                <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
-              </div>
-              <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8]">
-                <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
-                <li class="flex items-center gap-1.5">${svgIcon(ICON.clock, "size-4 text-[#2563eb]", 16)}تحديث مستمر للمستجدات</li>
-                <li class="flex items-center gap-1.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات الفصول S1-S6</li>
-              </ul>
+const heroTerm =
+  lexicon.find((term) => term.legal_sources && term.legal_sources.length > 0) || lexicon[0];
+const heroSource = heroTerm?.legal_sources?.[0];
+const heroArticle = heroSource?.articles?.[0]?.number;
 
-              <div class="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">${homeStatCards
+const homeHeroHtml = `
+          <section class="relative bg-white dark:bg-[#0f172a]">
+            <div class="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
+              <div class="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
+                <div class="text-center lg:text-right">
+                  <p class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</p>
+                  <h1 class="mt-3 text-[30px] md:text-[40px] font-black leading-[1.22] tracking-[-0.02em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
+                  <p class="lead mt-5 text-[15px] md:text-[16px] font-bold leading-7 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
+                  <p class="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</p>
+                  <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                    <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold transition-colors">تصفّح المحتوى<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
+                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
+                  </div>
+                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.clock, "size-4 text-[#2563eb]", 16)}تحديث مستمر للمستجدات</li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات الفصول S1-S6</li>
+                  </ul>
+                </div>
+
+                <figure aria-label="معاينة من المنصة" class="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+                  <figcaption class="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
+                    <span class="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">${svgIcon(ICON.scale, "size-3.5 text-[#2563eb]", 14)}معاينة من المنصة</span>
+                    <span class="text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">مثال توضيحي</span>
+                  </figcaption>
+                  <div class="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
+                    <div class="p-4">
+                      <p class="flex items-center gap-2 text-[10px] font-black tracking-wide text-[#2563eb]">${svgIcon(ICON.bookOpen, "size-3.5", 14)}القاموس القانوني</p>
+                      <p class="mt-2 text-[15px] font-black text-[#0f172a] dark:text-white">${heroTerm?.term_ar ?? ""}${heroTerm?.term_fr ? `<span class="ms-2 text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8]">${heroTerm.term_fr}</span>` : ""}</p>
+                      <p class="mt-1 text-[12px] leading-6 text-[#475569] dark:text-[#94a3b8]">${(heroTerm?.definition ?? "").slice(0, 140)}</p>
+                    </div>
+                    <div class="p-4">
+                      <p class="flex items-center gap-2 text-[10px] font-black tracking-wide text-[#2563eb]">${svgIcon(ICON.link, "size-3.5", 14)}خريطة الإحالات</p>
+                      <ol class="mt-3 flex flex-wrap items-center gap-1.5 text-[11px] font-bold text-[#334155] dark:text-[#cbd5e1]">
+                        <li class="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-1">النصّ القانوني</li>
+                        <li aria-hidden="true" class="text-[#94a3b8]">←</li>
+                        <li class="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-1">${heroSource?.code_short ?? "النصّ المرجعي"}${heroArticle ? ` — المادة ${heroArticle}` : ""}</li>
+                        <li aria-hidden="true" class="text-[#94a3b8]">←</li>
+                        <li class="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-1">المصدر الرسمي</li>
+                      </ol>
+                    </div>
+                    <div class="p-4">
+                      <p class="flex items-center gap-2 text-[10px] font-black tracking-wide text-[#2563eb]">${svgIcon(ICON.clock, "size-3.5", 14)}حاسبة الآجال</p>
+                      <div class="mt-3 grid grid-cols-3 gap-2 text-center">
+                        <div class="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-2">
+                          <span class="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">تاريخ الحدث</span>
+                          <span class="mt-1 block text-[12px] font-black tabular-nums text-[#0f172a] dark:text-white">2026-01-25</span>
+                        </div>
+                        <div class="rounded-lg border border-[#e2e8f0] dark:border-[#334155] px-2 py-2">
+                          <span class="block text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">المدة</span>
+                          <span class="mt-1 block text-[12px] font-black tabular-nums text-[#0f172a] dark:text-white">30 يوماً</span>
+                        </div>
+                        <div class="rounded-lg border border-[#2563eb]/30 bg-[#eff6ff] dark:bg-[#1e3a5f]/30 px-2 py-2">
+                          <span class="block text-[10px] font-bold text-[#2563eb]">النتيجة</span>
+                          <span class="mt-1 block text-[12px] font-black tabular-nums text-[#2563eb]">2026-02-04</span>
+                        </div>
+                      </div>
+                      <p class="mt-2 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">أيام تقويمية، ويوم الحدث مستبعد — بلا احتساب العطل.</p>
+                    </div>
+                  </div>
+                </figure>
+              </div>
+
+              <div class="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">${homeStatCards
                 .map(
                   ([title, desc, icon, color, badge]) => `
-                <div class="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                <a href="${desc === "S1-S6" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" class="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover:border-[#2563eb]/30 transition-colors">
                   <div class="flex items-center justify-between">
-                    <div class="grid size-9 place-items-center rounded-xl ${color} text-white shadow-sm">${svgIcon(icon, "size-4", 16)}</div>
+                    <div class="grid size-9 place-items-center rounded-xl ${color} text-white">${svgIcon(icon, "size-4", 16)}</div>
                     <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
                   </div>
                   <h2 class="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">${title}</h2>
                   <p class="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">${desc}</p>
-                </div>`
+                </a>`
                 )
                 .join("")}
               </div>
