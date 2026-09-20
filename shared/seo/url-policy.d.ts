@@ -25,6 +25,9 @@ export declare function followsSlashPolicy(value: string): boolean;
 /** هل يُفهرَس هذا المسار؟ (لا admin ولا حسابات ولا بحث داخلي) */
 export declare function isIndexablePath(input: string): boolean;
 
+/** هل المسار مسار عنصر («/قسم/معرّف») لا مسار بوابة («/قسم»)؟ */
+export declare function isItemPath(path: string): boolean;
+
 export declare function canonicalHome(origin?: string): string;
 export declare function canonicalSchool(slug: string, origin?: string): string;
 export declare function canonicalSchools(origin?: string): string;

@@ -31,6 +31,7 @@ import {
   canonicalSchool,
   canonicalUrl,
   docSlug,
+  isItemPath,
   eventSlug,
   isIndexablePath,
   lexiconSlug,
@@ -111,6 +112,15 @@ const pdfEntries = [...docs, ...cmsPdfs, ...cmsLaws].map((item) => ({
   priority: "0.6",
 }));
 
+const droppedEntries = [];
+
+/** عنصر صالح للنشر: مسار «/قسم/معرّف» حقيقي، لا مسار بوابة ولا undefined. */
+function usableEntry(entry) {
+  if (entry && isItemPath(entry.path)) return true;
+  if (entry?.path) droppedEntries.push(entry.path);
+  return false;
+}
+
 const dynamicEntries = [
   // كل عناصر articles.json تُولد تحت /articles/ — بمن فيها ما يحمل
   // type: "news". كان السكربت السابق يحوّلها إلى /news/ بحسب النوع، بينما
@@ -128,18 +138,25 @@ const dynamicEntries = [
     changefreq: "monthly",
     priority: "0.8",
   })),
-  ...cmsArticles.map((item) => ({
-    path: pathOfUrl(`/articles/${item.slug}`),
-    lastmod: dateOf(item),
-    changefreq: "monthly",
-    priority: "0.8",
-  })),
-  ...cmsNews.map((item) => ({
-    path: pathOfUrl(`/news/${item.slug}`),
-    lastmod: dateOf(item),
-    changefreq: "monthly",
-    priority: "0.8",
-  })),
+  // سجلّات لوحة التحكم بنفس دالة المعرّف المستعملة في الواجهة وprerender:
+  // slug مملوء ← عنوان ← id. القراءة المباشرة لـ item.slug كانت تنشر
+  // «/articles/undefined» حين ينساه المحرّر، أي رابط ميت في الخريطة.
+  ...cmsArticles
+    .map((item) => ({
+      path: pathOfUrl(canonicalArticle(articleSlug(item))),
+      lastmod: dateOf(item),
+      changefreq: "monthly",
+      priority: "0.8",
+    }))
+    .filter(usableEntry),
+  ...cmsNews
+    .map((item) => ({
+      path: pathOfUrl(canonicalNews(newsSlug(item))),
+      lastmod: dateOf(item),
+      changefreq: "monthly",
+      priority: "0.8",
+    }))
+    .filter(usableEntry),
   ...events.map((item) => ({
     path: pathOfUrl(canonicalEvent(eventSlug(item))),
     lastmod: dateOf(item, ["eventDate", "updatedAt", "updated_at"]),
@@ -223,6 +240,13 @@ if (slashViolations.length) {
       .slice(0, 5)
       .map((entry) => entry.url)
       .join(", ")}`,
+  );
+}
+
+if (droppedEntries.length) {
+  console.warn(
+    `⚠️  sitemap: ${droppedEntries.length} سجلّاً من لوحة التحكم بلا معرّف صالح — أمثلة: ` +
+    [...new Set(droppedEntries)].slice(0, 4).join(", ")
   );
 }
 

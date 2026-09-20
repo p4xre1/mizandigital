@@ -35,6 +35,7 @@ import {
   followsSlashPolicy,
   internalPath,
   isIndexablePath,
+  isItemPath,
   itemPath,
   lexiconSlugMap,
   normalizePath,
@@ -220,6 +221,39 @@ describe("روابط المحتوى المبني من البيانات", () => {
     for (const href of [...schoolLinks, ...newsLinks, ...articleLinks, ...lexiconLinks]) {
       expect(canonicalUrl(pathOfUrl(href))).toBe(href);
     }
+  });
+});
+
+/* ── 3 ب. سجلّات نظام الإدارة لا تسرق مسار البوابة ────────────────────────── */
+
+describe("معرّف المحتوى من لوحة التحكم", () => {
+  test("isItemPath يفرّق عنصر القسم عن القسم نفسه", () => {
+    expect(isItemPath("/articles/ihtiram-qanun")).toBe(true);
+    expect(isItemPath("/lexicon/التقادم")).toBe(true);
+    expect(isItemPath("/pdf/medخل-s4")).toBe(true);
+    expect(isItemPath("/schools")).toBe(false);
+    expect(isItemPath("/articles")).toBe(false);
+    expect(isItemPath("/articles/")).toBe(false);
+    expect(isItemPath("/about")).toBe(false);
+    expect(isItemPath("/")).toBe(false);
+  });
+
+  test("سجلّ بلا slug ولا عنوان ولا id لا يُنشئ رابط بوابة مكرَّراً", () => {
+    // هذا بالضبط ما كان يُسقط بناء Pages: سجلّ منسيّ بلا slug يعطي
+    // `/articles/undefined` في الخريطة و`/articles/` في prerender، فيتطابق
+    // بعد التطبيع مع مسار البوابة → تكرار مسار أو رابط ميت منشور.
+    const orphan = { slug: "", title: "", id: "" };
+    const path = pathOfUrl(canonicalArticle(contentSlug(orphan as never)));
+    expect(path).toBe("/articles");
+    expect(isItemPath(path)).toBe(false);
+
+    const titled = { slug: "", title: "حكم جديد في قانون الالتزامات", id: 42 };
+    const good = pathOfUrl(canonicalArticle(contentSlug(titled as never)));
+    expect(isItemPath(good)).toBe(true);
+    expect(good.endsWith("/")).toBe(false);
+
+    const byId = { slug: null, title: null, id: "rec7Abc" };
+    expect(contentSlug(byId as never)).toBe("rec7Abc");
   });
 });
 

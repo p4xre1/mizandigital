@@ -11,8 +11,10 @@ import {
   canonicalPdf,
   canonicalSchool,
   canonicalUrl,
+  contentSlug,
   docSlug,
   eventSlug,
+  isItemPath,
   isIndexablePath,
   lexiconSlug,
   newsSlug,
@@ -288,8 +290,19 @@ if (!cms.ok) {
 
 const usedContentPaths = new Set();
 
+const skippedContent = [];
+
 function pushContent(list, entry) {
   if (!entry || !entry.path || usedContentPaths.has(entry.path)) return;
+
+  // سجلّ بلا معرّف صالح (لا slug ولا title ولا id) كان يعطي «/articles/»،
+  // أي مسار بوابة المقالات نفسها بعد التطبيع — فتنشأ صفحة مكرَّرة أو يفشل
+  // البناء على تكرار المسار. نتجاهل السجلّ ونُعلنه، ولا نكسر النشر.
+  if (!isItemPath(entry.path)) {
+    skippedContent.push(entry.path);
+    return;
+  }
+
   usedContentPaths.add(entry.path);
   list.push(entry);
 }
@@ -313,7 +326,8 @@ for (const item of articles) {
 for (const item of cms.articles) {
   pushContent(articlePages, {
     name: item.title,
-    path: pathOfUrl(`/articles/${generateSlug(item.slug)}`),
+    // contentSlug نفسه المستعمل في الواجهة والخريطة: slug مملوء ← عنوان ← id.
+    path: pathOfUrl(canonicalArticle(contentSlug(item))),
     summary: item.meta_description || item.excerpt || "",
     item,
     fromCms: true,
@@ -332,7 +346,7 @@ for (const item of news) {
 for (const item of cms.news) {
   pushContent(newsPages, {
     name: item.title,
-    path: pathOfUrl(`/news/${generateSlug(item.slug)}`),
+    path: pathOfUrl(canonicalNews(contentSlug(item))),
     summary: item.summary || "",
     item,
     fromCms: true,
@@ -360,6 +374,13 @@ for (const item of [...documents, ...cms.pdfs, ...cms.laws]) {
   });
 }
 
+
+if (skippedContent.length) {
+  console.warn(
+    `⚠️  محتوى متجاهَل في prerender: ${skippedContent.length} سجلّاً بلا معرّف صالح ` +
+    `(لا slug ولا title ولا id) — أمثلة: ${skippedContent.slice(0, 4).join(", ")}`
+  );
+}
 
 /* -------------------------------------------------------
    Entity identity

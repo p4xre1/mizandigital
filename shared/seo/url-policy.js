@@ -138,6 +138,30 @@ export const canonicalPdf = (slug, origin) => canonicalUrl(`/pdf/${slug}`, { ori
 export const canonicalArchive = (origin) => canonicalUrl("/archive", { origin });
 export const canonicalPage = (slug, origin) => canonicalUrl(`/${slug}`, { origin });
 
+/** بادئات المحتوى التي لها صفحة تفصيلية بمعرّف. */
+const ITEM_PREFIXES = new Set([
+  "/schools",
+  "/lexicon",
+  "/news",
+  "/articles",
+  "/events",
+  "/pdf",
+]);
+
+/**
+ * هل هذا مسار عنصر محتوى صالح — أي «/قسم/معرّف» لا «/قسم» وحده؟
+ *
+ * لماذا نهتم؟ لأن سجلّاً في نظام الإدارة بلا `slug` ولا عنوان كان يعطي
+ * `/articles/`، فيُطبَّع إلى `/articles` — أي مسار البوابة نفسها. النتيجة:
+ * صفحة المقالات تُكتب مرتين في dist، أو يفشل البناء على تكرار المسار.
+ * الفحص هنا يجعل المعرّف الفارغ يُتجاهَل بصوتٍ عالٍ بدل أن يسرق رابط قسم.
+ */
+export function isItemPath(path) {
+  const segments = normalizePath(path).split("/").filter(Boolean);
+  if (segments.length < 2) return false;
+  return ITEM_PREFIXES.has(`/${segments[0]}`);
+}
+
 /** مسار الرابط القانوني لنوع محتوى — يُستعمل حين تُحتاج النسبة لا الرابط الكامل. */
 export const itemPath = {
   school: (slug) => internalPath(`/schools/${slug}`),
