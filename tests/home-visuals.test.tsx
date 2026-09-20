@@ -320,3 +320,96 @@ describe("سيكولوجيا صفحة الهبوط", () => {
     }
   });
 });
+
+describe("الصفحة الرئيسية — التدرّجات المهنية", () => {
+  const css = () => readFileSync("src/styles/globals.css", "utf8");
+
+  /** كل قاعدة في ملف الأنماط تحتوي تدرّجاً، مع اسم المُحدِّد. */
+  function gradientRules() {
+    return css()
+      .split("}")
+      .filter((block) => /gradient\(/.test(block))
+      .map((block) => {
+        const head = block.split("{")[0];
+        const selector =
+          head
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((line) => line.startsWith("."))
+            .pop() ?? "";
+        return { selector, block };
+      });
+  }
+
+  it("تحصر كل تدرّج في طبقة grad-* ومساطر الأقسام، بألوان الهوية وحدها", () => {
+    const rules = gradientRules();
+    // الطبقة الحالية: grad-hero، grad-band، grad-accent، grad-card، grad-soft،
+    // الزرّ الأساسي، وأربع مساطر أقسام (أزرق/ذهبي/أخضر/أحمر).
+    expect(rules.length).toBeGreaterThanOrEqual(10);
+
+    // ألوان مسموحة فقط: أزرق الهوية، المحايدات، الكحلي، وألوان المساطر.
+    const allowed = new Set([
+      "#2563eb", "#3b82f6", "#1d4ed8", "#1e40af", "#1e3a8a",
+      "#ffffff", "#f8fafc", "#f1f5f9",
+      "#0f172a", "#0b1220", "#101c33", "#1e293b", "#172033",
+      "#b45309", "#047857", "#b91c1c",
+    ]);
+    const allowedRgb = [
+      "rgb(37 99 235 /", // أزرق الهوية
+      "rgb(180 83 9 /", "rgb(4 120 87 /", "rgb(185 28 28 /", // مساطر الأقسام
+    ];
+
+    for (const { selector, block } of rules) {
+      expect(selector, `مُحدِّد خارج الطبقة: ${selector}`).toMatch(
+        /^\.(?:dark\s+\.)?(?:grad-[\w-]+|btn-accent)(?::hover|:focus-visible)?$|^\.accent-rule(?:-\w+)?::after$/,
+      );
+      // تدرّج خطي/شعاعي فقط: لا مخروطي ولا متكرّر ولا ملفات صور
+      expect(block, selector).not.toMatch(/conic-gradient|repeating-|url\(/);
+      for (const hex of block.match(/#[0-9a-fA-F]{3,8}/g) ?? []) {
+        expect(allowed.has(hex.toLowerCase()), `${selector}: ${hex}`).toBe(true);
+      }
+      for (const rgb of block.match(/rgba?\([^)]*\)/g) ?? []) {
+        expect(
+          allowedRgb.some((token) => rgb.replace(/\s+/g, " ").startsWith(token)),
+          `${selector}: ${rgb}`,
+        ).toBe(true);
+      }
+      // ولا ألوان خارج هوية ميزان بالاسم
+      expect(block, selector).not.toMatch(/violet|fuchsia|purple|indigo|amber|orange|pink|teal/);
+    }
+  });
+
+  it("تُبقي التدرّجات ساكنة: بلا حركة ولا نبض ولا نصّ متدرّج", () => {
+    for (const { selector, block } of gradientRules()) {
+      expect(block, selector).not.toMatch(/animation|transition/);
+    }
+    // وقاعدة عامة على كل الملف: لا نصّ مقصوص بتدرّج ولا حركة لا نهائية
+    expect(css()).not.toMatch(/bg-clip-text|background-clip:\s*text/);
+    expect(css()).not.toMatch(/animation-iteration-count:\s*infinite/);
+  });
+
+  it("تُعمّم الطبقة على الأسطح الرئيسية في الصفحة الحيّة والثابتة", () => {
+    const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
+    const prerender = readFileSync("scripts/prerender.mjs", "utf8");
+    // الرأس والبطاقات والأزرار والشريط الكحلي والقسم الختامي
+    for (const cls of ["grad-hero", "grad-card", "grad-soft", "grad-band", "btn-accent"]) {
+      expect(src, `حيّ: ${cls}`).toContain(cls);
+      expect(prerender, `ثابت: ${cls}`).toContain(cls);
+    }
+    // شريط الأرقام في الصفحة الحيّة فقط (لا نظير ثابت له)
+    expect(src).toContain("grad-accent");
+    // والطبقة كلها معرّفة في ملف الأنماط المُشترك لا في السطور
+    for (const cls of ["grad-hero", "grad-band", "grad-accent", "grad-card", "grad-soft"]) {
+      expect(css(), cls).toContain(`.${cls}`);
+    }
+    expect(css()).toContain(".dark .grad-hero");
+  });
+
+  it("لا تُدخل التدرّج إلى قسم الأسعار ولا إلى بطاقات الفواتير", () => {
+    const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
+    const pricing = src.slice(src.indexOf("الأسعار - خطط مرنة"), src.indexOf("لماذا نحن"));
+    expect(pricing).not.toMatch(/grad-|btn-accent/);
+    // والحرس المؤسسي القديم ما زال قائماً: لا أصناف تدرّج من Tailwind
+    expect(src).not.toMatch(/bg-gradient-|bg-\[(radial|linear)-gradient/);
+  });
+});

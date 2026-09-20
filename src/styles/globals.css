@@ -142,8 +142,9 @@
 /* ============================================================
    لغة ميزان البصرية: نقش زليج، حركة دخول، وعمق عند التحويم.
    كل ما هنا يعمل في النسخة الحيّة وفي HTML الثابت معاً لأنه من نفس
-   الحزمة المُبنية؛ والقاعدة الوحيدة: لا حركة لا نهائية، ولا تدرّجات
-   لونية، ولا توهّج. الحركة كلها لمرة واحدة عند الظهور أو عند التحويم.
+   الحزمة المُبنية؛ والقاعدة: لا حركة لا نهائية، ولا توهّج. الحركة كلها
+   لمرة واحدة عند الظهور أو عند التحويم. والتدرّجات محصورة في طبقة
+   `grad-*` الهادئة أسفل هذا الملف: ألوان الهوية وحدها، وبلا أي حركة.
    ============================================================ */
 
 /* مسطرة لون صغيرة تحت عنوان القسم: إيقاع واحد لكل الأقسام بلون كل قسم. */
@@ -154,12 +155,12 @@
   height: 3px;
   margin-top: 10px;
   border-radius: 9999px;
-  background: #2563eb;
+  background-image: linear-gradient(to left, #2563eb 0%, rgb(37 99 235 / 0.2) 100%);
 }
 .accent-rule-center::after { margin-inline: auto; }
-.accent-rule-gold::after { background: #b45309; }
-.accent-rule-green::after { background: #047857; }
-.accent-rule-red::after { background: #b91c1c; }
+.accent-rule-gold::after { background-image: linear-gradient(to left, #b45309 0%, rgb(180 83 9 / 0.2) 100%); }
+.accent-rule-green::after { background-image: linear-gradient(to left, #047857 0%, rgb(4 120 87 / 0.2) 100%); }
+.accent-rule-red::after { background-image: linear-gradient(to left, #b91c1c 0%, rgb(185 28 28 / 0.2) 100%); }
 
 /* دخول لمرة واحدة عند الظهور (لا تكرار). */
 @keyframes mizan-rise {
@@ -193,4 +194,75 @@
   .link-arrow, .group:hover .link-arrow { transform: none; }
   .zoom-frame img, .group:hover .zoom-frame img { transform: none; }
   html { scroll-behavior: auto; }
+}
+
+/* ============================================================
+   طبقة التدرّجات المهنية (grad-*).
+
+   الغرض: إعطاء الأسطح الرئيسية عمقاً هادئاً بدل التسطيح التام — لا زخرفة.
+   القواعد الحاكمة:
+     · لون واحد (الأزرق المؤسسي) على محايدات رمادية/كحلية، بلا ألوان أخرى.
+     · تباين منخفض: أعلى شفافية تُستعمل هي 0.22 من الأزرق على الكحلي.
+     · بلا حركة إطلاقاً: التدرّج لون ساكن لا يتحرّك ولا ينبض.
+     · كل ما هنا يُستدعى بالاسم من الواجهة والـHTML الثابت معاً.
+   ============================================================ */
+
+/* رأس الصفحة: غسل رأسي فاتح + ضوء أزرق خفيف من أعلى (لا هالة، لا صورة). */
+.grad-hero {
+  background-image:
+    radial-gradient(52rem 30rem at 32% -14%, rgb(37 99 235 / 0.10), rgb(37 99 235 / 0) 68%),
+    linear-gradient(180deg, #f1f5f9 0%, #ffffff 78%);
+}
+.dark .grad-hero {
+  background-image:
+    radial-gradient(52rem 30rem at 32% -14%, rgb(37 99 235 / 0.22), rgb(37 99 235 / 0) 68%),
+    linear-gradient(180deg, #0b1220 0%, #0f172a 78%);
+}
+
+/* الشريط الكحلي: عمق قطري هادئ + ضوء أزرق عند الحافة العلوية. */
+.grad-band {
+  background-image:
+    radial-gradient(60rem 26rem at 78% -10%, rgb(37 99 235 / 0.22), rgb(37 99 235 / 0) 70%),
+    linear-gradient(160deg, #101c33 0%, #0f172a 55%, #0b1220 100%);
+}
+.dark .grad-band {
+  background-image:
+    radial-gradient(60rem 26rem at 78% -10%, rgb(37 99 235 / 0.26), rgb(37 99 235 / 0) 70%),
+    linear-gradient(160deg, #0f172a 0%, #0b1220 60%, #0b1220 100%);
+}
+
+/* شريط الأرقام: تدرّج الأزرق نفسه بدرجة أغمق في الأسفل (عمق بلا لمعة). */
+.grad-accent {
+  background-image: linear-gradient(160deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
+}
+.dark .grad-accent {
+  background-image: linear-gradient(160deg, #2563eb 0%, #1e40af 60%, #1e3a8a 100%);
+}
+
+/* البطاقات: بياض يتحوّل إلى الرمادي الفاتح جداً — يفصل البطاقة عن الأرضية. */
+.grad-card {
+  background-image: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+.dark .grad-card {
+  background-image: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+}
+
+/* الأشرطة الختامية والفواصل الرقيقة. */
+.grad-soft {
+  background-image: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+.dark .grad-soft {
+  background-image: linear-gradient(180deg, #0f172a 0%, #0b1220 100%);
+}
+
+/* الزرّ الأساسي: تدرّج رأسي قصير يعطي الزرّ حافة عليا مضيئة وثقلاً في الأسفل. */
+.btn-accent {
+  background-image: linear-gradient(180deg, #3b82f6 0%, #2563eb 58%, #1d4ed8 100%);
+}
+.btn-accent:hover {
+  background-image: linear-gradient(180deg, #2563eb 0%, #1d4ed8 58%, #1e40af 100%);
+}
+.btn-accent:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
 }

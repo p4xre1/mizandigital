@@ -591,7 +591,7 @@ const heroSource = heroTerm?.legal_sources?.[0];
 const heroArticle = heroSource?.articles?.[0]?.number;
 
 const homeHeroHtml = `
-          <section class="relative overflow-hidden bg-white dark:bg-[#0f172a]">
+          <section class="grad-hero relative overflow-hidden bg-white dark:bg-[#0f172a]">
             <div class="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
               <div class="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
                 <div class="rise text-center lg:text-right">
@@ -614,7 +614,7 @@ const homeHeroHtml = `
                     <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
                   </p>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                    <a href="/archive" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
+                    <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
                     <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
                   </div>
                   <ul class="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-2 lg:grid-cols-4">
@@ -625,7 +625,7 @@ const homeHeroHtml = `
                   </ul>
                 </div>
 
-<figure aria-label="معاينة من المنصة" style="animation-delay:140ms" class="rise overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+<figure aria-label="معاينة من المنصة" style="animation-delay:140ms" class="grad-card rise overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
                   <div class="h-1 w-full bg-[#2563eb]" aria-hidden="true"></div>
                   <figcaption class="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
                     <span class="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">${svgIcon(ICON.scale, "size-3.5 text-[#2563eb]", 14)}معاينة من المنصة</span>
@@ -672,7 +672,7 @@ const homeHeroHtml = `
               <div class="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">${homeStatCards
                 .map(
                   ([title, desc, icon, color, badge], i) => `
-                <a href="${title === "الأرشيف" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
+                <a href="${title === "الأرشيف" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="grad-card rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
                   <div class="flex items-center justify-between">
                     <div class="grid size-9 place-items-center rounded-xl ${color} text-white">${svgIcon(icon, "size-4", 16)}</div>
                     <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
@@ -873,7 +873,7 @@ const pages = [
 
           <!-- أدوات ميزان برو — نفس القسم المعروض في الصفحة الحيّة،
                حتى يرى الزائر والزاحف المزايا المدفوعة قبل قسم الاشتراك. -->
-          <section class="mt-12 md:mt-14 rounded-2xl border border-[#1e3a5f] bg-[#0f172a] dark:bg-[#0b1220] p-6 text-[#cbd5e1]">
+          <section class="grad-band mt-12 md:mt-14 rounded-2xl border border-[#1e3a5f] bg-[#0f172a] dark:bg-[#0b1220] p-6 text-[#cbd5e1]">
             <h2 class="accent-rule accent-rule-gold text-[20px] font-black text-white">ما هي أدوات ميزان برو الستّ؟</h2>
             <p class="mt-3">
               أدوات عملية داخل المنصة تتطلب اشتراكاً نشطاً، ويبقى القاموس والأرشيف والمقالات مجانياً للجميع:
@@ -1059,13 +1059,13 @@ const pages = [
           </section>
 
           <!-- الشريط الختامي: دعوة واحدة واضحة مع تقليل المخاطرة -->
-          <section class="mt-12 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] p-6 text-center sm:p-8">
+          <section class="grad-soft mt-12 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] p-6 text-center sm:p-8">
             <h2 class="text-[22px] font-black text-[#0f172a] dark:text-white sm:text-[26px]">ابدأ من الفصل الذي تدرسه اليوم</h2>
             <p class="mx-auto mt-3 max-w-[640px]">
               افتح الأرشيف، اختر الفصل والمادة، ثم اختبر نفسك. المحتوى الأساسي مجاني وبلا حساب.
             </p>
             <p class="mt-4">
-              <a href="/archive" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] px-8 py-3.5 text-[15px] font-black text-white">تصفّح الأرشيف الدراسي</a>
+              <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] px-8 py-3.5 text-[15px] font-black text-white">تصفّح الأرشيف الدراسي</a>
             </p>
             <p class="mt-3 text-[13px]"><a href="/quiz">أو جرّب اختباراً سريعاً</a></p>
           </section>

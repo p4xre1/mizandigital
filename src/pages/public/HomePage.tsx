@@ -306,7 +306,7 @@ export function HomePage() {
         ]}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
-        <section className="relative overflow-hidden bg-white dark:bg-[#0f172a]">
+        <section className="relative overflow-hidden grad-hero dark:bg-[#0f172a] bg-white">
           <div className="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
             <div className="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
 
@@ -346,7 +346,7 @@ export function HomePage() {
                 <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                   {/* زرّ أساسي واحد فقط للفعل الأهم (طلب المستخدم: المراجعة
                       قبل الامتحان). الزرّ الثانوي إطار بلا تعبئة (Von Restorff). */}
-                  <Link to="/archive" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
+                  <Link to="/archive" className="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
                     ابدأ المراجعة — مجاناً
                     <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
                   </Link>
@@ -367,7 +367,7 @@ export function HomePage() {
 
               {/* لوحة المعاينة: محتوى حقيقي من المنصة (مصطلح + سلسلة إحالة + حاسبة) */}
               <Reveal delay={140}>
-              <figure aria-label="معاينة من المنصة" className="overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+              <figure aria-label="معاينة من المنصة" className="grad-card overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
                 {/* شريط العلامة أعلى اللوحة */}
                 <div className="h-1 w-full bg-[#2563eb]" aria-hidden="true" />
                 <figcaption className="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
@@ -494,7 +494,7 @@ export function HomePage() {
                 { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, numeric: articlesCount, tone: "bg-[#10b981]/10 text-[#047857]", bar: "bg-[#10b981]", link: "اقرأ التحليلات", href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: `${counts.news}`, numeric: counts.news, tone: "bg-[#ef4444]/10 text-[#b91c1c]", bar: "bg-[#ef4444]", link: "تابع المستجدات", href: "/news" },
               ].map((card) => (
-                <Link key={card.href} to={card.href} className="group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover-lift">
+                <Link key={card.href} to={card.href} className="grad-card group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover-lift">
                   <span className={`absolute inset-x-0 top-0 h-1 ${card.bar}`} aria-hidden="true" />
                   
                   <div className="flex items-center justify-between">
@@ -658,7 +658,7 @@ export function HomePage() {
                 <li key={i} className="h-full">
                   {/* الحركة داخل عنصر القائمة: بنية <ol> تبقى صحيحة دلالياً */}
                   <Reveal delay={i * 80} className="h-full">
-                    <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-6 hover-lift">
+                    <div className="grad-card relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-6 hover-lift">
                     <span className={`absolute inset-x-0 top-0 h-1 ${step.bar}`} aria-hidden="true" />
                     <div className="flex items-center gap-3">
                       <span className={`grid size-10 place-items-center rounded-xl ${step.tone}`} aria-hidden="true">
@@ -699,7 +699,7 @@ export function HomePage() {
         </section>
 
         {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
-        <section className="relative overflow-hidden py-14 md:py-20 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:800px]">
+        <section className="grad-band relative overflow-hidden py-14 md:py-20 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1200px] px-6">
             <div className="text-center mb-10 md:mb-12">
               <SectionLabel step="٠٣" tone="gold">أدوات ميزان برو</SectionLabel>
@@ -930,7 +930,7 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-12 md:py-16 bg-[#2563eb] dark:bg-[#1e40af] text-white">
+        <section className="grad-accent relative overflow-hidden py-12 md:py-16 bg-[#2563eb] dark:bg-[#1e40af] text-white">
           <div className="container mx-auto max-w-[1200px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
               {[
@@ -959,7 +959,7 @@ export function HomePage() {
         </Suspense>
 
         {/* الشريط الختامي: آخر ما يبقى في الذاكرة فعل واحد واضح مع تقليل المخاطرة */}
-        <section className="border-t border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] py-16 md:py-24">
+        <section className="grad-soft border-t border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] py-16 md:py-24">
           <div className="container mx-auto max-w-[1200px] px-6 text-center">
             <h2 className="text-[24px] md:text-[30px] font-black leading-tight text-[#0f172a] dark:text-white">
               ابدأ من الفصل الذي تدرسه اليوم
@@ -968,7 +968,7 @@ export function HomePage() {
               افتح الأرشيف، اختر الفصل والمادة، ثم اختبر نفسك. المحتوى الأساسي مجاني وبلا حساب.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/archive" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
+              <Link to="/archive" className="btn-accent inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
                 تصفّح الأرشيف الدراسي
                 <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
               </Link>
