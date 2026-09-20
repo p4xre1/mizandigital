@@ -138,11 +138,17 @@ describe("الصفحة الرئيسية — اللون والنقش والحرك
     }
   });
 
-  it("تضع نقش الزليج على الترويسة وقسم الأدوات وشريط الأرقام", () => {
+  it("لا تضع أي نقش أو رمز في الخلفية", () => {
     const container = renderHome();
     const html = container.innerHTML;
-    expect(html).toContain("pattern-zellige");
-    expect(html).toContain("pattern-zellige-light");
+    expect(html).not.toContain("pattern-");
+    // لا بيانات SVG مضمّنة في طبقات الخلفية (النقش السابق كان data:image/svg+xml)
+    const inlineBackgrounds = [...container.querySelectorAll<HTMLElement>("[class]")].filter((el) =>
+      (el.getAttribute("class") ?? "").includes("absolute"),
+    );
+    for (const layer of inlineBackgrounds) {
+      expect(layer.className, layer.className).not.toMatch(/pattern|bg-\[url\(/);
+    }
   });
 
   it("تُظهر الأقسام بحركة دخول لمرة واحدة وتُعدّ الأرقام تصاعدياً", () => {
@@ -155,8 +161,7 @@ describe("الصفحة الرئيسية — اللون والنقش والحرك
 
   it("تعمل الحركة والديكور من طبقة CSS مشتركة مع HTML الثابت", () => {
     const css = readFileSync("src/styles/globals.css", "utf8");
-    expect(css).toContain(".pattern-zellige");
-    expect(css).toContain(".pattern-zellige-light");
+    expect(css).not.toContain("pattern-zellige");
     expect(css).toContain("@keyframes mizan-rise");
     expect(css).toContain(".hover-lift");
     expect(css).toContain(".zoom-frame");
@@ -168,7 +173,6 @@ describe("الصفحة الرئيسية — اللون والنقش والحرك
 
   it("تزامن HTML الثابت مع نفس اللون والنقش والحركة", () => {
     const prerender = readFileSync("scripts/prerender.mjs", "utf8");
-    expect(prerender).toContain("pattern-zellige");
     expect(prerender).toContain('class="rise');
     expect(prerender).toContain("accent-rule");
     expect(prerender).toContain("accent-rule-gold");

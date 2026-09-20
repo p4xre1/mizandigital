@@ -306,9 +306,6 @@ export function HomePage() {
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
         <section className="relative overflow-hidden bg-white dark:bg-[#0f172a]">
-          {/* نقش زليج هندسي على الحافة الخارجية + بقعة لونية هادئة (بلا تدرّج) */}
-          <div className="pattern-zellige pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] opacity-70 lg:block" aria-hidden="true" />
-          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] bg-white/40 dark:bg-[#0f172a]/50 lg:block" aria-hidden="true" />
           <div className="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
             <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
 
@@ -476,7 +473,6 @@ export function HomePage() {
         </section>
 
         <section className="relative overflow-hidden py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
-          <div className="pattern-zellige pointer-events-none absolute inset-x-0 top-0 h-40 opacity-50" aria-hidden="true" />
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
               {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
@@ -638,7 +634,6 @@ export function HomePage() {
 
         {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
         <section className="relative overflow-hidden py-14 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:700px]">
-          <div className="pattern-zellige-light pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="container mx-auto max-w-[1120px] px-6">
             <div className="text-center mb-8">
               <SectionLabel step="٠٢" tone="gold">أدوات ميزان برو</SectionLabel>
@@ -870,7 +865,6 @@ export function HomePage() {
         </section>
 
         <section className="relative overflow-hidden py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white">
-          <div className="pattern-zellige-light pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="container mx-auto max-w-[1280px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
               {[

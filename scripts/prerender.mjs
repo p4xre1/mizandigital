@@ -590,8 +590,6 @@ const heroArticle = heroSource?.articles?.[0]?.number;
 
 const homeHeroHtml = `
           <section class="relative overflow-hidden bg-white dark:bg-[#0f172a]">
-            <div class="pattern-zellige pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] opacity-70 lg:block" aria-hidden="true"></div>
-            <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] bg-white/40 dark:bg-[#0f172a]/50 lg:block" aria-hidden="true"></div>
             <div class="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
               <div class="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
                 <div class="rise text-center lg:text-right">
