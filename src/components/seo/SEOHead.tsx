@@ -198,11 +198,11 @@ export function SEOHead({
     logo: {
       "@type": "ImageObject",
       "@id": `${domain}/#logo`,
-      url: `${domain}/logo-white-512.png`,
-      contentUrl: `${domain}/logo-white-512.png`,
+      url: `${domain}/logo-512.png`,
+      contentUrl: `${domain}/logo-512.png`,
       width: 512,
       height: 512,
-      caption: "ميزان الرقمية - شعار المنصة بخلفية بيضاء",
+      caption: "ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء",
     },
     image: {
       "@type": "ImageObject",

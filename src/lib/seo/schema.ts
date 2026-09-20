@@ -12,7 +12,15 @@ export const SITE_CONFIG = {
   name: "منصة الميزان الرقمية",
   altName: "الميزان الرقمي - Mizan Digital",
   url: BASE_URL,
-  logo: canonicalUrl("/Logo.svg"),
+  /*
+   * شعار يُقرأ في البيانات المهيكلة (Organization.logo): PNG مربّع معتّم 512×512
+   * لا SVG — سياسة Google للأيقونات لا تذكر SVG ضمن الصيغ المدعومة، وتطلب صورة
+   * تبدو صحيحة على خلفية بيضاء بحدّ أدنى 112×112. ملف public/Logo.svg يبقى
+   * أيقونة المتصفح في index.html؛ هذا الحقل للزواحف وحدها.
+   */
+  logo: canonicalUrl("/logo-512.png"),
+  logoWidth: 512,
+  logoHeight: 512,
   defaultImage: canonicalUrl("/og-default.jpg"),
   inLanguage: "ar-MA",
   country: "MA",
@@ -64,6 +72,11 @@ export function generateOrganizationSchema() {
     logo: {
       "@type": "ImageObject",
       url: SITE_CONFIG.logo,
+      // contentUrl + الأبعاد صراحةً: بعض القارئات لا تستنتجها من url وحده،
+      // وغياب width/height كان يُسقط العقدة من فحص Rich Results.
+      contentUrl: SITE_CONFIG.logo,
+      width: SITE_CONFIG.logoWidth,
+      height: SITE_CONFIG.logoHeight,
       caption: SITE_CONFIG.name,
     },
     image: SITE_CONFIG.defaultImage,

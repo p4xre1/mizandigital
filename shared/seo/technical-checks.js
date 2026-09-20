@@ -41,6 +41,170 @@ function attr(tag, name) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// أيقونة الموقع والشعار في نتائج البحث
+//
+// Google تعرض أيقونة واحدة لكل اسم مضيف، وتختارها من <link rel="icon"> في
+// الصفحة الأولى (لا تقرأ media= ولا تُفعّل CSS)، وتطلب: مربّعًا، أكبر من 48px
+// (الحدّ الأدنى 8×8)، بصيغة من BMP/GIF/ICO/PNG/JPEG/PPM/TIFF، برابط مستقر،
+// قابل للزحف. أما شعار Organization فيجب ألا يقلّ عن 112×112 وأن «يبدو صحيحًا
+// على خلفية بيضاء» — وهو الشرط الذي كان يُخفى شعارنا: بلاطة شبه بيضاء فوق
+// صفحة نتائج بيضاء.
+//
+// الدالة نقية: من يملك نظام الملفات (seo-audit) يمرّر metadata الملفات، ومن لا
+// يملكه (المتصفح/الاختبارات) يمرّر null فتُفحص بنية الوسوم وحدها.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** الصيغ التي تذكرها وثائق Google للأيقونات — SVG ليست بينها. */
+const FAVICON_FORMATS = ["png", "jpeg", "jpg", "gif", "bmp", "ico", "ppm", "tiff"]
+
+/**
+ * فوق هذه العتبة تُعدّ الأيقونة «شبه بيضاء»: متوسط السطوع بعد الدمج مع
+ * خلفية بيضاء، فالشعار الشفاف الأبيض يسجّل ≈ 216 بينما البلاطة الكحلية ≈ 51.
+ */
+const WHITE_ON_WHITE_LUMINANCE = 200
+
+/**
+ * @param {string} html — الصفحة الأولى (index.html المصدر أو dist/index.html)
+ * @param {{
+ *   files?: Record<string, {
+ *     exists?: boolean,
+ *     width?: number | null,
+ *     height?: number | null,
+ *     format?: string,
+ *     meanLuminance?: number | null
+ *   }> | null
+ * }} [options] — بيانات الملفات يقرأها المستدعي (من يملك نظام الملفات); بلا
+ * files تُفحص بنية الوسوم وحدها، فلا تحتاج اللوحة في المتصفح أي فكّ صور.
+ */
+export function checkSiteIcons(html, { files = null } = {}) {
+  const issues = []
+  const details = []
+  const tags = findTags(html || "", "link").filter((tag) => {
+    const rel = (attr(tag, "rel") || "").toLowerCase()
+    return /\bicon\b/.test(rel) || /apple-touch-icon/.test(rel)
+  })
+
+  if (tags.length === 0) {
+    return result(false, 0, ["لا يوجد أي <link rel=\"icon\"> في الصفحة الأولى: Google سيختار أيقونة بنفسه (وغالبًا يلتقط لقطة شاشة)."], ["0 وسم أيقونة"])
+  }
+
+  const meta = (href) => {
+    if (!files) return null
+    const path = String(href).replace(/^https?:\/\/[^/]+/i, "").split("?")[0] || "/"
+    return files[path] || files[href] || null
+  }
+
+  let primaryCandidate = null
+  let checked = 0
+  let missing = 0
+
+  for (const tag of tags) {
+    const rel = (attr(tag, "rel") || "").toLowerCase()
+    const href = attr(tag, "href") || ""
+    const isApple = /apple-touch-icon/.test(rel)
+    if (!href) {
+      issues.push("وسم أيقونة بلا href.")
+      continue
+    }
+
+    const declaredType = (attr(tag, "type") || "").replace(/^image\//, "").toLowerCase()
+    const declaredSizes = attr(tag, "sizes") || ""
+    const hasMedia = /\bmedia\s*=/.test(tag)
+    const info = meta(href)
+    if (info) checked++
+
+    if (info && info.exists === false) {
+      missing++
+      issues.push(`الأيقونة ${href} معلنة في الصفحة الأولى ولا ملف لها — الزحف يحصل على 404.`)
+      continue
+    }
+
+    const format = (info && info.format) || declaredType || ""
+    const width = info && info.width ? info.width : null
+    const height = info && info.height ? info.height : null
+
+    // 1) sizes المصرّح به يجب أن يطابق البُعد الحقيقي للملف.
+    const declared = /^(\d+)x(\d+)$/.exec(declaredSizes)
+    if (declared && width && height) {
+      const [dw, dh] = [Number(declared[1]), Number(declared[2])]
+      if (dw !== width || dh !== height) {
+        issues.push(`${href} يصرّح sizes="${declaredSizes}" بينما ملفه ${width}×${height} — البيانات الكاذبة تجعل اختيار الأيقونة عشوائيًا.`)
+      }
+    }
+
+    // 2) المربّع شرط: نسبة 1:1 وإلا تُرفض الأيقونة.
+    if (width && height && width !== height) {
+      issues.push(`${href} ليست مربّعًا (${width}×${height}) — Google تشترط نسبة 1:1.`)
+    }
+
+    // 3) الصيغة: SVG يستعملها المتصفح لكنها ليست ضمن صيغ أيقونات Google، فلا
+    // تُعدّ خللًا ما دام هناك مرشّح نقطيّ؛ وإلا يمسكها فحص المرشّح أدناه.
+    const isSvg = format === "svg" || declaredType === "svg+xml" || /\.svg(\?|$)/i.test(href)
+    if (format && !isSvg && !FAVICON_FORMATS.includes(format)) {
+      issues.push(`${href} بصيغة ${format} غير مذكورة في صيغ أيقونات Google (BMP/GIF/ICO/PNG/JPEG/PPM/TIFF).`)
+    }
+
+    // 4) الشفافية فوق خلفية بيضاء: شعار شبه أبيض لا يُرى، وهو أفشل ما يكون.
+    if (!isApple && typeof info?.meanLuminance === "number" && info.meanLuminance > WHITE_ON_WHITE_LUMINANCE) {
+      issues.push(
+        `${href} شبه بيضاء (متوسط السطوع بعد الدمج مع أبيض: ${Math.round(info.meanLuminance)}/255) — ستختفي فوق خلفية نتائج البحث البيضاء، وسياسة الشعار تطلب أن تبدو صحيحة عليها.`
+      )
+    }
+
+    // المرشّح الذي سيختاره Google: وسم raster بلا media، معتبر الحجم.
+    const isRaster = format && !isSvg && FAVICON_FORMATS.includes(format)
+    if (!hasMedia && !isApple && isRaster && width && width >= 48) {
+      if (!primaryCandidate || width > primaryCandidate.width) primaryCandidate = { href, width }
+    }
+  }
+
+  if (checked === 0 && files) {
+    details.push("لم تُقرأ بيانات أي ملف أيقونة — يُفحص المصرّح به في HTML وحده.")
+  }
+
+  if (!primaryCandidate) {
+    const svgOnly = tags.some((tag) => /\.svg/i.test(attr(tag, "href") || "")) &&
+      !tags.some((tag) => FAVICON_FORMATS.includes((attr(tag, "type") || "").replace(/^image\//, "").toLowerCase()))
+    issues.push(
+      svgOnly
+        ? "الأيقونات نقطة (SVG) فقط — SVG ليست ضمن صيغ أيقونات Google؛ يلزم PNG مربّع ≥ 48px بلا خاصية media."
+        : "لا يوجد <link rel=\"icon\"> إلى PNG مربّع ≥ 48px بلا media= — هذا بالضبط ما يقرأه Google لاختيار أيقونة المضيف."
+    )
+  }
+
+  // 5) شعار Organization في JSON-LD: نقطّي، ≥ 112×112، وملف موجود.
+  const logoMatch = /"logo"\s*:\s*\{[\s\S]{0,400}?"(?:url|contentUrl)"\s*:\s*"([^"]+)"/.exec(html || "")
+  if (logoMatch) {
+    const logoUrl = logoMatch[1]
+    const info = meta(logoUrl)
+    if (logoUrl.toLowerCase().endsWith(".svg")) {
+      issues.push("Organization.logo يشير إلى SVG؛ سياسة الشعار تطلب صورة نقطية (PNG/JPEG/…) بحدّ أدنى 112×112.")
+    }
+    if (info && info.exists === false) issues.push(`رابط الشعار في البيانات المهيكلة لا ملف له: ${logoUrl}`)
+    if (info && info.width && info.width < 112) {
+      issues.push(`شعار Organization في ${logoUrl} عرضه ${info.width}px — الحدّ الأدنى 112×112.`)
+    }
+    if (info && typeof info.meanLuminance === "number" && info.meanLuminance > WHITE_ON_WHITE_LUMINANCE) {
+      issues.push("شعار Organization شبه أبيض: تنصّ السياسة على أن يبدو صحيحًا على خلفية بيضاء، وإلا لم يُعرض.")
+    }
+    details.push(`شعار البيانات المهيكلة: ${logoUrl}${info && info.width ? ` (${info.width}×${info.height})` : ""}`)
+  } else {
+    details.push("لا عقدة logo في البيانات المهيكلة لهذه الصفحة — أيقونة البحث ستُشتقّ من الوسم وحده.")
+  }
+
+  if (primaryCandidate) {
+    details.push(`أيقونة مرشّحة لاختيار Google: ${primaryCandidate.href} (${primaryCandidate.width}px)`)
+  }
+  details.push(`${tags.length} وسم أيقونة، ${checked} ملف تحقّق منه`)
+
+  let score = 100
+  score -= missing * 12
+  if (!primaryCandidate) score -= 35
+  score -= issues.length * 9
+  return result(issues.length === 0, score, issues, details)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Crawlability / Indexability
 // ─────────────────────────────────────────────────────────────────────────────
 

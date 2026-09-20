@@ -434,11 +434,11 @@ const publisherSchema = {
   logo: {
     "@type": "ImageObject",
     "@id": `${DOMAIN}/#logo`,
-    url: `${DOMAIN}/logo-white-512.png`,
-    contentUrl: `${DOMAIN}/logo-white-512.png`,
+    url: `${DOMAIN}/logo-512.png`,
+    contentUrl: `${DOMAIN}/logo-512.png`,
     width: 512,
     height: 512,
-    caption: "ميزان الرقمية - شعار المنصة بخلفية بيضاء",
+    caption: "ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء",
   },
   image: {
     "@type": "ImageObject",

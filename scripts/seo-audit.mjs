@@ -19,6 +19,7 @@ import {
   aggregateTechnical,
   checkAccessibility,
   checkCanonicalPolicy,
+  checkSiteIcons,
   checkSitemapCoverage,
   checkAiDiscoveryFiles,
   checkHtmlHead,
@@ -255,13 +256,100 @@ results.hreflang = {
   details: ["موقع بلغة واحدة — hreflang غير مطلوب"],
 };
 
+// ── أيقونة الموقع ───────────────────────────────────────────────────────────
+
+/**
+ * بيانات ملفات الأيقونات تُقرأ من public/ (المصدر، لا الناتج) حتى يعمل الفحص
+ * قبل البناء أيضًا: IHDR يعطي الأبعاد ونوع اللون، وترويسة الملف تكشف أن
+ * favicon.ico ICO حقًا لا PNG مغلّفًا باسم .ico — وهما الخطآن اللذان أبقيا
+ * الشعار غائبًا عن نتائج البحث رغم وجود الملفات.
+ */
+const iconMetadata = async (hrefs) => {
+  const files = {}
+  let luminance = null
+  try {
+    const module = await import("sharp")
+    const sharp = module.sharp ?? module.default
+    if (typeof sharp === "function") {
+      // متوسط قناة SRGB بعد الدمج مع أبيض: هو بالضبط ما يراه الباحث فوق
+      // خلفية نتائج البحث، فلو كان الشعار شبه أبيض كان غائبًا عمليًا.
+      luminance = async (buffer) => {
+        // الدمج مع أبيض أولًا هو بالضبط ما يراه الباحث: شعار شبه أبيض أو
+        // شفاف يصبح كتلة بيضاء، وسطوعه يقارب 255 فيُرفض.
+        const stats = await sharp(buffer).flatten({ background: "#ffffff" }).stats()
+        const [r, g, b] = stats.channels.slice(0, 3).map((channel) => channel.mean)
+        if (typeof r !== "number") return null
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+      }
+    }
+  } catch {
+    // بلا sharp (بيئة CI خفيفة) يسقط فحص السطوع وحده، وتبقى بقية الفحوص.
+  }
+
+  for (const href of hrefs) {
+    const path = String(href).replace(/^https?:\/\/[^/]+/i, "").split("?")[0]
+    if (!path || files[path]) continue
+    const buffer = await readFile(join(PUBLIC, path.replace(/^\//, ""))).catch(() => null)
+    if (!buffer) {
+      files[path] = { exists: false }
+      continue
+    }
+
+    const signature = buffer.subarray(0, 8)
+    let format = "unknown"
+    let width = null
+    let height = null
+    if (signature.readUInt32BE(0) === 0x89504e47) {
+      format = "png"
+      width = buffer.readUInt32BE(16)
+      height = buffer.readUInt32BE(20)
+    } else if (buffer.readUInt16LE(0) === 0 && buffer.readUInt16LE(2) === 1) {
+      format = "ico"
+      width = buffer.readUInt8(6) || 256
+      height = buffer.readUInt8(7) || 256
+    } else if (signature.subarray(0, 3).toString("latin1") === "\xff\xd8\xff") {
+      format = "jpeg"
+    } else if (signature.subarray(0, 3).toString("latin1") === "GIF") {
+      format = "gif"
+    } else if (signature.subarray(0, 4).toString("latin1") === "RIFF") {
+      format = "webp"
+    }
+
+    files[path] = {
+      exists: true,
+      format,
+      width,
+      height,
+      // الصيغ النقطية فقط: ICO بحدّ ذاته ليس صورة تفكّها مكتبات التصيير.
+      meanLuminance:
+        luminance && (format === "png" || format === "jpeg")
+          ? await luminance(buffer).catch(() => null)
+          : null,
+    }
+  }
+
+  return files
+}
+
+const declaredIconHrefs = (html) => [
+  ...String(html || "").matchAll(/<link\b[^>]*\brel=["'][^"']*(?:icon|apple-touch-icon)[^"']*["'][^>]*>/gi),
+]
+  .map((m) => /href=["']([^"']+)["']/i.exec(m[0])?.[1])
+  .filter(Boolean)
+
+const indexHtmlForIcons = (await read(join(DIST, "index.html"))) ?? (await read(join(ROOT, "index.html")))
+const iconFiles = await iconMetadata([
+  ...new Set([...declaredIconHrefs(indexHtmlForIcons), "/logo-512.png"]),
+])
+results.siteIcons = checkSiteIcons(indexHtmlForIcons || "", { files: iconFiles })
+
 // ── الصفحات اليتيمة ─────────────────────────────────────────────────────────
 results.orphanPages = findOrphanPages(routes, [...linkedPaths]);
 
 // ── النتيجة المجمّعة ────────────────────────────────────────────────────────
 const overall = aggregateTechnical(results);
 
-const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "structuredData", "images", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
+const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "structuredData", "images", "siteIcons", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
 for (const key of order) {
   const value = results[key];
   if (!value) continue;

@@ -88,7 +88,7 @@ const schema = {
       "name": "ميزان الرقمية",
       "alternateName": "Mizan Digital",
       "url": DOMAIN,
-      "logo": `${DOMAIN}/Logo.svg`,
+      "logo": `${DOMAIN}/logo-512.png`,
       "description": "منصة مغربية للمعرفة القانونية والأكاديمية وموارد طلبة الحقوق.",
       "areaServed": { "@type": "Country", "name": "Morocco" },
       "knowsLanguage": ["ar", "fr"],

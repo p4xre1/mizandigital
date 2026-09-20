@@ -98,25 +98,30 @@
     <meta name="twitter:image" content="https://www.mizan.page/og-image.png">
     <meta name="twitter:image:alt" content="ميزان الرقمية - منصة المعرفة القانونية">
 
-    <!-- Favicon & Icons - CRITICAL for Google Search logo visibility -->
-    <!-- Google requires PNG, multiple of 48px, square, accessible, crawlable -->
-    <!-- White background logo for light Google Search results (better visibility) -->
-    <link rel="icon" type="image/png" sizes="16x16" href="/logo-white-512.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/logo-white-512.png">
-    <link rel="icon" type="image/png" sizes="48x48" href="/logo-white-192.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/logo-white-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/logo-white-512.png">
-    <!-- Dark version for PWA / dark tabs fallback -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" media="(prefers-color-scheme: dark)">
+    <!--
+      أيقونة الموقع في نتائج البحث. سياسة Google تطلب: PNG مربّع أكبر من 48px،
+      رابطًا مستقرًا، وشعارًا يبدو صحيحًا على خلفية بيضاء
+      (developers.google.com/search/docs/appearance/favicon-in-search و /logo).
+      لذلك الأساس هاهنا بلاطة كحلية معتمة — public/logo-512.png المولّد من
+      Logo.svg بواسطة scripts/generate-site-icons.mjs — لا النسخة البيضاء
+      (logo-white-*.png، متوسط RGB ≈ 206,217,241 وشبه شفافة) التي كانت تُعرض
+      فتختفي فوق خلفية نتائج البحث البيضاء. كل sizes يكتب بُعد الملف الحقيقي،
+      ولا اعتماد على SVG لأن صيغ الأيقونات المدعومة عند Google هي
+      BMP/GIF/ICO/PNG/JPEG/PPM/TIFF.
+    -->
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/logo-512.png">
+    <!-- نسخة المتصفح من المتجه: للتبويب فقط، مذكورة بعد النسخ النقطية -->
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/Logo.svg">
+    <!-- أيقونة الشرائط الداكنة؛ تُذكر أخيرًا لأن اختيار Google لا يقرأ media -->
     <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" media="(prefers-color-scheme: dark)">
-    <link rel="icon" type="image/svg+xml" href="/Logo.svg">
-    <link rel="icon" type="image/svg+xml" href="/logo-white.svg">
+    <!-- ICO صالح: 16/32/48 مغلّفة رأسًا؛ سابقًا كان الملف PNG مسمّى .ico -->
     <link rel="shortcut icon" href="/favicon.ico">
-    <!-- Apple Touch Icons - 180x180 recommended, white bg for visibility -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-white.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/logo-white-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="/logo-white-512.png">
-    <link rel="apple-touch-icon" href="/apple-touch-icon-white.png">
+    <!-- iOS تقصّ الزوايا بنفسها، فتُترك البلاطة معتمة على كامل المربّع -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-title" content="ميزان الرقمية">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -137,11 +142,11 @@
             "logo":{
               "@type":"ImageObject",
               "@id":"https://www.mizan.page/#logo",
-              "url":"https://www.mizan.page/logo-white-512.png",
-              "contentUrl":"https://www.mizan.page/logo-white-512.png",
+              "url":"https://www.mizan.page/logo-512.png",
+              "contentUrl":"https://www.mizan.page/logo-512.png",
               "width":512,
               "height":512,
-              "caption":"ميزان الرقمية - شعار المنصة بخلفية بيضاء"
+              "caption":"ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء"
             },
             "image":{
               "@type":"ImageObject",
@@ -171,8 +176,8 @@
             "url":"https://www.mizan.page/about",
             "logo":{
               "@type":"ImageObject",
-              "url":"https://www.mizan.page/logo-white-512.png",
-              "contentUrl":"https://www.mizan.page/logo-white-512.png",
+              "url":"https://www.mizan.page/logo-512.png",
+              "contentUrl":"https://www.mizan.page/logo-512.png",
               "width":512,
               "height":512,
               "caption":"ميزان الرقمية"

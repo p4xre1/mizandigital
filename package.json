@@ -15,6 +15,7 @@
     "test": "vitest run --configLoader runner",
     "tree": "node scripts/print-tree.mjs",
     "audit": "node scripts/audit-project.mjs",
+    "icons:generate": "node scripts/generate-site-icons.mjs",
     "seo:enrich": "node scripts/enrich-lexicon.mjs",
     "seo:enrich:check": "node scripts/enrich-lexicon.mjs --check",
     "seo:audit": "node scripts/seo-audit.mjs",

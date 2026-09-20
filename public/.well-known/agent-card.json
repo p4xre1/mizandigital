@@ -9,31 +9,66 @@
     "url": "https://www.mizan.page"
   },
   "documentationUrl": "https://www.mizan.page/llms.txt",
-  "iconUrl": "https://www.mizan.page/Logo.svg",
+  "iconUrl": "https://www.mizan.page/logo-512.png",
   "capabilities": {
     "streaming": false,
     "pushNotifications": false
   },
-  "defaultInputModes": ["text/plain", "application/json"],
-  "defaultOutputModes": ["text/plain", "text/markdown", "application/json"],
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
   "skills": [
     {
       "id": "moroccan-legal-research",
       "name": "Moroccan Legal Research",
       "description": "Discover and organize public Moroccan legal information and official-source references.",
-      "tags": ["moroccan-law", "legal-research", "legislation", "arabic", "french"],
-      "examples": ["Find information about the Moroccan Labour Code", "Find official sources for Moroccan legislation"],
-      "inputModes": ["text/plain"],
-      "outputModes": ["text/plain", "text/markdown", "application/json"]
+      "tags": [
+        "moroccan-law",
+        "legal-research",
+        "legislation",
+        "arabic",
+        "french"
+      ],
+      "examples": [
+        "Find information about the Moroccan Labour Code",
+        "Find official sources for Moroccan legislation"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ]
     },
     {
       "id": "law-school-directory",
       "name": "Law School Directory",
       "description": "Find Moroccan law faculties, universities, cities and official links.",
-      "tags": ["law-schools", "universities", "morocco"],
-      "examples": ["Find law faculties in Casablanca", "Show Moroccan law schools"],
-      "inputModes": ["text/plain"],
-      "outputModes": ["text/plain", "text/markdown", "application/json"]
+      "tags": [
+        "law-schools",
+        "universities",
+        "morocco"
+      ],
+      "examples": [
+        "Find law faculties in Casablanca",
+        "Show Moroccan law schools"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ]
     }
   ],
   "supportedInterfaces": [
