@@ -24,6 +24,8 @@ function result(pass, score, issues = [], details = []) {
   return { pass, score: Math.max(0, Math.min(100, Math.round(score))), issues, details }
 }
 
+import { isIndexablePath } from "./url-policy.js"
+
 const URL_RE = /https?:\/\/[^\s"'<>)]+/g
 
 /** استخراج كل الوسوم من HTML بشكل تقريبي لكنه كافٍ للفحوص. */
@@ -156,7 +158,17 @@ export function checkCanonicalPolicy(html, { url = "", siteUrl = "https://www.mi
   const tags = findTags(text, "link").filter((tag) => /rel\s*=\s*["']canonical["']/i.test(tag))
   details.push(`${tags.length} وسم canonical`)
 
+  const robotsContent = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",
+    "content"
+  )
+
   if (tags.length === 0) {
+    // الهيكل التطبيقية (login، /u/<username>، لوحة التحكم) لا تُفهرس ولا تحتاج
+    // canonical؛ مطالبتها واحداً كانت تجبرنا على canonical كاذب يشير للرئيسية.
+    if (/noindex/i.test(robotsContent)) {
+      return result(true, 100, [], [...details, "noindex: لا canonical مطلوب"])
+    }
     return result(false, 0, ["لا يوجد وسم canonical — الصفحات تُقرأ كنسخ متعددة."], details)
   }
 
@@ -306,15 +318,32 @@ export function checkHtmlHead(html, { url = "" } = {}) {
   else if (description.length < 70 || description.length > 165) issues.push(`طول meta description = ${description.length} — النطاق المثالي 70-165.`)
   else earned++
 
+  const headRobots = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",
+    "content"
+  )
+  const headNoindex = /noindex/i.test(headRobots)
+
   const canonical = attr(findTags(text, "link").find((t) => /rel\s*=\s*["']canonical["']/i.test(t)) || "", "href")
-  if (!canonical) issues.push("وسم canonical مفقود — خطر محتوى مكرر.")
+  // صفحة خارج الفهرسة لا تحتاج canonical: لا نسخة مكرَّرة تُخشى أصلًا.
+  if (!canonical && headNoindex) details.push("canonical غير مطلوب (noindex)")
+  else if (!canonical) issues.push("وسم canonical مفقود — خطر محتوى مكرر.")
   else if (!/^https?:\/\//.test(canonical)) issues.push(`canonical ليس رابطاً مطلقاً: ${canonical}`)
   else if (url && canonical.replace(/\/$/, "") !== url.replace(/\/$/, "")) issues.push(`canonical (${canonical}) لا يطابق رابط الصفحة (${url}).`)
   else earned++
 
   const robotsMeta = attr(findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "", "content")
-  if (robotsMeta && /noindex/i.test(robotsMeta)) issues.push(`الصفحة تحمل noindex (${robotsMeta}) — لن تُفهرس.`)
-  else earned++
+  if (robotsMeta && /noindex/i.test(robotsMeta)) {
+    // لاindex مقصود على مسار غير فهرس أصلاً (تسجيل دخول، لوحة تحكم، 404،
+    // ملف بحث) ليس عيباً: هو بالضبط ما يمنع فهرسة صفحة فارغة للمستخدم
+    // المسجَّل فقط. العيب أن تحمل one من هذه الصفحات وسم index.
+    if (url && !isIndexablePath(url)) {
+      details.push(`noindex مقصود (${url})`)
+      earned++
+    } else {
+      issues.push(`الصفحة تحمل noindex (${robotsMeta}) — لن تُفهرس.`)
+    }
+  } else earned++
 
   const ogTags = ["og:title", "og:description", "og:image", "og:url", "og:type", "og:locale"]
   const presentOg = ogTags.filter((tag) =>

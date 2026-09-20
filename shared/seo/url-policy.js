@@ -51,6 +51,10 @@ const NON_INDEXABLE_SEGMENTS = new Set([
   "payments",
   "search",
   "download",
+  // صفحة عدم الوجود تُخدم من dist/404.html (توافق Pages لروابط 404 الحقيقية)
+  // فمسارها موجود كملف بلا معنى فهرسَة؛ وضعها هنا يمنع أن تظهر في أي قائمة
+  // «صفحات مولَّدة» أو في الخريطة.
+  "404",
 ]);
 
 /**
@@ -114,7 +118,10 @@ export function isIndexablePath(input) {
   if (!first) return false;
   if (NON_INDEXABLE_SEGMENTS.has(first)) return false;
   if (path.startsWith("/u/")) return false; // بروفايلات عامة يولّدها المستخدمون
-  if (path.startsWith("/pro-tools/")) return false; // أدوات Pro خلف تسجيل الدخول
+  // أدوات Pro خلف تسجيل الدخول: البوابة وتفاصيلها معاً. كانت البوابة تُترك
+  // «قابلة للفهرسة» في السياسة بينما لا ملف ثابت لها ولا entry في sitemap —
+  // نصف حالة تُنتج «Discovered – currently not indexed» في Search Console.
+  if (path === "/pro-tools" || path.startsWith("/pro-tools/")) return false;
   return true;
 }
 

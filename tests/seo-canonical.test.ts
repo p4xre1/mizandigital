@@ -178,6 +178,14 @@ describe("روابط الصفحات كلها بلا شرطة نهاية", () => 
       expect(isIndexablePath(path), path).toBe(true);
     }
   });
+
+  test("بوابة الأدوات وصفحة 404 خارج الفهرسة — لا نصف حالة", () => {
+    // /pro-tools كان «قابلاً للفهرسة» في السياسة بلا ملف ثابت وبلا entry في
+    // الخريطة: نتيجة مضمونة «Discovered – currently not indexed».
+    expect(isIndexablePath("/pro-tools")).toBe(false);
+    expect(isIndexablePath("/pro-tools/grader")).toBe(false);
+    expect(isIndexablePath("/404")).toBe(false);
+  });
 });
 
 /* ── 3. البيانات الحقيقية: لا نسخة مكررة، لا رابط ميت ────────────────────── */
@@ -532,5 +540,84 @@ describe("شرطة النهاية تُحوَّل 301 إلى الصيغة الق�
       if (to !== "/") expect(to.endsWith("/"), rule).toBe(false);
       expect(rule, rule).not.toContain("mizan.page");
     }
+  });
+});
+
+/* ── 10. حالة 404 والمسارات التطبيقية (لا canonical مستعار) ──────────────── */
+
+describe("المسارات التي لا ملف ثابت لها تُخدَج بلا وراثة رابط الرئيسية", () => {
+  // نفس سقالة الاختبار المستعملة في قسم الشرطة: دالة Pages تُستدعى بوسيط واحد.
+  const call = (href: string, assets: Record<string, string> = {}) =>
+    import("../functions/[[path]].js").then((raw) => {
+      const mod = raw as unknown as { onRequest: (ctx: unknown) => Promise<Response> };
+      return mod.onRequest({
+        request: new Request(href, { headers: { "Sec-Fetch-Mode": "navigate", Accept: "text/html" } }),
+        env: {
+          ASSETS: {
+            fetch: (request: Request | string) => {
+              const path = new URL(typeof request === "string" ? request : request.url).pathname;
+              const body = assets[path];
+              return Promise.resolve(
+                new Response(body ?? "<html><title>غير موجودة</title></html>", {
+                  status: body === undefined ? 404 : 200,
+                  headers: { "Content-Type": "text/html; charset=utf-8" },
+                })
+              );
+            },
+          },
+        },
+        context: { waitUntil: () => {}, requestTimeoutMs: 0 },
+        next: async () => new Response("ok", { status: 200 }),
+      });
+    });
+
+  const appShell = { "/app.html": "<html><body>هيكل التطبيق</body></html>" };
+
+  test("بروفايل مستخدم بلا أصل → 200 مع هيكل التطبيق لا 404", async () => {
+    const res = await call("https://www.mizan.page/u/nawal-elouali", appShell);
+
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Robots-Tag")).toContain("noindex");
+    expect(await res.text()).toContain("هيكل التطبيق");
+  });
+
+  test("لوحة التحكم وأدوات Pro ومسارات التحميل: نفس القاعدة", async () => {
+    for (const path of ["/admin/users", "/pro-tools/grader", "/download/1234"]) {
+      const res = await call(`https://www.mizan.page${path}`, appShell);
+      expect(res.status, path).toBe(200);
+    }
+  });
+
+  test("مسار منسيّ → 404 حقيقية، لا نسخة من الرئيسية بحالة 200", async () => {
+    for (const path of ["/zzz", "/definitely-not-a-page", "/schools/nope"]) {
+      const res = await call(`https://www.mizan.page${path}`, appShell);
+      expect(res.status, path).toBe(404);
+    }
+  });
+
+  test("شرطة النهاية تُحوَّل 301 قبل أي اعتبار للمسارات التطبيقية", async () => {
+    const res = await call("https://www.mizan.page/schools/fsjes-tangier/", {
+      ...appShell,
+      "/schools/fsjes-tangier": "<html></html>",
+    });
+
+    expect(res.status).toBe(301);
+    expect(res.headers.get("location")).toBe(`${BASE_URL}/schools/fsjes-tangier`);
+  });
+
+  test("هيكل التطبيق بلا canonical مقبول؛ صفحة مفهرسة بلا canonical خطأ", () => {
+    const shell = checkCanonicalPolicy(
+      `<html><head><title>المنصة</title>
+        <meta name="robots" content="noindex, follow">
+      </head><body></body></html>`,
+      { siteUrl: BASE_URL }
+    );
+    expect(shell.pass).toBe(true);
+
+    const page = checkCanonicalPolicy("<html><head><title>صفحة</title></head><body></body></html>", {
+      siteUrl: BASE_URL,
+    });
+    expect(page.pass).toBe(false);
+    expect(page.issues.join(" ")).toContain("canonical");
   });
 });

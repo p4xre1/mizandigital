@@ -2438,6 +2438,16 @@ function renderPage(template, page) {
     }
   }
 
+  if (page.noindex) {
+    // صفحة خارج الفهرسة: لا تُرسَل بسياسة «index, follow» ثم تُترك تُخدَج
+    // ضمن النتائج (حالة /404 وواجهات الانتظار).
+    html = swap(
+      html,
+      /<meta\b[^>]*\bname=["']robots["'][^>]*>/i,
+      `<meta name="robots" content="noindex, follow">`
+    );
+  }
+
   if (page.staticBody) {
     // نفس هيكل الصفحة الحيّة: شريط علوي فيه <header> قبل <main>. بدونه تفقد
     // النسخة المُسبقــة معلم الـ banner وروابط التنقل التي يراها المستخدم،
@@ -2479,6 +2489,178 @@ for (const page of pages) {
     destination,
     renderPage(template, page),
     "utf8"
+  );
+}
+
+/* -------------------------------------------------------
+   صفحة 404 حقيقية: dist/404.html
+-------------------------------------------------------
+
+  بلا هذا الملف تُخدم كل بوابة غير مُولَّدة من index.html بحالة 200 و
+  <link rel="canonical" href="https://www.mizan.page"> — أي أن كل رابط منسيّ
+  أو قديم يُبلِغ Google أن الصفحة نفسها هي الصفحة الرئيسية (soft 400 + تسرّب
+  canonical). مع 404.html يمنح Pages الحالة 404 لنفس المسارات، ويظل هيكل
+  التطبيق مُضمَّنًا فتعمل توجيهات الواجهة (/login، /admin/…) عند الفتح المباشر:
+  React يركّب على #root ويقرأ المسار من المتصفح لا من اسم الملف.
+------------------------------------------------------- */
+
+const notFoundPage = {
+  path: "/404",
+  noindex: true,
+  title: "الصفحة غير موجودة | ميزان الرقمية",
+  description:
+    "الرابط المطلوب غير موجود في ميزان الرقمية. تابع من القاموس القانوني أو الأرشيف الدراسي أو دليل كليات الحقوق.",
+  staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>الصفحة غير موجودة</h1>
+          <p><strong>لا يوجد محتوى بهذا الرابط في ميزان الرقمية.</strong></p>
+          <h2>المتابعة من أقسام المنصة</h2>
+          <ul>
+            <li><a href="/lexicon">القاموس القانوني</a> — مصطلحات وتعريفات بالعربية والفرنسية.</li>
+            <li><a href="/archive">الأرشيف الدراسي</a> — ملخصات ومحاضرات ونماذج امتحانات.</li>
+            <li><a href="/articles">المقالات</a> — شروحات وتحليل قانوني.</li>
+            <li><a href="/news">الأخبار والمستجدات</a> — تشريع وقضاء بالمغرب.</li>
+            <li><a href="/schools">كليات الحقوق</a> — دليل الجامعات المغربية.</li>
+            <li><a href="/events">الندوات والفعاليات</a> — أيام دراسية ومسابقات.</li>
+          </ul>
+          <p><a href="/">العودة إلى الصفحة الرئيسية</a></p>
+        </article>
+      </main>
+  `,
+};
+
+await writeFile(
+  join(DIST, "404.html"),
+  renderPage(template, notFoundPage),
+  "utf8"
+);
+console.log("✓ dist/404.html — صفحة 404 حقيقية (noindex) بدل fallback بحالة 200.");
+
+/*
+   ملفات shells للمسارات التطبيقية التي لا تُفهرس (login، profile، admin…).
+   بلا ملف مقابل صارت هذه المسارات تُخدَج في حالة 404 بعد إضافة 404.html،
+   وهي مسارات صحيحة يفتحها المستخدم بالتحديث المباشر أو بالحفظ في المفضّلة،
+   فتحتاج 200 + noindex بدل 200 يرث canonical الصفحة الرئيسية.
+   React يُركَّب على #root ويقرأ المسار من المتصفح، فالواجهة تعمل كما كانت؛
+   النصّ هنا هو محتوى انتظار فقط لزيار بلا JavaScript.
+*/
+const APP_SHELL_ROUTES = [
+  "/login",
+  "/signup",
+  "/signin",
+  "/forgot-password",
+  "/profile",
+  "/saved",
+  "/payments",
+  "/search",
+  "/admin",
+  "/pro-tools",
+];
+
+const SHELL_TITLES = {
+  "/login": "تسجيل الدخول | ميزان الرقمية",
+  "/signup": "إنشاء حساب | ميزان الرقمية",
+  "/signin": "تسجيل الدخول | ميزان الرقمية",
+  "/forgot-password": "استعادة كلمة المرور | ميزان الرقمية",
+  "/profile": "ملفي الشخصي | ميزان الرقمية",
+  "/saved": "المحتوى المحفوظ | ميزان الرقمية",
+  "/payments": "شراء الكريدتس | ميزان الرقمية",
+  "/search": "البحث في المنصة | ميزان الرقمية",
+  "/admin": "لوحة التحكم | ميزان الرقمية",
+  "/pro-tools": "أدوات ميزان برو | ميزان الرقمية",
+};
+
+let shellCount = 0;
+
+for (const shellPath of APP_SHELL_ROUTES) {
+  // لا ملف لتوجيه يُفهرَس: هذا عمل المولّدات لا prerender، وإلا ظهر تعارض
+  // بين sitemap والملف الثابت في بوابة التغطية.
+  if (isIndexablePath(shellPath) || seen.has(shellPath)) continue;
+
+  const shellDestination = join(DIST, `${shellPath.slice(1)}.html`);
+
+  await mkdir(dirname(shellDestination), { recursive: true });
+  await writeFile(
+    shellDestination,
+    renderPage(template, {
+      path: shellPath,
+      noindex: true,
+      title: SHELL_TITLES[shellPath] || "ميزان الرقمية",
+      description:
+        "هذه الصفحة تفاعلية داخل منصة ميزان الرقمية وتحتاج إلى تفعيل JavaScript. للمحتوى القابل للقراءة مباشرة: القاموس القانوني والأرشيف الدراسي والمقالات والأخبار ودليل الكليات.",
+      staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>${shellPath === "/admin" ? "لوحة التحكم" : "هذه الصفحة داخل المنصة"}</h1>
+          <p><strong>تحتاج هذه الصفحة إلى تسجيل الدخول وتفعيل JavaScript.</strong></p>
+          <h2>المحتوى العام المتاح فوراً</h2>
+          <ul>
+            <li><a href="/lexicon">القاموس القانوني</a></li>
+            <li><a href="/archive">الأرشيف الدراسي</a></li>
+            <li><a href="/articles">المقالات</a></li>
+            <li><a href="/news">الأخبار والمستجدات</a></li>
+            <li><a href="/schools">كليات الحقوق</a></li>
+            <li><a href="/">الصفحة الرئيسية</a></li>
+          </ul>
+        </article>
+      </main>
+  `,
+    }),
+    "utf8"
+  );
+
+  shellCount += 1;
+}
+
+/*
+   هيكل التطبيق للمسارات الديناميكية التي لا ملف لها: /u/<username>،
+   /download/<id>، /admin/<...>، /pro-tools/<slug>. بعد إضافة 404.html هذه
+   المسارات كانت ستُخدَج في 404 أمام مشاركي الروابط (واتساب/لينكد إن) مع أن
+   الصفحات حقيقية وتُبنى في المتصفح. دالة Pages تُسلّم هذا الملف بحالة 200
+   عند غياب الأصل، بلا canonical ولا hreflang: لا شيء هنا قابل للفهرسة.
+*/
+const appShellHtml = template
+  .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml("ميزان الرقمية — المنصة")}</title>`)
+  .replace(
+    /<meta\b[^>]*\bname=["']description["'][^>]*>/i,
+    `<meta name="description" content="${escapeHtml(
+      "صفحة داخل منصة ميزان الرقمية: الملف الشخصي، التحميلات ولوحة التحكم تتطلب تسجيل الدخول. للمحتوى العام: القاموس القانوني والأرشيف الدراسي والمقالات والأخبار ودليل الكليات."
+    )}">`
+  )
+  .replace(
+    /<meta\b[^>]*\bname=["']robots["'][^>]*>/i,
+    `<meta name="robots" content="noindex, follow">`
+  )
+  .replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>\s*/gi, "")
+  .replace(/<link\b[^>]*\bhreflang=["'][^>]*>\s*/gi, "")
+  .replace(
+    /<div id="root"><\/div>/i,
+    `<div id="root"><div class="min-h-screen bg-white dark:bg-[#0f172a] text-foreground">${homeHeaderHtml}
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>ميزان الرقمية</h1>
+          <p><strong>هذه الصفحة تُعرض داخل المنصة بعد تسجيل الدخول.</strong></p>
+          <h2>المحتوى العام المتاح فوراً</h2>
+          <ul>
+            <li><a href="/lexicon">القاموس القانوني</a></li>
+            <li><a href="/archive">الأرشيف الدراسي</a></li>
+            <li><a href="/articles">المقالات</a></li>
+            <li><a href="/news">الأخبار والمستجدات</a></li>
+            <li><a href="/schools">كليات الحقوق</a></li>
+            <li><a href="/">الصفحة الرئيسية</a></li>
+          </ul>
+        </article>
+      </main></div>
+    </div>`
+  );
+
+await writeFile(join(DIST, "app.html"), appShellHtml, "utf8");
+console.log("✓ dist/app.html — هيكل التطبيق للمسارات الديناميكية (noindex، بلا canonical).");
+
+if (shellCount) {
+  console.log(
+    `✓ ${shellCount} shell للمسارات التطبيقية غير المفهرسَة (200 + noindex بدل وراثة canonical الرئيسية).`
   );
 }
 

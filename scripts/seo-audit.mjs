@@ -14,6 +14,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isIndexablePath } from "../shared/seo/url-policy.js";
 import {
   aggregateTechnical,
   checkAccessibility,
@@ -199,7 +200,14 @@ results.canonical = {
   ],
 };
 
-const builtRoutes = (await listHtml(DIST)).map((file) => fileToRoute(file, DIST));
+// les coquilles applicatives (404, pages noindex) sont des fichiers comme les
+// autres; la couverture sitemap ne doit pas les réclamer dans la carte.
+// app.html هيكل تطبيق (لا مسار له) و404.html صفحة حالة: لا يُطلبان في الخريطة.
+const SHELL_ARTIFACTS = new Set(["/app", "/404"]);
+
+const builtRoutes = (await listHtml(DIST))
+  .map((file) => fileToRoute(file, DIST))
+  .filter((route) => !SHELL_ARTIFACTS.has(route) && isIndexablePath(route));
 
 results.sitemapCoverage = builtRoutes.length
   ? checkSitemapCoverage(sitemapLocs, builtRoutes, { siteUrl: SITE_URL })

@@ -48,7 +48,8 @@
 | خريطة الموقع | `scripts/generate-sitemap.mjs` | روابط مُطلقة بلا شرطة، محتوى منشور فقط (`articles.status="published"`، `news.is_published`) |
 | تغذية و llms | `scripts/generate-feed.mjs` + `generate-llms.mjs` + `generate-llms-enhanced.mjs` | `llms.txt` له كاتب واحد (المُولّد المختصر، وهو ما يشغّله `prebuild`)، والمُولّد المعزَّز يكتب `llms-full.txt` وحده انطلاقاً من نفس القائمة. `pnpm seo:llms` يحدّث الزوج معاً — لا ملف بمرجعين |
 | التحويل | `functions/[[path]].js` | `301` من `/x/` إلى `/x` مع حفظ المعاملات (والجذر مستثنى). و`public/_redirects` لا يحمل إلا قواعد مسارات صالحة لـ Pages (بادئات اللغات + معرّف تاريخي) — الروابط المطلقة و`301!` غير مدعومين في Pages فتُسقَط القاعدة بصمت |
-| البوابات | `shared/seo/technical-checks.js` | `checkSitemap`، `checkCanonicalPolicy`، `checkSitemapCoverage`، `checkUrlStructure` |
+| حالة 404 والهيكل التطبيقية | `scripts/prerender.mjs` → `dist/404.html`، هيكل لكل مسار تطبيقي (`dist/login.html` … `dist/app.html`)؛ `functions/[[path]].js` يسلّم `app.html` عند غياب أصل في مسار عميل | انظر §4 ب |
+| البوابات | `shared/seo/technical-checks.js` | `checkSitemap`، `checkCanonicalPolicy`، `checkSitemapCoverage`، `checkUrlStructure`؛ `noindex` على مسار غير مفهرس ليس خللاً في `head` ولا canonical مطلوب في `canonical` |
 
 ### لماذا `shared/`؟
 
@@ -101,6 +102,39 @@ pnpm typecheck && pnpm test && pnpm build && pnpm seo:audit
 صفحة. المتبقي الأصفر اختياري: طول `<title>` لصفحات قليلة (أسماء كليات
 وأخبار كاملة الطول — تُختصر في العرض لا في البيانات) وتحذير CSP
 `'unsafe-inline'`.
+
+### ب. حالة 404: لا «نجاح» وهمي ولا canonical مستعار
+
+قبل هذا العمل كان أي رابط غير معروف يُسلَّم منه `dist/index.html` بحالة **200**:
+جملة واحدة على كل رابط منسيّ، `index, follow`، و`rel="canonical"` يشير إلى
+الرئيسية — أي أن كل صفحة ميتة كانت تعلن نفسها نسخة من الصفحة الأولى. القاعدة:
+
+- `scripts/prerender.mjs` يكتب **`dist/404.html`**: `<h1>الصفحة غير موجودة</h1>`،
+  `noindex, follow`، canonical على `https://www.mizan.page/404`، وروابط إلى
+  الأقسام الستة. القالب كامل (سكربتات و`#root`) فـ React يركَّب على أي حال.
+- `404` أُضيف إلى `NON_INDEXABLE_SEGMENTS`: لا يدخل الخريطة، ولا يُطلب منه أن
+  يكون «صفحة يتيمة»، ولا يُحسب في التغطية.
+- المسارات التطبيقية الحقيقية (تسجيل دخول، ملف شخصي، لوحة تحكم، بحث، حفظ،
+  مدفوعات، أدوات Pro) لها **ملفات هيكل** خاصة بها بحالة 200 مع `noindex`
+  وcanonical على نفسها، فلا ترث رابط الرئيسية.
+- المسارات الديناميكية بلا ملف (`/u/<username>`، `/download/<id>`،
+  `/admin/<...>`، `/pro-tools/<slug>`) تُسلَّم من `dist/app.html` عبر دالة
+  Pages: **200 + `noindex, follow`** (ترويسة `X-Robots-Tag`)، بلا canonical ولا
+  hreflang. الشرط: يُسلَّم الهيكل فقط حين لا يوجد أصل لهذا المسار *و* المسار
+  يبدأ بقائمة مسارات العميل المعروفة — ما عدا ذلك يبقى 404.
+- `/pro-tools` مُنع في السياسة: كان «مفهرساً» بلا ملف وبلاentry في الخريطة،
+  وهي الوصفة الكاملة لحالة *Discovered – currently not indexed*. لا رابط داخلي
+  في البوابات يشير إليه، فلا خسارة وصلات من المنع.
+
+الحلقة مقفلة: `404.html` وحده كان يجعل كل تحميل مباشر لـ`/login` أو
+`/admin/users` صفحة 404، فملف الحالة والهيكل يُسلَّمان معاً أو لا يُسلَّمان.
+
+```bash
+curl -I http://127.0.0.1:8799/definitely-not-a-page   # 404 (لا 200)
+curl -s  http://127.0.0.1:8799/definitely-not-a-page | grep -o 'noindex[^"]*'
+curl -s  http://127.0.0.1:8799/u/quelquun | grep -o 'noindex[^"]*'   # 200 + noindex
+curl -s  http://127.0.0.1:8799/login | grep -o 'rel="canonical"[^>]*'  # canonical على نفسه
+```
 
 ### تحقّق يدوي على الإنتاج
 

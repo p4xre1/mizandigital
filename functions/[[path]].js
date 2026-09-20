@@ -125,5 +125,35 @@ export async function onRequest(context) {
     });
   }
 
-  return context.env.ASSETS.fetch(request);
+  const assetResponse = await context.env.ASSETS.fetch(request);
+
+  // مع dist/404.html كل مسار بلا أصل يُخدَج في 404 — مطلوب للنسيان، وخاطئ
+  // للمسارات التي يولّدها العميل (بروفايل مستخدم، رابط تحميل، لوحة تحكم،
+  // أداة Pro): روابط حقيقية تُشارك في واتساب/لينكد إن. إن لم نجد أصلاً لهذا
+  // المسار وعرفنا أنه موجّه تطبيقي، نُسلّم هيكل التطبيق بحالة 200. لا قائمة
+  // مسارات مفهرسة هنا: كل ما تحتها صفحات ثابتة مولّدة أو حالات 404 حقيقية.
+  const CLIENT_ROUTE_PREFIXES = ["/u/", "/download/", "/admin/", "/pro-tools/"];
+  const isClientRoute = (pathname) =>
+    CLIENT_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    pathname === "/admin" ||
+    pathname === "/pro-tools";
+
+  if (assetResponse.status === 404 && isClientRoute(url.pathname)) {
+    const shell = await context.env.ASSETS.fetch(
+      new Request(new URL("/app.html", url).href, { method: "GET" })
+    );
+
+    if (shell.status === 200) {
+      return new Response(shell.body, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "public, max-age=0, must-revalidate",
+          "X-Robots-Tag": "noindex, follow",
+        },
+      });
+    }
+  }
+
+  return assetResponse;
 }
