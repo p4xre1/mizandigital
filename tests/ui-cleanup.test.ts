@@ -21,6 +21,20 @@ describe("clean UI presentation", () => {
     expect(read("src/pages/auth/LoginPage.tsx")).toContain('placeholder="••••••••"');
   });
 
+  it("does not wrap page-header labels in a pill", () => {
+    const labels = [
+      ["src/pages/public/LexiconPage.tsx", "المعجم الموحد للمصطلحات - {terms.length} مصطلح قانوني"],
+      ["src/pages/public/ArchivePage.tsx", "المرفق الأكاديمي الموحد"],
+      ["src/pages/public/EventsPage.tsx", "الأجندة الأكاديمية الموحدة"],
+    ] as const;
+    for (const [path, text] of labels) {
+      const src = read(path);
+      // الشارة الدائرية حول عنوان الصفحة تزول، والنصّ يبقى في مكانه
+      expect(src, path).not.toContain("rounded-full bg-primary/10");
+      expect(src, path).toContain(text);
+    }
+  });
+
   it("does not wrap page counters in a pill", () => {
     const counters = [
       ["src/pages/public/ArticlesPage.tsx", "{filteredItems.length} مقال"],

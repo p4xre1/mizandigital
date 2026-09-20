@@ -8,7 +8,6 @@ import { ContentTags } from "../../components/content/ContentTags"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import {
-  FolderDown,
   BookOpen,
   Search,
   Filter,
@@ -274,10 +273,9 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
         <div className="container mx-auto max-w-6xl px-4 py-10">
           {/* Header Section */}
           <header className="mb-8 text-center md:text-right">
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
-              <FolderDown size={16} />
-              <span>المرفق الأكاديمي الموحد</span>
-            </div>
+            <p className="mb-3 text-xs font-semibold text-primary">
+              المرفق الأكاديمي الموحد
+            </p>
             <h1 className="text-3xl font-black text-foreground md:text-4xl">
               الأرشيف الدراسي لكليات الحقوق
               {selectedSemester !== "all" && (

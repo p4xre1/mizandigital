@@ -166,10 +166,9 @@ export function EventsPage() {
       <main className="container mx-auto max-w-6xl px-4 py-10" dir="rtl">
         {/* Header */}
         <header className="mb-8 text-center md:text-right">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
-            <Calendar size={16} />
-            <span>الأجندة الأكاديمية الموحدة</span>
-          </div>
+          <p className="mb-3 text-xs font-semibold text-primary">
+            الأجندة الأكاديمية الموحدة
+          </p>
           <h1 className="text-3xl font-black text-foreground md:text-4xl">
             الندوات والفعاليات القانونية
           </h1>

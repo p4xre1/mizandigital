@@ -10,7 +10,6 @@ import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import {
-  BookOpen,
   Search,
   Languages,
   Copy,
@@ -173,10 +172,9 @@ export function LexiconPage() {
       <main className="container mx-auto max-w-6xl px-4 py-8 md:py-10" dir="rtl">
         {/* Header Section */}
         <header className="mb-6 md:mb-8 text-center md:text-right">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
-            <BookOpen size={16} />
-            <span>المعجم الموحد للمصطلحات - {terms.length} مصطلح قانوني</span>
-          </div>
+          <p className="mb-3 text-xs font-semibold text-primary">
+            المعجم الموحد للمصطلحات - {terms.length} مصطلح قانوني
+          </p>
           <h1 className="text-2xl font-black text-foreground md:text-4xl">
             القاموس القانوني المغربي
           </h1>
