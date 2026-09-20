@@ -125,5 +125,16 @@ export async function onRequest(context) {
     });
   }
 
-  return context.env.ASSETS.fetch(request);
+  // كل الطلبات الأخرى تُقدَّم من أصول Pages، مع فرض ترويسة HSTS على
+  // الاستجابة عند عدم حضورها (حل احتياطي بحيث يبقى
+  // Strict-Transport-Security متوفرة حتى لو تجاهل الناشر ملف _headers).
+  const assetResponse = await context.env.ASSETS.fetch(request);
+  const response = new Response(assetResponse.body, assetResponse);
+  if (url.protocol === "https:" && !response.headers.has("Strict-Transport-Security")) {
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains; preload"
+    );
+  }
+  return response;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { jsonLdProps } from "@/lib/seo/jsonLd"
 import { ArrowRight, ChevronDown, HelpCircle } from "lucide-react"
@@ -17,6 +17,17 @@ interface HomeFaqSectionProps {
 
 export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: HomeFaqSectionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+  // صفحة / تُهيَّأ في البناء مع مخطط FAQPage ثابت في <head> (انظر
+  // scripts/prerender.mjs). الحقن المتصفحي هنا كان يضاعفه بعد الإقلاع.
+  // نحقن فقط عند غياب أي مخطط FAQPage — كأن يصل الزائر إلى الرئيسية
+  // عبر تنقل داخلي بالعميل (SPA) فلا تكون الصفحة قد مرت بالتهيئة.
+  const [injectFaqSchema, setInjectFaqSchema] = useState(false)
+  useEffect(() => {
+    const already = Array.from(
+      document.querySelectorAll('script[type="application/ld+json"]')
+    ).some((node) => (node.textContent || "").includes('"FAQPage"'))
+    setInjectFaqSchema(!already)
+  }, [])
 
   // نفس الأسئلة والأجوبة الموثّقة المستعملة فـ محتوى SEO الثابت
   // (scripts/prerender.mjs) — حفاظاً على تطابق المعلومة فـ كل الموقع
@@ -63,7 +74,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
 
   return (
     <section className="py-16 border-t border-border" aria-labelledby="home-faq-heading">
-      <script {...jsonLdProps(faqSchema)} />
+      {injectFaqSchema && <script {...jsonLdProps(faqSchema)} />}
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-10 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
@@ -83,18 +94,25 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
                 key={faq.question}
                 className="rounded-2xl border border-border bg-card overflow-hidden transition"
               >
-                <button
-                  type="button"
-                  onClick={() => setOpenIndex(isOpen ? null : index)}
-                  aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-right"
-                >
-                  <span className="text-sm font-bold text-foreground">{faq.question}</span>
-                  <ChevronDown
-                    size={18}
-                    className={`shrink-0 text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180 text-primary" : ""}`}
-                  />
-                </button>
+                {/* السؤال عنوان h3 حقيقي يحمل الزر (نمط الأكورديون في
+                    WAI-ARIA): كانت الأسئلة <button> فقط، ففشل فحص
+                    «Question-Style Headings» عند AITDK رغم أن نصها
+                    سؤال صريح — محركات الإجابة تستخرج الأسئلة من
+                    العناوين لا من الأزرار. */}
+                <h3 className="text-sm font-bold text-foreground">
+                  <button
+                    type="button"
+                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                    aria-expanded={isOpen}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-4 text-right"
+                  >
+                    <span className="text-sm font-bold text-foreground">{faq.question}</span>
+                    <ChevronDown
+                      size={18}
+                      className={`shrink-0 text-muted-foreground transition-transform duration-300 ${isOpen ? "rotate-180 text-primary" : ""}`}
+                    />
+                  </button>
+                </h3>
                 <div
                   className={`grid transition-all duration-300 ease-out ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
                 >

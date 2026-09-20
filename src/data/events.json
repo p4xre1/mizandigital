@@ -11,8 +11,8 @@
     "time": "09:00",
     "mode": "حضورياً",
     "status": "أرشيف",
-    "image": "https://marrakechpost.com/wp-content/uploads/2026/05/IMG_2273.jpeg",
-    "sourceUrl": "https://fsjes.uca.ma/actualites/",
+    "image": null,
+    "sourceUrl": "https://fsjpm.uca.ma/evenements/%d8%a7%d9%84%d9%85%d9%84%d8%aa%d9%82%d9%89-%d8%a7%d9%84%d8%b9%d9%84%d9%85%d9%8a-%d8%a7%d9%84%d8%af%d9%88%d9%84%d9%8a-%d8%a7%d9%84%d8%a3%d9%88%d9%84-%d9%81%d9%8a-%d9%85%d9%88%d8%b6%d9%88%d8%b9%d8%a7/",
     "sourceLabel": "المصدر الرسمي للكلية",
     "topics": ["القانون المقارن", "المنافسة", "البحث العلمي"],
     "body": [
@@ -35,7 +35,7 @@
     "mode": "حضورياً",
     "status": "أرشيف",
     "image": null,
-    "sourceUrl": "https://fsjes.uca.ma/actualites/",
+    "sourceUrl": "https://fsjpm.uca.ma/evenements/",
     "sourceLabel": "المصدر الرسمي للكلية",
     "topics": ["المسطرة المدنية", "القوانين الإجرائية", "ندوات قانونية"],
     "body": [
@@ -58,7 +58,7 @@
     "mode": "حضورياً",
     "status": "أرشيف",
     "image": null,
-    "sourceUrl": "https://fsjes.uca.ma/actualites/",
+    "sourceUrl": "https://fsjpm.uca.ma/evenements/%d8%a7%d9%84%d8%af%d9%88%d8%b1%d8%a9-%d8%a7%d9%84%d8%ab%d8%a7%d9%86%d9%8a%d8%a9-%d9%84%d9%84%d9%85%d8%b3%d8%a7%d8%a8%d9%82%d8%a9-%d8%a7%d9%84%d9%88%d8%b7%d9%86%d9%8a%d8%a9-%d9%84%d9%84%d9%85%d8%ad/",
     "sourceLabel": "المصدر الرسمي للكلية",
     "topics": ["المحاكمة الافتراضية", "فن الترافع", "المهارات القانونية", "الجرائم المالية"],
     "body": [

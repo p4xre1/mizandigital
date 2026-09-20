@@ -11,7 +11,9 @@
 
 User-agent: *
 Allow: /
-Content-Signal: search=yes, ai-input=yes, ai-train=yes
+# AI content usage opt-in signals (non-standard extension; kept as comment
+# robots.txt doesn't support directives outside Allow/Disallow/Sitemap groups):
+# Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # =====================================================
 # 2. Meta / Facebook / WhatsApp
@@ -133,9 +135,6 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-User-agent: CCBot
-Allow: /
-
 User-agent: PetalBot
 Allow: /
 
@@ -160,7 +159,6 @@ Allow: /
 # =====================================================
 
 Sitemap: https://www.mizan.page/sitemap.xml
-Sitemap: https://www.mizan.page/llms.txt
 
 # llms.txt: https://www.mizan.page/llms.txt
 # ai.txt: https://www.mizan.page/ai.txt

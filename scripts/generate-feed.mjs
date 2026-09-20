@@ -126,8 +126,8 @@ const rssItems = items
   .map(
     (item) => `    <item>
       <title>${escapeXml(item.title)}</title>
-      <link>${escapeXml(item.link)}</link>
-      <guid isPermaLink="true">${escapeXml(item.guid)}</guid>
+      <link>${escapeXml(encodeURI(item.link))}</link>
+      <guid isPermaLink="true">${escapeXml(encodeURI(item.guid))}</guid>
       <pubDate>${toRfc822(item.pubDate)}</pubDate>
       <category>${escapeXml(item.category)}</category>
       <description><![CDATA[${item.description}]]></description>

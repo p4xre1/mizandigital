@@ -6,7 +6,7 @@ import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import {
   BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2
+  Calendar, MapPin, Languages, GitBranch, Building2, ExternalLink, Quote
 } from "lucide-react"
 
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
@@ -233,11 +233,10 @@ export function HomePage() {
           "دروس القانون المغربي مجانا",
         ]}
         breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }]}
-        faq={[
-          { question: "ما هي منصة ميزان الرقمية؟", answer: "ميزان الرقمية منصة مغربية تعليمية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM." },
-          { question: "هل المحتوى مجاني؟", answer: "المحتوى الأساسي مجاني دون تسجيل: القاموس القانوني، وملخصات الأرشيف S1-S6، ودليل الكليات، والمقالات، والأخبار. المزايا المتقدمة مؤدّاة عبر اشتراك ميزان برو (49 درهماً شهرياً أو 399 درهماً سنوياً) أو عبر حزم الكريدتس. المنصة لم تعد مجانية بالكامل كما كانت في مرحلة سابقة، وهذا معلن في صفحة الأسعار." },
-          { question: "كم عدد كليات الحقوق في الدليل؟", answer: "دليلنا يضم 21 كلية حقوق وعلوم قانونية واقتصادية FSJES بالمغرب: الرباط، الدار البيضاء، مراكش، فاس، طنجة، أكادير، وجدة، مكناس وغيرها." },
-        ]}
+        {/* ملاحظة: لا faq هنا. كانت هذه الأسئلة الثلاثة تُحقن كـ FAQPage
+            في المتصفح فقط، فلم تكن تظهر للزاحف، ومع مخطط FAQPage الثابت
+            الذي يولّده scripts/prerender.mjs أصبحت مضاعفة. الأسئلة نفسها
+            موجودة الآن ظاهرة نصاً في HTML الخام ومُضمَّنة في المخطط الثابت. */}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
@@ -629,6 +628,72 @@ export function HomePage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* المصادر الرسمية للتحقق — يضعه هذا القسم في DOM المعروض
+            بعد JavaScript (وليس فقط في HTML الخام) حتى تكتمل عند
+            محركات الإجابة إشارات: عنوان سؤالي، جواب مباشر في المقدمة،
+            اقتباس بعزو، وإحالات خارجية إلى مصادر رسمية مسماة. على
+            الرئيسية الثابتة مرآة لهذا المحتوى في scripts/prerender.mjs. */}
+        <section className="py-14 bg-white dark:bg-[#0f172a] border-t border-[#f1f5f9] dark:border-[#1e293b]" aria-labelledby="home-verify-heading">
+          <div className="container mx-auto max-w-[800px] px-6">
+            <div className="text-center max-w-[640px] mx-auto mb-8">
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#dcfce7] dark:bg-[#14532d]/30 border border-[#bbf7d0] dark:border-[#166534]/40 px-3 py-1 text-[11px] font-black text-[#16a34a] dark:text-[#4ade80]">
+                <ShieldCheck className="size-3.5" />
+                المصادر والتحقق
+              </span>
+              <h2 id="home-verify-heading" className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
+                كيف تتحقق من المعلومة القانونية قبل الاستشهاد؟
+              </h2>
+              <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">
+                <strong className="text-[#0f172a] dark:text-white">المرجع النهائي لأي معلومة قانونية هو النص الرسمي المنشور في الجريدة الرسمية</strong>
+                . محتوى ميزان الرقمية تعليمي يشرح وينظم المعلومة، وأما القاعدة القانونية الملزمة فتُقرأ من المصدر الرسمي أدناه قبل أي استشهاد.
+              </p>
+            </div>
+
+            <blockquote cite="https://adala.justice.gov.ma/" className="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#1e293b] p-5">
+              <div className="flex items-start gap-3">
+                <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb]">
+                  <Quote className="size-4" />
+                </span>
+                <div>
+                  <p className="text-[13px] leading-6 font-bold text-[#0f172a] dark:text-white">
+                    «كل فعل ارتكبه الإنسان عن بينة واختيار، ومن غير أن يسمح به القانون، فأحدث ضررا ماديا أو معنويا للغير، ألزم مرتكبه بتعويض هذا الضرر، إذا ثبت أن ذلك الفعل هو السبب المباشر في حصوله»
+                  </p>
+                  <footer className="mt-2 text-[11px] font-semibold text-[#64748b] dark:text-[#94a3b8]">
+                    — <cite className="not-italic">الفصل 77 من قانون الالتزامات والعقود المغربي (ظهير 12 غشت 1913)</cite>
+                  </footer>
+                </div>
+              </div>
+            </blockquote>
+
+            <ul className="mt-6 grid sm:grid-cols-2 gap-3" aria-label="مصادر رسمية للتحقق من القانون المغربي">
+              {[
+                // ملاحظة: نصوص هذه البطاقات مطابقة حرفياً لتلك التي في
+                // homeOfficialSources بـ scripts/prerender.mjs حتى تبقى
+                // النسخة الثابتة مرآة تامة لما يعرضه React.
+                { name: "بوابة عدالة — وزارة العدل المغربية", url: "https://adala.justice.gov.ma/", note: "مرجع رسمي للبحث في التشريع والمعلومة القانونية المغربية." },
+                { name: "الأمانة العامة للحكومة المغربية", url: "https://www.sgg.gov.ma/", note: "المصدر الرسمي المرتبط بالنصوص القانونية والجريدة الرسمية." },
+                { name: "الجريدة الرسمية المغربية", url: "https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx", note: "التحقق من النشر الرسمي للنصوص القانونية وتواريخ دخولها حيز التنفيذ." },
+                { name: "وزارة التعليم العالي والبحث العلمي والابتكار", url: "https://www.enssup.gov.ma/", note: "مرجع مؤسساتي للمعلومات المرتبطة بالتعليم العالي في المغرب." },
+              ].map((source) => (
+                <li key={source.url}>
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noopener noreferrer external"
+                    className="group flex h-full flex-col gap-1 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-4 hover:border-[#16a34a]/30 hover:shadow-[0_8px_20px_rgba(22,163,74,0.06)] transition-all"
+                  >
+                    <span className="flex items-center gap-1.5 text-[12.5px] font-bold text-[#0f172a] dark:text-white group-hover:text-[#16a34a] transition-colors">
+                      {source.name}
+                      <ExternalLink className="size-3 shrink-0 text-[#94a3b8] group-hover:text-[#16a34a]" />
+                    </span>
+                    <span className="text-[11px] text-[#64748b] dark:text-[#94a3b8]">{source.note}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
 

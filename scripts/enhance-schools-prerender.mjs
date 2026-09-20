@@ -17,7 +17,7 @@ const items = schools.map((s, i) => {
   const name = s.name || s.name_ar || "مؤسسة جامعية";
   const areas = Array.isArray(s.studyAreas) ? s.studyAreas : [];
   const official = s.officialUrl || "";
-  return `<article><h2><a href="/schools/${esc(slug)}">${esc(name)}</a></h2><p><strong>الجامعة:</strong> ${esc(s.university || "غير محدد")} — <strong>المدينة:</strong> ${esc(s.city || "المغرب")}</p>${s.foundedYear ? `<p><strong>سنة التأسيس:</strong> ${esc(s.foundedYear)}</p>` : ""}${s.synopsis ? `<p>${esc(s.synopsis)}</p>` : ""}${areas.length ? `<p><strong>مجالات الدراسة:</strong> ${areas.map(esc).join("، ")}</p>` : ""}${official ? `<p><a href="${esc(official)}" rel="nofollow noopener" target="_blank">الموقع الرسمي للمؤسسة</a></p>` : ""}<p><a href="/schools/${esc(slug)}">عرض بطاقة الكلية ومعلوماتها</a></p></article>`;
+  return `<article><h2><a href="/schools/${esc(slug)}">${esc(name)}</a></h2><p><strong>الجامعة:</strong> ${esc(s.university || "غير محدد")} — <strong>المدينة:</strong> ${esc(s.city || "المغرب")}</p>${s.foundedYear ? `<p><strong>سنة التأسيس:</strong> ${esc(s.foundedYear)}</p>` : ""}${s.synopsis ? `<p>${esc(s.synopsis)}</p>` : ""}${areas.length ? `<p><strong>مجالات الدراسة:</strong> ${areas.map(esc).join("، ")}</p>` : ""}${official ? `<p><a href="${esc(official)}" rel="noopener" target="_blank">الموقع الرسمي للمؤسسة</a></p>` : ""}<p><a href="/schools/${esc(slug)}">عرض بطاقة الكلية ومعلوماتها</a></p></article>`;
 }).join("");
 
 const schema = {

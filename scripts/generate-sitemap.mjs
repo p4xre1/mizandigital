@@ -68,14 +68,19 @@ async function fetchPublishedCmsContent() {
 
 const { cmsArticles, cmsNews, cmsPdfs, cmsLaws } = await fetchPublishedCmsContent();
 
-const generateSlug = (text = "") => {
-  return String(text)
+// يجب أن تبقى هذه الدالة مطابقة تماماً لمثيلاتها في scripts/prerender.mjs
+// و src/lib/utils/generateSlug.ts حتى تتطابق روابط sitemap مع المسارات
+// الفعلية المولّدة للصفحات (أي اختلاف يسبب روابط 404 في sitemap).
+const generateSlug = (text = "") =>
+  String(text)
     .trim()
     .toLowerCase()
-    .replace(/[\s\/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF\-]+/g, "")
-    .replace(/\-+$/, "");
-};
+    .normalize("NFKC")
+    .replace(/[\u064B-\u065F\u0670]/g, "")
+    .replace(/[\s/\\_]+/g, "-")
+    .replace(/[^\w\u0600-\u06FF-]+/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 const staticEntries = [
   { path: "", changefreq: "weekly", priority: "1.0", forceTodayLastmod: true },
@@ -164,10 +169,13 @@ const dynamicEntries = [
   }),
   ...lexicon.map((item) => {
     const base = generateSlug(item.term_ar) || String(item.id);
-    const fr = generateSlug(item.term_fr || "") || String(item.id);
+    // نفس منطق uniqueLexiconSlug في التطبيق و prerender: عند التكرار
+    // نُلحق معرّف العنصر (وليس الاسم الفرنسي) حتى تتطابق روابط sitemap
+    // مع الصفحات المولّدة فعلياً. أي اختلاف هنا يعني روابط 404 للزاحف.
     let slug = base;
-    if (usedLexiconSlugs.has(slug)) slug = `${base}-${fr}`;
+    let suffix = 1;
     if (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}`;
+    while (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}-${++suffix}`;
     usedLexiconSlugs.add(slug);
     return {
       path: `/lexicon/${slug}`,
@@ -232,7 +240,7 @@ const entries = dedupedByPath
         ? `\n    <lastmod>${today}</lastmod>`
         : "";
     return `  <url>
-    <loc>${escapeXml(`${DOMAIN}${normalizePath(entry.path)}`)}</loc>${lastmodTag}
+    <loc>${escapeXml(encodeURI(`${DOMAIN}${normalizePath(entry.path)}`))}</loc>${lastmodTag}
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`;
