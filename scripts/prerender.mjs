@@ -510,6 +510,8 @@ const ICON = {
   scale: `<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path><path d="M7 21h10"></path><path d="M12 3v18"></path><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>`,
   library: `<path d="m16 6 4 14"></path><path d="M12 6v14"></path><path d="M8 8v12"></path><path d="M4 4v16"></path>`,
   bookOpen: `<path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path>`,
+  badgeCheck: `<path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m9 12 2 2 4-4"></path>`,
+  landmark: `<line x1="3" x2="21" y1="22" y2="22"></line><line x1="6" x2="6" y1="18" y2="11"></line><line x1="10" x2="10" y1="18" y2="11"></line><line x1="14" x2="14" y1="18" y2="11"></line><line x1="18" x2="18" y1="18" y2="11"></line><polygon points="12 2 20 7 4 7"></polygon>`,
   compass: `<circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>`,
   link: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>`,
   shieldCheck: `<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path>`,
@@ -577,8 +579,8 @@ const homeHeaderHtml = `
         </header>`;
 
 const homeStatCards = [
+  ["الأرشيف", "ملخصات S1-S6", ICON.library, "bg-[#b45309]", "S1-S6"],
   ["القاموس", "250 مصطلح", ICON.scale, "bg-[#2563eb]", String(statistics.lexicon)],
-  ["الأرشيف", "S1-S6", ICON.library, "bg-[#f59e0b]", "S1-S6"],
   ["المقالات", `${statistics.articles} مقال`, ICON.bookOpen, "bg-[#10b981]", String(statistics.articles)],
   ["الأخبار", "مستجدات تشريعية", ICON.cap, "bg-[#b91c1c]", String(statistics.news)],
 ];
@@ -595,7 +597,7 @@ const homeHeroHtml = `
                 <div class="rise text-center lg:text-right">
                   <p class="flex items-center justify-center gap-3 lg:justify-start">
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true"></span>
-                    <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</span>
+                    <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">منصة مغربية مستقلة لطلبة الحقوق</span>
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true"></span>
                   </p>
                   <h1 class="mt-4 text-[31px] md:text-[42px] font-black leading-[1.18] tracking-[-0.025em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
@@ -612,13 +614,14 @@ const homeHeroHtml = `
                     <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
                   </p>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                    <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold transition-colors">تصفّح المحتوى<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
-                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
+                    <a href="/archive" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
+                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
                   </div>
-                  <ul class="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-3">
+                  <ul class="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-2 lg:grid-cols-4">
                     <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
-                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.clock, "size-4 text-[#2563eb]", 16)}تحديث مستمر للمستجدات</li>
-                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات الفصول S1-S6</li>
+                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.badgeCheck, "size-4 text-[#2563eb]", 16)}بلا إعلانات</li>
+                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.landmark, "size-4 text-[#2563eb]", 16)}مصادر رسمية محالة</li>
+                    <li class="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات S1-S6</li>
                   </ul>
                 </div>
 
@@ -669,7 +672,7 @@ const homeHeroHtml = `
               <div class="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">${homeStatCards
                 .map(
                   ([title, desc, icon, color, badge], i) => `
-                <a href="${desc === "S1-S6" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
+                <a href="${title === "الأرشيف" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
                   <div class="flex items-center justify-between">
                     <div class="grid size-9 place-items-center rounded-xl ${color} text-white">${svgIcon(icon, "size-4", 16)}</div>
                     <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
@@ -907,13 +910,33 @@ const pages = [
           </section>
 
           <section class="mt-10">
-            <h2 class="accent-rule text-[20px] font-black text-[#0f172a] dark:text-white">كيف تستعمل منصة ميزان في مراجعتك؟</h2>
+            <h2 class="accent-rule text-[20px] font-black text-[#0f172a] dark:text-white">كيف تبدأ في ثلاث خطوات قبل الامتحان؟</h2>
 
             <p>
               <strong>أفضل نقطة بداية هي تحديد نوع المعلومة التي تبحث عنها.</strong>
               استخدم القاموس للمصطلحات القانونية، والأرشيف للمواد الدراسية،
               والمقالات للمنهجية والتحليل، والأخبار للمستجدات،
               ودليل الكليات للحصول على معلومات المؤسسات الجامعية.
+            </p>
+
+            <ol>
+              <li>
+                <strong>افتح فصلك الدراسي</strong> — أرشيف مرتّب من S1 إلى S6:
+                <a href="/archive">تصفّح الأرشيف الدراسي</a>.
+              </li>
+              <li>
+                <strong>راجع المصطلحات</strong> — 250 مصطلحاً بالعربية والفرنسية:
+                <a href="/lexicon">افتح القاموس القانوني</a>.
+              </li>
+              <li>
+                <strong>اختبر نفسك</strong> — أسئلة QCM مع شرح الإجابة الصحيحة:
+                <a href="/quiz">ابدأ اختباراً</a>.
+              </li>
+            </ol>
+
+            <p>
+              المحتوى الأساسي مجاني وبلا حساب، ولا توجد إعلانات على المنصة،
+              والمحتوى تعليمي بإحالات إلى المصادر الرسمية وليس استشارة قانونية.
             </p>
 
             <ul>
@@ -1033,6 +1056,18 @@ const pages = [
               —
               <a href="/faq">الأسئلة الشائعة</a>
             </p>
+          </section>
+
+          <!-- الشريط الختامي: دعوة واحدة واضحة مع تقليل المخاطرة -->
+          <section class="mt-12 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] p-6 text-center sm:p-8">
+            <h2 class="text-[22px] font-black text-[#0f172a] dark:text-white sm:text-[26px]">ابدأ من الفصل الذي تدرسه اليوم</h2>
+            <p class="mx-auto mt-3 max-w-[640px]">
+              افتح الأرشيف، اختر الفصل والمادة، ثم اختبر نفسك. المحتوى الأساسي مجاني وبلا حساب.
+            </p>
+            <p class="mt-4">
+              <a href="/archive" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] px-8 py-3.5 text-[15px] font-black text-white">تصفّح الأرشيف الدراسي</a>
+            </p>
+            <p class="mt-3 text-[13px]"><a href="/quiz">أو جرّب اختباراً سريعاً</a></p>
           </section>
 
           <footer>

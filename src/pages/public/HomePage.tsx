@@ -9,6 +9,7 @@ import { generateSlug } from "../../lib/utils/generateSlug"
 import {
   BookOpen, Scale, GraduationCap, Award, Library, ShieldCheck, Clock, FileText, ArrowRight,
   Calendar, MapPin, Languages, GitBranch, Building2, Video, GitCompare, BellRing, Compass,
+  BadgeCheck, ListChecks, MousePointerClick, Download,
   CalendarClock, FolderOpen, Link2, Landmark, ExternalLink
 } from "lucide-react"
 
@@ -313,7 +314,7 @@ export function HomePage() {
               <Reveal className="text-center lg:text-right">
                 <p className="flex items-center justify-center gap-3 lg:justify-start">
                   <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
-                  <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</span>
+                  <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">منصة مغربية مستقلة لطلبة الحقوق</span>
                   <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true" />
                 </p>
 
@@ -343,20 +344,24 @@ export function HomePage() {
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                  <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold transition-colors">
-                    تصفّح المحتوى
+                  {/* زرّ أساسي واحد فقط للفعل الأهم (طلب المستخدم: المراجعة
+                      قبل الامتحان). الزرّ الثانوي إطار بلا تعبئة (Von Restorff). */}
+                  <Link to="/archive" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
+                    ابدأ المراجعة — مجاناً
                     <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
                   </Link>
                   <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
-                    اختبر معرفتك القانونية
+                    قِس مستواك في ٣ دقائق
                     <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
                   </Link>
                 </div>
 
-                <ul className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-3">
+                {/* دليل ثقة: أربع حقائق قابلة للتحقّق (لا أرقام مُختلقة) */}
+                <ul className="mt-7 grid gap-px overflow-hidden rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] sm:grid-cols-2 lg:grid-cols-4">
                   <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
-                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
-                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
+                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><BadgeCheck className="size-4 text-[#2563eb]" aria-hidden="true" />بلا إعلانات</li>
+                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Landmark className="size-4 text-[#2563eb]" aria-hidden="true" />مصادر رسمية محالة</li>
+                  <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات S1-S6</li>
                 </ul>
               </Reveal>
 
@@ -438,8 +443,8 @@ export function HomePage() {
             {/* روابط سريعة للمحتوى */}
             <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
+                { title: "الأرشيف", desc: "ملخصات S1-S6", icon: Library, color: "bg-[#b45309]", count: "S1-S6", href: "/archive" },
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, numeric: counts.lexicon, href: "/lexicon" },
-                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#b45309]", count: "S1-S6", href: "/archive" },
                 { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}`, numeric: articlesCount, href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}`, numeric: counts.news, href: "/news" },
               ].map((card, i) => (
@@ -484,8 +489,8 @@ export function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
-                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, numeric: counts.lexicon, tone: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]", link: "استعمل البحث والتصنيف", href: "/lexicon" },
-                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#b45309]/10 text-[#b45309]", bar: "bg-[#b45309]", link: "تصفّح الملخصات", href: "/archive" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#b45309]/10 text-[#b45309]", bar: "bg-[#b45309]", link: "ابدأ بالملخصات", href: "/archive" },
+                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, numeric: counts.lexicon, tone: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]", link: "ابحث عن مصطلح", href: "/lexicon" },
                 { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, numeric: articlesCount, tone: "bg-[#10b981]/10 text-[#047857]", bar: "bg-[#10b981]", link: "اقرأ التحليلات", href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: `${counts.news}`, numeric: counts.news, tone: "bg-[#ef4444]/10 text-[#b91c1c]", bar: "bg-[#ef4444]", link: "تابع المستجدات", href: "/news" },
               ].map((card) => (
@@ -632,11 +637,72 @@ export function HomePage() {
           </div>
         </section>
 
+        {/* كيف تبدأ — التزام وتتابع: ثلاث خطوات صغيرة يسهل قول «نعم» لها،
+            وكل خطوة تفتح وجهتها مباشرة. ثم ثلاث حقائق تُزيل الاعتراضات. */}
+        <section className="py-16 md:py-24 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
+          <div className="container mx-auto max-w-[1200px] px-6">
+            <div className="text-center mb-10 md:mb-14">
+              <SectionLabel step="٠٢" tone="blue">كيف تبدأ</SectionLabel>
+              <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ثلاث خطوات قبل الامتحان</h2>
+              <p className="mt-3 text-[13px] text-[#64748b] dark:text-[#94a3b8] max-w-[680px] mx-auto">
+                لا تحتاج حساباً ولا دفعاً: افتح، راجع، ثم اختبر نفسك.
+              </p>
+            </div>
+
+            <ol className="grid gap-4 md:gap-6 md:grid-cols-3">
+              {[
+                { n: "١", title: "افتح فصلك الدراسي", desc: "أرشيف مرتّب من S1 إلى S6 حسب المسلك والفصل، وملخصات كل مادة.", to: "/archive", cta: "اذهب إلى الأرشيف", icon: FolderOpen, tone: "bg-[#b45309]/10 text-[#b45309]", bar: "bg-[#b45309]" },
+                { n: "٢", title: "راجع المصطلحات", desc: "250 مصطلحاً قانونياً بالعربية والفرنسية مع التعريف والإحالة التشريعية.", to: "/lexicon", cta: "افتح القاموس", icon: BookOpen, tone: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]" },
+                { n: "٣", title: "اختبر نفسك", desc: "أسئلة QCM مع شرح الإجابة الصحيحة وسندها، لتثبيت ما راجعته.", to: "/quiz", cta: "ابدأ اختباراً", icon: ListChecks, tone: "bg-[#047857]/10 text-[#047857]", bar: "bg-[#047857]" },
+              ].map((step, i) => (
+                <li key={i} className="h-full">
+                  {/* الحركة داخل عنصر القائمة: بنية <ol> تبقى صحيحة دلالياً */}
+                  <Reveal delay={i * 80} className="h-full">
+                    <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-6 hover-lift">
+                    <span className={`absolute inset-x-0 top-0 h-1 ${step.bar}`} aria-hidden="true" />
+                    <div className="flex items-center gap-3">
+                      <span className={`grid size-10 place-items-center rounded-xl ${step.tone}`} aria-hidden="true">
+                        <step.icon className="size-5" />
+                      </span>
+                      <span className="text-[26px] font-black tabular-nums text-[#e2e8f0] dark:text-[#334155]">{step.n}</span>
+                    </div>
+                    <h3 className="mt-4 font-black text-[15px] text-[#0f172a] dark:text-white">{step.title}</h3>
+                    <p className="mt-2 text-[12.5px] leading-6 text-[#64748b] dark:text-[#94a3b8] flex-1">{step.desc}</p>
+                      <Link to={step.to} className="group mt-4 inline-flex items-center gap-1.5 text-[12px] font-black text-[#2563eb]">
+                        {step.cta}
+                        <ArrowRight className="link-arrow size-3.5 rtl:rotate-180" aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </Reveal>
+                </li>
+              ))}
+            </ol>
+
+            <Reveal delay={240}>
+              <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] sm:grid-cols-3">
+                {[
+                  { icon: MousePointerClick, title: "بلا حساب للقراءة", desc: "المعجم والأرشيف والمقالات مفتوحة للزائر مباشرة." },
+                  { icon: BadgeCheck, title: "بلا إعلانات", desc: "لا شبكات إعلانية ولا نوافذ منبثقة ولا محتوى مدفوع بالضغط." },
+                  { icon: Download, title: "ليست استشارة قانونية", desc: "محتوى تعليمي بإحالات إلى المصادر الرسمية، والنصّ النافذ يُراجع فيها." },
+                ].map((item, i) => (
+                  <div key={i} className="bg-[#f8fafc] dark:bg-[#0f172a] p-5">
+                    <span className="grid size-9 place-items-center rounded-xl bg-white dark:bg-[#1e293b] text-[#2563eb]" aria-hidden="true">
+                      <item.icon className="size-4" />
+                    </span>
+                    <h3 className="mt-3 font-black text-[13px] text-[#0f172a] dark:text-white">{item.title}</h3>
+                    <p className="mt-1 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
         <section className="relative overflow-hidden py-14 md:py-20 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1200px] px-6">
             <div className="text-center mb-10 md:mb-12">
-              <SectionLabel step="٠٢" tone="gold">أدوات ميزان برو</SectionLabel>
+              <SectionLabel step="٠٣" tone="gold">أدوات ميزان برو</SectionLabel>
               <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
               <p className="mt-3 text-[13px] text-[#cbd5e1] max-w-[680px] mx-auto">
                 أدوات عملية داخل المنصة: مقارنة النصوص، وتمارين الواقعة إلى الحل، وخريطة الإحالات، والتنبيهات، وحساب الآجال، وملف بحث خاص بك.
@@ -678,7 +744,7 @@ export function HomePage() {
           <div className="container relative mx-auto max-w-[1200px] px-6">
             <div className="text-center max-w-[680px] mx-auto">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
-                ٠٣ — الأسعار - خطط مرنة
+                ٠٤ — الأسعار - خطط مرنة
               </span>
               <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
                 خطط تناسب كل
@@ -797,7 +863,7 @@ export function HomePage() {
           <div className="container mx-auto max-w-[1200px] px-6">
             <div className="max-w-[1000px] mx-auto">
               <div className="text-center max-w-[680px] mx-auto mb-10 md:mb-14">
-                <SectionLabel step="٠٤" tone="green">لماذا نحن</SectionLabel>
+                <SectionLabel step="٠٥" tone="green">لماذا نحن</SectionLabel>
                 {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                     «اكتشف المزايا المميزة لمنصتنا التعليمية القانونية». */}
                 <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
@@ -882,12 +948,37 @@ export function HomePage() {
                 </div>
               ))}
             </div>
+            <p className="relative mt-8 text-center text-[11.5px] font-bold text-white/75">
+              كل مصطلح في المعجم يحمل تاريخ مراجعة موثّقاً، وكل ملف دراسي يحمل تاريخ تحديث.
+            </p>
           </div>
         </section>
 
         <Suspense fallback={null}>
           <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={counts.articles} schoolsCount={counts.schools} />
         </Suspense>
+
+        {/* الشريط الختامي: آخر ما يبقى في الذاكرة فعل واحد واضح مع تقليل المخاطرة */}
+        <section className="border-t border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] py-16 md:py-24">
+          <div className="container mx-auto max-w-[1200px] px-6 text-center">
+            <h2 className="text-[24px] md:text-[30px] font-black leading-tight text-[#0f172a] dark:text-white">
+              ابدأ من الفصل الذي تدرسه اليوم
+            </h2>
+            <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8] max-w-[680px] mx-auto">
+              افتح الأرشيف، اختر الفصل والمادة، ثم اختبر نفسك. المحتوى الأساسي مجاني وبلا حساب.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/archive" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-8 py-3.5 text-[15px] font-black transition-colors">
+                تصفّح الأرشيف الدراسي
+                <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+              </Link>
+              <Link to="/quiz" className="text-[13px] font-bold text-[#2563eb] hover:underline">
+                أو جرّب اختباراً سريعاً
+              </Link>
+            </div>
+          </div>
+        </section>
+
       </main>
     </>
   )

@@ -89,7 +89,7 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
   it("ترقّم الأقسام وتُبقي إيقاعاً واحداً للعناوين", () => {
     const container = renderHome();
     const text = container.textContent ?? "";
-    for (const step of ["٠١", "٠٢", "٠٣", "٠٤"]) {
+    for (const step of ["٠١", "٠٢", "٠٣", "٠٤", "٠٥"]) {
       expect(text, step).toContain(step);
     }
     // h1 واحد في الصفحة، وبعده h2 فقط (لا قفز في التسلسل).
@@ -232,10 +232,91 @@ describe("الصفحة الرئيسية — إيقاع المسافات", () => 
     expect(prerender).toContain("max-w-[1200px] px-6 py-14 md:py-20");
     expect(prerender).not.toContain("max-w-[1120px]");
     expect(prerender).not.toContain("max-w-[1120px]");
-    // مقاسات النصوص الطويلة في الثابت من نفس السلّم (1000/680)
-    for (const stale of ["max-w-[900px]", "max-w-[800px]", "max-w-[640px]", "max-w-[620px]", "max-w-[600px]"]) {
+    // مقاسات النصوص الطويلة في الثابت من نفس السلّم (1000/680) —
+    // ويُسمح بمرشّح 640px للشريط الختامي كنصّ مركزي قصير.
+    for (const stale of ["max-w-[900px]", "max-w-[800px]", "max-w-[600px]"]) {
       expect(prerender, stale).not.toContain(stale);
     }
     expect(prerender).toContain("gap-12 lg:gap-14");
+  });
+});
+
+describe("سيكولوجيا صفحة الهبوط", () => {
+  it("تضع دعوة أساسية واحدة فقط في الترويسة تقود إلى الأرشيف", () => {
+    const container = renderHome();
+    const hero = container.querySelector("h1")?.closest("div")?.parentElement as HTMLElement;
+    const ctaTexts = [...container.querySelectorAll("a")].map((a) => a.textContent?.trim() ?? "");
+    expect(ctaTexts.some((label) => label.includes("ابدأ المراجعة — مجاناً"))).toBe(true);
+    // الزرّ الأساسي يشير إلى الأرشيف (مهمّة الطالب الأولى)
+    const primary = [...container.querySelectorAll("a")].find((a) =>
+      (a.textContent ?? "").includes("ابدأ المراجعة"),
+    );
+    expect(primary?.getAttribute("href")).toBe("/archive");
+    // الزرّ الثانوي يذكر الجهد المنخفض (٣ دقائق) بدل كلام عام
+    expect(ctaTexts.some((label) => label.includes("قِس مستواك في ٣ دقائق"))).toBe(true);
+    expect(hero).toBeTruthy();
+  });
+
+  it("تبني الثقة بحقائق قابلة للتحقّق بلا أرقام مُختلقة", () => {
+    const container = renderHome();
+    const text = container.textContent ?? "";
+    for (const fact of ["محتوى أساسي مجاني", "بلا إعلانات", "مصادر رسمية محالة", "ملخصات S1-S6"]) {
+      expect(text, fact).toContain(fact);
+    }
+    // دليل الثقة القديم (المُختلق) لا يعود
+    for (const invented of ["500+", "4.9", "آلاف الطلبة", "الأكثر اختياراً", "الأكثر تحميلاً"]) {
+      expect(text, invented).not.toContain(invented);
+    }
+  });
+
+  it("تُقسّم البداية إلى ثلاث خطوات متتابعة قابلة للنقر", () => {
+    const container = renderHome();
+    const text = container.textContent ?? "";
+    for (const step of ["افتح فصلك الدراسي", "راجع المصطلحات", "اختبر نفسك"]) {
+      expect(text, step).toContain(step);
+    }
+    const hrefs = [...container.querySelectorAll("a")].map((a) => a.getAttribute("href"));
+    expect(hrefs).toContain("/archive");
+    expect(hrefs).toContain("/lexicon");
+    expect(hrefs).toContain("/quiz");
+    // الاحتياط: بلا حساب، بلا إعلانات، وليست استشارة قانونية
+    expect(text).toContain("بلا حساب للقراءة");
+    expect(text).toContain("ليست استشارة قانونية");
+  });
+
+  it("تُنهي الصفحة بدعوة واحدة واضحة بعد الأسئلة الشائعة", () => {
+    const container = renderHome();
+    const text = container.textContent ?? "";
+    expect(text).toContain("ابدأ من الفصل الذي تدرسه اليوم");
+    expect(text).toContain("تصفّح الأرشيف الدراسي");
+    // آخر رابط رئيسي في الصفحة يقود إلى الأرشيف
+    const links = [...container.querySelectorAll("a")];
+    const closing = links.filter((a) => (a.textContent ?? "").includes("تصفّح الأرشيف الدراسي"));
+    expect(closing.length).toBeGreaterThanOrEqual(1);
+    expect(closing[closing.length - 1]?.getAttribute("href")).toBe("/archive");
+  });
+
+  it("ترتّب المحتوى بالمهمّة الأهمّ أولاً (موضع الصدارة)", () => {
+    const container = renderHome();
+    const hero = container.querySelector("h1")?.closest("div")?.parentElement as HTMLElement;
+    const firstQuickLink = hero?.querySelector("a[href='/archive']");
+    expect(firstQuickLink).not.toBeNull();
+    const quickHrefs = [...(hero?.querySelectorAll("a") ?? [])]
+      .map((a) => a.getAttribute("href"))
+      .filter((href) => ["/archive", "/lexicon", "/articles", "/news"].includes(href ?? ""));
+    expect(quickHrefs[0]).toBe("/archive");
+  });
+
+  it("تزامن النسخة الثابتة مع نفس عناصر السيكولوجيا", () => {
+    const prerender = readFileSync("scripts/prerender.mjs", "utf8");
+    expect(prerender).toContain("ابدأ المراجعة — مجاناً");
+    expect(prerender).toContain('href="/archive"');
+    expect(prerender).toContain("كيف تبدأ في ثلاث خطوات قبل الامتحان؟");
+    expect(prerender).toContain("ابدأ من الفصل الذي تدرسه اليوم");
+    expect(prerender).toContain("المحتوى الأساسي مجاني وبلا حساب");
+    // لا أرقام مُختلقة في النسخة الثابتة
+    for (const invented of ["500+", "4.9", "آلاف الطلبة"]) {
+      expect(prerender, invented).not.toContain(invented);
+    }
   });
 });
