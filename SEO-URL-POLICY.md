@@ -51,6 +51,36 @@
 | حالة 404 والهيكل التطبيقية | `scripts/prerender.mjs` → `dist/404.html`، هيكل لكل مسار تطبيقي (`dist/login.html` … `dist/app.html`)؛ `functions/[[path]].js` يسلّم `app.html` عند غياب أصل في مسار عميل | انظر §4 ب |
 | البوابات | `shared/seo/technical-checks.js` | `checkSitemap`، `checkCanonicalPolicy`، `checkSitemapCoverage`، `checkUrlStructure`؛ `noindex` على مسار غير مفهرس ليس خللاً في `head` ولا canonical مطلوب في `canonical` |
 
+### نصوص الميتا: عنوان ووصف متميّزان لكل صفحة
+
+تقرير سيادي خارجي قال «Non-canonical على كل الموقع تقريباً» رغم أن
+`<link rel="canonical">` كان صحيحاً في كل ملف. السبب لم يكن الوسم بل **النص**:
+الرؤوس كانت تُبنى في أربع نسخ—`SEOHead` بسقف 65 وعلامة «| الميزان الرقمية»،
+و`usePageTitle` افتراضيها «منصة ميزان | المكتبة القانونية المغربية»،
+و`scripts/prerender.mjs` بنسخته، و`scripts/lib/meta-description.mjs`
+«نسخة طبق الأصل» من `src/lib/seo/description.ts` بحدّ أدنى 120 بدل 140. أي
+صفحة بلا ملف ثابت (بحث، دخول، ملف شخصي، أسعار، لوحة تحكم) كانت ترث رأس
+الرئيسية حرفياً، فتُقرأ كنسختها.
+
+الحلّ: **طبقة نصّ واحدة** `shared/seo/meta-copy.js`، يستوردها الجميع.
+
+| القاعدة | القيمة | أين تُطبَّق |
+|---|---|---|
+| `<title>` | هدف 60، سقف 65 | `fitTitle` — تُسقط العلامة أولاً، ثم تحذف الذيل بعد النقطتين أو أداة الربط، وتبتر على حدّ كلمة كآخر حلّ فقط |
+| `description` | 140–160 (الحد الفاصل 120–165) | `buildMetaDescription` — يُلحَق السياق ثم `DESC_TAIL`، ولا يُبتر نصّ الصفحة نفسه لالحاق حشو |
+| اسم كلية طويل | ≤60 | `abbreviateFaculty`: «كلية العلوم القانونية والاقتصادية والاجتماعية بطنجة» ← «كلية الحقوق بطنجة | دليل الطالب» (31 حرفاً)؛ الاسم الكامل يبقى في H1 و`EducationalOrganization.name` |
+| مصطلح مكرر في البيانات | عنوان متميّز لكل صفحة | «الرهن الحيازي» له سجلّان: المقابل الفرنسية تُدخل في العنوان `(Nantissement)` و`(Gage)` بدل صفحتين بعنوان واحد |
+| صفحات المنفعة | لا فهرسة | `UTILITY_ROUTES` نصّ خاص لكل مسار + `noindex, follow`؛ و`SEOHead` يشتق `noindex` من `isIndexablePath(pathname)` فلا تُنساه صفحة |
+| البوابة | صفر تكرار | `checkMetadataUniqueness` في `pnpm seo:audit` (قسم `metaCopy`) يقيس الوحدة على **كل** `dist/*.html` لا على عيّنة |
+
+القياس بعد الجولة: **342 ملفاً، 342 عنواناً متميّزاً، 342 وصفاً متميّزاً، صفر
+تكرار**؛ العناوين بين 22 و65 حرفاً والأوصاف بين 135 و160.
+
+> **للمراجع القادم من Next.js**: لا `app/**/page.tsx` ولا `generateMetadata` هنا —
+> المكافئ هو `SEOHead` (العميل) + `scripts/prerender.mjs` (الملف الثابت)، وكلاهما
+> يقرأ من نفس الطبقتين: `shared/seo/url-policy.js` للروابط و`shared/seo/meta-copy.js`
+> للنصوص. إضافة `generateMetadata` تعني نسخة خامسة تنحرف، لا إصلاحاً.
+
 ### لماذا `shared/`؟
 
 لأن `vite` (TS) و`node scripts/*` (ESM خالص) يقرآن نفس الملف. أول نسخة من هذا

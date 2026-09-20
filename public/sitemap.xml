@@ -92,11 +92,6 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/pricing</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
     <loc>https://www.mizan.page/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

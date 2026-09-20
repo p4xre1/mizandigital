@@ -22,6 +22,8 @@ import {
   checkSitemapCoverage,
   checkAiDiscoveryFiles,
   checkHtmlHead,
+  checkMetadataUniqueness,
+  extractHeadMeta,
   checkHreflang,
   checkImages,
   checkRobots,
@@ -148,6 +150,8 @@ const a11yScores = [];
 const schemaScores = [];
 const hreflangScores = [];
 const linkedPaths = new Set();
+// نصوص الرؤوس لكل ملف مولَّد: بوابة منفصلة للّيتكرار، لأن العيّنة تخفيه.
+const metaPages = [];
 // فحص كل الصفحات: نتيجة "الصفحات اليتيمة" بلا معنى بعينة جزئية.
 const sampledFiles = htmlFiles;
 
@@ -158,6 +162,9 @@ for (const file of sampledFiles) {
   const url = route === "/" ? SITE_URL : `${SITE_URL}${route}`;
 
   headScores.push(checkHtmlHead(html, { url }));
+
+  const headMeta = extractHeadMeta(html);
+  metaPages.push({ path: route, ...headMeta });
   canonicalScores.push(checkCanonicalPolicy(html, { url, siteUrl: SITE_URL }));
   imageScores.push(checkImages(html));
   a11yScores.push(checkAccessibility(html));
@@ -237,6 +244,10 @@ results.structuredData = {
   issues: collectIssues(schemaScores),
   details: [`${schemaScores.length} صفحة فُحصت`],
 };
+results.metaCopy = checkMetadataUniqueness(metaPages, {
+  exemptPaths: [...SHELL_ARTIFACTS],
+});
+
 results.hreflang = {
   pass: hreflangScores.every((s) => s.pass),
   score: average(hreflangScores),
@@ -250,7 +261,7 @@ results.orphanPages = findOrphanPages(routes, [...linkedPaths]);
 // ── النتيجة المجمّعة ────────────────────────────────────────────────────────
 const overall = aggregateTechnical(results);
 
-const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "structuredData", "images", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
+const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "structuredData", "images", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
 for (const key of order) {
   const value = results[key];
   if (!value) continue;

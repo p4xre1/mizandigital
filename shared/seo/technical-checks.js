@@ -302,6 +302,113 @@ export function checkSitemapCoverage(locs = [], builtRoutes = [], { siteUrl = ""
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** فحص وسوم الرأس: title، description، canonical، robots، og، twitter، hreflang. */
+/**
+ * قراءة رأس الصفحة مرة واحدة بصيغة موحّدة: يستعملها الفاحص و`scripts/seo-audit.mjs`
+ * لئلا يبني كل طرف تفسيره الخاص لـ `<title>` والوصف.
+ *
+ * @param {string} html
+ */
+export function extractHeadMeta(html) {
+  const text = html || ""
+  const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(text)?.[1]?.trim() || ""
+  const description = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']description["']/i.test(t)) || "",
+    "content"
+  )
+  const robots = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",
+    "content"
+  )
+  return { title, description, noindex: /noindex/i.test(robots) }
+}
+
+/**
+ * تكرار النصوص هو جوهر تقرير «Non-canonical / Duplicate meta» في أدوات
+ * التدقيق: عنوان واحد وعشر وصفات على مسارات مختلفة تجعل المحرّك يختار نسخة
+ * ويتجاهل الباقي، ولو كان وسم canonical صحيحاً في كل صفحة. لذلك تُقاس
+ * الوحدة هنا على كل ملف مُولَّد، لا على عيّنة.
+ *
+ * @param {{ path: string, title: string, description: string, noindex?: boolean }[]} pages
+ * @param {{ maxTitle?: number, hardMaxTitle?: number, minDesc?: number, maxDesc?: number, targetDesc?: [number, number], exemptPaths?: string[] }} [options]
+ */
+export function checkMetadataUniqueness(pages = [], options = {}) {
+  const maxTitle = options.maxTitle ?? 60
+  const hardMaxTitle = options.hardMaxTitle ?? 65
+  // الحدّ الفعلي الذي يُفشل البوابة، والهدف (140-160) يُبلَّغ تفصيلاً: وصف
+  // بـ137 حرفاً لا يغيّر شيئاً في الظهور، ونطلب من المولّد أن يصل إلى النطاق
+  // دون أن نجعل بتر جملة الصفحة نفسها شرطاً أخضر.
+  const minDesc = options.minDesc ?? 120
+  const maxDesc = options.maxDesc ?? 165
+  const [targetMin, targetMax] = options.targetDesc ?? [140, 160]
+  const exempt = new Set(options.exemptPaths ?? ["/404", "/app"])
+
+  const details = []
+  const issues = []
+  let earned = 0
+  const total = 4
+
+  const rows = pages.filter((page) => page && page.path && !exempt.has(page.path))
+  const indexable = rows.filter((page) => !page.noindex)
+
+  const groupBy = (key) => {
+    const byValue = new Map()
+    for (const page of rows) {
+      const value = String(page[key] ?? "").trim().toLowerCase()
+      if (!value) continue
+      const list = byValue.get(value) || []
+      list.push(page.path)
+      byValue.set(value, list)
+    }
+    return [...byValue.entries()].filter(([, paths]) => paths.length > 1)
+  }
+
+  const dupTitles = groupBy("title")
+  const dupDescriptions = groupBy("description")
+
+  if (dupTitles.length === 0 && dupDescriptions.length === 0) earned++
+  else {
+    for (const [value, paths] of dupTitles.slice(0, 3))
+      issues.push(`عنوان مكرر على ${paths.length} صفحات (${paths.slice(0, 3).join(", ")}): ${value.slice(0, 60)}`)
+    for (const [value, paths] of dupDescriptions.slice(0, 3))
+      issues.push(`وصف مكرر على ${paths.length} صفحات (${paths.slice(0, 3).join(", ")}): ${value.slice(0, 60)}`)
+  }
+  details.push(
+    `${rows.length} صفحة، ${new Set(rows.map((p) => p.title)).size} عنواناً و${new Set(rows.map((p) => p.description)).size} وصفاً متميّزاً`
+  )
+
+  // لا تكرار حتى بين الصفحات غير المفهرسَة: النسخة المكرّرة هي ما يجعل
+  // «تسجيل الدخول» يبدو نسخة من الرئيسية في تقرير الزاحف.
+  if (rows.every((page) => page.title && page.description)) earned++
+  else issues.push("صفحات بلا <title> أو بلا meta description — تُقرأ نسخة من غيرها.")
+
+  const longTitles = indexable.filter((page) => page.title.length > hardMaxTitle)
+  if (longTitles.length === 0) earned++
+  else
+    issues.push(
+      `${longTitles.length} عنوان فوق ${hardMaxTitle} حرفاً يُبتر في نتيجة البحث: ${longTitles.slice(0, 2).map((p) => `${p.path} (${p.title.length})`).join(", ")}`
+    )
+
+  const overTarget = indexable.filter((page) => page.title.length > maxTitle)
+  if (overTarget.length) details.push(`${overTarget.length} عنوان فوق الهدف ${maxTitle} (تحت السقف ${hardMaxTitle})`)
+
+  const offRange = indexable.filter(
+    (page) => page.description.length < minDesc || page.description.length > maxDesc
+  )
+  if (offRange.length === 0) earned++
+  else
+    issues.push(
+      `${offRange.length} وصف خارج ${minDesc}-${maxDesc} حرفاً: ${offRange.slice(0, 3).map((p) => `${p.path} (${p.description.length})`).join(", ")}`
+    )
+
+  const offTarget = indexable.filter(
+    (page) => page.description.length < targetMin || page.description.length > targetMax
+  )
+  if (offTarget.length)
+    details.push(`${offTarget.length} وصف خارج النطاق المستهدف ${targetMin}-${targetMax} (لا يقطع الفحص)`)
+
+  return result(issues.length === 0, Math.round((earned / total) * 100), issues, details)
+}
+
 export function checkHtmlHead(html, { url = "" } = {}) {
   const text = html || ""
   const issues = []
@@ -309,19 +416,23 @@ export function checkHtmlHead(html, { url = "" } = {}) {
   let earned = 0
   const total = 8
 
-  const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(text)?.[1]?.trim() || ""
+  const { title, description, noindex: headNoindex2 } = extractHeadMeta(text)
   if (!title) issues.push("وسم <title> مفقود.")
   else if (title.length < 20 || title.length > 65) issues.push(`طول <title> = ${title.length} — النطاق المثالي 20-65 حرفاً.`)
   else earned++
+  // 60 هو الهدف المعلَن في جولة الميتا؛ 65 سقف Google العملي. نتجاوز الهدف
+  // تنبيهاً لا عيباً: العناوين المولَّدة من أسماء كاملة لا يتّسع لها 60.
+  if (title.length > 60 && title.length <= 65) details.push(`title فوق الهدف 60 (${title.length})`)
   details.push(`title: "${title.slice(0, 60)}" (${title.length})`)
 
-  const description = attr(
-    findTags(text, "meta").find((t) => /name\s*=\s*["']description["']/i.test(t)) || "",
-    "content"
-  )
   if (!description) issues.push("وسم meta description مفقود.")
-  else if (description.length < 70 || description.length > 165) issues.push(`طول meta description = ${description.length} — النطاق المثالي 70-165.`)
-  else earned++
+  else if (description.length < 120 || description.length > 165)
+    issues.push(`طول meta description = ${description.length} — النطاق 120-165، والهدف 140-160.`)
+  else {
+    earned++
+    if (!headNoindex2 && (description.length < 140 || description.length > 160))
+      details.push(`description خارج 140-160 (${description.length})`)
+  }
 
   const headRobots = attr(
     findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",

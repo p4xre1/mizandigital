@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
-import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl } from "../../lib/canonical"
+import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl, isIndexablePath } from "../../lib/canonical"
+import { fitTitle } from "../../lib/seo/description"
 import { SchemaOrg, generateOrganizationSchema, generateWebsiteSchema } from "./SchemaOrg"
 
 /**
@@ -60,16 +61,20 @@ export function SEOHead({
   breadcrumbs,
   speakable,
 }: SEOHeadProps) {
-  // إن كان العنوان يذكر المنصة أصلاً لا نلصق العلامة مرة ثانية:
-  // «… | الميزان الرقمية» فوق عنوان فيه «ميزان الرقمية» = تكرار يبتاعه
-  // Google مبتوراً، وفارق بين العنوان المُسبق (prerender) والعنوان الحيّ.
-  // وبالمثل تُسقط العلامة إن تجاوز النطاق المثالي (20-65) بدل بتر الاسم.
-  const brandSuffix = " | الميزان الرقمية"
-  const titledWithBrand = title.includes("ميزان") ? title : `${title}${brandSuffix}`
-  const fullTitle =
-    titledWithBrand.length > 65 && titledWithBrand.endsWith(brandSuffix)
-      ? titledWithBrand.slice(0, -brandSuffix.length)
-      : titledWithBrand
+  // قواعد العنوان (هدف 60، سقف 65، إسقاط العلامة قبل البتر، وإلحاقها إن كان
+  // العنوان قصيراً) في shared/seo/meta-copy.js وهي نفسها التي ينفّذها
+  // scripts/prerender.mjs. كانت نسخة مصغّرة هنا بعلامة مختلفة
+  // (« | الميزان الرقمية») وسقف واحد، فكل صفحة تُفتح من الداخل كانت تُبدّل
+  // عنوان الملف الثابت بنصّ آخر — والفرق بين النسختين يُقرأ عنواناً مكرراً.
+  const fullTitle = fitTitle(title)
+
+  // الصفحات التي لا تُفهرس تُعرَّف في سياسة الروابط وحدها، فلا تُنسى وسمها:
+  // /search و/login و/profile و/pricing و/admin تُعلَّم noindex here حتى لو
+  // مرّرها أحدهم indexable. nofollow مقصود مع noindex: لا إشارة نمرّرها من
+  // صفحة لا تريد ظهورها، والوصل العامة تُكتَب في الصفحات المفهرسَة.
+  const pathname =
+    typeof window !== "undefined" && window.location?.pathname ? window.location.pathname : ""
+  const doNotIndex = noindex || Boolean(pathname) && !isIndexablePath(pathname)
 
   const allKeywords = Array.from(
     new Set([...(DEFAULT_KEYWORDS || []), ...keywords])
@@ -102,11 +107,11 @@ export function SEOHead({
     // Robots: التحكم بالفهرسة — AI-friendly
     setMeta(
       "robots",
-      noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+      doNotIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     )
 
     // AI-specific meta
-    if (!noindex) {
+    if (!doNotIndex) {
       setMeta("ai-content-declaration", "ai-generated=false, ai-training=allowed, ai-input=allowed")
       setMeta("content-language", "ar-MA")
     }
@@ -177,7 +182,7 @@ export function SEOHead({
     ogImage,
     publishedTime,
     modifiedTime,
-    noindex,
+    doNotIndex,
   ])
 
   // --- E-E-A-T + AEO Schema Enrichment ---
@@ -225,7 +230,7 @@ export function SEOHead({
   let schemas: any[] = []
 
   // Always include Organization + Website for E-E-A-T and AI
-  if (!noindex) {
+  if (!doNotIndex) {
     schemas.push(generateOrganizationSchema())
     schemas.push(generateWebsiteSchema())
   }
@@ -280,7 +285,7 @@ export function SEOHead({
   // Main schema (Article/WebPage) with E-E-A-T
   let finalSchema = schema
 
-  if (!finalSchema && !noindex) {
+  if (!finalSchema && !doNotIndex) {
     finalSchema = {
       "@context": "https://schema.org",
       "@type": ogType === "article" ? "Article" : "WebPage",

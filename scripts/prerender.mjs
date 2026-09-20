@@ -23,7 +23,13 @@ import {
   slugify,
 } from "../shared/seo/url-policy.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
-import { buildMetaDescription } from "./lib/meta-description.mjs";
+import {
+  MAX_TITLE,
+  UTILITY_ROUTES,
+  abbreviateFaculty,
+  buildMetaDescription,
+  fitTitle,
+} from "./lib/meta-description.mjs";
 import { policyToHtml } from "../src/content/legal/markup.js";
 import {
   PRIVACY_POLICY,
@@ -256,12 +262,27 @@ const usedLexiconSlugs = new Set();
 // المعرّف العربي أولاً، وعند التكرار يُلحق به المعرّف (لا المقابل الفرنسي).
 // أي انحراف بين الطرفَين يولّد رابطاً في القائمة أو في sitemap يشير إلى
 // ملف غير موجود — وحدث هذا فعلاً مع «الرهن الحيازي».
+// عدد تكرار المصطلح العربي: سجلّان بـ«الرهن الحيازي» مثلاً كانا يولّدان
+// عنواناً واحداً لصفحتين — يقرأه الزاحف تكراراً فيُرجّح نسخة ويرفع الأخرى
+// من الفهرس («Duplicate, Google chose different canonical»). المقابلة
+// الفرنسية تفصل بينهما، ولا تُذكر إلا حين يلزم.
+const termArCount = new Map();
+for (const item of lexicon) {
+  const key = String(item.term_ar || "").trim();
+  if (key) termArCount.set(key, (termArCount.get(key) || 0) + 1);
+}
+
 const lexiconWithSlugs = lexicon.map((item) => {
   const slug = lexiconSlug(item, usedLexiconSlugs);
+  const term = String(item.term_ar || "").trim();
+  const duplicated = (termArCount.get(term) || 0) > 1;
+  const titleLabel =
+    duplicated && item.term_fr ? `${term} (${String(item.term_fr).trim()})` : term;
 
   return {
     ...item,
     slug,
+    titleLabel,
   };
 });
 
@@ -1215,12 +1236,26 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
   ...schools.map((item) => {
     const path = pathOfUrl(canonicalSchool(schoolSlug(item)));
 
+    // الاسم الكامل للكلية (48 حرفاً أحياناً) مع التفصيل يصعد فوق 65، فيُبتَر
+    // في نتيجة البحث. نجربّ الكامل أولاً فإن لم يتّسع نختصر «كلية العلوم
+    // القانونية والاقتصادية والاجتماعية» إلى «كلية الحقوق» — الصيغة التي
+    // يبحثها الطالب فعلاً؛ الاسم الكامل يبقى في H1 وفي EducationalOrganization.
+    const fullTitle = fitTitle(`${item.name} | دليل الطالب`);
+    const title =
+      fullTitle.length <= MAX_TITLE
+        ? fullTitle
+        : fitTitle(`${abbreviateFaculty(item.name)} | دليل الطالب`);
+
     return {
       path,
-      title: `${item.name} | كليات الحقوق بالمغرب`,
+      title,
+
+      // الوصف من synopsis حين يكفي، وإلا جملة الدليل العملي التي تخصّ الكلية
+      // باسمها ومدينتها: نصّ مختلف لكل كلية، لا «معلومات عن …».
       description:
-        item.synopsis ||
-        `معلومات عن ${item.name}`,
+        item.synopsis && item.synopsis.length >= 140
+          ? item.synopsis
+          : `دليل عملي لطلبة ${item.name}: مواد الدراسة وطرق المراجعة وملخصات ومصطلحات قانونية، مع معلومات التسجيل والعنوان داخل منصة ميزان الرقمية.`,
 
       // url = الرابط القانوني لصفحة الدليل دائماً. الموقع الرسمي للكلية
       // يذهب إلى sameAs، لأنه ملكُ المؤسسة لا ملكُ هذه الصفحة: وضعه في url
@@ -1372,10 +1407,12 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
 
       // نفس ما يبنيه SEOHead في المتصفح: العنوان بلا المصطلح الفرنسي
       // (يظهر في H1 وفي alternateName)، والعلامة تُضاف في النهاية.
-      title: `${item.term_ar} في القانون المغربي | الميزان الرقمية`,
+      // المصطلحات المتكرّرة (الرهن الحيازي، الصلح، الكفالة لها سجلّان) كانت
+      // تتشارك العنوان نفسه بصفحتين مختلفتين، فيرى الزاحف تكراراً ويُرجّح
+      // نسخة واحدة؛ المقابلة الفرنسية تفصل بينهما ولا تُذكر إن لم تكن لازمة.
+      title: `${item.titleLabel} في القانون المغربي | ميزان الرقمية`,
 
-      description:
-        item.definition || "",
+      description: `تعريف ${item.term_ar} في القانون المغربي: ${item.definition || ""}`,
 
       schema: {
         "@context": "https://schema.org",
@@ -1428,10 +1465,10 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
 
     return {
       path,
-      title: `${item.title} | ملخصات وامتحانات الحقوق | ميزان الرقمية`,
+      title: `${item.title} | تحميل مجاني وشرح | ميزان الرقمية`,
       description:
         item.excerpt ||
-        `ملف «${item.title}» من أرشيف ميزان الرقمية لطلبة القانون بالمغرب.`,
+        `ملخص قانوني جاهز للمراجعة: ${item.module || item.subject || item.semester || "ملف من أرشيف ميزان الرقمية"}. متاح للتحميل المجاني لطلبة الحقوق داخل منصة ميزان الرقمية مع بطاقة توضّح مادته وفصله.`,
 
       schema: {
         "@context": "https://schema.org",
@@ -1497,15 +1534,17 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
   }),
 
   /* -----------------------------------------------------------
-     صفحة الأسعار /pricing — كانت في الواجهة وحدها، أي بلا نسخة ثابتة
-     يقرأها الزاحف، فبقيت خارج sitemap. توليدها هنا يجعلها صفحة قابلة
-     للفهرسة بـ canonical صحيح.
+     صفحة الأسعار /pricing — تُولَّد بملف ثابت ونصّ خاص بها حتى تُقرأ عند
+     المشاركة وتُخدَج بحالة 200، لكن بلا فهرسة: جولة الميتا طلبت إخراج
+     صفحات المنفعة (بحث، دخول، ملف، أسعار، لوحة تحكم) من الفهرس، وهي أصلاً
+     خارج sitemap. لا canonical كاذب ولا إرث لرابط الرئيسية.
   ----------------------------------------------------------- */
   {
     path: "/pricing",
+    noindex: true,
     title: "أسعار ميزان برو وحزم الكريدتس | ميزان الرقمية",
     description:
-      "اشتراك ميزان برو الشهري والسنوي وحزم الكريدتس لمزايا المنصة القانونية، بالدرهم المغربي.",
+      "أسعار ميزان برو الشهري والسنوي وحزم الكريدتس بالدرهم المغربي، مع مقارنة بين ما تحصل عليه مجاناً وما يفتحه الاشتراك من أدوات مراجعة بالذكاء الاصطناعي قبل أي التزام.",
 
     schema: {
       "@context": "https://schema.org",
@@ -2300,7 +2339,7 @@ const SECTION_CONTEXT = {
   "/articles": "مقالات ودراسات قانونية مبسّطة لطلبة الحقوق في كليات القانون.",
   "/events": "ندوات وأيام دراسية قانونية في كليات الحقوق المغربية.",
   "/schools": "معلومات كليات الحقوق والجامعات المغربية ضمن دليل ميزان.",
-  "/archive": "ملخصات ومحاضرات ونماذج امتحانات من الأرشيف الدراسي.",
+  "/archive": "ملخصات ومحاضرات ونماذج امتحانات مع تصحيحاتها من أرشيف كليات الحقوق، مرتّبة حسب الفصل والمادة وجاهزة للتحميل المجاني.",
   "/pdf": "وثائق وملخصات دراسية بصيغة PDF من أرشيف ميزان الرقمية.",
   "/guides": "أدلة وموارد دراسية لطلبة الحقوق في المغرب.",
 };
@@ -2311,27 +2350,15 @@ const sectionContextFor = (path) => {
 };
 
 /*
- * طول العنوان المطابق لنطاق Google (20-65). القاعدتان هنا تعكسان ما يفعله
- * SEOHead في المتصفح بالضبط، حتى لا يرى الزاحف عنواناً غير الذي يراه المستخدم:
- *  - علامة قصيرة جداً ← نلحق اسم المنصة.
- *  - طويلة جداً ← نسقط آخر مقطع (العلامة) بدل بتر اسم الصفحة/الكلية.
+ * طول العنوان ونطاقاه (هدف 60، سقف 65) وسقوف الوصف (140-160) كلُّها في
+ * shared/seo/meta-copy.js، وهي نفسها التي يقرأها SEOHead في المتصفح وفاحص
+ * `pnpm seo:audit`. لا نسخة ثانية هنا: الانحراف بين النسختين هو ما جعل
+ * الزاحفة ترى عنوان الرئيسية على صفحات لا ملفَّ لها.
  */
-const BRAND = "الميزان الرقمية";
-
-const fitTitle = (title) => {
-  let out = String(title || "").trim();
-  if (out.length < 20 && !out.includes(BRAND) && !out.includes("ميزان")) {
-    out = `${out} | ${BRAND}`;
-  }
-  while (out.length > 65 && out.includes(" | ")) {
-    out = out.slice(0, out.lastIndexOf(" | "));
-  }
-  return out;
-};
 
 function renderPage(template, page) {
   const canonical = absoluteUrl(page.path);
-  const metaDescription = buildMetaDescription(page.description, [sectionContextFor(page.path)]);
+  const metaDescription = buildMetaDescription(page.description, page.metaContext || [sectionContextFor(page.path)]);
   const title = fitTitle(page.title);
 
   const swap = (html, regex, replacement) => {
@@ -2556,20 +2583,15 @@ const APP_SHELL_ROUTES = [
   "/search",
   "/admin",
   "/pro-tools",
+  "/guidelines",
 ];
 
-const SHELL_TITLES = {
-  "/login": "تسجيل الدخول | ميزان الرقمية",
-  "/signup": "إنشاء حساب | ميزان الرقمية",
-  "/signin": "تسجيل الدخول | ميزان الرقمية",
-  "/forgot-password": "استعادة كلمة المرور | ميزان الرقمية",
-  "/profile": "ملفي الشخصي | ميزان الرقمية",
-  "/saved": "المحتوى المحفوظ | ميزان الرقمية",
-  "/payments": "شراء الكريدتس | ميزان الرقمية",
-  "/search": "البحث في المنصة | ميزان الرقمية",
-  "/admin": "لوحة التحكم | ميزان الرقمية",
-  "/pro-tools": "أدوات ميزان برو | ميزان الرقمية",
-};
+
+
+// لا مسار في APP_SHELL_ROUTES بلا نصّ في UTILITY_ROUTES؛ هذا النصّ وحده
+// مشترك، ولو استعملناه لكل الصفحات لكان هو مصدر «الأوصاف المكرّرة».
+const FALLBACK_SHELL_DESCRIPTION =
+  "صفحة تفاعلية داخل منصة ميزان الرقمية تتطلب جلسة مستخدم وتفعّل JavaScript. للمحتوى المفتوح: القاموس القانوني، الأرشيف الدراسي، المقالات والأخبار، ودليل كليات الحقوق بالمغرب.";
 
 let shellCount = 0;
 
@@ -2586,9 +2608,9 @@ for (const shellPath of APP_SHELL_ROUTES) {
     renderPage(template, {
       path: shellPath,
       noindex: true,
-      title: SHELL_TITLES[shellPath] || "ميزان الرقمية",
+      title: (UTILITY_ROUTES[shellPath] || {}).title || "صفحة داخل المنصة | ميزان الرقمية",
       description:
-        "هذه الصفحة تفاعلية داخل منصة ميزان الرقمية وتحتاج إلى تفعيل JavaScript. للمحتوى القابل للقراءة مباشرة: القاموس القانوني والأرشيف الدراسي والمقالات والأخبار ودليل الكليات.",
+        (UTILITY_ROUTES[shellPath] || {}).description || FALLBACK_SHELL_DESCRIPTION,
       staticBody: `
       <main dir="rtl" lang="ar-MA">
         <article>
@@ -2625,7 +2647,7 @@ const appShellHtml = template
   .replace(
     /<meta\b[^>]*\bname=["']description["'][^>]*>/i,
     `<meta name="description" content="${escapeHtml(
-      "صفحة داخل منصة ميزان الرقمية: الملف الشخصي، التحميلات ولوحة التحكم تتطلب تسجيل الدخول. للمحتوى العام: القاموس القانوني والأرشيف الدراسي والمقالات والأخبار ودليل الكليات."
+      "صفحة داخل منصة ميزان الرقمية: الملف الشخصي والتحميلات ولوحة التحكم تتطلب تسجيل دخول. المحتوى العام متاح للجميع: القاموس والأرشيف والمقالات ودليل كليات الحقوق."
     )}">`
   )
   .replace(

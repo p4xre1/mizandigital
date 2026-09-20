@@ -343,7 +343,7 @@ describe("technical-checks", () => {
   const PAGE = `<!doctype html><html lang="ar-MA" dir="rtl"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
     <title>عنوان الصفحة التجريبية للفحص التقني الكامل</title>
-    <meta name="description" content="هذا وصف ميتا تجريبي طويل بما يكفي ليتجاوز الحد الأدنى المطلوب للفحص التقني بنجاح">
+    <meta name="description" content="صفحة اختبار لفحوص الرأس: عنوان ووصف ووسوم Open Graph وcanonical على النطاق القانوني، تُستعمل للتأكد من أن الفاحص يمرّ على الصفحة المكتملة ويكشف الناقص منها.">
     <link rel="canonical" href="https://www.mizan.page/test">
     <meta property="og:title" content="x"><meta property="og:description" content="x">
     <meta property="og:image" content="x"><meta property="og:url" content="x">
