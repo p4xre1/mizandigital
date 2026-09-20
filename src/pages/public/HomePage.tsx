@@ -306,8 +306,8 @@ export function HomePage() {
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
         <section className="relative overflow-hidden bg-white dark:bg-[#0f172a]">
-          <div className="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
-            <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
+          <div className="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
+            <div className="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
 
               {/* العمود النصّي */}
               <Reveal className="text-center lg:text-right">
@@ -436,7 +436,7 @@ export function HomePage() {
             </div>
 
             {/* روابط سريعة للمحتوى */}
-            <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, numeric: counts.lexicon, href: "/lexicon" },
                 { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#b45309]", count: "S1-S6", href: "/archive" },
@@ -472,17 +472,17 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
-          <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="text-center mb-8">
+        <section className="relative overflow-hidden py-16 md:py-24 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:1000px]">
+          <div className="container mx-auto max-w-[1200px] px-6">
+            <div className="text-center mb-10 md:mb-14">
               {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                   «استكشف مساراتنا المميزة»؛ النصّ نفسه في الـ prerender. */}
               <SectionLabel step="٠١" tone="blue">المحتوى</SectionLabel>
               <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
-              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">كل ما يحتاجه طالب القانون المغربي في مكان واحد: القاموس، والملخصات، والمقالات، ودليل الكليات.</p>
+              <p className="mt-3 text-[13px] text-[#64748b] max-w-[680px] mx-auto">كل ما يحتاجه طالب القانون المغربي في مكان واحد: القاموس، والملخصات، والمقالات، ودليل الكليات.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, numeric: counts.lexicon, tone: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]", link: "استعمل البحث والتصنيف", href: "/lexicon" },
                 { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#b45309]/10 text-[#b45309]", bar: "bg-[#b45309]", link: "تصفّح الملخصات", href: "/archive" },
@@ -511,19 +511,19 @@ export function HomePage() {
             </div>
 
             {/* أحدث المقالات — only with pictures */}
-            <div className="mt-12">
-              <div className="flex items-center justify-between mb-6">
+            <div className="mt-14 md:mt-16">
+              <div className="flex items-center justify-between mb-6 md:mb-8">
                 <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
                 <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
                   <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 transition-colors flex flex-col">
                     <div className="zoom-frame h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] relative shrink-0">
                       <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" width={320} height={120} />
                       <span className="absolute top-2 right-2 bg-white/95 dark:bg-black/70 text-[9px] font-bold px-2 py-1 rounded-full border border-[#2563eb]/20 text-[#1d4ed8] dark:text-[#93c5fd]">{item.category || "قانون"}</span>
                     </div>
-                    <div className="p-4 flex flex-col flex-1">
+                    <div className="p-5 md:p-6 flex flex-col flex-1">
                       <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
                       <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
                       <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
@@ -539,15 +539,15 @@ export function HomePage() {
 
             {/* الفعاليات — only with pictures */}
             {latestEvents.length > 0 && (
-              <div className="mt-12">
-                <div className="flex items-center justify-between mb-6">
+              <div className="mt-14 md:mt-16">
+                <div className="flex items-center justify-between mb-6 md:mb-8">
                   <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
                     <span className="grid size-7 place-items-center rounded-full bg-[#b45309]/10 text-[#b45309]"><Calendar className="size-4" /></span>
                     الفعاليات والندوات
                   </h3>
                   <Link to="/events" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
                     <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 transition-colors flex flex-col">
                       <div className="h-[130px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
@@ -555,7 +555,7 @@ export function HomePage() {
                         <span className="absolute top-2 right-2 bg-[#b45309] text-white text-[9px] font-bold px-2.5 py-1 rounded-full">ندوة</span>
                         {ev.date && <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
                       </div>
-                      <div className="p-4 flex flex-col flex-1">
+                      <div className="p-5 md:p-6 flex flex-col flex-1">
                         <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#b45309] transition-colors">{ev.title}</h4>
                         <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
                         <div className="mt-3 flex items-center gap-3 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
@@ -571,8 +571,8 @@ export function HomePage() {
 
             {/* القاموس القانوني — مع شجرة */}
             {latestTerms.length > 0 && (
-              <div className="mt-12">
-                <div className="flex items-center justify-between mb-6">
+              <div className="mt-14 md:mt-16">
+                <div className="flex items-center justify-between mb-6 md:mb-8">
                   <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
                     <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
                     القاموس القانوني — مع الشجرة القانونية
@@ -604,7 +604,7 @@ export function HomePage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {latestTerms.slice(1, 7).map((term) => (
                     <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 transition-colors flex flex-col">
                       <div className="flex items-start justify-between gap-2">
@@ -633,12 +633,12 @@ export function HomePage() {
         </section>
 
         {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
-        <section className="relative overflow-hidden py-14 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:700px]">
-          <div className="container mx-auto max-w-[1120px] px-6">
-            <div className="text-center mb-8">
+        <section className="relative overflow-hidden py-14 md:py-20 bg-[#0f172a] dark:bg-[#0b1220] [content-visibility:auto] [contain-intrinsic-size:800px]">
+          <div className="container mx-auto max-w-[1200px] px-6">
+            <div className="text-center mb-10 md:mb-12">
               <SectionLabel step="٠٢" tone="gold">أدوات ميزان برو</SectionLabel>
               <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
-              <p className="mt-2 text-[13px] text-[#cbd5e1] max-w-[620px] mx-auto">
+              <p className="mt-3 text-[13px] text-[#cbd5e1] max-w-[680px] mx-auto">
                 أدوات عملية داخل المنصة: مقارنة النصوص، وتمارين الواقعة إلى الحل، وخريطة الإحالات، والتنبيهات، وحساب الآجال، وملف بحث خاص بك.
               </p>
             </div>
@@ -664,7 +664,7 @@ export function HomePage() {
               ))}
             </div>
 
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-4 text-[12px] font-bold">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-[12px] font-bold">
               <Link to="/pro-tools" className="group inline-flex items-center gap-2 rounded-full bg-[#b45309] hover:bg-[#92400e] text-white px-6 py-2.5 transition-colors">
                 تعرّف على الأدوات
                 <ArrowRight className="link-arrow size-3.5 rtl:rotate-180" aria-hidden="true" />
@@ -674,9 +674,9 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
-          <div className="container relative mx-auto max-w-[1280px] px-6">
-            <div className="text-center max-w-[640px] mx-auto">
+        <section className="py-16 md:py-24 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:1000px]">
+          <div className="container relative mx-auto max-w-[1200px] px-6">
+            <div className="text-center max-w-[680px] mx-auto">
               <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
                 ٠٣ — الأسعار - خطط مرنة
               </span>
@@ -689,7 +689,7 @@ export function HomePage() {
               </p>
             </div>
 
-            <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
+            <div className="mt-12 md:mt-14 grid md:grid-cols-3 gap-5 md:gap-6 max-w-[1060px] mx-auto items-start">
               <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
                 <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
@@ -793,10 +793,10 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
-          <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="max-w-[900px] mx-auto">
-              <div className="text-center max-w-[640px] mx-auto mb-10">
+        <section className="py-16 md:py-24 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:600px]">
+          <div className="container mx-auto max-w-[1200px] px-6">
+            <div className="max-w-[1000px] mx-auto">
+              <div className="text-center max-w-[680px] mx-auto mb-10 md:mb-14">
                 <SectionLabel step="٠٤" tone="green">لماذا نحن</SectionLabel>
                 {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                     «اكتشف المزايا المميزة لمنصتنا التعليمية القانونية». */}
@@ -805,7 +805,7 @@ export function HomePage() {
                 </h2>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4 md:gap-6">
                 {[
                   { title: "محتوى مرتّب بالفصول", desc: "ملخصات ودروس مرتّبة من S1 إلى S6 حسب المسلك والفصل، بلا تشتّت بين ملفات متفرقة.", icon: Library, color: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]" },
                   { title: "إحالة إلى المصادر الرسمية", desc: "النصوص القانونية والقواعد محالة إلى الجريدة الرسمية وبوابة العدالة الرقمية للتحقق.", icon: Scale, color: "bg-[#047857]/10 text-[#047857]", bar: "bg-[#047857]" },
@@ -864,8 +864,8 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="relative overflow-hidden py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white">
-          <div className="container mx-auto max-w-[1280px] px-6 relative">
+        <section className="relative overflow-hidden py-12 md:py-16 bg-[#2563eb] dark:bg-[#1e40af] text-white">
+          <div className="container mx-auto max-w-[1200px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
               {[
                 { value: `${counts.lexicon}`, label: "مصطلح قانوني" },

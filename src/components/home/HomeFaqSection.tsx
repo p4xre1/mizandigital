@@ -62,7 +62,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
   }
 
   return (
-    <section className="py-16 border-t border-border" aria-labelledby="home-faq-heading">
+    <section className="py-16 md:py-24 border-t border-border" aria-labelledby="home-faq-heading">
       <script {...jsonLdProps(faqSchema)} />
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-10 text-center">

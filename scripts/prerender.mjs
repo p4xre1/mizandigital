@@ -590,8 +590,8 @@ const heroArticle = heroSource?.articles?.[0]?.number;
 
 const homeHeroHtml = `
           <section class="relative overflow-hidden bg-white dark:bg-[#0f172a]">
-            <div class="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
-              <div class="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
+            <div class="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
+              <div class="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
                 <div class="rise text-center lg:text-right">
                   <p class="flex items-center justify-center gap-3 lg:justify-start">
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true"></span>
@@ -666,7 +666,7 @@ const homeHeroHtml = `
                 </figure>
               </div>
 
-              <div class="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">${homeStatCards
+              <div class="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4">${homeStatCards
                 .map(
                   ([title, desc, icon, color, badge], i) => `
                 <a href="${desc === "S1-S6" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
@@ -827,7 +827,7 @@ const pages = [
         <main class="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl" lang="ar-MA">${homeHeroHtml}
 
         <section class="bg-white dark:bg-[#0f172a] py-14 border-t border-[#f1f5f9] dark:border-[#1e293b]">
-        <article class="container mx-auto max-w-[800px] px-6 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+        <article class="container mx-auto max-w-[1000px] px-6 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
 
           <h2 class="text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">ما هي منصة ميزان الرقمية؟</h2>
 
@@ -870,7 +870,7 @@ const pages = [
 
           <!-- أدوات ميزان برو — نفس القسم المعروض في الصفحة الحيّة،
                حتى يرى الزائر والزاحف المزايا المدفوعة قبل قسم الاشتراك. -->
-          <section class="mt-10 rounded-2xl border border-[#1e3a5f] bg-[#0f172a] dark:bg-[#0b1220] p-6 text-[#cbd5e1]">
+          <section class="mt-12 md:mt-14 rounded-2xl border border-[#1e3a5f] bg-[#0f172a] dark:bg-[#0b1220] p-6 text-[#cbd5e1]">
             <h2 class="accent-rule accent-rule-gold text-[20px] font-black text-white">ما هي أدوات ميزان برو الستّ؟</h2>
             <p class="mt-3">
               أدوات عملية داخل المنصة تتطلب اشتراكاً نشطاً، ويبقى القاموس والأرشيف والمقالات مجانياً للجميع:

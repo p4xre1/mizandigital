@@ -182,3 +182,60 @@ describe("الصفحة الرئيسية — اللون والنقش والحرك
     expect(prerender).toContain('href="/pro-tools"');
   });
 });
+
+describe("الصفحة الرئيسية — إيقاع المسافات", () => {
+  it("تستعمل حاوية واحدة وعرضاً واحداً للنصوص", () => {
+    const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
+    const widths = [...src.matchAll(/max-w-\[(\d+)px\]/g)].map((m) => Number(m[1]));
+    // المسموح: حاوية المحتوى 1200، مقاس النصّ 680، شبكة الأسعار 1060،
+    // عمود «لماذا نحن» 1000، ومسطرة الزخرفة 220.
+    const allowed = new Set([1200, 680, 1060, 1000, 220]);
+    for (const width of widths) {
+      expect(allowed.has(width), `عرض غير مسموح: ${width}px`).toBe(true);
+    }
+    expect(widths.filter((w) => w === 1200).length).toBeGreaterThanOrEqual(6);
+    // لا عروض عشوائية من الجولات السابقة
+    for (const stale of ["max-w-[1280px]", "max-w-[1120px]", "max-w-[900px]", "max-w-[640px]", "max-w-[620px]", "max-w-[600px]"]) {
+      expect(src, stale).not.toContain(stale);
+    }
+  });
+
+  it("تعطي الأقسام تنفّساً موحّداً ومتدرّجاً", () => {
+    const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
+    const paddings = [...src.matchAll(/<section[^>]*?py-(\d+)(?:\s+md:py-(\d+))?/g)].map((m) => [m[1], m[2]]);
+    expect(paddings.length).toBeGreaterThanOrEqual(5);
+    for (const [mobile, desktop] of paddings) {
+      // لا تنفّس أقلّ من py-12 على الجوّال، والأقسام الكبيرة تزيد على الشاشة الكبيرة
+      expect(Number(mobile), `py-${mobile}`).toBeGreaterThanOrEqual(12);
+      if (desktop) expect(Number(desktop), `md:py-${desktop}`).toBeGreaterThan(Number(mobile));
+    }
+    // الأقسام الرئيسية تتنفّس 16→24، وشريط برو 14→20، وشريط الأرقام 12→16
+    expect(src).toContain("py-16 md:py-24");
+    expect(src).toContain("py-14 md:py-20");
+    expect(src).toContain("py-12 md:py-16");
+  });
+
+  it("توحّد فواصل الشبكات ورؤوس الأقسام", () => {
+    const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
+    // كل شبكة بطاقات لها فاصل موسّع على الشاشة الكبيرة
+    const cardGrids = [...src.matchAll(/grid[^"]*?gap-4 md:gap-6/g)];
+    expect(cardGrids.length).toBeGreaterThanOrEqual(4);
+    // رأس قسم بمسافة موحّدة تحته
+    expect(src).toContain("mb-10 md:mb-14");
+    expect(src).toContain("mt-3 text-[13px]");
+    // المسافة بين الكتل داخل القسم واحدة
+    expect(src).not.toContain('className="mt-12"');
+  });
+
+  it("تزامن النسخة الثابتة مع نفس الإيقاع", () => {
+    const prerender = readFileSync("scripts/prerender.mjs", "utf8");
+    expect(prerender).toContain("max-w-[1200px] px-6 py-14 md:py-20");
+    expect(prerender).not.toContain("max-w-[1120px]");
+    expect(prerender).not.toContain("max-w-[1120px]");
+    // مقاسات النصوص الطويلة في الثابت من نفس السلّم (1000/680)
+    for (const stale of ["max-w-[900px]", "max-w-[800px]", "max-w-[640px]", "max-w-[620px]", "max-w-[600px]"]) {
+      expect(prerender, stale).not.toContain(stale);
+    }
+    expect(prerender).toContain("gap-12 lg:gap-14");
+  });
+});
