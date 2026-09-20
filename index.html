@@ -24,6 +24,26 @@
           root.classList.remove("light", "dark");
           root.classList.add(theme);
           root.style.colorScheme = theme;
+
+          // يتبع تغيّر تفضيل النظام عند غياب اختيار مخزّن — سابقاً كان
+          // التفضيل يُقرأ مرة واحدة عند التحميل فبقيت الصفحة داكنة/فاتحة
+          // إلى الأبد حتى لو بدّل المستخدم سمة النظام (وكان تبديل React
+          // وحده من يغيّرها من داخل الصفحة).
+          if (window.matchMedia) {
+            var mq = window.matchMedia("(prefers-color-scheme: dark)");
+            var onSys = function (e) {
+              try {
+                var nowStored = localStorage.getItem("mizan_theme");
+                if (nowStored === "light" || nowStored === "dark") return;
+              } catch (err) {}
+              var t = e.matches ? "dark" : "light";
+              root.classList.remove("light", "dark");
+              root.classList.add(t);
+              root.style.colorScheme = t;
+            };
+            if (mq.addEventListener) mq.addEventListener("change", onSys);
+            else if (mq.addListener) mq.addListener(onSys);
+          }
         } catch (e) {}
       })();
     </script>

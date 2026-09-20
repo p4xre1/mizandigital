@@ -259,6 +259,151 @@ const exploreNavHtml = `
       </ul>
     </nav>`;
 
+/* -------------------------------------------------------
+   Static site chrome (هيدر + فوتر) لصفحات الـ prerender
+------------------------------------------------------- */
+// مرآة ثابتة لهيكل PublicNavigation/Footer: الصفحات المولّدة كانت تظهر
+// للزواحف وللزائر الأول بدون أي هيدر أو فوتر (قبل تحميل React)، وكانت
+// روابط الفوتر الداخلية غائبة تماماً عن HTML المقدم. الأصناف هنا هي نفس
+// سلاسل الأصناف المستخدمة في src/layouts/PublicNavigation.tsx حتى تغطيها
+// حزمة Tailwind المجمعة في الإنتاج حرفياً.
+const SITE_THEME_TOGGLE_SCRIPT = `(function(){var d=document.documentElement;var c=d.classList.contains("dark")?"light":"dark";d.classList.remove("dark","light");d.classList.add(c);d.style.colorScheme=c;try{localStorage.setItem("mizan_theme",c);}catch(e){}})()`;
+
+const siteHeaderHtml = `
+    <header class="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
+      <div class="container mx-auto max-w-[1280px] px-6">
+        <div class="flex items-center justify-between gap-4 py-3">
+          <a href="/" class="flex items-center gap-2.5 text-[#0f172a] dark:text-white">
+            <img src="/Logo.svg" alt="ميزان الرقمية" class="size-9 rounded-xl shadow-sm object-cover" width="36" height="36" loading="lazy" />
+            <span>
+              <span class="block text-[15px] font-black">ميزان الرقمية</span>
+              <span class="block text-[11px] text-[#64748b] dark:text-[#94a3b8] font-bold">المعرفة القانونية للطلبة</span>
+            </span>
+          </a>
+          <nav aria-label="التنقل الرئيسي" class="hidden md:flex items-center gap-5 text-[13.5px] font-bold text-[#334155] dark:text-[#cbd5e1]">
+            <a href="/archive" class="hover:text-[#0f172a] dark:hover:text-white">المكتبة</a>
+            <a href="/articles" class="hover:text-[#0f172a] dark:hover:text-white">المقالات</a>
+            <a href="/news" class="hover:text-[#0f172a] dark:hover:text-white">الأخبار</a>
+            <a href="/lexicon" class="hover:text-[#0f172a] dark:hover:text-white">القاموس</a>
+            <a href="/schools" class="hover:text-[#0f172a] dark:hover:text-white">الكليات</a>
+            <a href="/quiz" class="hover:text-[#0f172a] dark:hover:text-white">الاختبارات</a>
+          </nav>
+          <div class="flex items-center gap-2">
+            <a href="/search" aria-label="البحث" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] text-[#0f172a] dark:border-[#1e293b] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors">⌕</a>
+            <button type="button" aria-label="تبديل المظهر الفاتح/الداكن" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] text-[#0f172a] dark:border-[#1e293b] dark:text-white hover:bg-[#f1f5f9] dark:hover:bg-[#1e293b] transition-colors" onclick="${SITE_THEME_TOGGLE_SCRIPT}">◐</button>
+          </div>
+        </div>
+        <nav aria-label="روابط إضافية" class="flex md:hidden flex-wrap items-center gap-x-4 gap-y-2 pb-3 text-[12.5px] font-bold text-[#334155] dark:text-[#cbd5e1]">
+          <a href="/archive">المكتبة</a>
+          <a href="/articles">المقالات</a>
+          <a href="/news">الأخبار</a>
+          <a href="/lexicon">القاموس</a>
+          <a href="/schools">الكليات</a>
+          <a href="/quiz">الاختبارات</a>
+          <a href="/faq">الأسئلة الشائعة</a>
+        </nav>
+      </div>
+    </header>`;
+
+const SITE_FOOTER_SOCIAL = [
+  ["إنستغرام", "https://www.instagram.com/mizan.page"],
+  ["فيسبوك", "https://www.facebook.com/profile.php?id=61593607157317"],
+  ["تيك توك", "https://www.tiktok.com/@mizan_page"],
+  ["بنترست", "https://www.pinterest.com/mohamedredayassinn/"],
+  ["إكس", "https://x.com/MIZANPAGE"],
+  ["واتساب", "https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m"],
+];
+
+const SITE_FOOTER_COLUMNS = [
+  {
+    title: "استكشف المحتوى",
+    links: [
+      ["الرئيسية", "/"],
+      ["المكتبة والملخصات", "/archive"],
+      ["المقالات", "/articles"],
+      ["الأخبار القانونية", "/news"],
+      ["القاموس القانوني", "/lexicon"],
+      ["دليل الكليات", "/schools"],
+      ["الفعاليات", "/events"],
+    ],
+  },
+  {
+    title: "التعلم",
+    links: [
+      ["مركز الاختبارات", "/quiz"],
+      ["اختبارات S1-S6", "/quiz/university"],
+      ["الثقافة العامة", "/quiz/general"],
+      ["مباريات التوظيف", "/quiz/concours"],
+      ["المقابلات الشفوية", "/quiz/interview"],
+      ["تحديد المستوى", "/quiz/placement"],
+      ["البحث", "/search"],
+    ],
+  },
+  {
+    title: "المنصة",
+    links: [
+      ["من نحن", "/about"],
+      ["اتصل بنا", "/contact"],
+      ["الأسئلة الشائعة", "/faq"],
+      ["الشروط والأحكام", "/terms"],
+      ["سياسة الخصوصية", "/privacy"],
+      ["سياسة الكوكيز", "/cookies"],
+    ],
+  },
+];
+
+const siteFooterHtml = `
+    <footer class="mt-20 bg-[#0f172a] text-white">
+      <div class="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr]">
+        <div>
+          <div class="flex items-center gap-2.5">
+            <img src="/Logo.svg" alt="ميزان الرقمية" class="size-9 rounded-xl shadow-sm object-cover" width="36" height="36" loading="lazy" />
+            <span>
+              <span class="block text-[15px] font-black">ميزان الرقمية</span>
+              <span class="block text-[11px] text-[#94a3b8] font-bold">المعرفة القانونية للطلبة</span>
+            </span>
+          </div>
+          <p class="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
+            منصة تعليمية عصرية بتصميم نظيف — تعلم القانون بطريقة مرنة وجذابة، بمحتوى أساسي مجاني ومزايا متقدمة باشتراك للطلبة بالمغرب.
+          </p>
+          <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] font-bold text-[#94a3b8]">
+            ${SITE_FOOTER_SOCIAL.map(
+              ([label, href]) =>
+                `<a href="${href}" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">${escapeHtml(label)}</a>`
+            ).join("")}
+          </div>
+          <a
+            href="https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-white/20"
+          >
+            انضمّ إلى مجتمع الطلبة على واتساب
+          </a>
+        </div>
+        ${SITE_FOOTER_COLUMNS.map(
+          (col) => `
+        <div>
+          <p class="mb-3 text-[13px] font-black">${escapeHtml(col.title)}</p>
+          <div class="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            ${col.links
+              .map(
+                ([label, href]) =>
+                  `<a href="${escapeHtml(href)}" class="hover:text-white transition-colors">${escapeHtml(label)}</a>`
+              )
+              .join("\n")}
+          </div>
+        </div>`
+        ).join("")}
+      </div>
+      <div class="border-t border-white/10">
+        <div class="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#94a3b8]">
+          <span>© 2026 ميزان الرقمية — منصة تعليمية، المحتوى الأساسي مجاني</span>
+          <span>تنقّل ثابت يُعرض before React hydration</span>
+        </div>
+      </div>
+    </footer>`;
+
 // كيانات الناشر والمؤلف عبر المخططات المنظمة — تُبثد مضمنة في كل
 // schema حتى لا تكون الشبكة معتمدة على مراجع @id خارجية (تصحيح
 // أخطاء البيانات المنظمة في التدقيق).
@@ -3396,10 +3541,14 @@ function renderPage(template, page) {
   }
 
   if (page.staticBody) {
+    // تعريف الهيكل الثابت: الصفحة الرئيسية مدموج فيها هيدرها الخاص منذ
+    // مهمة التوافق الكامل (Task 1)، فإضافة الهيدر العام عليها كانت تُظهر
+    // شريطَي تنقل مكررين. الفوتر العام يبقى ضرورياً لكل الصفحات.
+    const chromePrefix = page.path === "/" ? "" : siteHeaderHtml;
     html = swap(
       html,
       /<div id="root"><\/div>/i,
-      `<div id="root">${page.staticBody}</div>`
+      `<div id="root">${chromePrefix}${page.staticBody}${siteFooterHtml}</div>`
     );
   }
 
