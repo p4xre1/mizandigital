@@ -1,9 +1,16 @@
 import { useParams, Link } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { AEOHead } from "../../components/seo/AEOHead"
-import { generateBreadcrumbSchema } from "../../lib/seo/schema"
+import { generateBreadcrumbSchema, generateDefinedTermSchema } from "../../lib/seo/schema"
+import { canonicalLexicon, itemPath } from "../../lib/canonical"
 import { NotFound } from "./NotFound"
-import lexiconData from "../../data/lexicon.json"
+/*
+ * نسخة المتصفح المقلّصة من المعجم (توليدها: scripts/generate-lexicon-client-data.mjs).
+ * الحقول الفرنسية وحقول التدقيق تبقى في src/data/lexicon.json — المصدر الذي تقرأه
+ * النسخة المُسبقـة التخزين والمحرّر — فلا يُحمَّل الطالب بايتات لا تعرضها الواجهة.
+ * أي حقل جديد تُعرضه هذه الصفحة يجب إضافته إلى القائمة البيضاء هناك.
+ */
+import lexiconData from "../../data/lexicon.client.json"
 import { lexiconSlugById, generateSlug } from "../../lib/utils/generateSlug"
 import { BookOpen, ArrowRight, ArrowLeft, Share2, Scale, Gavel, Loader2, Tags } from "lucide-react"
 import type { LegalSource } from "../../types/cms"
@@ -163,12 +170,21 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
         term_fr: item.term_fr,
       }))
 
+      // الصلات المُحرَّرة في lexicon.json مقدَّمة على الاقتراح الحسابي: مبنية على
+      // علاقة مفهومية (عقد بعقد، عيب رضا بعيب رضا) لا على تشابه نصّ؛ ونبقي الحساب
+      // خلفها لملء اللائحة حين تكون أقصر من ست أو غير موجودة.
+      const curatedIds: string[] = Array.isArray(current.related_terms) ? current.related_terms : []
+      const curated = curatedIds
+        .map((id: string) => candidates.find((candidate) => candidate.id === id))
+        .filter(Boolean)
+        .slice(0, 6)
+
       const ranked = rankRelatedItems(
         { id: current.id, slug: currentSlug, title: current.term_ar, text: current.definition, category: current.category },
-        candidates,
-        3
+        candidates.filter((candidate) => candidate.id !== current.id && !curatedIds.includes(candidate.id)),
+        Math.max(0, 6 - curated.length)
       )
-      setRelatedTerms(ranked)
+      setRelatedTerms([...curated, ...ranked])
     }
 
     fetchTerm()
@@ -190,7 +206,9 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   }
 
   const legalSources: LegalSource[] = term.legal_sources ?? []
-  const canonicalUrl = `https://www.mizan.page/lexicon/${targetQuery}`
+  // الرابط القانوني من سياسة الروابط وحدها، فيطابق ما يطبعه prerender في
+  // الملف الثابت (lexicon/<slug>.html) وما تنشره sitemap.
+  const canonical = canonicalLexicon(String(targetQuery ?? ""))
 
   const handleSelectArticle = (codeIndex: number, articleIndex: number) => {
     const anchorId = legalSourceAnchorId(codeIndex, articleIndex)
@@ -202,20 +220,19 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     }
   }
 
-  const termSchema = {
-    "@context": "https://schema.org",
-    "@type": "DefinedTerm",
-    "name": term.term_ar,
-    "alternateName": term.term_fr || undefined,
-    "description": term.definition,
-    "inDefinedTermSet": "https://www.mizan.page/lexicon",
-    "inLanguage": ["ar-MA", "fr"]
-  }
+  const termSchema = generateDefinedTermSchema({
+    termAr: term.term_ar,
+    termFr: term.term_fr,
+    definition: term.definition,
+    category: term.category,
+    canonical,
+    sourceReferences: legalSources.map((source) => source.code_ar).filter(Boolean),
+  })
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "الرئيسية", url: "/" },
     { name: "المعجم القانوني", url: "/lexicon" },
-    { name: term.term_ar, url: `/lexicon/${targetQuery}` },
+    { name: term.term_ar, url: itemPath.lexicon(String(targetQuery ?? "")) },
   ])
 
   const handleCopyLink = () => {
@@ -227,13 +244,13 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   return (
     <>
       <AEOHead
-        title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr || ""})`}
+        title={`${term.term_ar} في القانون المغربي`}
         description={buildMetaDescription(term.definition, [
           term.term_fr ? `Terme juridique: ${term.term_fr}` : null,
           `تعريف مصطلح "${term.term_ar}" ضمن المعجم القانوني المغربي على منصة الميزان الرقمية، مع الشجرة القانونية الرابطة بالقوانين والفصول ذات الصلة.`,
         ])}
         ogType="article"
-        canonicalUrl={canonicalUrl}
+        canonicalUrl={canonical}
         keywords={[
           term.term_ar,
           term.term_fr || "",
@@ -286,6 +303,62 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
               {term.definition}
             </p>
           </section>
+
+          {/*
+            حقول الإثراء في lexicon.json (scripts/enrich-lexicon.mjs): شرح مبسّط
+            بلغة الطالب، أمثلة للمراجعة، وكلمات مفتاحية للامتحان. كلها اختيارية في
+            البيانات فلا تُنشئ واجهة فارغة إذا غابت. المقابلان الفرنسيان
+            (simple_explanation_fr / examples_fr) موجودان في lexicon.json ولا
+            يُعرضان هنا عمداً: صيغتهما مولّدة من التعريف ولم يراجعهما متخصص بعد
+            (review_status: internal_review) — تُنشر حين تصير published.
+          */}
+          {(term.simple_explanation ||
+            (Array.isArray(term.examples) && term.examples.length > 0) ||
+            (Array.isArray(term.exam_keywords) && term.exam_keywords.length > 0)) && (
+            <section className="mt-6 rounded-xl border border-border bg-muted/20 p-5">
+              <h2 className="flex items-center gap-2 text-base font-bold text-foreground mb-2">
+                <BookOpen size={16} className="text-primary" />
+                شرح مبسّط لطالب الحقوق
+              </h2>
+
+              {term.simple_explanation && (
+                <p className="text-sm leading-relaxed text-foreground">{term.simple_explanation}</p>
+              )}
+
+              {Array.isArray(term.examples) && term.examples.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-xs font-bold text-muted-foreground mb-2">أمثلة وتمارين للمراجعة</h3>
+                  <ul className="space-y-2 text-sm leading-relaxed text-muted-foreground list-disc ps-5">
+                    {term.examples.slice(0, 3).map((example: string) => (
+                      <li key={example}>{example}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {Array.isArray(term.exam_keywords) && term.exam_keywords.length > 0 && (
+                <ul className="mt-4 flex flex-wrap gap-2" aria-label="كلمات مفتاحية للمراجعة">
+                  {term.exam_keywords.map((keyword: string) => (
+                    <li
+                      key={keyword}
+                      className="rounded-full border border-border bg-background px-3 py-1 text-[11px] font-semibold text-muted-foreground"
+                    >
+                      {keyword}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {term.last_reviewed && (
+                <p className="mt-4 text-[11px] text-muted-foreground">
+                  آخر مراجعة تحريرية: <time dateTime={term.last_reviewed}>{term.last_reviewed}</time>
+                  {term.review_status === "published"
+                    ? " — راجعها فريق المحتوى ونُشرت."
+                    : " — صيغة آلية في انتظار مراجعة متخصص؛ وللنص الرسمي مرجعٌ إلى مصدره."}
+                </p>
+              )}
+            </section>
+          )}
 
           {legalSources.length > 0 && (
             <section className="mt-8 pt-6 border-t border-border">

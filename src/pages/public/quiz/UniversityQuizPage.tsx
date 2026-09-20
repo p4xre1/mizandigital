@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { GraduationCap, Play, ArrowRight, Layers } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
 import { QuizRunner } from "../../../components/quiz/QuizRunner"
 import { useQuizQuestions } from "../../../hooks/useQuizQuestions"
@@ -69,7 +70,7 @@ export function UniversityQuizPage() {
       <SEOHead
         title="اختبارات طلبة كليات الحقوق — من S1 إلى S6"
         description="اختبارات قانونية مرتبطة بالمقررات الجامعية الرسمية لكل فصل دراسي: القانون المدني، الجنائي، الإداري، الدستوري، المساطر، الشغل، ومدونة الأسرة."
-        canonicalUrl="https://www.mizan.page/quiz/university"
+        canonicalUrl={canonicalFor("/quiz/university")}
         keywords={["اختبارات كلية الحقوق", "امتحانات القانون", "S1 S2 S3", "القانون المدني المغربي"]}
         schema={[
           generateBreadcrumbSchema([

@@ -9,6 +9,11 @@
  * كانت متاحة، وإلا ننزّلها كصورة PNG.
  */
 
+import { BASE_URL, canonicalUrl } from "@/lib/canonical"
+
+/** النص المختصر المعروض على البطاقة: النطاق نفسه، بلا بروتوكول. */
+const DISPLAY_ORIGIN = BASE_URL.replace(/^https?:\/\//, "")
+
 export interface ShareCardInput {
   /** عنوان الاختبار (مثال: القانون المدني — S2). */
   title: string
@@ -123,7 +128,7 @@ export async function renderShareCard(input: ShareCardInput): Promise<Blob | nul
   ctx.fillStyle = "rgba(255,255,255,0.78)"
   ctx.font = "600 28px 'Cairo', system-ui, sans-serif"
   ctx.fillText(
-    `${input.xpEarned ? `+${input.xpEarned} نقطة خبرة - ` : ""}mizan.page/quiz`,
+    `${input.xpEarned ? `+${input.xpEarned} نقطة خبرة - ` : ""}${DISPLAY_ORIGIN}/quiz`,
     WIDTH / 2,
     885
   )
@@ -132,7 +137,7 @@ export async function renderShareCard(input: ShareCardInput): Promise<Blob | nul
   if (input.username) {
     ctx.fillStyle = "#ffffff"
     ctx.font = "700 30px 'Cairo', system-ui, sans-serif"
-    ctx.fillText(`mizan.page/u/${input.username}`, WIDTH / 2, 975)
+    ctx.fillText(`${DISPLAY_ORIGIN}/u/${input.username}`, WIDTH / 2, 975)
   }
 
   return new Promise((resolve) => {
@@ -149,8 +154,10 @@ export function buildShareText(input: ShareCardInput): string {
   return [
     `${scorePart} في اختبار «${input.title}» على منصة ميزان الرقمية.`,
     `رتبتي الحالية: ${input.rank}.`,
-    input.username ? `بروفايلي: https://mizan.page/u/${input.username}` : "",
-    "جرّب حظك: https://mizan.page/quiz",
+    // الرابط القانوني الموحّد: مشاركة على mizan.page بلا www تُعاد توجيهها،
+    // فتضيع نقرة وتنقسم الإشارة بين نسختين من البروفايل نفسه.
+    input.username ? `بروفايلي: ${canonicalUrl(`/u/${input.username}`)}` : "",
+    `جرّب حظك: ${canonicalUrl("/quiz")}`,
   ]
     .filter(Boolean)
     .join("\n")
@@ -162,7 +169,7 @@ export function buildWhatsAppShareUrl(input: ShareCardInput): string {
 }
 
 /** رابط مشاركة لينكد إن — share-offsite هو نقطة النهاية الرسمية للمشاركة. */
-export function buildLinkedInShareUrl(url = "https://mizan.page/quiz"): string {
+export function buildLinkedInShareUrl(url = canonicalUrl("/quiz")): string {
   return `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`
 }
 
@@ -173,7 +180,7 @@ export function buildProfileShare(input: { displayName: string; username: string
   linkedinUrl: string
   url: string
 } {
-  const url = `https://mizan.page/u/${input.username}`
+  const url = canonicalUrl(`/u/${input.username}`)
   const text = `${input.displayName} على منصة ميزان الرقمية — الرتبة ${input.rank}.\nبروفايلي القانوني: ${url}`
   return {
     text,

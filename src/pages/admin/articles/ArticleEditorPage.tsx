@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { canonicalArticle } from "@/lib/canonical"
 import {
   Save,
   ArrowRight,
@@ -165,7 +166,7 @@ export default function ArticleEditorPage({
         publishedAt: publishedAt || new Date().toISOString(),
         focusKeyword: targetKeyword,
         kind: "article",
-        canonicalUrl: `${SITE_CONFIG.url}/articles/${slug || generateSlug(title)}`,
+        canonicalUrl: canonicalArticle(slug || generateSlug(title)),
       })
 
       if (!mizan.publishable) {

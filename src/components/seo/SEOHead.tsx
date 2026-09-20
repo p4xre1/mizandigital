@@ -1,6 +1,30 @@
 import { useEffect } from "react"
 import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
+import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl, isIndexablePath } from "../../lib/canonical"
+import { fitTitle } from "../../lib/seo/description"
 import { SchemaOrg, generateOrganizationSchema, generateWebsiteSchema } from "./SchemaOrg"
+
+/**
+ * الرابط القانوني لهذه الصفحة — دائماً مطابق لسياسة بلا-شرطة-النهاية.
+ *
+ * سابقاً كان الافتراضي `window.location.href`، أي أن الرابط كما كتبه الزائر
+ * بالضبط: شرطة نهاية، أو معاملات&utm_source، أو نطاق بلا www — وكلها كانت
+ * تُكتب في <link rel="canonical"> و og:url عند التنقل داخل التطبيق. النتيجة
+ * نسخة canonical لكل شكل من أشكال الرابط، فتتوزّع إشارة الفهرسة بين الصفحات
+ * بدل أن تتركّز في رابط واحد (وهو تحديداً ما تُكافئ عليه Google رابطاً واحداً).
+ *
+ * الآن كل مسار يمرّ بسياسة الروابط: يُحذف ذيل الشرطة والمعاملات والحزام،
+ * ويُثبَّت النطاق القانوني. صفحات الـ prerender تحمل الوسوم نفسها مولّدة من
+ * نفس السياسة (scripts/prerender.mjs)، فلا يختلف ما يراه الزاحف عمّا يراه
+ * المتصفح بعد hydration.
+ */
+function resolveCanonicalUrl(passed?: string): string {
+  if (passed) return toCanonicalUrl(passed)
+  if (typeof window !== "undefined" && window.location?.pathname) {
+    return canonicalFromLocation(window.location.pathname)
+  }
+  return BASE_URL
+}
 
 export interface SEOHeadProps {
   title: string
@@ -37,17 +61,26 @@ export function SEOHead({
   breadcrumbs,
   speakable,
 }: SEOHeadProps) {
-  const fullTitle = `${title} | الميزان الرقمية`
+  // قواعد العنوان (هدف 60، سقف 65، إسقاط العلامة قبل البتر، وإلحاقها إن كان
+  // العنوان قصيراً) في shared/seo/meta-copy.js وهي نفسها التي ينفّذها
+  // scripts/prerender.mjs. كانت نسخة مصغّرة هنا بعلامة مختلفة
+  // (« | الميزان الرقمية») وسقف واحد، فكل صفحة تُفتح من الداخل كانت تُبدّل
+  // عنوان الملف الثابت بنصّ آخر — والفرق بين النسختين يُقرأ عنواناً مكرراً.
+  const fullTitle = fitTitle(title)
+
+  // الصفحات التي لا تُفهرس تُعرَّف في سياسة الروابط وحدها، فلا تُنسى وسمها:
+  // /search و/login و/profile و/pricing و/admin تُعلَّم noindex here حتى لو
+  // مرّرها أحدهم indexable. nofollow مقصود مع noindex: لا إشارة نمرّرها من
+  // صفحة لا تريد ظهورها، والوصل العامة تُكتَب في الصفحات المفهرسَة.
+  const pathname =
+    typeof window !== "undefined" && window.location?.pathname ? window.location.pathname : ""
+  const doNotIndex = noindex || Boolean(pathname) && !isIndexablePath(pathname)
 
   const allKeywords = Array.from(
     new Set([...(DEFAULT_KEYWORDS || []), ...keywords])
   ).join(", ")
 
-  const url =
-    canonicalUrl ||
-    (typeof window !== "undefined"
-      ? window.location.href
-      : "https://www.mizan.page")
+  const url = resolveCanonicalUrl(canonicalUrl)
 
   useEffect(() => {
     // Document Title
@@ -74,11 +107,11 @@ export function SEOHead({
     // Robots: التحكم بالفهرسة — AI-friendly
     setMeta(
       "robots",
-      noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+      doNotIndex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
     )
 
     // AI-specific meta
-    if (!noindex) {
+    if (!doNotIndex) {
       setMeta("ai-content-declaration", "ai-generated=false, ai-training=allowed, ai-input=allowed")
       setMeta("content-language", "ar-MA")
     }
@@ -149,11 +182,13 @@ export function SEOHead({
     ogImage,
     publishedTime,
     modifiedTime,
-    noindex,
+    doNotIndex,
   ])
 
   // --- E-E-A-T + AEO Schema Enrichment ---
-  const domain = "https://www.mizan.page"
+  // النطاق من سياسة الروابط وحدها: أي حرف زائد (شرطة نهاية أو نطاق بلا www)
+  // في @id أو url يجعل عقدة schema.org كياناً مختلفاً عن الكيان المفهرس.
+  const domain = BASE_URL
   
   const publisherSchema = {
     "@type": "Organization",
@@ -163,11 +198,11 @@ export function SEOHead({
     logo: {
       "@type": "ImageObject",
       "@id": `${domain}/#logo`,
-      url: `${domain}/logo-white-512.png`,
-      contentUrl: `${domain}/logo-white-512.png`,
+      url: `${domain}/logo-512.png`,
+      contentUrl: `${domain}/logo-512.png`,
       width: 512,
       height: 512,
-      caption: "ميزان الرقمية - شعار المنصة بخلفية بيضاء",
+      caption: "ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء",
     },
     image: {
       "@type": "ImageObject",
@@ -195,7 +230,7 @@ export function SEOHead({
   let schemas: any[] = []
 
   // Always include Organization + Website for E-E-A-T and AI
-  if (!noindex) {
+  if (!doNotIndex) {
     schemas.push(generateOrganizationSchema())
     schemas.push(generateWebsiteSchema())
   }
@@ -209,7 +244,10 @@ export function SEOHead({
         "@type": "ListItem",
         position: index + 1,
         name: item.name,
-        item: item.url,
+        // الرابط القانوني المنمذج: «الرئيسية» كانت تمرَّر سابقاً كـ
+        // https://www.mizan.page/ بشرطة نهاية فتختلف عن crumb الجذر في
+        // بقية صفحات الموقع.
+        item: toCanonicalUrl(item.url),
       })),
     })
   }
@@ -247,7 +285,7 @@ export function SEOHead({
   // Main schema (Article/WebPage) with E-E-A-T
   let finalSchema = schema
 
-  if (!finalSchema && !noindex) {
+  if (!finalSchema && !doNotIndex) {
     finalSchema = {
       "@context": "https://schema.org",
       "@type": ogType === "article" ? "Article" : "WebPage",

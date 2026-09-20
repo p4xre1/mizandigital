@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { LockKeyhole, ArrowLeft, BookOpenCheck } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthProvider';
 import { AEOHead } from '@/components/seo/AEOHead';
+import { canonicalFor } from '@/lib/canonical';
 import { EntryView, Workspace, buttonClass, cardClass, inputClass } from '@/components/pro-tools/ToolViews';
 import { toolsService } from '@/lib/pro-tools/service';
 import type { Entry, Tool } from '@/lib/pro-tools/model';
@@ -75,7 +76,7 @@ function ToolsSession({ signedIn }: { signedIn: boolean }) {
   }, [signedIn, retry, slug]);
   const tool = tools.find(t => t.slug === slug);
   return <main className="container-wide max-w-6xl py-10 space-y-8" dir="rtl">
-    <AEOHead title={tool ? `${tool.title} — أدوات ميزان برو` : 'أدوات ميزان برو'} description="أدوات البحث والتدريب القانوني باشتراك Pro، بمحتوى موثق ومراجع." canonicalUrl={`https://www.mizan.page/pro-tools${slug ? `/${slug}` : ''}`} noindex={Boolean(slug)} />
+    <AEOHead title={tool ? `${tool.title} — أدوات ميزان برو` : 'أدوات ميزان برو'} description="أدوات البحث والتدريب القانوني باشتراك Pro، بمحتوى موثق ومراجع." canonicalUrl={canonicalFor(`/pro-tools${slug ? `/${slug}` : ''}`)} noindex={Boolean(slug)} />
     <header className="space-y-4">
       <span className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1 text-sm"><BookOpenCheck className="size-4" /> ميزان Pro</span>
       <h1 className="text-3xl font-black">{tool?.title || 'أدواتك للبحث والتدريب القانوني'}</h1>

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { canonicalNews, canonicalNewsHub, newsSlug } from "../../lib/canonical"
 import { supabase } from "../../lib/supabase/client"
 import localNews from "../../data/news.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
@@ -41,7 +42,10 @@ export function NewsPage() {
           source: n.author || "منصة الميزان",
           image_url: null,
           published_at: n.date,
-          slug: n.id,
+          // المعرّف من سياسة الروابط، لا n.id: الملف الثابت يُولَّد تحت
+          // /news/<slug-from-title> (scripts/prerender.mjs)، فالرابط إلى
+          // /news/<id> كان يفتح 404 على الحافة رغم أن الصفحة موجودة.
+          slug: newsSlug(n),
           category: n.category,
         }))
 
@@ -103,14 +107,14 @@ export function NewsPage() {
         headline: item.title,
         description: item.summary || "",
         datePublished: item.published_at || "",
-        url: `https://www.mizan.page/news/${item.slug || generateSlug(item.title) || item.id}`
+        url: canonicalNews(item.slug || newsSlug(item))
       }
     }))
   }
 
   return (
     <>
-      <AEOHead title={pageTitle} description="متابعة لأهم المستجدات التشريعية والقضائية بالمغرب." keywords={["أخبار القانون المغربي", "الجريدة الرسمية"]} schema={listSchema} />
+      <AEOHead title={pageTitle} description="متابعة لأهم المستجدات التشريعية والقضائية بالمغرب." keywords={["أخبار القانون المغربي", "الجريدة الرسمية"]} canonicalUrl={canonicalNewsHub()} breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الأخبار والمستجدات", url: "/news" }]} schema={listSchema} />
 
       <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
         <div className="bg-[#f8fafc] dark:bg-[#0f172a] border-b border-[#e2e8f0] dark:border-[#1e293b]">

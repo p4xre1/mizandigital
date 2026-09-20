@@ -178,6 +178,9 @@ export const CAPABILITIES: Capability[] = [
   { id: "test-url-structure", name: "URL Structure Test", nameAr: "فحص بنية الروابط", cluster: "technical-tests", status: "implemented", backedBy: "technical-checks.js → checkUrlStructure" },
   { id: "test-image-optimization", name: "Image Optimization Test", nameAr: "فحص تحسين الصور", cluster: "technical-tests", status: "implemented", backedBy: "technical-checks.js → checkImages" },
   { id: "test-accessibility", name: "Accessibility Test", nameAr: "فحص الوصولية", cluster: "technical-tests", status: "implemented", backedBy: "technical-checks.js → checkAccessibility" },
+  { id: "test-canonical-policy", name: "Canonical URL Policy Test", nameAr: "فحص الرابط القانوني", cluster: "technical-tests", status: "implemented", backedBy: "technical-checks.js → checkCanonicalPolicy", note: "وسم canonical واحد، مطلق، بلا شرطة نهاية، مطابق لمسار الصفحة، وog:url يساويه — على كل ملف في dist/." },
+  { id: "test-sitemap-coverage", name: "Sitemap ↔ Built Pages Coverage", nameAr: "فحص تغطية خريطة الموقع", cluster: "technical-tests", status: "implemented", backedBy: "technical-checks.js → checkSitemapCoverage", note: "لا <loc> بلا صفحة مولَّدة، ولا صفحة فهرسَة خارج الخريطة." },
+  { id: "canonical-url-policy", name: "Single Canonical URL Policy", nameAr: "سياسة رابط قانوني واحد", cluster: "technical-tests", status: "implemented", backedBy: "shared/seo/url-policy.js + tests/seo-canonical.test.ts", note: "مصدر واحد للنطاق والتطبيع ومعرّفات المحتوى: الواجهة و prerender و sitemap و feed و llms. الوثيقة: SEO-URL-POLICY.md" },
 
   // ───────────────────────────────────────────────────────────────────────────
   // 7) أدوات التوليد

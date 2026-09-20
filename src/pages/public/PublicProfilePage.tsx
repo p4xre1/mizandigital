@@ -18,6 +18,7 @@ import {
   Sparkles,
 } from "lucide-react"
 import { AEOHead } from "../../components/seo/AEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
@@ -113,7 +114,7 @@ export function PublicProfilePage() {
       <AEOHead
         title={`${profile.displayName} — بروفايل ميزان`}
         description={`بروفايل ${profile.displayName} على منصة ميزان الرقمية: الرتبة ${rank.id} (${rank.label})، نقاط الخبرة، والأوسمة القانونية.`}
-        canonicalUrl={`https://www.mizan.page/u/${profile.username}`}
+        canonicalUrl={canonicalFor(`/u/${profile.username}`)}
         schema={[
           generateBreadcrumbSchema([
             { name: "الرئيسية", url: "/" },

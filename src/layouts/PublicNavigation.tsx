@@ -290,6 +290,7 @@ export function Footer() {
           <p className="mb-3 text-[13px] font-black">استكشف المحتوى</p>
           <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
             <Link to="/" className="hover:text-white transition-colors">الرئيسية</Link>
+            <Link to="/platform" className="hover:text-white transition-colors">المنصة</Link>
             <Link to="/archive" className="hover:text-white transition-colors">المكتبة والملخصات</Link>
             <Link to="/articles" className="hover:text-white transition-colors">المقالات</Link>
             <Link to="/news" className="hover:text-white transition-colors">الأخبار القانونية</Link>
@@ -308,6 +309,16 @@ export function Footer() {
             <Link to="/quiz/interview" className="hover:text-white transition-colors">المقابلات الشفوية</Link>
             <Link to="/quiz/placement" className="hover:text-white transition-colors">تحديد المستوى</Link>
             <Link to="/search" className="hover:text-white transition-colors">البحث</Link>
+          </div>
+        </div>
+        <div>
+          {/* عمود الأدلة الركنية: الصفحات الثلاث المرتبطة بخطة السيو، موصولة من
+              الفوتر حتى لا تُولَّد يتيمة في فاحص orphanPages. */}
+          <p className="mb-3 text-[13px] font-black">أدلة الطالب</p>
+          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
+            <Link to="/guides/new-law-student-morocco" className="hover:text-white transition-colors">دليل الطالب الجديد</Link>
+            <Link to="/guides/free-legal-resources-morocco" className="hover:text-white transition-colors">الموارد القانونية المجانية</Link>
+            <Link to="/platform" className="hover:text-white transition-colors">عن المنصة</Link>
           </div>
         </div>
         <div>

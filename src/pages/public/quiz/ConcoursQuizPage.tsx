@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { ShieldCheck, Play, ArrowRight, Timer } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
 import { QuizRunner } from "../../../components/quiz/QuizRunner"
 import { useQuizQuestions } from "../../../hooks/useQuizQuestions"
@@ -65,7 +66,7 @@ export function ConcoursQuizPage() {
       <SEOHead
         title="اختبارات المباريات المهنية — الأمن الوطني، القضاء، الوظيفة العمومية"
         description="تدريب على صيغة أسئلة المباريات الرسمية بالمغرب: الأمن الوطني، القوات المساعدة، الجمارك، القضاء، والوظيفة العمومية، مع وضع مؤقّت يحاكي ظروف المباراة."
-        canonicalUrl="https://www.mizan.page/quiz/concours"
+        canonicalUrl={canonicalFor("/quiz/concours")}
         keywords={["مباراة الأمن الوطني", "مباراة القضاء", "الوظيفة العمومية المغرب", "concours Maroc"]}
         schema={[
           generateBreadcrumbSchema([

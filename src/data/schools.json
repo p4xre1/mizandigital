@@ -46,7 +46,8 @@
     "body": [
       "توفر البوابة الرسمية للكلية أقساماً مخصصة للتكوينات والخدمات الإلكترونية وإعلانات الطلبة.",
       "تختلف إجراءات الترشيح والتسجيل بحسب السلك (إجازة، ماستر، دكتوراه)."
-    ]
+    ],
+    "short_name": "كلية الحقوق عين السبع"
   },
   {
     "id": "fsjes-rabat-agdal",
@@ -88,7 +89,8 @@
     "body": [
       "تقدم الكلية تكوينات وبحثاً في مجالات القانون والعلوم السياسية والاقتصاد والتدبير ضمن جامعة محمد الخامس بالرباط.",
       "تُنشر الإعلانات المتعلقة والتسجيل والدراسة في البوابة الرسمية للمؤسسة."
-    ]
+    ],
+    "short_name": "كلية الحقوق أكدال"
   },
   {
     "id": "fsjes-marrakech",
@@ -131,7 +133,8 @@
     "body": [
       "تعرض البوابة الرسمية للكلية أخبار الدراسة والبحث العلمي والأنشطة الأكاديمية.",
       "تُراجع في الموقع تفاصيل الشعب والتكوينات وشروط الولوج."
-    ]
+    ],
+    "short_name": "كلية الحقوق بمراكش"
   },
   {
     "id": "fsjest-tangier",
@@ -174,7 +177,8 @@
     "body": [
       "تعرّف جامعة عبد المالك السعدي الكلية باعتبارها مؤسسة للتعليم العالي والبحث.",
       "تتضمن الأنشطة الموازية لقاءات وندوات وموائد مستديرة للطلبة والباحثين."
-    ]
+    ],
+    "short_name": "كلية الحقوق بطنجة"
   },
   {
     "id": "fsjes-agadir",
@@ -217,7 +221,8 @@
     "body": [
       "تذكر جامعة ابن زهر أن الكلية تنفذ أنشطة للتكوين والبحث في صلة بالمجالات القانونية.",
       "للحصول على معلومات محدثة حول التكوينات والتسجيل، يُرجى الرجوع للمصدر الرسمي."
-    ]
+    ],
+    "short_name": "كلية الحقوق بأكادير"
   },
   {
     "id": "fsjes-nador",
@@ -260,7 +265,8 @@
     "body": [
       "تقدم الكلية برامج تكوينية وبحثية متنوعة للطلبة في حقول القانون الاقتصاد والتدبير.",
       "تُعد البوابة الرسمية للمؤسسة المصدر الأساسي لمواعيد الامتحانات والتسجيل."
-    ]
+    ],
+    "short_name": "كلية الحقوق بالناظور"
   },
   {
     "id": "fsjp-kenitra",
@@ -290,7 +296,8 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "2538404c-7ab4-4f5a-9745-b666339acede",
-    "_flag": "duplicate-suspect:kenitra (FSJP vs FSJES Kénitra - ba1a4273)"
+    "_flag": "duplicate-suspect:kenitra (FSJP vs FSJES Kénitra - ba1a4273)",
+    "short_name": "كلية العلوم القانونية والسياسية القنيطرة"
   },
   {
     "id": "fsjes-souissi-rabat",
@@ -320,7 +327,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "38efa997-6ce5-4f3e-aff2-59d442b40fd2"
+    "_sourcePartnerId": "38efa997-6ce5-4f3e-aff2-59d442b40fd2",
+    "short_name": "كلية الحقوق السويسي الرباط"
   },
   {
     "id": "fsjes-sale",
@@ -347,7 +355,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "57c8afa3-6de5-471d-a456-b567902f8c10"
+    "_sourcePartnerId": "57c8afa3-6de5-471d-a456-b567902f8c10",
+    "short_name": "كلية الحقوق بسلا"
   },
   {
     "id": "fsjes-fes",
@@ -384,7 +393,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "5d3fc0a2-24e0-4102-ab05-e0f18f6a3666"
+    "_sourcePartnerId": "5d3fc0a2-24e0-4102-ab05-e0f18f6a3666",
+    "short_name": "كلية الحقوق فاس"
   },
   {
     "id": "fsjes-settat",
@@ -414,7 +424,8 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "7845439f-9379-44c6-b9fe-1953ff40293c",
-    "_flag": "duplicate-suspect:settat (FSJES vs FSJP Settat - cfd8b8f3)"
+    "_flag": "duplicate-suspect:settat (FSJES vs FSJP Settat - cfd8b8f3)",
+    "short_name": "كلية الحقوق سطات"
   },
   {
     "id": "fsjes-mohammedia",
@@ -446,7 +457,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "91d8b706-be97-4296-a715-1e165ed6b4dc"
+    "_sourcePartnerId": "91d8b706-be97-4296-a715-1e165ed6b4dc",
+    "short_name": "كلية الحقوق المحمدية"
   },
   {
     "id": "fsjes-kenitra",
@@ -476,7 +488,8 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "ba1a4273-6a8a-486f-be07-be510b159884",
-    "_flag": "duplicate-suspect:kenitra (FSJES vs FSJP Kénitra - 2538404c)"
+    "_flag": "duplicate-suspect:kenitra (FSJES vs FSJP Kénitra - 2538404c)",
+    "short_name": "كلية الحقوق القنيطرة"
   },
   {
     "id": "fsjes-oujda",
@@ -501,7 +514,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "bfd611af-c470-4054-8d54-691ad5331ac0"
+    "_sourcePartnerId": "bfd611af-c470-4054-8d54-691ad5331ac0",
+    "short_name": "كلية الحقوق وجدة"
   },
   {
     "id": "fsjes-kelaa-sraghna",
@@ -528,7 +542,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "ce61830f-f057-4a61-a1d0-fac021fe04bd"
+    "_sourcePartnerId": "ce61830f-f057-4a61-a1d0-fac021fe04bd",
+    "short_name": "كلية الحقوق بقلعة السراغنة"
   },
   {
     "id": "fsjes-ait-melloul",
@@ -551,7 +566,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "cfc480d3-918c-4380-82dc-ee634ad39ebc"
+    "_sourcePartnerId": "cfc480d3-918c-4380-82dc-ee634ad39ebc",
+    "short_name": "كلية الحقوق أيت ملول"
   },
   {
     "id": "fsjp-settat",
@@ -577,7 +593,8 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "cfd8b8f3-ebe3-4151-a464-4eae583e67c4",
-    "_flag": "duplicate-suspect:settat (FSJES vs FSJP Settat - 7845439f)"
+    "_flag": "duplicate-suspect:settat (FSJES vs FSJP Settat - 7845439f)",
+    "short_name": "كلية العلوم القانونية والسياسية سطات"
   },
   {
     "id": "fsjes-meknes",
@@ -628,7 +645,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "d44e3924-3e7c-4453-8ae8-568a5b201617"
+    "_sourcePartnerId": "d44e3924-3e7c-4453-8ae8-568a5b201617",
+    "short_name": "كلية الحقوق مكناس"
   },
   {
     "id": "fsjes-el-jadida",
@@ -653,7 +671,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "da9a24a5-dd11-4440-ac22-e2d8b54f604d"
+    "_sourcePartnerId": "da9a24a5-dd11-4440-ac22-e2d8b54f604d",
+    "short_name": "كلية الحقوق بالجديدة"
   },
   {
     "id": "fsjes-tetouan",
@@ -700,7 +719,8 @@
     ],
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
-    "_sourcePartnerId": "ffda547d-178d-43fe-b63f-c94567986cf0"
+    "_sourcePartnerId": "ffda547d-178d-43fe-b63f-c94567986cf0",
+    "short_name": "كلية الحقوق بتطوان"
   },
   {
     "id": "fsjes-ain-chock",
@@ -729,6 +749,7 @@
     "_mergedFrom": [
       "89c62f61",
       "8fca978a"
-    ]
+    ],
+    "short_name": "كلية الحقوق عين الشق الدار البيضاء"
   }
 ]

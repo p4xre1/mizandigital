@@ -25,7 +25,7 @@ export function CookiePolicyPage() {
         description={COOKIE_POLICY.description}
         directAnswer={COOKIE_POLICY.directAnswer}
         breadcrumbs={[
-          { name: "الرئيسية", url: "https://www.mizan.page/" },
+          { name: "الرئيسية", url: "/" },
           { name: "سياسة الكوكيز", url: "https://www.mizan.page/cookies" },
         ]}
         faq={COOKIE_POLICY.faq}

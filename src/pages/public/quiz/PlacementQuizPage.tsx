@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { Compass, Play, ArrowRight, Clock, Sparkles, CreditCard, AlertCircle, CheckCircle2 } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
 import { QuizRunner } from "../../../components/quiz/QuizRunner"
 import { RankBadge } from "../../../components/quiz/RankBadge"
@@ -66,7 +67,7 @@ export function PlacementQuizPage() {
       <SEOHead
         title="اختبار تحديد المستوى — حدد رتبتك في 5 دقائق"
         description="15 سؤالاً متدرجة تحدد مستواك الابتدائي في القانون المغربي وتمنحك الرتبة التي تناسبك. يمكنك أيضاً تجاوزه مقابل الكريدتس إن كنت محامياً أو خبيراً."
-        canonicalUrl="https://www.mizan.page/quiz/placement"
+        canonicalUrl={canonicalFor("/quiz/placement")}
         keywords={["تحديد المستوى القانوني", "placement test law", "رتبة ميزان"]}
         schema={[
           generateBreadcrumbSchema([

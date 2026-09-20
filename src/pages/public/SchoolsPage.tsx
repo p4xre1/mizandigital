@@ -3,6 +3,7 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import schoolsData from "../../data/schools.json"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { canonicalSchool, canonicalSchools } from "../../lib/canonical"
 import { supabase } from "../../lib/supabase/client"
 import { Search, MapPin, GraduationCap, Building2 } from "lucide-react"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
@@ -76,14 +77,17 @@ export function SchoolsPage() {
         "@type": "EducationalOrganization",
         name: school.name || school.name_ar,
         address: { "@type": "PostalAddress", addressLocality: school.city, addressCountry: "MA" },
-        url: school.websiteUrl || school.website || `https://www.mizan.page/schools/${school.slug || generateSlug(school.name || "") || school.id}`
+        // url = صفحة الدليل (الرابط القانوني)، والموقع الرسمي في sameAs:
+        // الرابط الداخلي هو ما يجب أن يفهرَس، ورابط الجامعة ملكُ المؤسسة.
+        url: canonicalSchool(school.slug || generateSlug(school.name || "") || school.id),
+        sameAs: school.websiteUrl || school.website || undefined
       }
     }))
   }
 
   return (
     <>
-      <AEOHead title="دليل كليات الحقوق والجامعات المغربية" description="دليل شامل لجميع كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب." keywords={["كليات الحقوق بالمغرب", "FSJES", ...cities]} schema={listSchema} />
+      <AEOHead title="دليل كليات الحقوق والجامعات المغربية" description="دليل شامل لجميع كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب." keywords={["كليات الحقوق بالمغرب", "FSJES", ...cities]} canonicalUrl={canonicalSchools()} schema={listSchema} />
 
       <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
         <div className="bg-[#f8fafc] dark:bg-[#0f172a] border-b border-[#e2e8f0] dark:border-[#1e293b]">

@@ -30,7 +30,7 @@ describe("روابط المشاركة", () => {
     expect(text).toContain("80 من 100")
     expect(text).toContain("رتبتي الحالية: B")
     expect(text).toContain("القانون المدني — S2")
-    expect(text).toContain("https://mizan.page/u/abdo_law")
+    expect(text).toContain("https://www.mizan.page/u/abdo_law")
     // لا نسبة مئوية خام تتسبب في تشفير مزدوج عند encodeURIComponent
     expect(text).not.toContain("%80")
   })
@@ -44,14 +44,14 @@ describe("روابط المشاركة", () => {
 
   test("رابط لينكد إن يستخدم نقطة النهاية الرسمية للمشاركة", () => {
     expect(buildLinkedInShareUrl()).toContain("linkedin.com/sharing/share-offsite/")
-    expect(buildLinkedInShareUrl("https://mizan.page/u/abdo_law")).toContain(
-      encodeURIComponent("https://mizan.page/u/abdo_law")
+    expect(buildLinkedInShareUrl("https://www.mizan.page/u/abdo_law")).toContain(
+      encodeURIComponent("https://www.mizan.page/u/abdo_law")
     )
   })
 
   test("مشاركة البروفايل لا تحتوي نتيجة اختبار (لا %0)", () => {
     const share = buildProfileShare({ displayName: "عبد الرحمن", username: "abdo_law", rank: "A" })
-    expect(share.url).toBe("https://mizan.page/u/abdo_law")
+    expect(share.url).toBe("https://www.mizan.page/u/abdo_law")
     expect(share.text).toContain("عبد الرحمن")
     expect(share.text).not.toContain("%0")
     expect(share.text).not.toContain("من 100")
@@ -80,7 +80,7 @@ describe("نافذة المشاركة", () => {
     expect(html).toContain("لينكد إن")
     expect(html).toContain("تحميل الصورة")
     expect(html).toContain("نسخ النص")
-    expect(html).toContain("https://mizan.page/u/abdo_law")
+    expect(html).toContain("https://www.mizan.page/u/abdo_law")
   })
 
   test("لا تُصاغ شيئاً حين تكون مغلقة", () => {

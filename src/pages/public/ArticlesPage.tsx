@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
+import { canonicalArticlesHub } from "../../lib/canonical"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { truncateCleanText } from "../../lib/utils/sanitize"
@@ -128,7 +129,7 @@ export function ArticlesPage() {
 
   return (
     <>
-      <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} schema={[listSchema, breadcrumbSchema]} />
+      <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} canonicalUrl={canonicalArticlesHub()} schema={[listSchema, breadcrumbSchema]} />
 
       <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
         {/* Header - EduFlex */}

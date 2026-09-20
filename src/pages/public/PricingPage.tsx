@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { AEOHead } from "@/components/seo/AEOHead";
+import { canonicalFor } from "@/lib/canonical"
 import { MizanProCard } from "@/components/billing/MizanProCard";
 import { PackageCard } from "@/components/payments/PackageCard";
 import { fetchPackages } from "@/lib/payments/service";
@@ -20,7 +21,7 @@ export function PricingPage() {
     <main className="container-wide py-10" dir="rtl">
       <AEOHead title="الأسعار — ميزان برو وحزم الكريدتس" description="اختر خطة ميزان برو الشهرية أو السنوية، أو اشترِ حزم الكريدتس لدعم المنصة وفتح المزايا."
         directAnswer="تسعير ميزان الرقمية: Mizan Pro شهري 49 د.م (500 كريدتس) وسنوي 399 د.م (7000 كريدتس + 1000 هدية)، مع باقات كريدتس للطلبة والباحثين."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الأسعار — ميزان برو وحزم الكريدتس", url: "https://www.mizan.page/pricingpage" }]} canonicalUrl="https://www.mizan.page/pricing" />
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الأسعار — ميزان برو وحزم الكريدتس", url: "/pricing" }]} canonicalUrl={canonicalFor("/pricing")} />
 
       <div className="mx-auto max-w-4xl text-center">
         <h1 className="text-3xl font-black text-foreground">خطط تناسب كل طالب قانون</h1>

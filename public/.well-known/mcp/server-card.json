@@ -8,14 +8,16 @@
     "version": "1.0.0"
   },
   "description": "Read-only MCP endpoint for discovering Mizan Digital's public Moroccan legal and academic resources.",
-  "iconUrl": "https://www.mizan.page/Logo.svg",
+  "iconUrl": "https://www.mizan.page/logo-512.png",
   "documentationUrl": "https://www.mizan.page/llms.txt",
   "transport": {
     "type": "streamable-http",
     "endpoint": "https://www.mizan.page/mcp"
   },
   "capabilities": {
-    "tools": {"listChanged": false},
+    "tools": {
+      "listChanged": false
+    },
     "resources": {},
     "prompts": {}
   },
@@ -29,13 +31,21 @@
       "name": "mizan_site_info",
       "title": "Mizan site information",
       "description": "Returns the public identity, scope and important links of Mizan Digital.",
-      "inputSchema": {"type":"object","properties":{},"additionalProperties":false}
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
     },
     {
       "name": "mizan_resource_links",
       "title": "Mizan resource links",
       "description": "Returns stable public URLs for legal and academic resource sections.",
-      "inputSchema": {"type":"object","properties":{},"additionalProperties":false}
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
     }
   ]
 }

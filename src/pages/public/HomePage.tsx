@@ -1,6 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
+import { canonicalHome } from "../../lib/canonical"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
@@ -55,7 +56,7 @@ export function HomePage() {
         const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
           import("../../data/articles.json"),
           import("../../data/events.json"),
-          import("../../data/lexicon.json"),
+          import("../../data/lexicon.client.json"),
         ])
         const localArticles: FeedCard[] = (articlesData as any[])
           .map((item) => ({
@@ -103,7 +104,7 @@ export function HomePage() {
         const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
           import("../../data/articles.json"),
           import("../../data/events.json"),
-          import("../../data/lexicon.json"),
+          import("../../data/lexicon.client.json"),
         ])
 
         const [articlesRes, seminarsRes, termsRes] = await Promise.all([
@@ -219,7 +220,7 @@ export function HomePage() {
   return (
     <>
       <AEOHead
-        title="ملخصات S1-S6، قاموس قانوني 250 مصطلح ودليل 21 كلية حقوق بالمغرب"
+        title="ميزان الرقمية – منصة طلبة الحقوق في المغرب"
         description="ميزان الرقمية منصة مغربية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM."
         directAnswer="ميزان الرقمية منصة مغربية لطلبة كليات الحقوق بالمغرب، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات تحليلية، أخبار تشريعية محينة واختبارات QCM للتحضير للمباريات."
         keywords={[
@@ -232,7 +233,7 @@ export function HomePage() {
           "منصة ميزان الرقمية",
           "دروس القانون المغربي مجانا",
         ]}
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }]}
+        canonicalUrl={canonicalHome()}
         faq={[
           { question: "ما هي منصة ميزان الرقمية؟", answer: "ميزان الرقمية منصة مغربية تعليمية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM." },
           { question: "هل المحتوى مجاني؟", answer: "المحتوى الأساسي مجاني دون تسجيل: القاموس القانوني، وملخصات الأرشيف S1-S6، ودليل الكليات، والمقالات، والأخبار. المزايا المتقدمة مؤدّاة عبر اشتراك ميزان برو (49 درهماً شهرياً أو 399 درهماً سنوياً) أو عبر حزم الكريدتس. المنصة لم تعد مجانية بالكامل كما كانت في مرحلة سابقة، وهذا معلن في صفحة الأسعار." },

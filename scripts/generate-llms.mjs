@@ -22,7 +22,18 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = join(__dirname, "../src/data");
 const OUTPUT = join(__dirname, "../public/llms.txt");
-const DOMAIN = "https://www.mizan.page";
+// سياسة الروابط والمعرّفات موحّدة مع الواجهة و prerender و sitemap.
+// كان لكل سكربت نسخة خاصة به من الترميز ومن «كيف يُفصل التكرار»، فتولّد
+// روابط في llms.txt لا ملف مقابل لها (مثال: /lexicon/الرهن-الحيازي-x).
+import {
+  SITE_ORIGIN as DOMAIN,
+  articleSlug,
+  canonicalHome,
+  eventSlug,
+  lexiconSlug,
+  newsSlug,
+  schoolSlug,
+} from "../shared/seo/url-policy.js";
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
 
@@ -47,17 +58,6 @@ const clamp = (value, max = 160) => {
 const link = (title, path, description) =>
   description ? `- [${title}](${DOMAIN}${path}): ${clamp(description)}` : `- [${title}](${DOMAIN}${path})`;
 
-/** توحيد أسماء مصطلحات المعجم إلى slugs كما يفعل الموقع. */
-const slugify = (value) =>
-  String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[\u064B-\u065F\u0670]/g, "")
-    .replace(/[\s/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF-]+/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 const counts = {
   articles: articles.length,
@@ -70,12 +70,10 @@ const counts = {
 const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
 const usedSlugs = new Set();
-const lexiconSlugs = lexicon.map((term) => {
-  let slug = slugify(term.term_ar) || String(term.id);
-  while (usedSlugs.has(slug)) slug = `${slug}-x`;
-  usedSlugs.add(slug);
-  return { ...term, slug };
-});
+const lexiconSlugs = lexicon.map((term) => ({
+  ...term,
+  slug: lexiconSlug(term, usedSlugs),
+}));
 
 const lines = [];
 
@@ -102,6 +100,9 @@ lines.push(link("المعجم القانوني", "/lexicon", "مصطلحات ق�
 lines.push(link("كليات الحقوق", "/schools", "دليل كليات الحقوق بالمغرب ومعلومات التسجيل"));
 lines.push(link("الأرشيف والملفات", "/archive", "ملخصات ومحاضرات وملفات PDF حسب الفصل S1-S6"));
 lines.push(link("الندوات والفعاليات", "/events", "فعاليات أكاديمية وقانونية"));
+lines.push(link("المنصة", "/platform", "ما تقدمه ميزان لطلبة الحقوق: ملخصات، ومعجم مصطلحات، ودليل كليات، ومستجدات في مكان واحد"));
+lines.push(link("دليل الطالب الجديد", "/guides/new-law-student-morocco", "أول أسبوع في كلية الحقوق: النظام، والموارد التي تكفي، ونصائح المراجعة"));
+lines.push(link("الموارد القانونية المجانية", "/guides/free-legal-resources-morocco", "أفضل الموارد المجانية لطلبة القانون في المغرب ومتى يُستخدم كل منها"));
 lines.push(link("الأسئلة الشائعة", "/faq", "أسئلة متكررة حول الدراسة القانونية والمنصة"));
 lines.push(link("الاختبارات القانونية", "/quiz", "أربعة مسارات: الكلية (S1-S6)، العشوائي، المباريات المهنية، المقابلات"));
 lines.push("");
@@ -109,22 +110,21 @@ lines.push("");
 lines.push("## المقالات");
 lines.push("");
 for (const article of articles) {
-  lines.push(link(article.title, `/articles/${article.slug}`, article.excerpt));
+  lines.push(link(article.title, `/articles/${articleSlug(article)}`, article.excerpt));
 }
 lines.push("");
 
 lines.push("## المستجدات التشريعية والقضائية");
 lines.push("");
 for (const item of news) {
-  const slug = item.slug || slugify(item.title);
-  lines.push(link(item.title, `/news/${slug}`, item.summary));
+  lines.push(link(item.title, `/news/${newsSlug(item)}`, item.summary));
 }
 lines.push("");
 
 lines.push("## كليات الحقوق");
 lines.push("");
 for (const school of schools) {
-  lines.push(link(school.name, `/schools/${school.slug}`, `${school.university} — ${school.city}`));
+  lines.push(link(school.name, `/schools/${schoolSlug(school)}`, `${school.university} — ${school.city}`));
 }
 lines.push("");
 
@@ -132,7 +132,9 @@ lines.push("## عينة من المعجم القانوني");
 lines.push("");
 lines.push(`<!-- المعجم كامل يضم ${lexicon.length} مصطلحاً على /lexicon -->`);
 for (const term of lexiconSlugs.slice(0, 40)) {
-  lines.push(link(term.term_ar, `/lexicon/${term.slug}`, term.definition));
+  // الشرح المبسّط مقدَّم على التعريف: llms.txt يُقرأ من نماذج تريد جواباً
+  // لطالب، وsimple_explanation هي العبارة التي تُفهم من أول قراءة.
+  lines.push(link(term.term_ar, `/lexicon/${term.slug}`, term.simple_explanation || term.definition));
 }
 lines.push("");
 

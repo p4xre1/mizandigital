@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "@/lib/auth/AuthProvider"
 import { AEOHead } from "@/components/seo/AEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { RANKS } from "@/lib/quiz/ranks"
 import { INPUT_LIMITS, validateDisplayName, validateUsername } from "@/lib/security/inputGuard"
 import {
@@ -338,7 +339,7 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
         title="تسجيل الدخول أو إنشاء حساب — ميزان الرقمية"
         description="أنشئ حسابك على ميزان الرقمية عبر Supabase Auth: بروفايل عام مخصص، رتبة من D إلى SSS، ونقاط خبرة تُحفظ عبر كل أجهزتك."
         directAnswer="تسجيل الدخول في ميزان الرقمية يتم بالبريد الإلكتروني وكلمة المرور أو عبر حساب Google، ويُنشئ لك بروفايلًا عاماً برتبة مبتدئ D."
-        canonicalUrl="https://www.mizan.page/login"
+        canonicalUrl={canonicalFor("/login")}
         noindex
       />
 

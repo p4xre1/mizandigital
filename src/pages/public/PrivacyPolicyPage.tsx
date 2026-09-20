@@ -16,7 +16,7 @@ export function PrivacyPolicyPage() {
         description={PRIVACY_POLICY.description}
         directAnswer={PRIVACY_POLICY.directAnswer}
         breadcrumbs={[
-          { name: "الرئيسية", url: "https://www.mizan.page/" },
+          { name: "الرئيسية", url: "/" },
           { name: "سياسة الخصوصية", url: "https://www.mizan.page/privacy" },
         ]}
         faq={PRIVACY_POLICY.faq}

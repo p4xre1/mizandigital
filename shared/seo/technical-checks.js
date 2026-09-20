@@ -24,6 +24,8 @@ function result(pass, score, issues = [], details = []) {
   return { pass, score: Math.max(0, Math.min(100, Math.round(score))), issues, details }
 }
 
+import { canonicalUrl, isIndexablePath } from "./url-policy.js"
+
 const URL_RE = /https?:\/\/[^\s"'<>)]+/g
 
 /** استخراج كل الوسوم من HTML بشكل تقريبي لكنه كافٍ للفحوص. */
@@ -36,6 +38,170 @@ function attr(tag, name) {
   const match = new RegExp(`${name}\\s*=\\s*("([^"]*)"|'([^']*)'|([^\\s>]+))`, "i").exec(tag)
   if (!match) return null
   return (match[2] ?? match[3] ?? match[4] ?? "").trim()
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// أيقونة الموقع والشعار في نتائج البحث
+//
+// Google تعرض أيقونة واحدة لكل اسم مضيف، وتختارها من <link rel="icon"> في
+// الصفحة الأولى (لا تقرأ media= ولا تُفعّل CSS)، وتطلب: مربّعًا، أكبر من 48px
+// (الحدّ الأدنى 8×8)، بصيغة من BMP/GIF/ICO/PNG/JPEG/PPM/TIFF، برابط مستقر،
+// قابل للزحف. أما شعار Organization فيجب ألا يقلّ عن 112×112 وأن «يبدو صحيحًا
+// على خلفية بيضاء» — وهو الشرط الذي كان يُخفى شعارنا: بلاطة شبه بيضاء فوق
+// صفحة نتائج بيضاء.
+//
+// الدالة نقية: من يملك نظام الملفات (seo-audit) يمرّر metadata الملفات، ومن لا
+// يملكه (المتصفح/الاختبارات) يمرّر null فتُفحص بنية الوسوم وحدها.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** الصيغ التي تذكرها وثائق Google للأيقونات — SVG ليست بينها. */
+const FAVICON_FORMATS = ["png", "jpeg", "jpg", "gif", "bmp", "ico", "ppm", "tiff"]
+
+/**
+ * فوق هذه العتبة تُعدّ الأيقونة «شبه بيضاء»: متوسط السطوع بعد الدمج مع
+ * خلفية بيضاء، فالشعار الشفاف الأبيض يسجّل ≈ 216 بينما البلاطة الكحلية ≈ 51.
+ */
+const WHITE_ON_WHITE_LUMINANCE = 200
+
+/**
+ * @param {string} html — الصفحة الأولى (index.html المصدر أو dist/index.html)
+ * @param {{
+ *   files?: Record<string, {
+ *     exists?: boolean,
+ *     width?: number | null,
+ *     height?: number | null,
+ *     format?: string,
+ *     meanLuminance?: number | null
+ *   }> | null
+ * }} [options] — بيانات الملفات يقرأها المستدعي (من يملك نظام الملفات); بلا
+ * files تُفحص بنية الوسوم وحدها، فلا تحتاج اللوحة في المتصفح أي فكّ صور.
+ */
+export function checkSiteIcons(html, { files = null } = {}) {
+  const issues = []
+  const details = []
+  const tags = findTags(html || "", "link").filter((tag) => {
+    const rel = (attr(tag, "rel") || "").toLowerCase()
+    return /\bicon\b/.test(rel) || /apple-touch-icon/.test(rel)
+  })
+
+  if (tags.length === 0) {
+    return result(false, 0, ["لا يوجد أي <link rel=\"icon\"> في الصفحة الأولى: Google سيختار أيقونة بنفسه (وغالبًا يلتقط لقطة شاشة)."], ["0 وسم أيقونة"])
+  }
+
+  const meta = (href) => {
+    if (!files) return null
+    const path = String(href).replace(/^https?:\/\/[^/]+/i, "").split("?")[0] || "/"
+    return files[path] || files[href] || null
+  }
+
+  let primaryCandidate = null
+  let checked = 0
+  let missing = 0
+
+  for (const tag of tags) {
+    const rel = (attr(tag, "rel") || "").toLowerCase()
+    const href = attr(tag, "href") || ""
+    const isApple = /apple-touch-icon/.test(rel)
+    if (!href) {
+      issues.push("وسم أيقونة بلا href.")
+      continue
+    }
+
+    const declaredType = (attr(tag, "type") || "").replace(/^image\//, "").toLowerCase()
+    const declaredSizes = attr(tag, "sizes") || ""
+    const hasMedia = /\bmedia\s*=/.test(tag)
+    const info = meta(href)
+    if (info) checked++
+
+    if (info && info.exists === false) {
+      missing++
+      issues.push(`الأيقونة ${href} معلنة في الصفحة الأولى ولا ملف لها — الزحف يحصل على 404.`)
+      continue
+    }
+
+    const format = (info && info.format) || declaredType || ""
+    const width = info && info.width ? info.width : null
+    const height = info && info.height ? info.height : null
+
+    // 1) sizes المصرّح به يجب أن يطابق البُعد الحقيقي للملف.
+    const declared = /^(\d+)x(\d+)$/.exec(declaredSizes)
+    if (declared && width && height) {
+      const [dw, dh] = [Number(declared[1]), Number(declared[2])]
+      if (dw !== width || dh !== height) {
+        issues.push(`${href} يصرّح sizes="${declaredSizes}" بينما ملفه ${width}×${height} — البيانات الكاذبة تجعل اختيار الأيقونة عشوائيًا.`)
+      }
+    }
+
+    // 2) المربّع شرط: نسبة 1:1 وإلا تُرفض الأيقونة.
+    if (width && height && width !== height) {
+      issues.push(`${href} ليست مربّعًا (${width}×${height}) — Google تشترط نسبة 1:1.`)
+    }
+
+    // 3) الصيغة: SVG يستعملها المتصفح لكنها ليست ضمن صيغ أيقونات Google، فلا
+    // تُعدّ خللًا ما دام هناك مرشّح نقطيّ؛ وإلا يمسكها فحص المرشّح أدناه.
+    const isSvg = format === "svg" || declaredType === "svg+xml" || /\.svg(\?|$)/i.test(href)
+    if (format && !isSvg && !FAVICON_FORMATS.includes(format)) {
+      issues.push(`${href} بصيغة ${format} غير مذكورة في صيغ أيقونات Google (BMP/GIF/ICO/PNG/JPEG/PPM/TIFF).`)
+    }
+
+    // 4) الشفافية فوق خلفية بيضاء: شعار شبه أبيض لا يُرى، وهو أفشل ما يكون.
+    if (!isApple && typeof info?.meanLuminance === "number" && info.meanLuminance > WHITE_ON_WHITE_LUMINANCE) {
+      issues.push(
+        `${href} شبه بيضاء (متوسط السطوع بعد الدمج مع أبيض: ${Math.round(info.meanLuminance)}/255) — ستختفي فوق خلفية نتائج البحث البيضاء، وسياسة الشعار تطلب أن تبدو صحيحة عليها.`
+      )
+    }
+
+    // المرشّح الذي سيختاره Google: وسم raster بلا media، معتبر الحجم.
+    const isRaster = format && !isSvg && FAVICON_FORMATS.includes(format)
+    if (!hasMedia && !isApple && isRaster && width && width >= 48) {
+      if (!primaryCandidate || width > primaryCandidate.width) primaryCandidate = { href, width }
+    }
+  }
+
+  if (checked === 0 && files) {
+    details.push("لم تُقرأ بيانات أي ملف أيقونة — يُفحص المصرّح به في HTML وحده.")
+  }
+
+  if (!primaryCandidate) {
+    const svgOnly = tags.some((tag) => /\.svg/i.test(attr(tag, "href") || "")) &&
+      !tags.some((tag) => FAVICON_FORMATS.includes((attr(tag, "type") || "").replace(/^image\//, "").toLowerCase()))
+    issues.push(
+      svgOnly
+        ? "الأيقونات نقطة (SVG) فقط — SVG ليست ضمن صيغ أيقونات Google؛ يلزم PNG مربّع ≥ 48px بلا خاصية media."
+        : "لا يوجد <link rel=\"icon\"> إلى PNG مربّع ≥ 48px بلا media= — هذا بالضبط ما يقرأه Google لاختيار أيقونة المضيف."
+    )
+  }
+
+  // 5) شعار Organization في JSON-LD: نقطّي، ≥ 112×112، وملف موجود.
+  const logoMatch = /"logo"\s*:\s*\{[\s\S]{0,400}?"(?:url|contentUrl)"\s*:\s*"([^"]+)"/.exec(html || "")
+  if (logoMatch) {
+    const logoUrl = logoMatch[1]
+    const info = meta(logoUrl)
+    if (logoUrl.toLowerCase().endsWith(".svg")) {
+      issues.push("Organization.logo يشير إلى SVG؛ سياسة الشعار تطلب صورة نقطية (PNG/JPEG/…) بحدّ أدنى 112×112.")
+    }
+    if (info && info.exists === false) issues.push(`رابط الشعار في البيانات المهيكلة لا ملف له: ${logoUrl}`)
+    if (info && info.width && info.width < 112) {
+      issues.push(`شعار Organization في ${logoUrl} عرضه ${info.width}px — الحدّ الأدنى 112×112.`)
+    }
+    if (info && typeof info.meanLuminance === "number" && info.meanLuminance > WHITE_ON_WHITE_LUMINANCE) {
+      issues.push("شعار Organization شبه أبيض: تنصّ السياسة على أن يبدو صحيحًا على خلفية بيضاء، وإلا لم يُعرض.")
+    }
+    details.push(`شعار البيانات المهيكلة: ${logoUrl}${info && info.width ? ` (${info.width}×${info.height})` : ""}`)
+  } else {
+    details.push("لا عقدة logo في البيانات المهيكلة لهذه الصفحة — أيقونة البحث ستُشتقّ من الوسم وحده.")
+  }
+
+  if (primaryCandidate) {
+    details.push(`أيقونة مرشّحة لاختيار Google: ${primaryCandidate.href} (${primaryCandidate.width}px)`)
+  }
+  details.push(`${tags.length} وسم أيقونة، ${checked} ملف تحقّق منه`)
+
+  let score = 100
+  score -= missing * 12
+  if (!primaryCandidate) score -= 35
+  score -= issues.length * 9
+  return result(issues.length === 0, score, issues, details)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -97,6 +263,32 @@ export function checkSitemap(xml, expectedRoutes = [], { siteUrl = "" } = {}) {
   const set = new Set(locs)
   if (set.size !== locs.length) issues.push(`${locs.length - set.size} رابط مكرر في الخريطة — يهدر ميزانية الزحف.`)
 
+  // شرطة النهاية في sitemap ليست تفصيلاً جمالياً: أي رابط هنا بشكل
+  // /schools/x/ يجعل الزاحف يضيف نسخة ثانية من الصفحة نفسها إلى الطابور،
+  // فتُزحف مرتين وتُفهرس مرتين بقنونة مختلفة. القاعدة: لا شرطة نهاية.
+  // القاعدة صارمة حتى على الجذر: https://www.mizan.page لا https://www.mizan.page/
+  const slashed = locs.filter((l) => /\/$/.test(l))
+  if (slashed.length) {
+    issues.push(`${slashed.length} رابط بشرطة نهاية في الخريطة (النطاق القانوني بلا شرطة): ${slashed.slice(0, 3).join(", ")}`)
+  }
+
+  const wrongHost = locs.filter((l) => /^https?:\/\/(?:www\.)?mizan\.page/i.test(l) && !l.startsWith(siteUrl || "https://www.mizan.page"))
+  if (wrongHost.length) {
+    issues.push(`${wrongHost.length} رابط على نطاق غير النطاق القانوني (mizan.page بلا www؟): ${wrongHost.slice(0, 2).join(", ")}`)
+  }
+
+  // النسخ المزدوجة: /x و /x/ معاً في الخريطة نفسها
+  const withoutSlash = new Set()
+  const duplicated = []
+  for (const loc of locs) {
+    const key = loc.replace(/\/$/, "")
+    if (withoutSlash.has(key)) duplicated.push(key)
+    withoutSlash.add(key)
+  }
+  if (duplicated.length) {
+    issues.push(`${duplicated.length} مسار مكرر بسبب شرطة النهاية: ${duplicated.slice(0, 3).join(", ")}`)
+  }
+
   const paths = new Set(locs.map((l) => {
     try { return new URL(l).pathname.replace(/\/$/, "") || "/" } catch { return l }
   }))
@@ -110,11 +302,277 @@ export function checkSitemap(xml, expectedRoutes = [], { siteUrl = "" } = {}) {
   return result(issues.length === 0, score, issues, details)
 }
 
+/**
+ * سياسة الروابط القانونية لصفحة واحدة: وسم canonical واحد، مطابق تماماً
+ * لرابط الصفحة، بلا شرطة نهاية، وعلى النطاق القانوني.
+ *
+ * لماذا فحص مستقل مع وجود checkHtmlHead؟ لأن checkHtmlHead كان يقارن
+ * بعد إزالة شرطة النهاية من الطرفين — أي أن الخطأ الذي يفترض أن يُمسك
+ * كان يُطبَّع قبل المقارنة، فيمرّ الموقع في CI وفيه canonical بنسخ متعددة.
+ * هذا الفحص لا يطبّع شيئاً: المطابقة حرفية.
+ *
+ * @param {string} html محتوى الصفحة
+ * @param {{ url?: string, siteUrl?: string }} options رابط الصفحة المتوقّع
+ */
+export function checkCanonicalPolicy(html, { url = "", siteUrl = "https://www.mizan.page" } = {}) {
+  const text = html || ""
+  const issues = []
+  const details = []
+
+  const tags = findTags(text, "link").filter((tag) => /rel\s*=\s*["']canonical["']/i.test(tag))
+  details.push(`${tags.length} وسم canonical`)
+
+  const robotsContent = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",
+    "content"
+  )
+
+  if (tags.length === 0) {
+    // الهيكل التطبيقية (login، /u/<username>، لوحة التحكم) لا تُفهرس ولا تحتاج
+    // canonical؛ مطالبتها واحداً كانت تجبرنا على canonical كاذب يشير للرئيسية.
+    if (/noindex/i.test(robotsContent)) {
+      return result(true, 100, [], [...details, "noindex: لا canonical مطلوب"])
+    }
+    return result(false, 0, ["لا يوجد وسم canonical — الصفحات تُقرأ كنسخ متعددة."], details)
+  }
+
+  if (tags.length > 1) {
+    issues.push(`${tags.length} وسوم canonical في صفحة واحدة — المحرك يختار واحداً ويعتبر الباقي تشويشاً.`)
+  }
+
+  const canonical = attr(tags[0], "href") || ""
+
+  if (!canonical) issues.push("وسم canonical بلا href.")
+  else {
+    if (!/^https?:\/\//.test(canonical)) issues.push(`canonical ليس مطلقاً: ${canonical}`)
+    if (/[?#]/.test(canonical)) issues.push(`canonical يحمل معاملات أو حزاماً: ${canonical} — النسخة القابلة للفهرسة هي المسار النظيف.`)
+    if (/\/$/.test(canonical)) issues.push(`canonical ينتهي بشرطة مائلة: ${canonical} — السياسة بلا شرطة.`)
+    if (siteUrl && !canonical.startsWith(siteUrl)) {
+      issues.push(`canonical خارج النطاق القانوني ${siteUrl}: ${canonical}`)
+    }
+    if (url) {
+      // الرابط المتوقع من `canonicalUrl` لا من لصق النص خلف النطاق: مسار يبدأ
+      // بـ«//» أو بـ«@host» يصبح مضيفاً آخر بمجرد الإلصاق، وnormalizePath
+      // يدمج الشرطات ويسقط المعاملات فيبقى الرابط على نطاقنا دائماً. تمرير
+      // رابط مطلق هنا يعادل مقارنته بمساره فقط — أي أن canonical يشير إلى
+      // نطاق آخر يُرفض بدل أن يُقبل لمجرد أنه كُتب مطلقاً.
+      const expected = canonicalUrl(url, { origin: siteUrl })
+      if (canonical !== expected) {
+        issues.push(`canonical (${canonical}) لا يطابق رابط الصفحة القانوني (${expected}).`)
+      }
+    }
+  }
+
+  // og:url يجب أن يساوي canonical، وإلا تشارك الشبكات نسخة وتفهرس نسخة أخرى
+  const ogUrl = attr(
+    findTags(text, "meta").find((t) => /property\s*=\s*["']og:url["']/i.test(t)) || "",
+    "content"
+  )
+  if (ogUrl && canonical && ogUrl !== canonical) {
+    issues.push(`og:url (${ogUrl}) لا يساوي canonical (${canonical}).`)
+  }
+
+  // البيانات المهيكلة تحمل روابط الصفحة أيضاً: عقدة تقول «/x/» ووسم
+  // canonical يقول «/x» = نسختان في نظر المحرك رغم تطابق الوسم. الفحص
+  // يشمل url الداخلي بأي عقدة، ومطابقة عقدة الصفحة نفسها (@id#...).
+  const ldBlocks = [
+    ...text.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
+  ].map((m) => m[1])
+
+  if (ldBlocks.length) details.push(`${ldBlocks.length} كتلة JSON-LD`)
+
+  for (const block of ldBlocks) {
+    for (const match of block.matchAll(/"url"\s*:\s*"([^"]+)"/g)) {
+      const value = match[1]
+      if (!siteUrl || !value.startsWith(siteUrl)) continue
+      if (value.endsWith("/")) issues.push(`url في JSON-LD ينتهي بشرطة مائلة: ${value}`)
+      if (/[?#]/.test(value)) issues.push(`url في JSON-LD يحمل معاملات أو حزاماً: ${value}`)
+    }
+
+    let parsed = null
+    try {
+      parsed = JSON.parse(block)
+    } catch {
+      parsed = null
+    }
+    if (!parsed) continue
+
+    for (const node of Array.isArray(parsed) ? parsed : [parsed]) {
+      if (!node || typeof node !== "object") continue
+      const id = String(node["@id"] || "")
+      if (canonical && id.startsWith(`${canonical}#`) && typeof node.url === "string" && node.url !== canonical) {
+        issues.push(`url في JSON-LD (${node.url}) لا يطابق canonical الصفحة (${canonical}).`)
+      }
+    }
+  }
+
+  const score = issues.length === 0 ? 100 : Math.max(0, 100 - issues.length * 34)
+  return result(issues.length === 0, score, issues, details)
+}
+
+/**
+ * تغطية خريطة الموقع: كل <loc> يجب أن يقابله ملف مُولَّد، وكل صفحة مولَّدة
+ * قابلة للفهرسة يجب أن تكون في الخريطة.
+ *
+ * الفحصان معاً يسدّان الثغرة التي أبقَت 13 رابطاً ميتاً داخل sitemap
+ * (روابط معجم/ملفات بمعرّفات لم يولّدها prerender يوماً). رابط ميت في
+ * الخريطة أسوأ من غياب الرابط: يستهلك ميزانية الزحف ويعلّم المحرك أن
+ * الموقع مهمل.
+ *
+ * @param {string[]} locs روابط الخريطة كما هي
+ * @param {string[]} builtRoutes مسارات الصفحات المولَّدة (مثل /schools/x، و / للجذر)
+ */
+export function checkSitemapCoverage(locs = [], builtRoutes = [], { siteUrl = "" } = {}) {
+  const issues = []
+  const normalize = (p) => {
+    const path = String(p || "").replace(/^https?:\/\/[^/]+/i, "").replace(/[?#].*$/, "").replace(/\/+$/, "")
+    return path === "" ? "/" : path
+  }
+
+  const built = new Set(builtRoutes.map(normalize))
+  const decoded = (value) => {
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  }
+
+  const missing = []
+  for (const loc of locs) {
+    const route = decoded(normalize(loc.replace(siteUrl, "") || "/"))
+    if (!built.has(route)) missing.push(loc)
+  }
+
+  if (missing.length) {
+    issues.push(`${missing.length} رابط في الخريطة بلا صفحة مولَّدة (404 للزاحف): ${missing.slice(0, 4).join(", ")}`)
+  }
+
+  const locSet = new Set(locs.map((loc) => decoded(normalize(loc.replace(siteUrl, "") || "/"))))
+  const unlisted = [...built].filter((route) => !locSet.has(route))
+  if (unlisted.length) {
+    issues.push(`${unlisted.length} صفحة مولَّدة غير مذكورة في الخريطة: ${unlisted.slice(0, 4).join(", ")}`)
+  }
+
+  const score = issues.length === 0 ? 100 : Math.max(0, 100 - missing.length * 10 - unlisted.length)
+  return result(issues.length === 0, score, issues, [
+    `${locs.length} رابط في الخريطة، ${built.size} صفحة مولَّدة`,
+    `${missing.length} رابط ميت، ${unlisted.length} صفحة خارج الخريطة`,
+  ])
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Head / Meta / Social
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** فحص وسوم الرأس: title، description، canonical، robots، og، twitter، hreflang. */
+/**
+ * قراءة رأس الصفحة مرة واحدة بصيغة موحّدة: يستعملها الفاحص و`scripts/seo-audit.mjs`
+ * لئلا يبني كل طرف تفسيره الخاص لـ `<title>` والوصف.
+ *
+ * @param {string} html
+ */
+export function extractHeadMeta(html) {
+  const text = html || ""
+  const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(text)?.[1]?.trim() || ""
+  const description = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']description["']/i.test(t)) || "",
+    "content"
+  )
+  const robots = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",
+    "content"
+  )
+  return { title, description, noindex: /noindex/i.test(robots) }
+}
+
+/**
+ * تكرار النصوص هو جوهر تقرير «Non-canonical / Duplicate meta» في أدوات
+ * التدقيق: عنوان واحد وعشر وصفات على مسارات مختلفة تجعل المحرّك يختار نسخة
+ * ويتجاهل الباقي، ولو كان وسم canonical صحيحاً في كل صفحة. لذلك تُقاس
+ * الوحدة هنا على كل ملف مُولَّد، لا على عيّنة.
+ *
+ * @param {{ path: string, title: string, description: string, noindex?: boolean }[]} pages
+ * @param {{ maxTitle?: number, hardMaxTitle?: number, minDesc?: number, maxDesc?: number, targetDesc?: [number, number], exemptPaths?: string[] }} [options]
+ */
+export function checkMetadataUniqueness(pages = [], options = {}) {
+  const maxTitle = options.maxTitle ?? 60
+  const hardMaxTitle = options.hardMaxTitle ?? 65
+  // الحدّ الفعلي الذي يُفشل البوابة، والهدف (140-160) يُبلَّغ تفصيلاً: وصف
+  // بـ137 حرفاً لا يغيّر شيئاً في الظهور، ونطلب من المولّد أن يصل إلى النطاق
+  // دون أن نجعل بتر جملة الصفحة نفسها شرطاً أخضر.
+  const minDesc = options.minDesc ?? 120
+  const maxDesc = options.maxDesc ?? 165
+  const [targetMin, targetMax] = options.targetDesc ?? [140, 160]
+  const exempt = new Set(options.exemptPaths ?? ["/404", "/app"])
+
+  const details = []
+  const issues = []
+  let earned = 0
+  const total = 4
+
+  const rows = pages.filter((page) => page && page.path && !exempt.has(page.path))
+  const indexable = rows.filter((page) => !page.noindex)
+
+  const groupBy = (key) => {
+    const byValue = new Map()
+    for (const page of rows) {
+      const value = String(page[key] ?? "").trim().toLowerCase()
+      if (!value) continue
+      const list = byValue.get(value) || []
+      list.push(page.path)
+      byValue.set(value, list)
+    }
+    return [...byValue.entries()].filter(([, paths]) => paths.length > 1)
+  }
+
+  const dupTitles = groupBy("title")
+  const dupDescriptions = groupBy("description")
+
+  if (dupTitles.length === 0 && dupDescriptions.length === 0) earned++
+  else {
+    for (const [value, paths] of dupTitles.slice(0, 3))
+      issues.push(`عنوان مكرر على ${paths.length} صفحات (${paths.slice(0, 3).join(", ")}): ${value.slice(0, 60)}`)
+    for (const [value, paths] of dupDescriptions.slice(0, 3))
+      issues.push(`وصف مكرر على ${paths.length} صفحات (${paths.slice(0, 3).join(", ")}): ${value.slice(0, 60)}`)
+  }
+  details.push(
+    `${rows.length} صفحة، ${new Set(rows.map((p) => p.title)).size} عنواناً و${new Set(rows.map((p) => p.description)).size} وصفاً متميّزاً`
+  )
+
+  // لا تكرار حتى بين الصفحات غير المفهرسَة: النسخة المكرّرة هي ما يجعل
+  // «تسجيل الدخول» يبدو نسخة من الرئيسية في تقرير الزاحف.
+  if (rows.every((page) => page.title && page.description)) earned++
+  else issues.push("صفحات بلا <title> أو بلا meta description — تُقرأ نسخة من غيرها.")
+
+  const longTitles = indexable.filter((page) => page.title.length > hardMaxTitle)
+  if (longTitles.length === 0) earned++
+  else
+    issues.push(
+      `${longTitles.length} عنوان فوق ${hardMaxTitle} حرفاً يُبتر في نتيجة البحث: ${longTitles.slice(0, 2).map((p) => `${p.path} (${p.title.length})`).join(", ")}`
+    )
+
+  const overTarget = indexable.filter((page) => page.title.length > maxTitle)
+  if (overTarget.length) details.push(`${overTarget.length} عنوان فوق الهدف ${maxTitle} (تحت السقف ${hardMaxTitle})`)
+
+  const offRange = indexable.filter(
+    (page) => page.description.length < minDesc || page.description.length > maxDesc
+  )
+  if (offRange.length === 0) earned++
+  else
+    issues.push(
+      `${offRange.length} وصف خارج ${minDesc}-${maxDesc} حرفاً: ${offRange.slice(0, 3).map((p) => `${p.path} (${p.description.length})`).join(", ")}`
+    )
+
+  const offTarget = indexable.filter(
+    (page) => page.description.length < targetMin || page.description.length > targetMax
+  )
+  if (offTarget.length)
+    details.push(`${offTarget.length} وصف خارج النطاق المستهدف ${targetMin}-${targetMax} (لا يقطع الفحص)`)
+
+  return result(issues.length === 0, Math.round((earned / total) * 100), issues, details)
+}
+
 export function checkHtmlHead(html, { url = "" } = {}) {
   const text = html || ""
   const issues = []
@@ -122,29 +580,50 @@ export function checkHtmlHead(html, { url = "" } = {}) {
   let earned = 0
   const total = 8
 
-  const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(text)?.[1]?.trim() || ""
+  const { title, description, noindex: headNoindex2 } = extractHeadMeta(text)
   if (!title) issues.push("وسم <title> مفقود.")
   else if (title.length < 20 || title.length > 65) issues.push(`طول <title> = ${title.length} — النطاق المثالي 20-65 حرفاً.`)
   else earned++
+  // 60 هو الهدف المعلَن في جولة الميتا؛ 65 سقف Google العملي. نتجاوز الهدف
+  // تنبيهاً لا عيباً: العناوين المولَّدة من أسماء كاملة لا يتّسع لها 60.
+  if (title.length > 60 && title.length <= 65) details.push(`title فوق الهدف 60 (${title.length})`)
   details.push(`title: "${title.slice(0, 60)}" (${title.length})`)
 
-  const description = attr(
-    findTags(text, "meta").find((t) => /name\s*=\s*["']description["']/i.test(t)) || "",
+  if (!description) issues.push("وسم meta description مفقود.")
+  else if (description.length < 120 || description.length > 165)
+    issues.push(`طول meta description = ${description.length} — النطاق 120-165، والهدف 140-160.`)
+  else {
+    earned++
+    if (!headNoindex2 && (description.length < 140 || description.length > 160))
+      details.push(`description خارج 140-160 (${description.length})`)
+  }
+
+  const headRobots = attr(
+    findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "",
     "content"
   )
-  if (!description) issues.push("وسم meta description مفقود.")
-  else if (description.length < 70 || description.length > 165) issues.push(`طول meta description = ${description.length} — النطاق المثالي 70-165.`)
-  else earned++
+  const headNoindex = /noindex/i.test(headRobots)
 
   const canonical = attr(findTags(text, "link").find((t) => /rel\s*=\s*["']canonical["']/i.test(t)) || "", "href")
-  if (!canonical) issues.push("وسم canonical مفقود — خطر محتوى مكرر.")
+  // صفحة خارج الفهرسة لا تحتاج canonical: لا نسخة مكرَّرة تُخشى أصلًا.
+  if (!canonical && headNoindex) details.push("canonical غير مطلوب (noindex)")
+  else if (!canonical) issues.push("وسم canonical مفقود — خطر محتوى مكرر.")
   else if (!/^https?:\/\//.test(canonical)) issues.push(`canonical ليس رابطاً مطلقاً: ${canonical}`)
   else if (url && canonical.replace(/\/$/, "") !== url.replace(/\/$/, "")) issues.push(`canonical (${canonical}) لا يطابق رابط الصفحة (${url}).`)
   else earned++
 
   const robotsMeta = attr(findTags(text, "meta").find((t) => /name\s*=\s*["']robots["']/i.test(t)) || "", "content")
-  if (robotsMeta && /noindex/i.test(robotsMeta)) issues.push(`الصفحة تحمل noindex (${robotsMeta}) — لن تُفهرس.`)
-  else earned++
+  if (robotsMeta && /noindex/i.test(robotsMeta)) {
+    // لاindex مقصود على مسار غير فهرس أصلاً (تسجيل دخول، لوحة تحكم، 404،
+    // ملف بحث) ليس عيباً: هو بالضبط ما يمنع فهرسة صفحة فارغة للمستخدم
+    // المسجَّل فقط. العيب أن تحمل one من هذه الصفحات وسم index.
+    if (url && !isIndexablePath(url)) {
+      details.push(`noindex مقصود (${url})`)
+      earned++
+    } else {
+      issues.push(`الصفحة تحمل noindex (${robotsMeta}) — لن تُفهرس.`)
+    }
+  } else earned++
 
   const ogTags = ["og:title", "og:description", "og:image", "og:url", "og:type", "og:locale"]
   const presentOg = ogTags.filter((tag) =>
@@ -270,7 +749,16 @@ export function extractLinks(html, { origin = "" } = {}) {
  * @param {string[]} linkedPaths كل المسارات المرتبطة داخلياً عبر الموقع
  */
 export function findOrphanPages(knownRoutes, linkedPaths) {
-  const normalize = (p) => (p || "/").replace(/\/+$/, "") || "/"
+  const decode = (value) => {
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  }
+  // الروابط في HTML مرمَّزة (%D8%B5...) ومسارات الخريطة مفكوكة الترميز؛
+  // بلا تفكيك على الطرفين تظهر كل صفحة عربية «يتيمة» كذباً.
+  const normalize = (p) => decode(p || "/").replace(/\/+$/, "") || "/"
   const linked = new Set(linkedPaths.map(normalize))
   const orphans = knownRoutes.filter((route) => !linked.has(normalize(route)))
   return {
@@ -313,6 +801,9 @@ export function checkUrlStructure(routes) {
 
     const problems = []
     const soft = []
+
+    // شرطة النهاية = نسخة مكررة من الصفحة نفسها، فهي مخالفة صارمة لا توصية.
+    if (decoded.length > 1 && decoded.endsWith("/")) problems.push("شرطة نهاية زائدة")
 
     if (/[A-Z]/.test(decoded)) problems.push("أحرف كبيرة")
     if (/_/.test(decoded)) problems.push("تسطير بدل شرطة")

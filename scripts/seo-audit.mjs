@@ -14,11 +14,17 @@ import { readFile, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { isIndexablePath } from "../shared/seo/url-policy.js";
 import {
   aggregateTechnical,
   checkAccessibility,
+  checkCanonicalPolicy,
+  checkSiteIcons,
+  checkSitemapCoverage,
   checkAiDiscoveryFiles,
   checkHtmlHead,
+  checkMetadataUniqueness,
+  extractHeadMeta,
   checkHreflang,
   checkImages,
   checkRobots,
@@ -78,12 +84,20 @@ const fileToRoute = (file, base) => {
   return `/${relative.replace(/\.html$/, "")}`;
 };
 
-/** المسارات القابلة للفهرسة، مستخرجة من خريطة الموقع. */
+/** روابط <loc> الخام كما هي في الخريطة — بلا تطبيع، وإلا اختفت المخالفة. */
+const locsFromSitemap = (xml) => [...(xml || "").matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]);
+
+/**
+ * المسارات القابلة للفهرسة من الخريطة.
+ *
+ * ملاحظة مهمة: التطبيع هنا كان يُزيل شرطة النهاية قبل الفحص، فتمرّ
+ * المخالفة التي يُفترض أن يمسكها الفحص. المسار الخام يُمرَّر الآن كما هو،
+ * و checkUrlStructure هو من يقرّر (شرطة النهاية عنده مخالفة صارمة).
+ */
 const routesFromSitemap = (xml) => {
-  const locs = [...(xml || "").matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]);
-  return locs.map((loc) => {
+  return locsFromSitemap(xml).map((loc) => {
     try {
-      return new URL(loc).pathname.replace(/\/$/, "") || "/";
+      return new URL(loc).pathname || "/";
     } catch {
       return loc;
     }
@@ -102,7 +116,11 @@ const aiAccess = checkRobotsAiAccess(robots || "");
 notes.push(...aiAccess.details);
 
 // ── sitemap.xml ─────────────────────────────────────────────────────────────
-const sitemap = await read(join(PUBLIC, "sitemap.xml"));
+// dist/sitemap.xml هو الملف المُقدَّم فعلاً للزاحف (يكتبه prerender بعد
+// التصفية على الصفحات المولَّدة)، فيُقدَّم على نسخة public إن وُجدت.
+const servedSitemap = (await read(join(DIST, "sitemap.xml"))) ?? (await read(join(PUBLIC, "sitemap.xml")));
+const sitemap = servedSitemap;
+const sitemapLocs = locsFromSitemap(sitemap);
 const routes = routesFromSitemap(sitemap);
 results.sitemap = checkSitemap(sitemap || "", routes, { siteUrl: SITE_URL });
 
@@ -127,11 +145,14 @@ const htmlDir = (await listHtml(DIST)).length ? DIST : ROOT;
 const htmlFiles = await listHtml(htmlDir);
 
 const headScores = [];
+const canonicalScores = [];
 const imageScores = [];
 const a11yScores = [];
 const schemaScores = [];
 const hreflangScores = [];
 const linkedPaths = new Set();
+// نصوص الرؤوس لكل ملف مولَّد: بوابة منفصلة للّيتكرار، لأن العيّنة تخفيه.
+const metaPages = [];
 // فحص كل الصفحات: نتيجة "الصفحات اليتيمة" بلا معنى بعينة جزئية.
 const sampledFiles = htmlFiles;
 
@@ -142,6 +163,10 @@ for (const file of sampledFiles) {
   const url = route === "/" ? SITE_URL : `${SITE_URL}${route}`;
 
   headScores.push(checkHtmlHead(html, { url }));
+
+  const headMeta = extractHeadMeta(html);
+  metaPages.push({ path: route, ...headMeta });
+  canonicalScores.push(checkCanonicalPolicy(html, { url, siteUrl: SITE_URL }));
   imageScores.push(checkImages(html));
   a11yScores.push(checkAccessibility(html));
   schemaScores.push(checkStructuredData(html));
@@ -174,6 +199,28 @@ const collectIssues = (list) => {
   return [...seen];
 };
 
+results.canonical = {
+  pass: canonicalScores.every((s) => s.pass),
+  score: average(canonicalScores),
+  issues: collectIssues(canonicalScores),
+  details: [
+    `${canonicalScores.length} صفحة فُحصت — وسم canonical واحد مطابق لرابط الصفحة بلا شرطة نهاية`,
+  ],
+};
+
+// les coquilles applicatives (404, pages noindex) sont des fichiers comme les
+// autres; la couverture sitemap ne doit pas les réclamer dans la carte.
+// app.html هيكل تطبيق (لا مسار له) و404.html صفحة حالة: لا يُطلبان في الخريطة.
+const SHELL_ARTIFACTS = new Set(["/app", "/404"]);
+
+const builtRoutes = (await listHtml(DIST))
+  .map((file) => fileToRoute(file, DIST))
+  .filter((route) => !SHELL_ARTIFACTS.has(route) && isIndexablePath(route));
+
+results.sitemapCoverage = builtRoutes.length
+  ? checkSitemapCoverage(sitemapLocs, builtRoutes, { siteUrl: SITE_URL })
+  : { pass: true, score: 100, issues: [], details: ["لا يوجد dist/ — تُفحص التغطية بعد البناء فقط."] };
+
 results.head = {
   pass: headScores.every((s) => s.pass),
   score: average(headScores),
@@ -198,6 +245,10 @@ results.structuredData = {
   issues: collectIssues(schemaScores),
   details: [`${schemaScores.length} صفحة فُحصت`],
 };
+results.metaCopy = checkMetadataUniqueness(metaPages, {
+  exemptPaths: [...SHELL_ARTIFACTS],
+});
+
 results.hreflang = {
   pass: hreflangScores.every((s) => s.pass),
   score: average(hreflangScores),
@@ -205,13 +256,100 @@ results.hreflang = {
   details: ["موقع بلغة واحدة — hreflang غير مطلوب"],
 };
 
+// ── أيقونة الموقع ───────────────────────────────────────────────────────────
+
+/**
+ * بيانات ملفات الأيقونات تُقرأ من public/ (المصدر، لا الناتج) حتى يعمل الفحص
+ * قبل البناء أيضًا: IHDR يعطي الأبعاد ونوع اللون، وترويسة الملف تكشف أن
+ * favicon.ico ICO حقًا لا PNG مغلّفًا باسم .ico — وهما الخطآن اللذان أبقيا
+ * الشعار غائبًا عن نتائج البحث رغم وجود الملفات.
+ */
+const iconMetadata = async (hrefs) => {
+  const files = {}
+  let luminance = null
+  try {
+    const module = await import("sharp")
+    const sharp = module.sharp ?? module.default
+    if (typeof sharp === "function") {
+      // متوسط قناة SRGB بعد الدمج مع أبيض: هو بالضبط ما يراه الباحث فوق
+      // خلفية نتائج البحث، فلو كان الشعار شبه أبيض كان غائبًا عمليًا.
+      luminance = async (buffer) => {
+        // الدمج مع أبيض أولًا هو بالضبط ما يراه الباحث: شعار شبه أبيض أو
+        // شفاف يصبح كتلة بيضاء، وسطوعه يقارب 255 فيُرفض.
+        const stats = await sharp(buffer).flatten({ background: "#ffffff" }).stats()
+        const [r, g, b] = stats.channels.slice(0, 3).map((channel) => channel.mean)
+        if (typeof r !== "number") return null
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+      }
+    }
+  } catch {
+    // بلا sharp (بيئة CI خفيفة) يسقط فحص السطوع وحده، وتبقى بقية الفحوص.
+  }
+
+  for (const href of hrefs) {
+    const path = String(href).replace(/^https?:\/\/[^/]+/i, "").split("?")[0]
+    if (!path || files[path]) continue
+    const buffer = await readFile(join(PUBLIC, path.replace(/^\//, ""))).catch(() => null)
+    if (!buffer) {
+      files[path] = { exists: false }
+      continue
+    }
+
+    const signature = buffer.subarray(0, 8)
+    let format = "unknown"
+    let width = null
+    let height = null
+    if (signature.readUInt32BE(0) === 0x89504e47) {
+      format = "png"
+      width = buffer.readUInt32BE(16)
+      height = buffer.readUInt32BE(20)
+    } else if (buffer.readUInt16LE(0) === 0 && buffer.readUInt16LE(2) === 1) {
+      format = "ico"
+      width = buffer.readUInt8(6) || 256
+      height = buffer.readUInt8(7) || 256
+    } else if (signature.subarray(0, 3).toString("latin1") === "\xff\xd8\xff") {
+      format = "jpeg"
+    } else if (signature.subarray(0, 3).toString("latin1") === "GIF") {
+      format = "gif"
+    } else if (signature.subarray(0, 4).toString("latin1") === "RIFF") {
+      format = "webp"
+    }
+
+    files[path] = {
+      exists: true,
+      format,
+      width,
+      height,
+      // الصيغ النقطية فقط: ICO بحدّ ذاته ليس صورة تفكّها مكتبات التصيير.
+      meanLuminance:
+        luminance && (format === "png" || format === "jpeg")
+          ? await luminance(buffer).catch(() => null)
+          : null,
+    }
+  }
+
+  return files
+}
+
+const declaredIconHrefs = (html) => [
+  ...String(html || "").matchAll(/<link\b[^>]*\brel=["'][^"']*(?:icon|apple-touch-icon)[^"']*["'][^>]*>/gi),
+]
+  .map((m) => /href=["']([^"']+)["']/i.exec(m[0])?.[1])
+  .filter(Boolean)
+
+const indexHtmlForIcons = (await read(join(DIST, "index.html"))) ?? (await read(join(ROOT, "index.html")))
+const iconFiles = await iconMetadata([
+  ...new Set([...declaredIconHrefs(indexHtmlForIcons), "/logo-512.png"]),
+])
+results.siteIcons = checkSiteIcons(indexHtmlForIcons || "", { files: iconFiles })
+
 // ── الصفحات اليتيمة ─────────────────────────────────────────────────────────
 results.orphanPages = findOrphanPages(routes, [...linkedPaths]);
 
 // ── النتيجة المجمّعة ────────────────────────────────────────────────────────
 const overall = aggregateTechnical(results);
 
-const order = ["robots", "sitemap", "head", "structuredData", "images", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
+const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "structuredData", "images", "siteIcons", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
 for (const key of order) {
   const value = results[key];
   if (!value) continue;

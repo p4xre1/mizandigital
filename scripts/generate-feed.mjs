@@ -6,12 +6,19 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createClient } from "@supabase/supabase-js";
+import {
+  SITE_ORIGIN as DOMAIN,
+  articleSlug,
+  canonicalArticle,
+  canonicalNews,
+  newsSlug,
+  slugify,
+} from "../shared/seo/url-policy.js";
+import { fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "../public/feed.xml");
 const DATA = join(__dirname, "../src/data");
-const DOMAIN = "https://www.mizan.page";
 const MAX_ITEMS = 60;
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
@@ -20,49 +27,19 @@ const [articles, news] = await Promise.all([
   readJson("news.json"),
 ]);
 
-async function fetchPublishedCmsContent() {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://rfhjmtdblmarhlfftlmg.supabase.co";
-  const supabaseAnonKey =
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmaGptdGRibG1hcmhsZmZ0bG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTE5NzgsImV4cCI6MjA5OTc4Nzk3OH0.uI2_WCQSERz0jgYPuy1-AiWuVtDcJlFKd7hZsaQ1r5Q";
+// المحتوى المنشور من لوحة التحكم: نفس وحدة sitemap/prerender، وبنفس criterion
+// النشر (articles.status = published). كان السكربت السابق يجلب المقالات
+// بلا فلتر الحالة، فدخلت المسوّدات في التغذية العامة — ثم يطلب updated_at
+// من جدول news وهو عمود غير موجود، فيرجع الجدول فارغاً بصمت.
+const cms = await fetchPublishedCmsContent({ timeoutMs: 20000 });
+const cmsArticles = cms.articles;
+const cmsNews = cms.news;
 
-  try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+if (!cms.ok) console.warn(`⚠️  feed: ${cms.error} — يُكتفى بالمحتوى المحلي.`);
 
-    const [{ data: cmsArticles, error: articlesError }, { data: cmsNews, error: newsError }] =
-      await Promise.all([
-        supabase
-          .from("articles")
-          .select("title, slug, excerpt, meta_description, published_at, created_at")
-          .order("published_at", { ascending: false })
-          .limit(MAX_ITEMS),
-        supabase
-          .from("news")
-          .select("title, slug, summary, source, published_at, created_at")
-          .eq("is_published", true)
-          .order("published_at", { ascending: false })
-          .limit(MAX_ITEMS),
-      ]);
-
-    if (articlesError) console.warn("⚠️  feed: تعذر جلب مقالات CMS —", articlesError.message);
-    if (newsError) console.warn("⚠️  feed: تعذر جلب أخبار CMS —", newsError.message);
-
-    return { cmsArticles: cmsArticles || [], cmsNews: cmsNews || [] };
-  } catch (err) {
-    console.warn("⚠️  feed: تعذر الاتصال بـ Supabase، سيتم الاعتماد على البيانات المحلية فقط —", err.message);
-    return { cmsArticles: [], cmsNews: [] };
-  }
-}
-
-const { cmsArticles, cmsNews } = await fetchPublishedCmsContent();
-
-const generateSlug = (text = "") =>
-  String(text)
-    .trim()
-    .toLowerCase()
-    .replace(/[\s\/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF\-]+/g, "")
-    .replace(/\-+$/, "");
+// معرّفCONTENT من سياسة الروابط: الرابط في التغذية يجب أن يطابق الملف الذي
+// يولّده prerender، وإلا ضغط القارئ على رابط 404.
+const generateSlug = (text = "") => slugify(text);
 
 const toRfc822 = (dateLike) => {
   const d = dateLike ? new Date(dateLike) : new Date();
@@ -80,39 +57,39 @@ const escapeXml = (value = "") =>
 const items = [
   ...articles.map((item) => ({
     title: item.title,
-    link: `${DOMAIN}/articles/${item.slug || generateSlug(item.title)}`,
+    link: canonicalArticle(articleSlug(item)),
     description: item.excerpt || "",
     category: item.category || "مقالات",
     pubDate: item.publishedAt || item.updatedAt,
-    guid: `${DOMAIN}/articles/${item.slug || generateSlug(item.title)}`,
+    guid: canonicalArticle(articleSlug(item)),
   })),
   ...news.map((item) => ({
     title: item.title,
-    link: `${DOMAIN}/news/${item.slug || item.id}`,
+    link: canonicalNews(newsSlug(item)),
     description: item.summary || "",
     category: item.category || "أخبار",
     pubDate: item.date,
-    guid: `${DOMAIN}/news/${item.slug || item.id}`,
+    guid: canonicalNews(newsSlug(item)),
   })),
   ...cmsArticles
   .filter((item) => item.slug)
   .map((item) => ({
     title: item.title,
-    link: `${DOMAIN}/articles/${item.slug}`,
+    link: canonicalArticle(item.slug),
     description: item.meta_description || item.excerpt || "",
     category: "مقالات",
     pubDate: item.published_at || item.created_at,
-    guid: `${DOMAIN}/articles/${item.slug}`,
+    guid: canonicalArticle(item.slug),
   })),
   ...cmsNews
     .filter((item) => item.slug)
     .map((item) => ({
       title: item.title,
-      link: `${DOMAIN}/news/${item.slug}`,
+      link: canonicalNews(item.slug),
       description: item.summary || "",
       category: "أخبار",
       pubDate: item.published_at || item.created_at,
-      guid: `${DOMAIN}/news/${item.slug}`,
+      guid: canonicalNews(item.slug),
     })),
 ]
   // إزالة التكرار بحسب الرابط (المحتوى المحلي قد يتداخل مع نسخة CMS لاحقاً)

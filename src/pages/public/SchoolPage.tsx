@@ -4,6 +4,8 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { NotFound } from "./NotFound"
 import schoolsData from "../../data/schools.json"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { canonicalSchool, itemPath } from "../../lib/canonical"
+import { generateBreadcrumbSchema, generateFacultySchema } from "../../lib/seo/schema"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 // InContentAd removed
@@ -94,25 +96,34 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
   const schoolName = school.name || school.name_ar || "كلية الحقوق"
   const website = school.websiteUrl || school.website || school.officialUrl
   const canonicalSlug = school.slug || targetQuery
-  const canonicalUrl = `https://www.mizan.page/schools/${canonicalSlug}`
+  // سياسة الروابط: بلا شرطة نهاية، وعلى النطاق الموحّد — مطابق لما يطبعه
+  // prerender في schools/<slug>.html ولما تنشره sitemap.
+  const canonical = canonicalSchool(String(canonicalSlug ?? ""))
 
-  const schoolSchema = {
-    "@context": "https://schema.org",
-    "@type": "EducationalOrganization",
-    "name": schoolName,
-    "alternateName": school.name_fr || school.code,
-    "description": school.description || school.synopsis,
-    "url": website || `https://www.mizan.page/schools/${canonicalSlug}`,
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": school.city || "المغرب",
-      "addressCountry": "MA"
-    }
-  }
+  // url = صفحة الدليل على ميزان، والموقع الرسمي للكلية في sameAs.
+  const schoolSchema = generateFacultySchema({
+    name: schoolName,
+    nameFr: school.name_fr || school.code,
+    description: school.description || school.synopsis,
+    canonical,
+    city: school.city,
+    university: school.university,
+    officialUrl: website,
+    foundedYear: school.foundedYear,
+    image: school.logoUrl || school.logo_url || null,
+  })
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "الرئيسية", url: "/" },
+    { name: "كليات الحقوق", url: "/schools" },
+    { name: schoolName, url: itemPath.school(String(canonicalSlug ?? "")) },
+  ])
 
   const handleCopyLink = () => {
     if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(window.location.href)
+      // المشاركة تُنسخ من الرابط القانوني، لا من شريط العنوان: نسخة بشرطة
+      // نهاية أو بمعاملاتutm تُعيد إنتاج التكرار خارج الموقع.
+      navigator.clipboard.writeText(canonical)
     }
   }
 
@@ -125,7 +136,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
           "تعرّف على المسالك القانونية وبرامج الإجازة والماستر والدكتوراة ومعلومات التواصل ضمن دليل كليات الحقوق بالمغرب.",
         ])}
         ogType="website"
-        canonicalUrl={canonicalUrl}
+        canonicalUrl={canonical}
         keywords={[
           schoolName,
           school.city,
@@ -134,7 +145,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
           "ماستر القانون المغربي",
           "الدكتوراة في القانون"
         ]}
-        schema={schoolSchema}
+        schema={[schoolSchema, breadcrumbSchema]}
       />
 
       <main className="container mx-auto max-w-5xl px-4 py-12" dir="rtl">
