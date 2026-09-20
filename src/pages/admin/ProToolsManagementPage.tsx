@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toolsService } from '@/lib/pro-tools/service';
 import { fields, validateEntry, type Entry, type Tool } from '@/lib/pro-tools/model';
-import { buttonClass, cardClass, inputClass } from '@/components/pro-tools/ToolViews';
+import { CoveragePreview, DiffPreview, buttonClass, cardClass, inputClass } from '@/components/pro-tools/ToolViews';
 
 function ToolEditor({ initial, onConfigured }: { initial: Tool; onConfigured: (tool: Tool) => void }) {
   const [tool, setTool] = useState(initial);
@@ -54,6 +54,8 @@ function ToolEditor({ initial, onConfigured }: { initial: Tool; onConfigured: (t
         {fields[initial.slug].map(field => <label className="block" key={field.key}>{field.label}
           {field.multiline ? <textarea className={inputClass} rows={5} maxLength={20000} value={draft.payload[field.key] || ''} onChange={e => setDraft({ ...draft, payload: { ...draft.payload, [field.key]: e.target.value } })} /> : <input className={inputClass} type={field.type || 'text'} min={field.type === 'number' ? 1 : undefined} max={field.type === 'number' ? 3650 : undefined} maxLength={2000} value={draft.payload[field.key] || ''} onChange={e => setDraft({ ...draft, payload: { ...draft.payload, [field.key]: e.target.value } })} />}
         </label>)}
+        {initial.slug === 'versions' && <DiffPreview before={draft.payload.before || ''} after={draft.payload.after || ''} />}
+        {initial.slug === 'cases' && <CoveragePreview answer={draft.payload.model_answer || ''} checklist={draft.payload.checklist || ''} />}
         <label className="block">المصدر الرسمي (HTTPS)<input className={inputClass} type="url" maxLength={2000} value={draft.source_url} onChange={e => setDraft({ ...draft, source_url: e.target.value })} /></label>
         <label className="block">المرجع: القانون، الفصل، الجريدة الرسمية<input className={inputClass} maxLength={1000} value={draft.source_reference} onChange={e => setDraft({ ...draft, source_reference: e.target.value })} /></label>
         <div className="grid gap-4 md:grid-cols-2">

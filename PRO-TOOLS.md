@@ -10,18 +10,51 @@
 
 | Tool | Initial functionality | CMS content |
 | --- | --- | --- |
-| `versions` | Search curated old/new text pairs, view dates and both sources side by side | Text pair, dates, source URLs, reference, review metadata |
-| `cases` | Read scenarios, write and save answers, reveal reviewed answers, self-check criteria, private answer notebook | Scenario, checklist, model answer |
-| `references` | Search article-to-article relationships and open their sources | Both articles, explanation of relationship, target URL |
-| `workspace` | Private research notes with citations, create/edit/delete, plain-text export | Enable/disable and catalog copy only; admins cannot read private notes |
-| `alerts` | Follow/unfollow topics and filter an in-app amendment feed | Topic, amendment summary, effective date |
-| `deadlines` | Reviewed, validity-bounded calendar-day addition, excluding the triggering day, with explicit limitations | Days, valid date range, assumptions and legal source |
+| `versions` | Search curated old/new text pairs, view dates and both sources side by side; **word-level diff view** (removed struck through, added highlighted) with added/removed word counts and change ratio, or switch to the side-by-side reading mode | Text pair, dates, source URLs, reference, review metadata |
+| `cases` | Read scenarios, write and save answers, reveal reviewed answers, self-check criteria, private answer notebook; **restores the in-progress attempt from this browser**, shows answer word count, copies the answer, and reports **literal checklist coverage** (which keywords from each reviewed element appear and which do not) | Scenario, checklist, model answer |
+| `references` | Search article-to-article relationships and open their sources; **reference map** listing every article with its outgoing/incoming counts, chip filtering by article, direction label for the selected article, and the relation chain of both endpoints | Both articles, explanation of relationship, target URL |
+| `workspace` | Private research notes with citations, create/edit/delete, plain-text export; **normalised Arabic search inside notes** (hamza/tashkeel/definite-article insensitive), word counts, per-note citation copy, and **Markdown export with quoted references** | Enable/disable and catalog copy only; admins cannot read private notes |
+| `alerts` | Follow/unfollow topics and filter an in-app amendment feed; **upcoming window (next 30 days)**, sort by nearest effective date or latest update, explicit weekday/relative-day label, and a **"new since last visit"** marker stored locally with a mark-all-read action | Topic, amendment summary, effective date |
+| `deadlines` | Reviewed, validity-bounded calendar-day addition, excluding the triggering day, with explicit limitations; **reverse direction** (from the final deadline back to the latest possible triggering date), weekday label, an informational weekend note, and copying the result **together with its assumptions and limitations** | Days, valid date range, assumptions and legal source |
 
 These are initial tools, not claims of complete Moroccan legal coverage. No laws,
 judgments, exercises, or procedural rules have been invented or seeded. There is
 no automatic legal assessment, source scraping, email delivery, graphical law
 network, exhaustive version database, or business-day/holiday deadline engine.
 All amendment feed content is manually published through the CMS.
+
+### Editor previews (admin only)
+
+The entry editor in `/admin/pro-tools` reuses the same pure functions the tools use,
+so an editor sees before publishing:
+
+- **versions** — the exact diff the subscriber will read: added/removed word counts,
+  change ratio, and an explicit «لا فرق بين النصين: التعديل لن يظهر.» when a draft
+  changes nothing.
+- **cases** — the analysis-item coverage of the model answer (covered/total plus the
+  keywords missing from the text), with a note that it is a literary check only and
+  a missing keyword does not mean the idea is absent.
+
+Previews are advisory: they never block saving or publishing, and nothing is written
+to the database by them.
+
+## How the deepening behaves
+
+- The diff, the checklist coverage, the reference map, the alert ordering and the
+  reverse deadline calculation are **pure functions** in `src/lib/pro-tools/model.ts`,
+  covered by `tests/pro-tools-analysis.test.ts`. They never read the network and
+  never produce legal content.
+- Checklist coverage is **literal keyword matching** after Arabic normalisation
+  (tashkeel, tatweel, hamza forms, `ة/ه`, `ى/ي`) and prefix stripping, so
+  "والأجل" matches "الأجل". It is deliberately not semantic: the UI states in the
+  same panel that self-review — not automatic scoring — is what decides.
+- The alert "new" marker and the case attempt draft live in `localStorage` only
+  and are never sent anywhere. The server-side entitlement check, tool enablement
+  and revalidation behaviour are unchanged.
+- The reverse deadline direction is bounded by the same rule validity window as the
+  forward direction and fails closed outside it. It still ignores weekends,
+  holidays, service rules and procedural extensions; the weekend note is
+  informational and the copied summary repeats the limitations.
 
 ## Deploy before use
 
@@ -82,3 +115,12 @@ guest denial, free/expired/suspended/canceled denial, publication requirements,
 admin control, disabled-tool enforcement, note privacy, and follow isolation.
 It is not a substitute for testing the migration against the full staging schema.
 The PGlite dependency is development-only, not included in the application bundle.
+
+`tests/pro-tools-analysis.test.ts` covers the pure analysis layer (diff, coverage,
+reference index, alert window and ordering, reverse deadline, exports).
+`tests/pro-tools-deepening.test.tsx` renders the tool pages behind the membership
+gate and checks what the member actually sees: diff rendering and stats, the
+reference map and its filtering, alert ordering/upcoming/new markers, the reverse
+deadline calculation and its closed failure, and note search. `tests/pro-tools-ui.test.tsx`
+continues to guard the access behaviour: guests, forged local subscriptions, failed
+revalidation and disabled tools never fetch paid content.

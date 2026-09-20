@@ -176,6 +176,14 @@ export const COOKIE_TABLE = [
     type: "وظيفي",
   },
   {
+    name: "mizan:pro-tools:case:* , mizan:pro-tools:seen:* , mizan:pro-tools:seen",
+    provider: "الميزان الرقمية (محلي)",
+    purpose:
+      "مسودة محاولتك في تمارين أدوات Pro (مفتاح لكل تمرين) وآخر زيارة لأداة متابعة النصوص — تُخزَّن في متصفحك وحده لتستأنف عملك، ولا تُرسل إلى الخادم ولا يراها غيرك.",
+    duration: "حتى تمسحها أو تبدأ محاولة جديدة",
+    type: "وظيفي",
+  },
+  {
     name: "mizan:analytics:queue",
     provider: "الميزان الرقمية (محلي)",
     purpose: "طابور مؤقت لتتبع التفاعلات (page_view, quiz, reaction) قبل الإرسال.",
@@ -441,7 +449,7 @@ export const PRIVACY_POLICY = {
           kind: "list",
           items: [
             `ضرورية / مصادقة: \`${AUTH_STORAGE_KEY}\` (جلسة Supabase Auth)، \`mizan-cookie-consent\`، \`mizan:legal:consent:v1\` (إثبات موافقتك على هذه السياسة — يُطلب من جديد عند تغيّر النسخة)`,
-            "وظيفية: `mizan:subscription:v1` (اشتراك Pro)، `mizan:saved:content:v1` (محفوظات)، `mizan:quiz:progress:v1/v2` + `:checksum:v1` (رتبة/XP مع بصمة تحقق)، `mizan_theme`، `mizan_translate_lang`",
+            "وظيفية: `mizan:subscription:v1` (اشتراك Pro)، `mizan:saved:content:v1` (محفوظات)، `mizan:quiz:progress:v1/v2` + `:checksum:v1` (رتبة/XP مع بصمة تحقق)، `mizan_theme`، `mizan_translate_lang`، `mizan:pro-tools:case:*` (مسودة محاولاتك في أدوات Pro) و`mizan:pro-tools:seen:*` (آخر زيارة لأداة متابعة النصوص)",
             "معرفات محلية (بلا بريد ولا اسم): `mizan:visitor_id` و`mizan:session_id` لربط زياراتك، و`mizan:anon:user_ref:v1` لحفظ تفاعلاتك ومحاولاتك قبل التسجيل ثم إسنادها لحسابك بعده",
             "تحليلية محلية مؤقتة: `mizan:analytics:queue` (يُفرغ كل 10 ثوان)",
             "تكامل اختياري: `mizan:gmail:token` و`mizan:gmail:status` — فقط إن ربطت Gmail بنفسك، ويحذفهما إلغاء الربط",

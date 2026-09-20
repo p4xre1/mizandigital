@@ -6,7 +6,23 @@ import { AEOHead } from '@/components/seo/AEOHead';
 import { canonicalFor } from '@/lib/canonical';
 import { EntryView, Workspace, buttonClass, cardClass, inputClass } from '@/components/pro-tools/ToolViews';
 import { toolsService } from '@/lib/pro-tools/service';
-import type { Entry, Tool } from '@/lib/pro-tools/model';
+import {
+  buildReferenceIndex,
+  matchesQuery,
+  relatedReferences,
+  sortAlerts,
+  upcomingAmendments,
+  type Entry,
+  type Tool,
+} from '@/lib/pro-tools/model';
+
+/** آخر زيارة للأداة (تُخزَّن محلياً فقط ولا تُرسل لأي جهة). */
+function readSeen(slug: string): string {
+  try { return window.localStorage.getItem(`mizan:pro-tools:seen:${slug}`) || ''; } catch { return ''; }
+}
+function markSeen(slug: string): void {
+  try { window.localStorage.setItem(`mizan:pro-tools:seen:${slug}`, new Date().toISOString()); } catch { /* التخزين المحلي معطّل: نتجاهل */ }
+}
 
 function Content({ tool }: { tool: Tool }) {
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -16,6 +32,9 @@ function Content({ tool }: { tool: Tool }) {
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [followedOnly, setFollowedOnly] = useState(false);
+  const [alertOrder, setAlertOrder] = useState<'effective' | 'recent'>('effective');
+  const [focusArticle, setFocusArticle] = useState('');
+  const [seen, setSeen] = useState('');
   useEffect(() => {
     let active = true;
     if (tool.slug === 'workspace') { setLoading(false); return; }
@@ -25,9 +44,15 @@ function Content({ tool }: { tool: Tool }) {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [tool.slug]);
+  // مؤشر «جديد منذ آخر زيارة» يُقرأ بعد التحميل: التخزين المحلي ليس جزءاً من الحالة الأولية.
+  useEffect(() => { setSeen(tool.slug === 'alerts' ? readSeen(tool.slug) : ''); }, [tool.slug]);
   if (tool.slug === 'workspace') return <Workspace />;
   if (loading) return <p role="status">جارٍ تحميل المحتوى المحمي...</p>;
-  const visible = entries.filter(e => `${e.title} ${e.topic} ${Object.values(e.payload).join(' ')}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()) && (!followedOnly || topics.includes(e.topic)));
+  const referenceIndex = tool.slug === 'references' ? buildReferenceIndex(entries) : null;
+  const upcoming = tool.slug === 'alerts' ? upcomingAmendments(entries, new Date().toISOString().slice(0, 10), 30) : [];
+  const filteredByArticle = tool.slug === 'references' && focusArticle ? relatedReferences(entries, focusArticle) : entries;
+  const ordered = tool.slug === 'alerts' ? sortAlerts(filteredByArticle, alertOrder) : filteredByArticle;
+  const visible = ordered.filter(e => matchesQuery(`${e.title} ${e.topic} ${Object.values(e.payload).join(' ')}`, query) && (!followedOnly || topics.includes(e.topic)));
   return <div className="space-y-5">
     <p role="alert">{error}</p>
     {tool.slug === 'alerts' && <section className={cardClass}>
@@ -41,10 +66,53 @@ function Content({ tool }: { tool: Tool }) {
       }}>{topics.includes(topic) ? 'إلغاء متابعة: ' : 'متابعة: '}{topic}</button>)}</div>
       <label className="flex gap-2"><input type="checkbox" checked={followedOnly} onChange={e => setFollowedOnly(e.target.checked)} />عرض المواضيع التي أتابعها فقط</label>
     </section>}
+    {tool.slug === 'references' && referenceIndex && referenceIndex.articles.length > 0 && <section className={cardClass}>
+      <h2 className="font-bold">خريطة الإحالات المنشورة</h2>
+      <p className="text-sm text-muted-foreground">
+        {referenceIndex.relationCount} علاقة موثقة بين {referenceIndex.articles.length} نصّاً. اختر نصاً لعرض إحالاته الصادرة والواردة، أو أزل الاختيار لعرض الكل.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {referenceIndex.articles.map(article => <button key={article} type="button" disabled={busy} aria-pressed={focusArticle === article}
+          className="rounded-lg border border-border px-3 py-2 text-sm"
+          onClick={() => setFocusArticle(prev => prev === article ? '' : article)}>
+          {article} ({(referenceIndex.outgoing[article] || []).length} صادرة، {(referenceIndex.incoming[article] || []).length} واردة)
+        </button>)}
+      </div>
+    </section>}
+
+    {tool.slug === 'alerts' && upcoming.length > 0 && <section className={cardClass}>
+      <h2 className="font-bold">تنفذ خلال 30 يوماً ({upcoming.length})</h2>
+      <ul className="space-y-1 text-sm">
+        {upcoming.map(item => <li key={item.id}>
+          <span className="font-bold">{item.payload.effective_date}</span> — {item.title} <span className="text-muted-foreground">({item.topic})</span>
+        </li>)}
+      </ul>
+    </section>}
+
+    {tool.slug === 'alerts' && <section className={cardClass}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-bold">ما الجديد منذ آخر زيارة</h2>
+          <p className="text-sm text-muted-foreground">
+            {seen ? `آخر زيارة سُجّلت في ${new Date(seen).toLocaleString('ar-MA')}.` : 'هذه زيارتك الأولى المسجلة في هذا المتصفح.'}
+            {' '}المؤشر أدناه يعتمد على تاريخ تحديث المادة داخل المنصة.
+          </p>
+        </div>
+        <button type="button" className="rounded-lg border border-border px-3 py-2 text-sm" disabled={busy} onClick={() => { markSeen(tool.slug); setSeen(new Date().toISOString()); }}>تعليم الكل كمقروء</button>
+      </div>
+      <label className="flex flex-wrap items-center gap-3 text-sm">
+        <span>ترتيب العرض</span>
+        <select className={`${inputClass} max-w-[260px]`} value={alertOrder} onChange={e => setAlertOrder(e.target.value === 'recent' ? 'recent' : 'effective')}>
+          <option value="effective">الأقرب نفاذاً أولاً</option>
+          <option value="recent">الأحدث تحديثاً أولاً</option>
+        </select>
+      </label>
+    </section>}
+
     <label className="block">بحث في العنوان أو الموضوع أو النص<input className={inputClass} value={query} onChange={e => setQuery(e.target.value)} type="search" /></label>
-    <p className="text-sm text-muted-foreground">{visible.length} نتيجة</p>
+    <p className="text-sm text-muted-foreground">{visible.length} نتيجة{focusArticle ? ` للنص المحدد «${focusArticle}»` : ''}</p>
     {!visible.length && !error && <p className={cardClass}>لا توجد مواد منشورة مطابقة حالياً. لن تعرض المنصة نصوصاً أو قواعد غير مراجعة.</p>}
-    {visible.map(entry => <EntryView key={`${entry.id}:${entry.updated_at}`} entry={entry} />)}
+    {visible.map(entry => <EntryView key={`${entry.id}:${entry.updated_at}`} entry={entry} siblings={entries} focus={focusArticle} newSince={tool.slug === 'alerts' ? seen : ''} />)}
     {tool.slug === 'cases' && <Workspace mode="cases" />}
   </div>;
 }
