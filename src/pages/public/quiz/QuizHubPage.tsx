@@ -6,7 +6,6 @@ import {
   ShieldCheck,
   BriefcaseBusiness,
   Compass,
-  Sparkles,
   Trophy,
   Flame,
   ArrowLeft,
@@ -66,11 +65,11 @@ export function QuizHubPage() {
       />
 
       {/* الترويسة */}
-      <section className="rounded-3xl border border-border bg-gradient-to-l from-primary/10 via-card to-accent-gold/10 p-6 sm:p-8">
+      <section className="rounded-2xl border border-border bg-card p-6 sm:p-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-gold/40 bg-accent-gold/10 px-3 py-1 text-[11px] font-extrabold text-accent-gold">
-              <Sparkles className="size-3.5" aria-hidden="true" />
+              <ShieldCheck className="size-3.5" aria-hidden="true" />
               نظام الاختبارات الرباعي
             </span>
             <h1 className="mt-3 text-2xl font-black leading-tight text-foreground sm:text-3xl">
@@ -211,7 +210,7 @@ export function QuizHubPage() {
             text: "الخطأ لا يعاقبك: النظام يشرح لك الإجابة الصحيحة مع سندها القانوني فوراً، فتتحول الغلطة إلى معلومة ثابتة.",
           },
           {
-            icon: Sparkles,
+            icon: Trophy,
             title: "بروفايل عام يشهد لك",
             text: "أنشئ اسم مستخدم واحصل على رابط عام يبرز رتبتك وإحصاءاتك — وشارك بطاقة نتيجتك على واتساب ولينكد إن.",
           },

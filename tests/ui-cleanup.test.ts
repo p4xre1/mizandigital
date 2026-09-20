@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -42,5 +42,125 @@ describe("clean UI presentation", () => {
     expect(pricing).not.toMatch(/gradient|shadow|animate-|glow|md:-mt-/);
     expect(pricing).toContain('text-foreground">سنوي');
     expect(read("src/pages/public/PaymentsPage.tsx")).not.toContain("bg-gradient");
+  });
+});
+
+/**
+ * المظهر المؤسسي على الموقع العام.
+ *
+ * الجولة السابقة منعت الشرائط اللونية في بطاقات الأسعار فقط، وكانت بقية
+ * الصفحات تحمل ملامح القالب: تدرّجات بنفسجية، وهالات ضبابية، وظلال ملوّنة،
+ * ونقاط نابضة لا نهائية، وأيقونات «Sparkles» التي صارت علامة على واجهات
+ * الذكاء الاصطناعي. هذه القواعد تمنع رجوعها.
+ *
+ * المستثنى الوحيد: تدرّجات تعتيم الصور (`from-black/…`) لأنها شرط قراءة
+ * النص الأبيض فوق صورة، وسكيلتون التحميل (`animate-pulse` مع خلفية محايدة)
+ * ومؤشّرات الدوران (`animate-spin`).
+ */
+const SURFACE_DIRS = ["src/pages/public", "src/layouts", "src/components"];
+const surfaceFiles = SURFACE_DIRS.flatMap(filesIn).filter((path) => !path.includes("/admin/"));
+
+function codeLines(path: string): string[] {
+  return read(path)
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => !/^(\*|\/\/|\{\/\*)/.test(line));
+}
+
+describe("institutional look on the public site", () => {
+  it("does not use gradients except image legibility scrims", () => {
+    for (const path of surfaceFiles) {
+      for (const line of codeLines(path)) {
+        if (!/bg-(gradient|\[(radial|linear)-gradient)/.test(line)) continue;
+        expect(line, `${path}: ${line.slice(0, 90)}`).toContain("from-black/");
+      }
+    }
+  });
+
+  it("keeps one accent colour — no violet/fuchsia/purple/indigo classes", () => {
+    for (const path of surfaceFiles) {
+      const copy = codeLines(path).join("\n");
+      expect(copy, path).not.toMatch(/\b(?:from|to|via|bg|text|border|ring)-(?:violet|fuchsia|purple|indigo)-/);
+    }
+  });
+
+  it("does not use glow shadows, glass blur, or clipped gradient text", () => {
+    for (const path of surfaceFiles) {
+      const copy = codeLines(path).join("\n");
+      expect(copy, path).not.toMatch(/shadow-\[/);
+      expect(copy, path).not.toMatch(/backdrop-blur/);
+      expect(copy, path).not.toMatch(/bg-clip-text/);
+    }
+  });
+
+  it("does not ship AI-style iconography (Sparkles / magic wand)", () => {
+    for (const path of surfaceFiles) {
+      expect(codeLines(path).join("\n"), path).not.toMatch(/Sparkles|Wand2/);
+    }
+  });
+
+  it("keeps looping animation for loading states only", () => {
+    for (const path of surfaceFiles) {
+      const lines = codeLines(path);
+      lines.forEach((line, index) => {
+        expect(line, `${path}: ${line.slice(0, 90)}`).not.toMatch(/animate-(?:bounce|ping|float)\b/);
+        // مسموح: كشف أحادي عند الظهور (fadeUp/fadeIn) — ممنوع: أي حركة أخرى بالاسم.
+        if (/animate-\[/.test(line)) {
+          expect(line, `${path}: ${line.slice(0, 90)}`).toMatch(/animate-\[fade(?:Up|In)/);
+        }
+        if (!/animate-pulse/.test(line)) return;
+        // نبض التحميل مسموح إذا كان السطر أو جواره سكيلتوناً بخلفية محايدة.
+        const window = lines.slice(Math.max(0, index - 8), index + 9).join("\n");
+        expect(window, `${path}: ${line.slice(0, 90)}`).toMatch(/bg-muted|bg-\[#f1f5f9\]/);
+      });
+    }
+  });
+
+  it("does not use emoji as interface decoration", () => {
+    const emoji = /[\u{1F300}-\u{1FAFF}\u{2728}\u{26A1}\u{2B50}\u{2705}\u{274C}\u{2757}\u{2764}]/u;
+    for (const path of surfaceFiles) {
+      expect(emoji.test(read(path)), path).toBe(false);
+    }
+  });
+
+  it("makes no AI claim anywhere in the shared meta copy", () => {
+    const copy = read("shared/seo/meta-copy.js");
+    expect(copy).not.toContain("الذكاء الاصطناعي");
+    expect(copy).not.toMatch(/GPT|ChatGPT|LLM/);
+  });
+
+  it("keeps the homepage hero free of template filler and invented proof", () => {
+    const home = read("src/pages/public/HomePage.tsx");
+    expect(home).not.toContain("Online Learning");
+    expect(home).not.toContain("500+");
+    expect(home).not.toContain("طالب مستفيد");
+    expect(home).not.toMatch(/4\.9/);
+    expect(home).not.toMatch(/blur-\[/);
+    expect(home).toContain("المعرفة القانونية لطلبة الحقوق في المغرب");
+  });
+
+  it("keeps the prerendered hero on the same rules", () => {
+    const prerender = read("scripts/prerender.mjs");
+    expect(prerender).not.toContain("Online Learning");
+    expect(prerender).not.toContain("500+");
+    expect(prerender).not.toMatch(/4\.9/);
+    expect(prerender).not.toMatch(/blur-\[/);
+    expect(prerender).not.toContain("انطلق في رحلة");
+    expect(prerender).toContain("المعرفة القانونية لطلبة الحقوق في المغرب");
+  });
+
+  it("ships no AI claim in the built pages", () => {
+    const built = [
+      "dist/index.html",
+      "dist/pricing.html",
+      "dist/pro-tools.html",
+      "dist/payments.html",
+      "dist/about.html",
+      "dist/faq.html",
+      "dist/platform.html",
+    ].filter(existsSync);
+    for (const path of built) {
+      expect(read(path), path).not.toContain("الذكاء الاصطناعي");
+    }
   });
 });

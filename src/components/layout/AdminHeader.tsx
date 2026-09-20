@@ -17,7 +17,7 @@ export default function AdminHeader({ onToggleSidebar }: AdminHeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between gap-3 border-b border-border bg-card/85 px-4 backdrop-blur-md sm:px-6"
+      className="sticky top-0 z-30 flex h-16 w-full shrink-0 items-center justify-between gap-3 border-b border-border bg-card px-4 sm:px-6"
       dir="rtl"
     >
       <div className="flex min-w-0 flex-1 items-center gap-3">

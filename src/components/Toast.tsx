@@ -131,7 +131,7 @@ export function Toast({
       aria-live="polite"
       dir="rtl"
       className={cn(
-        "fixed z-50 min-w-[300px] max-w-md overflow-hidden rounded-2xl border bg-card/95 p-4 shadow-2xl backdrop-blur-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4",
+        "fixed z-50 min-w-[300px] max-w-md overflow-hidden rounded-2xl border bg-card p-4 shadow-lg transition-colors duration-300 animate-in fade-in slide-in-from-bottom-4",
         currentVariant.borderClass,
         positionClasses[position],
         className

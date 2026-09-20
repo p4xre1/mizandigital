@@ -214,7 +214,7 @@ export function LexiconPage() {
         </div>
 
         {/* Results Count */}
-        <div className="mb-6 flex items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
+        <div className="mb-6 flex items-center justify-between gap-4 bg-card border border-border p-3.5 rounded-2xl ">
           <span className="text-xs font-bold text-muted-foreground">
             {selectedCategory === "all" && !searchQuery
               ? <>إجمالي عدد المصطلحات: <span className="text-primary">{terms.length} مصطلح</span></>

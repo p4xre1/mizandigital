@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react"
-import { FileText, UploadCloud, Wand2, Copy, Save, Loader2, X, Check } from "lucide-react"
+import { FileText, UploadCloud, Copy, Save, Loader2, X, Check } from "lucide-react"
 
 /**
  * PdfToMarkdownTool
@@ -286,7 +286,7 @@ export default function PdfToMarkdownTool({ onSave }: PdfToMarkdownToolProps) {
           </>
         ) : (
           <>
-            <Wand2 className="size-3.5" /> تحويل إلى Markdown
+            <FileText className="size-3.5" /> تحويل إلى Markdown
           </>
         )}
       </button>

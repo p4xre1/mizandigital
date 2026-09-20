@@ -15,7 +15,6 @@ import {
   MapPin,
   Link2,
   BadgeCheck,
-  Sparkles,
 } from "lucide-react"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { canonicalFor } from "@/lib/canonical"
@@ -74,7 +73,7 @@ export function PublicProfilePage() {
       <main className="container-wide py-16" dir="rtl">
         <AEOHead title="البروفايل غير موجود" description="لم نعثر على هذا البروفايل العام على منصة ميزان."
         directAnswer="PublicProfilePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق." noindex />
-        <div className="mx-auto max-w-lg rounded-3xl border border-dashed border-border bg-card p-8 text-center">
+        <div className="mx-auto max-w-lg rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <span className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground">
             <UserRound className="size-6" strokeWidth={2.2} />
           </span>
@@ -133,7 +132,7 @@ export function PublicProfilePage() {
         ]}
       />
 
-      <div className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-border bg-card">
+      <div className="mx-auto max-w-3xl overflow-hidden rounded-2xl border border-border bg-card">
         {profile.coverUrl && (
           <div
             className="h-32 w-full bg-cover bg-center sm:h-40"
@@ -310,7 +309,7 @@ export function PublicProfilePage() {
         {/* صلاحيات الرتبة المطبّقة على هذا البروفايل */}
         <div className="mt-6 rounded-2xl border border-border bg-background p-4">
           <p className="flex items-center gap-1.5 text-[12.5px] font-extrabold text-foreground">
-            <Sparkles className="size-3.5 text-primary" aria-hidden="true" />
+            <BadgeCheck className="size-3.5 text-primary" aria-hidden="true" />
             صلاحيات الرتبة {rank.id} — {rank.label}
           </p>
           <ul className="mt-2.5 grid gap-1.5 sm:grid-cols-2">

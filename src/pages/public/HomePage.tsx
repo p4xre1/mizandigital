@@ -6,8 +6,8 @@ import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import {
-  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2
+  BookOpen, Scale, GraduationCap, Award, Library, ShieldCheck, Clock, FileText, ArrowRight,
+  Calendar, MapPin, Languages, GitBranch, Building2, Video
 } from "lucide-react"
 
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
@@ -275,15 +275,11 @@ export function HomePage() {
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]" />
-          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
-
           <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
 
-            <h1 className="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white">
-              <span>افتح إمكانياتك مع</span>
-              <span className="text-[#2563eb]">التعلم القانوني</span>
-              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
+            <p className="text-[13px] font-bold tracking-[0.08em] text-[#2563eb]">ميزان الرقمية</p>
+            <h1 className="mt-3 text-[30px] md:text-[42px] font-black leading-[1.25] tracking-[-0.02em] text-[#0f172a] dark:text-white">
+              المعرفة القانونية لطلبة الحقوق في المغرب
             </h1>
 
             {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
@@ -293,12 +289,12 @@ export function HomePage() {
               ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
             </p>
 
-            <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-              انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+            <p className="mt-4 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
+              ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.
             </p>
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">
+              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-sm transition-colors">
                 ابدأ الآن
                 <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
               </Link>
@@ -308,31 +304,18 @@ export function HomePage() {
               </Link>
             </div>
 
-            <div className="mt-7 flex items-center justify-center gap-4">
-              <div className="flex -space-x-2 rtl:space-x-reverse">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">
-                    {String.fromCharCode(64 + i)}
-                  </div>
-                ))}
-              </div>
-              <div className="text-right">
-                <div className="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">
-                  <Users className="size-4 text-[#2563eb]" />
-                  500+ طالب يثقون بنا
-                </div>
-                <div className="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
-                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 - محتوى أساسي مجاني
-                </div>
-              </div>
-            </div>
+            <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8]">
+              <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
+              <li className="flex items-center gap-1.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
+              <li className="flex items-center gap-1.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
+            </ul>
 
             <div className="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">
               {[
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
                 { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
                 { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
-                { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}` },
               ].map((card, i) => (
                 <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
                   <div className="flex items-center justify-between">
@@ -358,20 +341,20 @@ export function HomePage() {
               {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                   «استكشف مساراتنا المميزة»؛ النصّ نفسه في الـ prerender. */}
               <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
-              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
+              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">كل ما يحتاجه طالب القانون المغربي في مكان واحد: القاموس، والملخصات، والمقالات، ودليل الكليات.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
-                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", color: "from-[#f59e0b] to-[#fbbf24]", href: "/archive" },
-                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
-                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },
+                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, tone: "bg-[#2563eb]/10 text-[#2563eb]", href: "/lexicon" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#f59e0b]/10 text-[#b45309]", href: "/archive" },
+                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, tone: "bg-[#10b981]/10 text-[#047857]", href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: `${counts.news}`, tone: "bg-[#ef4444]/10 text-[#b91c1c]", href: "/news" },
               ].map((card) => (
-                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all">
-                  <div className={`absolute top-0 inset-x-0 h-1 bg-gradient-to-r ${card.color} opacity-60`} />
+                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 transition-colors">
+                  
                   <div className="flex items-center justify-between">
-                    <div className={`grid size-11 place-items-center rounded-xl bg-gradient-to-br ${card.color} text-white shadow-sm`}>
+                    <div className={`grid size-11 place-items-center rounded-xl ${card.tone}`}>
                       <card.icon className="size-5" />
                     </div>
                     <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">{card.count}</span>
@@ -390,10 +373,10 @@ export function HomePage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
-                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all flex flex-col">
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 transition-colors flex flex-col">
                     <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
-                      <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={120} />
-                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
+                      <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" width={320} height={120} />
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/70 text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
                     </div>
                     <div className="p-4 flex flex-col flex-1">
                       <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
@@ -421,11 +404,11 @@ export function HomePage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                   {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
-                    <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 hover:shadow-[0_8px_24px_rgba(245,158,11,0.10)] hover:-translate-y-0.5 transition-all flex flex-col">
+                    <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 transition-colors flex flex-col">
                       <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
-                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
+                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover" width={320} height={130} />
                         <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
-                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
+                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
                       </div>
                       <div className="p-4 flex flex-col flex-1">
                         <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
@@ -478,7 +461,7 @@ export function HomePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {latestTerms.slice(1, 7).map((term) => (
-                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all flex flex-col">
+                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 transition-colors flex flex-col">
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <span className="grid size-8 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white transition-colors"><GitBranch className="size-4" /></span>
@@ -637,10 +620,10 @@ export function HomePage() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
-                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
-                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
-                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة غنية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                  { title: "محتوى مرتّب بالفصول", desc: "ملخصات ودروس مرتّبة من S1 إلى S6 حسب المسلك والفصل، بلا تشتّت بين ملفات متفرقة.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "إحالة إلى المصادر الرسمية", desc: "النصوص القانونية والقواعد محالة إلى الجريدة الرسمية وبوابة العدالة الرقمية للتحقق.", icon: Scale, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "قاموس عربي–فرنسي", desc: "250 مصطلحاً قانونياً بالتعريف والترجمة، مع بحث وتصنيف حسب الفروع.", icon: FileText, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "أدوات للمراجعة", desc: "اختبارات QCM لتقيس مستواك، وأدوات ميزان برو لتتبّع النصوص وحساب الآجال والتمارين.", icon: Clock, color: "bg-[#eff6ff] text-[#2563eb]" },
                 ].map((feature, i) => (
                   <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
                     <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
@@ -684,11 +667,11 @@ export function HomePage() {
           <div className="container mx-auto max-w-[1280px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
               {[
-                { value: "500+", label: "طالب مستفيد" },
-                { value: "250+", label: "مصطلح قانوني" },
-                { value: `${counts.articles}+`, label: "مقال قانوني" },
-                { value: `${counts.schools}+`, label: "كلية جامعية" },
-                { value: "100%", label: "مجاني" },
+                { value: `${counts.lexicon}`, label: "مصطلح قانوني" },
+                { value: "S1-S6", label: "فصول دراسية" },
+                { value: `${counts.articles}`, label: "مقال تحليلي" },
+                { value: `${counts.schools}`, label: "كلية للحقوق" },
+                { value: `${counts.docs}`, label: "ملف دراسي" },
               ].map((stat, i) => (
                 <div key={i}>
                   <div className="text-[24px] font-black">{stat.value}</div>

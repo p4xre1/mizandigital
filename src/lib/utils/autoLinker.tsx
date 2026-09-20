@@ -124,7 +124,7 @@ export function renderTextWithEnhancedLinks(
           key={`${term.id}-${idx}`}
           to={`/lexicon/${term.slug}`}
           className="mizan-term-link text-primary font-semibold underline decoration-primary/30 decoration-2 underline-offset-2 hover:decoration-primary hover:bg-primary/5 rounded px-0.5 transition-all"
-          title={`📚 ${term.term_ar}${term.term_fr ? ` (${term.term_fr})` : ""} - ${term.category || "مصطلح قانوني"} - اضغط للتعريف`}
+          title={`${term.term_ar}${term.term_fr ? ` (${term.term_fr})` : ""} - ${term.category || "مصطلح قانوني"} - اضغط للتعريف`}
         >
           {part}
         </Link>

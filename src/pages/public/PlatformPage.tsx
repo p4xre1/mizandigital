@@ -211,7 +211,7 @@ export default function PlatformPage() {
               <Link
                 key={f.href}
                 to={f.href}
-                className="block rounded-2xl border border-slate-200 dark:border-slate-700 p-5 hover:border-[#2563eb]/40 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] transition-all"
+                className="block rounded-2xl border border-slate-200 dark:border-slate-700 p-5 hover:border-[#2563eb]/40 transition-colors"
               >
                 <p className="text-[11px] font-bold uppercase tracking-wider text-[#2563eb]">{f.kicker}</p>
                 <h3 className="mt-2 text-[16px] font-extrabold text-[#0f172a] dark:text-white">{f.title}</h3>
@@ -292,7 +292,7 @@ export default function PlatformPage() {
         {/* ── CTA ────────────────────────────────────────────────────────── */}
         <section
           id="start"
-          className="mt-12 rounded-3xl border border-[#2563eb]/20 bg-[#eff6ff] dark:bg-[#2563eb]/10 p-6 text-center sm:p-8 sm:text-right"
+          className="mt-12 rounded-2xl border border-[#2563eb]/20 bg-[#eff6ff] dark:bg-[#2563eb]/10 p-6 text-center sm:p-8 sm:text-right"
         >
           <h2 className="text-[20px] font-extrabold text-[#0f172a] dark:text-white">
             ابدأ من الفصل الذي تدرسه الآن

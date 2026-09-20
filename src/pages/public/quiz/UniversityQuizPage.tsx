@@ -89,7 +89,7 @@ export function UniversityQuizPage() {
         <span className="text-foreground">طلبة الكلية</span>
       </div>
 
-      <header className="rounded-3xl border border-border bg-card p-6">
+      <header className="rounded-2xl border border-border bg-card p-6">
         <span className="mb-3 grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
           <GraduationCap className="size-5" strokeWidth={2.2} />
         </span>

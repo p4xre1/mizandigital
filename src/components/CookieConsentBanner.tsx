@@ -25,7 +25,7 @@ export function CookieConsentBanner() {
       role="dialog"
       aria-live="polite"
       aria-label="إشعار ملفات تعريف الارتباط"
-      className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-card/95 backdrop-blur-md shadow-[0_-4px_24px_rgba(0,0,0,0.08)] animate-in slide-in-from-bottom duration-300"
+      className="fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-card shadow-lg animate-in slide-in-from-bottom duration-300"
     >
       <div className="container-wide flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">

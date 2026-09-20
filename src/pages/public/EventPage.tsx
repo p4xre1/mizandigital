@@ -15,7 +15,6 @@ import {
   Share2,
   Check,
   ExternalLink,
-  Sparkles,
   User,
   FileText,
   AlertCircle,
@@ -232,7 +231,7 @@ export function EventPage({ slug }: EventPageProps) {
               >
                 {isUpcoming ? (
                   <>
-                    <Sparkles size={12} />
+                    <Clock size={12} />
                     فعالية قادمة
                   </>
                 ) : (

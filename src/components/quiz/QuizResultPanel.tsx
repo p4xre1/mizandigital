@@ -4,7 +4,6 @@ import {
   RotateCcw,
   ArrowLeft,
   Share2,
-  Sparkles,
   CheckCircle2,
   XCircle,
   Clock,
@@ -78,8 +77,8 @@ export function QuizResultPanel({
   return (
     <div className="mx-auto w-full max-w-3xl" dir="rtl">
       {/* بطاقة النتيجة */}
-      <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-        <div className="bg-gradient-to-l from-primary/10 via-card to-accent-gold/10 px-6 py-8 text-center">
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="bg-card px-6 py-8 text-center">
           <div className="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-accent-gold/15 text-accent-gold">
             <Trophy className="size-7" strokeWidth={2.2} />
           </div>
@@ -128,7 +127,7 @@ export function QuizResultPanel({
           <div className="border-t border-border bg-accent-gold/5 px-6 py-5">
             {leveledUp && (
               <p className="mb-3 flex items-center gap-2 text-[13px] font-extrabold text-accent-gold">
-                <Sparkles className="size-4" aria-hidden="true" />
+                <Trophy className="size-4" aria-hidden="true" />
                 تهانينا! ارتقيت من الرتبة {rankBefore?.id ?? "D"} إلى الرتبة {rankProgress.rank.id} ({rankProgress.rank.label})
               </p>
             )}

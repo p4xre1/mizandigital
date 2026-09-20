@@ -27,7 +27,7 @@ function renderInline(
   return parts.map((part, idx) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={idx} className="font-black text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+        <strong key={idx} className="font-black text-foreground">
           {part.slice(2, -2)}
         </strong>
       )
@@ -48,7 +48,7 @@ function renderInline(
           title={linkMatch[1]}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 rounded-full bg-primary/5 border border-primary/20 px-2.5 py-0.5 text-primary font-bold underline decoration-primary/30 decoration-2 underline-offset-2 hover:bg-primary hover:text-primary-foreground hover:decoration-transparent transition-all"
+          className="inline-flex items-center gap-1 rounded-full bg-primary/5 border border-primary/20 px-2.5 py-0.5 text-primary font-bold underline decoration-primary/30 decoration-2 underline-offset-2 hover:bg-primary hover:text-primary-foreground hover:decoration-transparent transition-colors"
         >
           {linkMatch[1]}
         </a>
@@ -131,14 +131,14 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
                 }
               >
                 {block.level === 2 && (
-                  <span className="hidden md:grid size-8 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet-600 text-white shadow-[0_4px_12px_hsl(var(--primary)/0.2)] text-[12px] font-black shrink-0">
+                  <span className="hidden md:grid size-8 place-items-center rounded-xl bg-primary text-white shadow-sm text-[12px] font-black shrink-0">
                     {idx + 1}
                   </span>
                 )}
                 <span className="relative">
                   {block.text}
                   {block.level === 2 && (
-                    <span className="absolute -bottom-1 right-0 h-[2px] w-0 bg-gradient-to-r from-primary to-violet-500 group-hover/heading:w-full transition-all duration-700" />
+                    <span className="absolute -bottom-1 right-0 h-[2px] w-0 bg-primary group-hover/heading:w-full transition-colors duration-200" />
                   )}
                 </span>
               </Tag>
@@ -154,19 +154,19 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             break
           case "image":
             blockNode = (
-              <figure className="group/fig my-10 overflow-hidden rounded-[20px] border border-border/50 bg-muted shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] hover:shadow-[0_16px_48px_hsl(0_0%_0%/0.12)] transition-all duration-500">
+              <figure className="group/fig my-10 overflow-hidden rounded-2xl border border-border/50 bg-muted shadow-sm transition-colors duration-200">
                 <div className="relative overflow-hidden">
                   <img
                     src={block.src}
                     alt={block.alt}
                     loading="lazy"
-                    className="w-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/fig:scale-[1.02]"
+                    className="w-full object-cover transition-transform duration-300 ease-out group-hover/fig:scale-[1.02]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover/fig:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-transparent opacity-0 group-hover/fig:opacity-100 transition-opacity" />
                 </div>
                 {block.caption && (
-                  <figcaption className="flex items-center gap-2 px-5 py-3 text-[11px] font-bold text-muted-foreground bg-card/50 backdrop-blur border-t border-border/50">
-                    <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+                  <figcaption className="flex items-center gap-2 px-5 py-3 text-[11px] font-bold text-muted-foreground bg-card border-t border-border/50">
+                    <span className="size-1.5 rounded-full bg-primary" />
                     {block.caption}
                   </figcaption>
                 )}
@@ -175,9 +175,9 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             break
           case "quote":
             blockNode = (
-              <blockquote className="group/quote relative my-8 overflow-hidden rounded-[16px] border border-primary/10 bg-gradient-to-br from-primary/[0.06] via-violet-500/[0.03] to-transparent p-5 md:p-6">
-                <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-primary/30 via-violet-500/20 to-transparent" />
-                <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-primary to-violet-600" />
+              <blockquote className="group/quote relative my-8 overflow-hidden rounded-xl border border-primary/10 bg-primary/[0.04] p-5 md:p-6">
+                <div className="absolute top-0 inset-x-0 h-[1px] bg-primary/30" />
+                <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-primary" />
                 <div className="flex gap-4">
                   <div className="hidden md:grid size-8 place-items-center rounded-full bg-primary/10 text-primary shrink-0 mt-1">“</div>
                   <p className="flex-1 text-[14px] md:text-[15px] leading-7 font-medium italic text-foreground/80">
@@ -192,7 +192,7 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
               <ol className="my-6 space-y-3 ps-1">
                 {block.items.map((item, i2) => (
                   <li key={i2} className="group/li flex gap-3">
-                    <span className="grid size-6 place-items-center rounded-full bg-foreground text-background text-[11px] font-black shrink-0 mt-0.5 group-hover/li:bg-primary group-hover/li:scale-110 transition-all">
+                    <span className="grid size-6 place-items-center rounded-full bg-foreground text-background text-[11px] font-black shrink-0 mt-0.5 group-hover/li:bg-primary group-hover/li:scale-110 transition-colors">
                       {i2 + 1}
                     </span>
                     <span className="flex-1 text-[14px] leading-7 text-foreground/80 pt-0.5">
@@ -205,7 +205,7 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
               <ul className="my-6 space-y-3 ps-1">
                 {block.items.map((item, i2) => (
                   <li key={i2} className="group/li flex gap-3">
-                    <span className="mt-2 size-1.5 rounded-full bg-primary group-hover/li:scale-[1.8] group-hover/li:bg-violet-600 transition-all shrink-0" />
+                    <span className="mt-2 size-1.5 rounded-full bg-primary shrink-0" />
                     <span className="flex-1 text-[14px] leading-7 text-foreground/80">
                       {renderInline(item, lexiconTerms, linkedTermIds)}
                     </span>
@@ -217,11 +217,11 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
           case "hr":
             blockNode = (
               <div className="my-12 flex items-center gap-3">
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <div className="h-[1px] flex-1 bg-border" />
                 <div className="grid size-8 place-items-center rounded-full border border-border bg-card text-muted-foreground">
                   <span className="text-[10px]">✦</span>
                 </div>
-                <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <div className="h-[1px] flex-1 bg-border" />
               </div>
             )
             break

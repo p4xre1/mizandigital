@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Shuffle, Play, ArrowRight, Sparkles, Zap, Gift } from "lucide-react"
+import { Shuffle, Play, ArrowRight, Zap, Gift } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
 import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
@@ -65,7 +65,7 @@ export function GeneralQuizPage() {
         <span className="text-foreground">الاختبار العشوائي</span>
       </div>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-emerald-500/10 via-card to-primary/5 p-6">
+      <header className="rounded-2xl border border-border bg-card p-6">
         <span className="mb-3 grid size-11 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
           <Shuffle className="size-5" strokeWidth={2.2} />
         </span>
@@ -80,7 +80,7 @@ export function GeneralQuizPage() {
       {/* قواعد النقاط */}
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         {[
-          { icon: Sparkles, title: `${XP.correct} نقاط لكل إجابة صحيحة`, text: "تزيد بحسب مستوى صعوبة السؤال (سهل / متوسط / صعب)." },
+          { icon: Zap, title: `${XP.correct} نقاط لكل إجابة صحيحة`, text: "تزيد بحسب مستوى صعوبة السؤال (سهل / متوسط / صعب)." },
           { icon: Zap, title: `+${XP.fastBonus} مكافأة السرعة`, text: `أجب في أقل من ${XP.fastMs / 1000} ثوانٍ لتحصل على مكافأة إضافية.` },
           { icon: Gift, title: `+${XP.perfect} مكافأة العلامة الكاملة`, text: `ومكافأة إتمام ثابتة ${XP.completion} نقطة لكل اختبار تكمله.` },
         ].map((item) => (

@@ -78,7 +78,7 @@ export function InterviewQuizPage() {
         <span className="text-foreground">المقابلات والتداريب</span>
       </div>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-sky-500/10 via-card to-primary/5 p-6">
+      <header className="rounded-2xl border border-border bg-card p-6">
         <span className="mb-3 grid size-11 place-items-center rounded-xl bg-sky-500/10 text-sky-600">
           <BriefcaseBusiness className="size-5" strokeWidth={2.2} />
         </span>

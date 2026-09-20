@@ -370,14 +370,14 @@ export function QuizRunner({
 
         <div className="h-2 w-full overflow-hidden rounded-full bg-muted" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100} aria-label="تقدم الاختبار">
           <div
-            className="h-full rounded-full bg-gradient-to-l from-primary to-accent-gold transition-[width] duration-500"
+            className="h-full rounded-full bg-primary transition-[width] duration-500"
             style={{ width: `${Math.max(progressPercent, 3)}%` }}
           />
         </div>
       </div>
 
       {/* بطاقة السؤال */}
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-muted px-2.5 py-1 text-[10.5px] font-extrabold text-muted-foreground">
             {DIFFICULTY_LABEL[current.difficulty]}

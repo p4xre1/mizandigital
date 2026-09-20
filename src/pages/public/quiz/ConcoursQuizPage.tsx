@@ -85,7 +85,7 @@ export function ConcoursQuizPage() {
         <span className="text-foreground">المباريات المهنية</span>
       </div>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-amber-500/10 via-card to-primary/5 p-6">
+      <header className="rounded-2xl border border-border bg-card p-6">
         <span className="mb-3 grid size-11 place-items-center rounded-xl bg-amber-500/10 text-amber-600">
           <ShieldCheck className="size-5" strokeWidth={2.2} />
         </span>

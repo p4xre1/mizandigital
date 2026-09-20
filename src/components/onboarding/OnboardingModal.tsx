@@ -78,7 +78,7 @@ export function OnboardingModal({ onSubmit, onDismiss }: OnboardingModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
       dir="rtl"
       role="dialog"
       aria-modal="true"
@@ -110,7 +110,7 @@ export function OnboardingModal({ onSubmit, onDismiss }: OnboardingModalProps) {
           {step === 1 && (
             <>
               <h2 id="onboarding-modal-title" className="mb-1 text-lg font-bold text-foreground">
-                أهلاً بيك 👋
+                مرحباً بك
               </h2>
               <p className="mb-4 text-sm text-muted-foreground">من أنت؟ (اختر ما يصفك أكثر)</p>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-2">

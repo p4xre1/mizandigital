@@ -134,7 +134,7 @@ export function SchoolsPage() {
                 const schoolName = school.name || school.name_ar || ""
                 const schoolSlug = school.slug || generateSlug(schoolName) || school.id
                 return (
-                  <Link key={school.id} to={`/schools/${schoolSlug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                  <Link key={school.id} to={`/schools/${schoolSlug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-5 hover:border-[#2563eb]/20 transition-colors">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex gap-3">
                         <div className="size-11 grid place-items-center rounded-xl bg-[#2563eb] text-white font-black text-[14px] shrink-0 shadow-sm">

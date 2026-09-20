@@ -74,7 +74,7 @@ export function SavedContentPage() {
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <Bookmark className="mx-auto mb-3 size-6 text-muted-foreground" />
           <p className="text-sm font-bold text-foreground">لا يوجد محتوى محفوظ بعد</p>
-          <p className="mt-1 text-[12px] text-muted-foreground">استعمل زر الحفظ 🔖 في المقالات والمصطلحات</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">استعمل زر الحفظ في المقالات والمصطلحات</p>
           <Link to="/articles" className="mt-4 inline-block rounded-xl bg-primary px-4 py-2 text-[12px] font-bold text-primary-foreground">تصفح المقالات</Link>
         </div>
       ) : (

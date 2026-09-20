@@ -134,7 +134,7 @@ function AuthControlsInner({ className = "hidden md:flex items-center gap-2", on
       {open && (
         <div
           role="menu"
-          className="absolute left-0 top-[calc(100%+8px)] z-[80] w-[280px] overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.25)]"
+          className="absolute left-0 top-[calc(100%+8px)] z-[80] w-[280px] overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-lg"
         >
           <div className="flex items-center gap-3 border-b border-[#e2e8f0] dark:border-[#334155] p-3.5">
             {profile?.avatarUrl ? (

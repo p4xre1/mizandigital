@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import {
-  Sparkles,
+  Lightbulb,
   MessageCircle,
   GitBranch,
   FileText,
@@ -210,7 +210,7 @@ export function AdminSuggestions() {
   if (suggestions.length === 0) {
     return (
       <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 text-center">
-        <Sparkles className="mx-auto mb-2 size-6 text-emerald-500" />
+        <Lightbulb className="mx-auto mb-2 size-6 text-emerald-500" />
         <p className="text-xs font-bold text-foreground">لا توجد اقتراحات حالياً — كل شيء يبدو محدّثاً 👏</p>
       </div>
     )
@@ -219,7 +219,7 @@ export function AdminSuggestions() {
   return (
     <div className="space-y-3 rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-        <Sparkles className="size-4 text-primary" />
+        <Lightbulb className="size-4 text-primary" />
         <h2 className="text-sm font-extrabold text-foreground">اقتراحات ذكية لما يمكنك فعله الآن</h2>
       </div>
 

@@ -132,7 +132,7 @@ export function ArticlesPage() {
       <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} canonicalUrl={canonicalArticlesHub()} schema={[listSchema, breadcrumbSchema]} />
 
       <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
-        {/* Header - EduFlex */}
+        {/* ترويسة الصفحة */}
         <div className="bg-[#f8fafc] dark:bg-[#0f172a] border-b border-[#e2e8f0] dark:border-[#1e293b]">
           <div className="container mx-auto max-w-[1280px] px-6 py-10">
             <div className="max-w-[720px]">
@@ -165,7 +165,7 @@ export function ArticlesPage() {
             </div>
           ) : filteredItems.length > 0 ? (
             <>
-              {/* Featured hero - EduFlex */}
+              {/* المقال البارز */}
               {featured && (
                 <div className="mb-8 rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] grid md:grid-cols-2">
                   <div className="aspect-[16/10] md:aspect-auto bg-[#f1f5f9] dark:bg-[#334155] relative overflow-hidden">
@@ -186,13 +186,13 @@ export function ArticlesPage() {
                 </div>
               )}
 
-              {/* Grid - EduFlex course cards */}
+              {/* شبكة المقالات */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredItems.slice(featured ? 1 : 0).map((item) => (
-                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                  <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 transition-colors">
                     <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative">
-                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
-                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[10px] font-bold px-2 py-1 rounded-full border border-black/5">{item.category || "عام"}</span>
+                      {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover group-] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><BookOpen className="size-8 text-[#94a3b8]" /></div>}
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 text-[10px] font-bold px-2 py-1 rounded-full border border-black/5">{item.category || "عام"}</span>
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h3>

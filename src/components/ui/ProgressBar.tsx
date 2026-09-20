@@ -89,9 +89,6 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
           className={cn(
             "h-full rounded-full transition-all duration-500 ease-out",
             getVariantClasses(),
-            striped &&
-              "bg-[linear-gradient(45deg,rgba(255,255,255,0.15)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.15)_50%,rgba(255,255,255,0.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem]",
-            animated && striped && "animate-[shimmer_2s_linear_infinite]",
             barClassName
           )}
           style={{ width: `${clampedProgress}%` }}

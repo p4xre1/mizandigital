@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { Compass, Play, ArrowRight, Clock, Sparkles, CreditCard, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Compass, Play, ArrowRight, Clock, CreditCard, AlertCircle, CheckCircle2 } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
 import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
@@ -86,7 +86,7 @@ export function PlacementQuizPage() {
         <span className="text-foreground">تحديد المستوى</span>
       </div>
 
-      <header className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+      <header className="rounded-2xl border border-border bg-card p-6 sm:p-8">
         <span className="mb-3 grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
           <Compass className="size-5" strokeWidth={2.2} />
         </span>
@@ -100,7 +100,7 @@ export function PlacementQuizPage() {
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
             { icon: Clock, title: "5 دقائق", text: "15 سؤالاً متدرجة بلا عدّاد زمني — خذ وقتك في التفكير." },
-            { icon: Sparkles, title: "رتبة ابتدائية فورية", text: "من D إلى A بحسب نتيجتك، وتُبنى عليها كل الاختبارات اللاحقة." },
+            { icon: Compass, title: "رتبة ابتدائية فورية", text: "من D إلى A بحسب نتيجتك، وتُبنى عليها كل الاختبارات اللاحقة." },
             { icon: CreditCard, title: "خيار التجاوز", text: `للمحامين والخبراء: تجاوز الاختبار مقابل ${SKIP_COST} كريدت.` },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-border bg-background p-4">
@@ -159,7 +159,7 @@ export function PlacementQuizPage() {
         )}
       </header>
 
-      <section className="mt-6 rounded-3xl border border-border bg-card p-6">
+      <section className="mt-6 rounded-2xl border border-border bg-card p-6">
         <h2 className="text-[15px] font-extrabold text-foreground">سلم الرتب بعد التحديد</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {(["D", "C", "B", "A"] as const).map((rankId) => {

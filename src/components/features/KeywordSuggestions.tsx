@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Lightbulb, Copy, Check, Sparkles } from "lucide-react"
+import { Lightbulb, Copy, Check } from "lucide-react"
 import { normalizeArabic } from "../../lib/utils/search"
 import { CATEGORY_KEYWORDS, type KeywordCategory } from "../../lib/seo/keywords"
 
@@ -108,7 +108,7 @@ export function KeywordSuggestions({ title, content, onSelectKeyword }: KeywordS
       {phraseSuggestions.length > 0 && (
         <div className="space-y-2">
           <p className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
-            <Sparkles className="size-3.5 text-primary" />
+            <Lightbulb className="size-3.5 text-primary" />
             عبارات متكررة في النص (مرشّحة كأفضل كلمة مفتاحية)
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -135,7 +135,7 @@ export function KeywordSuggestions({ title, content, onSelectKeyword }: KeywordS
 
       <div className="space-y-2">
         <p className="flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
-          <Sparkles className="size-3.5 text-primary" />
+          <Lightbulb className="size-3.5 text-primary" />
           كلمات مقترحة من فئة «{CATEGORY_LABELS[bankCategory]}»
         </p>
         <div className="flex flex-wrap gap-1.5">

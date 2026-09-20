@@ -16,7 +16,7 @@ import { AuthControls, SignInButton } from "@/components/auth/AuthControls"
  */
 export default function Header() {
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/80 ">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         {/* الشعار */}
         <Link
@@ -26,7 +26,7 @@ export default function Header() {
         >
           <span
             aria-hidden="true"
-            className="grid size-9 place-items-center rounded-xl border border-primary/30 bg-gradient-to-br from-primary/20 to-primary/5 text-primary shadow-[0_0_15px_hsl(var(--primary)/0.15)]"
+            className="grid size-9 place-items-center rounded-lg border border-primary/25 bg-primary/10 text-primary"
           >
             <Scale size={19} strokeWidth={2.2} />
           </span>

@@ -43,7 +43,7 @@ export function XpBar({
         aria-label="نسبة التقدم نحو الرتبة الموالية"
       >
         <div
-          className="h-full rounded-full bg-gradient-to-l from-primary to-accent-gold transition-[width] duration-700"
+          className="h-full rounded-full bg-primary transition-[width] duration-700"
           style={{ width: `${Math.min(100, Math.max(percent, 2))}%` }}
         />
       </div>

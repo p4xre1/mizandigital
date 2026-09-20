@@ -418,7 +418,7 @@ export function MyProfilePage() {
           canonicalUrl={canonicalFor("/profile")}
           noindex
         />
-        <div className="mx-auto max-w-xl rounded-3xl border border-border bg-card p-8 text-center">
+        <div className="mx-auto max-w-xl rounded-2xl border border-border bg-card p-8 text-center">
           <span className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
             <UserRound className="size-6" strokeWidth={2.2} />
           </span>
@@ -522,7 +522,7 @@ export function MyProfilePage() {
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         {/* ---------------- بطاقة البروفايل ---------------- */}
-        <section className="overflow-hidden rounded-3xl border border-border bg-card">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card">
           {(profile?.coverUrl || coverUrl) && (
             <div
               className="h-28 w-full bg-cover bg-center"
@@ -675,7 +675,7 @@ export function MyProfilePage() {
         </section>
 
         {/* ---------------- المحرر / السجل ---------------- */}
-        <section className="rounded-3xl border border-border bg-card p-6">
+        <section className="rounded-2xl border border-border bg-card p-6">
           {editing ? (
             <>
               <div className="flex items-center justify-between gap-3">
@@ -1101,7 +1101,7 @@ export function MyProfilePage() {
       <RankLadder xp={cloudProfile?.xp ?? progress.xp} currentRank={activeRank.id} />
 
       {board.length > 0 && (
-        <section className="mt-6 rounded-3xl border border-border bg-card p-6">
+        <section className="mt-6 rounded-2xl border border-border bg-card p-6">
           <h2 className="text-[15px] font-extrabold text-foreground">لوحة الرتب — أعلى البروفايلات</h2>
           <p className="mt-1.5 text-[12px] leading-6 text-muted-foreground">
             البروفايلات العامة المرتبة حسب نقاط الخبرة، مع الرتبة المطبّقة على كل بروفايل.
@@ -1179,7 +1179,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
         aria-hidden="true"
       >
         <span
-          className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-all ${
+          className={`absolute top-0.5 size-4 rounded-full bg-white shadow transition-colors ${
             checked ? "right-0.5" : "right-[18px]"
           }`}
         />
@@ -1191,7 +1191,7 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 /** سلم الرتب الكامل مع ما تفتحه كل رتبة من صلاحيات. */
 function RankLadder({ xp, currentRank }: { xp: number; currentRank?: string }) {
   return (
-    <section className="mt-6 rounded-3xl border border-border bg-card p-6">
+    <section className="mt-6 rounded-2xl border border-border bg-card p-6">
       <h2 className="text-[15px] font-extrabold text-foreground">سلم الرتب في ميزان — وكل رتبة ماذا تفتح</h2>
       <p className="mt-2 text-[12.5px] leading-6 text-muted-foreground">
         كلما أجبت عن أسئلة QCM بشكل صحيح تجمع نقاط خبرة <span className="font-bold text-foreground">XP</span>. تبدأ من{" "}

@@ -149,7 +149,7 @@ export function ShareDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-foreground/50 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-foreground/60 p-4"
       dir="rtl"
       role="dialog"
       aria-modal="true"

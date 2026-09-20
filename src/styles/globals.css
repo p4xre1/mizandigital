@@ -12,7 +12,7 @@
 
 :root,
 .light {
-  /* EduFlex - Clean educational blue */
+  /* ألوان ميزان: أزرق مؤسسي واحد مع محايدات رمادية */
   --background: 0 0% 100%;
   --foreground: 222 47% 11%;
   --card: 0 0% 100%;
@@ -110,9 +110,7 @@
     transition: all 200ms ease;
   }
   .edu-card:hover {
-    border-color: hsl(var(--primary) / 0.15);
-    box-shadow: 0 8px 24px hsl(221 83% 53% / 0.08);
-    transform: translateY(-2px);
+    border-color: hsl(var(--primary) / 0.35);
   }
   .edu-blue-badge {
     background: hsl(214 100% 97%);
@@ -138,10 +136,5 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }

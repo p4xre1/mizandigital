@@ -12,7 +12,6 @@ import {
   Search,
   Clock,
   ArrowLeft,
-  Sparkles,
   Tag,
   CheckCircle2,
   AlertCircle,
@@ -275,7 +274,7 @@ export function EventsPage() {
                         src={event.image}
                         alt={event.title}
                         loading="lazy"
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        className="h-full w-full object-cover transition duration-300 group-"
                       />
                     </Link>
                   )}
@@ -298,7 +297,7 @@ export function EventsPage() {
                         >
                           {isUpcoming ? (
                             <>
-                              <Sparkles size={12} />
+                              <Clock size={12} />
                               فعالية قادمة
                             </>
                           ) : (

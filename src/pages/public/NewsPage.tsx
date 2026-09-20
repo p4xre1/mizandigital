@@ -150,8 +150,8 @@ export function NewsPage() {
               {featured && (
                 <div className="mb-8 rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] grid md:grid-cols-2">
                   <div className="aspect-[16/10] md:aspect-auto bg-[#0f172a] relative overflow-hidden">
-                    {featured.image_url ? <img src={featured.image_url} alt={featured.title} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#2563eb]/20 to-[#f59e0b]/20 grid place-items-center"><Newspaper className="size-12 text-white/60" /></div>}
-                    <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full animate-pulse">عاجل</span>
+                    {featured.image_url ? <img src={featured.image_url} alt={featured.title} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-[#f1f5f9] dark:bg-[#334155] grid place-items-center"><Newspaper className="size-12 text-white/60" /></div>}
+                    <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">عاجل</span>
                   </div>
                   <div className="p-6 flex flex-col">
                     <span className="inline-flex w-fit bg-[#fef2f2] dark:bg-[#450a0a] text-red-600 dark:text-red-400 text-[11px] font-bold px-3 py-1 rounded-full border border-red-200 dark:border-red-900/30">{featured.source || "خبر"}</span>
@@ -169,10 +169,10 @@ export function NewsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredItems.slice(featured ? 1 : 0).map((item) => (
-                  <Link key={item.id} to={`/news/${item.slug || item.id}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                  <Link key={item.id} to={`/news/${item.slug || item.id}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 transition-colors">
                     <div className="aspect-[16/10] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative">
-                      {item.image_url ? <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><Newspaper className="size-8 text-[#94a3b8]" /></div>}
-                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[10px] font-bold px-2 py-1 rounded-full border border-black/5">{item.source || "خبر"}</span>
+                      {item.image_url ? <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-] transition-transform duration-500" /> : <div className="w-full h-full grid place-items-center"><Newspaper className="size-8 text-[#94a3b8]" /></div>}
+                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/70 text-[10px] font-bold px-2 py-1 rounded-full border border-black/5">{item.source || "خبر"}</span>
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-[13px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h3>

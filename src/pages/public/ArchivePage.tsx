@@ -16,7 +16,6 @@ import {
   GraduationCap,
   Download,
   CheckCircle2,
-  Sparkles,
   Tag,
   ArrowLeft,
   AlertCircle,
@@ -352,7 +351,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
           </div>
 
           {/* View Mode Switcher Toolbar (File Explorer Style) */}
-          <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
+          <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border p-3.5 rounded-2xl ">
             <span className="text-xs font-bold text-muted-foreground">
               عدد النتائج المعروضة: <span className="text-primary">{filteredCatalog.length} عنصر</span>
             </span>
@@ -361,7 +360,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
               <button
                 type="button"
                 onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                   viewMode === "grid"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -375,7 +374,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
               <button
                 type="button"
                 onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors ${
                   viewMode === "list"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
