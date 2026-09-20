@@ -21,6 +21,19 @@ describe("clean UI presentation", () => {
     expect(read("src/pages/auth/LoginPage.tsx")).toContain('placeholder="••••••••"');
   });
 
+  it("does not put a «best value» badge on any plan card", () => {
+    for (const path of ["src/pages/public", "src/components"].flatMap(filesIn)) {
+      expect(read(path), path).not.toContain("الأفضل قيمة");
+    }
+    const home = read("src/pages/public/HomePage.tsx");
+    const pricing = home.slice(home.indexOf("الأسعار - خطط مرنة"), home.indexOf("لماذا نحن"));
+    // بلا شارة ترويجية على بطاقة الخطة
+    expect(pricing).not.toContain("rounded-full border border-border bg-muted");
+    // ويزول معها الإزاحة التي كانت تُفسح لها، فيبقى رأس البطاقتين على محاذاة واحدة
+    expect(pricing).not.toContain("gap-3 mt-1");
+    expect(pricing.split('className="flex items-center gap-3"').length - 1).toBeGreaterThanOrEqual(2);
+  });
+
   it("does not decorate sign-up with an AI sparkle or powered-by-AI label", () => {
     const login = read("src/pages/auth/LoginPage.tsx");
     expect(login).not.toMatch(/Sparkles|powered\s+by\s+AI/i);

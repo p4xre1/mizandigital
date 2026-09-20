@@ -405,6 +405,16 @@ describe("الصفحة الرئيسية — التدرّجات المهنية", 
     expect(css()).toContain(".dark .grad-hero");
   });
 
+  it("لا تحمل بطاقة الخطة السنوية شارة «الأفضل قيمة»", () => {
+    const container = renderHome();
+    const text = container.textContent ?? "";
+    expect(text).not.toContain("الأفضل قيمة");
+    // لكن رقم الخطة نفسه يبقى ظاهراً (لم نحذف محتوى)
+    expect(text).toContain("399");
+    expect(text).toContain("سنوي");
+    expect(readFileSync("scripts/prerender.mjs", "utf8")).not.toContain("الأفضل قيمة");
+  });
+
   it("لا تُدخل التدرّج إلى قسم الأسعار ولا إلى بطاقات الفواتير", () => {
     const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
     const pricing = src.slice(src.indexOf("الأسعار - خطط مرنة"), src.indexOf("لماذا نحن"));

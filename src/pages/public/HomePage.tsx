@@ -822,8 +822,7 @@ export function HomePage() {
               </div>
 
               <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
-                <span className="inline-block mb-3 rounded-full border border-border bg-muted px-2.5 py-1 text-[10px] font-bold text-foreground">الأفضل قيمة — خصم 32%</span>
-                <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center gap-3">
                   <div className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground">
                     <Award className="size-5" />
                   </div>
