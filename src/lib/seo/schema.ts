@@ -1,12 +1,19 @@
 // /workspaces/mizandigital/src/lib/seo/schema.ts
 import { jsonLdProps } from "./jsonLd"
+import { BASE_URL, canonicalUrl } from "../canonical"
 
+/**
+ * إعدادات الموقع. النطاق لم يُترك سلسلة مكتوبة باليد: جاء من سياسة الروابط
+ * (shared/seo/url-policy.js) وإلا انقسم الموقع على نطاقين في البيانات
+ * المهيكلة (mizan.page مقابل www.mizan.page) وهو أخطر على الفهرسة من شرطة
+ * نهاية زائدة.
+ */
 export const SITE_CONFIG = {
   name: "منصة الميزان الرقمية",
   altName: "الميزان الرقمي - Mizan Digital",
-  url: "https://www.mizan.page",
-  logo: "https://www.mizan.page/Logo.svg",
-  defaultImage: "https://www.mizan.page/og-default.jpg",
+  url: BASE_URL,
+  logo: canonicalUrl("/Logo.svg"),
+  defaultImage: canonicalUrl("/og-default.jpg"),
   inLanguage: "ar-MA",
   country: "MA",
 }
@@ -111,6 +118,7 @@ export function generateArticleSchema(article: SchemaArticleInput) {
     "@context": "https://schema.org",
     "@type": isLegal ? "TechArticle" : "Article",
     "@id": `${article.url}/#article`,
+    url: article.url,
     headline: article.title,
     description: article.description,
     inLanguage: SITE_CONFIG.inLanguage,
@@ -122,14 +130,21 @@ export function generateArticleSchema(article: SchemaArticleInput) {
     dateModified: article.dateModified || article.datePublished,
     wordCount: article.wordCount,
     keywords: article.keywords ? article.keywords.join(", ") : undefined,
-    author: {
-      "@type": "Organization",
-      name: article.authorName || SITE_CONFIG.name,
-      url: SITE_CONFIG.url,
-    },
+    // التوقيع الفردي يُنشَر كـ Person (وهو ما تطلبه وثائق NewsArticle)،
+    // وعند غياب اسم كاتب حقيقي تبقى العقدة كيان التحرير نفسه بدل لفّ اسم
+    // الموقع في قالب Person وهو ليس شخصاً.
+    author:
+      article.authorName && article.authorName !== SITE_CONFIG.name
+        ? { "@type": "Person", name: article.authorName }
+        : {
+            "@type": "Organization",
+            name: SITE_CONFIG.name,
+            url: SITE_CONFIG.url,
+          },
     publisher: {
       "@type": "Organization",
       name: SITE_CONFIG.name,
+      url: SITE_CONFIG.url,
       logo: {
         "@type": "ImageObject",
         url: SITE_CONFIG.logo,
@@ -150,7 +165,10 @@ export function generateBreadcrumbSchema(items: BreadcrumbItemInput[]) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: item.url.startsWith("http") ? item.url : `${SITE_CONFIG.url}${item.url}`,
+      // canonicalUrl() توحّد النطاق وتحذف شرطة النهاية والمعاملات: crumbs
+      // كانت تُكتب تارةً «https://www.mizan.page/» وتارةً «/» فتختلف نسخة
+      // الجذر نفسها بين صفحة وأخرى.
+      item: canonicalUrl(item.url),
     })),
   }
 }
@@ -264,4 +282,138 @@ export function renderSchemaScript(schemaData: Record<string, unknown> | Array<R
   // أي حقل من نظام إدارة المحتوى يحوي `</script>` كان يكسر الوسم ويفتح XSS.
   // صار يمرّ عبر jsonLdProps المهرِّب.
   return jsonLdProps(schemaData)
+}
+/**
+ * 9. مخطط مصطلح المعجم (DefinedTerm Schema)
+ *
+ * تُربط الصفحة بمجموعة التعريف عبر inDefinedTermSet الكامل (لا مجرد @id)،
+ * ليقرأها محرك البحث — ووكلاء الذكاء الاصطناعي — كمصطلح من قاموس معروف
+ * النطاق، لا كتعريف معزول. حقل url مطابق تماماً لرابط canonical.
+ */
+export interface DefinedTermInput {
+  termAr: string
+  termFr?: string | null
+  definition: string
+  category?: string | null
+  canonical: string
+  sourceReferences?: string[]
+}
+
+export function generateDefinedTermSchema(input: DefinedTermInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "DefinedTerm",
+    "@id": `${input.canonical}#term`,
+    name: input.termAr,
+    alternateName: input.termFr || undefined,
+    description: input.definition,
+    inDefinedTermSet: {
+      "@type": "DefinedTermSet",
+      name: "القاموس القانوني المغربي",
+      url: canonicalUrl("/lexicon"),
+    },
+    url: input.canonical,
+    // sourceReference تُبقي الإحالة التشريعية داخل البيانات المهيكلة فتظهر
+    // في مقتطفات المحركات التوليدية مع مصدرها.
+    citation: input.sourceReferences?.length
+      ? input.sourceReferences.map((reference) => ({
+          "@type": "CreativeWork",
+          name: reference,
+        }))
+      : undefined,
+    inLanguage: SITE_CONFIG.inLanguage,
+  }
+}
+
+/**
+ * 10. مخطط الخبر (NewsArticle Schema)
+ *
+ * الأخبار كانت تحمل مخطط Article العام، فيفقد Google datePublished
+ * و dateModified وسياق «الأخبار العاجلة» (و هو ما يلزم لـ Top Stories).
+ * النوع NewsArticle يُنتج من نفس مدخلات Article مع التاريخين الإلزاميين.
+ */
+export function generateNewsArticleSchema(article: SchemaArticleInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "@id": `${article.url}#newsarticle`,
+    // url = الرابط القانوني للصفحة نفسها. بدونه يفقد Google/GPT السياق الذي
+    // يربط العقدة بالعنوان المفهرس، فيُقرأ الخبر بلا مصدر قابل للنقر.
+    url: article.url,
+    headline: article.title,
+    description: article.description,
+    inLanguage: SITE_CONFIG.inLanguage,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": article.url,
+    },
+    datePublished: article.datePublished,
+    dateModified: article.dateModified || article.datePublished,
+    // توقيع فردي إن وُجد، وكيان التحرير عند غيابه — لا Person وهمي.
+    author:
+      article.authorName && article.authorName !== SITE_CONFIG.name
+        ? { "@type": "Person", name: article.authorName }
+        : {
+            "@type": "Organization",
+            name: SITE_CONFIG.name,
+            url: SITE_CONFIG.url,
+          },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_CONFIG.name,
+      url: SITE_CONFIG.url,
+      logo: {
+        "@type": "ImageObject",
+        url: SITE_CONFIG.logo,
+      },
+    },
+    image: article.image || SITE_CONFIG.defaultImage,
+    isAccessibleForFree: true,
+  }
+}
+
+/**
+ * 11. مخطط مؤسسة تعليمية لصفحة كلية (EducationalOrganization Schema)
+ *
+ * الفرق الجوهري عن النسخة السابقة: حقل url صار دائماً رابط الصفحة على
+ * ميزان. كان الموقع يضع الرابط الرسمي للكلية في url، فتُقرأ عقدة
+ * الكيان على أنها تتكلم عن موقع الجامعة لا عن هذه الصفحة، وتنقطع
+ * سلسلة mainEntity ↔ WebPage. الموقع الرسمي يُنشر في sameAs، وهو
+ * موضعه الصحيح.
+ */
+export interface FacultySchemaInput {
+  name: string
+  nameFr?: string | null
+  description?: string | null
+  canonical: string
+  city?: string | null
+  university?: string | null
+  officialUrl?: string | null
+  foundedYear?: string | number | null
+  image?: string | null
+}
+
+export function generateFacultySchema(input: FacultySchemaInput) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "@id": `${input.canonical}#organization`,
+    name: input.name,
+    alternateName: input.nameFr || undefined,
+    description: input.description || undefined,
+    url: input.canonical,
+    image: input.image || SITE_CONFIG.defaultImage,
+    foundingDate: input.foundedYear ? String(input.foundedYear) : undefined,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: input.city || "المغرب",
+      addressCountry: SITE_CONFIG.country,
+    },
+    parentOrganization: input.university
+      ? { "@type": "CollegeOrUniversity", name: input.university }
+      : undefined,
+    // الموقع الرسمي للمؤسسة: sameAs لا url — الرابط القانوني للصفحة يبقى في url.
+    sameAs: input.officialUrl || undefined,
+    inLanguage: SITE_CONFIG.inLanguage,
+  }
 }

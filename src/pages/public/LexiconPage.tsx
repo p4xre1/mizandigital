@@ -4,6 +4,7 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
+import { canonicalLexicon, canonicalLexiconHub } from "../../lib/canonical"
 import localLexicon from "../../data/lexicon.json"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
@@ -126,18 +127,24 @@ export function LexiconPage() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
+  // الروابط من سياسة الروابط، بنفس معرّفات القائمة (slugById) التي تُبنى منها
+  // <Link> هنا: عقدة DefinedTerm بلا url لا تربط المصطلح بصفحته، فلا تظهر
+  // في نتائج «التعريف» ولا في مقتطفات المحركات التوليدية مع مصدر قابل للنقر.
+  const lexiconHubCanonical = canonicalLexiconHub()
+
   const lexiconSchema = {
     "@context": "https://schema.org",
     "@type": "DefinedTermSet",
     "name": "المعجم القانوني المغربي الشامل",
     "description": "قاموس ومصطلحات مفاهيم القانون الإداري، المدني، الجنائي، والتجاري باللغتين العربية والفرنسية.",
-    "url": "https://www.mizan.page/lexicon",
+    "url": lexiconHubCanonical,
     "hasDefinedTerm": filteredTerms.slice(0, 30).map((term: any, idx: number) => ({
       "@type": "DefinedTerm",
       "name": term.term_ar,
       "termCode": term.term_fr || `term-${idx}`,
       "description": term.definition,
-      "inDefinedTermSet": "https://www.mizan.page/lexicon"
+      "url": canonicalLexicon(slugById.get(term.id) || generateSlug(term.term_ar) || term.id),
+      "inDefinedTermSet": lexiconHubCanonical,
     }))
   }
 
@@ -152,7 +159,7 @@ export function LexiconPage() {
         title="القاموس القانوني المغربي"
         description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
         directAnswer="القاموس القانوني في ميزان الرقمية يضم 250 مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب."
-        canonicalUrl="https://www.mizan.page/lexicon"
+        canonicalUrl={lexiconHubCanonical}
         keywords={[
           "المعجم القانوني المغربي",
           "مصطلحات قانونية عربي فرنسي",

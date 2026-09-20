@@ -2,31 +2,31 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.mizan.page</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/archive</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/news</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/articles</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/events</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -37,37 +37,37 @@
   </url>
   <url>
     <loc>https://www.mizan.page/lexicon</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/quiz</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/quiz/university</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/quiz/general</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/quiz/concours</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/quiz/interview</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -92,6 +92,11 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://www.mizan.page/pricing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://www.mizan.page/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
@@ -108,37 +113,37 @@
   </url>
   <url>
     <loc>https://www.mizan.page/s1</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s2</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s3</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s4</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s5</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.mizan.page/s6</loc>
-    <lastmod>2026-09-16</lastmod>
+    <lastmod>2026-09-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -167,19 +172,19 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/news/itlaq-al-arshif-ad-dirasi</loc>
+    <loc>https://www.mizan.page/articles/itlaq-al-arshif-ad-dirasi</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/news/idafat-dalil-kulliyat-al-huquq</loc>
+    <loc>https://www.mizan.page/articles/idafat-dalil-kulliyat-al-huquq</loc>
     <lastmod>2026-08-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/news/rawabit-qiraa-mustaqilla-lil-muhtawa</loc>
+    <loc>https://www.mizan.page/articles/rawabit-qiraa-mustaqilla-lil-muhtawa</loc>
     <lastmod>2026-08-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -923,7 +928,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/lexicon/الرهن-الحيازي-gage</loc>
+    <loc>https://www.mizan.page/lexicon/الرهن-الحيازي-gage-civil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -1663,7 +1668,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/pdf/أسئلة-وأجوبة-امتحان-قانون-الأسرة-s1--المغرب-2026</loc>
+    <loc>https://www.mizan.page/pdf/أسئلة-وأجوبة-امتحان-قانون-الأسرة-s1-المغرب-2026</loc>
     <lastmod>2026-07-13</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
@@ -1675,19 +1680,19 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/pdf/امتحان-القانون-التجاري-s3--جامعة-الحسن-الثاني-2026</loc>
+    <loc>https://www.mizan.page/pdf/امتحان-القانون-التجاري-s3-جامعة-الحسن-الثاني-2026</loc>
     <lastmod>2026-07-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/pdf/ملخص-التنظيم-القضائي-s4--جامعة-ابن-طفيل</loc>
+    <loc>https://www.mizan.page/pdf/ملخص-التنظيم-القضائي-s4-جامعة-ابن-طفيل</loc>
     <lastmod>2026-07-05</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://www.mizan.page/pdf/أسئلة-القانون-الجنائي-s4--جامعة-محمد-الأول</loc>
+    <loc>https://www.mizan.page/pdf/أسئلة-القانون-الجنائي-s4-جامعة-محمد-الأول</loc>
     <lastmod>2026-07-07</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>

@@ -1,11 +1,12 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { canonicalSchool, canonicalUrl, schoolSlug } from "../shared/seo/url-policy.js";
 import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const distFile = join(root, "dist", "schools.html");
 const dataFile = join(root, "src", "data", "schools.json");
-const DOMAIN = "https://www.mizan.page";
+const DOMAIN = canonicalUrl("/");
 const SITE = "ميزان الرقمية";
 const REVIEWED = "2026-08-31";
 
@@ -13,7 +14,9 @@ const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").
 const schools = JSON.parse(await readFile(dataFile, "utf8"));
 
 const items = schools.map((s, i) => {
-  const slug = s.slug || s.id;
+  // schoolSlug() من سياسة الروابط — نفس ما يبني به prerender اسم الملف
+  // (schools/<slug>.html)، فلا يُنشَر رابط مدرسة بلا صفحة.
+  const slug = schoolSlug(s);
   const name = s.name || s.name_ar || "مؤسسة جامعية";
   const areas = Array.isArray(s.studyAreas) ? s.studyAreas : [];
   const official = s.officialUrl || "";
@@ -32,7 +35,7 @@ const schema = {
     "item": {
       "@type": "EducationalOrganization",
       "name": s.name || s.name_ar,
-      "url": `${DOMAIN}/schools/${s.slug || s.id}`,
+      "url": canonicalSchool(schoolSlug(s)),
       "address": { "@type": "PostalAddress", "addressLocality": s.city || "المغرب", "addressCountry": "MA" },
       ...(s.university ? { "parentOrganization": { "@type": "CollegeOrUniversity", "name": s.university } } : {}),
       ...(s.officialUrl ? { "sameAs": s.officialUrl } : {})

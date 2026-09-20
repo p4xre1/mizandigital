@@ -1,7 +1,8 @@
 import { useParams, Link } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { AEOHead } from "../../components/seo/AEOHead"
-import { generateBreadcrumbSchema } from "../../lib/seo/schema"
+import { generateBreadcrumbSchema, generateDefinedTermSchema } from "../../lib/seo/schema"
+import { canonicalLexicon, itemPath } from "../../lib/canonical"
 import { NotFound } from "./NotFound"
 import lexiconData from "../../data/lexicon.json"
 import { lexiconSlugById, generateSlug } from "../../lib/utils/generateSlug"
@@ -190,7 +191,9 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   }
 
   const legalSources: LegalSource[] = term.legal_sources ?? []
-  const canonicalUrl = `https://www.mizan.page/lexicon/${targetQuery}`
+  // الرابط القانوني من سياسة الروابط وحدها، فيطابق ما يطبعه prerender في
+  // الملف الثابت (lexicon/<slug>.html) وما تنشره sitemap.
+  const canonical = canonicalLexicon(String(targetQuery ?? ""))
 
   const handleSelectArticle = (codeIndex: number, articleIndex: number) => {
     const anchorId = legalSourceAnchorId(codeIndex, articleIndex)
@@ -202,20 +205,19 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
     }
   }
 
-  const termSchema = {
-    "@context": "https://schema.org",
-    "@type": "DefinedTerm",
-    "name": term.term_ar,
-    "alternateName": term.term_fr || undefined,
-    "description": term.definition,
-    "inDefinedTermSet": "https://www.mizan.page/lexicon",
-    "inLanguage": ["ar-MA", "fr"]
-  }
+  const termSchema = generateDefinedTermSchema({
+    termAr: term.term_ar,
+    termFr: term.term_fr,
+    definition: term.definition,
+    category: term.category,
+    canonical,
+    sourceReferences: legalSources.map((source) => source.code_ar).filter(Boolean),
+  })
 
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "الرئيسية", url: "/" },
     { name: "المعجم القانوني", url: "/lexicon" },
-    { name: term.term_ar, url: `/lexicon/${targetQuery}` },
+    { name: term.term_ar, url: itemPath.lexicon(String(targetQuery ?? "")) },
   ])
 
   const handleCopyLink = () => {
@@ -227,13 +229,13 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   return (
     <>
       <AEOHead
-        title={`تعريف مصطلح: ${term.term_ar} (${term.term_fr || ""})`}
+        title={`${term.term_ar} في القانون المغربي`}
         description={buildMetaDescription(term.definition, [
           term.term_fr ? `Terme juridique: ${term.term_fr}` : null,
           `تعريف مصطلح "${term.term_ar}" ضمن المعجم القانوني المغربي على منصة الميزان الرقمية، مع الشجرة القانونية الرابطة بالقوانين والفصول ذات الصلة.`,
         ])}
         ogType="article"
-        canonicalUrl={canonicalUrl}
+        canonicalUrl={canonical}
         keywords={[
           term.term_ar,
           term.term_fr || "",

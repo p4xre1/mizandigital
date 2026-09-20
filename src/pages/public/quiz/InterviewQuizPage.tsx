@@ -2,6 +2,7 @@ import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { BriefcaseBusiness, Play, ArrowRight } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
 import { QuizRunner } from "../../../components/quiz/QuizRunner"
 import { useQuizQuestions } from "../../../hooks/useQuizQuestions"
@@ -58,7 +59,7 @@ export function InterviewQuizPage() {
       <SEOHead
         title="اختبارات المقابلات المهنية وتداريب العمل القانوني"
         description="مواقف عملية وأسئلة مقابلات حقيقية لإعداد الخريجين والباحثين عن تدريب أو وظيفة قانونية في مكاتب المحاماة والشركات والمؤسسات."
-        canonicalUrl="https://www.mizan.page/quiz/interview"
+        canonicalUrl={canonicalFor("/quiz/interview")}
         keywords={["مقابلة عمل قانونية", "تدريب محاماة", "internship law Morocco", "أخلاقيات المحاماة"]}
         schema={[
           generateBreadcrumbSchema([

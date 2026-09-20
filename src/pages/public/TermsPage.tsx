@@ -16,7 +16,7 @@ export function TermsPage() {
         description={TERMS_POLICY.description}
         directAnswer={TERMS_POLICY.directAnswer}
         breadcrumbs={[
-          { name: "الرئيسية", url: "https://www.mizan.page/" },
+          { name: "الرئيسية", url: "/" },
           { name: "الشروط والأحكام", url: "https://www.mizan.page/terms" },
         ]}
         faq={TERMS_POLICY.faq}

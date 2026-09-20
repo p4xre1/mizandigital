@@ -9,7 +9,6 @@ export function NotFound() {
         title="404 - الصفحة غير موجودة"
         description="عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها أو حذفها. يمكنك العودة إلى الصفحة الرئيسية أو استخدام البحث للعثور على المحتوى الذي تريده."
         directAnswer="NotFound في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "404 - الصفحة غير موجودة", url: "https://www.mizan.page/notfound" }]}
         noindex
       />
 

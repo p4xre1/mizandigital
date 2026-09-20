@@ -1,5 +1,12 @@
-// Enhanced llms.txt generator — AI crawl + AEO optimized
-// Generates llms.txt + llms-full.txt + ai.txt sections
+// Enhanced llms generator — AI crawl + AEO optimized
+//
+// يكتب public/llms-full.txt فقط. النسخة المختصرة public/llms.txt يملكها
+// scripts/generate-llms.mjs (وهو ما يشغّله prebuild): الملفان زوجٌ واحد
+// والنسخة الكاملة تبدأ من مخرجات المختصرة، فكتابة الاثنين من هنا كانت تجعل
+// llms.txt يتغيّر بحسب آخر سكربت شغّله المطوّر — أي مصدرَان للحقيقة لملف
+// واحد يُقرأ وقت البناء. الشغّل `pnpm seo:llms` ليُحدَّث الملفان معاً.
+//
+// يُولَّد أيضاً مقطع ai.txt من نفس القائمة (لا ملف منفصل في المستودع).
 
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -7,9 +14,15 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = join(__dirname, "../src/data");
-const OUTPUT = join(__dirname, "../public/llms.txt");
 const OUTPUT_FULL = join(__dirname, "../public/llms-full.txt");
-const DOMAIN = "https://www.mizan.page";
+import {
+  SITE_ORIGIN as DOMAIN,
+  canonicalHome,
+  lexiconSlug,
+  newsSlug,
+  articleSlug,
+  schoolSlug,
+} from "../shared/seo/url-policy.js";
 
 const readJson = async (name) => {
   try {
@@ -39,17 +52,6 @@ const clamp = (value, max = 200) => {
 const link = (title, path, description) =>
   description ? `- [${title}](${DOMAIN}${path}): ${clamp(description)}` : `- [${title}](${DOMAIN}${path})`;
 
-const slugify = (value) =>
-  String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[\u064B-\u065F\u0670]/g, "")
-    .replace(/[\s/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF-]+/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
-
 const counts = {
   articles: articles.length,
   news: news.length,
@@ -61,13 +63,14 @@ const counts = {
 };
 const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
+// نفس دالة سياسة الروابط المستعملة في الواجهة وفي prerender: المعرّف
+// العربي أولاً، وعند التكرار يُلحق به معرّف السجل (لا «-x» ولا المقابل
+// الفرنسي) — وإلا نُشر في llms-full.txt رابط لا ملف تحته.
 const usedSlugs = new Set();
-const lexiconSlugs = lexicon.map((term) => {
-  let slug = slugify(term.term_ar) || String(term.id);
-  while (usedSlugs.has(slug)) slug = `${slug}-x`;
-  usedSlugs.add(slug);
-  return { ...term, slug };
-});
+const lexiconSlugs = lexicon.map((term) => ({
+  ...term,
+  slug: lexiconSlug(term, usedSlugs),
+}));
 
 // === MAIN LLMS.TXT ===
 const lines = [];
@@ -118,14 +121,14 @@ lines.push("");
 lines.push("## المقالات (AEO: إجابات مفصلة)");
 lines.push("");
 for (const article of articles) {
-  lines.push(link(article.title, `/articles/${article.slug}`, article.excerpt));
+  lines.push(link(article.title, `/articles/${articleSlug(article)}`, article.excerpt));
 }
 lines.push("");
 
 lines.push("## المستجدات التشريعية والقضائية");
 lines.push("");
 for (const item of news) {
-  const slug = item.slug || slugify(item.title);
+  const slug = newsSlug(item);
   lines.push(link(item.title, `/news/${slug}`, item.summary));
 }
 lines.push("");
@@ -133,7 +136,7 @@ lines.push("");
 lines.push("## كليات الحقوق (21 كلية)");
 lines.push("");
 for (const school of schools) {
-  lines.push(link(school.name, `/schools/${school.slug}`, `${school.university} — ${school.city}`));
+  lines.push(link(school.name, `/schools/${schoolSlug(school)}`, `${school.university} — ${school.city}`));
 }
 lines.push("");
 
@@ -215,11 +218,8 @@ lines.push("- [تسجيل الدخول](https://www.mizan.page/login): للوص�
 lines.push("- [المحفوظات](https://www.mizan.page/saved): المحتوى المحفوظ (localStorage)");
 lines.push("");
 
-// Write main llms.txt
-await writeFile(OUTPUT, `${lines.join("\n")}\n`, "utf8");
-console.log(`✓ public/llms.txt — ${lines.length} سطراً، ${total} سجلاً`);
-
 // === FULL VERSION ===
+// لا تُكتب النسخة المختصرة هنا (انظر رأس الملف): تبقى ملك generate-llms.mjs.
 const fullLines = [...lines];
 fullLines.push("\n## كل المصطلحات القانونية (250)");
 fullLines.push("");
@@ -231,7 +231,7 @@ fullLines.push("## كل المقالات");
 fullLines.push("");
 for (const article of articles) {
   fullLines.push(`### ${article.title}`);
-  fullLines.push(`${DOMAIN}/articles/${article.slug}`);
+  fullLines.push(`${DOMAIN}/articles/${articleSlug(article)}`);
   fullLines.push(clamp(article.content || article.excerpt, 500));
   fullLines.push("");
 }

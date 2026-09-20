@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { buildMetaDescription } from "../../lib/seo/description"
+import { BASE_URL, canonicalEvent } from "../../lib/canonical"
 import eventsData from "../../data/events.json"
 import { supabase } from "../../lib/supabase/client"
 import { useTrackView } from "@/hooks/useTrackView"
@@ -136,7 +137,7 @@ export function EventPage({ slug }: EventPageProps) {
   const registerLink = event.registrationUrl || event.sourceUrl
   const registerLabel = event.registrationUrl ? "رابط التسجيل" : (event.sourceLabel || "المصدر الرسمي")
   const isUpcoming = (eventDate || "") >= todayStr
-  const canonicalUrl = `https://www.mizan.page/events/${event.slug || eventSlug}`
+  const canonicalUrl = canonicalEvent(event.slug || eventSlug)
 
   // Schema.org Structured Data for EducationEvent
   const eventSchema = {
@@ -160,9 +161,11 @@ export function EventPage({ slug }: EventPageProps) {
     "organizer": {
       "@type": "Organization",
       "name": event.organizer || event.university || "جامعة مغربية",
-      "url": "https://www.mizan.page"
+      "url": BASE_URL
     },
-    "url": `https://www.mizan.page/events/${event.id}`
+    // url = نفس رابط canonical. كان `event.id` هنا، فتُقرأ الفعالية تحت
+    // رابطَين (المخطط تحت /events/<id> والصفحة تحت /events/<slug>).
+    "url": canonicalUrl
   }
 
   return (

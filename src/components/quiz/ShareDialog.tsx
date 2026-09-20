@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { X, Download, Share2, Copy, Check, ExternalLink, Loader2, MessageCircle, Linkedin } from "lucide-react"
+import { BASE_URL } from "@/lib/canonical"
 import {
   blobToObjectUrl,
   buildLinkedInShareUrl,
@@ -87,7 +88,7 @@ export function ShareDialog({
   if (!open) return null
 
   // رابط المشاركة: بروفايل المستخدم إن وُجد، وإلا رابط المنصة
-  const resolvedShareUrl = shareUrl ?? (input.username ? `https://mizan.page/u/${input.username}` : "https://mizan.page/quiz")
+  const resolvedShareUrl = shareUrl ?? (input.username ? `${BASE_URL}/u/${input.username}` : `${BASE_URL}/quiz`)
   const shareText = buildShareText(input)
   const whatsappUrl = buildWhatsAppShareUrl(input)
   const linkedinUrl = buildLinkedInShareUrl(resolvedShareUrl)

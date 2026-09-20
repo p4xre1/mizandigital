@@ -1,25 +1,34 @@
 /**
  * توليد روابط صديقة (Slugs) مخصصة للنصوص العربية والإنجليزية
+ *
+ * ⚠️ هذه الملف لم يعد يملك الخوارزمية: إعادة التصدير الوحيدة لـ
+ * shared/seo/url-policy.js هي المصدر الوحيد للحقيقة.
+ *
+ * لماذا؟ كانت نسخة الواجهة (هذا الملف)، ونسخة prerender.mjs، ونسخة
+ * generate-sitemap.mjs، ونسخة enhance-lexicon-prerender.mjs — أربع
+ * خوارزميات تبني «نفس» المعرّف. divergence بينها يعني روابط في خريطة
+ * الموقع أو في القوائم تشير إلى صفحات غير موجودة (404)، لأن الملف الثابت
+ * يُولَّد باسم مختلف تماماً عن الرابط المنشور. شوهد هذا فعلاً في:
+ *   /lexicon/الرهن-الحيازي-gage  (sitemap)  ↔  …-gage-civil (الصفحة الفعلية)
+ *   و 7 روابط /pdf تحمل شرطة مزدوجة -- في sitemap لا تطابق أي ملف.
+ *
+ * أي تغيير هنا يجب أن يمرّ باختبارات tests/seo-canonical.test.ts التي
+ * تقارن الخوارزميات على بيانات المشروع نفسها.
+ */
+import {
+  docSlug,
+  lexiconSlug,
+  lexiconSlugMap,
+  slugify,
+} from "../../../shared/seo/url-policy.js"
+
+/**
+ * ترميز المعرّف الصديق: تطبيع NFKC، إزالة التشكيل (U+064B..U+065F، U+0670)
+ * والتطويل (U+0640)، استبدال الفراغات والشرطات السفلية والمائلة بشرطة واحدة،
+ * والاحتفاظ بالحروف اللاتينية والأرقام والمدى العربي.
  */
 export function generateSlug(text: string): string {
-  if (!text) return ""
-
-  return text
-    .toString()
-    .trim()
-    .toLowerCase()
-    // 1. إزالة التشكيل العربي (Tashkeel / Diacritics: ً ٌ ٍ َ ُ ِ ّ ْ)
-    .replace(/[\u064B-\u0652]/g, "")
-    // 2. إزالة التطويل العربي (Tatweel: ـ)
-    .replace(/ـ/g, "")
-    // 3. استبدال المسافات والشرطات السفلية بشرطة واحدة
-    .replace(/[\s_]+/g, "-")
-    // 4. الحفاظ على الأحرف العربية والأرقام والحروف الإنجليزية فقط
-    .replace(/[^\w\u0600-\u06FF-]/g, "")
-    // 5. دمج الشرطات المتكررة
-    .replace(/-+/g, "-")
-    // 6. إزالة الشرطات من البداية والنهاية
-    .replace(/^-+|-+$/g, "")
+  return slugify(text ?? "")
 }
 
 export type LexiconSlugItem = {
@@ -30,25 +39,11 @@ export type LexiconSlugItem = {
 
 /** First Arabic slug wins; later homonyms append the item id instead of French. */
 export function uniqueLexiconSlug(item: LexiconSlugItem, taken: Set<string>): string {
-  const base = generateSlug(item.term_ar) || item.id
-  let slug = base
-  
-  // إذا تكرر الاسم العربي، نضيف الـ id بدلاً من الـ term_fr لضمان فرادة الرابط ونظافته
-  if (taken.has(slug)) {
-    slug = `${base}-${item.id}`
-  }
-  
-  taken.add(slug)
-  return slug
+  return lexiconSlug(item, taken)
 }
 
 export function lexiconSlugById(items: LexiconSlugItem[]): Map<string, string> {
-  const taken = new Set<string>()
-  const map = new Map<string, string>()
-  for (const item of items) {
-    map.set(item.id, uniqueLexiconSlug(item, taken))
-  }
-  return map
+  return lexiconSlugMap(items)
 }
 
 export type TitledSlugItem = {
@@ -63,13 +58,7 @@ export type TitledSlugItem = {
  * لضمان فرادة الرابط.
  */
 export function uniqueTitledSlug(item: TitledSlugItem, taken: Set<string>): string {
-  const base = generateSlug(item.title) || generateSlug(item.id) || item.id
-  let slug = base
-  if (taken.has(slug)) {
-    slug = `${base}-${generateSlug(item.id) || item.id}`
-  }
-  taken.add(slug)
-  return slug
+  return docSlug(item, taken)
 }
 
 export function titledSlugById(items: TitledSlugItem[]): Map<string, string> {

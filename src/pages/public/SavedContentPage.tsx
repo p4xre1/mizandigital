@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AEOHead } from "@/components/seo/AEOHead";
+import { canonicalFor } from "@/lib/canonical"
 import { Bookmark, Trash2, BookOpen, Scale, FileText } from "lucide-react";
 
 type SavedItem = {
@@ -50,7 +51,7 @@ export function SavedContentPage() {
     <main className="container-wide py-10" dir="rtl">
       <AEOHead title="المحتوى المحفوظ — ميزان الرقمية" description="مقالاتك، مصطلحاتك، وقوانينك المحفوظة للقراءة لاحقاً."
         directAnswer="المحتوى المحفوظ في ميزان الرقمية: مقالات وأخبار ومصطلحات محفوظة محلياً في المتصفح."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "المحتوى المحفوظ — ميزان الرقمية", url: "https://www.mizan.page/savedcontentpage" }]} canonicalUrl="https://www.mizan.page/saved" />
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "المحتوى المحفوظ — ميزان الرقمية", url: "/saved" }]} canonicalUrl={canonicalFor("/saved")} />
 
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">

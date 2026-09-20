@@ -27,6 +27,7 @@ import {
   Users,
 } from "lucide-react"
 import { AEOHead } from "../../components/seo/AEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { RankBadge } from "../../components/quiz/RankBadge"
 import { XpBar } from "../../components/quiz/XpBar"
@@ -414,7 +415,7 @@ export function MyProfilePage() {
           title="ملفي — سجّل الدخول لإنشاء بروفايلك"
           description="أنشئ حساباً على ميزان الرقمية لتحصل على بروفايل عام مخصص ورتبة من D إلى SSS تُطبّق تلقائياً على نقاط خبرتك."
           directAnswer="بروفايل ميزان يتطلب حساباً: سجّل الدخول أو أنشئ حساباً جديداً عبر Supabase Auth."
-          canonicalUrl="https://www.mizan.page/profile"
+          canonicalUrl={canonicalFor("/profile")}
           noindex
         />
         <div className="mx-auto max-w-xl rounded-3xl border border-border bg-card p-8 text-center">
@@ -464,7 +465,7 @@ export function MyProfilePage() {
         title="ملفي الشخصي — رتبتي ونقاط خبرتي"
         description="بروفايلك العام على ميزان: صورة وغلاف وسطر تعريفي وروابط، مع رتبتك ونقاط خبرتك وأوسمتك وسجل اختباراتك القانونية."
         directAnswer="MyProfilePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
-        canonicalUrl="https://www.mizan.page/profile"
+        canonicalUrl={canonicalFor("/profile")}
         noindex
         schema={[
           generateBreadcrumbSchema([

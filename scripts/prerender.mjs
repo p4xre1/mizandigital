@@ -1,5 +1,27 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { buildLlmsTxt } from "./lib/llms-content.mjs";
+import {
+  SITE_ORIGIN,
+  articleSlug,
+  canonicalArticle,
+  canonicalEvent,
+  canonicalLexicon,
+  canonicalNews,
+  canonicalPage,
+  canonicalPdf,
+  canonicalSchool,
+  canonicalUrl,
+  docSlug,
+  eventSlug,
+  isIndexablePath,
+  lexiconSlug,
+  newsSlug,
+  pathOfUrl,
+  schoolSlug,
+  slugify,
+} from "../shared/seo/url-policy.js";
+import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
+import { buildMetaDescription } from "./lib/meta-description.mjs";
 import { policyToHtml } from "../src/content/legal/markup.js";
 import {
   PRIVACY_POLICY,
@@ -12,7 +34,9 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIST = join(__dirname, "../dist");
 const DATA = join(__dirname, "../src/data");
-const DOMAIN = "https://www.mizan.page";
+// النطاق من سياسة الروابط — لا يُكتب هنا باليد، وإلا انفصل ما يولّده prerender
+// عمّا تنشره sitemap (shared/seo/url-policy.js).
+const DOMAIN = SITE_ORIGIN;
 const NOW = new Date().toISOString();
 
 const readJson = async (name) => {
@@ -46,16 +70,10 @@ const [
 
 const count = (value) => Array.isArray(value) ? value.length : 0;
 
-const generateSlug = (text = "") =>
-  String(text)
-    .trim()
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[\u064B-\u065F\u0670]/g, "")
-    .replace(/[\s/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF-]+/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+// الاسم محفوظ للاستعمالات الكثيرة أدناه، والتنفيذ من سياسة الروابط وحدها:
+// نسخة prerender ونسخة الواجهة (src/lib/utils/generateSlug.ts) ونسخة sitemap
+// صارت دالة واحدة، فلا يُولَّد ملف باسم ويُنشر رابط باسم آخر.
+const generateSlug = (text = "") => slugify(text);
 
 const escapeHtml = (value) =>
   String(value ?? "")
@@ -131,8 +149,42 @@ const escapeJsonForHtml = (value) =>
     .replace(/\u2028/g, "\\u2028")
     .replace(/\u2029/g, "\\u2029");
 
-const absoluteUrl = (path) =>
-  `${DOMAIN}${path === "/" ? "/" : path}`;
+/**
+ * الرابط القانوني المطلق لمسار — بلا شرطة نهاية، حتى على الجذر.
+ *
+ * كانت النسخة السابقة تُرجع `${DOMAIN}/` للصفحة الرئيسية، فيُطبع في
+ * dist/index.html: <link rel="canonical" href="https://www.mizan.page/">.
+ * الجذرُ برابطَيَن (بشرطة وبلا شرطة) هو أسوأ تكرار في الموقع كله، لأن
+ * صفحتَه الرئيسية أقوى صفحة في Domain Rating فتقسمها نسختان.
+ */
+const absoluteUrl = (path) => canonicalUrl(path);
+
+/**
+ * يُوحّد شكل السجل المحلي (articles.json / news.json / events.json) وسجل
+ * نظام الإدارة (Supabase) في كائن واحد، لأن مولّدات الـ staticBody ومخططات
+ * schema.org يجب أن تتغذى من مصدر واحد وإلا اختلف نص الصفحة عن بياناتها
+ * المهيكلة عند إضافة محتوى من لوحة التحكم.
+ */
+function normalizeEntry(entry) {
+  const raw = entry.item ?? {};
+  const title = raw.title || entry.name || "محتوى ميزان الرقمية";
+  const excerpt =
+    raw.meta_description || raw.excerpt || raw.summary || raw.description || entry.summary || "";
+  const bodyRaw = raw.content || raw.body || raw.text || "";
+  const content = Array.isArray(bodyRaw) ? bodyRaw.join("\n\n") : bodyRaw || "";
+
+  return {
+    ...raw,
+    title,
+    excerpt,
+    content,
+    category: raw.category || null,
+    publishedAt: raw.publishedAt || raw.published_at || raw.date || null,
+    updatedAt: raw.updatedAt || raw.updated_at || null,
+    image: raw.image || raw.imageUrl || raw.image_url || raw.coverImage || raw.cover_image || null,
+    slug: entry.slug || String(entry.path || "").split("/").filter(Boolean).pop() || "",
+  };
+}
 
 // مخطط مسار التنقل (BreadcrumbList) — يُستخدم عبر صفحات المقالات والأخبار
 // والقاموس القانوني لتفعيل خاصية "مسار التنقل" فـ نتائج البحث.
@@ -197,35 +249,117 @@ const faqTopics = uniqueSorted((faqGroups ?? []).map((group) => group.title));
 
 const usedLexiconSlugs = new Set();
 
+// lexiconSlug() من سياسة الروابط هي نفسها التي تستعملها الواجهة في
+// TermPage.tsx / LexiconPage.tsx (عبر src/lib/utils/generateSlug.ts):
+// المعرّف العربي أولاً، وعند التكرار يُلحق به المعرّف (لا المقابل الفرنسي).
+// أي انحراف بين الطرفَين يولّد رابطاً في القائمة أو في sitemap يشير إلى
+// ملف غير موجود — وحدث هذا فعلاً مع «الرهن الحيازي».
 const lexiconWithSlugs = lexicon.map((item) => {
-  const base =
-    generateSlug(item.term_ar) ||
-    String(item.id);
-
-  let slug = base;
-
-  // ملاحظة: لازم هاد المنطق يبقى مطابق تماماً لـ uniqueLexiconSlug فـ
-  // src/lib/utils/generateSlug.ts (base -> base-id)، لأن هادوك الدالة هي
-  // اللي كتستعمل فـ TermPage.tsx / LexiconPage.tsx باش تبني الروابط اللي
-  // كيشوفها الزائر. أي اختلاف بين الخوارزميتين كيولّد رابط كيأشر على صفحة
-  // ماكاينش (404).
-  if (usedLexiconSlugs.has(slug)) {
-    slug = `${base}-${item.id}`;
-  }
-
-  while (usedLexiconSlugs.has(slug)) {
-    slug = `${base}-${item.id}-${Math.random()
-      .toString(36)
-      .slice(2, 7)}`;
-  }
-
-  usedLexiconSlugs.add(slug);
+  const slug = lexiconSlug(item, usedLexiconSlugs);
 
   return {
     ...item,
     slug,
   };
 });
+
+/* -------------------------------------------------------
+   قوائم المحتوى + محتوى نظام الإدارة (CMS)
+-------------------------------------------------------
+
+  الاختيار هنا واحد للحالتين: الروابط التي تُطبع في صفحات المحاور،
+  والمسارات التي تُولَّد لها ملفات HTML. لا يمكن أن يختلفا لأن كليهما يُبنى
+  من نفس الكائنات في هذه الكتلة، بنفس دوال سياسة الروابط.
+
+  محتوى CMS اختياري: إن تعذّر الوصول إلى Supabase (بناء بلا شبكة) تُترك
+  القائمة على البيانات المحلية ويُطبع تحذير — ولا يفشل البناء، لأن الفهرسة
+  لا يجوز أن تتعلق بتوفر خدمة خارجية.
+
+  usedContentPaths تمنع مساراً مكرراً: مقالات CMS المنشورة قد تحمل نفس
+  معرّفات articles.json، ولو تُرِك التكرار لانفجر فحص
+  «Duplicate route protection» أدناه أو لنُسخ نفس المحتوى في صفحتين.
+------------------------------------------------------- */
+
+const cms = await fetchPublishedCmsContent();
+
+if (!cms.ok) {
+  console.warn(`⚠️  prerender: ${cms.error} — تُولَّد الصفحات المحلية فقط.`);
+}
+
+const usedContentPaths = new Set();
+
+function pushContent(list, entry) {
+  if (!entry || !entry.path || usedContentPaths.has(entry.path)) return;
+  usedContentPaths.add(entry.path);
+  list.push(entry);
+}
+
+const articlePages = [];
+const newsPages = [];
+const eventPages = [];
+const docPages = [];
+
+const usedDocSlugs = new Set();
+
+for (const item of articles) {
+  pushContent(articlePages, {
+    name: item.title,
+    path: pathOfUrl(canonicalArticle(articleSlug(item))),
+    summary: item.excerpt || item.summary || "",
+    item,
+  });
+}
+
+for (const item of cms.articles) {
+  pushContent(articlePages, {
+    name: item.title,
+    path: pathOfUrl(`/articles/${generateSlug(item.slug)}`),
+    summary: item.meta_description || item.excerpt || "",
+    item,
+    fromCms: true,
+  });
+}
+
+for (const item of news) {
+  pushContent(newsPages, {
+    name: item.title,
+    path: pathOfUrl(canonicalNews(newsSlug(item))),
+    summary: item.summary || item.excerpt || "",
+    item,
+  });
+}
+
+for (const item of cms.news) {
+  pushContent(newsPages, {
+    name: item.title,
+    path: pathOfUrl(`/news/${generateSlug(item.slug)}`),
+    summary: item.summary || "",
+    item,
+    fromCms: true,
+  });
+}
+
+for (const item of events) {
+  pushContent(eventPages, {
+    name: item.title,
+    path: pathOfUrl(canonicalEvent(eventSlug(item))),
+    summary: item.excerpt || "",
+    item,
+  });
+}
+
+for (const item of [...documents, ...cms.pdfs, ...cms.laws]) {
+  const slug = docSlug(item, usedDocSlugs);
+
+  pushContent(docPages, {
+    name: item.title,
+    path: pathOfUrl(canonicalPdf(slug)),
+    summary: item.description || "",
+    item,
+    slug,
+  });
+}
+
 
 /* -------------------------------------------------------
    Entity identity
@@ -433,7 +567,7 @@ const homeHeroHtml = `
 const pages = [
   {
     path: "/",
-    title: "ملخصات S1-S6، قاموس قانوني 250 مصطلح ودليل 21 كلية حقوق بالمغرب | ميزان الرقمية",
+    title: "ميزان الرقمية – منصة طلبة الحقوق في المغرب",
 
     description:
       "ميزان الرقمية منصة مغربية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
@@ -717,6 +851,9 @@ const pages = [
             <li><a href="/s5">S5 — الفصل الخامس</a></li>
             <li><a href="/s6">S6 — الفصل السادس</a></li>
           </ul>
+          <h2>ما الملفات المتاحة في الأرشيف؟</h2>
+
+${renderCrawlList(docPages, { heading: "قائمة ملفات الملخصات والامتحانات" })}
         </article>
       </main>
     `,
@@ -746,6 +883,7 @@ const pages = [
             ويمكن أن تساعد في إعداد البحوث والتعليقات القانونية
             وفهم المفاهيم الأساسية.
           </p>
+${renderCrawlList(articlePages, { heading: "قائمة المقالات المنشورة" })}
         </article>
       </main>
     `,
@@ -774,6 +912,7 @@ const pages = [
             تساعد متابعة المستجدات الطالب على ربط المعرفة النظرية
             بالتطورات التشريعية والقضائية والأكاديمية.
           </p>
+${renderCrawlList(newsPages, { heading: "قائمة الأخبار والمستجدات" })}
         </article>
       </main>
     `,
@@ -802,6 +941,7 @@ const pages = [
             توفر الندوات فرصة للتعرف على آراء الباحثين والممارسين
             ومناقشة قضايا قانونية وأكاديمية معاصرة.
           </p>
+${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعاليات" })}
         </article>
       </main>
     `,
@@ -863,8 +1003,12 @@ const pages = [
     ),
   },
 
-  ...articles.map((item) => {
-    const path = `/articles/${item.slug}`;
+  ...articlePages.map((entry) => {
+    // كل عناصر articles.json تحت /articles/ مهما كان حقل type — وهو نفس
+    // المسار الذي تبنيه الواجهة في ArticlePage وتدخله sitemap. ومحتوى لوحة
+    // التحكم المنشور يُولَّد هنا أيضاً، فلا تُنشر sitemap لرابط بلا ملف.
+    const item = normalizeEntry(entry);
+    const path = entry.path;
 
     return {
       path,
@@ -912,13 +1056,12 @@ const pages = [
     };
   }),
 
-  ...news.map((item) => {
-    const slug =
-      item.slug ||
-      generateSlug(item.title) ||
-      String(item.id);
-
-    const path = `/news/${slug}`;
+  ...newsPages.map((entry) => {
+    // بيانات news.json المحلية لا تملك عمود slug، فيُبنى المعرّف من العنوان
+    // بنفس دالة sitemap و NewsPage — وإلا ذهبت روابط القائمة إلى /news/<id>
+    // والملفات الثابتة وُلدت تحت /news/<slug-from-title>.
+    const item = normalizeEntry(entry);
+    const path = entry.path;
 
     return {
       path,
@@ -948,7 +1091,7 @@ const pages = [
           item.publishedAt
         ),
         inLanguage: "ar-MA",
-        image: item.image || item.imageUrl || item.image_url || DEFAULT_ARTICLE_IMAGE,
+        image: item.image || DEFAULT_ARTICLE_IMAGE,
         author: {
           "@id": `${DOMAIN}/#author`,
         },
@@ -973,8 +1116,9 @@ const pages = [
     };
   }),
 
-  ...events.map((item) => {
-    const path = `/events/${item.slug}`;
+  ...eventPages.map((entry) => {
+    const item = normalizeEntry(entry);
+    const path = entry.path;
 
     return {
       path,
@@ -1010,6 +1154,14 @@ const pages = [
         inLanguage: "ar-MA",
       },
 
+      extraSchema: [
+        buildBreadcrumbSchema([
+          { name: "الرئيسية", path: "/" },
+          { name: "الندوات والفعاليات", path: "/events" },
+          { name: item.title, path },
+        ]),
+      ],
+
       staticBody: `
         <main dir="rtl" lang="ar-MA">
           <article>
@@ -1040,7 +1192,7 @@ const pages = [
   }),
 
   ...schools.map((item) => {
-    const path = `/schools/${item.slug}`;
+    const path = pathOfUrl(canonicalSchool(schoolSlug(item)));
 
     return {
       path,
@@ -1049,6 +1201,9 @@ const pages = [
         item.synopsis ||
         `معلومات عن ${item.name}`,
 
+      // url = الرابط القانوني لصفحة الدليل دائماً. الموقع الرسمي للكلية
+      // يذهب إلى sameAs، لأنه ملكُ المؤسسة لا ملكُ هذه الصفحة: وضعه في url
+      // يجعل عقدة الكيان تشير إلى نطاق خارجي فتنفصل عن WebPage/mainEntity.
       schema: {
         "@context": "https://schema.org",
         "@type": "EducationalOrganization",
@@ -1056,9 +1211,9 @@ const pages = [
         name: item.name,
         description:
           item.synopsis || "",
-        url:
-          item.officialUrl ||
-          absoluteUrl(path),
+        url: absoluteUrl(path),
+        sameAs: item.officialUrl || undefined,
+        foundingDate: item.foundedYear ? String(item.foundedYear) : undefined,
         parentOrganization: {
           "@type": "CollegeOrUniversity",
           name:
@@ -1073,6 +1228,27 @@ const pages = [
         },
         inLanguage: "ar-MA",
       },
+
+      // عقدة WebPage تفصل «هذه الصفحة» عن «المؤسسة» فتُقرأ الأولى كمستند
+      // قابل للفهرسة والثانية ككيان يشير إليه الموقع الرسمي.
+      extraSchema: [
+        {
+          "@type": "WebPage",
+          "@id": `${absoluteUrl(path)}#webpage`,
+          url: absoluteUrl(path),
+          name: `${item.name} | دليل كليات الحقوق بالمغرب`,
+          description: item.synopsis || `معلومات عن ${item.name}`,
+          inLanguage: "ar-MA",
+          isPartOf: { "@id": `${DOMAIN}/#website` },
+          about: { "@id": `${absoluteUrl(path)}#organization` },
+          publisher: { "@id": `${DOMAIN}/#organization` },
+        },
+        buildBreadcrumbSchema([
+          { name: "الرئيسية", path: "/" },
+          { name: "كليات الحقوق", path: "/schools" },
+          { name: item.name, path },
+        ]),
+      ],
 
       staticBody: `
         <main dir="rtl" lang="ar-MA">
@@ -1173,10 +1349,9 @@ const pages = [
     return {
       path,
 
-      title:
-        item.term_fr
-          ? `${item.term_ar} (${item.term_fr}) | القاموس القانوني`
-          : `${item.term_ar} | القاموس القانوني`,
+      // نفس ما يبنيه SEOHead في المتصفح: العنوان بلا المصطلح الفرنسي
+      // (يظهر في H1 وفي alternateName)، والعلامة تُضاف في النهاية.
+      title: `${item.term_ar} في القانون المغربي | الميزان الرقمية`,
 
       description:
         item.definition || "",
@@ -1191,8 +1366,13 @@ const pages = [
         description:
           item.definition || "",
         url: absoluteUrl(path),
+        // عقدة كاملة (نطاق + اسم) بدل @id alone: القارئ الآلي يتتبع
+        // inDefinedTermSet.url مباشرة إلى صفحة القاموس.
         inDefinedTermSet: {
-          "@id": `${DOMAIN}/lexicon#termset`,
+          "@type": "DefinedTermSet",
+          "@id": `${canonicalUrl("/lexicon")}#termset`,
+          name: "القاموس القانوني المغربي",
+          url: canonicalUrl("/lexicon"),
         },
         inLanguage: "ar-MA",
         author: {
@@ -1212,6 +1392,157 @@ const pages = [
         renderTermStaticHtml(item),
     };
   }),
+
+  /* -----------------------------------------------------------
+     صفحات الملفات (الأرشيف) /pdf/<slug>
+     كانت هذه الروابط تُنشر في sitemap وحدها بلا أي ملف ثابت: 9 روابط
+     لا يفتحها زاحف ولا زائر (لا SPA fallback على Cloudflare Pages).
+     التوليد هنا يجعل الرابط حقيقياً، ويضيف للواجهة ملفاً يُقرأ قبل
+     hydration فيظهر عنوان الملف بدل صفحة فارغة.
+  ----------------------------------------------------------- */
+  ...docPages.map((entry) => {
+    const item = normalizeEntry(entry);
+    const path = entry.path;
+    const fileUrl = entry.item?.fileUrl || entry.item?.file_url || "";
+
+    return {
+      path,
+      title: `${item.title} | ملخصات وامتحانات الحقوق | ميزان الرقمية`,
+      description:
+        item.excerpt ||
+        `ملف «${item.title}» من أرشيف ميزان الرقمية لطلبة القانون بالمغرب.`,
+
+      schema: {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        "@id": `${absoluteUrl(path)}#work`,
+        name: item.title,
+        description: item.excerpt || "",
+        url: absoluteUrl(path),
+        inLanguage: "ar-MA",
+        about: item.module || item.semester || "الدراسات القانونية",
+        publisher: { "@id": `${DOMAIN}/#organization` },
+      },
+
+      extraSchema: [
+        buildBreadcrumbSchema([
+          { name: "الرئيسية", path: "/" },
+          { name: "الأرشيف الدراسي", path: "/archive" },
+          { name: item.title, path },
+        ]),
+      ],
+
+      staticBody: `
+        <main dir="rtl" lang="ar-MA">
+          <article>
+
+            <h1>${escapeHtml(item.title)}</h1>
+
+            <p>
+              <strong>نبذة:</strong>
+              ${escapeHtml(item.excerpt || "ملف تعليمي من أرشيف ميزان الرقمية.")}
+            </p>
+
+            ${
+              item.semester
+                ? `<p><strong>الفصل:</strong> ${escapeHtml(String(item.semester).toUpperCase())}</p>`
+                : ""
+            }
+
+            ${
+              item.module
+                ? `<p><strong>المادة:</strong> ${escapeHtml(item.module)}</p>`
+                : ""
+            }
+
+            ${
+              item.professor
+                ? `<p><strong>الأستاذ(ة):</strong> ${escapeHtml(item.professor)}</p>`
+                : ""
+            }
+
+            ${
+              fileUrl
+                ? `<p><a href="${escapeHtml(fileUrl)}" rel="nofollow noopener" download>تحميل الملف</a></p>`
+                : ""
+            }
+
+            <p><a href="/archive">العودة إلى الأرشيف الدراسي</a></p>
+
+          </article>
+        </main>
+      `,
+    };
+  }),
+
+  /* -----------------------------------------------------------
+     صفحة الأسعار /pricing — كانت في الواجهة وحدها، أي بلا نسخة ثابتة
+     يقرأها الزاحف، فبقيت خارج sitemap. توليدها هنا يجعلها صفحة قابلة
+     للفهرسة بـ canonical صحيح.
+  ----------------------------------------------------------- */
+  {
+    path: "/pricing",
+    title: "أسعار ميزان برو وحزم الكريدتس | ميزان الرقمية",
+    description:
+      "اشتراك ميزان برو الشهري والسنوي وحزم الكريدتس لمزايا المنصة القانونية، بالدرهم المغربي.",
+
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "@id": `${canonicalUrl("/pricing")}#product`,
+      name: "اشتراك ميزان برو",
+      description:
+        "اشتراك يمنح أدوات ميزان برو ومزايا متقدمة على منصة ميزان الرقمية القانونية.",
+      category: "Education",
+      brand: { "@id": `${DOMAIN}/#organization` },
+      url: canonicalUrl("/pricing"),
+      offers: [
+        {
+          "@type": "Offer",
+          name: "ميزان برو — شهري",
+          price: "49",
+          priceCurrency: "MAD",
+          availability: "https://schema.org/InStock",
+          url: canonicalUrl("/pricing"),
+        },
+        {
+          "@type": "Offer",
+          name: "ميزان برو — سنوي",
+          price: "399",
+          priceCurrency: "MAD",
+          availability: "https://schema.org/InStock",
+          url: canonicalUrl("/pricing"),
+        },
+      ],
+    },
+
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+
+          <h1>أسعار ميزان الرقمية</h1>
+
+          <p>
+            <strong>
+              محتوى ميزان الرقمية الأساسي مجاني بالكامل: المعجم القانوني، والأرشيف
+              الدراسي، والمقالات، والأخبار، ودليل الكليات. المزايا المتقدمة — أدوات
+              ميزان برو — متاحة باشتراك شهري 49 درهماً أو سنوي 399 درهماً.
+            </strong>
+          </p>
+
+          <h2>ماذا يشمل الاشتراك؟</h2>
+
+          <ul>
+            <li>أدوات البحث والتدريب القانوني المتقدمة.</li>
+            <li>حزم الكريدتس للمزايا غير الدورية.</li>
+          </ul>
+
+          <p><a href="/">العودة إلى الصفحة الرئيسية</a></p>
+
+        </article>
+      </main>
+    `,
+  },
 ];
 
 /* -------------------------------------------------------
@@ -1879,6 +2210,44 @@ function renderNewsStaticHtml(item) {
 }
 
 /* -------------------------------------------------------
+   قائمة روابط لكل صفحة محور (hub)
+-------------------------------------------------------
+
+   لماذا؟ الصفحات الثابتة هي ما يقرأه الزاحف. كانت صفحات /articles و /news
+   و /events و /archive تعرض نصاً تعريفياً بلا أي link إلى صفحاتها
+   الفرعية، فتبقى 300+ صفحة مولّدة «يتيمة» لا يصلها زاحف إلا من sitemap
+   (التي لا تضمن الزحف ولا ترتيب الفهرسة)، وترتفع في التدقيق قائمة
+   «صفحات يتيمة (بلا رابط داخلي)». القوائم هنا داخل الـ staticBody فقط؛
+   الواجهة تظل تعرض بطاقاتها المعتادة بعد hydration.
+------------------------------------------------------- */
+
+function renderCrawlList(items, { heading, emptyText = "لا توجد عناصر منشورة حالياً." } = {}) {
+  const rows = (items || [])
+    .filter((item) => item && item.path && item.name)
+    .map(
+      (item) =>
+        `        <li>
+          <a href="${escapeHtml(item.path)}">${escapeHtml(item.name)}</a>${
+          item.summary ? ` — ${escapeHtml(String(item.summary).slice(0, 120))}` : ""
+        }
+        </li>`
+    )
+    .join("\n");
+
+  return `
+          <h2>${escapeHtml(heading)}</h2>
+
+          <p>
+            القائمة الكاملة للعناصر المنشورة، للوصول المباشر من هذه الصفحة:
+          </p>
+
+          <ul>
+${rows || `        <li>${escapeHtml(emptyText)}</li>`}
+          </ul>
+`
+}
+
+/* -------------------------------------------------------
    Duplicate route protection
 ------------------------------------------------------- */
 
@@ -1898,8 +2267,51 @@ for (const page of pages) {
    HTML rendering
 ------------------------------------------------------- */
 
+/*
+ * وصف الميتا للمولَّد مسبقاً = نفس دالة التطبيق (scripts/lib/meta-description.mjs)
+ * زائد عبارة سياقية للقطاع تُكمّل النص القصير. بلا هذا يختلف ما تراه الزاحفة
+ * التي لا تشغّل JS عمّا يراه المتصفح بعد hydration، فتُقتبس صفحة بضع كلمات.
+ */
+const SECTION_CONTEXT = {
+  "/": "ميزان الرقمية — منصة المعرفة القانونية لطلبة الحقوق بالمغرب.",
+  "/lexicon": "قاموس المصطلحات القانونية بالعربية والفرنسية في القانون المغربي.",
+  "/news": "متابعة مستجدات التشريع والقضاء المغربي لطلبة الحقوق والباحثين.",
+  "/articles": "مقالات ودراسات قانونية مبسّطة لطلبة الحقوق في كليات القانون.",
+  "/events": "ندوات وأيام دراسية قانونية في كليات الحقوق المغربية.",
+  "/schools": "معلومات كليات الحقوق والجامعات المغربية ضمن دليل ميزان.",
+  "/archive": "ملخصات ومحاضرات ونماذج امتحانات من الأرشيف الدراسي.",
+  "/pdf": "وثائق وملخصات دراسية بصيغة PDF من أرشيف ميزان الرقمية.",
+  "/guides": "أدلة وموارد دراسية لطلبة الحقوق في المغرب.",
+};
+
+const sectionContextFor = (path) => {
+  const first = String(path || "").split("/").filter(Boolean)[0];
+  return SECTION_CONTEXT[first ? `/${first}` : "/"] || SECTION_CONTEXT["/"];
+};
+
+/*
+ * طول العنوان المطابق لنطاق Google (20-65). القاعدتان هنا تعكسان ما يفعله
+ * SEOHead في المتصفح بالضبط، حتى لا يرى الزاحف عنواناً غير الذي يراه المستخدم:
+ *  - علامة قصيرة جداً ← نلحق اسم المنصة.
+ *  - طويلة جداً ← نسقط آخر مقطع (العلامة) بدل بتر اسم الصفحة/الكلية.
+ */
+const BRAND = "الميزان الرقمية";
+
+const fitTitle = (title) => {
+  let out = String(title || "").trim();
+  if (out.length < 20 && !out.includes(BRAND) && !out.includes("ميزان")) {
+    out = `${out} | ${BRAND}`;
+  }
+  while (out.length > 65 && out.includes(" | ")) {
+    out = out.slice(0, out.lastIndexOf(" | "));
+  }
+  return out;
+};
+
 function renderPage(template, page) {
   const canonical = absoluteUrl(page.path);
+  const metaDescription = buildMetaDescription(page.description, [sectionContextFor(page.path)]);
+  const title = fitTitle(page.title);
 
   const swap = (html, regex, replacement) => {
     if (!regex.test(html)) {
@@ -1916,15 +2328,13 @@ function renderPage(template, page) {
   html = swap(
     html,
     /<title>[\s\S]*?<\/title>/i,
-    `<title>${escapeHtml(page.title)}</title>`
+    `<title>${escapeHtml(title)}</title>`
   );
 
   html = swap(
     html,
     /<meta\b[^>]*\bname=["']description["'][^>]*>/i,
-    `<meta name="description" content="${escapeHtml(
-      page.description
-    )}">`
+    `<meta name="description" content="${escapeHtml(metaDescription)}">`
   );
 
   html = swap(
@@ -1954,25 +2364,19 @@ function renderPage(template, page) {
   html = swap(
     html,
     /<meta\b[^>]*\bproperty=["']og:title["'][^>]*>/i,
-    `<meta property="og:title" content="${escapeHtml(
-      page.title
-    )}">`
+    `<meta property="og:title" content="${escapeHtml(title)}">`
   );
 
   html = swap(
     html,
     /<meta\b[^>]*\bproperty=["']og:description["'][^>]*>/i,
-    `<meta property="og:description" content="${escapeHtml(
-      page.description
-    )}">`
+    `<meta property="og:description" content="${escapeHtml(metaDescription)}">`
   );
 
   html = swap(
     html,
     /<meta\b[^>]*\bname=["']twitter:title["'][^>]*>/i,
-    `<meta name="twitter:title" content="${escapeHtml(
-      page.title
-    )}">`
+    `<meta name="twitter:title" content="${escapeHtml(title)}">`
   );
 
   html = swap(
@@ -2014,10 +2418,17 @@ function renderPage(template, page) {
   }
 
   if (page.staticBody) {
+    // نفس هيكل الصفحة الحيّة: شريط علوي فيه <header> قبل <main>. بدونه تفقد
+    // النسخة المُسبقــة معلم الـ banner وروابط التنقل التي يراها المستخدم،
+    // فيبقى الزاحف الذي لا يشغّل JS على صفحة بلا مخرج.
+    const body = /<header[\s>]/i.test(page.staticBody)
+      ? page.staticBody
+      : `<div class="min-h-screen bg-white dark:bg-[#0f172a] text-foreground">${homeHeaderHtml}${page.staticBody}</div>`;
+
     html = swap(
       html,
       /<div id="root"><\/div>/i,
-      `<div id="root">${page.staticBody}</div>`
+      `<div id="root">${body}</div>`
     );
   }
 
@@ -2047,6 +2458,81 @@ for (const page of pages) {
     destination,
     renderPage(template, page),
     "utf8"
+  );
+}
+
+/* -------------------------------------------------------
+   خريطة الموقع النهائية: dist/sitemap.xml
+-------------------------------------------------------
+
+  public/sitemap.xml يُولَّد في prebuild (قبل أن تُعرف صفحات CMS التي
+  وصلت وقت البناء فعلاً). هذه الخطوة تكتب النسخة المُقدَّمة للزاحف:
+  كل <url> لا يقابله ملف HTML مولَّد يُحذف، مع تحذير صريح.
+
+  لماذا التصفية هنا لا في المولّد؟ لأن مصدر الحقيقة الوحيد هو «هل وُلِّدَت
+  الصفحة؟». لو تعطلت الشبكة وفشل جلب CMS، تبقى الخريطة المنشورة خالية من
+  الروابط الميتة — وهذا بالضبط ما يمنع رسائل «Discovered – currently not
+  indexed» و«Soft 404» في Search Console.
+------------------------------------------------------- */
+
+const ROUTES_FILE = join(__dirname, "..", "public", "sitemap.xml");
+const generatedRoutes = new Set(pages.map((page) => pathOfUrl(page.path)));
+
+const sourceSitemap = await readFile(ROUTES_FILE, "utf8").catch(() => null);
+
+if (sourceSitemap) {
+  const blocks = sourceSitemap.match(/<url>[\s\S]*?<\/url>/g) ?? [];
+
+  const kept = [];
+  const dropped = [];
+
+  for (const block of blocks) {
+    const loc = /<loc>\s*([^<\s]+)\s*<\/loc>/i.exec(block)?.[1];
+
+    if (!loc) {
+      dropped.push("(بلا <loc>)");
+      continue;
+    }
+
+    let routePath = "";
+
+    try {
+      routePath = decodeURIComponent(new URL(loc).pathname);
+    } catch {
+      dropped.push(loc);
+      continue;
+    }
+
+    routePath = pathOfUrl(routePath);
+
+    if (!generatedRoutes.has(routePath) || !isIndexablePath(routePath)) {
+      dropped.push(loc);
+      continue;
+    }
+
+    kept.push(block);
+  }
+
+  if (dropped.length) {
+    console.warn(
+      `⚠️  sitemap: حُذفت ${dropped.length} بوابة بلا صفحة مولّدة، أمثلة: ${dropped.slice(0, 4).join(", ")}`
+    );
+  }
+
+  const finalSitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${kept.join("\n")}
+</urlset>
+`;
+
+  if (/\n\s*<loc>[^<]*\/\s*<\/loc>/.test(finalSitemap)) {
+    throw new Error("sitemap: رابط ينتهي بشرطة مائلة في dist/sitemap.xml — مخالف لسياسة الروابط.");
+  }
+
+  await writeFile(join(DIST, "sitemap.xml"), finalSitemap, "utf8");
+
+  console.log(
+    `Sitemap: ${kept.length}/${blocks.length} entries kept (only generated pages).`
   );
 }
 

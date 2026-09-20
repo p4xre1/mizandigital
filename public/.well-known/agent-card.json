@@ -2,11 +2,11 @@
   "protocolVersion": "0.3.0",
   "name": "Mizan Digital",
   "description": "Moroccan legal and academic knowledge agent for discovering structured public information about Moroccan law, legal study resources, law schools and public legal news.",
-  "url": "https://www.mizan.page/",
+  "url": "https://www.mizan.page",
   "version": "1.0.0",
   "provider": {
     "organization": "Mizan Digital Platform",
-    "url": "https://www.mizan.page/"
+    "url": "https://www.mizan.page"
   },
   "documentationUrl": "https://www.mizan.page/llms.txt",
   "iconUrl": "https://www.mizan.page/Logo.svg",
@@ -38,7 +38,7 @@
   ],
   "supportedInterfaces": [
     {
-      "url": "https://www.mizan.page/",
+      "url": "https://www.mizan.page",
       "protocolBinding": "https://a2a-protocol.org/bindings/http+json",
       "protocolVersion": "0.3.0"
     }

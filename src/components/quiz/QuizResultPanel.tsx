@@ -21,6 +21,7 @@ import {
   type SessionSummary,
 } from "@/lib/quiz/engine"
 import { BADGE_BY_ID, getRankProgress, type RankProgress } from "@/lib/quiz/ranks"
+import { BASE_URL } from "@/lib/canonical"
 import { XpBar } from "./XpBar"
 import { RankBadge } from "./RankBadge"
 import { ShareDialog } from "./ShareDialog"
@@ -184,7 +185,9 @@ export function QuizResultPanel({
         open={shareOpen}
         onClose={() => setShareOpen(false)}
         input={shareInput}
-        shareUrl={username ? `https://mizan.page/u/${username}` : "https://mizan.page/quiz"}
+        // النطاق الموحّد بـ www: رابط مشاركة على mizan.page بلا www يُعاد
+        // توجيهه 301، فيُنقص عدد المشاركات المباشرة ويبدأ كل نقرة بتحويلة.
+        shareUrl={username ? `${BASE_URL}/u/${username}` : `${BASE_URL}/quiz`}
       />
 
       {/* مراجعة الأسئلة */}

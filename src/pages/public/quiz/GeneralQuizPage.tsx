@@ -2,6 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Shuffle, Play, ArrowRight, Sparkles, Zap, Gift } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
 import { QuizRunner } from "../../../components/quiz/QuizRunner"
 import { useQuizQuestions } from "../../../hooks/useQuizQuestions"
@@ -45,7 +46,7 @@ export function GeneralQuizPage() {
       <SEOHead
         title="الاختبار العشوائي العام — ثقافة قانونية ونقاط خبرة"
         description="أسئلة قانونية متنوعة تظهر عشوائياً: أجب فتجمع نقاط الخبرة، وأخطئ فيمنحك النظام الإجابة الصحيحة مع شرح مبسط ومفاجئ. بلا حساب ولا إعداد."
-        canonicalUrl="https://www.mizan.page/quiz/general"
+        canonicalUrl={canonicalFor("/quiz/general")}
         keywords={["اختبار ثقافة قانونية", "أسئلة قانونية متنوعة", "نقاط الخبرة", "تعلم القانون"]}
         schema={[
           generateBreadcrumbSchema([

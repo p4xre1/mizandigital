@@ -96,7 +96,7 @@ export function DownloadGatePage() {
           title="الملف غير متاح"
           description="تعذّر العثور على رابط تحميل صالح لهذا الملف ضمن أرشيف منصة الميزان الرقمية. قد يكون الملف غير متاح مؤقتاً أو تم نقله إلى قسم آخر من الأرشيف."
         directAnswer="DownloadGatePage في ميزان الرقمية منصة مغربية للمعرفة القانونية لطلبة الحقوق."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الملف غير متاح", url: "https://www.mizan.page/downloadgatepage" }]}
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الملف غير متاح", url: "/archive" }]}
           noindex
         />
         <main className="container mx-auto max-w-xl px-4 py-20 text-center" dir="rtl">

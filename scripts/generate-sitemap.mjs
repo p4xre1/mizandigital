@@ -1,14 +1,52 @@
+/**
+ * توليد خريطة الموقع public/sitemap.xml
+ *
+ * القواعد التي يحميها هذا الملف (سياسة الروابط في shared/seo/url-policy.js):
+ *   1. رابط واحد قانوني لكل صفحة: بلا شرطة مائلة في النهاية، وعلى النطاق
+ *      الموحّد https://www.mizan.page.
+ *   2. لا رابط في الخريطة إلا لصفحة تُولَّد فعلاً — كل مسار هنا يُبنى بنفس
+ *      دوال الـ slug المستعملة في src (الواجهة) وفي prerender.mjs (الملفات
+ *      الثابتة). نسخة sitemap السابقة كانت تملك خوارزمية slug رابعة، فنتج
+ *      عنها 13 رابطاً ميتاً: /lexicon/الرهن-الحيازي-gage (الصفحة الحقيقية
+ *      تنتهي بـ -gage-civil)، و 9 روابط /pdf بشرطة مزدوجة --، و 3 أخبار
+ *      وُضعت تحت /news بينما تُولَّد تحت /articles.
+ *   3. المحتوى المنشور فقط (CMS: status=published / is_published=true).
+ *   4. لا صفحات حساب ولا إدارة ولا بحث داخلي — تُستبعد بـ isIndexablePath.
+ *
+ * بعد prerender تُكتب نسخة مُصفّاة في dist/sitemap.xml (ما يُقدَّم فعلياً
+ * لمحركات البحث) فلا يخرج للزاحف رابط بلا ملف، ولو تعطلت الشبكة وقت البناء.
+ */
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createClient } from "@supabase/supabase-js";
+
+import {
+  SITE_ORIGIN,
+  articleSlug,
+  canonicalArticle,
+  canonicalEvent,
+  canonicalLexicon,
+  canonicalNews,
+  canonicalPdf,
+  canonicalSchool,
+  canonicalUrl,
+  docSlug,
+  eventSlug,
+  isIndexablePath,
+  lexiconSlug,
+  newsSlug,
+  pathOfUrl,
+  schoolSlug,
+} from "../shared/seo/url-policy.js";
+import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "../public/sitemap.xml");
 const DATA = join(__dirname, "../src/data");
-const DOMAIN = "https://www.mizan.page";
+const DOMAIN = SITE_ORIGIN;
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
+
 const [articles, events, schools, lexicon, news, docs] = await Promise.all([
   readJson("articles.json"),
   readJson("events.json"),
@@ -18,67 +56,20 @@ const [articles, events, schools, lexicon, news, docs] = await Promise.all([
   readJson("docs.json"),
 ]);
 
-async function fetchPublishedCmsContent() {
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://rfhjmtdblmarhlfftlmg.supabase.co";
-  const supabaseAnonKey =
-    process.env.VITE_SUPABASE_ANON_KEY ||
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmaGptdGRibG1hcmhsZmZ0bG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTE5NzgsImV4cCI6MjA5OTc4Nzk3OH0.uI2_WCQSERz0jgYPuy1-AiWuVtDcJlFKd7hZsaQ1r5Q";
+const { ok: cmsOk, error: cmsError, articles: cmsArticles, news: cmsNews, pdfs: cmsPdfs, laws: cmsLaws } =
+  await fetchPublishedCmsContent();
 
-  try {
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-    const [
-      { data: cmsArticles, error: articlesError },
-      { data: cmsNews, error: newsError },
-      { data: cmsPdfs, error: pdfsError },
-      { data: cmsLaws, error: lawsError },
-    ] =
-      await Promise.all([
-        supabase
-          .from("articles")
-          .select("slug, updated_at, published_at, created_at")
-          .eq("status", "published"),
-        supabase
-          .from("news")
-          .select("slug, updated_at, published_at, created_at")
-          .eq("is_published", true),
-        supabase
-          .from("pdf_summaries")
-          .select("slug, updated_at, created_at")
-          .eq("status", "published"),
-        supabase.from("laws").select("slug, updated_at, created_at"),
-      ]);
-
-    if (articlesError) console.warn("⚠️  sitemap: تعذر جلب مقالات CMS —", articlesError.message);
-    if (newsError) console.warn("⚠️  sitemap: تعذر جلب أخبار CMS —", newsError.message);
-    if (pdfsError) console.warn("⚠️  sitemap: تعذر جلب ملخصات CMS —", pdfsError.message);
-    if (lawsError) console.warn("⚠️  sitemap: تعذر جلب النصوص القانونية —", lawsError.message);
-
-    return {
-      cmsArticles: cmsArticles || [],
-      cmsNews: cmsNews || [],
-      cmsPdfs: cmsPdfs || [],
-      cmsLaws: cmsLaws || [],
-    };
-  } catch (err) {
-    console.warn("⚠️  sitemap: تعذر الاتصال بـ Supabase، سيتم الاعتماد على البيانات المحلية فقط —", err.message);
-    return { cmsArticles: [], cmsNews: [], cmsPdfs: [], cmsLaws: [] };
-  }
+if (!cmsOk) {
+  console.warn(`⚠️  sitemap: ${cmsError} — يُكتفى بالبيانات المحلية.`);
 }
 
-const { cmsArticles, cmsNews, cmsPdfs, cmsLaws } = await fetchPublishedCmsContent();
-
-const generateSlug = (text = "") => {
-  return String(text)
-    .trim()
-    .toLowerCase()
-    .replace(/[\s\/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF\-]+/g, "")
-    .replace(/\-+$/, "");
-};
-
+/* ── المسارات الثابتة ───────────────────────────────────────────────────────
+   forceTodayLastmod: صفحات تُحدَّث فعلاً مع كل بناء (الأرشيف، المعجم،
+   الاختبارات)، فبتاريخ اليوم معنى. الباقي بلا lastmod افتراضي — انظر
+   Comment أدناه في بناء المخرجات.
+   ──────────────────────────────────────────────────────────────────────── */
 const staticEntries = [
-  { path: "", changefreq: "weekly", priority: "1.0", forceTodayLastmod: true },
+  { path: "/", changefreq: "weekly", priority: "1.0", forceTodayLastmod: true },
   { path: "/archive", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
   { path: "/news", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
   { path: "/articles", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
@@ -94,145 +85,123 @@ const staticEntries = [
   { path: "/about", changefreq: "monthly", priority: "0.5" },
   { path: "/contact", changefreq: "yearly", priority: "0.4" },
   { path: "/faq", changefreq: "monthly", priority: "0.5" },
+  { path: "/pricing", changefreq: "monthly", priority: "0.5" },
   { path: "/terms", changefreq: "yearly", priority: "0.3" },
   { path: "/privacy", changefreq: "yearly", priority: "0.3" },
   { path: "/cookies", changefreq: "yearly", priority: "0.3" },
-  { path: "/s1", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
-  { path: "/s2", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
-  { path: "/s3", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
-  { path: "/s4", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
-  { path: "/s5", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
-  { path: "/s6", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
+  ...["s1", "s2", "s3", "s4", "s5", "s6"].map((semester) => ({
+    path: `/${semester}`,
+    changefreq: "weekly",
+    priority: "0.9",
+    forceTodayLastmod: true,
+  })),
 ];
 
-const usedLexiconSlugs = new Set();
-const usedDocSlugs = new Set();
+/* ── المسارات الديناميكية — بنفس دوال توليد المعرّفات في الواجهة ─────────── */
+const lexiconTaken = new Set();
+
+// ملفات الأرشيف: المحلية (docs.json) ومن لوحة التحكم في قائمة واحدة وبنفس
+// ترتيب prerender ومجموعة منع التكرار نفسها — فالثبات بين الملف المولَّد
+// والرابط المنشور هو الضمان الوحيد ضد رابط 404 داخل الخريطة.
+const docTaken = new Set();
+const pdfEntries = [...docs, ...cmsPdfs, ...cmsLaws].map((item) => ({
+  path: pathOfUrl(canonicalPdf(docSlug(item, docTaken))),
+  lastmod: dateOf(item, ["updatedAt", "updated_at", "createdAt", "created_at"]),
+  changefreq: "yearly",
+  priority: "0.6",
+}));
 
 const dynamicEntries = [
-  ...articles.map((item) => {
-    const slug = item.slug || generateSlug(item.title);
-    const prefix = item.type === "news" ? "/news" : "/articles";
-    return {
-      path: `${prefix}/${slug}`,
-      lastmod: item.updatedAt,
-      changefreq: "monthly",
-      priority: "0.8",
-    };
-  }),
-  ...news.map((item) => {
-    const slug = item.slug || generateSlug(item.title);
-    return {
-      path: `/news/${slug}`,
-      lastmod: item.date || item.updatedAt,
-      changefreq: "monthly",
-      priority: "0.8",
-    };
-  }),
-  ...cmsArticles
-    .filter((item) => item.slug)
-    .map((item) => ({
-      path: `/articles/${item.slug}`,
-      lastmod: (item.updated_at || item.published_at || item.created_at || "").slice(0, 10),
-      changefreq: "monthly",
-      priority: "0.8",
-    })),
-  ...cmsNews
-    .filter((item) => item.slug)
-    .map((item) => ({
-      path: `/news/${item.slug}`,
-      lastmod: (item.updated_at || item.published_at || item.created_at || "").slice(0, 10),
-      changefreq: "monthly",
-      priority: "0.8",
-    })),
-  ...events.map((item) => {
-    const slug = item.slug || generateSlug(item.title);
-    return { 
-      path: `/events/${slug}`, 
-      lastmod: item.eventDate, 
-      changefreq: "monthly", 
-      priority: "0.7" 
-    };
-  }),
-  ...schools.map((item) => {
-    const slug = item.slug || generateSlug(item.name);
-    return { 
-      path: `/schools/${slug}`, 
-      lastmod: item.verifiedAt, 
-      changefreq: "monthly", 
-      priority: "0.7" 
-    };
-  }),
-  ...lexicon.map((item) => {
-    const base = generateSlug(item.term_ar) || String(item.id);
-    const fr = generateSlug(item.term_fr || "") || String(item.id);
-    let slug = base;
-    if (usedLexiconSlugs.has(slug)) slug = `${base}-${fr}`;
-    if (usedLexiconSlugs.has(slug)) slug = `${base}-${item.id}`;
-    usedLexiconSlugs.add(slug);
-    return {
-      path: `/lexicon/${slug}`,
-      changefreq: "monthly",
-      priority: "0.7",
-    };
-  }),
-  ...docs.map((item) => {
-    const base = generateSlug(item.title) || String(item.id);
-    let slug = base;
-    if (usedDocSlugs.has(slug)) slug = `${base}-${generateSlug(item.id) || item.id}`;
-    usedDocSlugs.add(slug);
-    return {
-      path: `/pdf/${slug}`,
-      lastmod: item.updatedAt,
-      changefreq: "yearly",
-      priority: "0.6",
-    };
-  }),
-  ...cmsPdfs
-    .filter((item) => item.slug)
-    .map((item) => ({
-      path: `/pdf/${item.slug}`,
-      lastmod: (item.updated_at || item.created_at || "").slice(0, 10),
-      changefreq: "yearly",
-      priority: "0.6",
-    })),
-  ...cmsLaws
-    .filter((item) => item.slug)
-    .map((item) => ({
-      path: `/pdf/${item.slug}`,
-      lastmod: (item.updated_at || item.created_at || "").slice(0, 10),
-      changefreq: "yearly",
-      priority: "0.6",
-    })),
+  // كل عناصر articles.json تُولد تحت /articles/ — بمن فيها ما يحمل
+  // type: "news". كان السكربت السابق يحوّلها إلى /news/ بحسب النوع، بينما
+  // prerender والواجهة (ArticlePage → canonical) يبقيان على /articles/،
+  // فخرجت ثلاثة روابط ميتة. المصدر الوحيد للقاعدة الآن: canonicalArticle.
+  ...articles.map((item) => ({
+    path: pathOfUrl(canonicalArticle(articleSlug(item))),
+    lastmod: dateOf(item, ["updatedAt", "updated_at", "publishedAt", "published_at", "date"]),
+    changefreq: "monthly",
+    priority: "0.8",
+  })),
+  ...news.map((item) => ({
+    path: pathOfUrl(canonicalNews(newsSlug(item))),
+    lastmod: dateOf(item, ["updatedAt", "updated_at", "date", "publishedAt", "published_at"]),
+    changefreq: "monthly",
+    priority: "0.8",
+  })),
+  ...cmsArticles.map((item) => ({
+    path: pathOfUrl(`/articles/${item.slug}`),
+    lastmod: dateOf(item),
+    changefreq: "monthly",
+    priority: "0.8",
+  })),
+  ...cmsNews.map((item) => ({
+    path: pathOfUrl(`/news/${item.slug}`),
+    lastmod: dateOf(item),
+    changefreq: "monthly",
+    priority: "0.8",
+  })),
+  ...events.map((item) => ({
+    path: pathOfUrl(canonicalEvent(eventSlug(item))),
+    lastmod: dateOf(item, ["eventDate", "updatedAt", "updated_at"]),
+    changefreq: "monthly",
+    priority: "0.7",
+  })),
+  ...schools.map((item) => ({
+    path: pathOfUrl(canonicalSchool(schoolSlug(item))),
+    lastmod: dateOf(item, ["verifiedAt", "verified_at", "updatedAt", "updated_at"]),
+    changefreq: "monthly",
+    priority: "0.7",
+  })),
+  ...lexicon.map((item) => ({
+    path: pathOfUrl(canonicalLexicon(lexiconSlug(item, lexiconTaken))),
+    changefreq: "monthly",
+    priority: "0.7",
+  })),
+  ...pdfEntries,
 ];
 
+/* ── البناء والنشر ────────────────────────────────────────────────────────── */
 const today = new Date().toISOString().slice(0, 10);
-const escapeXml = (value) => String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-const normalizePath = (value = "") => {
-  const path = `/${value}`.replace(/\/+/g, "/").replace(/\/+$/, "");
-  return path === "/" ? "" : path;
-};
+const escapeXml = (value) =>
+  String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 
 const allEntries = [...staticEntries, ...dynamicEntries];
+
+// التطبيع يتم قبل التجميع، فمفاتيح Map تلتقط /schools/x و /schools/x/ كصفحة
+// واحدة. بلا هذا كانت أي نسخة مكررة تدخل الخريطة برابطين فيضعف الرابطان معاً.
 const dedupedByPath = Array.from(
-  new Map(allEntries.map((entry) => [normalizePath(entry.path), entry])).values()
+  new Map(
+    allEntries
+      .filter((entry) => isIndexablePath(entry.path))
+      .map((entry) => {
+        const path = pathOfUrl(entry.path);
+        return [path, { ...entry, path, url: canonicalUrl(path) }];
+      }),
+  ).values(),
 );
 
-const entries = dedupedByPath
+const urls = dedupedByPath
   .map((entry) => {
     // ⚠️ ما كنحطوش <lastmod> بتاريخ اليوم كـ fallback لكل URL بلا تاريخ
     // حقيقي (مثلاً مصطلحات المعجم اللي ما عندهاش updatedAt فـ البيانات).
-    // كنا قبل كنكتبو "اليوم" لـ 250 صفحة فـ كل مرة كيتبنى الموقع، وهاد
-    // الشيء كيبعث لمحركات البحث إشارة كاذبة بأن الصفحة "تحدّثت البارح"
-    // بلا أي تغيير حقيقي فـ المحتوى ديالها — إشارة سلبية عند التكرار على
-    // مئات الصفحات المتشابهة. الصفحات الرئيسية (staticEntries) عندها
-    // تاريخ اليوم بشكل مقصود لأنها فعلاً كتتحدث بانتظام.
+    // كنا قبل كنكتبو «اليوم» لـ 250 صفحة فـ كل مرة كيتبنى الموقع، وهاد
+    // الشيء كيبعث لمحركات البحث إشارة كاذبة بأن الصفحة «تحدّثت البارح» بلا أي
+    // تغيير حقيقي فـ المحتوى ديالها — إشارة سلبية عند التكرار على مئات
+    // الصفحات المتشابهة. الصفحات الرئيسية (staticEntries) عندها تاريخ اليوم
+    // بشكل مقصود لأنها فعلاً كتتحدث بانتظام.
     const lastmodTag = entry.lastmod
       ? `\n    <lastmod>${entry.lastmod}</lastmod>`
       : entry.forceTodayLastmod
         ? `\n    <lastmod>${today}</lastmod>`
         : "";
+
     return `  <url>
-    <loc>${escapeXml(`${DOMAIN}${normalizePath(entry.path)}`)}</loc>${lastmodTag}
+    <loc>${escapeXml(entry.url)}</loc>${lastmodTag}
     <changefreq>${entry.changefreq}</changefreq>
     <priority>${entry.priority}</priority>
   </url>`;
@@ -241,11 +210,24 @@ const entries = dedupedByPath
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${entries}
+${urls}
 </urlset>
 `;
 
 await writeFile(OUTPUT, xml, "utf8");
+
+const slashViolations = dedupedByPath.filter((entry) => entry.url.endsWith("/"));
+if (slashViolations.length) {
+  throw new Error(
+    `sitemap: ${slashViolations.length} رابط ينتهي بشرطة مائلة يخالف السياسة: ${slashViolations
+      .slice(0, 5)
+      .map((entry) => entry.url)
+      .join(", ")}`,
+  );
+}
+
 console.log(
-  `Generated ${dedupedByPath.length} sitemap entries (${cmsArticles.length} CMS articles + ${cmsNews.length} CMS news + ${cmsPdfs.length} CMS PDFs + ${cmsLaws.length} CMS laws included).`
+  `Generated ${dedupedByPath.length} sitemap entries ` +
+    `(${cmsArticles.length} CMS articles + ${cmsNews.length} CMS news + ${cmsPdfs.length + cmsLaws.length} CMS pdfs/laws` +
+    `${cmsOk ? "" : " — فشل جلب CMS، البيانات المحلية فقط"}).`,
 );

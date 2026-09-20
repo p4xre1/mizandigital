@@ -17,6 +17,8 @@ import { fileURLToPath } from "node:url";
 import {
   aggregateTechnical,
   checkAccessibility,
+  checkCanonicalPolicy,
+  checkSitemapCoverage,
   checkAiDiscoveryFiles,
   checkHtmlHead,
   checkHreflang,
@@ -78,12 +80,20 @@ const fileToRoute = (file, base) => {
   return `/${relative.replace(/\.html$/, "")}`;
 };
 
-/** المسارات القابلة للفهرسة، مستخرجة من خريطة الموقع. */
+/** روابط <loc> الخام كما هي في الخريطة — بلا تطبيع، وإلا اختفت المخالفة. */
+const locsFromSitemap = (xml) => [...(xml || "").matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]);
+
+/**
+ * المسارات القابلة للفهرسة من الخريطة.
+ *
+ * ملاحظة مهمة: التطبيع هنا كان يُزيل شرطة النهاية قبل الفحص، فتمرّ
+ * المخالفة التي يُفترض أن يمسكها الفحص. المسار الخام يُمرَّر الآن كما هو،
+ * و checkUrlStructure هو من يقرّر (شرطة النهاية عنده مخالفة صارمة).
+ */
 const routesFromSitemap = (xml) => {
-  const locs = [...(xml || "").matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]);
-  return locs.map((loc) => {
+  return locsFromSitemap(xml).map((loc) => {
     try {
-      return new URL(loc).pathname.replace(/\/$/, "") || "/";
+      return new URL(loc).pathname || "/";
     } catch {
       return loc;
     }
@@ -102,7 +112,11 @@ const aiAccess = checkRobotsAiAccess(robots || "");
 notes.push(...aiAccess.details);
 
 // ── sitemap.xml ─────────────────────────────────────────────────────────────
-const sitemap = await read(join(PUBLIC, "sitemap.xml"));
+// dist/sitemap.xml هو الملف المُقدَّم فعلاً للزاحف (يكتبه prerender بعد
+// التصفية على الصفحات المولَّدة)، فيُقدَّم على نسخة public إن وُجدت.
+const servedSitemap = (await read(join(DIST, "sitemap.xml"))) ?? (await read(join(PUBLIC, "sitemap.xml")));
+const sitemap = servedSitemap;
+const sitemapLocs = locsFromSitemap(sitemap);
 const routes = routesFromSitemap(sitemap);
 results.sitemap = checkSitemap(sitemap || "", routes, { siteUrl: SITE_URL });
 
@@ -127,6 +141,7 @@ const htmlDir = (await listHtml(DIST)).length ? DIST : ROOT;
 const htmlFiles = await listHtml(htmlDir);
 
 const headScores = [];
+const canonicalScores = [];
 const imageScores = [];
 const a11yScores = [];
 const schemaScores = [];
@@ -142,6 +157,7 @@ for (const file of sampledFiles) {
   const url = route === "/" ? SITE_URL : `${SITE_URL}${route}`;
 
   headScores.push(checkHtmlHead(html, { url }));
+  canonicalScores.push(checkCanonicalPolicy(html, { url, siteUrl: SITE_URL }));
   imageScores.push(checkImages(html));
   a11yScores.push(checkAccessibility(html));
   schemaScores.push(checkStructuredData(html));
@@ -173,6 +189,21 @@ const collectIssues = (list) => {
   for (const item of list) for (const issue of item.issues || []) seen.add(issue);
   return [...seen];
 };
+
+results.canonical = {
+  pass: canonicalScores.every((s) => s.pass),
+  score: average(canonicalScores),
+  issues: collectIssues(canonicalScores),
+  details: [
+    `${canonicalScores.length} صفحة فُحصت — وسم canonical واحد مطابق لرابط الصفحة بلا شرطة نهاية`,
+  ],
+};
+
+const builtRoutes = (await listHtml(DIST)).map((file) => fileToRoute(file, DIST));
+
+results.sitemapCoverage = builtRoutes.length
+  ? checkSitemapCoverage(sitemapLocs, builtRoutes, { siteUrl: SITE_URL })
+  : { pass: true, score: 100, issues: [], details: ["لا يوجد dist/ — تُفحص التغطية بعد البناء فقط."] };
 
 results.head = {
   pass: headScores.every((s) => s.pass),
@@ -211,7 +242,7 @@ results.orphanPages = findOrphanPages(routes, [...linkedPaths]);
 // ── النتيجة المجمّعة ────────────────────────────────────────────────────────
 const overall = aggregateTechnical(results);
 
-const order = ["robots", "sitemap", "head", "structuredData", "images", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
+const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "structuredData", "images", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
 for (const key of order) {
   const value = results[key];
   if (!value) continue;

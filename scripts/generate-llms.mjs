@@ -22,7 +22,18 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA = join(__dirname, "../src/data");
 const OUTPUT = join(__dirname, "../public/llms.txt");
-const DOMAIN = "https://www.mizan.page";
+// سياسة الروابط والمعرّفات موحّدة مع الواجهة و prerender و sitemap.
+// كان لكل سكربت نسخة خاصة به من الترميز ومن «كيف يُفصل التكرار»، فتولّد
+// روابط في llms.txt لا ملف مقابل لها (مثال: /lexicon/الرهن-الحيازي-x).
+import {
+  SITE_ORIGIN as DOMAIN,
+  articleSlug,
+  canonicalHome,
+  eventSlug,
+  lexiconSlug,
+  newsSlug,
+  schoolSlug,
+} from "../shared/seo/url-policy.js";
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
 
@@ -47,17 +58,6 @@ const clamp = (value, max = 160) => {
 const link = (title, path, description) =>
   description ? `- [${title}](${DOMAIN}${path}): ${clamp(description)}` : `- [${title}](${DOMAIN}${path})`;
 
-/** توحيد أسماء مصطلحات المعجم إلى slugs كما يفعل الموقع. */
-const slugify = (value) =>
-  String(value ?? "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFKC")
-    .replace(/[\u064B-\u065F\u0670]/g, "")
-    .replace(/[\s/\\_]+/g, "-")
-    .replace(/[^\w\u0600-\u06FF-]+/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 const counts = {
   articles: articles.length,
@@ -70,12 +70,10 @@ const counts = {
 const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
 const usedSlugs = new Set();
-const lexiconSlugs = lexicon.map((term) => {
-  let slug = slugify(term.term_ar) || String(term.id);
-  while (usedSlugs.has(slug)) slug = `${slug}-x`;
-  usedSlugs.add(slug);
-  return { ...term, slug };
-});
+const lexiconSlugs = lexicon.map((term) => ({
+  ...term,
+  slug: lexiconSlug(term, usedSlugs),
+}));
 
 const lines = [];
 
@@ -109,22 +107,21 @@ lines.push("");
 lines.push("## المقالات");
 lines.push("");
 for (const article of articles) {
-  lines.push(link(article.title, `/articles/${article.slug}`, article.excerpt));
+  lines.push(link(article.title, `/articles/${articleSlug(article)}`, article.excerpt));
 }
 lines.push("");
 
 lines.push("## المستجدات التشريعية والقضائية");
 lines.push("");
 for (const item of news) {
-  const slug = item.slug || slugify(item.title);
-  lines.push(link(item.title, `/news/${slug}`, item.summary));
+  lines.push(link(item.title, `/news/${newsSlug(item)}`, item.summary));
 }
 lines.push("");
 
 lines.push("## كليات الحقوق");
 lines.push("");
 for (const school of schools) {
-  lines.push(link(school.name, `/schools/${school.slug}`, `${school.university} — ${school.city}`));
+  lines.push(link(school.name, `/schools/${schoolSlug(school)}`, `${school.university} — ${school.city}`));
 }
 lines.push("");
 

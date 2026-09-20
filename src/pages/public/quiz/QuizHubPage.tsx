@@ -13,6 +13,7 @@ import {
   BookOpen,
 } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
 import { TierCard } from "../../../components/quiz/TierCard"
 import { RankBadge } from "../../../components/quiz/RankBadge"
@@ -59,7 +60,7 @@ export function QuizHubPage() {
       <SEOHead
         title="الاختبارات القانونية — 4 مسارات للكلية والمباريات والمقابلات"
         description="اختبر نفسك في القانون المغربي عبر أربعة مسارات: اختبارات طلبة الكلية من S1 إلى S6، اختبار عشوائي للثقافة القانونية، مباريات الأمن الوطني والقضاء والوظيفة العمومية، وتدريبات المقابلات المهنية."
-        canonicalUrl="https://www.mizan.page/quiz"
+        canonicalUrl={canonicalFor("/quiz")}
         keywords={["اختبارات قانونية", "مباريات الأمن الوطني", "اختبارات القانون المغربي", "concours Maroc", "تدريب محاماة"]}
         schema={schema}
       />

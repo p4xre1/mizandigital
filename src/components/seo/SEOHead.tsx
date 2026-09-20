@@ -1,6 +1,29 @@
 import { useEffect } from "react"
 import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
+import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl } from "../../lib/canonical"
 import { SchemaOrg, generateOrganizationSchema, generateWebsiteSchema } from "./SchemaOrg"
+
+/**
+ * الرابط القانوني لهذه الصفحة — دائماً مطابق لسياسة بلا-شرطة-النهاية.
+ *
+ * سابقاً كان الافتراضي `window.location.href`، أي أن الرابط كما كتبه الزائر
+ * بالضبط: شرطة نهاية، أو معاملات&utm_source، أو نطاق بلا www — وكلها كانت
+ * تُكتب في <link rel="canonical"> و og:url عند التنقل داخل التطبيق. النتيجة
+ * نسخة canonical لكل شكل من أشكال الرابط، فتتوزّع إشارة الفهرسة بين الصفحات
+ * بدل أن تتركّز في رابط واحد (وهو تحديداً ما تُكافئ عليه Google رابطاً واحداً).
+ *
+ * الآن كل مسار يمرّ بسياسة الروابط: يُحذف ذيل الشرطة والمعاملات والحزام،
+ * ويُثبَّت النطاق القانوني. صفحات الـ prerender تحمل الوسوم نفسها مولّدة من
+ * نفس السياسة (scripts/prerender.mjs)، فلا يختلف ما يراه الزاحف عمّا يراه
+ * المتصفح بعد hydration.
+ */
+function resolveCanonicalUrl(passed?: string): string {
+  if (passed) return toCanonicalUrl(passed)
+  if (typeof window !== "undefined" && window.location?.pathname) {
+    return canonicalFromLocation(window.location.pathname)
+  }
+  return BASE_URL
+}
 
 export interface SEOHeadProps {
   title: string
@@ -37,17 +60,22 @@ export function SEOHead({
   breadcrumbs,
   speakable,
 }: SEOHeadProps) {
-  const fullTitle = `${title} | الميزان الرقمية`
+  // إن كان العنوان يذكر المنصة أصلاً لا نلصق العلامة مرة ثانية:
+  // «… | الميزان الرقمية» فوق عنوان فيه «ميزان الرقمية» = تكرار يبتاعه
+  // Google مبتوراً، وفارق بين العنوان المُسبق (prerender) والعنوان الحيّ.
+  // وبالمثل تُسقط العلامة إن تجاوز النطاق المثالي (20-65) بدل بتر الاسم.
+  const brandSuffix = " | الميزان الرقمية"
+  const titledWithBrand = title.includes("ميزان") ? title : `${title}${brandSuffix}`
+  const fullTitle =
+    titledWithBrand.length > 65 && titledWithBrand.endsWith(brandSuffix)
+      ? titledWithBrand.slice(0, -brandSuffix.length)
+      : titledWithBrand
 
   const allKeywords = Array.from(
     new Set([...(DEFAULT_KEYWORDS || []), ...keywords])
   ).join(", ")
 
-  const url =
-    canonicalUrl ||
-    (typeof window !== "undefined"
-      ? window.location.href
-      : "https://www.mizan.page")
+  const url = resolveCanonicalUrl(canonicalUrl)
 
   useEffect(() => {
     // Document Title
@@ -153,7 +181,9 @@ export function SEOHead({
   ])
 
   // --- E-E-A-T + AEO Schema Enrichment ---
-  const domain = "https://www.mizan.page"
+  // النطاق من سياسة الروابط وحدها: أي حرف زائد (شرطة نهاية أو نطاق بلا www)
+  // في @id أو url يجعل عقدة schema.org كياناً مختلفاً عن الكيان المفهرس.
+  const domain = BASE_URL
   
   const publisherSchema = {
     "@type": "Organization",
@@ -209,7 +239,10 @@ export function SEOHead({
         "@type": "ListItem",
         position: index + 1,
         name: item.name,
-        item: item.url,
+        // الرابط القانوني المنمذج: «الرئيسية» كانت تمرَّر سابقاً كـ
+        // https://www.mizan.page/ بشرطة نهاية فتختلف عن crumb الجذر في
+        // بقية صفحات الموقع.
+        item: toCanonicalUrl(item.url),
       })),
     })
   }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AEOHead } from "@/components/seo/AEOHead";
+import { canonicalFor } from "@/lib/canonical"
 import { fetchPackages, createPaymentIntent, formatPriceMAD } from "@/lib/payments/service";
 import type { CreditPackage } from "@/lib/payments/types";
 import { PackageCard } from "@/components/payments/PackageCard";
@@ -44,8 +45,8 @@ export function PaymentsPage() {
         title="شراء الكريدتس — ميزان الرقمية"
         description="اشترِ حزم الكريدتس لفتح اختبار تحديد المستوى، تجاوز القيود، ودعم منصة ميزان الرقمية. دفع آمن عبر CMI والموزعين المحليين."
         directAnswer="شراء الكريدتس في ميزان الرقمية لدعم المنصة والوصول لمزايا إضافية: شجرة قوانين متقدمة، وتحديات مميزة."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "شراء الكريدتس — ميزان الرقمية", url: "https://www.mizan.page/paymentspage" }]}
-        canonicalUrl="https://www.mizan.page/payments"
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "شراء الكريدتس — ميزان الرقمية", url: "/payments" }]}
+        canonicalUrl={canonicalFor("/payments")}
       />
 
       <div className="mb-8 rounded-2xl border border-border bg-card p-6">

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
+import { canonicalFor } from "@/lib/canonical"
 import docsData from "../../data/docs.json"
 import { titledSlugById } from "../../lib/utils/generateSlug"
 import { ContentTags } from "../../components/content/ContentTags"
@@ -255,10 +256,10 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
     <>
       <AEOHead
         title={`الأرشيف الدراسي ${selectedSemester !== "all" ? `- الفصل ${selectedSemester}` : "الشامل"}`}
-        canonicalUrl="https://www.mizan.page/archive"
+        canonicalUrl={canonicalFor("/archive")}
         description="تصفح وحمّل مجاناً أفضل ملخصات، محاضرات، ونماذج امتحانات كليات العلوم القانونية والاقتصادية والاجتماعية بالمغرب لجميع السداسيات (S1 - S6)."
         directAnswer="أرشيف ميزان الرقمية يضم ملخصات ومحاضرات وملفات PDF لطلبة الحقوق من S1 إلى S6، مصنفة حسب الفصل والمادة والأستاذ، مع روابط تحميل مباشرة."
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "عرض شبكي (Grid View)", url: "https://www.mizan.page/archivepage" }]}
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "عرض شبكي (Grid View)", url: "/archive" }]}
         keywords={[
           "الأرشيف الدراسي القانوني",
           "ملخصات القانون المغربي",

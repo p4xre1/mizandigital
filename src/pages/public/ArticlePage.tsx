@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useParams, Link, useLocation } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
-import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
+import { generateBreadcrumbSchema, generateNewsArticleSchema, SITE_CONFIG } from "../../lib/seo/schema"
+import { canonicalArticle, canonicalNews, itemPath, newsSlug } from "../../lib/canonical"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import { rankRelatedItems } from "../../lib/utils/recommend"
@@ -147,9 +148,15 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       }
       const tryNewsLocal = async (): Promise<ArticleDetail | null> => {
         const { default: localNewsData } = await import("../../data/news.json")
-        const localNewsMatch = (localNewsData as any[]).find((item) => item.type === "news" && item.id === targetSlug)
+        // البيانات المحلية لا تملك عمود slug، فيُقارن الرابط بالمعرّف الذي
+        // تبنيه سياسة الروابط من العنوان — وهو نفسه اسم الملف الذي يولّده
+        // prerender والرابط الذي تنشره sitemap. كان التطابق على item.id وحده،
+        // فيفتح الزائر صفحة خبر من القائمة فيجد «غير موجود» فوق محتوى مولَّد.
+        const localNewsMatch = (localNewsData as any[]).find(
+          (item) => newsSlug(item) === targetSlug || item.id === targetSlug
+        )
         if (!localNewsMatch) return null
-        return { id: localNewsMatch.id, title: localNewsMatch.title, slug: localNewsMatch.id, content: localNewsMatch.content || "", summary: localNewsMatch.summary || undefined, category: localNewsMatch.category || "أخبار", date: localNewsMatch.date || undefined, readingTime: "3 دقائق", sourceTable: "news", image: localNewsMatch.image || localNewsMatch.imageUrl || null }
+        return { id: localNewsMatch.id, title: localNewsMatch.title, slug: newsSlug(localNewsMatch), content: localNewsMatch.content || "", summary: localNewsMatch.summary || undefined, category: localNewsMatch.category || "أخبار", date: localNewsMatch.date || undefined, readingTime: "3 دقائق", sourceTable: "news", image: localNewsMatch.image || localNewsMatch.imageUrl || null }
       }
       const attemptsInOrder = preferNews ? [tryNewsTable, tryNewsLocal, tryArticlesTable, tryArticlesLocal] : [tryArticlesTable, tryArticlesLocal, tryNewsTable, tryNewsLocal]
       for (const attempt of attemptsInOrder) { currentArticleData = await attempt(); if (currentArticleData) break }
@@ -197,9 +204,58 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
     </div>
   )
 
+  // ── الرابط القانوني والمخطط: مصدر واحد لكل نوع ──────────────────────────
+  // الأخبار تحت /news/ والمقالات تحت /articles/، بلا شرطة نهاية، بنفس ما
+  // يبنيه prerender وما تنشره sitemap. أي اختلاف هنا يجعل canonical يشير إلى
+  // نسخة لا يولّدها البناء، فتبقى الصفحة خارج الفهرس بقرار الزاحف لا بقرارنا.
+  const isNews = article.sourceTable === "news"
+  const detailPath = isNews ? itemPath.news(article.slug) : itemPath.article(article.slug)
+  const detailCanonical = isNews ? canonicalNews(article.slug) : canonicalArticle(article.slug)
+
+  // الأخبار كانت تحمل مخطط Article العام فتفقد NewsArticle وتاريخيه (وهو ما
+  // يطلبه Google في Top Stories و In-News for AI answers).
+  const detailSchema = [
+    isNews
+      ? generateNewsArticleSchema({
+          title: article.title,
+          description: article.summary || article.title,
+          url: detailCanonical,
+          datePublished: article.date || "",
+          authorName: SITE_CONFIG.name,
+          image: article.image || undefined,
+        })
+      : {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "@id": `${detailCanonical}#article`,
+          headline: article.title,
+          description: article.summary || "",
+          url: detailCanonical,
+          datePublished: article.date,
+          inLanguage: "ar-MA",
+          isAccessibleForFree: true,
+        },
+    generateBreadcrumbSchema([
+      { name: "الرئيسية", url: "/" },
+      { name: isNews ? "الأخبار" : "المقالات", url: isNews ? "/news" : "/articles" },
+      { name: article.title, url: detailPath },
+    ]),
+  ]
+
   return (
     <>
-      <AEOHead title={article.title} description={buildMetaDescription(article.summary, [article.category ? `مقال ضمن قسم ${article.category}` : null, "اطّلع على التفاصيل الكاملة على منصة الميزان الرقمية، المرجع القانوني الأول للطلبة والباحثين بالمغرب."])} ogType="article" publishedTime={article.date} ogImage={article.image || undefined} canonicalUrl={`${SITE_CONFIG.url}${article.sourceTable === "news" ? "/news" : "/articles"}/${article.slug}`} schema={[generateBreadcrumbSchema(article.sourceTable === "news" ? [{ name: "الرئيسية", url: "/" }, { name: "الأخبار", url: "/news" }, { name: article.title, url: `/news/${article.slug}` }] : [{ name: "الرئيسية", url: "/" }, { name: "المقالات", url: "/articles" }, { name: article.title, url: `/articles/${article.slug}` }])]} />
+      <AEOHead
+        title={article.title}
+        description={buildMetaDescription(article.summary, [
+          article.category ? `مقال ضمن قسم ${article.category}` : null,
+          "اطّلع على التفاصيل الكاملة على منصة الميزان الرقمية، المرجع القانوني الأول للطلبة والباحثين بالمغرب.",
+        ])}
+        ogType="article"
+        publishedTime={article.date}
+        ogImage={article.image || undefined}
+        canonicalUrl={detailCanonical}
+        schema={detailSchema}
+      />
       <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-transparent"><div className="h-full bg-gradient-to-r from-primary via-violet-600 to-accent-gold transition-[width] duration-150 ease-out shadow-[0_0_8px_hsl(var(--primary)/0.5)]" style={{ width: `${readingProgress}%` }} /><div className="absolute top-0 h-full w-20 bg-gradient-to-r from-transparent via-white/20 to-transparent blur-sm" style={{ left: `${readingProgress}%`, transform: "translateX(-50%)", opacity: readingProgress > 5 ? 1 : 0 }} /></div>
       <div id="top" />
       <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.04),transparent_60%)]">

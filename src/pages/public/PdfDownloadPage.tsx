@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useParams, useLocation, Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
+import { canonicalPdf } from "../../lib/canonical"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import { useTrackView } from "@/hooks/useTrackView"
@@ -198,7 +199,7 @@ export function PdfDownloadPage() {
     )
   }
 
-  const canonicalUrl = `${SITE_CONFIG.url}/pdf/${slug}`
+  const canonicalUrl = canonicalPdf(slug ?? "")
 
   return (
     <>

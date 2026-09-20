@@ -97,6 +97,32 @@ export function checkSitemap(xml, expectedRoutes = [], { siteUrl = "" } = {}) {
   const set = new Set(locs)
   if (set.size !== locs.length) issues.push(`${locs.length - set.size} رابط مكرر في الخريطة — يهدر ميزانية الزحف.`)
 
+  // شرطة النهاية في sitemap ليست تفصيلاً جمالياً: أي رابط هنا بشكل
+  // /schools/x/ يجعل الزاحف يضيف نسخة ثانية من الصفحة نفسها إلى الطابور،
+  // فتُزحف مرتين وتُفهرس مرتين بقنونة مختلفة. القاعدة: لا شرطة نهاية.
+  // القاعدة صارمة حتى على الجذر: https://www.mizan.page لا https://www.mizan.page/
+  const slashed = locs.filter((l) => /\/$/.test(l))
+  if (slashed.length) {
+    issues.push(`${slashed.length} رابط بشرطة نهاية في الخريطة (النطاق القانوني بلا شرطة): ${slashed.slice(0, 3).join(", ")}`)
+  }
+
+  const wrongHost = locs.filter((l) => /^https?:\/\/(?:www\.)?mizan\.page/i.test(l) && !l.startsWith(siteUrl || "https://www.mizan.page"))
+  if (wrongHost.length) {
+    issues.push(`${wrongHost.length} رابط على نطاق غير النطاق القانوني (mizan.page بلا www؟): ${wrongHost.slice(0, 2).join(", ")}`)
+  }
+
+  // النسخ المزدوجة: /x و /x/ معاً في الخريطة نفسها
+  const withoutSlash = new Set()
+  const duplicated = []
+  for (const loc of locs) {
+    const key = loc.replace(/\/$/, "")
+    if (withoutSlash.has(key)) duplicated.push(key)
+    withoutSlash.add(key)
+  }
+  if (duplicated.length) {
+    issues.push(`${duplicated.length} مسار مكرر بسبب شرطة النهاية: ${duplicated.slice(0, 3).join(", ")}`)
+  }
+
   const paths = new Set(locs.map((l) => {
     try { return new URL(l).pathname.replace(/\/$/, "") || "/" } catch { return l }
   }))
@@ -108,6 +134,150 @@ export function checkSitemap(xml, expectedRoutes = [], { siteUrl = "" } = {}) {
 
   const score = 100 - issues.length * 20
   return result(issues.length === 0, score, issues, details)
+}
+
+/**
+ * سياسة الروابط القانونية لصفحة واحدة: وسم canonical واحد، مطابق تماماً
+ * لرابط الصفحة، بلا شرطة نهاية، وعلى النطاق القانوني.
+ *
+ * لماذا فحص مستقل مع وجود checkHtmlHead؟ لأن checkHtmlHead كان يقارن
+ * بعد إزالة شرطة النهاية من الطرفين — أي أن الخطأ الذي يفترض أن يُمسك
+ * كان يُطبَّع قبل المقارنة، فيمرّ الموقع في CI وفيه canonical بنسخ متعددة.
+ * هذا الفحص لا يطبّع شيئاً: المطابقة حرفية.
+ *
+ * @param {string} html محتوى الصفحة
+ * @param {{ url?: string, siteUrl?: string }} options رابط الصفحة المتوقّع
+ */
+export function checkCanonicalPolicy(html, { url = "", siteUrl = "https://www.mizan.page" } = {}) {
+  const text = html || ""
+  const issues = []
+  const details = []
+
+  const tags = findTags(text, "link").filter((tag) => /rel\s*=\s*["']canonical["']/i.test(tag))
+  details.push(`${tags.length} وسم canonical`)
+
+  if (tags.length === 0) {
+    return result(false, 0, ["لا يوجد وسم canonical — الصفحات تُقرأ كنسخ متعددة."], details)
+  }
+
+  if (tags.length > 1) {
+    issues.push(`${tags.length} وسوم canonical في صفحة واحدة — المحرك يختار واحداً ويعتبر الباقي تشويشاً.`)
+  }
+
+  const canonical = attr(tags[0], "href") || ""
+
+  if (!canonical) issues.push("وسم canonical بلا href.")
+  else {
+    if (!/^https?:\/\//.test(canonical)) issues.push(`canonical ليس مطلقاً: ${canonical}`)
+    if (/[?#]/.test(canonical)) issues.push(`canonical يحمل معاملات أو حزاماً: ${canonical} — النسخة القابلة للفهرسة هي المسار النظيف.`)
+    if (/\/$/.test(canonical)) issues.push(`canonical ينتهي بشرطة مائلة: ${canonical} — السياسة بلا شرطة.`)
+    if (siteUrl && !canonical.startsWith(siteUrl)) {
+      issues.push(`canonical خارج النطاق القانوني ${siteUrl}: ${canonical}`)
+    }
+    if (url) {
+      const expected = siteUrl && url.startsWith("http") ? url : `${siteUrl}${url === "/" ? "" : url}`
+      if (canonical !== expected) {
+        issues.push(`canonical (${canonical}) لا يطابق رابط الصفحة حرفياً (${expected}).`)
+      }
+    }
+  }
+
+  // og:url يجب أن يساوي canonical، وإلا تشارك الشبكات نسخة وتفهرس نسخة أخرى
+  const ogUrl = attr(
+    findTags(text, "meta").find((t) => /property\s*=\s*["']og:url["']/i.test(t)) || "",
+    "content"
+  )
+  if (ogUrl && canonical && ogUrl !== canonical) {
+    issues.push(`og:url (${ogUrl}) لا يساوي canonical (${canonical}).`)
+  }
+
+  // البيانات المهيكلة تحمل روابط الصفحة أيضاً: عقدة تقول «/x/» ووسم
+  // canonical يقول «/x» = نسختان في نظر المحرك رغم تطابق الوسم. الفحص
+  // يشمل url الداخلي بأي عقدة، ومطابقة عقدة الصفحة نفسها (@id#...).
+  const ldBlocks = [
+    ...text.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi),
+  ].map((m) => m[1])
+
+  if (ldBlocks.length) details.push(`${ldBlocks.length} كتلة JSON-LD`)
+
+  for (const block of ldBlocks) {
+    for (const match of block.matchAll(/"url"\s*:\s*"([^"]+)"/g)) {
+      const value = match[1]
+      if (!siteUrl || !value.startsWith(siteUrl)) continue
+      if (value.endsWith("/")) issues.push(`url في JSON-LD ينتهي بشرطة مائلة: ${value}`)
+      if (/[?#]/.test(value)) issues.push(`url في JSON-LD يحمل معاملات أو حزاماً: ${value}`)
+    }
+
+    let parsed = null
+    try {
+      parsed = JSON.parse(block)
+    } catch {
+      parsed = null
+    }
+    if (!parsed) continue
+
+    for (const node of Array.isArray(parsed) ? parsed : [parsed]) {
+      if (!node || typeof node !== "object") continue
+      const id = String(node["@id"] || "")
+      if (canonical && id.startsWith(`${canonical}#`) && typeof node.url === "string" && node.url !== canonical) {
+        issues.push(`url في JSON-LD (${node.url}) لا يطابق canonical الصفحة (${canonical}).`)
+      }
+    }
+  }
+
+  const score = issues.length === 0 ? 100 : Math.max(0, 100 - issues.length * 34)
+  return result(issues.length === 0, score, issues, details)
+}
+
+/**
+ * تغطية خريطة الموقع: كل <loc> يجب أن يقابله ملف مُولَّد، وكل صفحة مولَّدة
+ * قابلة للفهرسة يجب أن تكون في الخريطة.
+ *
+ * الفحصان معاً يسدّان الثغرة التي أبقَت 13 رابطاً ميتاً داخل sitemap
+ * (روابط معجم/ملفات بمعرّفات لم يولّدها prerender يوماً). رابط ميت في
+ * الخريطة أسوأ من غياب الرابط: يستهلك ميزانية الزحف ويعلّم المحرك أن
+ * الموقع مهمل.
+ *
+ * @param {string[]} locs روابط الخريطة كما هي
+ * @param {string[]} builtRoutes مسارات الصفحات المولَّدة (مثل /schools/x، و / للجذر)
+ */
+export function checkSitemapCoverage(locs = [], builtRoutes = [], { siteUrl = "" } = {}) {
+  const issues = []
+  const normalize = (p) => {
+    const path = String(p || "").replace(/^https?:\/\/[^/]+/i, "").replace(/[?#].*$/, "").replace(/\/+$/, "")
+    return path === "" ? "/" : path
+  }
+
+  const built = new Set(builtRoutes.map(normalize))
+  const decoded = (value) => {
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  }
+
+  const missing = []
+  for (const loc of locs) {
+    const route = decoded(normalize(loc.replace(siteUrl, "") || "/"))
+    if (!built.has(route)) missing.push(loc)
+  }
+
+  if (missing.length) {
+    issues.push(`${missing.length} رابط في الخريطة بلا صفحة مولَّدة (404 للزاحف): ${missing.slice(0, 4).join(", ")}`)
+  }
+
+  const locSet = new Set(locs.map((loc) => decoded(normalize(loc.replace(siteUrl, "") || "/"))))
+  const unlisted = [...built].filter((route) => !locSet.has(route))
+  if (unlisted.length) {
+    issues.push(`${unlisted.length} صفحة مولَّدة غير مذكورة في الخريطة: ${unlisted.slice(0, 4).join(", ")}`)
+  }
+
+  const score = issues.length === 0 ? 100 : Math.max(0, 100 - missing.length * 10 - unlisted.length)
+  return result(issues.length === 0, score, issues, [
+    `${locs.length} رابط في الخريطة، ${built.size} صفحة مولَّدة`,
+    `${missing.length} رابط ميت، ${unlisted.length} صفحة خارج الخريطة`,
+  ])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -270,7 +440,16 @@ export function extractLinks(html, { origin = "" } = {}) {
  * @param {string[]} linkedPaths كل المسارات المرتبطة داخلياً عبر الموقع
  */
 export function findOrphanPages(knownRoutes, linkedPaths) {
-  const normalize = (p) => (p || "/").replace(/\/+$/, "") || "/"
+  const decode = (value) => {
+    try {
+      return decodeURIComponent(value)
+    } catch {
+      return value
+    }
+  }
+  // الروابط في HTML مرمَّزة (%D8%B5...) ومسارات الخريطة مفكوكة الترميز؛
+  // بلا تفكيك على الطرفين تظهر كل صفحة عربية «يتيمة» كذباً.
+  const normalize = (p) => decode(p || "/").replace(/\/+$/, "") || "/"
   const linked = new Set(linkedPaths.map(normalize))
   const orphans = knownRoutes.filter((route) => !linked.has(normalize(route)))
   return {
@@ -313,6 +492,9 @@ export function checkUrlStructure(routes) {
 
     const problems = []
     const soft = []
+
+    // شرطة النهاية = نسخة مكررة من الصفحة نفسها، فهي مخالفة صارمة لا توصية.
+    if (decoded.length > 1 && decoded.endsWith("/")) problems.push("شرطة نهاية زائدة")
 
     if (/[A-Z]/.test(decoded)) problems.push("أحرف كبيرة")
     if (/_/.test(decoded)) problems.push("تسطير بدل شرطة")

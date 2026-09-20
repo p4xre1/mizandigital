@@ -53,7 +53,7 @@ export function FAQPage() {
         description="إجابات وافية عن أكثر الأسئلة تكراراً حول منصة الميزان الرقمية: طبيعة المحتوى، الاستشارات القانونية، سياسة الخصوصية، وكيفية المساهمة في إثراء المنصة."
         directAnswer="الأسئلة الشائعة حول ميزان الرقمية: المنصة تعليمية مجانية لطلبة الحقوق بالمغرب، لا تقدم استشارة قانونية، المحتوى يشمل ملخصات S1-S6، قاموس قانوني 250 مصطلح، دليل 21 كلية، واختبارات قانونية."
         faq={allFaqs}
-        breadcrumbs={[{ name: "الرئيسية", url: "https://www.mizan.page/" }, { name: "الأسئلة الشائعة", url: "https://www.mizan.page/faqpage" }]}
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الأسئلة الشائعة", url: "/faq" }]}
       />
 
       <main className="container mx-auto max-w-3xl px-4 py-10 md:py-14" dir="rtl">

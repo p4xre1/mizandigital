@@ -87,7 +87,7 @@ const schema = {
       "@id": `${DOMAIN}/#organization`,
       "name": "ميزان الرقمية",
       "alternateName": "Mizan Digital",
-      "url": `${DOMAIN}/`,
+      "url": DOMAIN,
       "logo": `${DOMAIN}/Logo.svg`,
       "description": "منصة مغربية للمعرفة القانونية والأكاديمية وموارد طلبة الحقوق.",
       "areaServed": { "@type": "Country", "name": "Morocco" },
@@ -97,7 +97,7 @@ const schema = {
     {
       "@type": "WebSite",
       "@id": `${DOMAIN}/#website`,
-      "url": `${DOMAIN}/`,
+      "url": DOMAIN,
       "name": "ميزان الرقمية",
       "publisher": { "@id": `${DOMAIN}/#organization` },
       "inLanguage": "ar-MA"
@@ -105,7 +105,7 @@ const schema = {
     {
       "@type": "WebPage",
       "@id": `${DOMAIN}/#webpage`,
-      "url": `${DOMAIN}/`,
+      "url": DOMAIN,
       "name": "ميزان الرقمية | القانون المغربي وموارد طلبة الحقوق",
       "description": "منصة مغربية للمعرفة القانونية: القانون المغربي، الملخصات، المعجم القانوني، المستجدات، الجريدة الرسمية، كليات الحقوق والموارد الدراسية.",
       "isPartOf": { "@id": `${DOMAIN}/#website` },
