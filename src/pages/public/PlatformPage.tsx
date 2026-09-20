@@ -49,9 +49,8 @@ type SchoolEntry = {
   name?: string
   short_name?: string
   city?: string
-  filieres?: string[]
-  url?: string
-  official_url?: string
+  university?: string
+  officialUrl?: string
 }
 
 const FEATURES: Array<{
@@ -76,7 +75,7 @@ const FEATURES: Array<{
     href: "/schools",
     kicker: "كليات الحقوق",
     title: "معلومات الكليات بكل مدينة",
-    text: "جامعة، مدينة، مسالك الإجازة والماستر، وسنة إحداث المؤسسة — مع الرابط الرسمي للكلية حين يكون منشوراً.",
+    text: "جامعة، مدينة، ومسالك الدراسة — مع الرابط الرسمي للكلية، وسنة الإحداث ومنصّة التسجيل حين تكون منشورة في البيانات.",
   },
   {
     href: "/news",

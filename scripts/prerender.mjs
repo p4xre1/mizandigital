@@ -1937,9 +1937,13 @@ pages.push(
           <h2>من كليّتك ومن مستجدّات المنصة</h2>
 
           <p>
-            ${guideSampleSchool ? escapeHtml(guideSampleSchool.name) : ""}${
-              guideSampleSchool && guideSampleSchool.city ? ` — ${escapeHtml(guideSampleSchool.city)}` : ""
-            }. المواعيد والإعلانات تُنشر في موقع المؤسسة، ودليل
+            ${guideSampleSchool ? escapeHtml(guideSampleSchool.short_name || guideSampleSchool.name) : ""}${
+              guideSampleSchool && guideSampleSchool.university ? ` — ${escapeHtml(guideSampleSchool.university)}` : ""
+            }.${
+              guideSampleSchool && Array.isArray(guideSampleSchool.studyAreas) && guideSampleSchool.studyAreas.length
+                ? ` من مسالكها: ${escapeHtml(guideSampleSchool.studyAreas.slice(0, 3).join("، "))}.`
+                : ""
+            } المواعيد والإعلانات تُنشر في موقع المؤسسة، ودليل
             <a href="/schools">الكليات</a> يوصلك به.
           </p>
 

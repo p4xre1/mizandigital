@@ -42,7 +42,10 @@ type SchoolCard = {
   name?: string
   short_name?: string
   city?: string
-  filieres?: string[]
+  university?: string
+  /** المسالك في البيانات اسمها studyAreas (لا filieres)، والاسم المألف للطالب short_name. */
+  studyAreas?: string[]
+  officialUrl?: string
 }
 
 const WEEK_PLAN: Array<{ day: string; what: string; where: ReactNode }> = [
@@ -357,10 +360,10 @@ export default function NewLawStudentGuidePage() {
                 مثال من دليل الكليات
               </h2>
               <p className="mt-2 text-[13px] leading-relaxed text-slate-600 dark:text-slate-300">
-                {faculty.name}
-                {faculty.city ? ` — ${faculty.city}` : ""}.
-                {Array.isArray(faculty.filieres) && faculty.filieres.length
-                  ? ` من مسالكها: ${faculty.filieres.slice(0, 3).join("، ")}.`
+                {faculty.short_name || faculty.name}
+                {faculty.university ? ` — ${faculty.university}` : ""}.
+                {Array.isArray(faculty.studyAreas) && faculty.studyAreas.length
+                  ? ` من مسالكها: ${faculty.studyAreas.slice(0, 3).join("، ")}.`
                   : ""}
               </p>
               <Link to="/schools" className="mt-3 inline-block text-[13px] font-bold text-[#2563eb]">
