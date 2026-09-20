@@ -80,6 +80,11 @@ const PaymentsPage = lazy(() => import("@/pages/public/PaymentsPage").then((m) =
 const GuidelinesPage = lazy(() => import("@/pages/public/GuidelinesPage").then((m) => ({ default: m.GuidelinesPage })))
 const PricingPage = lazy(() => import("@/pages/public/PricingPage").then((m) => ({ default: m.PricingPage })))
 const SavedContentPage = lazy(() => import("@/pages/public/SavedContentPage").then((m) => ({ default: m.SavedContentPage })))
+/* الصفحات الركنية (cornerstone) في خطة السيو: /platform و/guides/*. مكوّناتها
+   export default مستقل فلا تحتاج التفاف `.then` المعتمد في الصفحات المسمّاة. */
+const PlatformPage = lazy(() => import("@/pages/public/PlatformPage"))
+const FreeLegalResourcesPage = lazy(() => import("@/pages/public/guides/FreeLegalResourcesPage"))
+const NewLawStudentGuidePage = lazy(() => import("@/pages/public/guides/NewLawStudentGuidePage"))
 const NotFound = lazy(() => import("@/pages/public/NotFound").then((m) => ({ default: m.NotFound })))
 
 function ArticleWrapper() { const { slug } = useParams<{ slug: string }>(); return <ArticlePage slug={slug ? decodeURIComponent(slug) : undefined} /> }
@@ -140,7 +145,8 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />
           <Route path="/events" element={<EventsPage />} /><Route path="/events/:slug" element={<EventWrapper />} /><Route path="/schools" element={<SchoolsPage />} /><Route path="/schools/:slug" element={<SchoolWrapper />} />
           <Route path="/quiz" element={<QuizHubPage />} /><Route path="/quiz/university" element={<UniversityQuizPage />} /><Route path="/quiz/general" element={<GeneralQuizPage />} /><Route path="/quiz/concours" element={<ConcoursQuizPage />} /><Route path="/quiz/interview" element={<InterviewQuizPage />} /><Route path="/quiz/placement" element={<PlacementQuizPage />} /><Route path="/profile" element={<MyProfilePage />} /><Route path="/u/:username" element={<PublicProfilePage />} />
-          <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
+          <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/platform" element={<PlatformPage />} /><Route path="/guides/free-legal-resources-morocco" element={<FreeLegalResourcesPage />} /><Route path="/guides/new-law-student-morocco" element={<NewLawStudentGuidePage />} />
+          <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
         </Route>
         {/* صفحة المصادقة الموحّدة (Supabase Auth) تتكفّل بتحويل المستخدم
             المسجّل إلى وجهته: /admin/dashboard للإدارة و/profile للبقية. */}

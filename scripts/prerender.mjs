@@ -286,6 +286,24 @@ const lexiconWithSlugs = lexicon.map((item) => {
   };
 });
 
+// معرّف المصطلح ← مساره الداخلي. الصلات في بطاقات lexicon.json معرّفات،
+// وتُطبع هنا كروابط حتى ترى النسخة المُسبقـة التخزين ما تراه النسخة الحيّة
+// (وبنفس slugs التي ولّدتها lexiconSlug أعلاه، فلا رابط إلى ملف غير موجود).
+const cleanTermLabel = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const termLinkById = new Map(
+  lexiconWithSlugs
+    .filter((term) => term.id)
+    .map((term) => [
+      term.id,
+      {
+        path: `/lexicon/${term.slug}`,
+        label: cleanTermLabel(term.titleLabel || term.term_ar),
+      },
+    ])
+);
+
+
 /* -------------------------------------------------------
    قوائم المحتوى + محتوى نظام الإدارة (CMS)
 -------------------------------------------------------
@@ -1606,6 +1624,354 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
 ];
 
 /* -------------------------------------------------------
+   الصفحات الركنية (cornerstone) في خطة السيو: /platform و /guides/*
+------------------------------------------------------- */
+
+/*
+ * هذه الصفحات تُقرأ من ملفات البيانات نفسها التي تقرأها مكوّنات React
+ * (src/pages/public/PlatformPage.tsx و src/pages/public/guides/*)، فالنسخة
+ * المُسبقـة التخزين والنسخة الحيّة لا تتناقضان: أرقام، ومثال مصطلح، وخبر،
+ * وكلية — كلها من JSON. وتُعرَّف الحروف هنا لا داخل النص كي لا يتقادم رقم.
+ */
+const platformStats = {
+  lexicon: statistics.lexicon,
+  schools: statistics.schools,
+  news: statistics.news,
+  documents: statistics.documents,
+};
+
+const guideSampleTerm = lexicon.find((t) => t.id === "obligation") || lexicon[0];
+const guideSampleNews = news[0];
+const guideSampleSchool =
+  schools.find((school) => (school.city || "").includes("طنجة")) || schools[0];
+/* تاريخ آخر مراجعة محررية منشور في البيانات نفسها (enrich-lexicon.mjs) — لا
+   تاريخ بناء السكربت: الأخير يتغير مع كل CI أما الأول فيبقى صادقاً. */
+const REVIEW_DATE =
+  lexicon.find((t) => t && t.last_reviewed)?.last_reviewed ||
+  new Date().toISOString().slice(0, 10);
+const guideReviewNote = `آخر مراجعة للبيانات: ${REVIEW_DATE}`;
+
+pages.push(
+  {
+    path: "/platform",
+    title: "ميزان الرقمية: المنصة المغربية المجانية لطلبة الحقوق",
+    description:
+      "منصة ميزان الرقمية تجمع ملخصات القانون، المصطلحات القانونية، ومعلومات كليات الحقوق في مكان واحد. مجانية لطلبة الحقوق بالمغرب، بلا حساب إجباري للتصفح.",
+    schema: {
+      "@type": "WebApplication",
+      name: "ميزان الرقمية: المنصة المغربية المجانية لطلبة الحقوق",
+      url: absoluteUrl("/platform"),
+      applicationCategory: "EducationalApplication",
+      isAccessibleForFree: true,
+      inLanguage: ["ar-MA", "fr-MA"],
+      dateModified: NOW,
+      offers: { "@type": "Offer", price: "0", priceCurrency: "MAD" },
+    },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "المنصة", path: "/platform" },
+      ]),
+    ],
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>ميزان الرقمية: المنصة المغربية المجانية لطلبة الحقوق</h1>
+
+          <p>
+            <strong>
+              منصة ميزان الرقمية تجمع ملخصات القانون، والمصطلحات القانونية، ومعلومات
+              كليات الحقوق في مكان واحد، مجاناً ولطلبة الحقوق بالمغرب.
+            </strong>
+            لا حساب إجباري على المحتوى الأساسي: الأرشيف الدراسي، والمعجم القانوني،
+            ودليل الكليات، ومستجدات النصوص متاحة للتصفح مباشرة.
+          </p>
+
+          <h2>ماذا تقدم ميزان لطلبة الحقوق؟</h2>
+
+          <ul>
+            <li>
+              <a href="/archive">الأرشيف الدراسي</a>
+              — ملخصات ومحاضرات ومصطلحات وأسئلة دورات سابقة مصنّفة حسب الفصول
+              S1 إلى S6، منها ${platformStats.documents} وثيقة في البيانات المنشورة.
+            </li>
+            <li>
+              <a href="/lexicon">المعجم القانوني</a>
+              — ${platformStats.lexicon} مصطلحاً بالعربية ومقابلها بالفرنسية، مع تعريف
+              مختصر وشرح مبسّط للطلبة وإحالة إلى النص القانوني عند توفره.
+            </li>
+            <li>
+              <a href="/schools">دليل كليات الحقوق</a>
+              — ${platformStats.schools} كلية للعلوم القانونية والاقتصادية والاجتماعية:
+              الجامعة، المدينة، المسالك، والرابط الرسمي.
+            </li>
+            <li>
+              <a href="/news">المستجدات</a>
+              — ${platformStats.news} مادة بين خبر تشريعي وإعلان جامعي وملخّص مقتضب.
+            </li>
+            <li>
+              <a href="/guides/new-law-student-morocco">دليل الطالب الجديد</a>
+              و<a href="/guides/free-legal-resources-morocco">دليل الموارد المجانية</a>
+              — ما يكفي لأول أسبوع ولمن يبني مكتبته من المصادر المفتوحة.
+            </li>
+          </ul>
+
+          <h2>لماذا تختار ميزان؟</h2>
+
+          <ul>
+            <li>المصطلح والنص والملخّص في مسار واحد: بطاقة المصطلح لا تكتفي بالتعريف.</li>
+            <li>محتوى مكتوب بالعربية التي يدرس بها الطالب، مع المقابل الفرنسي للمصطلح.</li>
+            <li>منظّم حسب الفصل الذي تدرسه الآن، لا حسب موضوع عام.</li>
+            <li>مجاناً في أساسه؛ اشتراك «ميزان برو» يفتح أدوات متقدمة فقط.</li>
+            <li>المحتوى التعليمي مفصول عن المصدر القانوني: الجريدة الرسمية تبقى المرجع.</li>
+          </ul>
+
+          <p>
+            ابدأ من <a href="/archive">الفصل الذي تدرسه</a>، أو ابحث في
+            <a href="/lexicon">المعجم القانوني</a> عن المصطلح الذي تعثّرت فيه اليوم.
+          </p>
+
+          <p>${guideReviewNote}.</p>
+
+          <p><a href="/">العودة إلى الصفحة الرئيسية</a></p>
+        </article>
+      </main>
+    `,
+  },
+
+  {
+    path: "/guides/free-legal-resources-morocco",
+    title: "أفضل الموارد المجانية لطلبة القانون في المغرب 2026 | ميزان",
+    description:
+      "دليل عملي لأفضل الموارد القانونية المجانية لطلبة القانون في المغرب: منصة ميزان الرقمية، والجريدة الرسمية، ومواقع الكليات، ومنصات النصوص المفتوحة.",
+    schema: {
+      "@type": "Guide",
+      headline: "أفضل الموارد المجانية لطلبة القانون في المغرب 2026",
+      url: absoluteUrl("/guides/free-legal-resources-morocco"),
+      inLanguage: "ar-MA",
+      dateModified: NOW,
+      author: { "@type": "Organization", name: publisherSchema.name, url: DOMAIN },
+    },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "الموارد المجانية", path: "/guides/free-legal-resources-morocco" },
+      ]),
+    ],
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>أفضل الموارد المجانية لطلبة القانون في المغرب 2026 | ميزان</h1>
+
+          <p>
+            <strong>
+              ثلاثة أنواع من الموارد يحتاجها طالب الحقوق: ملخّص دراسي منظّم بالفصل،
+              ونصّ رسمي يراجع عنده القاعدة، وإعلان من كليته. البقية تكرار.
+            </strong>
+            هذا الدليل يصف كل مورد بما يصلح له، ومتى تتوقف عنده وتنتقل إلى المصدر الرسمي.
+          </p>
+
+          <h2>1. منصة ميزان الرقمية — المورد الأول للطلبة</h2>
+
+          <p>
+            ملخصات ومحاضرات مصنّفة حسب الفصل (S1 إلى S6)، ومعجم قانوني بـ${platformStats.lexicon}
+            مصطلحاً، ودليل ${platformStats.schools} كلية حقوق، وصفحة مستجدات. قيمته ليست في كونه
+            موسوعة، بل في أنه مكتوب بلغة الامتحان ومنظّم حسب ما تدرسه فعلاً هذا الفصل:
+            <a href="/platform">تعرّف على المنصة</a>.
+          </p>
+
+          <h2>2. الجريدة الرسمية: النص كما نُشر</h2>
+
+          <p>
+            عند أي خلاف على عبارة أو على تاريخ سريان، المرجع هو موقع النشر الإلكتروني الرسمي
+            (<a href="https://www.sgg.gov.ma" rel="noopener noreferrer">sgg.gov.ma</a>):
+            الجريدة الرسمية ونصوص القوانين كما نُشرت فيها. لا يُغني ملخّص ولا معجم — بما في ذلك
+            ما تنشره ميزان — عن قراءة الفصل في مصدره، ولا سيما في المواد التي عُدّلت بعد تحرير
+            الملخّص. راجع أيضاً نصوص وزارة العدل المنشورة على
+            <a href="https://adala.justice.gov.ma" rel="noopener noreferrer">adala.justice.gov.ma</a>.
+          </p>
+
+          <h2>3. مواقع الكليات والجامعات</h2>
+
+          <p>
+            إعلان الكلية هو المصدر الوحيد الموثوق للمواعيد: تاريخ الامتحان، تركيبة اللجنة، لائحة
+            مباراة، أو تغيير طريقة اختبار. لا تنشره أي منصة عامة. دليل
+            <a href="/schools">كليات الحقوق في ميزان</a> يعطيك الجامعة والمدينة والمسالك والرابط
+            الرسمي لكل كلية لتنطلق منه إلى موقع مؤسستك.
+          </p>
+
+          <h2>4. منصات وموارد أخرى مفيدة</h2>
+
+          <table>
+            <caption>المورد، نوعه، ومتى يستخدمه طالب القانون في المغرب</caption>
+            <thead>
+              <tr><th scope="col">المورد</th><th scope="col">نوعه</th><th scope="col">متى تستخدمه</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row"><a href="/platform">منصة ميزان الرقمية</a></th>
+                <td>منصة تعليمية</td>
+                <td>ملخصات بالفصل، معجم مصطلحات، دليل كليات، ومستجدات.</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="/lexicon">المعجم القانوني</a></th>
+                <td>أداة مراجعة</td>
+                <td>حين تتعثر في مصطلح داخل محاضرة أو نص.</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="https://www.sgg.gov.ma" rel="noopener noreferrer">الجريدة الرسمية</a></th>
+                <td>نص رسمي</td>
+                <td>التحقق من العبارة وتاريخ الدخول حيز التنفيذ.</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="/schools">مواقع الكليات</a></th>
+                <td>مؤسسة جامعية</td>
+                <td>المواعيد والمباريات والإعلانات الإدارية.</td>
+              </tr>
+              <tr>
+                <th scope="row"><a href="https://www.doaj.org" rel="noopener noreferrer">منصات الوصول المفتوح</a></th>
+                <td>مقالات وبحوث</td>
+                <td>إعداد فرض أو مذكرة، مع التحقق من تاريخ النشر.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>الخلاصة</h2>
+
+          <ol>
+            <li>للمراجعة اليومية: <a href="/archive">أرشيف ميزان</a> حسب فصلك، ومعجم المصطلحات عند الحاجة.</li>
+            <li>للتحقق من قاعدة: الجريدة الرسمية، ثم النص كما عُدّل آخر مرة.</li>
+            <li>للمواعيد: موقع كليتك، ودليل الكليات للوصول إليه.</li>
+            <li>أول أسبوع في الحقوق له ترتيب خاص في <a href="/guides/new-law-student-morocco">دليل الطالب الجديد</a>.</li>
+          </ol>
+
+          <p>${guideReviewNote}.</p>
+
+          <p><a href="/">العودة إلى الصفحة الرئيسية</a></p>
+        </article>
+      </main>
+    `,
+  },
+
+  {
+    path: "/guides/new-law-student-morocco",
+    title: "دليل طالب الحقوق الجديد في المغرب 2026 | ميزان",
+    description:
+      "دليل عملي لأول أسبوع في كلية الحقوق بالمغرب: كيف تدرس، وكيف تقرأ نصّاً قانونياً، وما الموارد المجانية التي تكفيك وحدها — بأمثلة من منصة ميزان الرقمية.",
+    schema: {
+      "@type": "Guide",
+      headline: "دليل طالب الحقوق الجديد في المغرب 2026",
+      url: absoluteUrl("/guides/new-law-student-morocco"),
+      inLanguage: "ar-MA",
+      dateModified: NOW,
+      author: { "@type": "Organization", name: publisherSchema.name, url: DOMAIN },
+    },
+    extraSchema: [
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "دليل الطالب الجديد", path: "/guides/new-law-student-morocco" },
+      ]),
+    ],
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>دليل طالب الحقوق الجديد في المغرب 2026 | ميزان</h1>
+
+          <p>
+            <strong>
+              أول أسبوع في الحقوق لا يحتاج مكتبة، يحتاج نظاماً: مصدر واحد لكل مادة،
+              وبطاقة مصطلحات كل يوم، وسؤال دورة واحدة في نهاية الأسبوع.
+            </strong>
+          </p>
+
+          <h2>الأسبوع الأول: ما تفعله يوماً بيوم</h2>
+
+          <ol>
+            <li>اليوم 1–2: اعرف بنية الفصل — الوحدات، معاملاتها، ونمط الاختبار تطبيقي أم نظري.</li>
+            <li>اليوم 3: اجمع سلاسل المادة، وحدّد مصدراً واحداً لكل مادة لا ثلاثة.</li>
+            <li>اليوم 4–5: ابدأ من ملخّص واحد لتثبيت البنية (<a href="/archive">الأرشيف حسب الفصل</a>)، ثم عد إلى المحاضرة للتفصيل.</li>
+            <li>اليوم 6: اكتب ثلاث كلمات قانونية في اليوم وشرحها بنفسك — عبر <a href="/lexicon">المعجم القانوني</a>.</li>
+            <li>اليوم 7: جرّب سؤال دورة سابقة في الوقت المحدد، وصحّح بعناصر الإجابة.</li>
+          </ol>
+
+          <h2>مثال: كيف تقرأ بطاقة مصطلح</h2>
+
+          <p>
+            <strong>${escapeHtml(guideSampleTerm.term_ar)} (${escapeHtml(guideSampleTerm.term_fr)})</strong>
+            — ${escapeHtml(guideSampleTerm.simple_explanation || guideSampleTerm.definition)}
+          </p>
+
+          <ul>
+            ${(guideSampleTerm.examples || []).slice(0, 3).map((example) => `<li>${escapeHtml(example)}</li>`).join("\n            ")}
+          </ul>
+
+          <p>
+            هذه البطاقة واحدة من ${platformStats.lexicon} بطاقة في
+            <a href="/lexicon/التقادم">قاموس ميزان</a>.
+          </p>
+
+          <h2>ما يكفيك من الموارد في السنة الأولى</h2>
+
+          <table>
+            <caption>المورد، نوعه، ومتى تستخدمه</caption>
+            <thead>
+              <tr><th scope="col">المورد</th><th scope="col">نوعه</th><th scope="col">متى تستخدمه</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row"><a href="/archive">ملخّص الفصل</a></th><td>مراجعة</td><td>تثبيت بنية المادة قبل المحاضرة وبعدها.</td></tr>
+              <tr><th scope="row"><a href="/lexicon">المعجم القانوني</a></th><td>مصطلحات</td><td>عندما يتعثر الفهم عند كلمة، لا عند الجملة كلها.</td></tr>
+              <tr><th scope="row"><a href="https://www.sgg.gov.ma" rel="noopener noreferrer">النص الرسمي</a></th><td>مرجع</td><td>للتأكد من العبارة سارية المفعول.</td></tr>
+              <tr><th scope="row"><a href="/schools">إعلان الكلية</a></th><td>مواعيد</td><td>اللجان والتداريب والمباريات.</td></tr>
+            </tbody>
+          </table>
+
+          <h2>نصائح للمراجعة</h2>
+
+          <ul>
+            <li>اكتب القاعدة في جملة واحدة، ثم أغلق الكتاب وارجع إليها.</li>
+            <li>لا تحفظ رقم الفصل وحده: احفظ معه الحالة التي يُطبَّق فيها.</li>
+            <li>قارن كل مصطلحين متجاورين (البيع والهبة، الرهن والكفالة) بجدول من ثلاثة أسطر.</li>
+            <li>آخر ساعة من الأسبوع لدورة أسئلة سابقة، لا لقراءة جديدة.</li>
+          </ul>
+
+          <h2>من كليّتك ومن مستجدّات المنصة</h2>
+
+          <p>
+            ${guideSampleSchool ? escapeHtml(guideSampleSchool.name) : ""}${
+              guideSampleSchool && guideSampleSchool.city ? ` — ${escapeHtml(guideSampleSchool.city)}` : ""
+            }. المواعيد والإعلانات تُنشر في موقع المؤسسة، ودليل
+            <a href="/schools">الكليات</a> يوصلك به.
+          </p>
+
+          <p>
+            من آخر ما نُشر في المستجدات:
+            ${guideSampleNews ? `<a href="/news/${encodeURIComponent(guideSampleNews.id)}">${escapeHtml(guideSampleNews.title)}</a>` : ""}
+          </p>
+
+          <h2>أسئلة شائعة</h2>
+
+          <h3>هل أشتري الكتب في الأسبوع الأول؟</h3>
+          <p>لا تنتظر نهاية الأسبوع الأول: ابدأ بالسلاسل التي يحدّدها أستاذ المادة، واقتنِ كتاباً واحداً حين تعرف نمط الاختبار.</p>
+
+          <h3>كم ساعة أحتاج يومياً في الحقوق؟</h3>
+          <p>ساعة إلى ساعتين بتركيز على المادة الحالية. الفارق ليس عدد الساعات بل عدد مرات استرجاع القاعدة من الذاكرة.</p>
+
+          <p>
+            الموارد مقارنة بالمصادر الرسمية في
+            <a href="/guides/free-legal-resources-morocco">دليل الموارد المجانية</a>،
+            وما هو متاح في <a href="/platform">صفحة المنصة</a>.
+          </p>
+
+          <p>${guideReviewNote}.</p>
+
+          <p><a href="/">العودة إلى الصفحة الرئيسية</a></p>
+        </article>
+      </main>
+    `,
+  }
+);
+
+/* -------------------------------------------------------
    Additional trust pages
 ------------------------------------------------------- */
 
@@ -2032,6 +2398,87 @@ function renderLexiconIndexStaticHtml(terms) {
   `;
 }
 
+/**
+ * الشرح المبسّط والأمثلة وكلمات المراجعة والمصطلحات ذات صلة — الحقول التي
+ * يضيفها scripts/enrich-lexicon.mjs إلى lexicon.json. كل قسم يُطبع فقط إذا كان
+ * موجوداً في السجل، فلا تُنشأ عناوين فارغة في النسخة الثابتة، ولا يختلف ما
+ * يقرؤه الزاحف عمّا يقرؤه الطالب في الواجهة.
+ */
+function termEnrichmentHtml(item) {
+  const examples = (Array.isArray(item.examples) ? item.examples : []).slice(0, 3);
+  const keywords = Array.isArray(item.exam_keywords) ? item.exam_keywords : [];
+  const selfPath = termLinkById.get(item.id)?.path;
+  const related = (Array.isArray(item.related_terms) ? item.related_terms : [])
+    .map((id) => ({ id, ...(termLinkById.get(id) || {}) }))
+    .filter((entry) => entry.path && entry.path !== selfPath)
+    .slice(0, 6);
+
+  const blocks = [];
+
+  // حقول FR (simple_explanation_fr / examples_fr) لا تُطبع هنا ولا في الواجهة:
+  // مُولَّدة من التعريف ولم يراجعها بشر بعد، فتنشر حين تتحول published.
+  if (item.simple_explanation) {
+    blocks.push(`
+      <section>
+        <h2>كيف يُشرح هذا المصطلح ببساطة؟</h2>
+        ${item.simple_explanation ? `<p>${escapeHtml(item.simple_explanation)}</p>` : ""}
+      </section>
+    `);
+  }
+
+  if (examples.length) {
+    blocks.push(`
+      <section>
+        <h2>أمثلة وتمارين للمراجعة</h2>
+        <ul>
+          ${examples.map((example) => `<li>${escapeHtml(example)}</li>`).join("\n          ")}
+        </ul>
+      </section>
+    `);
+  }
+
+  if (keywords.length) {
+    blocks.push(`
+      <section>
+        <h2>كلمات مفتاحية للامتحان</h2>
+        <ul>
+          ${keywords.map((keyword) => `<li>${escapeHtml(keyword)}</li>`).join("\n          ")}
+        </ul>
+      </section>
+    `);
+  }
+
+  if (related.length) {
+    blocks.push(`
+      <section>
+        <h2>مصطلحات ذات صلة</h2>
+        <ul>
+          ${related
+            .map((entry) => `<li><a href="${entry.path}">${escapeHtml(entry.label)}</a></li>`)
+            .join("\n          ")}
+        </ul>
+      </section>
+    `);
+  }
+
+  if (item.last_reviewed) {
+    blocks.push(`
+      <p>
+        <time datetime="${escapeHtml(item.last_reviewed)}">
+          آخر مراجعة تحريرية: ${escapeHtml(item.last_reviewed)}
+        </time>
+        ${
+          item.review_status === "published"
+            ? " — راجعها فريق المحتوى ونُشرت."
+            : " — صيغة آلية في انتظار مراجعة متخصص."
+        }
+      </p>
+    `);
+  }
+
+  return blocks.join("\n");
+}
+
 function renderTermStaticHtml(item) {
   const sources = (item.legal_sources || [])
     .map((src) => {
@@ -2102,6 +2549,8 @@ function renderTermStaticHtml(item) {
           </p>
 
         </section>
+
+        ${termEnrichmentHtml(item)}
 
         ${
           item.category

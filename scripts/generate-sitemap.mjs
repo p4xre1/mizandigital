@@ -76,6 +76,12 @@ const staticEntries = [
   { path: "/articles", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
   { path: "/events", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
   { path: "/schools", changefreq: "monthly", priority: "0.8" },
+  // الصفحات الركنية: تصف المنصة والأدلة، وتستحق الظهور في الخريطة لأنها مرتبطة
+  // من الفوتر ومن بعضها بعضاً، لكنها ليست مُولَّدة من بيانات فـ lastmod فيها
+  // تاريخ البناء.
+  { path: "/platform", changefreq: "monthly", priority: "0.8" },
+  { path: "/guides/new-law-student-morocco", changefreq: "monthly", priority: "0.8" },
+  { path: "/guides/free-legal-resources-morocco", changefreq: "monthly", priority: "0.8" },
   { path: "/lexicon", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
   { path: "/quiz", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
   { path: "/quiz/university", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },

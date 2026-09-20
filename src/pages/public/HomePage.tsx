@@ -56,7 +56,7 @@ export function HomePage() {
         const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
           import("../../data/articles.json"),
           import("../../data/events.json"),
-          import("../../data/lexicon.json"),
+          import("../../data/lexicon.client.json"),
         ])
         const localArticles: FeedCard[] = (articlesData as any[])
           .map((item) => ({
@@ -104,7 +104,7 @@ export function HomePage() {
         const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
           import("../../data/articles.json"),
           import("../../data/events.json"),
-          import("../../data/lexicon.json"),
+          import("../../data/lexicon.client.json"),
         ])
 
         const [articlesRes, seminarsRes, termsRes] = await Promise.all([

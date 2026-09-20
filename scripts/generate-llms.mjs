@@ -100,6 +100,9 @@ lines.push(link("المعجم القانوني", "/lexicon", "مصطلحات ق�
 lines.push(link("كليات الحقوق", "/schools", "دليل كليات الحقوق بالمغرب ومعلومات التسجيل"));
 lines.push(link("الأرشيف والملفات", "/archive", "ملخصات ومحاضرات وملفات PDF حسب الفصل S1-S6"));
 lines.push(link("الندوات والفعاليات", "/events", "فعاليات أكاديمية وقانونية"));
+lines.push(link("المنصة", "/platform", "ما تقدمه ميزان لطلبة الحقوق: ملخصات، ومعجم مصطلحات، ودليل كليات، ومستجدات في مكان واحد"));
+lines.push(link("دليل الطالب الجديد", "/guides/new-law-student-morocco", "أول أسبوع في كلية الحقوق: النظام، والموارد التي تكفي، ونصائح المراجعة"));
+lines.push(link("الموارد القانونية المجانية", "/guides/free-legal-resources-morocco", "أفضل الموارد المجانية لطلبة القانون في المغرب ومتى يُستخدم كل منها"));
 lines.push(link("الأسئلة الشائعة", "/faq", "أسئلة متكررة حول الدراسة القانونية والمنصة"));
 lines.push(link("الاختبارات القانونية", "/quiz", "أربعة مسارات: الكلية (S1-S6)، العشوائي، المباريات المهنية، المقابلات"));
 lines.push("");
@@ -129,7 +132,9 @@ lines.push("## عينة من المعجم القانوني");
 lines.push("");
 lines.push(`<!-- المعجم كامل يضم ${lexicon.length} مصطلحاً على /lexicon -->`);
 for (const term of lexiconSlugs.slice(0, 40)) {
-  lines.push(link(term.term_ar, `/lexicon/${term.slug}`, term.definition));
+  // الشرح المبسّط مقدَّم على التعريف: llms.txt يُقرأ من نماذج تريد جواباً
+  // لطالب، وsimple_explanation هي العبارة التي تُفهم من أول قراءة.
+  lines.push(link(term.term_ar, `/lexicon/${term.slug}`, term.simple_explanation || term.definition));
 }
 lines.push("");
 
