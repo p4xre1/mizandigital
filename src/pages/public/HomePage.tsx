@@ -4,6 +4,7 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { BASE_URL, canonicalHome } from "../../lib/canonical"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
+import { CountUp, Reveal } from "../../components/ui/Reveal"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import {
   BookOpen, Scale, GraduationCap, Award, Library, ShieldCheck, Clock, FileText, ArrowRight,
@@ -48,14 +49,29 @@ interface LexiconCard {
  * علامة قسم موحّدة: رقم القسم + خطّ رفيع + عنوان صغير.
  * تعطي إيقاعاً بصرياً واضحاً للصفحة بدل شرائح ملوّنة متفرّقة.
  */
-function SectionLabel({ step, children }: { step: string; children: React.ReactNode }) {
+const TONES = {
+  blue: { text: "text-[#2563eb]", rule: "bg-[#2563eb]", soft: "bg-[#2563eb]/10 text-[#2563eb]" },
+  gold: { text: "text-[#b45309]", rule: "bg-[#b45309]", soft: "bg-[#b45309]/10 text-[#b45309]" },
+  green: { text: "text-[#047857]", rule: "bg-[#047857]", soft: "bg-[#047857]/10 text-[#047857]" },
+  red: { text: "text-[#b91c1c]", rule: "bg-[#b91c1c]", soft: "bg-[#b91c1c]/10 text-[#b91c1c]" },
+} as const;
+
+function SectionLabel({
+  step,
+  tone = "blue",
+  children,
+}: {
+  step: string;
+  tone?: keyof typeof TONES;
+  children: React.ReactNode;
+}) {
   return (
-    <p className="flex items-center justify-center gap-3 text-[11px] font-black tracking-[0.14em] text-[#2563eb] uppercase">
+    <p className={`flex items-center justify-center gap-3 text-[11px] font-black tracking-[0.14em] uppercase ${TONES[tone].text}`}>
       <span className="tabular-nums text-[#64748b] dark:text-[#94a3b8]">{step}</span>
-      <span className="h-px w-6 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
+      <span className={`h-px w-6 ${TONES[tone].rule}`} aria-hidden="true" />
       {children}
     </p>
-  )
+  );
 }
 
 export function HomePage() {
@@ -289,12 +305,15 @@ export function HomePage() {
         ]}
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
-        <section className="relative bg-white dark:bg-[#0f172a]">
+        <section className="relative overflow-hidden bg-white dark:bg-[#0f172a]">
+          {/* نقش زليج هندسي على الحافة الخارجية + بقعة لونية هادئة (بلا تدرّج) */}
+          <div className="pattern-zellige pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] opacity-70 lg:block" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] bg-white/40 dark:bg-[#0f172a]/50 lg:block" aria-hidden="true" />
           <div className="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
             <div className="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
 
               {/* العمود النصّي */}
-              <div className="text-center lg:text-right">
+              <Reveal className="text-center lg:text-right">
                 <p className="flex items-center justify-center gap-3 lg:justify-start">
                   <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
                   <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</span>
@@ -342,10 +361,13 @@ export function HomePage() {
                   <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Clock className="size-4 text-[#2563eb]" aria-hidden="true" />تحديث مستمر للمستجدات</li>
                   <li className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1e293b] px-4 py-2.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات الفصول S1-S6</li>
                 </ul>
-              </div>
+              </Reveal>
 
               {/* لوحة المعاينة: محتوى حقيقي من المنصة (مصطلح + سلسلة إحالة + حاسبة) */}
-              <figure aria-label="معاينة من المنصة" className="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+              <Reveal delay={140}>
+              <figure aria-label="معاينة من المنصة" className="overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+                {/* شريط العلامة أعلى اللوحة */}
+                <div className="h-1 w-full bg-[#2563eb]" aria-hidden="true" />
                 <figcaption className="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
                   <span className="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">
                     <Scale className="size-3.5 text-[#2563eb]" aria-hidden="true" />
@@ -413,62 +435,82 @@ export function HomePage() {
                   </div>
                 </div>
               </figure>
+              </Reveal>
             </div>
 
             {/* روابط سريعة للمحتوى */}
             <div className="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, href: "/lexicon" },
+                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}`, numeric: counts.lexicon, href: "/lexicon" },
                 { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6", href: "/archive" },
-                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}`, href: "/articles" },
-                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}`, href: "/news" },
+                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}`, numeric: articlesCount, href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: GraduationCap, color: "bg-[#b91c1c]", count: `${counts.news}`, numeric: counts.news, href: "/news" },
               ].map((card, i) => (
-                <Link key={i} to={card.href} className="group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover:border-[#2563eb]/30 transition-colors">
+                <Reveal key={i} delay={i * 70} className="h-full">
+                <Link to={card.href} className={`group flex h-full flex-col text-right overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] hover-lift`}>
+                  <span className={`h-1 w-full ${card.color}`} aria-hidden="true" />
+                  <div className="p-4">
                   <div className="flex items-center justify-between">
                     <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white`}>
                       <card.icon className="size-4" />
                     </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">
+                      {card.numeric ? <CountUp value={card.numeric} /> : card.count}
+                    </span>
                   </div>
                   {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
                       سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
                       متسلسلاً مع بقية أقسام الصفحة. */}
                   <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{card.title}</h2>
                   <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                  <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-[#2563eb]">
+                    فتح القسم
+                    <ArrowRight className="link-arrow size-3 rtl:rotate-180" aria-hidden="true" />
+                  </span>
+                  </div>
                 </Link>
+                </Reveal>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
+        <section className="relative overflow-hidden py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
+          <div className="pattern-zellige pointer-events-none absolute inset-x-0 top-0 h-40 opacity-50" aria-hidden="true" />
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
               {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                   «استكشف مساراتنا المميزة»؛ النصّ نفسه في الـ prerender. */}
-              <SectionLabel step="٠١">المحتوى</SectionLabel>
+              <SectionLabel step="٠١" tone="blue">المحتوى</SectionLabel>
               <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
               <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">كل ما يحتاجه طالب القانون المغربي في مكان واحد: القاموس، والملخصات، والمقالات، ودليل الكليات.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, tone: "bg-[#2563eb]/10 text-[#2563eb]", href: "/lexicon" },
-                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#f59e0b]/10 text-[#b45309]", href: "/archive" },
-                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, tone: "bg-[#10b981]/10 text-[#047857]", href: "/articles" },
-                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: `${counts.news}`, tone: "bg-[#ef4444]/10 text-[#b91c1c]", href: "/news" },
+                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, numeric: counts.lexicon, tone: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]", link: "استعمل البحث والتصنيف", href: "/lexicon" },
+                { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", tone: "bg-[#f59e0b]/10 text-[#b45309]", bar: "bg-[#f59e0b]", link: "تصفّح الملخصات", href: "/archive" },
+                { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, numeric: articlesCount, tone: "bg-[#10b981]/10 text-[#047857]", bar: "bg-[#10b981]", link: "اقرأ التحليلات", href: "/articles" },
+                { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: `${counts.news}`, numeric: counts.news, tone: "bg-[#ef4444]/10 text-[#b91c1c]", bar: "bg-[#ef4444]", link: "تابع المستجدات", href: "/news" },
               ].map((card) => (
-                <Link key={card.href} to={card.href} className="group relative overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover:border-[#2563eb]/20 transition-colors">
+                <Link key={card.href} to={card.href} className="group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-5 hover-lift">
+                  <span className={`absolute inset-x-0 top-0 h-1 ${card.bar}`} aria-hidden="true" />
                   
                   <div className="flex items-center justify-between">
                     <div className={`grid size-11 place-items-center rounded-xl ${card.tone}`}>
                       <card.icon className="size-5" />
                     </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">{card.count}</span>
-                  </div>
-                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{card.title}</h3>
-                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                </Link>
+                  <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1">
+                    {card.numeric ? <CountUp value={card.numeric} /> : card.count}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{card.title}</h3>
+                <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-[#2563eb]">
+                  {card.link}
+                  <ArrowRight className="link-arrow size-3 rtl:rotate-180" aria-hidden="true" />
+                </span>
+              </Link>
               ))}
             </div>
 
@@ -481,9 +523,9 @@ export function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
                   <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 transition-colors flex flex-col">
-                    <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
+                    <div className="zoom-frame h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] relative shrink-0">
                       <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover" width={320} height={120} />
-                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/70 text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
+                      <span className="absolute top-2 right-2 bg-white/95 dark:bg-black/70 text-[9px] font-bold px-2 py-1 rounded-full border border-[#2563eb]/20 text-[#1d4ed8] dark:text-[#93c5fd]">{item.category || "قانون"}</span>
                     </div>
                     <div className="p-4 flex flex-col flex-1">
                       <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
@@ -595,10 +637,11 @@ export function HomePage() {
         </section>
 
         {/* أدوات ميزان برو — عرض تعريفي: ما تفتحه الاشتراك فعلياً */}
-        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:700px]">
+        <section className="relative overflow-hidden py-14 bg-[#fffbeb] dark:bg-[#1b1a15] border-y border-[#fde68a] dark:border-[#3f3a24] [content-visibility:auto] [contain-intrinsic-size:700px]">
+          <div className="pattern-zellige pointer-events-none absolute inset-0 opacity-60" aria-hidden="true" />
           <div className="container mx-auto max-w-[1120px] px-6">
             <div className="text-center mb-8">
-              <SectionLabel step="٠٢">أدوات ميزان برو</SectionLabel>
+              <SectionLabel step="٠٢" tone="gold">أدوات ميزان برو</SectionLabel>
               <h2 className="mt-3 text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ستّ أدوات للمراجعة والتحرير القانوني</h2>
               <p className="mt-2 text-[13px] text-[#64748b] dark:text-[#94a3b8] max-w-[620px] mx-auto">
                 أدوات عملية داخل المنصة: مقارنة النصوص، وتمارين الواقعة إلى الحل، وخريطة الإحالات، والتنبيهات، وحساب الآجال، وملف بحث خاص بك.
@@ -607,27 +650,29 @@ export function HomePage() {
 
             <div className="grid gap-px overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-[#e2e8f0] dark:bg-[#334155] sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { title: "قانون عبر الزمن", desc: "قارن نسختين موثّقتين من النصّ نفسه، مع إبراز الفروق كلمة بكلمة.", icon: GitCompare },
-                { title: "من الواقعة إلى الحل", desc: "تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.", icon: Scale },
-                { title: "خريطة الإحالات القانونية", desc: "تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.", icon: Link2 },
-                { title: "راقب النصّ", desc: "احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.", icon: BellRing },
-                { title: "حاسبة الآجال المسطرية", desc: "حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.", icon: CalendarClock },
-                { title: "ملف البحث القانوني", desc: "احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.", icon: FolderOpen },
+                { title: "قانون عبر الزمن", desc: "قارن نسختين موثّقتين من النصّ نفسه، مع إبراز الفروق كلمة بكلمة.", icon: GitCompare, tone: "bg-[#2563eb]/10 text-[#2563eb]" },
+                { title: "من الواقعة إلى الحل", desc: "تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.", icon: Scale, tone: "bg-[#047857]/10 text-[#047857]" },
+                { title: "خريطة الإحالات القانونية", desc: "تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.", icon: Link2, tone: "bg-[#b45309]/10 text-[#b45309]" },
+                { title: "راقب النصّ", desc: "احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.", icon: BellRing, tone: "bg-[#b91c1c]/10 text-[#b91c1c]" },
+                { title: "حاسبة الآجال المسطرية", desc: "حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.", icon: CalendarClock, tone: "bg-[#0f766e]/10 text-[#0f766e]" },
+                { title: "ملف البحث القانوني", desc: "احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.", icon: FolderOpen, tone: "bg-[#7c2d12]/10 text-[#9a3412]" },
               ].map((tool, i) => (
-                <article key={i} className="bg-white dark:bg-[#1e293b] p-5">
-                  <span className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f]/30 text-[#2563eb]" aria-hidden="true">
-                    <tool.icon className="size-5" />
-                  </span>
-                  <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{tool.title}</h3>
-                  <p className="mt-1.5 text-[12px] leading-6 text-[#64748b] dark:text-[#94a3b8]">{tool.desc}</p>
-                </article>
+                <Reveal key={i} delay={i * 60} className="bg-white dark:bg-[#1e293b]">
+                  <article className="group flex h-full flex-col p-5">
+                    <span className={`grid size-10 place-items-center rounded-xl ${tool.tone}`} aria-hidden="true">
+                      <tool.icon className="size-5" />
+                    </span>
+                    <h3 className="mt-4 font-black text-[14px] text-[#0f172a] dark:text-white">{tool.title}</h3>
+                    <p className="mt-1.5 text-[12px] leading-6 text-[#64748b] dark:text-[#94a3b8]">{tool.desc}</p>
+                  </article>
+                </Reveal>
               ))}
             </div>
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-4 text-[12px] font-bold">
-              <Link to="/pro-tools" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-6 py-2.5 transition-colors">
+              <Link to="/pro-tools" className="group inline-flex items-center gap-2 rounded-full bg-[#b45309] hover:bg-[#92400e] text-white px-6 py-2.5 transition-colors">
                 تعرّف على الأدوات
-                <ArrowRight className="size-3.5 rtl:rotate-180" aria-hidden="true" />
+                <ArrowRight className="link-arrow size-3.5 rtl:rotate-180" aria-hidden="true" />
               </Link>
               <Link to="/pricing" className="text-[#2563eb] hover:underline">الأسعار</Link>
             </div>
@@ -757,7 +802,7 @@ export function HomePage() {
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="max-w-[900px] mx-auto">
               <div className="text-center max-w-[640px] mx-auto mb-10">
-                <SectionLabel step="٠٤">لماذا نحن</SectionLabel>
+                <SectionLabel step="٠٤" tone="green">لماذا نحن</SectionLabel>
                 {/* عنوان بصيغة سؤال (GEO: Question-Style Headings) — كان
                     «اكتشف المزايا المميزة لمنصتنا التعليمية القانونية». */}
                 <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
@@ -767,18 +812,21 @@ export function HomePage() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
-                  { title: "محتوى مرتّب بالفصول", desc: "ملخصات ودروس مرتّبة من S1 إلى S6 حسب المسلك والفصل، بلا تشتّت بين ملفات متفرقة.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "إحالة إلى المصادر الرسمية", desc: "النصوص القانونية والقواعد محالة إلى الجريدة الرسمية وبوابة العدالة الرقمية للتحقق.", icon: Scale, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "قاموس عربي–فرنسي", desc: "250 مصطلحاً قانونياً بالتعريف والترجمة، مع بحث وتصنيف حسب الفروع.", icon: FileText, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "أدوات للمراجعة", desc: "اختبارات QCM لتقيس مستواك، وأدوات ميزان برو لتتبّع النصوص وحساب الآجال والتمارين.", icon: Clock, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "محتوى مرتّب بالفصول", desc: "ملخصات ودروس مرتّبة من S1 إلى S6 حسب المسلك والفصل، بلا تشتّت بين ملفات متفرقة.", icon: Library, color: "bg-[#2563eb]/10 text-[#2563eb]", bar: "bg-[#2563eb]" },
+                  { title: "إحالة إلى المصادر الرسمية", desc: "النصوص القانونية والقواعد محالة إلى الجريدة الرسمية وبوابة العدالة الرقمية للتحقق.", icon: Scale, color: "bg-[#047857]/10 text-[#047857]", bar: "bg-[#047857]" },
+                  { title: "قاموس عربي–فرنسي", desc: "250 مصطلحاً قانونياً بالتعريف والترجمة، مع بحث وتصنيف حسب الفروع.", icon: FileText, color: "bg-[#b45309]/10 text-[#b45309]", bar: "bg-[#b45309]" },
+                  { title: "أدوات للمراجعة", desc: "اختبارات QCM لتقيس مستواك، وأدوات ميزان برو لتتبّع النصوص وحساب الآجال والتمارين.", icon: Clock, color: "bg-[#b91c1c]/10 text-[#b91c1c]", bar: "bg-[#b91c1c]" },
                 ].map((feature, i) => (
-                  <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
-                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
-                      <feature.icon className="size-5" />
+                  <Reveal key={i} delay={i * 70} className="h-full">
+                    <div className="relative h-full overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-5 hover-lift">
+                      <span className={`absolute inset-x-0 top-0 h-1 ${feature.bar}`} aria-hidden="true" />
+                      <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
+                        <feature.icon className="size-5" />
+                      </div>
+                      <h3 className="mt-3 font-black text-[13px]">{feature.title}</h3>
+                      <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
                     </div>
-                    <h3 className="mt-3 font-black text-[13px]">{feature.title}</h3>
-                    <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
-                  </div>
+                  </Reveal>
                 ))}
               </div>
 
@@ -821,7 +869,8 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
+        <section className="relative overflow-hidden py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white">
+          <div className="pattern-zellige-light pointer-events-none absolute inset-0" aria-hidden="true" />
           <div className="container mx-auto max-w-[1280px] px-6 relative">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-y-6 divide-y divide-white/15 md:divide-y-0 md:divide-x md:divide-x-reverse text-center">
               {[
@@ -831,9 +880,11 @@ export function HomePage() {
                 { value: `${counts.schools}`, label: "كلية للحقوق" },
                 { value: `${counts.docs}`, label: "ملف دراسي" },
               ].map((stat, i) => (
-                <div key={i}>
-                  <div className="text-[24px] font-black">{stat.value}</div>
-                  <div className="text-[11px] opacity-80 font-bold mt-1">{stat.label}</div>
+                <div key={i} className="px-2">
+                  <div className="text-[26px] font-black tabular-nums">
+                    {/^\d+$/.test(stat.value) ? <CountUp value={Number(stat.value)} /> : stat.value}
+                  </div>
+                  <div className="mt-1 text-[11px] font-bold text-white/80">{stat.label}</div>
                 </div>
               ))}
             </div>

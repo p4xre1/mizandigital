@@ -6,6 +6,7 @@
 // آجال)، وشبكة أدوات ميزان برو الستّ، ولوحة المصادر الرسمية، وعلامات الأقسام.
 // النسخة الثابتة مقفولة في tests/ui-cleanup.test.ts.
 
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -117,5 +118,62 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
       "المعرفة القانونية لطلبة الحقوق في المغرب",
     );
     expect(container.textContent).toContain("ابدأ من الأرشيف الدراسي بملخصات الفصول");
+  });
+});
+
+describe("الصفحة الرئيسية — اللون والنقش والحركة", () => {
+  it("تُلوّن بطاقات المحتوى والأدوات بألوان التصنيف الأربعة", () => {
+    const container = renderHome();
+    const html = container.innerHTML;
+    // حدّ لوني أعلى البطاقات (شريط 1px) بكل لون تصنيف
+    for (const bar of ["bg-[#2563eb]", "bg-[#f59e0b]", "bg-[#10b981]", "bg-[#ef4444]"]) {
+      expect(html, bar).toContain(bar);
+    }
+    // خلفية ذهبية هادئة لقسم أدوات ميزان برو
+    expect(html).toContain("bg-[#fffbeb]");
+    // أيقونات الأدوات الستّ ليست بلون واحد
+    for (const tone of ["bg-[#2563eb]/10", "bg-[#047857]/10", "bg-[#b45309]/10", "bg-[#b91c1c]/10"]) {
+      expect(html, tone).toContain(tone);
+    }
+  });
+
+  it("تضع نقش الزليج على الترويسة وقسم الأدوات وشريط الأرقام", () => {
+    const container = renderHome();
+    const html = container.innerHTML;
+    expect(html).toContain("pattern-zellige");
+    expect(html).toContain("pattern-zellige-light");
+  });
+
+  it("تُظهر الأقسام بحركة دخول لمرة واحدة وتُعدّ الأرقام تصاعدياً", () => {
+    const container = renderHome();
+    // jsdom بلا IntersectionObserver ⇒ الحالة النهائية فوراً (المحتوى ظاهر)
+    expect(container.querySelectorAll(".rise").length).toBeGreaterThan(8);
+    // الأرقام القابلة للعدّ تُعرض نهائية في jsdom (بلا rAF)
+    expect(container.textContent).toContain("250");
+  });
+
+  it("تعمل الحركة والديكور من طبقة CSS مشتركة مع HTML الثابت", () => {
+    const css = readFileSync("src/styles/globals.css", "utf8");
+    expect(css).toContain(".pattern-zellige");
+    expect(css).toContain(".pattern-zellige-light");
+    expect(css).toContain("@keyframes mizan-rise");
+    expect(css).toContain(".hover-lift");
+    expect(css).toContain(".zoom-frame");
+    expect(css).toContain(".link-arrow");
+    // حركة واحدة عند الظهور، ولا حركة لمن يطلب تقليلها
+    expect(css).toContain("prefers-reduced-motion: reduce");
+    expect(css).not.toMatch(/animation-iteration-count:\s*infinite|animate-spin/);
+  });
+
+  it("تزامن HTML الثابت مع نفس اللون والنقش والحركة", () => {
+    const prerender = readFileSync("scripts/prerender.mjs", "utf8");
+    expect(prerender).toContain("pattern-zellige");
+    expect(prerender).toContain('class="rise');
+    expect(prerender).toContain("accent-rule");
+    expect(prerender).toContain("accent-rule-gold");
+    expect(prerender).toContain("hover-lift");
+    // قسم أدوات ميزان برو موجود في النسخة الثابتة أيضاً
+    expect(prerender).toContain("ما هي أدوات ميزان برو الستّ؟");
+    expect(prerender).toContain('href="/pro-tools"');
   });
 });

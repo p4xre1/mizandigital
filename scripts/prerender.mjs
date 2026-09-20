@@ -589,10 +589,12 @@ const heroSource = heroTerm?.legal_sources?.[0];
 const heroArticle = heroSource?.articles?.[0]?.number;
 
 const homeHeroHtml = `
-          <section class="relative bg-white dark:bg-[#0f172a]">
+          <section class="relative overflow-hidden bg-white dark:bg-[#0f172a]">
+            <div class="pattern-zellige pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] opacity-70 lg:block" aria-hidden="true"></div>
+            <div class="pointer-events-none absolute inset-y-0 left-0 hidden w-[38%] bg-white/40 dark:bg-[#0f172a]/50 lg:block" aria-hidden="true"></div>
             <div class="container relative mx-auto max-w-[1120px] px-6 py-12 lg:py-16">
               <div class="grid items-center gap-10 lg:grid-cols-[1.02fr_0.98fr]">
-                <div class="text-center lg:text-right">
+                <div class="rise text-center lg:text-right">
                   <p class="flex items-center justify-center gap-3 lg:justify-start">
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true"></span>
                     <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية</span>
@@ -622,7 +624,8 @@ const homeHeroHtml = `
                   </ul>
                 </div>
 
-<figure aria-label="معاينة من المنصة" class="rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+<figure aria-label="معاينة من المنصة" style="animation-delay:140ms" class="rise overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+                  <div class="h-1 w-full bg-[#2563eb]" aria-hidden="true"></div>
                   <figcaption class="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
                     <span class="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">${svgIcon(ICON.scale, "size-3.5 text-[#2563eb]", 14)}معاينة من المنصة</span>
                     <span class="text-[10px] font-bold text-[#64748b] dark:text-[#94a3b8]">مثال توضيحي</span>
@@ -667,8 +670,8 @@ const homeHeroHtml = `
 
               <div class="mt-12 grid grid-cols-2 gap-3 sm:grid-cols-4">${homeStatCards
                 .map(
-                  ([title, desc, icon, color, badge]) => `
-                <a href="${desc === "S1-S6" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" class="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover:border-[#2563eb]/30 transition-colors">
+                  ([title, desc, icon, color, badge], i) => `
+                <a href="${desc === "S1-S6" ? "/archive" : title === "القاموس" ? "/lexicon" : title === "المقالات" ? "/articles" : "/news"}" style="animation-delay:${140 + i * 70}ms" class="rise group text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 hover-lift">
                   <div class="flex items-center justify-between">
                     <div class="grid size-9 place-items-center rounded-xl ${color} text-white">${svgIcon(icon, "size-4", 16)}</div>
                     <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
@@ -847,7 +850,7 @@ const pages = [
           </p>
 
           <section class="mt-10">
-            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
+            <h2 class="accent-rule text-[20px] font-black text-[#0f172a] dark:text-white">ماذا تقدم ميزان لطلبة الحقوق؟</h2>
 
             <p>
               تجمع المنصة حالياً
@@ -866,10 +869,31 @@ const pages = [
             </p>
           </section>
 
+
+          <!-- أدوات ميزان برو — نفس القسم المعروض في الصفحة الحيّة،
+               حتى يرى الزائر والزاحف المزايا المدفوعة قبل قسم الاشتراك. -->
+          <section class="mt-10 rounded-2xl border border-[#fde68a] dark:border-[#3f3a24] bg-[#fffbeb] dark:bg-[#1b1a15] p-6">
+            <h2 class="accent-rule accent-rule-gold text-[20px] font-black text-[#0f172a] dark:text-white">ما هي أدوات ميزان برو الستّ؟</h2>
+            <p class="mt-3">
+              أدوات عملية داخل المنصة تتطلب اشتراكاً نشطاً، ويبقى القاموس والأرشيف والمقالات مجانياً للجميع:
+            </p>
+            <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+              <li><strong>قانون عبر الزمن</strong> — قارن نسختين موثّقتين من النصّ نفسه مع إبراز الفروق كلمة بكلمة.</li>
+              <li><strong>من الواقعة إلى الحل</strong> — تمارين على وقائع قانونية مع إجابات نموذجية مراجعة وعناصر تحليل.</li>
+              <li><strong>خريطة الإحالات القانونية</strong> — تابع الروابط بين النصوص: الصادر منها والوارد إليها، حتى المصدر الرسمي.</li>
+              <li><strong>راقب النصّ</strong> — احفظ المواضيع التي تهمّك واطّلع على تحديثاتها المنشورة داخل المنصة.</li>
+              <li><strong>حاسبة الآجال المسطرية</strong> — حساب مساعد لقواعد الأيام التقويمية المراجعة فقط، وليس استشارة قانونية.</li>
+              <li><strong>ملف البحث القانوني</strong> — احفظ ملاحظاتك ومراجعك، وصدّر ملف بحثك للاستعمال في تحريرك.</li>
+            </ul>
+            <p class="mt-4">
+              <a href="/pro-tools">تعرّف على الأدوات</a> — <a href="/pricing">الأسعار</a>
+            </p>
+          </section>
+
           <!-- عنوان بصيغة سؤال (GEO: Question-Style Headings) وجوابه فوراً
                بعده (Answer-First): المحتوى نفسه معروض في الصفحة الحيّة. -->
           <section class="mt-10">
-            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">لماذا تختار منصة ميزان الرقمية؟</h2>
+            <h2 class="accent-rule accent-rule-green text-[20px] font-black text-[#0f172a] dark:text-white">لماذا تختار منصة ميزان الرقمية؟</h2>
 
             <p>
               <strong>لأن المحتوى مكتوب بالعربية التي يدرس بها الطالب، ومنظّم حسب الفصل الذي يدرسه الآن لا حسب موضوع عام.</strong>
@@ -885,7 +909,7 @@ const pages = [
           </section>
 
           <section class="mt-10">
-            <h2 class="text-[20px] font-black text-[#0f172a] dark:text-white">كيف تستعمل منصة ميزان في مراجعتك؟</h2>
+            <h2 class="accent-rule text-[20px] font-black text-[#0f172a] dark:text-white">كيف تستعمل منصة ميزان في مراجعتك؟</h2>
 
             <p>
               <strong>أفضل نقطة بداية هي تحديد نوع المعلومة التي تبحث عنها.</strong>

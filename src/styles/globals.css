@@ -138,3 +138,73 @@
 }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ============================================================
+   لغة ميزان البصرية: نقش زليج، حركة دخول، وعمق عند التحويم.
+   كل ما هنا يعمل في النسخة الحيّة وفي HTML الثابت معاً لأنه من نفس
+   الحزمة المُبنية؛ والقاعدة الوحيدة: لا حركة لا نهائية، ولا تدرّجات
+   لونية، ولا توهّج. الحركة كلها لمرة واحدة عند الظهور أو عند التحويم.
+   ============================================================ */
+
+/* نقش زليج هندسي (نجمة ثمانية) — خطوط رفيعة فقط، للخلفيات الملوّنة الهادئة. */
+.pattern-zellige {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='none' stroke='%232563eb' stroke-opacity='0.16' stroke-width='0.7'%3E%3Crect x='6.5' y='6.5' width='13' height='13'/%3E%3Crect x='6.5' y='6.5' width='13' height='13' transform='rotate(45 13 13)'/%3E%3Ccircle cx='13' cy='13' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 26px 26px;
+}
+.dark .pattern-zellige {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='none' stroke='%2393c5fd' stroke-opacity='0.12' stroke-width='0.7'%3E%3Crect x='6.5' y='6.5' width='13' height='13'/%3E%3Crect x='6.5' y='6.5' width='13' height='13' transform='rotate(45 13 13)'/%3E%3Ccircle cx='13' cy='13' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* نفس النقش بخطوط فاتحة للسطح الأزرق الغامق. */
+.pattern-zellige-light {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 26 26'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.14' stroke-width='0.7'%3E%3Crect x='6.5' y='6.5' width='13' height='13'/%3E%3Crect x='6.5' y='6.5' width='13' height='13' transform='rotate(45 13 13)'/%3E%3Ccircle cx='13' cy='13' r='1.8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 26px 26px;
+}
+
+/* مسطرة لون صغيرة تحت عنوان القسم: إيقاع واحد لكل الأقسام بلون كل قسم. */
+.accent-rule::after {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 3px;
+  margin-top: 10px;
+  border-radius: 9999px;
+  background: #2563eb;
+}
+.accent-rule-center::after { margin-inline: auto; }
+.accent-rule-gold::after { background: #b45309; }
+.accent-rule-green::after { background: #047857; }
+.accent-rule-red::after { background: #b91c1c; }
+
+/* دخول لمرة واحدة عند الظهور (لا تكرار). */
+@keyframes mizan-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: mizan-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* عمق هادئ عند التحويم: رفع 3px وظلّ رمادي خفيف وحدّ أزرق. */
+.hover-lift {
+  transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  border-color: rgb(37 99 235 / 0.35);
+  box-shadow: 0 10px 24px rgb(15 23 42 / 0.08);
+}
+
+/* سهم يتقدّم قليلاً عند تحويم الرابط الأب (الصنف group). */
+.link-arrow { transition: transform 200ms ease; }
+.group:hover .link-arrow { transform: translateX(-4px); }
+
+/* تكبير الصورة داخل بطاقة عند التحويم (حركة واحدة قصيرة). */
+.zoom-frame { overflow: hidden; }
+.zoom-frame img { transition: transform 400ms ease; }
+.group:hover .zoom-frame img { transform: scale(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise { animation: none; }
+  .hover-lift:hover { transform: none; }
+  .link-arrow, .group:hover .link-arrow { transform: none; }
+  .zoom-frame img, .group:hover .zoom-frame img { transform: none; }
+  html { scroll-behavior: auto; }
+}
