@@ -266,3 +266,69 @@
   outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
+
+
+/* ============================================================
+   طبقة الحركة القصيرة (حركة واحدة، بلا تكرار وبلا نبض).
+
+   الغرض: دخول متتابع عند الظهور + قياس تقدّم التمرير — لا زخرفة متحرّكة.
+   القواعد الحاكمة:
+     · حركة واحدة لكل عنصر، مدّتها ≤ 0.9s، وتنتهي عند حالتها النهائية.
+     · بلا تكرار وبلا نبض وبلا دوران: لا شيء يتحرّك وحده بعد الدخول.
+     · لا تدرّج هنا إطلاقاً: للتدرّجات طبقتها (grad-*) أعلاه بقواعدها.
+   ============================================================ */
+
+@keyframes mizan-slide-x {
+  from { opacity: 0; transform: translateX(var(--rise-x, 28px)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mizan-zoom {
+  from { opacity: 0; transform: scale(0.965); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mizan-grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes mizan-drop {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.rise-x { animation: mizan-slide-x 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.rise-zoom { animation: mizan-zoom 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.grow-x { animation: mizan-grow-x 0.85s cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: right; }
+.line-drop { animation: mizan-drop 0.9s cubic-bezier(0.16, 1, 0.3, 1) both; transform-origin: top; }
+
+/* شريط تقدّم القراءة أعلى النافذة: يُقاس من التمرير، ولا يتحرّك وحده. */
+.page-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 2px;
+  background-color: #2563eb;
+  transform-origin: right;
+  transform: scaleX(var(--p, 0));
+  pointer-events: none;
+  z-index: 60;
+}
+
+/* خطّ الزمن: مسار متدرّج ساكن، وتعبئة تتحرّك بمقدار التمرير فقط. */
+.grad-timeline {
+  background-image: linear-gradient(to bottom, #2563eb 0%, rgb(37 99 235 / 0.18) 100%);
+}
+.timeline-fill {
+  transform-origin: top;
+  transform: scaleY(var(--tp, 0));
+  transition: transform 120ms linear;
+}
+
+/* مسار أفقي بتمرير انزلاقي: لا حركة تلقائية، الزائر هو من يمرّر. */
+.snap-rail { overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-inline: contain; }
+.snap-item { scroll-snap-align: start; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-x, .rise-zoom, .grow-x, .line-drop { animation: none; }
+  .timeline-fill { transition: none; }
+  .page-progress { display: none; }
+}

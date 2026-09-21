@@ -97,12 +97,12 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
   it("ترقّم الأقسام وتُبقي إيقاعاً واحداً للعناوين", () => {
     const container = renderHome();
     const text = container.textContent ?? "";
-    for (const step of ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦"]) {
+    for (const step of ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦", "٠٧", "٠٨", "٠٩", "١٠"]) {
       expect(text, step).toContain(step);
     }
-    // العلامات الستّ كلها من مكوّن واحد: لا شارة دائرية لقسم واحد بينها.
+    // العلامات العشر كلها من مكوّن واحد: لا شارة دائرية لقسم واحد بينها.
     const src = readFileSync("src/pages/public/HomePage.tsx", "utf8");
-    expect(src.split("<SectionLabel step=").length - 1).toBe(6);
+    expect(src.split("<SectionLabel step=").length - 1).toBe(10);
     // h1 واحد في الصفحة، وبعده h2 فقط (لا قفز في التسلسل).
     expect(container.querySelectorAll("h1")).toHaveLength(1);
     expect(container.querySelectorAll("h3").length).toBeGreaterThan(0);
@@ -329,6 +329,100 @@ describe("سيكولوجيا صفحة الهبوط", () => {
     // لا أرقام مُختلقة في النسخة الثابتة
     for (const invented of ["500+", "4.9", "آلاف الطلبة"]) {
       expect(prerender, invented).not.toContain(invented);
+    }
+  });
+});
+
+describe("الصفحة الرئيسية — المحتوى المغربي الجديد", () => {
+  const readSrc = () => readFileSync("src/pages/public/HomePage.tsx", "utf8");
+
+  it("تبني خريطة الفصول من ملفات الأرشيف المنشورة فعلاً", () => {
+    const container = renderHome();
+    const text = container.textContent ?? "";
+    const docs = JSON.parse(readFileSync("src/data/docs.json", "utf8")) as {
+      semester: string;
+      module: string;
+    }[];
+    expect(docs.length).toBeGreaterThan(0);
+    for (const doc of docs) {
+      expect(text, doc.module).toContain(doc.module);
+    }
+    // الفصل بلا ملفات يُعلن أنه قيد الإعداد بدل رقم مُختلق.
+    const published = new Set(docs.map((doc) => doc.semester));
+    if (["S1", "S2", "S3", "S4", "S5", "S6"].some((semester) => !published.has(semester))) {
+      expect(text).toContain("قيد الإعداد");
+    }
+  });
+
+  it("تُبقي خطّ الزمن بلا أي موعد مُختلق (أشهر فقط)", () => {
+    const src = readSrc();
+    const block = src.slice(src.indexOf("const SEASON_PHASES"), src.indexOf("const CAREER_PATHS"));
+    expect(block.length).toBeGreaterThan(400);
+    // لا رقم ولا تاريخ في نصوص المراحل: أسماء الأشهر فقط (تُستثنى أسماء الأيقونات).
+    expect(block.replace(/icon:\s*\w+/g, "")).not.toMatch(/[0-9\u0660-\u0669]/);
+
+    const text = renderHome().textContent ?? "";
+    for (const phase of ["انطلاق الموسم الجامعي", "الدورة الخريفية", "الدورة الربيعية", "الدورة الاستدراكية"]) {
+      expect(text, phase).toContain(phase);
+    }
+    expect(text).toContain("المرجع دائماً الإعلان الرسمي لكليتك");
+  });
+
+  it("تعرض فروع المعجم وإسناد المصطلحات بأرقام مشتقّة من البيانات", () => {
+    const text = renderHome().textContent ?? "";
+    const counts = JSON.parse(readFileSync("src/data/counts.json", "utf8")) as {
+      lexicon: number;
+      lexiconWithSources: number;
+      lexiconBranches: { name: string; count: number }[];
+    };
+    expect(counts.lexiconBranches.length).toBeGreaterThan(4);
+    // أعلى فرع + عدد مصطلحاته يظهران كما في البيانات
+    const top = counts.lexiconBranches[0];
+    expect(text).toContain(top.name);
+    expect(text.replace(/\s+/g, " ")).toContain(
+      `${counts.lexiconWithSources} مصطلحاً من ${counts.lexicon}`,
+    );
+  });
+
+  it("تذكر مسارات ومهن القانون بلا أي رقم أو موعد", () => {
+    const src = readSrc();
+    const block = src.slice(src.indexOf("const CAREER_PATHS"), src.indexOf("export function HomePage"));
+    // نصوص المسارات فقط: بلا أي رقم أو موعد (أسماء الأيقونات مستثناة).
+    expect(block.replace(/icon:\s*\w+/g, "")).not.toMatch(/[0-9\u0660-\u0669]/);
+
+    const text = renderHome().textContent ?? "";
+    expect(text).toContain("إلى أين يقود مسار القانون في المغرب؟");
+    expect(text).toContain("مساطر ومباريات رسمية معلنة");
+    expect(text).toContain("التوثيق");
+  });
+
+  it("تُعرّف طبقة الحركة الجديدة في ملف الأنماط وحده وبلا تكرار", () => {
+    const css = readFileSync("src/styles/globals.css", "utf8");
+    for (const cls of [
+      ".page-progress",
+      ".grad-timeline",
+      ".timeline-fill",
+      ".snap-rail",
+      ".rise-x",
+      ".grow-x",
+      "@keyframes mizan-grow-x",
+    ]) {
+      expect(css, cls).toContain(cls);
+    }
+    expect(css).not.toMatch(/animation-iteration-count:\s*infinite/);
+    expect(css).not.toMatch(/animate-spin/);
+    // ولا حركة تكرارية في الصفحة نفسها
+    expect(readSrc()).not.toMatch(/animate-(?:pulse|bounce|ping|spin)/);
+  });
+
+  it("ترقّم الأقسام العشرة بترتيب تصاعدي في المصدر", () => {
+    const src = readSrc();
+    const positions = ["٠١", "٠٢", "٠٣", "٠٤", "٠٥", "٠٦", "٠٧", "٠٨", "٠٩", "١٠"].map((step) =>
+      src.indexOf(`step="${step}"`),
+    );
+    for (const index of positions) expect(index).toBeGreaterThan(-1);
+    for (let i = 1; i < positions.length; i += 1) {
+      expect(positions[i]).toBeGreaterThan(positions[i - 1]);
     }
   });
 });

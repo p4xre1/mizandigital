@@ -590,6 +590,38 @@ const heroTerm =
 const heroSource = heroTerm?.legal_sources?.[0];
 const heroArticle = heroSource?.articles?.[0]?.number;
 
+/*
+ * خريطة الفصول: وحدات كل فصل مشتقّة من ملفات الأرشيف المنشورة فعلاً،
+ * فلا يُكتب في الثابت شيء لا وجود له في البيانات.
+ */
+const documentsBySemester = new Map();
+for (const doc of documents) {
+  const semester = doc.semester || "غير محدّد";
+  if (!documentsBySemester.has(semester)) documentsBySemester.set(semester, []);
+  documentsBySemester.get(semester).push(doc.module || doc.title);
+}
+const SEMESTER_ORDER = ["S1", "S2", "S3", "S4", "S5", "S6"];
+
+/*
+ * فروع المعجم: توزيع حقيقي على فروع القانون + عدد المصطلحات المسندة إلى
+ * نصّ ومادة. الأرقام تُحسب من الملف نفسه لا تُكتب يدوياً.
+ */
+const branchTally = new Map();
+let lexiconWithSources = 0;
+for (const term of lexicon) {
+  const branch = term.category || "غير مصنّف";
+  branchTally.set(branch, (branchTally.get(branch) || 0) + 1);
+  if (term.legal_sources && term.legal_sources.length > 0) lexiconWithSources += 1;
+}
+const topBranches = [...branchTally.entries()]
+  .map(([name, n]) => ({ name, n }))
+  .sort((a, b) => b.n - a.n)
+  .slice(0, 8);
+const restBranchTerms =
+  [...branchTally.values()].reduce((sum, n) => sum + n, 0) -
+  topBranches.reduce((sum, branch) => sum + branch.n, 0);
+const restBranchCount = branchTally.size - topBranches.length;
+
 const homeHeroHtml = `
           <section class="grad-hero relative overflow-hidden bg-white dark:bg-[#0f172a]">
             <div class="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
@@ -889,6 +921,80 @@ const pages = [
             </ul>
             <p class="mt-4">
               <a href="/pro-tools" class="font-bold text-[#93c5fd]">تعرّف على الأدوات</a> — <a href="/pricing" class="font-bold text-[#93c5fd]">الأسعار</a>
+            </p>
+          </section>
+
+          <!-- خريطة الفصول — نفس قسم «ماذا يجد الطالب في كل فصل دراسي؟»
+               في الصفحة الحيّة، مبنيّاً من ملفات الأرشيف المنشورة فعلاً. -->
+          <section class="mt-10">
+            <h2 class="accent-rule accent-rule-gold text-[20px] font-black text-[#0f172a] dark:text-white">ماذا يجد الطالب في كل فصل دراسي؟</h2>
+            <p>
+              الأرشيف الدراسي مرتّب حسب الفصل الدراسي لا حسب الموضوع، وكل ملف يحمل تاريخ تحديثه.
+              واليوم تضم المنصة
+              <strong>${statistics.documents} ملفات مراجعة</strong>
+              موزّعة على الفصول المنشورة:
+            </p>
+            <ul>
+              ${SEMESTER_ORDER.map((semester) => {
+                const modules = documentsBySemester.get(semester) || [];
+                const label = modules.length > 0
+                  ? `${modules.length} ملف — ${modules.join("، ")}`
+                  : "قيد الإعداد: لم تُنشر ملفات هذا الفصل بعد";
+                return `<li><a href="/${semester.toLowerCase()}">${semester}</a> — ${label}</li>`;
+              }).join("\n              ")}
+            </ul>
+            <p>
+              يُنشر الملف عندما يكتمل مراجعته، بلا مواعيد وهمية:
+              <a href="/archive">تصفّح الأرشيف الدراسي</a>.
+            </p>
+          </section>
+
+          <!-- الموسم الجامعي في المغرب — صورة عامة لسير الدوارات، والمرجع
+               دائماً إعلان الكلية. -->
+          <section class="mt-10">
+            <h2 class="accent-rule text-[20px] font-black text-[#0f172a] dark:text-white">كيف يتوزّع الموسم الجامعي في المغرب؟</h2>
+            <p>
+              صورة عامة لسير الدوارات في الكليات المغربية من شتنبر إلى يوليوز:
+              انطلاق الموسم الجامعي، فالدورة الخريفية مع المراقبة المستمرة،
+              فامتحانات الفصل الأول في يناير، فالدورة الربيعية،
+              فامتحاناتها في ماي ويونيو، ثم الدورة الاستدراكية في يوليوز.
+            </p>
+            <p>
+              وتختلف التواريخ من كلية إلى أخرى ومن سنة إلى أخرى؛
+              المرجع دائماً الإعلان الرسمي للكلية.
+              <a href="/archive">افتح أرشيف فصلك</a>،
+              <a href="/quiz">أو اختبر نفسك</a>.
+            </p>
+          </section>
+
+          <!-- فروع القانون في المعجم — توزيع حقيقي وأرقام مشتقّة من البيانات. -->
+          <section class="mt-10">
+            <h2 class="accent-rule text-[20px] font-black text-[#0f172a] dark:text-white">أين يقع بحثك في المعجم؟</h2>
+            <p>
+              مصطلحات المعجم مصنّفة حسب فروع القانون المغربي، وأكثر الفروع عدداً:
+              ${topBranches.map((branch) => `<strong>${branch.name}</strong> (${branch.n})`).join("، ")}،
+              و${restBranchTerms} مصطلحاً موزّعاً على ${restBranchCount} فرعاً آخر.
+            </p>
+            <p>
+              <strong>${lexiconWithSources} مصطلحاً من ${statistics.lexicon}</strong>
+              تحمل إسناداً موثّقاً إلى نصّ ومادة، والباقي تعريفات ومقابلات فرنسية في انتظار الإسناد.
+              <a href="/lexicon">افتح المعجم الكامل</a>.
+            </p>
+          </section>
+
+          <!-- المسارات والمهن — وصف عام بلا أي رقم أو موعد. -->
+          <section class="mt-10">
+            <h2 class="accent-rule accent-rule-green text-[20px] font-black text-[#0f172a] dark:text-white">إلى أين يقود مسار القانون في المغرب؟</h2>
+            <p>
+              المسارات التي يفتحها مسار الحقوق: القضاء والنيابة العامة، والمحاماة،
+              وكتابة الضبط، والمهن القضائية المساعدة، والتوثيق،
+              والوظيفة العمومية والجماعات الترابية، والاستشارة القانونية بالمقاولات،
+              ثم البحث والتدريس الجامعي.
+            </p>
+            <p>
+              والولوج إلى هذه المسارات يمرّ عبر مساطر ومباريات رسمية معلنة،
+              وتختلف شروطها من هيئة إلى أخرى؛ تحقّق دائماً من الإعلانات الرسمية،
+              وابدأ من <a href="/schools">دليل كليات الحقوق</a> لمعرفة مؤسستك.
             </p>
           </section>
 
