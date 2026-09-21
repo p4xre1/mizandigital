@@ -409,7 +409,7 @@ export function HomePage() {
       <AEOHead
         title="ميزان الرقمية – منصة طلبة الحقوق في المغرب"
         description="ميزان الرقمية منصة مغربية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM."
-        directAnswer="ميزان الرقمية منصة مغربية لطلبة كليات الحقوق بالمغرب، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات تحليلية، أخبار تشريعية محينة واختبارات QCM للتحضير للمباريات."
+        directAnswer="ميزان الرقمية تجمع لطالب القانون المغربي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموساً قانونياً بالعربية والفرنسية، ودليل كليات الحقوق، ومقالات تحليلية، وأخباراً تشريعية، واختبارات QCM. القسم الأساسي متاح مجاناً وبلا تسجيل، والمزايا المتقدمة باشتراك ميزان برو أو بحزم الكريدتس."
         keywords={[
           "ملخصات القانون S1 S2 S3 S4 S5 S6",
           "قاموس قانوني عربي فرنسي",
@@ -441,12 +441,12 @@ export function HomePage() {
               <Reveal className="text-center lg:text-right">
                 <p className="flex items-center justify-center gap-3 lg:justify-start">
                   <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
-                  <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">منصة مغربية مستقلة لطلبة الحقوق</span>
+                  <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية — القانون المغربي بلغة الطالب</span>
                   <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true" />
                 </p>
 
                 <h1 className="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">
-                  المعرفة القانونية لطلبة الحقوق في المغرب
+                  القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي
                 </h1>
 
                 {/* مسطرة تأكيد أسفل العنوان: قطعة سميكة + خطّ رفيع يمتدّ. */}
@@ -459,12 +459,12 @@ export function HomePage() {
                     Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
                     SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
                 <p className="lead mt-6 border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">
-                  ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.
+                  ميزان الرقمية تجمع ما يحتاجه طالب القانون المغربي في موسمه الدراسي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق. القسم الأساسي منها متاح مجاناً وبلا تسجيل.
                 </p>
 
                 <p className="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
                   <Compass className="mt-1 size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
-                  <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
+                  <span>ابدأ بالفصل الذي تدرسه اليوم: افتح ملف المراجعة، واضبط مصطلحات الوحدة، ثم اختبر نفسك بأسئلة مع شرح الجواب.</span>
                 </p>
 
                 <div className="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">

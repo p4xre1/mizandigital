@@ -201,7 +201,7 @@ describe("institutional look on the public site", () => {
     expect(home).not.toContain("طالب مستفيد");
     expect(home).not.toMatch(/4\.9/);
     expect(home).not.toMatch(/blur-\[/);
-    expect(home).toContain("المعرفة القانونية لطلبة الحقوق في المغرب");
+    expect(home).toContain("القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي");
   });
 
   it("keeps the prerendered hero on the same rules", () => {
@@ -211,7 +211,7 @@ describe("institutional look on the public site", () => {
     expect(prerender).not.toMatch(/4\.9/);
     expect(prerender).not.toMatch(/blur-\[/);
     expect(prerender).not.toContain("انطلق في رحلة");
-    expect(prerender).toContain("المعرفة القانونية لطلبة الحقوق في المغرب");
+    expect(prerender).toContain("القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي");
   });
 
   it("ships no AI claim in the built pages", () => {

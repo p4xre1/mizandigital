@@ -629,20 +629,20 @@ const homeHeroHtml = `
                 <div class="rise text-center lg:text-right">
                   <p class="flex items-center justify-center gap-3 lg:justify-start">
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true"></span>
-                    <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">منصة مغربية مستقلة لطلبة الحقوق</span>
+                    <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية — القانون المغربي بلغة الطالب</span>
                     <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true"></span>
                   </p>
-                  <h1 class="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">المعرفة القانونية لطلبة الحقوق في المغرب</h1>
+                  <h1 class="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي</h1>
                   <div class="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
                     <span class="h-1 w-14 rounded-full bg-[#2563eb]"></span>
                     <span class="h-px w-full max-w-[220px] bg-[#e2e8f0] dark:bg-[#334155]"></span>
                   </div>
                   <div class="mt-6">
-                    <p class="lead border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية منصة مغربية تعليمية لطلبة الحقوق، محتواها الأساسي مجاني، وتجمع القاموس القانوني، وملخصات الفصول S1-S6، ودليل كليات الحقوق بالمغرب في مكان واحد.</p>
+                    <p class="lead border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية تجمع ما يحتاجه طالب القانون المغربي في موسمه الدراسي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق. القسم الأساسي منها متاح مجاناً وبلا تسجيل.</p>
                   </div>
                   <p class="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
                     ${svgIcon(ICON.compass, "mt-1 size-4 shrink-0 text-[#2563eb]", 16)}
-                    <span>ابدأ من الأرشيف الدراسي بملخصات الفصول، أو قِس مستواك باختبار تجريبي، وتابع المقالات التحليلية والمستجدات التشريعية.</span>
+                    <span>ابدأ بالفصل الذي تدرسه اليوم: افتح ملف المراجعة، واضبط مصطلحات الوحدة، ثم اختبر نفسك بأسئلة مع شرح الجواب.</span>
                   </p>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                     <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span></a>
