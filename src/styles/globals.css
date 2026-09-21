@@ -332,3 +332,9 @@
   .timeline-fill { transition: none; }
   .page-progress { display: none; }
 }
+
+/* تعتيم أسفل اللوحة التصويرية: كحلي الهوية يتلاشى إلى الشفاف، ليقرأ النصّ
+   والرقائق فوق الصورة عند الحافة السفلى، ولا يظهر التدرّج في السطور. */
+.grad-photo-scrim {
+  background-image: linear-gradient(to top, #0b1220 0%, transparent 88%);
+}

@@ -433,37 +433,54 @@ export function HomePage() {
         <div className="page-progress" style={{ "--p": readProgress } as CSSProperties} aria-hidden="true" />
 
         {/* ── ١. الرأس: الوعد + الإجابة المباشرة + الدليل + مثال حقيقي ─────── */}
-        <section className="relative overflow-hidden grad-hero dark:bg-[#0f172a] bg-white">
+        <section className="grad-hero relative overflow-hidden bg-[#0b1220] text-white">
+          {/* خلفية تصويرية: مكتب قانوني ببلاط زليج مغربي (مشهد عام بلا أشخاص).
+              الصورة زينة لا محتوى (alt فارغ)، وتُعتَّم بطبقتين حتى يبقى النصّ
+              مقروءاً بتباين كافٍ في الوضعين، ولو تعذّر تحميلها فالأرضية كحلية. */}
+          <img
+            src="/images/hero-law.jpg"
+            srcSet="/images/hero-law-900.jpg 900w, /images/hero-law.jpg 1376w"
+            sizes="100vw"
+            alt=""
+            aria-hidden="true"
+            width={1376}
+            height={768}
+            fetchPriority="high"
+            decoding="async"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#0b1220]/72" aria-hidden="true" />
+          <div className="grad-photo-scrim absolute inset-x-0 bottom-0 h-40" aria-hidden="true" />
           <div className="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
             <div className="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
 
               {/* العمود النصّي */}
               <Reveal className="text-center lg:text-right">
                 <p className="flex items-center justify-center gap-3 lg:justify-start">
-                  <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true" />
-                  <span className="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية — القانون المغربي بلغة الطالب</span>
-                  <span className="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true" />
+                  <span className="h-px w-8 bg-white/35" aria-hidden="true" />
+                  <span className="text-[12px] font-black tracking-[0.16em] text-[#93c5fd]">ميزان الرقمية — القانون المغربي بلغة الطالب</span>
+                  <span className="h-px w-8 bg-white/35 lg:hidden" aria-hidden="true" />
                 </p>
 
-                <h1 className="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+                <h1 className="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-white">
                   القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي
                 </h1>
 
                 {/* مسطرة تأكيد أسفل العنوان: قطعة سميكة + خطّ رفيع يمتدّ. */}
                 <div className="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
-                  <span className="h-1 w-14 rounded-full bg-[#2563eb]" />
-                  <span className="h-px w-full max-w-[220px] bg-[#e2e8f0] dark:bg-[#334155]" />
+                  <span className="h-1 w-14 rounded-full bg-[#3b82f6]" />
+                  <span className="h-px w-full max-w-[220px] bg-white/25" />
                 </div>
 
                 {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
                     Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
                     SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
-                <p className="lead mt-6 border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">
+                <p className="lead mt-6 border-s-2 border-[#3b82f6] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#e2e8f0]">
                   ميزان الرقمية تجمع ما يحتاجه طالب القانون المغربي في موسمه الدراسي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق. القسم الأساسي منها متاح مجاناً وبلا تسجيل.
                 </p>
 
-                <p className="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-                  <Compass className="mt-1 size-4 shrink-0 text-[#2563eb]" aria-hidden="true" />
+                <p className="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#cbd5e1]">
+                  <Compass className="mt-1 size-4 shrink-0 text-[#93c5fd]" aria-hidden="true" />
                   <span>ابدأ بالفصل الذي تدرسه اليوم: افتح ملف المراجعة، واضبط مصطلحات الوحدة، ثم اختبر نفسك بأسئلة مع شرح الجواب.</span>
                 </p>
 
@@ -474,27 +491,27 @@ export function HomePage() {
                     ابدأ المراجعة — مجاناً
                     <span className="grid size-5 place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span>
                   </Link>
-                  <Link to="/quiz" className="inline-flex items-center gap-2 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3.5 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                  <Link to="/quiz" className="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-[14px] font-bold text-white hover:bg-white/[0.18] transition-colors">
                     قِس مستواك في ٣ دقائق
-                    <span className="grid size-5 place-items-center rounded-md bg-[#f1f5f9] dark:bg-[#334155] text-[12px]" aria-hidden="true">←</span>
+                    <span className="grid size-5 place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span>
                   </Link>
                 </div>
 
                 {/* دليل ثقة: أربع حقائق قابلة للتحقّق (لا أرقام مُختلقة) */}
-                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
-                  <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#2563eb]" aria-hidden="true" />محتوى أساسي مجاني</li>
-                  <li aria-hidden="true" className="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block" />
-                  <li className="flex items-center gap-1.5"><BadgeCheck className="size-4 text-[#2563eb]" aria-hidden="true" />بلا إعلانات</li>
-                  <li aria-hidden="true" className="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block" />
-                  <li className="flex items-center gap-1.5"><Landmark className="size-4 text-[#2563eb]" aria-hidden="true" />مصادر رسمية محالة</li>
-                  <li aria-hidden="true" className="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block" />
-                  <li className="flex items-center gap-1.5"><Library className="size-4 text-[#2563eb]" aria-hidden="true" />ملخصات S1-S6</li>
+                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#cbd5e1] lg:justify-start">
+                  <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#93c5fd]" aria-hidden="true" />محتوى أساسي مجاني</li>
+                  <li aria-hidden="true" className="hidden h-4 w-px bg-white/20 lg:block" />
+                  <li className="flex items-center gap-1.5"><BadgeCheck className="size-4 text-[#93c5fd]" aria-hidden="true" />بلا إعلانات</li>
+                  <li aria-hidden="true" className="hidden h-4 w-px bg-white/20 lg:block" />
+                  <li className="flex items-center gap-1.5"><Landmark className="size-4 text-[#93c5fd]" aria-hidden="true" />مصادر رسمية محالة</li>
+                  <li aria-hidden="true" className="hidden h-4 w-px bg-white/20 lg:block" />
+                  <li className="flex items-center gap-1.5"><Library className="size-4 text-[#93c5fd]" aria-hidden="true" />ملخصات S1-S6</li>
                 </ul>
               </Reveal>
 
               {/* لوحة المعاينة: محتوى حقيقي من المنصة (مصطلح + سلسلة إحالة + حاسبة) */}
               <Reveal delay={140}>
-              <figure aria-label="معاينة من المنصة" className="grad-card overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+              <figure aria-label="معاينة من المنصة" className="grad-card overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-2xl ring-1 ring-white/20 dark:border-[#334155] dark:bg-[#1e293b]">
                 {/* شريط العلامة أعلى اللوحة */}
                 <div className="h-1 w-full bg-[#2563eb]" aria-hidden="true" />
                 <figcaption className="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
@@ -577,13 +594,13 @@ export function HomePage() {
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: Newspaper, color: "bg-[#b91c1c]", href: "/news" },
               ].map((card, i) => (
                 <Reveal key={i} delay={i * 60}>
-                  <Link to={card.href} className="group hover-lift flex items-center gap-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white/70 dark:bg-[#1e293b]/70 px-3.5 py-3 hover:bg-white dark:hover:bg-[#1e293b]">
+                  <Link to={card.href} className="group hover-lift flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-3.5 py-3 hover:bg-white/[0.16]">
                     <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${card.color} text-white`} aria-hidden="true">
                       <card.icon className="size-4" />
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-[13px] font-black text-[#0f172a] dark:text-white transition-colors group-hover:text-[#2563eb]">{card.title}</span>
-                      <span className="block truncate text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</span>
+                      <span className="block text-[13px] font-black text-white transition-colors group-hover:text-[#93c5fd]">{card.title}</span>
+                      <span className="block truncate text-[11px] text-[#cbd5e1]">{card.desc}</span>
                     </span>
                   </Link>
                 </Reveal>

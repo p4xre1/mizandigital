@@ -6,7 +6,7 @@
 // آجال)، وشبكة أدوات ميزان برو الستّ، ولوحة المصادر الرسمية، وعلامات الأقسام.
 // النسخة الثابتة مقفولة في tests/ui-cleanup.test.ts.
 
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -413,6 +413,36 @@ describe("الصفحة الرئيسية — المحتوى المغربي الج
     expect(css).not.toMatch(/animate-spin/);
     // ولا حركة تكرارية في الصفحة نفسها
     expect(readSrc()).not.toMatch(/animate-(?:pulse|bounce|ping|spin)/);
+  });
+
+  it("تعرض خلفية تصويرية معتمة وبطاقة معاينة مرتفعة بظلّ", () => {
+    const container = renderHome();
+    const photo = container.querySelector("img[src='/images/hero-law.jpg']");
+    expect(photo).not.toBeNull();
+    // صورة زينة لا محتوى: alt فارغ ومخفية عن قارئ الشاشة.
+    expect(photo?.getAttribute("alt")).toBe("");
+    expect(photo?.getAttribute("aria-hidden")).toBe("true");
+    // ونسخة أصغر للجوّال في srcset، مع أولوية تحميل عالية (LCP).
+    expect(photo?.getAttribute("srcset")).toContain("/images/hero-law-900.jpg");
+    expect(photo?.getAttribute("fetchpriority")).toBe("high");
+
+    const html = container.innerHTML;
+    expect(html).toContain("bg-[#0b1220]/72");
+    expect(html).toContain("grad-photo-scrim");
+    // بطاقة المعاينة ترتفع عن الصورة بظلّ قويّ وحدّ فاتح.
+    expect(html).toContain("shadow-2xl ring-1 ring-white/20");
+    // والمداخل صارت رقائق شفّافة على الصورة.
+    expect(html).toContain("border-white/15 bg-white/10");
+
+    // النسخة الثابتة تحمل الصورة والنصّ الأبيض نفسه
+    const prerender = readFileSync("scripts/prerender.mjs", "utf8");
+    for (const token of ["/images/hero-law.jpg", "grad-photo-scrim", 'text-white"']) {
+      expect(prerender, token).toContain(token);
+    }
+
+    // ميزانية الحجم: صورة الرأس تبقى خفيفة
+    expect(statSync("public/images/hero-law.jpg").size).toBeLessThan(400_000);
+    expect(statSync("public/images/hero-law-900.jpg").size).toBeLessThan(150_000);
   });
 
   it("ترقّم الأقسام العشرة بترتيب تصاعدي في المصدر", () => {

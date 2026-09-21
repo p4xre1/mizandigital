@@ -623,43 +623,48 @@ const restBranchTerms =
 const restBranchCount = branchTally.size - topBranches.length;
 
 const homeHeroHtml = `
-          <section class="grad-hero relative overflow-hidden bg-white dark:bg-[#0f172a]">
+          <section class="grad-hero relative overflow-hidden bg-[#0b1220] text-white">
+            <!-- نفس اللوحة التصويرية في الصفحة الحيّة: صورة زينة (alt فارغ)
+                 بطبقتَي تعتيم تضمنان قراءة النصّ، والأرضية الكحلية بديل لوني. -->
+            <img src="/images/hero-law.jpg" srcset="/images/hero-law-900.jpg 900w, /images/hero-law.jpg 1376w" sizes="100vw" alt="" aria-hidden="true" width="1376" height="768" fetchpriority="high" decoding="async" class="absolute inset-0 h-full w-full object-cover">
+            <div class="absolute inset-0 bg-[#0b1220]/72" aria-hidden="true"></div>
+            <div class="grad-photo-scrim absolute inset-x-0 bottom-0 h-40" aria-hidden="true"></div>
             <div class="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
               <div class="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
                 <div class="rise text-center lg:text-right">
                   <p class="flex items-center justify-center gap-3 lg:justify-start">
-                    <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155]" aria-hidden="true"></span>
-                    <span class="text-[12px] font-black tracking-[0.16em] text-[#2563eb]">ميزان الرقمية — القانون المغربي بلغة الطالب</span>
-                    <span class="h-px w-8 bg-[#cbd5e1] dark:bg-[#334155] lg:hidden" aria-hidden="true"></span>
+                    <span class="h-px w-8 bg-white/35" aria-hidden="true"></span>
+                    <span class="text-[12px] font-black tracking-[0.16em] text-[#93c5fd]">ميزان الرقمية — القانون المغربي بلغة الطالب</span>
+                    <span class="h-px w-8 bg-white/35 lg:hidden" aria-hidden="true"></span>
                   </p>
-                  <h1 class="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-[#0f172a] dark:text-white">القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي</h1>
+                  <h1 class="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-white">القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي</h1>
                   <div class="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
-                    <span class="h-1 w-14 rounded-full bg-[#2563eb]"></span>
-                    <span class="h-px w-full max-w-[220px] bg-[#e2e8f0] dark:bg-[#334155]"></span>
+                    <span class="h-1 w-14 rounded-full bg-[#3b82f6]"></span>
+                    <span class="h-px w-full max-w-[220px] bg-white/25"></span>
                   </div>
                   <div class="mt-6">
-                    <p class="lead border-s-2 border-[#2563eb] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#334155] dark:text-[#cbd5e1]">ميزان الرقمية تجمع ما يحتاجه طالب القانون المغربي في موسمه الدراسي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق. القسم الأساسي منها متاح مجاناً وبلا تسجيل.</p>
+                    <p class="lead border-s-2 border-[#3b82f6] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#e2e8f0]">ميزان الرقمية تجمع ما يحتاجه طالب القانون المغربي في موسمه الدراسي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق. القسم الأساسي منها متاح مجاناً وبلا تسجيل.</p>
                   </div>
-                  <p class="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-                    ${svgIcon(ICON.compass, "mt-1 size-4 shrink-0 text-[#2563eb]", 16)}
+                  <p class="mt-5 flex items-start gap-2.5 text-right text-[14px] leading-7 text-[#cbd5e1]">
+                    ${svgIcon(ICON.compass, "mt-1 size-4 shrink-0 text-[#93c5fd]", 16)}
                     <span>ابدأ بالفصل الذي تدرسه اليوم: افتح ملف المراجعة، واضبط مصطلحات الوحدة، ثم اختبر نفسك بأسئلة مع شرح الجواب.</span>
                   </p>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                     <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span></a>
-                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-6 py-3.5 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-md bg-[#f1f5f9] dark:bg-[#334155] text-[12px]" aria-hidden="true">←</span></a>
+                    <a href="/quiz" class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-[14px] font-bold text-white hover:bg-white/[0.18] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span></a>
                   </div>
-                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#475569] dark:text-[#94a3b8] lg:justify-start">
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#2563eb]", 16)}محتوى أساسي مجاني</li>
-                    <li aria-hidden="true" class="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block"></li>
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.badgeCheck, "size-4 text-[#2563eb]", 16)}بلا إعلانات</li>
-                    <li aria-hidden="true" class="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block"></li>
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.landmark, "size-4 text-[#2563eb]", 16)}مصادر رسمية محالة</li>
-                    <li aria-hidden="true" class="hidden h-4 w-px bg-[#e2e8f0] dark:bg-[#334155] lg:block"></li>
-                    <li class="flex items-center gap-1.5">${svgIcon(ICON.library, "size-4 text-[#2563eb]", 16)}ملخصات S1-S6</li>
+                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#cbd5e1] lg:justify-start">
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#93c5fd]", 16)}محتوى أساسي مجاني</li>
+                    <li aria-hidden="true" class="hidden h-4 w-px bg-white/20 lg:block"></li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.badgeCheck, "size-4 text-[#93c5fd]", 16)}بلا إعلانات</li>
+                    <li aria-hidden="true" class="hidden h-4 w-px bg-white/20 lg:block"></li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.landmark, "size-4 text-[#93c5fd]", 16)}مصادر رسمية محالة</li>
+                    <li aria-hidden="true" class="hidden h-4 w-px bg-white/20 lg:block"></li>
+                    <li class="flex items-center gap-1.5">${svgIcon(ICON.library, "size-4 text-[#93c5fd]", 16)}ملخصات S1-S6</li>
                   </ul>
                 </div>
 
-<figure aria-label="معاينة من المنصة" style="animation-delay:140ms" class="grad-card rise overflow-hidden rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] shadow-sm">
+<figure aria-label="معاينة من المنصة" style="animation-delay:140ms" class="grad-card rise overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white shadow-2xl ring-1 ring-white/20 dark:border-[#334155] dark:bg-[#1e293b]">
                   <div class="h-1 w-full bg-[#2563eb]" aria-hidden="true"></div>
                   <figcaption class="flex items-center justify-between gap-3 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a] px-4 py-2.5">
                     <span class="flex items-center gap-2 text-[11px] font-black text-[#334155] dark:text-[#cbd5e1]">${svgIcon(ICON.scale, "size-3.5 text-[#2563eb]", 14)}معاينة من المنصة</span>
@@ -706,11 +711,11 @@ const homeHeroHtml = `
               <nav aria-label="مداخل المحتوى" class="mt-12 grid grid-cols-2 gap-2.5 lg:grid-cols-4">${homeStatCards
                 .map(
                   ([title, desc, icon, color, href], i) => `
-                <a href="${href}" style="animation-delay:${120 + i * 60}ms" class="rise group hover-lift flex items-center gap-3 rounded-xl border border-[#e2e8f0] dark:border-[#334155] bg-white/70 dark:bg-[#1e293b]/70 px-3.5 py-3 hover:bg-white dark:hover:bg-[#1e293b]">
+                <a href="${href}" style="animation-delay:${120 + i * 60}ms" class="rise group hover-lift flex items-center gap-3 rounded-xl border border-white/15 bg-white/10 px-3.5 py-3 hover:bg-white/[0.16]">
                   <span class="grid size-9 shrink-0 place-items-center rounded-lg ${color} text-white" aria-hidden="true">${svgIcon(icon, "size-4", 16)}</span>
                   <span class="min-w-0">
-                    <span class="block text-[13px] font-black text-[#0f172a] dark:text-white">${title}</span>
-                    <span class="block truncate text-[11px] text-[#64748b] dark:text-[#94a3b8]">${desc}</span>
+                    <span class="block text-[13px] font-black text-white">${title}</span>
+                    <span class="block truncate text-[11px] text-[#cbd5e1]">${desc}</span>
                   </span>
                 </a>`
                 )
