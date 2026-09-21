@@ -122,13 +122,16 @@ describe("الصفحة الرئيسية — التصميم والبصريات", 
     const lead = container.querySelector("p.lead");
     expect(lead).not.toBeNull();
     expect(lead?.textContent?.trim()).toBe(
-      "ميزان الرقمية تجمع ما يحتاجه طالب القانون المغربي في موسمه الدراسي: ملفات مراجعة مرتّبة حسب الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق. القسم الأساسي منها متاح مجاناً وبلا تسجيل.",
+      "ميزان الرقمية: ملخصات الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق — والأساسي منها مجاني.",
     );
     // البنية التحريرية للترويسة: مسطرة تحت العنوان + لوحة بشريط لوني.
     expect(container.querySelector("h1")?.textContent?.trim()).toBe(
-      "القانون المغربي لطلبة الحقوق: من الفصل الدراسي إلى النصّ الرسمي",
+      "القانون المغربي لطلبة الحقوق",
     );
-    expect(container.textContent).toContain("ابدأ بالفصل الذي تدرسه اليوم");
+    // الرأس مقتصد: سطر علوي + عنوان + جملة واحدة + أزرار + شارات قصيرة.
+    // (كان يحمل فقرة توجيه طويلة أُزيلت لأن النصّ كان أكثر من اللازم.)
+    const heroColumn = container.querySelector("h1")?.parentElement as HTMLElement;
+    expect((heroColumn.textContent ?? "").length).toBeLessThan(300);
   });
 });
 
@@ -272,7 +275,7 @@ describe("سيكولوجيا صفحة الهبوط", () => {
   it("تبني الثقة بحقائق قابلة للتحقّق بلا أرقام مُختلقة", () => {
     const container = renderHome();
     const text = container.textContent ?? "";
-    for (const fact of ["محتوى أساسي مجاني", "بلا إعلانات", "مصادر رسمية محالة", "ملخصات S1-S6"]) {
+    for (const fact of ["محتوى أساسي مجاني", "بلا إعلانات", "مصادر رسمية"]) {
       expect(text, fact).toContain(fact);
     }
     // دليل الثقة القديم (المُختلق) لا يعود
