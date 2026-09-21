@@ -152,7 +152,13 @@ describe("institutional look on the public site", () => {
   it("does not use glow shadows, glass blur, or clipped gradient text", () => {
     for (const path of surfaceFiles) {
       const copy = codeLines(path).join("\n");
-      expect(copy, path).not.toMatch(/shadow-\[/);
+      // الظلّ النصّي فوق صورة (drop-shadow) حالة قراءة لا هالة، فيُسمح به
+      // وحده؛ وما دون ذلك من ظلال مخصّصة يبقى ممنوعاً.
+      const customShadows = copy
+        .split("\n")
+        .filter((line) => /shadow-\[/.test(line))
+        .filter((line) => !/drop-shadow-\[0_[0-9]px_[0-9]+px_rgba\(0,0,0/.test(line));
+      expect(customShadows.join("\n"), path).toBe("");
       expect(copy, path).not.toMatch(/backdrop-blur/);
       expect(copy, path).not.toMatch(/bg-clip-text/);
     }

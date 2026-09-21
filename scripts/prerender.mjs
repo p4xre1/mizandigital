@@ -632,24 +632,18 @@ const homeHeroHtml = `
             <div class="container relative mx-auto max-w-[1200px] px-6 py-14 md:py-20">
               <div class="grid items-center gap-12 lg:gap-14 lg:grid-cols-[1.02fr_0.98fr]">
                 <div class="rise text-center lg:text-right">
-                  <p class="flex items-center justify-center gap-3 lg:justify-start">
-                    <span class="h-px w-8 bg-white/35" aria-hidden="true"></span>
-                    <span class="text-[12px] font-black tracking-[0.16em] text-[#93c5fd]">منصة القانون المغربي</span>
-                    <span class="h-px w-8 bg-white/35 lg:hidden" aria-hidden="true"></span>
+                  <p class="text-center lg:text-right">
+                    <span class="text-[12px] font-black tracking-[0.16em] text-[#93c5fd] drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)]">منصة القانون المغربي</span>
                   </p>
-                  <h1 class="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-white">القانون المغربي لطلبة الحقوق</h1>
-                  <div class="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
-                    <span class="h-1 w-14 rounded-full bg-[#3b82f6]"></span>
-                    <span class="h-px w-full max-w-[220px] bg-white/25"></span>
-                  </div>
+                  <h1 class="mt-4 text-[34px] font-black leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] md:text-[48px]">القانون المغربي لطلبة الحقوق</h1>
                   <div class="mt-6">
-                    <p class="lead border-s-2 border-[#3b82f6] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#e2e8f0]">ميزان الرقمية: ملخصات الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق — والأساسي منها مجاني.</p>
+                    <p class="lead border-s-2 border-[#3b82f6] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#e2e8f0] drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]">ميزان الرقمية: ملخصات الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق — والأساسي منها مجاني.</p>
                   </div>
                   <div class="mt-7 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                     <a href="/archive" class="btn-accent inline-flex items-center gap-2 rounded-xl bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3.5 text-[15px] font-black transition-colors">ابدأ المراجعة — مجاناً<span class="size-5 grid place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span></a>
                     <a href="/quiz" class="inline-flex items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 py-3.5 text-[14px] font-bold text-white hover:bg-white/[0.18] transition-colors">قِس مستواك في ٣ دقائق<span class="size-5 grid place-items-center rounded-md bg-white/20 text-[12px]" aria-hidden="true">←</span></a>
                   </div>
-                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#cbd5e1] lg:justify-start">
+                  <ul class="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#cbd5e1] drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)] lg:justify-start">
                     <li class="flex items-center gap-1.5">${svgIcon(ICON.shieldCheck, "size-4 text-[#93c5fd]", 16)}محتوى أساسي مجاني</li>
                     <li aria-hidden="true" class="hidden h-4 w-px bg-white/20 lg:block"></li>
                     <li class="flex items-center gap-1.5">${svgIcon(ICON.badgeCheck, "size-4 text-[#93c5fd]", 16)}بلا إعلانات</li>

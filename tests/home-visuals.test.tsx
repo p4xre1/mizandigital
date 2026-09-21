@@ -418,6 +418,36 @@ describe("الصفحة الرئيسية — المحتوى المغربي الج
     expect(readSrc()).not.toMatch(/animate-(?:pulse|bounce|ping|spin)/);
   });
 
+  it("يُبقي رأس الصفحة بلا مساطر ويمنح نصّه ظلّاً على الصورة", () => {
+    const container = renderHome();
+    const hero = container.querySelector("h1")?.closest("section") as HTMLElement;
+    expect(hero).toBeTruthy();
+    // لا مساطر زخرفية حول النصّ: كان خطّان حول السطر العلوي ومسطرة تحت
+    // العنوان. (تُستثنى الحوافّ الملوّنة للبطاقات، مثل شريط اللوحة العلوي.)
+    const textColumn = container.querySelector("h1")?.parentElement as HTMLElement;
+    expect(textColumn.querySelectorAll(".h-px, .h-1")).toHaveLength(0);
+    expect(hero.querySelectorAll(".h-px")).toHaveLength(0);
+    const html = hero.innerHTML;
+    // والظلّ النصّي يضمن القراءة فوق الصورة المعتمة.
+    for (const token of [
+      "drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]", // العنوان
+      "drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)]", // السطر العلوي
+      "drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]", // الإجابة المباشرة
+      "drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]", // دليل الثقة
+    ]) {
+      expect(html, token).toContain(token);
+    }
+
+    // النسخة الثابتة بلا مساطر وبالظلال نفسها
+    const prerender = readFileSync("scripts/prerender.mjs", "utf8");
+    const start = prerender.indexOf('class="grad-hero relative overflow-hidden bg-[#0b1220] text-white"');
+    const heroHtml = prerender.slice(start, prerender.indexOf('aria-label="مداخل المحتوى"', start));
+    expect(heroHtml.length).toBeGreaterThan(500);
+    expect(heroHtml).not.toContain("h-px");
+    expect(heroHtml).not.toContain('h-1 w-14');
+    expect(heroHtml).toContain("drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]");
+  });
+
   it("تعرض خلفية تصويرية معتمة وبطاقة معاينة مرتفعة بظلّ", () => {
     const container = renderHome();
     const photo = container.querySelector("img[src='/images/hero-law.jpg']");

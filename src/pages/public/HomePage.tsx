@@ -456,26 +456,18 @@ export function HomePage() {
 
               {/* العمود النصّي */}
               <Reveal className="text-center lg:text-right">
-                <p className="flex items-center justify-center gap-3 lg:justify-start">
-                  <span className="h-px w-8 bg-white/35" aria-hidden="true" />
-                  <span className="text-[12px] font-black tracking-[0.16em] text-[#93c5fd]">منصة القانون المغربي</span>
-                  <span className="h-px w-8 bg-white/35 lg:hidden" aria-hidden="true" />
+                <p className="text-center lg:text-right">
+                  <span className="text-[12px] font-black tracking-[0.16em] text-[#93c5fd] drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)]">منصة القانون المغربي</span>
                 </p>
 
-                <h1 className="mt-4 text-[34px] md:text-[48px] font-black leading-[1.08] tracking-[-0.03em] text-white">
+                <h1 className="mt-4 text-[34px] font-black leading-[1.08] tracking-[-0.03em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] md:text-[48px]">
                   القانون المغربي لطلبة الحقوق
                 </h1>
-
-                {/* مسطرة تأكيد أسفل العنوان: قطعة سميكة + خطّ رفيع يمتدّ. */}
-                <div className="mt-5 flex items-center justify-center gap-2 lg:justify-start" aria-hidden="true">
-                  <span className="h-1 w-14 rounded-full bg-[#3b82f6]" />
-                  <span className="h-px w-full max-w-[220px] bg-white/25" />
-                </div>
 
                 {/* الإجابة المباشرة أول ما يقرأه الزاحف التوليدي بعد H1 (GEO:
                     Answer-First). الصنف `lead` هو نفسه الذي تستهدفه
                     SpeakableSpecification في AEOHead، فيُقرأ النصّ صوتياً أيضاً. */}
-                <p className="lead mt-6 border-s-2 border-[#3b82f6] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#e2e8f0]">
+                <p className="lead mt-6 border-s-2 border-[#3b82f6] ps-4 text-[16px] md:text-[17px] font-bold leading-8 text-[#e2e8f0] drop-shadow-[0_1px_6px_rgba(0,0,0,0.7)]">
                   ميزان الرقمية: ملخصات الفصول S1-S6، وقاموس قانوني بالعربية والفرنسية، ودليل كليات الحقوق — والأساسي منها مجاني.
                 </p>
 
@@ -493,7 +485,7 @@ export function HomePage() {
                 </div>
 
                 {/* دليل ثقة: ثلاث حقائق قابلة للتحقّق (لا أرقام مُختلقة) */}
-                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#cbd5e1] lg:justify-start">
+                <ul className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5 text-[12px] font-bold text-[#cbd5e1] drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)] lg:justify-start">
                   <li className="flex items-center gap-1.5"><ShieldCheck className="size-4 text-[#93c5fd]" aria-hidden="true" />محتوى أساسي مجاني</li>
                   <li aria-hidden="true" className="hidden h-4 w-px bg-white/20 lg:block" />
                   <li className="flex items-center gap-1.5"><BadgeCheck className="size-4 text-[#93c5fd]" aria-hidden="true" />بلا إعلانات</li>
