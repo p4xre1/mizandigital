@@ -9,7 +9,7 @@
     "validate": "pnpm typecheck",
     "doctor": "node scripts/doctor.mjs",
     "prebuild": "node scripts/generate-counts.mjs && node scripts/generate-lexicon-client-data.mjs && node scripts/generate-sitemap.mjs && node scripts/generate-feed.mjs && node scripts/generate-llms.mjs && node scripts/generate-llms-enhanced.mjs && node scripts/generate-reference.mjs",
-    "build": "pnpm clean && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs && node scripts/csp-hashes.mjs",
+    "build": "node scripts/clean.mjs && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs && node scripts/csp-hashes.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "test": "vitest run --configLoader runner",
