@@ -12,6 +12,12 @@
  *   هذا الخادم يقرأ dist/_headers ويطبّق قواعده على كل استجابة، فيصبح العطل
  *   مرئياً في وحدة تحكم المتصفح محلياً — نفس ما يراه الزائر على الإنتاج.
  *
+ * أمان المسارات:
+ *   لا يُبنى أي مسار ملفات من عنوان الطلب إطلاقاً. عند الإقلاع يُبنى فهرس
+ *   (Map) من مسارات URL إلى ملفات dist/ الفعلية عبر readdir، والطلب يُستعمل
+ *   **مفتاح بحث** في هذا الفهرس فقط. فلا حقن مسارات ولا `..` ولا ترميزات
+ *   مزدوجة — وهو أيضاً ما يجعل التدقيق الأمني (CodeQL js/path-injection) هادئاً.
+ *
  * استثناءان للعرض المحلي فقط (المعاينة تعمل داخل إطار iframe):
  *   - frame-ancestors تُوسَّع، وX-Frame-Options يُخفَّض — لا علاقة لهما بحجب
  *     السكربتات، وبدونهما لا يمكن معاينة الموقع داخل إطار.
@@ -21,8 +27,8 @@
  */
 import { createServer } from "node:http";
 import { createReadStream } from "node:fs";
-import { readFile, stat } from "node:fs/promises";
-import { dirname, extname, join, normalize, resolve, sep } from "node:path";
+import { readdir, readFile } from "node:fs/promises";
+import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -75,9 +81,50 @@ async function loadHeaderRules() {
   return rules;
 }
 
+/**
+ * يفهرس كل ملفات dist/ مرة واحدة عند الإقلاع:
+ *   "/index.html" → ملف، و"/" و"/index" كذلك، و"/about.html" → ملف، و"/about"…
+ * القيم كلّها مأخوذة من الشجرة على القرص، فلا تدخل بيانات الطلب في أي مسار.
+ */
+async function buildIndex() {
+  const index = new Map();
+  let files = 0;
+
+  const walk = async (dir) => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await walk(full);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      files += 1;
+      const rel = relative(DIST, full).split(sep).join("/");
+      index.set(`/${rel}`, full);
+      if (rel.endsWith("/index.html")) {
+        const base = rel.slice(0, -"index.html".length); // ينتهي بـ "/"
+        index.set(`/${base}`.replace(/\/+$/, "/") || "/", full);
+      } else if (rel.endsWith(".html")) {
+        index.set(`/${rel.slice(0, -".html".length)}`, full);
+      }
+    }
+  };
+
+  await walk(DIST).catch(() => {
+    console.error("[preview] ✗ dist/ غير موجود — شغّل npm run build أولاً");
+    process.exit(1);
+  });
+
+  // "/index.html" نفسه يُخدم على "/" أيضاً
+  const home = index.get("/index.html");
+  if (home) index.set("/", home);
+
+  return { index, files };
+}
+
 /** هل يطابق النمط المسار؟ (يدعم * و/*.ext كما في Cloudflare Pages) */
 function patternMatches(pattern, pathname) {
-  if (pattern === "/*" || pattern === "/*") return true;
+  if (pattern === "/*") return true;
   if (pattern === pathname) return true;
   if (pattern.startsWith("/*.")) return pathname.endsWith(pattern.slice(1));
   if (pattern.endsWith("/*")) return pathname.startsWith(pattern.slice(0, -1));
@@ -85,6 +132,8 @@ function patternMatches(pattern, pathname) {
 }
 
 const rules = await loadHeaderRules();
+const { index, files } = await buildIndex();
+const notFoundFile = index.get("/404.html");
 
 function headersFor(pathname) {
   const out = new Map();
@@ -105,47 +154,48 @@ function headersFor(pathname) {
   return [...out.values()];
 }
 
-/** يحلّ المسار إلى ملف داخل dist (بلا خروج عن الجذر). */
-async function resolveFile(pathname) {
-  const decoded = decodeURIComponent(pathname.split("?")[0]);
-  const rel = normalize(decoded).replace(/^([.][.](\/|\\|$))+/, "").replace(/^\/+/, "");
-  const candidates = [join(DIST, rel)];
-  if (rel === "" ) candidates.push(join(DIST, "index.html"));
-  if (!extname(rel)) {
-    candidates.push(join(DIST, `${rel}.html`), join(DIST, rel, "index.html"));
+/** مفتاح البحث: مسار URL مُطبَّع فقط — لا يُستعمل كمسار ملفات. */
+function lookupKey(rawPathname) {
+  let pathname = rawPathname.split("?")[0].split("#")[0];
+  try {
+    pathname = decodeURIComponent(pathname);
+  } catch {
+    return null; // ترميز معطوب
   }
-  for (const candidate of candidates) {
-    const full = resolve(candidate);
-    if (full !== DIST && !full.startsWith(DIST + sep)) continue;
-    try {
-      const info = await stat(full);
-      if (info.isFile()) return full;
-    } catch {
-      /* تابع */
-    }
+  if (!pathname.startsWith("/")) return null;
+  // توحيد الشرائح: //a/./b → /a/b (بلا أي معنى للمسار على القرص)
+  const segments = [];
+  for (const segment of pathname.split("/")) {
+    if (segment === "" || segment === ".") continue;
+    if (segment === "..") return null;
+    segments.push(segment);
   }
-  return null;
+  const normalized = "/" + segments.join("/");
+  return normalized === "/" ? "/" : normalized.replace(/\/+$/, "");
 }
 
 const server = createServer(async (req, res) => {
-  const pathname = (req.url || "/").split("?")[0];
-  const file = await resolveFile(pathname);
-  const headers = headersFor(pathname);
+  const key = lookupKey(req.url || "/");
+  const file = key === null ? undefined : index.get(key);
+  const headers = Object.fromEntries(headersFor(key ?? "/").map((h) => [h.name, h.value]));
+
   if (!file) {
-    const notFound = join(DIST, "404.html");
-    const body = await readFile(notFound).catch(() => Buffer.from("404"));
-    res.writeHead(404, { ...Object.fromEntries(headers.map((h) => [h.name, h.value])), "Content-Type": MIME[".html"] });
+    let body = Buffer.from("404");
+    if (notFoundFile) body = await readFile(notFoundFile).catch(() => body);
+    res.writeHead(404, { ...headers, "Content-Type": MIME[".html"] });
     res.end(req.method === "HEAD" ? undefined : body);
     return;
   }
+
+  // فحسب احتياطي: الملف مسجَّل في الفهرس مسبقاً، ومع ذلك نتحقق أنه داخل dist/.
+  if (file !== DIST && !file.startsWith(DIST + sep)) {
+    res.writeHead(403, headers);
+    res.end("403");
+    return;
+  }
+
   const type = MIME[extname(file).toLowerCase()] || "application/octet-stream";
-  const extra = Object.fromEntries(headers.map((h) => [h.name, h.value]));
-  const info = await stat(file);
-  res.writeHead(200, {
-    ...extra,
-    "Content-Type": type,
-    "Content-Length": info.size,
-  });
+  res.writeHead(200, { ...headers, "Content-Type": type });
   if (req.method === "HEAD") {
     res.end();
     return;
@@ -154,7 +204,7 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`[preview] dist/ مع ترويسات الإنتاج على http://${HOST}:${PORT}`);
+  console.log(`[preview] dist/ (${files} ملفاً) مع ترويسات الإنتاج على http://${HOST}:${PORT}`);
   const csp = headersFor("/").find((h) => h.name === "Content-Security-Policy");
   console.log(`[preview] ${csp ? csp.value : "لا CSP"}`);
 });
