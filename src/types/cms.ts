@@ -57,6 +57,8 @@ export interface NewsItem {
   slug: string
   category_id?: string | null
   category?: Category | null
+  /** الكلية المرتبطة بالخبر (faculties.id) — رُبط في 20260929000000. */
+  faculty_id?: string | null
   is_published: boolean
   published_at?: string | null
   created_at?: string | null
@@ -66,6 +68,23 @@ export interface NewsItem {
   meta_title?: string | null
   meta_description?: string | null
   focus_keyword?: string | null
+}
+
+/** ندوة من جدول "seminars" في Supabase (نفس شكل محرر SeminarsPage). */
+export interface Seminar {
+  id: string
+  title: string
+  speaker: string
+  speaker_title?: string | null
+  video_url: string
+  event_date?: string | null
+  event_time?: string | null
+  agenda?: string | null
+  attachment_url?: string | null
+  status?: ArticleStatus
+  /** الكلية المنظمة (faculties.id) — رُبط في 20260929000000. */
+  faculty_id?: string | null
+  created_at?: string | null
 }
 
 export interface PdfSummary {

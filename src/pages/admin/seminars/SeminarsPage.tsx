@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Eye,
   EyeOff,
+  GraduationCap,
 } from "lucide-react"
 import AdminLayout from "../../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../../components/ui/ConfirmDeleteModal"
@@ -41,6 +42,8 @@ export interface Seminar {
   attachment_url?: string | null
   image_url?: string | null
   status?: string | null
+  /** الكلية المنظمة (faculties.id) — أضيفت في هجرة 20260929000000 */
+  faculty_id?: string | null
   created_at?: string | null
 }
 
@@ -82,9 +85,20 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
   const [attachmentUrl, setAttachmentUrl] = useState<string>("")
   const [imageUrl, setImageUrl] = useState<string>("")
   const [status, setStatus] = useState<string>("published")
+  const [facultyId, setFacultyId] = useState<string>("")
+  const [faculties, setFaculties] = useState<Array<{ id: string; name: string }>>([])
 
   useEffect(() => {
     fetchInitialData()
+    // قائمة الكليات لمجال «الكلية المنظمة»
+    void (async () => {
+      try {
+        const { data } = await supabase.from("faculties").select("id, name")
+        if (data) setFaculties(data as Array<{ id: string; name: string }>)
+      } catch (err) {
+        console.error("خطأ في جلب الكليات:", err)
+      }
+    })()
   }, [])
 
   const fetchInitialData = async () => {
@@ -114,6 +128,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
     setAttachmentUrl("")
     setImageUrl("")
     setStatus("published")
+    setFacultyId("")
   }
 
   const handleOpenAddModal = () => {
@@ -136,6 +151,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
     setAttachmentUrl(seminar.attachment_url || "")
     setImageUrl(seminar.image_url || "")
     setStatus(seminar.status || "published")
+    setFacultyId(seminar.faculty_id || "")
     setFormModalOpen(true)
   }
 
@@ -169,6 +185,7 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
       attachment_url: attachmentUrl.trim() || null,
       image_url: imageUrl.trim() || null,
       status,
+      faculty_id: facultyId || null,
     }
 
     try {
@@ -407,6 +424,13 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                       </span>
                     </div>
 
+                    {seminar.faculty_id && faculties.find((f) => f.id === seminar.faculty_id) && (
+                      <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                        <GraduationCap className="size-3.5 shrink-0 text-primary" />
+                        <span className="truncate">{faculties.find((f) => f.id === seminar.faculty_id)!.name}</span>
+                      </div>
+                    )}
+
                     <a
                       href={seminar.video_url}
                       title={`رابط الفيديو / البث الخاص بـ ${seminar.title}`}
@@ -588,6 +612,25 @@ export function SeminarsPage({ onNavigate }: SeminarsPageProps) {
                   folder="seminars"
                   helperText="تظهر في بطاقة الندوة ضمن صفحة الفعاليات."
                 />
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">الكلية المنظمة (اختياري)</label>
+                  <select
+                    value={facultyId}
+                    onChange={(e) => setFacultyId(e.target.value)}
+                    className="w-full cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary"
+                  >
+                    <option value="">— بدون كلية محددة —</option>
+                    {faculties.map((f) => (
+                      <option key={f.id} value={f.id}>
+                        {f.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-[10.5px] leading-5 text-muted-foreground">
+                    ربط الندوة بكلية يظهرها في قسم «إعلانات الكلية» وعلى صفحة /annonces.
+                  </p>
+                </div>
 
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-foreground">حالة النشر</label>

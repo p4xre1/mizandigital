@@ -226,6 +226,8 @@ const safeDate = (value, fallback = NOW) => {
    Dataset statistics
 ------------------------------------------------------- */
 
+// faq + quiz مكتملان هنا حتى يطابق «إجمالي السجلات» ما يقرؤه الزاحف
+// فعلاً (نفس الأرقام التي تولّدها generate-reference.mjs — 427 سجلاً).
 const statistics = {
   articles: count(articles),
   news: count(news),
@@ -233,6 +235,8 @@ const statistics = {
   schools: count(schools),
   lexicon: count(lexicon),
   documents: count(documents),
+  faq: (faqGroups ?? []).reduce((acc, g) => acc + ((g.items || []).length), 0),
+  quiz: count(quizQuestions),
 };
 
 const totalContent =
@@ -241,7 +245,9 @@ const totalContent =
   statistics.events +
   statistics.schools +
   statistics.lexicon +
-  statistics.documents;
+  statistics.documents +
+  statistics.faq +
+  statistics.quiz;
 
 const uniqueSorted = (values) =>
   [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "ar"));
@@ -401,7 +407,13 @@ for (const item of events) {
   });
 }
 
-for (const item of [...documents, ...cms.pdfs, ...cms.laws]) {
+// kind يميّز المصدر داخل صفحة /pdf/<slug> المشتركة: نصوص القوانين لها
+// عرضٌ أعمق (نص القانون كاملاً + ميتاداتنه) من ملفات الملخصات.
+for (const { item, kind } of [
+  ...documents.map((item) => ({ item, kind: "document" })),
+  ...cms.pdfs.map((item) => ({ item, kind: "pdf" })),
+  ...cms.laws.map((item) => ({ item, kind: "law" })),
+]) {
   const slug = docSlug(item, usedDocSlugs);
 
   pushContent(docPages, {
@@ -410,6 +422,7 @@ for (const item of [...documents, ...cms.pdfs, ...cms.laws]) {
     summary: item.description || "",
     item,
     slug,
+    kind,
   });
 }
 
@@ -781,6 +794,11 @@ const pages = [
               </li>
 
               <li>
+                <a href="/annonces">إعلانات الكليات</a>
+                — مباريات وندوات ومستجدات مرتبطة بكل كلية.
+              </li>
+
+              <li>
                 <a href="/schools">دليل كليات الحقوق</a>
                 — معلومات عن مؤسسات العلوم القانونية والاقتصادية والاجتماعية.
               </li>
@@ -1002,6 +1020,46 @@ ${renderCrawlList(newsPages, { heading: "قائمة الأخبار والمست�
             ومناقشة قضايا قانونية وأكاديمية معاصرة.
           </p>
 ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعاليات" })}
+        </article>
+      </main>
+    `,
+  },
+
+  {
+    path: "/annonces",
+    title: "إعلانات الكليات القانونية — مباريات وندوات وتوظيف | ميزان الرقمية",
+    description:
+      "كل إعلانات كليات الحقوق المغربية: مباريات التوظيف، الندوات العلمية، ومستجدات التسجيل — مفلترة حسب الكلية، مع تقديم السيرة الذاتية مباشرة.",
+    staticBody: `
+      <main dir="rtl" lang="ar-MA">
+        <article>
+          <h1>إعلانات الكليات القانونية</h1>
+
+          <p>
+            <strong>
+              صفحة تجمع إعلانات الكليات القانونية المغربية في مكان واحد:
+              مباريات التوظيف، الندوات والملتقيات العلمية، ومستجدات التسجيل
+              والتربصات — مع ربط كل إعلان بكلية.
+            </strong>
+          </p>
+
+          <h2>كيف تستفيد من صفحة الإعلانات؟</h2>
+
+          <p>
+            اختر كليتك من الفلتر فتظهر إعلاناتها فقط، أو تصفّح الكل حسب المدينة
+            والنوع (فعاليات، ندوات، مستجدات). وإذا كانت لديك سيرة ذاتية على
+            ميزان، يمكنك تقديمها على أي إعلان في نقرة واحدة، ويتابع الإدارة
+            طلبك من لوحة «طلبات التقديم».
+          </p>
+
+          <h2>أين أجد إعلانات كليتي؟</h2>
+
+          <p>
+            كل صفحة كلية في <a href="/schools">دليل كليات الحقوق</a> تعرض قسم
+            «أحدث إعلانات الكلية» — الفعاليات والندوات والأخبار المرتبطة
+            بتلك الكلية. و<a href="/events">صفحة الندوات والفعاليات</a> تعرض
+            الأرشيف الكامل مع روابط المشاهدة.
+          </p>
         </article>
       </main>
     `,
@@ -1479,14 +1537,29 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
   ...docPages.map((entry) => {
     const item = normalizeEntry(entry);
     const path = entry.path;
-    const fileUrl = entry.item?.fileUrl || entry.item?.file_url || "";
+    // pdf_url هو حقل رابط التحميل في جدول laws (pdf_summaries=file_url، المحلي=fileUrl).
+    const fileUrl = entry.item?.fileUrl || entry.item?.file_url || entry.item?.pdf_url || "";
+
+    const isLaw = entry.kind === "law";
+    // نص القانون: نص صافٍ تُفصَل فقراته بسطر فارغ — يُعرض كما هو (بلا HTML).
+    const lawText = isLaw ? String(item.content || "").replace(/\r\n/g, "\n") : "";
+    const lawParagraphs = lawText
+      .split(/\n{2,}/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => `<p>${escapeHtml(p)}</p>`)
+      .join("\n");
 
     return {
       path,
-      title: `${item.title} | تحميل مجاني وشرح | ميزان الرقمية`,
+      title: `${item.title} | ${
+        isLaw && lawParagraphs ? "النص القانوني والموجز" : "تحميل مجاني وشرح"
+      } | ميزان الرقمية`,
       description:
         item.excerpt ||
-        `ملخص قانوني جاهز للمراجعة: ${item.module || item.subject || item.semester || "ملف من أرشيف ميزان الرقمية"}. متاح للتحميل المجاني لطلبة الحقوق داخل منصة ميزان الرقمية مع بطاقة توضّح مادته وفصله.`,
+        (isLaw
+          ? `نص تشريعي منشور في أرشيف ميزان الرقمية لطلبة الحقوق والباحثين: ${item.title}.`
+          : `ملخص قانوني جاهز للمراجعة: ${item.module || item.subject || item.semester || "ملف من أرشيف ميزان الرقمية"}. متاح للتحميل المجاني لطلبة الحقوق داخل منصة ميزان الرقمية مع بطاقة توضّح مادته وفصله.`),
 
       schema: {
         "@context": "https://schema.org",
@@ -1496,7 +1569,13 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
         description: item.excerpt || "",
         url: absoluteUrl(path),
         inLanguage: "ar-MA",
-        about: item.module || item.semester || "الدراسات القانونية",
+        about: isLaw ? "نصوص قانونية مغربية" : item.module || item.semester || "الدراسات القانونية",
+        // النص الكامل قانونياً داخل JSON-LD — يقراه الزاحف والوكلاء
+        // حتى لو تجاهلوا جسم الصفحة.
+        ...(lawText ? { text: lawText } : {}),
+        ...(isLaw && item.publication_date
+          ? { dateCreated: String(item.publication_date).slice(0, 10) }
+          : {}),
         publisher: { "@id": `${DOMAIN}/#organization` },
       },
 
@@ -1516,8 +1595,37 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
 
             <p>
               <strong>نبذة:</strong>
-              ${escapeHtml(item.excerpt || "ملف تعليمي من أرشيف ميزان الرقمية.")}
+              ${escapeHtml(
+                item.excerpt ||
+                  (isLaw
+                    ? "نص قانوني مغربي منشور في أرشيف ميزان الرقمية."
+                    : "ملف تعليمي من أرشيف ميزان الرقمية.")
+              )}
             </p>
+
+            ${
+              isLaw
+                ? [
+                    item.law_number
+                      ? `<p><strong>رقم القانون:</strong> ${escapeHtml(String(item.law_number))}</p>`
+                      : "",
+                    item.official_gazette_number
+                      ? `<p><strong>عدد الجريدة الرسمية:</strong> ${escapeHtml(String(item.official_gazette_number))}</p>`
+                      : "",
+                    item.publication_date
+                      ? `<p><strong>تاريخ الصدور:</strong> ${escapeHtml(String(item.publication_date).slice(0, 10))}</p>`
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join("\n")
+                : ""
+            }
+
+            ${
+              lawParagraphs
+                ? `<h2>نص القانون</h2>\n${lawParagraphs}`
+                : ""
+            }
 
             ${
               item.semester
@@ -3003,6 +3111,7 @@ const notFoundPage = {
             <li><a href="/news">الأخبار والمستجدات</a> — تشريع وقضاء بالمغرب.</li>
             <li><a href="/schools">كليات الحقوق</a> — دليل الجامعات المغربية.</li>
             <li><a href="/events">الندوات والفعاليات</a> — أيام دراسية ومسابقات.</li>
+            <li><a href="/annonces">إعلانات الكليات</a> — مباريات وندوات وتوظيف.</li>
           </ul>
           <p><a href="/">العودة إلى الصفحة الرئيسية</a></p>
         </article>
@@ -3075,6 +3184,7 @@ for (const shellPath of APP_SHELL_ROUTES) {
             <li><a href="/archive">الأرشيف الدراسي</a></li>
             <li><a href="/articles">المقالات</a></li>
             <li><a href="/news">الأخبار والمستجدات</a></li>
+            <li><a href="/annonces">إعلانات الكليات</a></li>
             <li><a href="/schools">كليات الحقوق</a></li>
             <li><a href="/">الصفحة الرئيسية</a></li>
           </ul>
@@ -3122,6 +3232,7 @@ const appShellHtml = template
             <li><a href="/archive">الأرشيف الدراسي</a></li>
             <li><a href="/articles">المقالات</a></li>
             <li><a href="/news">الأخبار والمستجدات</a></li>
+            <li><a href="/annonces">إعلانات الكليات</a></li>
             <li><a href="/schools">كليات الحقوق</a></li>
             <li><a href="/">الصفحة الرئيسية</a></li>
           </ul>

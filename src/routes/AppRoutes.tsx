@@ -18,6 +18,7 @@ const FacultiesPage = lazy(() => import("@/pages/admin/faculties/FacultiesPage")
 const LexiconPageAdmin = lazy(() => import("@/pages/admin/lexicon/LexiconPage"))
 const LibraryPage = lazy(() => import("@/pages/admin/library/LibraryPage"))
 const SeminarsPage = lazy(() => import("@/pages/admin/seminars/SeminarsPage"))
+const ApplicationsPage = lazy(() => import("@/pages/admin/ApplicationsPage"))
 const NewsManagementPage = lazy(() => import("@/pages/admin/NewsManagementPage"))
 const CommentsPage = lazy(() => import("@/pages/admin/CommentsPage"))
 const LawsPage = lazy(() => import("@/pages/admin/LawsPage"))
@@ -64,6 +65,8 @@ const EventPage = lazy(() => import("@/pages/public/EventPage").then((m) => ({ d
 const EventsPage = lazy(() => import("@/pages/public/EventsPage").then((m) => ({ default: m.EventsPage })))
 const SchoolsPage = lazy(() => import("@/pages/public/SchoolsPage").then((m) => ({ default: m.SchoolsPage })))
 const SchoolPage = lazy(() => import("@/pages/public/SchoolPage").then((m) => ({ default: m.SchoolPage })))
+const AnnoncesPage = lazy(() => import("@/pages/public/AnnoncesPage").then((m) => ({ default: m.AnnoncesPage })))
+const ResumePage = lazy(() => import("@/pages/public/ResumePage").then((m) => ({ default: m.ResumePage })))
 const LexiconPage = lazy(() => import("@/pages/public/LexiconPage").then((m) => ({ default: m.LexiconPage })))
 const TermPage = lazy(() => import("@/pages/public/TermPage").then((m) => ({ default: m.TermPage })))
 const AboutPage = lazy(() => import("@/pages/public/AboutPage").then((m) => ({ default: m.AboutPage })))
@@ -90,6 +93,7 @@ const NotFound = lazy(() => import("@/pages/public/NotFound").then((m) => ({ def
 function ArticleWrapper() { const { slug } = useParams<{ slug: string }>(); return <ArticlePage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function EventWrapper() { const { slug } = useParams<{ slug: string }>(); return <EventPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function SchoolWrapper() { const { slug } = useParams<{ slug: string }>(); return <SchoolPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
+function ResumeWrapper() { return <ResumePage /> }
 function TermWrapper() { const { slug } = useParams<{ slug: string }>(); return <TermPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function ArchiveWrapper() { const [searchParams] = useSearchParams(); return <ArchivePage initialSemester={searchParams.get("semester") ?? undefined} /> }
 
@@ -144,6 +148,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/s1" element={<Navigate to="/archive?semester=S1" replace />} /><Route path="/s2" element={<Navigate to="/archive?semester=S2" replace />} /><Route path="/s3" element={<Navigate to="/archive?semester=S3" replace />} /><Route path="/s4" element={<Navigate to="/archive?semester=S4" replace />} /><Route path="/s5" element={<Navigate to="/archive?semester=S5" replace />} /><Route path="/s6" element={<Navigate to="/archive?semester=S6" replace />} />
           <Route path="/news" element={<NewsPage />} /><Route path="/news/:slug" element={<ArticleWrapper />} /><Route path="/articles" element={<ArticlesPage />} /><Route path="/articles/:slug" element={<ArticleWrapper />} />
           <Route path="/events" element={<EventsPage />} /><Route path="/events/:slug" element={<EventWrapper />} /><Route path="/schools" element={<SchoolsPage />} /><Route path="/schools/:slug" element={<SchoolWrapper />} />
+          <Route path="/annonces" element={<AnnoncesPage />} /><Route path="/resume/:username" element={<ResumeWrapper />} />
           <Route path="/quiz" element={<QuizHubPage />} /><Route path="/quiz/university" element={<UniversityQuizPage />} /><Route path="/quiz/general" element={<GeneralQuizPage />} /><Route path="/quiz/concours" element={<ConcoursQuizPage />} /><Route path="/quiz/interview" element={<InterviewQuizPage />} /><Route path="/quiz/placement" element={<PlacementQuizPage />} /><Route path="/profile" element={<MyProfilePage />} /><Route path="/u/:username" element={<PublicProfilePage />} />
           <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/platform" element={<PlatformPage />} /><Route path="/guides/free-legal-resources-morocco" element={<FreeLegalResourcesPage />} /><Route path="/guides/new-law-student-morocco" element={<NewLawStudentGuidePage />} />
           <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
@@ -169,6 +174,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="lexicon" element={<LexiconPageAdmin />} />
           <Route path="library" element={<LibraryPage />} />
           <Route path="seminars" element={<SeminarsPage />} />
+          <Route path="applications" element={<ApplicationsPage />} />
           <Route path="laws" element={<LawsPage />} />
           <Route path="quizzes" element={<AdminQuizzesPage />} />
           <Route path="trends" element={<TrendingTopicsPage />} />

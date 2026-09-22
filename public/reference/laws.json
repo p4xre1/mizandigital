@@ -1,0 +1,9 @@
+{
+ "dataset": "laws",
+ "title": "النصوص القانونية",
+ "generatedAt": "2026-09-22T00:54:50.276Z",
+ "count": 0,
+ "section": "https://www.mizan.page/pdf",
+ "urlPattern": "https://www.mizan.page/pdf/{slug}",
+ "items": []
+}

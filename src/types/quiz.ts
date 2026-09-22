@@ -115,6 +115,8 @@ export interface MizanProfile {
   bio?: string | null
   /** المهنة أو التخصص الحالي (موثق، محامٍ متمرن، …). */
   occupation?: string | null
+  /** كليتي — faculties.id المرتبطة بالبروفايل (ربط السيرة بكلية الطالب). */
+  facultyId?: string | null
   /** إذن نشر المدينة. بلا إذن تبقى خاصة حتى لو مُلئت. */
   shareLocation?: boolean
   /** إذن نشر النبذة. */

@@ -16,6 +16,7 @@ import {
   Globe,
   Eye,
   EyeOff,
+  GraduationCap,
 } from "lucide-react"
 import AdminLayout from "../../components/layout/AdminLayout"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
@@ -41,6 +42,8 @@ export interface NewsItem {
   published_at?: string
   created_at?: string
   slug: string
+  /** الكلية المرتبطة بالخبر (faculties.id) — أضيفت في هجرة 20260929000000 */
+  faculty_id?: string | null
 }
 
 interface NewsManagementPageProps {
@@ -78,9 +81,20 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
   const [isPublished, setIsPublished] = useState<boolean>(true)
   const [publishedAt, setPublishedAt] = useState<string>("")
   const [slug, setSlug] = useState<string>("")
+  const [facultyId, setFacultyId] = useState<string>("")
+  const [faculties, setFaculties] = useState<Array<{ id: string; name: string }>>([])
 
   useEffect(() => {
     fetchNews()
+    // قائمة الكليات لمجال «الكلية المرتبطة»
+    void (async () => {
+      try {
+        const { data } = await (supabase as any).from("faculties").select("id, name")
+        if (data) setFaculties(data as Array<{ id: string; name: string }>)
+      } catch (err) {
+        console.error("خطأ في جلب الكليات:", err)
+      }
+    })()
   }, [])
 
   const fetchNews = async () => {
@@ -114,6 +128,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     setPublishedAt(new Date().toISOString().split("T")[0])
     setSlug("")
     setFocusKeyword("")
+    setFacultyId("")
     setFormModalOpen(true)
   }
 
@@ -131,6 +146,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
     setPublishedAt(item.published_at ? item.published_at.split("T")[0] : "")
     setSlug(item.slug)
     setFocusKeyword(item.focus_keyword || "")
+    setFacultyId(item.faculty_id || "")
     setFormModalOpen(true)
   }
 
@@ -182,6 +198,7 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
       is_published: isPublished,
       published_at: publishedAt ? new Date(publishedAt).toISOString() : new Date().toISOString(),
       slug: finalSlug,
+      faculty_id: facultyId || null,
     }
 
     try {
@@ -453,6 +470,13 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
                       </div>
                     )}
 
+                    {item.faculty_id && faculties.find((f) => f.id === item.faculty_id) && (
+                      <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                        <GraduationCap className="size-3.5 shrink-0 text-primary" />
+                        <span className="truncate">{faculties.find((f) => f.id === item.faculty_id)!.name}</span>
+                      </div>
+                    )}
+
                     {item.published_at && (
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Calendar className="size-3.5 shrink-0 text-muted-foreground" />
@@ -557,6 +581,25 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
                       placeholder="مثال: وزارة العدل، الأمانة العامة..."
                       className="w-full rounded-xl border border-border bg-background px-3.5 py-2 text-xs text-foreground outline-none transition focus:border-primary"
                     />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-foreground">الكلية المرتبطة (اختياري)</label>
+                    <select
+                      value={facultyId}
+                      onChange={(e) => setFacultyId(e.target.value)}
+                      className="w-full cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-primary"
+                    >
+                      <option value="">— بدون كلية محددة —</option>
+                      {faculties.map((f) => (
+                        <option key={f.id} value={f.id}>
+                          {f.name}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-[10.5px] leading-5 text-muted-foreground">
+                      ربط الخبر/المباراة بكلية يظهره في «إعلانات الكلية» وعلى صفحة /annonces.
+                    </p>
                   </div>
 
                   <div className="space-y-1">

@@ -39,6 +39,8 @@ export declare function canonicalArticle(slug: string, origin?: string): string;
 export declare function canonicalArticlesHub(origin?: string): string;
 export declare function canonicalEvent(slug: string, origin?: string): string;
 export declare function canonicalEventsHub(origin?: string): string;
+export declare function canonicalAnnonces(origin?: string): string;
+export declare function canonicalResume(username: string, origin?: string): string;
 export declare function canonicalPdf(slug: string, origin?: string): string;
 export declare function canonicalArchive(origin?: string): string;
 export declare function canonicalPage(slug: string, origin?: string): string;

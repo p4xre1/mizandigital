@@ -17,6 +17,7 @@
  */
 import {
   SITE_ORIGIN as ORIGIN,
+  canonicalAnnonces,
   canonicalArticle,
   canonicalArticlesHub,
   canonicalArchive,
@@ -29,6 +30,7 @@ import {
   canonicalNewsHub,
   canonicalPage,
   canonicalPdf,
+  canonicalResume,
   canonicalSchool,
   canonicalSchools,
   canonicalUrl,
@@ -52,6 +54,7 @@ import {
 export const BASE_URL: string = ORIGIN;
 
 export {
+  canonicalAnnonces,
   canonicalArticle,
   canonicalArticlesHub,
   canonicalArchive,
@@ -64,6 +67,7 @@ export {
   canonicalNewsHub,
   canonicalPage,
   canonicalPdf,
+  canonicalResume,
   canonicalSchool,
   canonicalSchools,
   canonicalUrl,

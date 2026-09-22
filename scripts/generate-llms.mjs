@@ -37,7 +37,7 @@ import {
 
 const readJson = async (name) => JSON.parse(await readFile(join(DATA, name), "utf8"));
 
-const [articles, news, lexicon, schools, documents, events, faqGroups] = await Promise.all([
+const [articles, news, lexicon, schools, documents, events, faqGroups, quizQuestions] = await Promise.all([
   readJson("articles.json"),
   readJson("news.json"),
   readJson("lexicon.json"),
@@ -45,6 +45,7 @@ const [articles, news, lexicon, schools, documents, events, faqGroups] = await P
   readJson("docs.json"),
   readJson("events.json"),
   readJson("faq.json"),
+  readJson("quiz-questions.json"),
 ]);
 
 /** يقطع نصاً عند حدّ معيّن على حدّ كلمة. */
@@ -66,6 +67,8 @@ const counts = {
   schools: schools.length,
   documents: documents.length,
   events: events.length,
+  faq: Array.isArray(faqGroups) ? faqGroups.reduce((acc, g) => acc + (g.items?.length || 0), 0) : 0,
+  quiz: Array.isArray(quizQuestions) ? quizQuestions.length : 0,
 };
 const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
@@ -84,7 +87,7 @@ lines.push(
 );
 lines.push("");
 lines.push(
-  `المحتوى باللغة العربية (ar-MA). يضم ${total} سجلاً: ${counts.articles} مقالاً، ${counts.news} خبراً، ${counts.lexicon} مصطلحاً قانونياً، ${counts.schools} كلية، ${counts.documents} مستنداً، و${counts.events} فعالية.`
+  `المحتوى باللغة العربية (ar-MA). يضم ${total} سجلاً: ${counts.articles} مقالاً، ${counts.news} خبراً، ${counts.lexicon} مصطلحاً قانونياً، ${counts.schools} كلية، ${counts.documents} مستنداً، ${counts.events} فعالية، ${counts.faq} سؤالاً شائعاً، و${counts.quiz} سؤال اختبار. النسخة الكاملة بكل النصوص: /llms-full.txt — والبيانات المهيكّلة كاملة: /reference/index.json.`
 );
 lines.push("");
 lines.push(
@@ -164,7 +167,8 @@ lines.push("");
 
 lines.push("## واجهات آلية");
 lines.push("");
-lines.push("- [MCP endpoint](https://www.mizan.page/mcp): Model Context Protocol — أدوات قراءة عامة");
+lines.push("- [MCP endpoint](https://www.mizan.page/mcp): Model Context Protocol — أدوات قراءة عامة (تشمل بحث المرجع)");
+lines.push("- [AI Reference](https://www.mizan.page/reference/index.json): كل البيانات مهيكّلة (JSON + Markdown) — 9 مجموعات برابط قانوني لكل سجل");
 lines.push("- [AI catalog](https://www.mizan.page/.well-known/ai-catalog.json): فهرس المحتوى للوكلاء");
 lines.push("- [Agent card](https://www.mizan.page/.well-known/agent-card.json): بطاقة اكتشاف الوكيل (A2A)");
 lines.push("- [خريطة الموقع](https://www.mizan.page/sitemap.xml): كل الروابط القابلة للفهرسة");

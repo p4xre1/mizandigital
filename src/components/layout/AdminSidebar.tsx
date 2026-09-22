@@ -35,6 +35,7 @@ import {
   Info,
   Mail,
   Shield,
+  Inbox,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 
@@ -73,6 +74,7 @@ const navGroups = [
       { label: "الأرشيف القانوني", path: "/admin/laws", icon: Scale },
       { label: "مكتبة الوثائق", path: "/admin/library", icon: BookOpen },
       { label: "الندوات والفعاليات", path: "/admin/seminars", icon: Video },
+      { label: "طلبات التقديم", path: "/admin/applications", icon: Inbox },
       { label: "أدوات Pro القانونية", path: "/admin/pro-tools", icon: Scale },
       { label: "بنك الأسئلة", path: "/admin/quizzes", icon: ListChecks },
       { label: "التعليقات", path: "/admin/comments", icon: MessageCircle },

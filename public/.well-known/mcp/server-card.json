@@ -46,6 +46,40 @@
         "properties": {},
         "additionalProperties": false
       }
+    },
+    {
+      "name": "mizan_reference_index",
+      "title": "Mizan AI reference index",
+      "description": "Lists every AI reference dataset (record counts, JSON/Markdown file URLs, section URLs, URL patterns) plus the legal disclaimer. Start here to browse the full machine-readable content of the platform.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "mizan_reference_search",
+      "title": "Search Mizan reference data",
+      "description": "Full-text search across the public reference datasets (Arabic, French and English): legal terms with definitions, laws with full text, articles, news, schools, events, study PDFs, FAQ answers and quiz questions. Returns matching records with their canonical page URLs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search terms, space separated — all terms must appear in the record (1-6 terms)."
+          },
+          "domain": {
+            "type": "string",
+            "description": "Optional dataset filter: articles, news, lexicon, schools, events, docs, laws, faq, quiz."
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum results to return (1-50, default 10)."
+          }
+        },
+        "required": ["query"],
+        "additionalProperties": false
+      }
     }
   ]
 }

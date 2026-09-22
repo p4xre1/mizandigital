@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { NotFound } from "./NotFound"
 import schoolsData from "../../data/schools.json"
+import eventsData from "../../data/events.json"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { canonicalSchool, itemPath } from "../../lib/canonical"
 import { generateBreadcrumbSchema, generateFacultySchema } from "../../lib/seo/schema"
@@ -21,7 +22,8 @@ import {
   Link as LinkIcon,
   Navigation,
   Calendar,
-  Loader2
+  Loader2,
+  Megaphone
 } from "lucide-react"
 
 interface SchoolPageProps {
@@ -80,6 +82,65 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
   }, [localSchool, targetQuery])
 
   const school: any = localSchool || cmsSchool
+
+  // أحدث إعلانات الكلية: فعاليات محلية (facultySlug) + ندوات/أخبار CMS (faculty_id)
+  const [schoolAnnonces, setSchoolAnnonces] = useState<Array<{ type: string; title: string; date?: string | null; url: string }>>([])
+  useEffect(() => {
+    if (!school) return
+    let mounted = true
+    const fetchSchoolAnnonces = async () => {
+      const items: Array<{ type: string; title: string; date?: string | null; url: string }> = []
+      const slug = school.slug
+
+      // 1) الفعاليات المحلية المرتبطة بالكلية
+      ;(eventsData as any[]).forEach((ev: any) => {
+        if (slug && ev.facultySlug === slug) {
+          items.push({ type: "event", title: ev.title, date: ev.eventDate ?? null, url: `/events/${ev.slug || ev.id}` })
+        }
+      })
+
+      // 2) الندوات والأخبار من CMS عبر faculty_id (نحتاج uuid الكلية)
+      let facultyUuid: string | null = (cmsSchool && cmsSchool.id) || null
+      if (!facultyUuid && slug) {
+        try {
+          const { data } = await supabase.from("faculties").select("id").eq("slug", slug).maybeSingle()
+          facultyUuid = (data as { id: string } | null)?.id ?? null
+        } catch {
+          facultyUuid = null
+        }
+      }
+      if (facultyUuid) {
+        try {
+          const [semsRes, newsRes] = await Promise.all([
+            (supabase.from("seminars") as any)
+              .select("id, title, event_date")
+              .eq("faculty_id", facultyUuid)
+              .eq("status", "published")
+              .order("event_date", { ascending: false })
+              .limit(5),
+            (supabase.from("news") as any)
+              .select("id, slug, title, published_at")
+              .eq("faculty_id", facultyUuid)
+              .eq("is_published", true)
+              .order("published_at", { ascending: false })
+              .limit(5),
+          ])
+          ;((semsRes.data ?? []) as any[]).forEach((s) => items.push({ type: "seminar", title: s.title, date: s.event_date ?? null, url: `/events/${s.id}` }))
+          ;((newsRes.data ?? []) as any[]).forEach((n) => items.push({ type: "news", title: n.title, date: n.published_at ?? null, url: `/news/${n.slug}` }))
+        } catch (err) {
+          console.error("خطأ في جلب إعلانات الكلية:", err)
+        }
+      }
+
+      if (!mounted) return
+      items.sort((a, b) => String(b.date ?? "").localeCompare(String(a.date ?? "")))
+      setSchoolAnnonces(items.slice(0, 6))
+    }
+    void fetchSchoolAnnonces()
+    return () => {
+      mounted = false
+    }
+  }, [school, cmsSchool])
 
   if (loading) {
     return (
@@ -383,6 +444,45 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
         </div>
 
         {/* Ad removed */}
+
+        {/* أحدث إعلانات الكلية (فعاليات + ندوات + أخبار مرتبطة بالكلية) */}
+        {schoolAnnonces.length > 0 && (
+          <section className="rounded-xl border border-border bg-card p-6 shadow-sm mb-8">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2 text-primary font-bold text-base">
+                <Megaphone size={20} />
+                <h2>أحدث إعلانات الكلية</h2>
+              </div>
+              <Link
+                to={`/annonces?school=${school.slug || school.id}`}
+                className="text-xs font-bold text-primary hover:underline"
+              >
+                عرض كل الإعلانات
+              </Link>
+            </div>
+            <ul className="space-y-2.5 text-sm">
+              {schoolAnnonces.map((item, idx) => (
+                <li
+                  key={idx}
+                  className="flex items-center justify-between gap-3 rounded-lg bg-muted/50 p-2.5"
+                >
+                  <Link
+                    to={item.url}
+                    className="min-w-0 flex-1 truncate font-semibold text-foreground transition hover:text-primary"
+                    title={item.title}
+                  >
+                    {item.title}
+                  </Link>
+                  {item.date && (
+                    <span className="shrink-0 text-xs text-muted-foreground">
+                      {new Date(item.date).toLocaleDateString("ar-MA")}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* Useful Links Section */}
         {school.usefulLinks && school.usefulLinks.length > 0 && (

@@ -30,6 +30,8 @@ export interface Law {
   title: string
   law_number?: string
   description?: string
+  /** نص القانون / المقتطفات — نص صافٍ تُفصل فقراته بسطر فارغ (بلا HTML) */
+  content?: string
   official_gazette_number?: string
   publication_date?: string
   pdf_url?: string
@@ -86,6 +88,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
   const [title, setTitle] = useState<string>("")
   const [lawNumber, setLawNumber] = useState<string>("")
   const [description, setDescription] = useState<string>("")
+  const [content, setContent] = useState<string>("")
   const [officialGazetteNumber, setOfficialGazetteNumber] = useState<string>("")
   const [publicationDate, setPublicationDate] = useState<string>("")
   const [pdfUrl, setPdfUrl] = useState<string>("")
@@ -130,6 +133,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     setTitle("")
     setLawNumber("")
     setDescription("")
+    setContent("")
     setOfficialGazetteNumber("")
     setPublicationDate("")
     setPdfUrl("")
@@ -146,6 +150,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     setTitle(law.title)
     setLawNumber(law.law_number || "")
     setDescription(law.description || "")
+    setContent(law.content || "")
     setOfficialGazetteNumber(law.official_gazette_number || "")
     setPublicationDate(law.publication_date ? law.publication_date.split("T")[0] : "")
     setPdfUrl(law.pdf_url || "")
@@ -184,6 +189,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
         title: title.trim(),
         law_number: lawNumber.trim() || null,
         description: description.trim() || null,
+        content: content.trim() || null,
         official_gazette_number: officialGazetteNumber.trim() || null,
         publication_date: publicationDate || null,
         pdf_url: finalPdfUrl,
@@ -549,6 +555,25 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                     placeholder="نظرة عامة على أحكام هذا القانون أو نطاق تطبيقه..."
                     className="w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground outline-none transition focus:border-primary"
                   />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">
+                    نص القانون / المقتطفات القانونية
+                  </label>
+                  <textarea
+                    rows={10}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder={"المادة الأولى: يهدف هذا القانون إلى...\n\nالمادة الثانية: يخضع لأحكامه..."}
+                    className="w-full rounded-xl border border-border bg-background p-3 font-mono text-xs leading-6 text-foreground outline-none transition focus:border-primary"
+                  />
+                  <p className="text-[10px] leading-4 text-muted-foreground">
+                    نص صافٍ بلا HTML — يُفصَل بين الفقرات بسطر فارغ. يظهر في صفحة
+                    القانون الثابتة (/pdf/...) وفي llms-full.txt لوكلاء الذكاء
+                    الاصطناعي. المجال اختياري: القانون بلا نص يظهر كصفحة تحميل
+                    PDF فقط.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

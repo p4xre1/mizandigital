@@ -17,6 +17,12 @@ const WAIT_SECONDS = 10
 
 type SourceTable = "local" | "pdf_summaries" | "laws"
 
+interface LawMeta {
+  lawNumber?: string
+  officialGazetteNumber?: string
+  publicationDate?: string
+}
+
 interface DownloadTarget {
   title: string
   downloadUrl: string
@@ -24,6 +30,11 @@ interface DownloadTarget {
   fileFormat?: string
   sourceTable?: SourceTable
   dbId?: string
+  /** موجز القانون (عمود description في laws) */
+  description?: string
+  /** نص القانون — نص صافٍ تُفصل فقراته بسطر فارغ (عمود content في laws) */
+  content?: string
+  lawMeta?: LawMeta
 }
 
 /**
@@ -53,6 +64,17 @@ export function PdfDownloadPage() {
     }
     return slugToDoc
   }, [])
+
+  // فقرات نص القانون: نص صافٍ يُفصَل بسطر فارغ — نفس تقسيم prerender
+  const lawParagraphs = useMemo(
+    () =>
+      (target?.content || "")
+        .replace(/\r\n/g, "\n")
+        .split(/\n{2,}/)
+        .map((p) => p.trim())
+        .filter(Boolean),
+    [target?.content]
+  )
 
   // تتبّع قراءة/معاينة حقيقية لهذا الملف (مرة واحدة لكل جلسة متصفح)
   useTrackView("pdf", slug)
@@ -102,10 +124,11 @@ export function PdfDownloadPage() {
         return
       }
 
-      // 3) نصوص قانونية عامة (laws)
+      // 3) نصوص قانونية عامة (laws) — content: نص القانون الذي يظهر
+      // تحت بطاقة التحميل (نفس النص الثابت المولّد في prerender)
       const { data: lawRow } = await (supabase as any)
         .from("laws")
-        .select("id, title, pdf_url")
+        .select("id, title, pdf_url, description, content, law_number, official_gazette_number, publication_date")
         .eq("slug", slug)
         .maybeSingle()
 
@@ -116,6 +139,15 @@ export function PdfDownloadPage() {
           fileFormat: "PDF",
           sourceTable: "laws",
           dbId: lawRow.id,
+          description: lawRow.description || undefined,
+          content: lawRow.content || undefined,
+          lawMeta: {
+            lawNumber: lawRow.law_number || undefined,
+            officialGazetteNumber: lawRow.official_gazette_number || undefined,
+            publicationDate: lawRow.publication_date
+              ? String(lawRow.publication_date).slice(0, 10)
+              : undefined,
+          },
         })
         setLoading(false)
         return
@@ -293,6 +325,67 @@ export function PdfDownloadPage() {
             العودة إلى المكتبة والملخصات
           </Link>
         </div>
+
+        {/* نص القانون — يظهر للقانون الذي يملك محتوى في عمود content
+            (نفس النص المولّد ثابتاً في prerender، هنا client-side للزوار) */}
+        {target.content && lawParagraphs.length > 0 && (
+          <section
+            className="mt-8 rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8"
+            dir="rtl"
+            aria-label="نص القانون"
+          >
+            {target.lawMeta &&
+              (target.lawMeta.lawNumber ||
+                target.lawMeta.officialGazetteNumber ||
+                target.lawMeta.publicationDate) && (
+                <div className="mb-5 flex flex-wrap gap-2">
+                  {target.lawMeta.lawNumber && (
+                    <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+                      رقم القانون: {target.lawMeta.lawNumber}
+                    </span>
+                  )}
+                  {target.lawMeta.officialGazetteNumber && (
+                    <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+                      الجريدة الرسمية: {target.lawMeta.officialGazetteNumber}
+                    </span>
+                  )}
+                  {target.lawMeta.publicationDate && (
+                    <span className="rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+                      تاريخ الصدور: {target.lawMeta.publicationDate}
+                    </span>
+                  )}
+                </div>
+              )}
+
+            {target.description && (
+              <p className="mb-5 text-sm leading-relaxed text-muted-foreground">
+                <strong className="text-foreground">الموجز: </strong>
+                {target.description}
+              </p>
+            )}
+
+            <h2 className="mb-4 text-base font-bold text-foreground">نص القانون</h2>
+            <div className="space-y-3 text-sm leading-7 text-foreground">
+              {lawParagraphs.map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
+
+            <p className="mt-6 border-t border-border pt-4 text-[11px] leading-5 text-muted-foreground">
+              هذا النص لأغراض تعليمية وبحثية ولا يغني عن الصياغة الرسمية
+              النافذة — راجع الجريدة الرسمية عبر{" "}
+              <a
+                href="https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-primary hover:underline"
+              >
+                الأمانة العامة للحكومة
+              </a>
+              .
+            </p>
+          </section>
+        )}
       </main>
     </>
   )

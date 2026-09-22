@@ -16,7 +16,7 @@ const mdLink = (label, url, description) =>
  * @param {object} input
  * @param {string} input.domain        النطاق القانوني بدون "/" نهائي
  * @param {string} input.generatedAt   طابع زمني ISO
- * @param {{articles:number,news:number,events:number,schools:number,lexicon:number,documents:number}} input.statistics
+ * @param {{articles:number,news:number,events:number,schools:number,lexicon:number,documents:number,faq:number,quiz:number}} input.statistics
  * @param {number} input.totalContent
  * @param {string[]} input.legalDomains
  * @param {string[]} input.articleCategories
@@ -72,7 +72,12 @@ ${["s1", "s2", "s3", "s4", "s5", "s6"]
 - الفعاليات والندوات: ${statistics.events}
 - كليات الحقوق: ${statistics.schools}
 - المستندات الدراسية: ${statistics.documents}
+- الأسئلة الشائعة: ${statistics.faq}
+- أسئلة الاختبارات: ${statistics.quiz}
 - **إجمالي السجلات: ${totalContent}**
+
+- **النسخة الكاملة بكل النصوص:** [llms-full.txt](${DOMAIN}/llms-full.txt) — المقالات والقوانين والمصطلحات والكليات والأسئلة كاملة
+- **البيانات المهيكّلة كاملة:** [reference/index.json](${DOMAIN}/reference/index.json) — كل مجموعة JSON + Markdown
 
 ## المجالات القانونية المغطاة
 
@@ -110,6 +115,7 @@ ${mdLink("وزارة التعليم العالي", "https://www.enssup.gov.ma/",
 ${mdLink("خريطة الموقع", `${DOMAIN}/sitemap.xml`, "كل الروابط القابلة للفهرسة")}
 ${mdLink("تغذية RSS", `${DOMAIN}/feed.xml`, "آخر المستجدات")}
 ${mdLink("النسخة الموسعة llms-full.txt", `${DOMAIN}/llms-full.txt`, "المحتوى كاملاً للنماذج اللغوية")}
+${mdLink("طبقة المرجعيات (JSON/Markdown)", `${DOMAIN}/reference/index.json`, "كل بيانات الموقع مهيكّلة: 9 مجموعات، رابط قانوني لكل سجل")}
 
 ## اكتشاف الوكيل (Agent discovery)
 

@@ -42,6 +42,79 @@
           }
         }
       }
+    },
+    "/reference/index.json": {
+      "get": {
+        "operationId": "getReferenceIndex",
+        "summary": "AI reference hub — machine-readable catalog of every content dataset",
+        "responses": {
+          "200": {
+            "description": "Reference index: datasets, record counts, file URLs, URL patterns"
+          }
+        }
+      }
+    },
+    "/reference/{dataset}.json": {
+      "get": {
+        "operationId": "getReferenceDataset",
+        "summary": "One reference dataset as structured JSON (every record with its canonical URL)",
+        "parameters": [
+          {
+            "name": "dataset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["articles", "news", "lexicon", "schools", "events", "docs", "laws", "faq", "quiz"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dataset JSON"
+          },
+          "404": {
+            "description": "Unknown dataset"
+          }
+        }
+      }
+    },
+    "/reference/{dataset}.md": {
+      "get": {
+        "operationId": "getReferenceDatasetMarkdown",
+        "summary": "One reference dataset as readable Markdown with links",
+        "parameters": [
+          {
+            "name": "dataset",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["articles", "news", "lexicon", "schools", "events", "docs", "laws", "faq", "quiz"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dataset Markdown"
+          },
+          "404": {
+            "description": "Unknown dataset"
+          }
+        }
+      }
+    },
+    "/mcp": {
+      "post": {
+        "operationId": "mcpJsonRpc",
+        "summary": "MCP (Model Context Protocol) JSON-RPC endpoint — read-only tools incl. reference search",
+        "description": "Streamable-HTTP MCP. Methods: initialize, tools/list, tools/call. Tools: mizan_site_info, mizan_resource_links, mizan_reference_index, mizan_reference_search.",
+        "responses": {
+          "200": {
+            "description": "JSON-RPC response"
+          }
+        }
+      }
     }
   }
 }

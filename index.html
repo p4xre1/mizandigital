@@ -74,6 +74,8 @@
     <link rel="alternate" hreflang="x-default" href="https://www.mizan.page">
     <link rel="alternate" type="application/rss+xml" title="ميزان الرقمية — آخر المقالات والمستجدات" href="https://www.mizan.page/feed.xml">
     <link rel="sitemap" type="application/xml" href="https://www.mizan.page/sitemap.xml">
+    <link rel="ard" type="application/json" href="https://www.mizan.page/.well-known/ard.json">
+    <link rel="ai-catalog" type="application/json" href="https://www.mizan.page/.well-known/ai-catalog.json">
 
     <!-- Open Graph - Optimized for organic -->
     <meta property="og:type" content="website">
@@ -222,34 +224,6 @@
           }
         ]
       }
-    </script>
-
-    <!-- Google Analytics: deferred to idle, timeout 4s to not block LCP -->
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){window.dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag("consent","default",{analytics_storage:"denied",wait_for_update:500});
-
-      function loadMizanAnalytics(){
-        if(window.__mizanAnalyticsLoaded) return;
-        window.__mizanAnalyticsLoaded = true;
-        try {
-          if(window.localStorage.getItem("mizan-cookie-consent")==="granted") {
-            gtag("consent","update",{analytics_storage:"granted"});
-          }
-        } catch(e) {}
-        var id="%VITE_GA_ID%";
-        if(!id || id.indexOf("%")===0) return;
-        gtag("js",new Date());
-        gtag("config",id,{anonymize_ip:true, send_page_view:false});
-        var s=document.createElement("script");
-        s.async=true;
-        s.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(id);
-        document.head.appendChild(s);
-      }
-      if("requestIdleCallback" in window) requestIdleCallback(loadMizanAnalytics,{timeout:4000});
-      else window.addEventListener("load",function(){setTimeout(loadMizanAnalytics,2500)},{once:true});
     </script>
   </head>
   <body>

@@ -35,6 +35,7 @@ export interface ProfileRow {
   city: string | null
   bio: string | null
   occupation?: string | null
+  faculty_id?: string | null
   share_location?: boolean | null
   bio_public?: boolean | null
   avatar_url?: string | null
@@ -101,6 +102,7 @@ const PROFILE_COLUMNS = [
   "city",
   "bio",
   "occupation",
+  "faculty_id",
   "share_location",
   "bio_public",
   "avatar_url",
@@ -151,6 +153,7 @@ export function mapRowToProfile(row: ProfileRow): PublicProfile {
     city: row.city ?? null,
     bio: row.bio ?? null,
     occupation: row.occupation ?? null,
+    facultyId: row.faculty_id ?? null,
     shareLocation: row.share_location ?? false,
     bioPublic: row.bio_public ?? true,
     isPublic: row.is_public ?? true,
@@ -276,6 +279,7 @@ export async function saveMyProfile(
     city: profile.city ?? null,
     bio: profile.bio ?? null,
     occupation: profile.occupation ?? null,
+    faculty_id: profile.facultyId ?? null,
     share_location: profile.shareLocation ?? false,
     bio_public: profile.bioPublic ?? true,
     avatar_url: profile.avatarUrl ?? null,

@@ -1,7 +1,7 @@
 # Canonical: https://www.mizan.page/robots.txt
 
 # =====================================================
-# Mizan Digital — LegalTech Platform robots.txt
+# Mizan Digital - LegalTech Platform robots.txt
 # Global indexing & AI-friendly optimization enabled
 # =====================================================
 
@@ -16,9 +16,6 @@ Content-Signal: search=yes, ai-input=yes, ai-train=yes
 # =====================================================
 # 2. Meta / Facebook / WhatsApp
 # =====================================================
-
-User-agent: FacebookExternalHit
-Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
@@ -102,7 +99,7 @@ Allow: /
 User-agent: img2dataset
 Allow: /
 
-# You.com, etc
+# You.com
 User-agent: YouBot
 Allow: /
 
@@ -133,9 +130,6 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-User-agent: CCBot
-Allow: /
-
 User-agent: PetalBot
 Allow: /
 
@@ -153,14 +147,23 @@ Allow: /
 # A2A: https://www.mizan.page/.well-known/agent-card.json
 # Agent Skills: https://www.mizan.page/.well-known/agent-skills/index.json
 # AI Catalog: https://www.mizan.page/.well-known/ai-catalog.json
+# ARD (v0.91): https://www.mizan.page/.well-known/ard.json
 # MCP: https://www.mizan.page/.well-known/mcp/server-card.json
+# AI Reference (all content as JSON/MD): https://www.mizan.page/reference/index.json
+
+# Agentmap directive (ARD spec) - entry source for agent registries
+Agentmap: https://www.mizan.page/.well-known/ard.json
 
 # =====================================================
 # 7. Sitemap + AI Discovery
 # =====================================================
 
 Sitemap: https://www.mizan.page/sitemap.xml
-Sitemap: https://www.mizan.page/llms.txt
+
+# Note: llms.txt is NOT listed as a Sitemap because it is not an XML
+# sitemap - listing it would show as an invalid sitemap in Google Search
+# Console. Bots find it at the domain root by convention, and it is also
+# advertised via the Link header in public/_headers.
 
 # llms.txt: https://www.mizan.page/llms.txt
 # ai.txt: https://www.mizan.page/ai.txt

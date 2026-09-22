@@ -6,7 +6,8 @@ Allow: /
 
 # AI-friendly content declaration
 # Language: ar-MA (Arabic, Morocco)
-# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 9 docs, 3 events
+# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 9 docs, 3 events, 39 FAQ, 84 quiz questions
+# (counts are the local baseline — published CMS content adds laws/articles/news; see /reference/index.json)
 
 # Primary sections:
 # - /articles — Legal articles
@@ -20,7 +21,9 @@ Allow: /
 # Structured data:
 # - JSON-LD: Article, FAQPage, BreadcrumbList, Organization, WebSite, EducationalOrganization
 # - llms.txt: https://www.mizan.page/llms.txt
-# - llms-full.txt: https://www.mizan.page/llms-full.txt
+# - llms-full.txt: https://www.mizan.page/llms-full.txt (full text of every dataset)
+# - AI reference (all content as JSON + Markdown): https://www.mizan.page/reference/index.json
+# - MCP endpoint (tools incl. reference search): https://www.mizan.page/mcp
 # - sitemap.xml: https://www.mizan.page/sitemap.xml
 
 # E-E-A-T signals:

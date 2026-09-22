@@ -35,7 +35,10 @@ const TABLE_QUERIES = {
   // السابق يطلبه، فجلب صفر أخبار من CMS طوال الوقت بصمت).
   news: `select=id,title,slug,summary,content,source,image_url,published_at,created_at&is_published=eq.true&order=published_at.desc.nullslast&limit=${LIMIT}`,
   pdf_summaries: `select=id,title,slug,description,semester,professor,file_url,updated_at,created_at&status=eq.published&order=created_at.desc&limit=${LIMIT}`,
-  laws: `select=id,title,slug,law_number,description,created_at,updated_at&order=created_at.desc&limit=${LIMIT}`,
+  // content: نص القانون (نص صافٍ، فقرات مفصولة بسطر فارغ) — يُعرض في
+  // صفحة القانون الثابتة وفي llms-full.txt. official_gazette_number و
+  // publication_date يظهران كبيانات وصفية على الصفحة وفي JSON-LD.
+  laws: `select=id,title,slug,law_number,official_gazette_number,publication_date,description,content,created_at,updated_at&order=created_at.desc&limit=${LIMIT}`,
 };
 
 async function fetchTable(name, queryString, { timeoutMs, signal }) {
