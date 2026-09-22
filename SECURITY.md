@@ -211,16 +211,35 @@ vitest لا يستطيع اختبار RLS والمُشغّلات. تم التح�
    القائمة البيضاء تسدّ المسار الواقعي، لكن الإغلاق الكامل يتطلب إضافة
    `content-type` إلى `SignedHeaders` في `functions/_shared/r2sign.js` — لم
    يُنفَّذ لأنه يغيّر آلية التوقيع ولا يمكن التحقق منه هنا دون دلو R2 حقيقي.
-3. **`script-src 'unsafe-inline'` في CSP (احتياط قديم فقط)**: نُقل سكربت GA
-   المضمّن إلى الحزمة (`src/lib/analytics/gtag.ts`)، وعُزّزت السياسة في
-   `public/_headers` إلى `'strict-dynamic'` + hashes (hash الحزمة يُملأ وقت
-   البناء عبر `scripts/csp-hashes.mjs`). في متصفحات CSP3 تُتجاهل
-   `'unsafe-inline'` و`'self'` وقائمة المضيفين بمجرد وجود hash، فلا يعمل إلا
-   السكربتات المُجزّأة وما يحقنه سكربت موثوق (trust chain) — وهذا النمط
-   «غير القابل للتجاوز» حسب معياري Lighthouse (csp-xss) وتوثيق Google
-   الرسمية. بقاؤهما في السياسة احتياط للمتصفحات الأقدم فقط (موصى به رسمياً)،
-   فلا يعد ثغرة قابلة للاستغلال. أُضيف أيضاً `require-trusted-types-for
-   'script'` (توثيق trusted-types-xss).
+3. **درس CSP من عطل إنتاج حقيقي (سُجّل هنا بصدق)**: السياسة السابقة كانت
+   `script-src 'self' 'unsafe-inline' 'strict-dynamic' 'sha256-<inline>'
+   'sha256-<entry>'`، وكانت **تكسر الموقع بالكامل** في المتصفحات الحديثة:
+   وحدة التحكم ترجع `Loading the script
+   'https://www.mizan.page/assets/index-*.js' violates … "script-src 'self'
+   'unsafe-inline' 'strict-dynamic' …". The action has been blocked.`
+   السبب فقهي بحت: حسب CSP3 §6.7.2.4 لا يطابق hash في `script-src` سكربتاً
+   **خارجياً** إلا إذا حمل وسم `<script>` نفسه `integrity` بالـhash ذاته
+   (المواصفة تُحيل فرض البايتات إلى SRI). وسم الحزمة عندنا بلا `integrity`،
+   ومع `'strict-dynamic'` تُتجاهل `'self'` وقائمة المضيفين ⇒ لا مسار يسمح
+   بالحزمة، فيموت التطبيق كله (لا React ولا توجيه ولا تفاعل). المفارقة أن
+   `'unsafe-inline'` في السياسة لم تكن تحمي شيئاً: وجود hash يُلغي مفعولها في
+   CSP2+، فكانت إيهاماً بمزيد من التسامح لا أكثر.
+   السياسة الحالية: `script-src 'self' 'sha256-<inline>' https://www.googletagmanager.com
+   https://*.google-analytics.com https://challenges.cloudflare.com
+   https://www.gstatic.com` — الحزمة تُسمح عبر `'self'` (نفس الأصل)، وسكربت
+   السمة المضمّن الوحيد عبر hash يملأه البناء، ومحمّل GA عبر قائمة المضيفين
+   (لم يعد يحتاج trust chain)، ولا `'unsafe-inline'` ولا `'unsafe-eval'`.
+   الحماية من الحقن لم تنقص: كل سكربت مضمّن بلا hash يُحجب، و`object-src
+   'none'` و`base-uri 'self'` و`frame-ancestors 'self'` كما هي.
+   كذلك أُزيل `require-trusted-types-for 'script'`: كان يفرض Trusted Types بلا
+   `default policy`، وReact 18 ينشئ عناصر `<script>` (وسوم JSON-LD عندنا) عبر
+   `innerHTML` داخلياً — `"script"===c?(…,a.innerHTML="<script>…` — فيرمي
+   المتصفح `TypeError` أثناء الرسم. إعادته تشترط أولاً `createPolicy("default")`
+   في الشيفرة؛ الاختبار `tests/csp.test.ts` يمنع إعادته بلا ذلك.
+   دروس البناء المرتبطة: `scripts/csp-hashes.mjs` صار **يتحقق أن السياسة تسمح
+   فعلاً بما بُني** (وسوم بلا integrity + `'strict-dynamic'` ⇒ إسقاط البناء)،
+   و`npm run preview:prod` يقدّم `dist/` بترويسات `dist/_headers` الحقيقية لأن
+   `vite dev` و`vite preview` لا يقرآن `_headers` — ولهذا لم يظهر العطل محلياً.
 4. **فلاتر السبام قائمة على الأنماط**: مهاجم مصمم يتجاوزها. الحماية الفعلية
    ضد الفيض هي تحديد المعدل + `is_approved = false` + مراجعة يدوية في لوحة
    التحكم.
