@@ -18,11 +18,15 @@ const OUTPUT_FULL = join(__dirname, "../public/llms-full.txt");
 import {
   SITE_ORIGIN as DOMAIN,
   canonicalHome,
+  contentSlug,
+  docSlug,
+  eventSlug,
   lexiconSlug,
   newsSlug,
   articleSlug,
   schoolSlug,
 } from "../shared/seo/url-policy.js";
+import { fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 
 const readJson = async (name) => {
   try {
@@ -32,15 +36,79 @@ const readJson = async (name) => {
   }
 };
 
-const [articles, news, lexicon, schools, documents, events, faqGroups] = await Promise.all([
-  readJson("articles.json"),
-  readJson("news.json"),
-  readJson("lexicon.json"),
-  readJson("schools.json"),
-  readJson("docs.json"),
-  readJson("events.json"),
-  readJson("faq.json"),
-]);
+const [articles, news, lexicon, schools, documents, events, faqGroups, quizQuestions] =
+  await Promise.all([
+    readJson("articles.json"),
+    readJson("news.json"),
+    readJson("lexicon.json"),
+    readJson("schools.json"),
+    readJson("docs.json"),
+    readJson("events.json"),
+    readJson("faq.json"),
+    readJson("quiz-questions.json"),
+  ]);
+
+// محتوى الـ CMS المنشور: فشل الجلب غير قاتل (بناء معزول/بلا مفاتيح) —
+// يُكتفى بالبيانات المحلية، كما في generate-sitemap.mjs.
+const { ok: cmsOk, error: cmsError, articles: cmsArticles, news: cmsNews, pdfs: cmsPdfs, laws: cmsLaws } =
+  await fetchPublishedCmsContent();
+
+if (!cmsOk) {
+  console.warn(`⚠️  llms-full: ${cmsError} — بلا محتوى CMS (laws/articles/news).`);
+}
+
+// ترتيب slugs مطابق لـ generate-sitemap.mjs (docs ثم pdfs ثم laws) حتى
+// يطابق الروابط المنشورة في llms-full.txt صفحات /pdf/<slug> الفعلية.
+const docTaken = new Set();
+const docEntries = [
+  ...documents.map((item) => ({ ...item, slug: docSlug(item, docTaken) })),
+  ...cmsPdfs.map((item) => ({ ...item, slug: docSlug(item, docTaken) })),
+];
+const lawEntries = cmsLaws.map((item) => ({ ...item, slug: docSlug(item, docTaken) }));
+
+// المقالات والمستجدات: local أولاً (الأول يفوز بالـ slug) ثم CMS —
+// نفس ترتيب prerender وgenerate-sitemap.
+const localArticleSlugs = new Set(articles.map((a) => articleSlug(a)));
+const allArticles = [
+  ...articles.map((a) => ({
+    title: a.title,
+    url: `/articles/${articleSlug(a)}`,
+    excerpt: a.excerpt || "",
+    date: a.publishedAt || null,
+    content: Array.isArray(a.body) ? a.body.join("\n\n") : String(a.body || a.content || "").trim(),
+  })),
+  ...cmsArticles
+    .filter((a) => !localArticleSlugs.has(contentSlug(a)))
+    .map((a) => ({
+      title: a.title,
+      url: `/articles/${contentSlug(a)}`,
+      excerpt: a.meta_description || a.excerpt || "",
+      date: a.published_at || a.created_at || null,
+      content: String(a.content || "").trim(),
+    })),
+];
+
+const localNewsSlugs = new Set(news.map((n) => newsSlug(n)));
+const allNews = [
+  ...news.map((n) => ({
+    title: n.title,
+    url: `/news/${newsSlug(n)}`,
+    excerpt: n.summary || "",
+    date: n.date || null,
+    source: n.source || n.author || null,
+    content: String(n.content || "").trim(),
+  })),
+  ...cmsNews
+    .filter((n) => !localNewsSlugs.has(contentSlug(n)))
+    .map((n) => ({
+      title: n.title,
+      url: `/news/${contentSlug(n)}`,
+      excerpt: n.summary || "",
+      date: n.published_at || n.created_at || null,
+      source: n.source || null,
+      content: String(n.content || "").trim(),
+    })),
+];
 
 const clamp = (value, max = 200) => {
   const text = String(value ?? "").replace(/\s+/g, " ").trim();
@@ -53,13 +121,15 @@ const link = (title, path, description) =>
   description ? `- [${title}](${DOMAIN}${path}): ${clamp(description)}` : `- [${title}](${DOMAIN}${path})`;
 
 const counts = {
-  articles: articles.length,
-  news: news.length,
+  articles: allArticles.length,
+  news: allNews.length,
   lexicon: lexicon.length,
   schools: schools.length,
-  documents: documents.length,
+  documents: docEntries.length,
   events: events.length,
+  laws: lawEntries.length,
   faq: Array.isArray(faqGroups) ? faqGroups.reduce((acc, g) => acc + (g.items?.length || 0), 0) : 0,
+  quiz: Array.isArray(quizQuestions) ? quizQuestions.length : 0,
 };
 const total = Object.values(counts).reduce((a, b) => a + b, 0);
 
@@ -82,7 +152,7 @@ lines.push(
 );
 lines.push("");
 lines.push(
-  `المحتوى باللغة العربية (ar-MA). يضم ${total} سجلاً: ${counts.articles} مقالاً، ${counts.news} خبراً، ${counts.lexicon} مصطلحاً قانونياً، ${counts.schools} كلية، ${counts.documents} مستنداً، ${counts.events} فعالية، ${counts.faq} سؤالاً شائعاً.`
+  `المحتوى باللغة العربية (ar-MA). يضم ${total} سجلاً: ${counts.articles} مقالاً، ${counts.news} خبراً، ${counts.lexicon} مصطلحاً قانونياً، ${counts.schools} كلية، ${counts.documents} مستنداً، ${counts.laws} نصاً قانونياً، ${counts.events} فعالية، ${counts.faq} سؤالاً شائعاً، ${counts.quiz} سؤال اختبار.`
 );
 lines.push("");
 lines.push(
@@ -118,20 +188,41 @@ lines.push(link("دليل الموقع للذكاء الاصطناعي", "/llms.
 lines.push(link("خريطة الموقع", "/sitemap.xml", "كل الروابط القابلة للفهرسة (320 route)"));
 lines.push("");
 
-lines.push("## المقالات (AEO: إجابات مفصلة)");
+// الفهرس الأوسط: كل المقالات/المستجدات (local + CMS) بمقتطف قصير —
+// والنصوص الكاملة نفسها في قسم «المحتوى الكامل» أدناه.
+lines.push(`## المقالات (AEO: إجابات مفصلة) — ${allArticles.length}`);
 lines.push("");
-for (const article of articles) {
-  lines.push(link(article.title, `/articles/${articleSlug(article)}`, article.excerpt));
+for (const article of allArticles) {
+  lines.push(link(article.title, article.url, article.excerpt));
 }
 lines.push("");
 
-lines.push("## المستجدات التشريعية والقضائية");
+lines.push(`## المستجدات التشريعية والقضائية — ${allNews.length}`);
 lines.push("");
-for (const item of news) {
-  const slug = newsSlug(item);
-  lines.push(link(item.title, `/news/${slug}`, item.summary));
+for (const item of allNews) {
+  lines.push(link(item.title, item.url, item.excerpt));
 }
 lines.push("");
+
+if (lawEntries.length > 0) {
+  lines.push(`## النصوص القانونية (${lawEntries.length})`);
+  lines.push("");
+  lines.push(
+    "نصوص تشريعية مغربية: رقم القانون، الجريدة الرسمية، تاريخ الصدور، والموجز. النص الكامل لكل قانون في صفحته تحت /pdf/ وسفله في هذا الملف."
+  );
+  lines.push("");
+  for (const law of lawEntries) {
+    const meta = [
+      law.law_number ? `رقم ${law.law_number}` : "",
+      law.official_gazette_number ? `ج.ر ${law.official_gazette_number}` : "",
+      law.publication_date ? String(law.publication_date).slice(0, 10) : "",
+    ]
+      .filter(Boolean)
+      .join("، ");
+    lines.push(link(law.title, `/pdf/${law.slug}`, meta || law.description || "نص قانوني مغربي"));
+  }
+  lines.push("");
+}
 
 lines.push("## كليات الحقوق (21 كلية)");
 lines.push("");
@@ -164,14 +255,15 @@ lines.push(link("اختبارات المباريات", "/quiz/concours", "الأ
 lines.push(link("اختبارات المقابلات", "/quiz/interview", "مقابلات التدريب والعمل القانوني وأخلاقيات المهنة"));
 lines.push("");
 
+// FAQ كاملة — كل المجموعات وكل الأسئلة بأجوبتها غير المقطوعة (AEO)
 if (faqGroups && faqGroups.length > 0) {
-  lines.push("## الأسئلة الشائعة (FAQ — AEO)");
+  lines.push(`## الأسئلة الشائعة (FAQ — AEO) — كاملة (${counts.faq})`);
   lines.push("");
-  for (const group of faqGroups.slice(0, 5)) {
+  for (const group of faqGroups) {
     lines.push(`### ${group.title || group.category}`);
-    for (const item of (group.items || []).slice(0, 5)) {
+    for (const item of group.items || []) {
       lines.push(`**س: ${item.question}**`);
-      lines.push(`ج: ${clamp(item.answer, 300)}`);
+      lines.push(`ج: ${item.answer}`);
       lines.push("");
     }
   }
@@ -200,6 +292,7 @@ lines.push("## واجهات آلية للذكاء الاصطناعي");
 lines.push("");
 lines.push("- [llms.txt](https://www.mizan.page/llms.txt): هذا الملف — وصف كامل للموقع (26KB)");
 lines.push("- [llms-full.txt](https://www.mizan.page/llms-full.txt): نسخة موسعة بكل المحتوى (لـ ChatGPT/Claude)");
+lines.push("- [AI Reference](https://www.mizan.page/reference/index.json): كل البيانات مهيكّلة (JSON + Markdown) — 9 مجموعات برابط قانوني لكل سجل؛ ابدأ من index.json");
 lines.push("- [ai.txt](https://www.mizan.page/ai.txt): دليل مبسط لوكلاء AI");
 lines.push("- [MCP endpoint](https://www.mizan.page/mcp): Model Context Protocol — أدوات قراءة عامة");
 lines.push("- [AI catalog](https://www.mizan.page/.well-known/ai-catalog.json): فهرس المحتوى للوكلاء");
@@ -220,21 +313,139 @@ lines.push("");
 
 // === FULL VERSION ===
 // لا تُكتب النسخة المختصرة هنا (انظر رأس الملف): تبقى ملك generate-llms.mjs.
+// هذه النسخة = التصدير الكامل: كل نص في كل مجموعة بيانات، بلا تقطيع —
+// (البيانات المهيكّلة الكاملة مقابلها في public/reference/*.json).
 const fullLines = [...lines];
-fullLines.push("\n## كل المصطلحات القانونية (250)");
+fullLines.push(`## المحتوى الكامل — كل مجموعات البيانات (تصدير النسخة الكاملة)`);
+fullLines.push("");
+fullLines.push(
+  "أقسام هذا الملف تحمل النصوص كاملةً دون تقطيع. للبيانات المهيكّلة كاملة (كل الحقول): /reference/<name>.json لكل مجموعة: articles, news, lexicon, schools, events, docs, laws, faq, quiz."
+);
+fullLines.push("");
+
+fullLines.push(`## كل المعجم القانوني (${lexicon.length}) — التعريفات كاملة`);
 fullLines.push("");
 for (const term of lexiconSlugs) {
-  fullLines.push(link(term.term_ar, `/lexicon/${term.slug}`, term.definition));
-}
-fullLines.push("");
-fullLines.push("## كل المقالات");
-fullLines.push("");
-for (const article of articles) {
-  fullLines.push(`### ${article.title}`);
-  fullLines.push(`${DOMAIN}/articles/${articleSlug(article)}`);
-  fullLines.push(clamp(article.content || article.excerpt, 500));
+  fullLines.push(`### ${term.term_ar}${term.term_fr ? ` — ${term.term_fr}` : ""}`);
+  fullLines.push(`${DOMAIN}/lexicon/${term.slug}`);
+  if (term.definition) fullLines.push(term.definition);
+  if (term.simple_explanation) fullLines.push(`ببساطة: ${term.simple_explanation}`);
   fullLines.push("");
 }
 
+fullLines.push(`## كل المقالات (${allArticles.length}) — النصوص الكاملة`);
+fullLines.push("");
+for (const article of allArticles) {
+  fullLines.push(`### ${article.title}`);
+  fullLines.push(`${DOMAIN}${article.url}${article.date ? ` — ${String(article.date).slice(0, 10)}` : ""}`);
+  fullLines.push(article.content);
+  fullLines.push("");
+}
+
+fullLines.push(`## كل المستجدات (${allNews.length}) — النصوص الكاملة`);
+fullLines.push("");
+for (const item of allNews) {
+  fullLines.push(`### ${item.title}`);
+  fullLines.push(
+    `${DOMAIN}${item.url}${item.date ? ` — ${String(item.date).slice(0, 10)}` : ""}${item.source ? ` — ${item.source}` : ""}`
+  );
+  fullLines.push(item.content);
+  fullLines.push("");
+}
+
+if (lawEntries.length > 0) {
+  fullLines.push(`## كل النصوص القانونية — النصوص الكاملة (${lawEntries.length})`);
+  fullLines.push("");
+  fullLines.push(
+    "النص الكامل كما هو في قاعدة بيانات المنصة (نص صافٍ). المحتوى تعليمي وبحثي، والصياغة الرسمية النافذة تُتحقق منها عبر الجريدة الرسمية (sgg.gov.ma)."
+  );
+  fullLines.push("");
+  for (const law of lawEntries) {
+    fullLines.push(`### ${law.title}`);
+    fullLines.push(`${DOMAIN}/pdf/${law.slug}`);
+    const meta = [
+      law.law_number ? `رقم ${law.law_number}` : "",
+      law.official_gazette_number ? `ج.ر ${law.official_gazette_number}` : "",
+      law.publication_date ? `تاريخ الصدور: ${String(law.publication_date).slice(0, 10)}` : "",
+    ]
+      .filter(Boolean)
+      .join(" — ");
+    if (meta) fullLines.push(meta);
+    if (law.description) fullLines.push(`الموجز: ${law.description}`);
+    const body = String(law.content || "").trim();
+    if (body) {
+      // 12000 حرف يكفي للنص التعليمي الطويل ويمنع تضخم الملف بلا فائدة
+      fullLines.push(body.length > 12000 ? `${body.slice(0, 12000)}… (المتابعة في الصفحة)` : body);
+    }
+    fullLines.push("");
+  }
+}
+
+fullLines.push(`## كل كليات الحقوق (${schools.length}) — التفاصيل`);
+fullLines.push("");
+for (const school of schools) {
+  fullLines.push(`### ${school.name}`);
+  fullLines.push(`${DOMAIN}/schools/${schoolSlug(school)}`);
+  fullLines.push([school.university, school.city].filter(Boolean).join(" — "));
+  if (school.studyAreas?.length) fullLines.push(`التخصصات: ${school.studyAreas.join("، ")}`);
+  if (school.synopsis) fullLines.push(school.synopsis);
+  if (school.officialUrl) fullLines.push(`الموقع الرسمي: ${school.officialUrl}`);
+  fullLines.push("");
+}
+
+fullLines.push(`## كل الفعاليات (${events.length})`);
+fullLines.push("");
+for (const event of events) {
+  fullLines.push(`### ${event.title}`);
+  fullLines.push(`${DOMAIN}/events/${eventSlug(event)}`);
+  fullLines.push([event.organizer, event.venue || event.city].filter(Boolean).join(" — "));
+  if (event.eventDate) fullLines.push(`التاريخ: ${event.eventDate} ${event.time || ""}`.trim());
+  if (event.topics?.length) fullLines.push(`المواضيع: ${event.topics.join("، ")}`);
+  if (event.excerpt) fullLines.push(event.excerpt);
+  fullLines.push("");
+}
+
+fullLines.push(`## كل الأرشيف الدراسي (${docEntries.length}) — الملفات والملخصات`);
+fullLines.push("");
+for (const doc of docEntries) {
+  const context = [
+    doc.semester ? `الفصل ${String(doc.semester).toUpperCase()}` : "",
+    doc.module || "",
+    doc.professor ? `الأستاذ(ة): ${doc.professor}` : "",
+  ]
+    .filter(Boolean)
+    .join(" — ");
+  fullLines.push(
+    `- **${doc.title}**${context ? ` — ${context}` : ""}: ${DOMAIN}/pdf/${doc.slug}` +
+      (doc.description ? ` — ${clamp(doc.description, 200)}` : "")
+  );
+}
+fullLines.push("");
+
+fullLines.push(`## كل أسئلة الاختبارات (${quizQuestions.length}) — كاملة`);
+fullLines.push("");
+fullLines.push(
+  "أربعة مسارات: university (S1-S6 حسب المادة)، general، concours، interview. الإجابة مخزنة ترقيماً فاستُبدلت هنا بنص الخيار. النسخة المهيكّلة كاملة: /reference/quiz.json."
+);
+fullLines.push("");
+for (const q of quizQuestions) {
+  const context = [
+    q.tier === "university" ? [q.semester, q.module].filter(Boolean).join(" — ") : q.tier,
+    q.difficulty,
+  ]
+    .filter(Boolean)
+    .join(" — ");
+  fullLines.push(`- **${context}**: ${q.question}`);
+  for (const [i, opt] of (q.options || []).entries()) {
+    fullLines.push(`  - ${"أبجدهو".charAt(i) || i + 1}) ${opt}`);
+  }
+  if (q.answer != null) {
+    const answerText = typeof q.answer === "number" && q.options?.[q.answer] ? q.options[q.answer] : q.answer;
+    fullLines.push(`  - **الإجابة:** ${answerText}`);
+  }
+  if (q.explanation) fullLines.push(`  - **التفسير:** ${q.explanation}`);
+}
+fullLines.push("");
+
 await writeFile(OUTPUT_FULL, `${fullLines.join("\n")}\n`, "utf8");
-console.log(`✓ public/llms-full.txt — ${fullLines.length} سطراً`);
+console.log(`✓ public/llms-full.txt — ${fullLines.length} سطراً، ${total} سجلاً (${cmsOk ? "" : "بلا CMS "})`);

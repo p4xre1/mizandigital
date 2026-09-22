@@ -29,8 +29,9 @@ const viteConfig = read("vite.config.ts");
 const llms = buildLlmsTxt({
   domain: "https://www.mizan.page",
   generatedAt: "2026-09-16T00:00:00.000Z",
-  statistics: { articles: 8, news: 13, events: 3, schools: 21, lexicon: 250, documents: 9 },
-  totalContent: 304,
+  // نفس شكل إحصاءات prerender (faq + quiz مكتملان — 427 سجلاً)
+  statistics: { articles: 8, news: 13, events: 3, schools: 21, lexicon: 250, documents: 9, faq: 39, quiz: 84 },
+  totalContent: 427,
   legalDomains: ["قانون مدني", "قانون تجاري"],
   articleCategories: ["القانون المدني"],
   faqTopics: ["عام حول المنصة"],

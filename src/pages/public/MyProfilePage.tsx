@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { DeleteAccountSection } from "@/components/profile/DeleteAccountSection"
+import { ResumeEditor } from "@/components/profile/ResumeEditor"
+import { supabase } from "@/lib/supabase/client"
 import {
   AlertCircle,
   BriefcaseBusiness,
@@ -121,6 +123,8 @@ export function MyProfilePage() {
   const [city, setCity] = useState("")
   const [bio, setBio] = useState("")
   const [occupation, setOccupation] = useState("")
+  const [facultyId, setFacultyId] = useState("")
+  const [faculties, setFaculties] = useState<Array<{ id: string; name: string }>>([])
   const [headline, setHeadline] = useState("")
   const [avatarUrl, setAvatarUrl] = useState("")
   const [coverUrl, setCoverUrl] = useState("")
@@ -159,6 +163,7 @@ export function MyProfilePage() {
     setCity(profile.city ?? "")
     setBio(profile.bio ?? "")
     setOccupation(profile.occupation ?? "")
+    setFacultyId(profile.facultyId ?? "")
     setHeadline(profile.headline ?? "")
     setAvatarUrl(profile.avatarUrl ?? "")
     setCoverUrl(profile.coverUrl ?? "")
@@ -182,6 +187,22 @@ export function MyProfilePage() {
     fetchRankBoard(12).then((rows) => {
       if (mounted) setBoard(rows)
     })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  // قائمة الكليات (faculties) لمجالس «كليتي» في البروفايل
+  useEffect(() => {
+    let mounted = true
+    void (async () => {
+      try {
+        const { data, error } = await supabase.from("faculties").select("id, name")
+        if (mounted && !error && data) setFaculties(data as Array<{ id: string; name: string }>)
+      } catch (err) {
+        console.error("خطأ في جلب الكليات:", err)
+      }
+    })()
     return () => {
       mounted = false
     }
@@ -323,6 +344,7 @@ export function MyProfilePage() {
       city: cityCheck.value || null,
       bio: bioCheck.value || null,
       occupation: occupation.trim() || null,
+      facultyId: facultyId || null,
       headline: headline.trim() || null,
       avatarUrl: avatar,
       coverUrl: cover,
@@ -815,6 +837,25 @@ export function MyProfilePage() {
                   />
                 </div>
 
+                <div>
+                  <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-extrabold text-foreground" htmlFor="faculty">
+                    <GraduationCap className="size-3.5" /> كليتي (تُربط بسيرتك وإعلانات كليتك)
+                  </label>
+                  <select
+                    id="faculty"
+                    value={facultyId}
+                    onChange={(event) => setFacultyId(event.target.value)}
+                    className="w-full cursor-pointer rounded-xl border border-border bg-background px-3 py-2.5 text-[13.5px] text-foreground outline-none transition focus:border-primary"
+                  >
+                    <option value="">— اختر كليتك (اختياري) —</option>
+                    {faculties.map((faculty) => (
+                      <option key={faculty.id} value={faculty.id}>
+                        {faculty.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
                     <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-extrabold text-foreground" htmlFor="websiteUrl">
@@ -1097,6 +1138,9 @@ export function MyProfilePage() {
           )}
         </section>
       </div>
+
+      {/* السيرة الذاتية — مستقلة عن تحرير البروفايل (تحفظ مباشرة في جدول resumes) */}
+      <ResumeEditor />
 
       <RankLadder xp={cloudProfile?.xp ?? progress.xp} currentRank={activeRank.id} />
 

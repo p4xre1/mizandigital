@@ -129,6 +129,7 @@ export function isIndexablePath(input) {
   if (!first) return false;
   if (NON_INDEXABLE_SEGMENTS.has(first)) return false;
   if (path.startsWith("/u/")) return false; // بروفايلات عامة يولّدها المستخدمون
+  if (path.startsWith("/resume/")) return false; // سير ذاتية يولّدها المستخدمون (نفس /u/)
   // أدوات Pro خلف تسجيل الدخول: البوابة وتفاصيلها معاً. كانت البوابة تُترك
   // «قابلة للفهرسة» في السياسة بينما لا ملف ثابت لها ولا entry في sitemap —
   // نصف حالة تُنتج «Discovered – currently not indexed» في Search Console.
@@ -152,6 +153,8 @@ export const canonicalArticle = (slug, origin) => canonicalUrl(`/articles/${slug
 export const canonicalArticlesHub = (origin) => canonicalUrl("/articles", { origin });
 export const canonicalEvent = (slug, origin) => canonicalUrl(`/events/${slug}`, { origin });
 export const canonicalEventsHub = (origin) => canonicalUrl("/events", { origin });
+export const canonicalAnnonces = (origin) => canonicalUrl("/annonces", { origin });
+export const canonicalResume = (username, origin) => canonicalUrl(`/resume/${username}`, { origin });
 export const canonicalPdf = (slug, origin) => canonicalUrl(`/pdf/${slug}`, { origin });
 export const canonicalArchive = (origin) => canonicalUrl("/archive", { origin });
 export const canonicalPage = (slug, origin) => canonicalUrl(`/${slug}`, { origin });

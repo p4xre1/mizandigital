@@ -75,6 +75,9 @@ const staticEntries = [
   { path: "/news", changefreq: "weekly", priority: "0.9", forceTodayLastmod: true },
   { path: "/articles", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
   { path: "/events", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
+  // /annonces — صفحة الإعلانات (فعاليات + ندوات + أخبار مرتبطة بالكليات).
+  // forceTodayLastmod: تتغير مع كل إعلان جديد في CMS.
+  { path: "/annonces", changefreq: "weekly", priority: "0.8", forceTodayLastmod: true },
   { path: "/schools", changefreq: "monthly", priority: "0.8" },
   // الصفحات الركنية: تصف المنصة والأدلة، وتستحق الظهور في الخريطة لأنها مرتبطة
   // من الفوتر ومن بعضها بعضاً، لكنها ليست مُولَّدة من بيانات فـ lastmod فيها

@@ -1,0 +1,112 @@
+{
+ "name": "Mizan Digital AI Reference",
+ "version": "1.0.0",
+ "generatedAt": "2026-09-22T00:54:50.276Z",
+ "domain": "https://www.mizan.page",
+ "description": "Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.",
+ "disclaimer": "Educational and research content for Moroccan law students. Verify legal claims against official sources: sgg.gov.ma (Official Gazette) and adala.justice.gov.ma (Adala portal).",
+ "totalRecords": 427,
+ "sources": {
+  "local": "src/data JSON datasets",
+  "cms": "unavailable at build time — local data only"
+ },
+ "mcp": {
+  "endpoint": "https://www.mizan.page/mcp",
+  "tools": [
+   "mizan_reference_index — lists every dataset (counts, file URLs, URL patterns)",
+   "mizan_reference_search — full-text search across datasets (Arabic/French/English)"
+  ]
+ },
+ "datasets": [
+  {
+   "name": "articles",
+   "title": "المقالات القانونية",
+   "count": 8,
+   "json": "/reference/articles.json",
+   "markdown": "/reference/articles.md",
+   "section": "/articles",
+   "urlPattern": "/articles/{slug}",
+   "description": "مقالات قانونية تعليمية: العنوان، المقتطف، النص الكامل، التصنيف والتاريخ."
+  },
+  {
+   "name": "news",
+   "title": "المستجدات التشريعية والقضائية",
+   "count": 13,
+   "json": "/reference/news.json",
+   "markdown": "/reference/news.md",
+   "section": "/news",
+   "urlPattern": "/news/{slug}",
+   "description": "أخبار تشريعية وقضائية مغربية: الملخص، النص الكامل، المصدر والتاريخ."
+  },
+  {
+   "name": "lexicon",
+   "title": "المعجم القانوني",
+   "count": 250,
+   "json": "/reference/lexicon.json",
+   "markdown": "/reference/lexicon.md",
+   "section": "/lexicon",
+   "urlPattern": "/lexicon/{slug}",
+   "description": "250 مصطلحاً قانونياً عربياً-فرنسياً: التعريف، التفسير المبسط، الأمثلة، المصادر القانونية والكلمات المفتاحية للامتحانات."
+  },
+  {
+   "name": "schools",
+   "title": "دليل كليات الحقوق",
+   "count": 21,
+   "json": "/reference/schools.json",
+   "markdown": "/reference/schools.md",
+   "section": "/schools",
+   "urlPattern": "/schools/{slug}",
+   "description": "21 كلية حقوق بالمغرب: الجامعة، المدينة، التخصصات، التسجيل، الروابط الرسمية."
+  },
+  {
+   "name": "events",
+   "title": "الفعاليات والندوات",
+   "count": 3,
+   "json": "/reference/events.json",
+   "markdown": "/reference/events.md",
+   "section": "/events",
+   "urlPattern": "/events/{slug}",
+   "description": "فعاليات أكاديمية وقانونية: الجهة المنظمة، المكان، التاريخ والمواضيع."
+  },
+  {
+   "name": "docs",
+   "title": "الأرشيف الدراسي (ملفات وملخصات)",
+   "count": 9,
+   "json": "/reference/docs.json",
+   "markdown": "/reference/docs.md",
+   "section": "/archive",
+   "urlPattern": "/pdf/{slug}",
+   "description": "ملفات PDF وملخصات مصنفة حسب الفصل S1-S6 والمادة والأستاذ."
+  },
+  {
+   "name": "laws",
+   "title": "النصوص القانونية",
+   "count": 0,
+   "json": "/reference/laws.json",
+   "markdown": "/reference/laws.md",
+   "section": "/pdf",
+   "urlPattern": "/pdf/{slug}",
+   "description": "قوانين مغربية من قاعدة البيانات: رقم القانون، الجريدة الرسمية، تاريخ الصدور، الموجز والنص الكامل."
+  },
+  {
+   "name": "faq",
+   "title": "الأسئلة الشائعة",
+   "count": 39,
+   "json": "/reference/faq.json",
+   "markdown": "/reference/faq.md",
+   "section": "/faq",
+   "urlPattern": "/faq",
+   "description": "إجابات مباشرة (AEO) على الأسئلة المتكررة حول الدراسة القانونية والمنصة."
+  },
+  {
+   "name": "quiz",
+   "title": "بنك أسئلة الاختبارات",
+   "count": 84,
+   "json": "/reference/quiz.json",
+   "markdown": "/reference/quiz.md",
+   "section": "/quiz",
+   "urlPattern": "/quiz/{tier}",
+   "description": "أسئلة QCM بأربعة مسارات (كلية S1-S6، عام، مباريات، مقابلات): السؤال، الخيارات، الإجابة والتفسير والمرجع."
+  }
+ ]
+}

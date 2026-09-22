@@ -33,6 +33,21 @@ const MARKDOWN = `# ميزان الرقمية
 - https://www.mizan.page/events
 `;
 
+// مجموعات مرجعيات الذكاء الاصطناعي — المصدَر الوحيد هو ملفات
+// /reference/*.json الثابتة (يولّدها prebuild). لا نسخة بيانات هنا:
+// الأدوات تقرأ الملفات نفسها عبر env.ASSETS، فلا تَنفصل نسخة عن أخرى.
+const REFERENCE_DATASETS = [
+  "articles",
+  "news",
+  "lexicon",
+  "schools",
+  "events",
+  "docs",
+  "laws",
+  "faq",
+  "quiz"
+];
+
 const MCP_TOOLS = [
   {
     name: "mizan_site_info",
@@ -45,6 +60,39 @@ const MCP_TOOLS = [
     title: "Mizan resource links",
     description: "Returns stable public URLs for Mizan Digital legal and academic resource sections.",
     inputSchema: { type: "object", properties: {}, additionalProperties: false }
+  },
+  {
+    name: "mizan_reference_index",
+    title: "Mizan AI reference index",
+    description:
+      "Lists every AI reference dataset (record counts, JSON/Markdown file URLs, section URLs, URL patterns) plus the legal disclaimer. Start here to browse the full machine-readable content of the platform.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false }
+  },
+  {
+    name: "mizan_reference_search",
+    title: "Search Mizan reference data",
+    description:
+      "Full-text search across the public reference datasets (Arabic, French and English): legal terms with definitions, laws with full text, articles, news, schools, events, study PDFs, FAQ answers and quiz questions. Returns matching records with their canonical page URLs.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: {
+          type: "string",
+          description: "Search terms, space separated — all terms must appear in the record (1-6 terms)."
+        },
+        domain: {
+          type: "string",
+          description:
+            "Optional dataset filter: articles, news, lexicon, schools, events, docs, laws, faq, quiz."
+        },
+        limit: {
+          type: "number",
+          description: "Maximum results to return (1-50, default 10)."
+        }
+      },
+      required: ["query"],
+      additionalProperties: false
+    }
   }
 ];
 
@@ -62,6 +110,33 @@ function mcpResult(id, result) {
 
 function mcpError(id, code, message) {
   return new Response(JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } }), { status: 200, headers: MCP_HEADERS });
+}
+
+// قراءة ملف مرجعي ثابت (يولّده prebuild في public/reference/) عبر نفس
+// شجرة الأصول التي يخدمها الزائر — لا بيانات مضمّنة هنا.
+async function fetchReferenceJson(context, request, name) {
+  const url = new URL(request.url);
+  const assetUrl = `${url.origin}/reference/${name}.json`;
+  const res = await context.env.ASSETS.fetch(new Request(assetUrl, { method: "GET" }));
+  if (!res.ok) return null;
+  try {
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+// مقتطف مقروء من أول حقل نصي ذي معنى في السجل.
+function referenceSnippet(item) {
+  const t =
+    item.definition || item.excerpt || item.summary || item.description ||
+    item.synopsis || item.content || item.answer || item.question || "";
+  const s = String(t).replace(/\s+/g, " ").trim();
+  return s.length > 240 ? `${s.slice(0, 240).trimEnd()}…` : s;
+}
+
+function referenceTitle(item) {
+  return item.title || item.term_ar || item.question || item.name || item.id || "";
 }
 
 export async function onRequest(context) {
@@ -105,7 +180,45 @@ export async function onRequest(context) {
       if (method === "tools/call") {
         const name = body?.params?.name;
         if (name === "mizan_site_info") return mcpResult(id, { content: [{ type: "text", text: MARKDOWN }] });
-        if (name === "mizan_resource_links") return mcpResult(id, { content: [{ type: "text", text: JSON.stringify({ articles: "/articles", news: "/news", lexicon: "/lexicon", schools: "/schools", archive: "/archive", events: "/events", sitemap: "/sitemap.xml", llms: "/llms.txt" }) }] });
+        if (name === "mizan_resource_links") return mcpResult(id, { content: [{ type: "text", text: JSON.stringify({ articles: "/articles", news: "/news", lexicon: "/lexicon", schools: "/schools", archive: "/archive", events: "/events", sitemap: "/sitemap.xml", llms: "/llms.txt", reference: "/reference/index.json" }) }] });
+        if (name === "mizan_reference_index") {
+          const data = await fetchReferenceJson(context, request, "index");
+          if (!data) return mcpError(id, -32603, "Reference index not available — the site build did not include /reference.");
+          return mcpResult(id, { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] });
+        }
+        if (name === "mizan_reference_search") {
+          const args = body?.params?.arguments || {};
+          const query = String(args.query ?? "").trim().toLowerCase();
+          if (!query) return mcpError(id, -32602, "query is required (1-6 space-separated terms, all must match).");
+          const terms = query.split(/\s+/).filter(Boolean);
+          if (terms.length > 6) return mcpError(id, -32602, "query accepts at most 6 terms.");
+          const limit = Math.min(Math.max(parseInt(args.limit ?? 10, 10) || 10, 1), 50);
+          const domain = args.domain ? String(args.domain) : null;
+          if (domain && !REFERENCE_DATASETS.includes(domain)) {
+            return mcpError(id, -32602, `Unknown domain "${domain}". Valid: ${REFERENCE_DATASETS.join(", ")}.`);
+          }
+          const domains = domain ? [domain] : REFERENCE_DATASETS;
+          const results = [];
+          for (const d of domains) {
+            const data = await fetchReferenceJson(context, request, d);
+            if (!data) continue;
+            for (const item of data.items || []) {
+              const haystack = JSON.stringify(item).toLowerCase();
+              if (!terms.every((t) => haystack.includes(t))) continue;
+              results.push({
+                dataset: d,
+                title: referenceTitle(item),
+                url: item.url ? `${url.origin}${item.url}` : null,
+                snippet: referenceSnippet(item)
+              });
+              if (results.length >= limit) break;
+            }
+            if (results.length >= limit) break;
+          }
+          return mcpResult(id, {
+            content: [{ type: "text", text: JSON.stringify({ query, domain: domain || "all", count: results.length, results }, null, 2) }]
+          });
+        }
         return mcpError(id, -32602, "Unknown tool");
       }
       return mcpError(id, -32601, "Method not found");

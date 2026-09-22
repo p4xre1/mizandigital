@@ -12,7 +12,11 @@
     {"name":"News","path":"/news","method":"GET","contentType":"text/html"},
     {"name":"Legal glossary","path":"/lexicon","method":"GET","contentType":"text/html"},
     {"name":"Law schools","path":"/schools","method":"GET","contentType":"text/html"},
-    {"name":"Archive","path":"/archive","method":"GET","contentType":"text/html"}
+    {"name":"Archive","path":"/archive","method":"GET","contentType":"text/html"},
+    {"name":"AI Reference Index","path":"/reference/index.json","method":"GET","contentType":"application/json"},
+    {"name":"AI Reference (per dataset JSON)","path":"/reference/{name}.json","method":"GET","contentType":"application/json","note":"name ∈ articles, news, lexicon, schools, events, docs, laws, faq, quiz"},
+    {"name":"AI Reference (per dataset Markdown)","path":"/reference/{name}.md","method":"GET","contentType":"text/markdown"},
+    {"name":"MCP endpoint","path":"/mcp","method":"POST","contentType":"application/json","note":"JSON-RPC 2.0 — read-only tools incl. mizan_reference_search"}
   ],
   "authentication": {"required": false},
   "writeOperations": false

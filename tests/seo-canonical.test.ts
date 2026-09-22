@@ -14,6 +14,7 @@ import { describe, expect, test } from "vitest";
 
 import {
   BASE_URL,
+  canonicalAnnonces,
   canonicalArchive,
   canonicalArticle,
   canonicalArticlesHub,
@@ -27,6 +28,7 @@ import {
   canonicalNewsHub,
   canonicalPage,
   canonicalPdf,
+  canonicalResume,
   canonicalSchool,
   canonicalSchools,
   canonicalUrl,
@@ -116,6 +118,8 @@ describe("روابط الصفحات كلها بلا شرطة نهاية", () => 
       articlesHub: canonicalArticlesHub(),
       event: canonicalEvent("yawm-dirasi"),
       eventsHub: canonicalEventsHub(),
+      annonces: canonicalAnnonces(),
+      resume: canonicalResume("student-x"),
       pdf: canonicalPdf("medخل-إلى-قانون-الشركات-s4"),
       archive: canonicalArchive(),
       about: canonicalPage("about"),
@@ -132,6 +136,15 @@ describe("روابط الصفحات كلها بلا شرطة نهاية", () => 
 
     expect(links.schoolsHub).toBe(`${BASE_URL}/schools`);
     expect(links.fromPath).toBe(links.school);
+    expect(links.annonces).toBe(`${BASE_URL}/annonces`);
+    expect(links.resume).toBe(`${BASE_URL}/resume/student-x`);
+  });
+
+  test("سياسة الفهرسة: /annonces قابل للفهرسة، وسير المستخدمين /resume/ مستثناة", () => {
+    expect(isIndexablePath("/annonces")).toBe(true);
+    expect(isIndexablePath("/resume/student-x")).toBe(false);
+    // نفس نمط /u/: مسارات السير (وليس المسار المجرد) هي المستثناة.
+    expect(isIndexablePath("/u/someone")).toBe(false);
   });
 
   test("itemPath يبني النسبة نفسها التي يبنيها الرابط المطلق", () => {

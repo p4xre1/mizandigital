@@ -17,6 +17,7 @@
  */
 import {
   SITE_ORIGIN as ORIGIN,
+  canonicalAnnonces,
   canonicalArticle,
   canonicalArticlesHub,
   canonicalArchive,
@@ -29,6 +30,7 @@ import {
   canonicalNewsHub,
   canonicalPage,
   canonicalPdf,
+  canonicalResume,
   canonicalSchool,
   canonicalSchools,
   canonicalUrl,
@@ -52,6 +54,7 @@ import {
 export const BASE_URL: string = ORIGIN;
 
 export {
+  canonicalAnnonces,
   canonicalArticle,
   canonicalArticlesHub,
   canonicalArchive,
@@ -64,6 +67,7 @@ export {
   canonicalNewsHub,
   canonicalPage,
   canonicalPdf,
+  canonicalResume,
   canonicalSchool,
   canonicalSchools,
   canonicalUrl,
@@ -122,7 +126,18 @@ export function canonicalPathFromLocation(pathname: string): string {
 export function isIndexableInternalHref(href: string): boolean {
   if (!href) return false;
   if (/^(mailto:|tel:|javascript:|#)/i.test(href)) return false;
-  if (/^https?:\/\//i.test(href) && !href.startsWith(BASE_URL)) return false;
+  // مقارنة الأصل (origin) لا بادئة نصية: startsWith(BASE_URL) يمرّر
+  // «https://www.mizan.page.evil.com» (CodeQL: hostname check).
+  if (/^https?:\/\//i.test(href)) {
+    let u: URL;
+    try {
+      u = new URL(href);
+    } catch {
+      return false;
+    }
+    if (u.origin !== BASE_URL) return false;
+    return isIndexablePath(u.pathname);
+  }
   return isIndexablePath(href);
 }
 
