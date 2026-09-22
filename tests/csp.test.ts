@@ -102,7 +102,7 @@ describe("CSP — public/_headers (Lighthouse csp-xss / trusted-types-xss)", () 
     expect(indexHtml).not.toContain("window.dataLayer")
     // وسم script (خارجي أو مضمّن) لا يُرجع إلى googletagmanager —
     // وسم <link rel="dns-prefetch"> وحده مسموح (تلميح أداء ليس سكربتاً).
-    const scriptTags = indexHtml.match(/<script[\s\S]*?<\/script>/gi) ?? []
+    const scriptTags = indexHtml.match(/<script[\s\S]*?<\/script\s*>/gi) ?? []
     expect(
       scriptTags.find((s) => s.includes("googletagmanager")),
       "لا يجب أن يوجد أي وسم script يشير إلى googletagmanager"

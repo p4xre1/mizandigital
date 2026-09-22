@@ -65,8 +65,10 @@ test("روابط المرجع كلها في sitemap (لا 404 في المرجع)
     const data = JSON.parse(read(`public/reference/${name}.json`));
     for (const item of data.items as Array<{ url?: string; title?: string }>) {
       if (!item.url) continue;
-      const p = item.url.startsWith("https://www.mizan.page")
-        ? item.url.replace("https://www.mizan.page", "")
+      // مسار الرابط (pathname) — بدون مقارنة بادئة origin نصياً
+      // (CodeQL: startsWith(origin) يمرّر «origin.evil.com»).
+      const p = /^https?:\/\//.test(item.url)
+        ? new URL(item.url).pathname
         : item.url;
       if (!sitemap.has(p)) missing.push(`${name} → ${item.url} (${item.title ?? ""})`);
     }
