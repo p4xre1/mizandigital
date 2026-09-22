@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { test, expect } from "vitest";
 
 /**
@@ -49,18 +49,29 @@ test("كل سجل يملك رابطاً داخلياً قانونياً (لا م
   }
 });
 
-test("روابط المرجع تطابق صفحات dist الفعلية (لا 404 في المرجع)", () => {
-  const distExists = (p: string) =>
-    existsSync(new URL(`../dist/${p}.html`, import.meta.url)) ||
-    existsSync(new URL(`../dist/${p}/index.html`, import.meta.url));
+test("روابط المرجع كلها في sitemap (لا 404 في المرجع)", () => {
+  // الخلل الذي يُمنع: سجل في المرجع بلا صفحة فعلية. sitemap هو الضمانة
+  // الهيرميتكية: prerender.mjs يسقط أي entry بلا صفحة مولَّدة («only
+  // generated pages») فوجود الرابط في sitemap ⇒ صفحة ثابتة ستُنشر.
+  // (لا نعتمد على dist/ هنا: CI لا تبنى في validate، والملفات الملتزمة
+  // وحدها يجب أن تكفي للفحص.)
+  const sitemap = new Set(
+    (read("public/sitemap.xml").match(/<loc>([^<]+)<\/loc>/g) ?? []).map(
+      (s) => s.replace("<loc>https://www.mizan.page", "").replace("</loc>", ""),
+    ),
+  );
   const missing: string[] = [];
   for (const name of DATASETS) {
     const data = JSON.parse(read(`public/reference/${name}.json`));
     for (const item of data.items as Array<{ url?: string; title?: string }>) {
-      if (item.url && !distExists(item.url)) missing.push(`${name} → ${item.url} (${item.title ?? ""})`);
+      if (!item.url) continue;
+      const p = item.url.startsWith("https://www.mizan.page")
+        ? item.url.replace("https://www.mizan.page", "")
+        : item.url;
+      if (!sitemap.has(p)) missing.push(`${name} → ${item.url} (${item.title ?? ""})`);
     }
   }
-  expect(missing, `روابط بلا صفحة ثابتة:\n${missing.slice(0, 10).join("\n")}`).toEqual([]);
+  expect(missing, `روابط مرجع ليست في sitemap:\n${missing.slice(0, 10).join("\n")}`).toEqual([]);
 });
 
 test("المولّد: جلب CMS غير قاتل + مجموعة laws بنص كامل", () => {

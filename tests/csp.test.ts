@@ -54,10 +54,8 @@ describe("CSP — public/_headers (Lighthouse csp-xss / trusted-types-xss)", () 
     expect(scriptSrc).not.toContain("'unsafe-eval'")
   })
 
-  test("'strict-dynamic' + hash مطابق للسكربت المضمّن الوحيد (index.html أو dist/ إن وُجد)", () => {
+  test("'strict-dynamic' + hash مطابق للسكربت المضمّن الوحيد (dist/ إن وُجد)", () => {
     expect(scriptSrc).toContain("'strict-dynamic'")
-    // بعد البناء تُحسب hash من dist/؛ بدونه (قبل البناء) يكون القالب
-    // يحمل placeholder يملؤه scripts/csp-hashes.mjs.
     const builtHeaders = path.join(rootDir, "dist/_headers")
     const htmlFile = path.join(rootDir, "dist/index.html")
     const exists = (p: string) => {
@@ -68,18 +66,18 @@ describe("CSP — public/_headers (Lighthouse csp-xss / trusted-types-xss)", () 
         return false
       }
     }
-    const src = exists(htmlFile) ? htmlFile : path.join(rootDir, "index.html")
-    const indexHtml = readFileSync(src, "utf8")
-    const inline = [...indexHtml.matchAll(/<script>([\s\S]*?)<\/script>/gi)]
+    // قبل البناء لا يوجد dist/_headers — الحالة «قبل البناء» يغطيها اختبار
+    // الـplaceholders أدناه (CI لا تبنى في validate، فلا نفحص hash هنا).
+    if (!exists(builtHeaders) || !exists(htmlFile)) return
+    const indexHtml = readFileSync(htmlFile, "utf8")
+    const inline = [...indexHtml.matchAll(/<script\s*>([\s\S]*?)<\/script\s*>/gi)]
     expect(inline, "يجب أن يوجد سكربت مضمّن واحد بلا attributes (theme)").toHaveLength(1)
     const expected = sha256(inline[0][1])
-    const cspToCheck = exists(builtHeaders)
-      ? (
-          readFileSync(builtHeaders, "utf8")
-            .split("\n")
-            .find((l) => l.includes("Content-Security-Policy:")) ?? ""
-        ).replace(/^.*Content-Security-Policy:\s*/, "")
-      : scriptSrc
+    const cspToCheck = (
+      readFileSync(builtHeaders, "utf8")
+        .split("\n")
+        .find((l) => l.includes("Content-Security-Policy:")) ?? ""
+    ).replace(/^.*Content-Security-Policy:\s*/, "")
     expect(cspToCheck, `hash السكربت المضمّن ${expected} يجب أن يكون في script-src`).toContain(expected)
   })
 
