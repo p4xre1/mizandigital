@@ -54,8 +54,8 @@ const entryBuf = await readFile(join(DIST, entryFile)).catch(() =>
 const entryHash = sha256b64(entryBuf);
 
 // 2) السكربتات المضمّنة الخالية من attributes — يجب أن يكون هناك واحد واحد (theme)
-// \s* داخل الوسوم: HTML يسمح بمسافة قبل > (</script >) — يطابقها الفحص (CodeQL).
-const inlineMatches = [...indexHtml.matchAll(/<script\s*>([\s\S]*?)<\/script\s*>/gi)];
+// \s*/[^>]* داخل الوسوم: HTML يسمح بمسافات أو حتى سوابق قبل > في وسم الإغلاق (CodeQL).
+const inlineMatches = [...indexHtml.matchAll(/<script\s*>([\s\S]*?)<\/script[^>]*>/gi)];
 if (inlineMatches.length !== 1) {
   fail(
     `المتوقع سكربت مضمّن واحد بلا attributes في dist/index.html، وُجد ${inlineMatches.length}. ` +

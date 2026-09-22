@@ -70,7 +70,7 @@ describe("CSP — public/_headers (Lighthouse csp-xss / trusted-types-xss)", () 
     // الـplaceholders أدناه (CI لا تبنى في validate، فلا نفحص hash هنا).
     if (!exists(builtHeaders) || !exists(htmlFile)) return
     const indexHtml = readFileSync(htmlFile, "utf8")
-    const inline = [...indexHtml.matchAll(/<script\s*>([\s\S]*?)<\/script\s*>/gi)]
+    const inline = [...indexHtml.matchAll(/<script\s*>([\s\S]*?)<\/script[^>]*>/gi)]
     expect(inline, "يجب أن يوجد سكربت مضمّن واحد بلا attributes (theme)").toHaveLength(1)
     const expected = sha256(inline[0][1])
     const cspToCheck = (
@@ -102,7 +102,7 @@ describe("CSP — public/_headers (Lighthouse csp-xss / trusted-types-xss)", () 
     expect(indexHtml).not.toContain("window.dataLayer")
     // وسم script (خارجي أو مضمّن) لا يُرجع إلى googletagmanager —
     // وسم <link rel="dns-prefetch"> وحده مسموح (تلميح أداء ليس سكربتاً).
-    const scriptTags = indexHtml.match(/<script[\s\S]*?<\/script\s*>/gi) ?? []
+    const scriptTags = indexHtml.match(/<script[\s\S]*?<\/script[^>]*>/gi) ?? []
     expect(
       scriptTags.find((s) => s.includes("googletagmanager")),
       "لا يجب أن يوجد أي وسم script يشير إلى googletagmanager"
