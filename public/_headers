@@ -1,3 +1,29 @@
+# ── لماذا لا توجد 'strict-dynamic' ولا hashes للسكربت الخارجي ──────────────
+# كانت السياسة السابقة: script-src 'self' 'unsafe-inline' 'strict-dynamic'
+# 'sha256-<inline>' 'sha256-<entry>'. النتيجة على الإنتاج: المتصفح رفض حزمة
+# التطبيق نفسها:
+#   Loading the script 'https://www.mizan.page/assets/index-*.js' violates the
+#   following Content Security Policy directive: "script-src 'self'
+#   'unsafe-inline' 'strict-dynamic' 'sha256-…' …". The action has been blocked.
+# السبب (CSP3 §6.7.2.4 «Does integrity metadata match source list?»): hash في
+# script-src لا يطابق سكربتاً خارجياً إلا إذا حمل وسم <script> نفسه خاصية
+# integrity تحمل الـhash ذاته (المواصفة تُحيل فرض البايتات إلى SRI). ووسم
+# الحزمة عندنا بلا integrity، فصار الـhash بلا أثر، ومع 'strict-dynamic'
+# تُتجاهل 'self' وقائمة المضيفين، فلم يبقَ أي مسار يسمح بالحزمة ⇒ موقع بلا
+# JavaScript إطلاقاً (لا تشغيل لـReact ولا للتوجيه ولا للتفاعلات).
+# الحل المعتمد: الاعتماد على 'self' للحزمة (سكربت من نفس الأصل) مع hash
+# للسكربت المضمّن الوحيد (theme bootstrap)، وإزالة 'unsafe-inline' لأن
+# وجود hash يُلغي مفعولها أصلاً — فتصبح السياسة أضيق مما كانت.
+# إن أُريد لاحقاً إعادة 'strict-dynamic' فيجب أن يضيف البناء integrity="…"
+# إلى وسم الحزمة (وإلا عاد العطل نفسه)؛ هناك فحص بناء واختبار يمنعان ذلك.
+#
+# ملاحظة ثانية: أُزيل require-trusted-types-for 'script'. التوجيه كان يفرض
+# Trusted Types بلا default policy، وReact 18 ينشئ عناصر <script> (وسوم
+# JSON-LD عندنا) عبر innerHTML داخلياً:
+#   "script"===c?(a=g.createElement("div"),a.innerHTML="<script>…"
+# فيرمي TypeError ويُسقط الرسم. أي إعادة له تحتاج أولاً إنشاء default policy.
+#
+# التوجيهات الأخرى (object-src 'none'، base-uri، frame-ancestors…) كما هي.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
@@ -5,7 +31,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Cross-Origin-Opener-Policy: same-origin-allow-popups
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'unsafe-inline' 'strict-dynamic' 'sha256-__MIZAN_INLINE_HASH__' 'sha256-__MIZAN_ENTRY_HASH__' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://translate.googleapis.com https://api.mymemory.translated.net https://lingva.ml https://lingva.thedaviddelta.com https://translate.plausibility.cloud; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'; require-trusted-types-for 'script'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'sha256-__MIZAN_INLINE_HASH__' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://translate.googleapis.com https://api.mymemory.translated.net https://lingva.ml https://lingva.thedaviddelta.com https://translate.plausibility.cloud; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'
 
 /
   Link: <https://www.mizan.page/.well-known/agent-card.json>; rel="agent"; type="application/json"

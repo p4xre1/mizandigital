@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --configLoader runner",
+    "preview:prod": "node scripts/preview-with-headers.mjs",
     "clean": "node scripts/clean.mjs",
     "validate": "pnpm typecheck",
     "doctor": "node scripts/doctor.mjs",
