@@ -1,11 +1,11 @@
 {
  "name": "Mizan Digital AI Reference",
  "version": "1.0.0",
- "generatedAt": "2026-09-22T00:54:50.276Z",
+ "generatedAt": "2026-09-23T13:02:27.518Z",
  "domain": "https://www.mizan.page",
  "description": "Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.",
  "disclaimer": "Educational and research content for Moroccan law students. Verify legal claims against official sources: sgg.gov.ma (Official Gazette) and adala.justice.gov.ma (Adala portal).",
- "totalRecords": 427,
+ "totalRecords": 567,
  "sources": {
   "local": "src/data JSON datasets",
   "cms": "unavailable at build time — local data only"
@@ -101,7 +101,7 @@
   {
    "name": "quiz",
    "title": "بنك أسئلة الاختبارات",
-   "count": 84,
+   "count": 224,
    "json": "/reference/quiz.json",
    "markdown": "/reference/quiz.md",
    "section": "/quiz",

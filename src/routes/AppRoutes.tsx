@@ -85,6 +85,13 @@ const PricingPage = lazy(() => import("@/pages/public/PricingPage").then((m) => 
 const SavedContentPage = lazy(() => import("@/pages/public/SavedContentPage").then((m) => ({ default: m.SavedContentPage })))
 /* الصفحات الركنية (cornerstone) في خطة السيو: /platform و/guides/*. مكوّناتها
    export default مستقل فلا تحتاج التفاف `.then` المعتمد في الصفحات المسمّاة. */
+const CareersPage = lazy(() => import("@/pages/public/careers/CareersPage"))
+const CareerDetailPage = lazy(() => import("@/pages/public/careers/CareerDetailPage"))
+const CareerQuizHubPage = lazy(() => import("@/pages/public/careers/CareerQuizHubPage"))
+const CareerQuizPage = lazy(() => import("@/pages/public/careers/CareerQuizPage"))
+const CareerCompetitionPracticePage = lazy(
+  () => import("@/pages/public/careers/CareerCompetitionPracticePage")
+)
 const PlatformPage = lazy(() => import("@/pages/public/PlatformPage"))
 const FreeLegalResourcesPage = lazy(() => import("@/pages/public/guides/FreeLegalResourcesPage"))
 const NewLawStudentGuidePage = lazy(() => import("@/pages/public/guides/NewLawStudentGuidePage"))
@@ -95,6 +102,14 @@ function EventWrapper() { const { slug } = useParams<{ slug: string }>(); return
 function SchoolWrapper() { const { slug } = useParams<{ slug: string }>(); return <SchoolPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
 function ResumeWrapper() { return <ResumePage /> }
 function TermWrapper() { const { slug } = useParams<{ slug: string }>(); return <TermPage slug={slug ? decodeURIComponent(slug) : undefined} /> }
+/* صفحات المسارات المهنية: تستخرج المعرّف من المسار وتفكّ ترميزه — نفس نمط
+   SchoolWrapper/TermWrapper، فلا يُنشأ route ثانٍ لقاعدة الجلب نفسها. */
+function CareerDetailWrapper() { const { slug } = useParams<{ slug: string }>(); return <CareerDetailPage key={slug} /> }
+function CareerQuizWrapper() { const { careerSlug } = useParams<{ careerSlug: string }>(); return <CareerQuizPage key={careerSlug} /> }
+function CareerPracticeWrapper() {
+  const { careerSlug, competitionId } = useParams<{ careerSlug: string; competitionId: string }>()
+  return <CareerCompetitionPracticePage key={`${careerSlug}:${competitionId}`} />
+}
 function ArchiveWrapper() { const [searchParams] = useSearchParams(); return <ArchivePage initialSemester={searchParams.get("semester") ?? undefined} /> }
 
 function ArticleEditorWrapper() {
@@ -150,6 +165,8 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/events" element={<EventsPage />} /><Route path="/events/:slug" element={<EventWrapper />} /><Route path="/schools" element={<SchoolsPage />} /><Route path="/schools/:slug" element={<SchoolWrapper />} />
           <Route path="/annonces" element={<AnnoncesPage />} /><Route path="/resume/:username" element={<ResumeWrapper />} />
           <Route path="/quiz" element={<QuizHubPage />} /><Route path="/quiz/university" element={<UniversityQuizPage />} /><Route path="/quiz/general" element={<GeneralQuizPage />} /><Route path="/quiz/concours" element={<ConcoursQuizPage />} /><Route path="/quiz/interview" element={<InterviewQuizPage />} /><Route path="/quiz/placement" element={<PlacementQuizPage />} /><Route path="/profile" element={<MyProfilePage />} /><Route path="/u/:username" element={<PublicProfilePage />} />
+          <Route path="/careers" element={<CareersPage />} /><Route path="/careers/:slug" element={<CareerDetailWrapper />} />
+          <Route path="/quiz/careers" element={<CareerQuizHubPage />} /><Route path="/quiz/careers/:careerSlug" element={<CareerQuizWrapper />} /><Route path="/quiz/careers/:careerSlug/practice/:competitionId" element={<CareerPracticeWrapper />} />
           <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/platform" element={<PlatformPage />} /><Route path="/guides/free-legal-resources-morocco" element={<FreeLegalResourcesPage />} /><Route path="/guides/new-law-student-morocco" element={<NewLawStudentGuidePage />} />
           <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
         </Route>

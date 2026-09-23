@@ -30,6 +30,7 @@ import {
   buildMetaDescription,
   fitTitle,
 } from "./lib/meta-description.mjs";
+import { buildCareerPages } from "./lib/career-pages.mjs";
 import { policyToHtml } from "../src/content/legal/markup.js";
 import {
   PRIVACY_POLICY,
@@ -227,7 +228,8 @@ const safeDate = (value, fallback = NOW) => {
 ------------------------------------------------------- */
 
 // faq + quiz مكتملان هنا حتى يطابق «إجمالي السجلات» ما يقرؤه الزاحف
-// فعلاً (نفس الأرقام التي تولّدها generate-reference.mjs — 427 سجلاً).
+// فعلاً (نفس الأرقام التي تولّدها generate-reference.mjs — 567 سجلاً،
+// بعد إضافة 140 سؤالاً تعليمياً في دليل المسارات المهنية).
 const statistics = {
   articles: count(articles),
   news: count(news),
@@ -532,6 +534,7 @@ const NAV_LINKS = [
   ["الأخبار", "/news", false],
   ["القاموس", "/lexicon", false],
   ["الكليات", "/schools", false],
+  ["المسارات المهنية", "/careers", false],
   ["الأرشيف", "/archive", false],
   ["الفعاليات", "/events", false],
   ["الاختبارات", "/quiz", false],
@@ -888,6 +891,7 @@ const pages = [
             </p>
 
             <p>
+              <a href="/careers">المسارات والمهن القانونية</a> |
               <a href="/privacy">سياسة الخصوصية</a> |
               <a href="/terms">الشروط</a> |
               <a href="/cookies">سياسة ملفات الارتباط</a>
@@ -1758,6 +1762,11 @@ const REVIEW_DATE =
   lexicon.find((t) => t && t.last_reviewed)?.last_reviewed ||
   new Date().toISOString().slice(0, 10);
 const guideReviewNote = `آخر مراجعة للبيانات: ${REVIEW_DATE}`;
+
+/* صفحات دليل المسارات والمهن القانونية (/careers و/quiz/careers + صفحات
+   المسارات). المصدر scripts/lib/career-pages.mjs — نفس النصوص التي تعرضها
+   الواجهة من shared/careers/copy.js، فلا يرى الزاحف نصاً مخالفاً. */
+pages.push(...(await buildCareerPages()));
 
 pages.push(
   {

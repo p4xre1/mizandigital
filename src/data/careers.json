@@ -1,0 +1,2761 @@
+[
+  {
+    "id": "avocat",
+    "slug": "avocat",
+    "title_ar": "محامٍ",
+    "title_fr": "Avocat",
+    "category_id": "legal-documentary",
+    "category_ar": "المهن القانونية والتوثيقية",
+    "short_description": "مهنة حرة منظمة تتعلق بالدفاع والتمثيل والاستشارة في الحدود التي يحددها القانون.",
+    "work_model": "liberal_regulated",
+    "work_model_ar": "مهنة حرة منظمة",
+    "employment_modes": [
+      "مكتب محاماة",
+      "شراكة مهنية",
+      "مكتب مهني مستقل",
+      "تعاون مع مكاتب أخرى"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "التقاضي",
+      "الدفاع",
+      "الاستشارات القانونية",
+      "العقود",
+      "المرافعة"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "تكوين قانوني أو شهادة يحددها النص أو الإعلان الرسمي",
+      "status": "verify_official_source",
+      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "بناء التكوين القانوني",
+        "description_ar": "إتمام المسار الجامعي في القانون أو الشهادة التي يحددها النص التنظيمي للمهنة."
+      },
+      {
+        "step": 2,
+        "title_ar": "التحقق من الشروط الرسمية",
+        "description_ar": "راجع شروط السن والشهادة والجنسية وباقي الشروط في النص التنظيمي أو الإعلان الرسمي الجاري به العمل."
+      },
+      {
+        "step": 3,
+        "title_ar": "اجتياز مسطرة الولوج",
+        "description_ar": "قد تكون مباراة أو مسطرة انتقاء يحددها النص أو الجهة المهنية المختصة."
+      },
+      {
+        "step": 4,
+        "title_ar": "التدريب والتسجيل المهني",
+        "description_ar": "استكمال فترة التدريب المهني وإجراءات التسجيل لدى الهيئة المهنية قبل الممارسة."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تدريب مهني ثم تسجيل لدى الهيئة المهنية وفق الإطار التنظيمي الجاري به العمل",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "البحث القانوني",
+      "التحليل القانوني",
+      "الكتابة القانونية",
+      "المرافعة والمناقشة",
+      "التواصل مع الزبناء",
+      "التنظيم وإدارة الملفات"
+    ],
+    "best_for": [
+      "من يحب التحليل القانوني والدفاع عن المواقف",
+      "من يرغب في التعامل اليومي مع النصوص والملفات",
+      "من يقبل مساراً يتطلب التحقق من شروط رسمية وتدريباً مهنياً"
+    ],
+    "lexicon_term_ids": [
+      "avocat",
+      "plaidoyer",
+      "mandat",
+      "preuve",
+      "appel",
+      "cassation",
+      "execution"
+    ],
+    "related_career_ids": [
+      "magistrat",
+      "juriste-entreprise",
+      "commissaire-judiciaire"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الولوج",
+        "value_ar": "تحدد بالنص التنظيمي أو الإعلان الرسمي الجاري به العمل.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "تحددها النصوص التنظيمية للمهنة وتعليمات الهيئة المهنية.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "قد يحدد النص أو الإعلان حداً أدنى أو أقصى للسن؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "التدريب والتسجيل المهني",
+        "value_ar": "يتم وفق مسطرة الهيئة المهنية المختصة وبعد إتمام التدريب.",
+        "requirement_type": "professional_registration",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإطار التنظيمي لمهنة المحاماة (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الهيئة المهنية المختصة وهيئة المحامين",
+        "source_type": "professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "القانون المنظم لمهنة المحاماة",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط الولوج إلى مهنة المحاماة والتدريب المهني",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "قواعد أخلاقيات مهنة المحاماة والواجبات المهنية",
+        "relationship_type": "professional_ethics",
+        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "avocat",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "regulated_profession",
+      "competition_note_ar": "تحقق من الإعلان أو المؤسسة المهنية المختصة لمعرفة حالة مسطرة الولوج؛ لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار.",
+      "related_quiz_topics": [
+        "المرافعة",
+        "الوكالة",
+        "الإثبات",
+        "طرق الطعن"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/avocat"
+  },
+  {
+    "id": "notaire",
+    "slug": "notaire",
+    "title_ar": "موثق",
+    "title_fr": "Notaire",
+    "category_id": "legal-documentary",
+    "category_ar": "المهن القانونية والتوثيقية",
+    "short_description": "مهنة حرة منظمة تُحرّر العقود والتصرفات التي يوجب القانون إفراغها في شكل رسمي، وتُوثّق الوقائع في الحدود التي يحددها النص.",
+    "work_model": "liberal_regulated",
+    "work_model_ar": "مهنة حرة منظمة",
+    "employment_modes": [
+      "مكتب توثيقي",
+      "شركة مهنية",
+      "تعاون بين المكاتب التوثيقية"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "توثيق العقود",
+      "البيوع العقارية",
+      "الشركات",
+      "الرهون",
+      "الوصايا"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي لمهنة التوثيق",
+      "status": "verify_official_source",
+      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين القانوني",
+        "description_ar": "إتمام المسار الجامعي أو التكوين الذي يحدده النص التنظيمي لمهنة التوثيق."
+      },
+      {
+        "step": 2,
+        "title_ar": "التحقق من شروط الولوج",
+        "description_ar": "راجع شروط الشهادة والسن والجنسية والمسطرة في النص التنظيمي والإعلان الجاري به العمل."
+      },
+      {
+        "step": 3,
+        "title_ar": "المسطرة التنافسية أو التدريب",
+        "description_ar": "قد تكون مباراة أو مسطرة انتقاء أو تدريباً مهنياً بحسب ما يحدده النص."
+      },
+      {
+        "step": 4,
+        "title_ar": "التسجيل المهني",
+        "description_ar": "إتمام إجراءات التسجيل لدى الهيئة المهنية والجهات المختصة قبل الممارسة."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تدريب مهني وتسجيل لدى الهيئة المهنية وفق الإطار التنظيمي الجاري به العمل",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "الصياغة القانونية الدقيقة",
+      "تدقيق الوثائق",
+      "قانون العقود والعقار",
+      "التنظيم المحاسبي للمكتب",
+      "التواصل مع الأطراف",
+      "الحياد المهني"
+    ],
+    "best_for": [
+      "من يهتم بالعقود والعقار والشركات",
+      "من يمتلك دقة عالية في صياغة الوثائق",
+      "من يقبل مساراً تنظيمياً يتطلب تدقيقاً وتحققاً من الشروط الرسمية"
+    ],
+    "lexicon_term_ids": [
+      "notaire",
+      "contrat",
+      "vente",
+      "immatriculation",
+      "droit-reel",
+      "bail"
+    ],
+    "related_career_ids": [
+      "adoul",
+      "avocat",
+      "juriste-entreprise"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الولوج",
+        "value_ar": "تحدد بالنص التنظيمي لتنظيم مهنة التوثيق وبالإعلانات الرسمية الجاري بها العمل.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة أو التكوين",
+        "value_ar": "يحددهما النص التنظيمي ومسار التكوين المهني المعتمد.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "قد يحدد النص أو الإعلان حداً أدنى أو أقصى؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "التسجيل المهني",
+        "value_ar": "يتم لدى الهيئة المهنية المختصة وفق المسطرة التنظيمية.",
+        "requirement_type": "professional_registration",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإطار التنظيمي لمهنة التوثيق (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الهيئة المهنية للتوثيق",
+        "source_type": "professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "القانون المنظم لمهنة التوثيق",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط الولوج إلى مهنة التوثيق",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "واجبات الموثق وأخلاقيات المهنة",
+        "relationship_type": "professional_ethics",
+        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "notaire",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "regulated_profession",
+      "competition_note_ar": "مسطرة الولوج للمهنة منظمة بنص ومؤسسة مهنية؛ تحقق من مصادرها الرسمية ولا تعتمد هذه الصفحة كإعلان.",
+      "related_quiz_topics": [
+        "العقد",
+        "البيع",
+        "الرهن",
+        "الشهر العقاري"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/notaire"
+  },
+  {
+    "id": "adoul",
+    "slug": "adoul",
+    "title_ar": "عدل",
+    "title_fr": "Adoul",
+    "category_id": "legal-documentary",
+    "category_ar": "المهن القانونية والتوثيقية",
+    "short_description": "مهنة منظمة موكلة إلى العدول، تُثبت الأعمال والتصرفات التي يوجب القانون إثباتها على وجه خاص، لا سيما في مجال الأحوال الشخصية والعقار.",
+    "work_model": "liberal_regulated",
+    "work_model_ar": "مهنة حرة منظمة",
+    "employment_modes": [
+      "مكتب عدلي",
+      "شركة عدول",
+      "تعاون بين المكاتب العدلية"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "الأحوال الشخصية",
+      "إثبات الوقائع",
+      "الرسوم العدلية",
+      "الوصايا والإراثة",
+      "البيوع بشروط"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي وخطة العدالة",
+      "status": "verify_official_source",
+      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين القانوني",
+        "description_ar": "المسار الجامعي أو التكوين المتخصص الذي يحدده النص التنظيمي والجهة المختصة."
+      },
+      {
+        "step": 2,
+        "title_ar": "التحقق من شروط الولوج",
+        "description_ar": "شروط الشهادة والسن والجنسية تحددها النصوص والإعلانات الجاري بها العمل."
+      },
+      {
+        "step": 3,
+        "title_ar": "المسطرة التنافسية والتدريب",
+        "description_ar": "قد تكون مباراة أو مسطرة انتقاء ثم تدريب مهني وفق ما يقره النص."
+      },
+      {
+        "step": 4,
+        "title_ar": "التعيين والتسجيل المهني",
+        "description_ar": "تتم إجراءات التعيين والتسجيل لدى الجهة المختصة قبل مباشرة المهام."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تدريب وتعيين وتسجيل وفق الإطار التنظيمي وخطة العدالة الجاري بهما العمل",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "الاستماع والحوار",
+      "الكتابة العدلية",
+      "قانون الأسرة والإراثة",
+      "تدقيق الوثائق",
+      "الحياد",
+      "تنظيم المكتب"
+    ],
+    "best_for": [
+      "من يهتم بالأسرة والإراثة والصياغة العدلية",
+      "من يقبل التعامل المباشر مع الأطراف",
+      "من يرغب في مسار تنظيمي واضح المعالم مع تحقق رسمي من الشروط"
+    ],
+    "lexicon_term_ids": [
+      "adoul",
+      "acte-adoulaire",
+      "mariage",
+      "divorce",
+      "testament",
+      "succession"
+    ],
+    "related_career_ids": [
+      "notaire",
+      "avocat",
+      "greffe"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الولوج",
+        "value_ar": "تحدد بمقتضى النصوص التنظيمية المتعلقة بخطة العدالة وبإعلانات التعيين.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة أو التكوين",
+        "value_ar": "يحددها النص التنظيمي والجهة المكلفة بالتكوين.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "قد يحدد النص أو إعلان التعيين حدوداً للسن؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "التعيين والتسجيل",
+        "value_ar": "يتم وفق المسطرة التنظيمية وبعدد المناصب المعروض في الإعلان الرسمي.",
+        "requirement_type": "professional_registration",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإطار التنظيمي لمهنة العدول (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الجهة الحكومية المكلفة بالعدل",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة لمهنة العدول",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط الولوج إلى خطة العدالة",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "واجبات العدل والأمانة في الإشهاد",
+        "relationship_type": "professional_ethics",
+        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "adoul",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "regulated_profession",
+      "competition_note_ar": "التعيين يمر عبر مسطرة تنظيمية وإعلانات؛ تحقق من الجهة الرسمية ولا تعتمد هذه الصفحة كإعلان توظيف.",
+      "related_quiz_topics": [
+        "الرسم العدلي",
+        "الزواج",
+        "الطلاق",
+        "الإراثة"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/adoul"
+  },
+  {
+    "id": "commissaire-judiciaire",
+    "slug": "commissaire-judiciaire",
+    "title_ar": "مفوض قضائي",
+    "title_fr": "Commissaire judiciaire",
+    "category_id": "legal-documentary",
+    "category_ar": "المهن القانونية والتوثيقية",
+    "short_description": "مهنة حرة منظمة تتولى تبليغ الاستدعاءات والأحكام وتنفيذ السندات التنفيذية في الحدود التي يحددها القانون.",
+    "work_model": "liberal_regulated",
+    "work_model_ar": "مهنة حرة منظمة",
+    "employment_modes": [
+      "مكتب مهني",
+      "شركة مهنية",
+      "تعاون بين المكاتب"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "التبليغ القضائي",
+      "التنفيذ",
+      "الحجز",
+      "المعاينة والاستيفاء",
+      "الإنذارات"
+    ],
+    "typical_degree": {
+      "level": "bachelor_or_equivalent",
+      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي للمهنة",
+      "status": "verify_official_source",
+      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين القانوني",
+        "description_ar": "التكوين الجامعي أو المهني الذي يحدده النص التنظيمي للمهنة."
+      },
+      {
+        "step": 2,
+        "title_ar": "التحقق من شروط الولوج",
+        "description_ar": "شروط الشهادة والسن والجنسية والمسطرة تحددها النصوص والتعيينات الرسمية."
+      },
+      {
+        "step": 3,
+        "title_ar": "مسطرة الولوج أو التدريب",
+        "description_ar": "قد تتضمن انتقاءً أو تدريباً مهنياً وفق ما يقرره النص والجهة المختصة."
+      },
+      {
+        "step": 4,
+        "title_ar": "التسجيل المهني",
+        "description_ar": "إتمام التسجيل لدى الهيئة المهنية والتعيين قبل الممارسة."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تدريب وتسجيل مهني وفق الإطار التنظيمي الجاري به العمل",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "دقة في المساطر",
+      "مساطر التنفيذ",
+      "الكتابة الإجرائية",
+      "التنظيم الميداني",
+      "التواصل المهني",
+      "ضبط الآجال"
+    ],
+    "best_for": [
+      "من يهتم بالمساطر والتنفيذ الميداني",
+      "من يحب العمل المنظم القائم على الآجال",
+      "من يقبل مساراً مهنياً تنظيماً يتطلب تحققاً رسمياً من الشروط"
+    ],
+    "lexicon_term_ids": [
+      "exploit-huissier",
+      "notification",
+      "execution",
+      "saisie",
+      "mainlevee",
+      "jugement"
+    ],
+    "related_career_ids": [
+      "avocat",
+      "greffe",
+      "delegue-judiciaire"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الولوج",
+        "value_ar": "تحدد بالنص التنظيمي وبإعلانات التعيين الرسمية الجاري بها العمل.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "يحددها النص التنظيمي للمهنة.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "قد يحدد النص أو إعلان التعيين حداً أدنى أو أقصى؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "التسجيل المهني",
+        "value_ar": "يتم وفق مسطرة الهيئة المهنية المختصة.",
+        "requirement_type": "professional_registration",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإطار التنظيمي لمهنة المفوضين القضائيين (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الهيئة الوطنية للمفوضين القضائيين",
+        "source_type": "professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "القانون المنظم لمهنة المفوضين القضائيين",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط الولوج إلى المهنة والتدريب",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "واجبات المهنة في التبليغ والتنفيذ",
+        "relationship_type": "professional_ethics",
+        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "commissaire-judiciaire",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "regulated_profession",
+      "competition_note_ar": "حالة مسطرة الولوج تحددها الهيئة المهنية والنصوص؛ تحقق من المصدر الرسمي قبل أي ترشح.",
+      "related_quiz_topics": [
+        "التبليغ",
+        "التنفيذ",
+        "الحجز",
+        "الإنذار"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/commissaire-judiciaire"
+  },
+  {
+    "id": "expert-judiciaire",
+    "slug": "expert-judiciaire",
+    "title_ar": "خبير قضائي",
+    "title_fr": "Expert judiciaire",
+    "category_id": "technical-expert",
+    "category_ar": "المهن التقنية والخبرة",
+    "short_description": "مهنة تقنية يقدم فيها الخبير رأياً فنياً للمحكمة في مسائل تحتاج تخصصاً تقنياً، ولا يقدم رأياً قانونياً في النزاع.",
+    "work_model": "mixed",
+    "work_model_ar": "مسار مختلط",
+    "employment_modes": [
+      "مكتب خبرة مستقل",
+      "شركة خبرة",
+      "نشاط تقني إضافي إلى جانب الخبرة"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "depends",
+    "school_recommendation_message": "قد يتطلب هذا المسار تكويناً تقنياً أو قانونياً حسب الاختصاص المطلوب للخبرة؛ اختر مدينتك لعرض أقرب كليات الحقوق عند الاقتضاء.",
+    "main_areas": [
+      "الخبرة التقنية",
+      "المعاينة",
+      "التقارير الفنية",
+      "تقييم الأضرار",
+      "المساعدة الفنية للقضاء"
+    ],
+    "typical_degree": {
+      "level": "depends",
+      "label_ar": "شهادة أو تكوين تقني معتمد إلى جانب الشروط التنظيمية للخبرة",
+      "status": "verify_official_source",
+      "note_ar": "الاختصاص التقني المطلوب يختلف حسب مجال الخبرة؛ تحقق من النص التنظيمي وقوائم الخبراء."
+    },
+    "age_requirement": {
+      "has_requirement": false,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "قد تحدد النصوص وقوائم الخبراء شروطاً مهنية وتقنية؛ تحقق من المصدر الرسمي."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "بناء الاختصاص التقني",
+        "description_ar": "تكوين وخبرة عملية في المجال التقني أو المهني المطلوب للخبرة."
+      },
+      {
+        "step": 2,
+        "title_ar": "التحقق من شروط التسجيل",
+        "description_ar": "راجع شروط التكوين والممارسة والتسجيل في قوائم الخبراء لدى الجهة القضائية المختصة."
+      },
+      {
+        "step": 3,
+        "title_ar": "التسجيل في قوائم الخبراء",
+        "description_ar": "يتم التسجيل وفق مسطرة تنظيمية ومراجعة دورية تحددها النصوص الجاري بها العمل."
+      },
+      {
+        "step": 4,
+        "title_ar": "ممارسة الخبرة بأمر من القضاء",
+        "description_ar": "يتولى الخبير مهامه بأمر من المحكمة في الحدود المرسومة له."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين مستمر وتسجيل في قوائم الخبراء وفق الإطار التنظيمي",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "التحليل التقني",
+      "كتابة التقارير الفنية",
+      "الحياد والموضوعية",
+      "المعاينة الميدانية",
+      "الدفاع عن نتائج التحليل",
+      "ضبط الآجال"
+    ],
+    "best_for": [
+      "من يجمع بين تخصص تقني ومعرفة قانونية",
+      "من يحب التحليل الفني وكتابة التقارير",
+      "من يقبل العمل بطلب من المحكمة وحدود مهام محددة"
+    ],
+    "lexicon_term_ids": [
+      "expert",
+      "preuve",
+      "audition",
+      "jugement",
+      "ordonnance"
+    ],
+    "related_career_ids": [
+      "magistrat",
+      "avocat",
+      "traducteur-assermente"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط التسجيل في قوائم الخبراء",
+        "value_ar": "تحددها النصوص التنظيمية والمساطر الجاري بها العمل.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "التكوين والخبرة المهنية",
+        "value_ar": "يختلف حسب مجال الخبرة ويحدده النص وقرارات التسجيل.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "قد تحدد النصوص أو قرارات التسجيل شروطاً للسن أو للممارسة؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "الممارسة بأمر من القضاء",
+        "value_ar": "يتولى الخبير مهمته في الحدود التي يرسمها له القضاء.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإطار التنظيمي للخبرة القضائية (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الجهة القضائية المكلفة بجداول الخبراء",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة للخبرة القضائية",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط التسجيل في قوائم الخبراء",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "التكوين التقني المطلوب في التخصص",
+        "relationship_type": "training",
+        "relationship_ar": "التكوين والتأهيل",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "expert-judiciaire",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "regulated_profession",
+      "competition_note_ar": "التسجيل في قوائم الخبراء ليس إعلان توظيف؛ تحقق من الجهة القضائية المختصة ومن النص التنظيمي.",
+      "related_quiz_topics": [
+        "الخبرة",
+        "الإثبات",
+        "المعاينة",
+        "التقرير الفني"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/expert-judiciaire"
+  },
+  {
+    "id": "traducteur-assermente",
+    "slug": "traducteur-assermente",
+    "title_ar": "مترجم محلف",
+    "title_fr": "Traducteur assermenté",
+    "category_id": "technical-expert",
+    "category_ar": "المهن التقنية والخبرة",
+    "short_description": "مهنة تقنية لغوية تتولى ترجمة الوثائق والمداولات التي يُطلب فيها ترجمة معتمدة، في الحدود التي يحددها النص التنظيمي.",
+    "work_model": "mixed",
+    "work_model_ar": "مسار مختلط",
+    "employment_modes": [
+      "مكتب ترجمة معتمد",
+      "نشاط مهني مستقل",
+      "تعاون مع مكاتب ومؤسسات"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "depends",
+    "school_recommendation_message": "هذا المسار لغوي بالأساس، وقد تفيدك دراسة القانون فيه؛ اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "الترجمة المعتمدة",
+      "ترجمة الوثائق القضائية",
+      "الترجمة القانونية",
+      "مصادقة الترجمات",
+      "اللغات الأجنبية"
+    ],
+    "typical_degree": {
+      "level": "depends",
+      "label_ar": "شهادة أو تكوين لغوي معتمد إلى جانب الشروط التنظيمية للتعيين",
+      "status": "verify_official_source",
+      "note_ar": "اللغات المطلوبة والشهادات المقبولة تحددها النصوص والجهات المختصة؛ تحقق من المصدر الرسمي."
+    },
+    "age_requirement": {
+      "has_requirement": false,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "تحقق من شروط التعيين والسن في النص التنظيمي والجهة المختصة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "بناء الكفاءة اللغوية",
+        "description_ar": "تكوين جامعي أو مهني في الترجمة أو في اللغة المعنية مع إتقان قانوني مفيد."
+      },
+      {
+        "step": 2,
+        "title_ar": "التحقق من شروط التعيين",
+        "description_ar": "راجع شروط الشهادة واللغات والسن ومسطرة التعيين لدى الجهة المختصة."
+      },
+      {
+        "step": 3,
+        "title_ar": "أداء اليمين والتعيين",
+        "description_ar": "يتم التعيين وأداء اليمين وفق المسطرة الرسمية وتحدد الوثائق المطلوبة في الإعلان."
+      },
+      {
+        "step": 4,
+        "title_ar": "ممارسة الترجمة المعتمدة",
+        "description_ar": "تُمارس المهمة في نطاق الترجمة المطلوبة مع الالتزام بالسر المهني والدقة."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تعيين وأداء يمين وممارسة وفق الإطار التنظيمي الجاري به العمل",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "إتقان اللغات",
+      "الدقة اللغوية",
+      "المصطلح القانوني",
+      "الترجمة التحريرية",
+      "السر المهني",
+      "تنظيم الوثائق"
+    ],
+    "best_for": [
+      "من يتقن لغات أجنبية ويحب الدقة اللغوية",
+      "من يهتم بترجمة الوثائق القانونية",
+      "من يرغب في نشاط مهني مستقل مرتبط بالعدالة والوثائق"
+    ],
+    "lexicon_term_ids": [
+      "preuve",
+      "notification",
+      "acte-administratif",
+      "exploit-huissier",
+      "exequatur"
+    ],
+    "related_career_ids": [
+      "expert-judiciaire",
+      "greffe",
+      "avocat"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط التعيين",
+        "value_ar": "تحددها النصوص التنظيمية وقرارات التعيين الجاري بها العمل.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة واللغات",
+        "value_ar": "يحددها النص والجهة المختصة حسب اللغات المعتمدة.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "تحقق من النص وقرار التعيين؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "أداء اليمين والتعيين",
+        "value_ar": "يتم وفق المسطرة الرسمية مع الوثائق المطلوبة في الإعلان.",
+        "requirement_type": "professional_registration",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإطار التنظيمي لمهنة التراجمة المعتمدين (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الجهة المكلفة بالتعيين",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة لمهنة الترجمة المعتمدة",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط الاعتماد والتحليف",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "واجبات الأمانة والسر المهني في الترجمة",
+        "relationship_type": "professional_ethics",
+        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "traducteur-assermente",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "regulated_profession",
+      "competition_note_ar": "التعيين يخضع لمسطرة رسمية؛ لا تعتمد هذه الصفحة كإعلان وارجع إلى الجهة المختصة.",
+      "related_quiz_topics": [
+        "الترجمة القانونية",
+        "المصادقة",
+        "السر المهني"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/traducteur-assermente"
+  },
+  {
+    "id": "delegue-judiciaire",
+    "slug": "delegue-judiciaire",
+    "title_ar": "منتدب قضائي",
+    "title_fr": "Délégué judiciaire",
+    "category_id": "court-administration",
+    "category_ar": "إدارة العدالة والمحاكم",
+    "short_description": "موظف عمومي يمارس مهام إدارية ومسطرية داخل المحاكم وقطاع العدل وفق النظام الأساسي والإعلانات الرسمية للتوظيف.",
+    "work_model": "public_sector",
+    "work_model_ar": "وظيفة عمومية",
+    "employment_modes": [
+      "محكمة",
+      "قطاع العدل",
+      "مؤسسة عمومية قضائية"
+    ],
+    "can_freelance": false,
+    "can_work_government": true,
+    "can_work_private_sector": false,
+    "requires_legal_education": "recommended",
+    "school_recommendation_message": "دراسة القانون مفيدة لهذا المسار، لكن المتطلبات قد تختلف حسب المشغل أو الإعلان.",
+    "main_areas": [
+      "مسطرة المحاكم",
+      "تدبير الملفات القضائية",
+      "التبليغ الإداري",
+      "مسك الوثائق",
+      "الإدارة القضائية"
+    ],
+    "typical_degree": {
+      "level": "bachelor_or_equivalent",
+      "label_ar": "شهادة أو تكوين يحددهما إعلان التوظيف الرسمي",
+      "status": "verify_official_source",
+      "note_ar": "الشهادة المطلوبة تحدد في كل إعلان توظيف؛ تحقق من الإعلان الجاري به العمل."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "annual_notice",
+      "status": "verify_official_source",
+      "note_ar": "السن محدد في كل إعلان توظيف؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين المناسب",
+        "description_ar": "تكوين جامعي أو مهني في القانون أو المجال الإداري المرتبط بالمهام."
+      },
+      {
+        "step": 2,
+        "title_ar": "متابعة الإعلانات الرسمية",
+        "description_ar": "تُنشر مباريات التوظيف في إعلانات رسمية تحدد الشهادات والسن وعدد المناصب."
+      },
+      {
+        "step": 3,
+        "title_ar": "اجتياز مباراة التوظيف",
+        "description_ar": "تتضمن عادة اختبارات كتابية وشفهية تحددها الجهة المنظمة."
+      },
+      {
+        "step": 4,
+        "title_ar": "الترسيم والتكوين الإداري",
+        "description_ar": "بعد النجاح تأتي مرحلة التكوين والترسيم وفق النظام الأساسي الجاري به العمل."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين إداري وترسيم وفق النظام الأساسي والإعلان الرسمي",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "المساطر القضائية",
+      "التدقيق الإداري",
+      "تنظيم الملفات",
+      "الكتابة الإدارية",
+      "الالتزام بالآجال",
+      "العمل ضمن فريق"
+    ],
+    "best_for": [
+      "من يفضل الاستقرار الوظيفي داخل مؤسسة",
+      "من يهتم بالمساطر والتدبير الإداري",
+      "من يمكنه متابعة الإعلانات الرسمية والتحضير للمباراة"
+    ],
+    "lexicon_term_ids": [
+      "jugement",
+      "notification",
+      "juridiction",
+      "audience-publique",
+      "execution"
+    ],
+    "related_career_ids": [
+      "greffe",
+      "redacteur-judiciaire",
+      "juriste-administration-publique"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الترشح",
+        "value_ar": "تحدد في كل إعلان توظيف رسمي ولا تنتقل تلقائياً من إعلان إلى آخر.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "تحدد في الإعلان الرسمي الجاري به العمل.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "يحدد في الإعلان الرسمي؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "اجتياز المباراة",
+        "value_ar": "تنظمها الجهة المشغلة بإعلان رسمي يشمل الاختبارات والمعايير.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإعلانات الرسمية لمباريات التوظيف في قطاع العدل",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "النظام الأساسي للوظيفة العمومية",
+        "source_type": "legal_text",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي للوظيفة العمومية",
+        "relationship_type": "public_employment",
+        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة لأسلاك العدل والمهام الكتابية",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "الإعلانات السنوية للتوظيف في قطاع العدل",
+        "relationship_type": "annual_notice_reference",
+        "relationship_ar": "مرجع الإعلان السنوي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "delegue-judiciaire",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "annual_public_competition",
+      "competition_note_ar": "لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار؛ راجع الإعلانات الرسمية الجاري بها العمل قبل أي ترشح.",
+      "related_quiz_topics": [
+        "التنظيم القضائي",
+        "المسطرة المدنية",
+        "الوظيفة العمومية"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/delegue-judiciaire"
+  },
+  {
+    "id": "redacteur-judiciaire",
+    "slug": "redacteur-judiciaire",
+    "title_ar": "محرر قضائي",
+    "title_fr": "Rédacteur judiciaire",
+    "category_id": "court-administration",
+    "category_ar": "إدارة العدالة والمحاكم",
+    "short_description": "موظف عمومي يشارك في تحرير الوثائق القضائية وتدبير السجلات والمساطر داخل المحاكم، وفق النظام الأساسي والإعلانات الرسمية.",
+    "work_model": "public_sector",
+    "work_model_ar": "وظيفة عمومية",
+    "employment_modes": [
+      "محكمة",
+      "قطاع العدل",
+      "مصلحة كتابية قضائية"
+    ],
+    "can_freelance": false,
+    "can_work_government": true,
+    "can_work_private_sector": false,
+    "requires_legal_education": "recommended",
+    "school_recommendation_message": "دراسة القانون مفيدة لهذا المسار، لكن المتطلبات قد تختلف حسب المشغل أو الإعلان.",
+    "main_areas": [
+      "تحرير الوثائق",
+      "مسك السجلات",
+      "تدبير الجلسات",
+      "الأرشيف القضائي",
+      "المساعدة الكتابية للقضاء"
+    ],
+    "typical_degree": {
+      "level": "bachelor_or_equivalent",
+      "label_ar": "شهادة أو تكوين يحددهما إعلان التوظيف الرسمي",
+      "status": "verify_official_source",
+      "note_ar": "الشهادة المطلوبة تحدد في الإعلان الرسمي؛ تحقق منه قبل الترشح."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "annual_notice",
+      "status": "verify_official_source",
+      "note_ar": "السن محدد في كل إعلان توظيف؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين في القانون أو التدبير",
+        "description_ar": "تكوين جامعي أو مهني ملائم لمهام التحرير والتدبير القضائي."
+      },
+      {
+        "step": 2,
+        "title_ar": "متابعة الإعلانات الرسمية",
+        "description_ar": "تُعلن مباريات التوظيف رسمياً بالشهادات والسن والمناصب المطلوبة."
+      },
+      {
+        "step": 3,
+        "title_ar": "اجتياز المباراة والاختبارات",
+        "description_ar": "كتابية وشفهية في مراجع يحددها الإعلان المنظم."
+      },
+      {
+        "step": 4,
+        "title_ar": "التكوين والترسيم",
+        "description_ar": "إتمام مراحل التكوين والترسيم وفق النظام الأساسي الجاري به العمل."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين إداري وترسيم وفق النظام الأساسي والإعلان الرسمي",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "الكتابة الإدارية والقضائية",
+      "تنظيم الوثائق",
+      "الدقة والصياغة",
+      "تدبير الآجال",
+      "استعمال الأنظمة المعلوماتية",
+      "العمل الجماعي"
+    ],
+    "best_for": [
+      "من يحب الكتابة وتنظيم الوثائق",
+      "من يفضل العمل ضمن فريق إداري قضائي",
+      "من يستطيع متابعة الإعلانات الرسمية والاستعداد لها"
+    ],
+    "lexicon_term_ids": [
+      "juridiction",
+      "jugement",
+      "greffier",
+      "audience-publique",
+      "notification"
+    ],
+    "related_career_ids": [
+      "greffe",
+      "delegue-judiciaire",
+      "magistrat"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الترشح",
+        "value_ar": "تحدد في إعلان التوظيف الرسمي الجاري به العمل.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "تحدد في الإعلان الرسمي.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "يحدد في الإعلان الرسمي؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "اجتياز المباراة",
+        "value_ar": "تنظمها الجهة المشغلة وفق إعلان رسمي.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإعلانات الرسمية لمباريات التوظيف في قطاع العدل",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "النظام الأساسي للوظيفة العمومية",
+        "source_type": "legal_text",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي للوظيفة العمومية",
+        "relationship_type": "public_employment",
+        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة لأسلاك العدل والمهام الكتابية",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "الإعلانات السنوية للتوظيف في قطاع العدل",
+        "relationship_type": "annual_notice_reference",
+        "relationship_ar": "مرجع الإعلان السنوي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "redacteur-judiciaire",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "annual_public_competition",
+      "competition_note_ar": "لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار؛ راجع الإعلانات الرسمية الجاري بها العمل.",
+      "related_quiz_topics": [
+        "المساطر",
+        "الوثائق القضائية",
+        "التنظيم القضائي"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/redacteur-judiciaire"
+  },
+  {
+    "id": "greffe",
+    "slug": "greffe",
+    "title_ar": "موظف هيئة كتابة الضبط",
+    "title_fr": "Personnel du greffe",
+    "category_id": "court-administration",
+    "category_ar": "إدارة العدالة والمحاكم",
+    "short_description": "موظف عمومي داخل هيئة كتابة الضبط يتولى مسك السجلات وتحصيل الرسوم وإعداد الوثائق والمحاضر وفق النظام الأساسي الخاص بالهيئة.",
+    "work_model": "public_sector",
+    "work_model_ar": "وظيفة عمومية",
+    "employment_modes": [
+      "محكمة ابتدائية",
+      "محكمة استئناف",
+      "محكمة تجارية أو إدارية",
+      "مصلحة كتابية تابعة لقطاع العدل"
+    ],
+    "can_freelance": false,
+    "can_work_government": true,
+    "can_work_private_sector": false,
+    "requires_legal_education": "recommended",
+    "school_recommendation_message": "دراسة القانون مفيدة لهذا المسار، لكن المتطلبات قد تختلف حسب المشغل أو الإعلان.",
+    "main_areas": [
+      "كتابة الضبط",
+      "مسك السجلات",
+      "المحاضر",
+      "الرسوم القضائية",
+      "تنفيذ المساطر الكتابية"
+    ],
+    "typical_degree": {
+      "level": "depends",
+      "label_ar": "شهادة أو مستوى دراسي يحدده النظام الأساسي وإعلان التوظيف",
+      "status": "verify_official_source",
+      "note_ar": "يحدد النظام الأساسي الخاص بهيئة كتابة الضبط وإعلانات التوظيف الشهادات والمستويات المطلوبة؛ تحقق من المصدر الرسمي."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "annual_notice",
+      "status": "verify_official_source",
+      "note_ar": "السن محدد في الإعلان الرسمي للتوظيف؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين المناسب",
+        "description_ar": "تكوين جامعي أو مهني في القانون أو التدبير الإداري حسب ما يحدده الإعلان."
+      },
+      {
+        "step": 2,
+        "title_ar": "الاطلاع على النظام الأساسي",
+        "description_ar": "راجع النظام الأساسي الخاص بهيئة كتابة الضبط لمعرفة الأصناف وطبيعة المهام."
+      },
+      {
+        "step": 3,
+        "title_ar": "اجتياز مباراة التوظيف",
+        "description_ar": "تنشر الإعلانات الرسمية ببيانات الشهادات والسن وعدد المناصب."
+      },
+      {
+        "step": 4,
+        "title_ar": "التكوين والترسيم",
+        "description_ar": "تُستكمل مراحل التكوين والترسيم وفق النظام الأساسي الجاري به العمل."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين وترسيم وفق النظام الأساسي الخاص بهيئة كتابة الضبط",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "مسك السجلات",
+      "الدقة الكتابية",
+      "معرفة المساطر",
+      "التعامل مع المتقاضين",
+      "استعمال الأنظمة المعلوماتية",
+      "الالتزام بالآجال"
+    ],
+    "best_for": [
+      "من يفضل العمل القضائي الإداري داخل المحكمة",
+      "من يمتلك دقة في الكتابة والمسك",
+      "من يقبل مساراً وظيفياً يخضع لإعلانات رسمية"
+    ],
+    "lexicon_term_ids": [
+      "greffier",
+      "juridiction",
+      "audience-publique",
+      "jugement",
+      "notification",
+      "execution"
+    ],
+    "related_career_ids": [
+      "redacteur-judiciaire",
+      "delegue-judiciaire",
+      "adoul"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الترشح",
+        "value_ar": "تحدد في الإعلان الرسمي الجاري به العمل.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة أو المستوى الدراسي",
+        "value_ar": "يحدده النظام الأساسي وإعلان التوظيف.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "يحدد في الإعلان الرسمي؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "اجتياز المباراة والترسيم",
+        "value_ar": "يتم وفق الإعلان والنظام الأساسي.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "النظام الأساسي الخاص بهيئة كتابة الضبط (النص التنظيمي الجاري به العمل)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "الإعلانات الرسمية لقطاع العدل",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي للوظيفة العمومية",
+        "relationship_type": "public_employment",
+        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي الخاص بهيئة كتابة الضبط",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "الإعلانات السنوية لتوظيف هيئة كتابة الضبط",
+        "relationship_type": "annual_notice_reference",
+        "relationship_ar": "مرجع الإعلان السنوي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "greffe",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "annual_public_competition",
+      "competition_note_ar": "لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار؛ تحقق من الإعلانات الرسمية الجاري بها العمل.",
+      "related_quiz_topics": [
+        "كتابة الضبط",
+        "المحاضر",
+        "الرسوم القضائية"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/greffe"
+  },
+  {
+    "id": "magistrat",
+    "slug": "magistrat",
+    "title_ar": "قاضٍ",
+    "title_fr": "Magistrat",
+    "category_id": "magistrature",
+    "category_ar": "القضاء والنيابة العامة",
+    "short_description": "وظيفة قضائية مؤسسية يتولاها من يوفّر شروط الولوج والتكوين القضائي، ويمارسها داخل المحاكم والنيابة العامة وفق الضمانات التي يحددها القانون.",
+    "work_model": "public_sector",
+    "work_model_ar": "وظيفة عمومية",
+    "employment_modes": [
+      "المحاكم",
+      "النيابة العامة",
+      "المعهد المختص بتكوين القضاة"
+    ],
+    "can_freelance": false,
+    "can_work_government": true,
+    "can_work_private_sector": false,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "القضاء",
+      "النيابة العامة",
+      "التحقيق",
+      "القضاء التجاري والإداري",
+      "المساطر القضائية"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي ومعايير الولوج",
+      "status": "verify_official_source",
+      "note_ar": "معايير الولوج تحدد بالنصوص والإعلانات الرسمية؛ تحقق من المصدر قبل أي استعداد."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "legal_or_competition",
+      "status": "verify_official_source",
+      "note_ar": "قد يحدد النص أو الإعلان شرطاً للسن؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين القانوني",
+        "description_ar": "إتمام الإجازة أو الماستر في القانون أو الشهادة التي تحددها المعايير الرسمية."
+      },
+      {
+        "step": 2,
+        "title_ar": "مسار الولوج والتكوين القضائي",
+        "description_ar": "يتم الولوج وفق مسطرة تنظيمية قد تشمل اختبارات وتكويناً بالمعهد المختص."
+      },
+      {
+        "step": 3,
+        "title_ar": "التكوين بالمعهد القضائي",
+        "description_ar": "تكوين نظري وعملي في القضاء والمساطر وأخلاقيات المهنة."
+      },
+      {
+        "step": 4,
+        "title_ar": "التعيين وممارسة القضاء",
+        "description_ar": "يتم التعيين في الوظائف القضائية وفق النصوص الجاري بها العمل."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين قضائي تخصصي ثم تعيين في وظيفة قضائية وفق النصوص الجاري بها العمل",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "التحليل القانوني العميق",
+      "الاستدلال والصياغة",
+      "تدبير الملفات المعقدة",
+      "الحياد والاستقلالية",
+      "الاستماع والمصغ",
+      "ضبط الآجال"
+    ],
+    "best_for": [
+      "من يهتم بالتقييم القانوني وتطبيق النصوص",
+      "من يقدّر العمل المؤسسي والقواعد الأخلاقية الصارمة",
+      "من يقبل مساراً انتقائياً طويلاً يخضع لشروط رسمية"
+    ],
+    "lexicon_term_ids": [
+      "parquet",
+      "instruction",
+      "juridiction",
+      "jugement",
+      "appel",
+      "cassation"
+    ],
+    "related_career_ids": [
+      "avocat",
+      "greffe",
+      "juriste-administration-publique"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الولوج",
+        "value_ar": "تحدد بالنصوص التنظيمية ومعايير المعهد المختص والإعلانات الرسمية.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "يحددها النص والمعايير المنشورة؛ تحقق من المصدر الرسمي.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "قد توجد حدود للسن تحددها المعايير الرسمية؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "مسار الانتقاء والتكوين",
+        "value_ar": "يشمل مراحل انتقاء وتكويناً مؤسسياً قبل التعيين.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الهيئة الدستورية المكلفة بالمجلس الأعلى للسلطة القضائية",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "المعهد المختص بتكوين القضاة",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي للقضاة",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "شروط الولوج إلى سلك القضاء",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "شروط الولوج والتكوين",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة للتكوين بالمعهد القضائي",
+        "relationship_type": "training",
+        "relationship_ar": "التكوين والتأهيل",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "magistrat",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "annual_public_competition",
+      "competition_note_ar": "المسار مؤسسي وينضبط لإعلانات ومعايير رسمية؛ تحقق منها مباشرة ولا تعتمد هذه الصفحة.",
+      "related_quiz_topics": [
+        "التنظيم القضائي",
+        "المسطرة الجنائية",
+        "أخلاقيات القضاء"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/magistrat"
+  },
+  {
+    "id": "juriste-administration-publique",
+    "slug": "juriste-administration-publique",
+    "title_ar": "باحث قانوني في إدارة عمومية",
+    "title_fr": "Juriste dans l'administration publique",
+    "category_id": "public-legal",
+    "category_ar": "القانون في الإدارة العمومية",
+    "short_description": "وظيفة عمومية قانونية تُمارس داخل الإدارات والمؤسسات العمومية في دراسة النصوص وإعداد المشاريع وتتبع النزاعات الإدارية.",
+    "work_model": "public_sector",
+    "work_model_ar": "وظيفة عمومية",
+    "employment_modes": [
+      "إدارة عمومية",
+      "مؤسسة عمومية",
+      "جماعة ترابية",
+      "مصلحة قانونية"
+    ],
+    "can_freelance": false,
+    "can_work_government": true,
+    "can_work_private_sector": false,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "الصياغة التشريعية",
+      "الدراسات القانونية",
+      "النزاعات الإدارية",
+      "الطلبات الإدارية",
+      "تتبع تطبيق النصوص"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "شهادة قانونية عليا يحددها إعلان التوظيف الرسمي",
+      "status": "verify_official_source",
+      "note_ar": "الإعلانات الرسمية للتوظيف تحدد الشهادات والمستويات المطلوبة؛ تحقق منها قبل الترشح."
+    },
+    "age_requirement": {
+      "has_requirement": true,
+      "minimum": null,
+      "maximum": null,
+      "basis": "annual_notice",
+      "status": "verify_official_source",
+      "note_ar": "السن محدد في إعلان التوظيف؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين القانوني العالي",
+        "description_ar": "إتمام الماستر أو الشهادة التي يحددها إعلان التوظيف الرسمي."
+      },
+      {
+        "step": 2,
+        "title_ar": "متابعة إعلانات التوظيف",
+        "description_ar": "تُنشر المباريات في إعلانات رسمية تتضمن الشهادات والتخصصات والمناصب."
+      },
+      {
+        "step": 3,
+        "title_ar": "اجتياز المباراة",
+        "description_ar": "اختبارات تحريرية وشفهية في القانون الإداري والقانون الدستوري وغيرها حسب الإعلان."
+      },
+      {
+        "step": 4,
+        "title_ar": "التعيين والتكوين الإداري",
+        "description_ar": "يُستكمل التعيين والتكوين الإداري وفق النظام الجاري به العمل."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين إداري وتخصص وفق النظام الأساسي والإعلان الرسمي",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "الصياغة القانونية",
+      "قراءة النصوص وتفسيرها",
+      "قانون إداري",
+      "البحث القانوني",
+      "تحرير المذكرات",
+      "التنسيق بين المصالح"
+    ],
+    "best_for": [
+      "من يهتم بالقانون العام والإدارة",
+      "من يحب دراسة النصوص وتحضير الملفات الإدارية",
+      "من يفضل مساراً وظيفياً منظماً بإعلانات رسمية"
+    ],
+    "lexicon_term_ids": [
+      "acte-administratif",
+      "service-public",
+      "fonction-publique",
+      "recours-pour-exces-pouvoir",
+      "marche-public",
+      "contrat-administratif"
+    ],
+    "related_career_ids": [
+      "magistrat",
+      "juriste-entreprise",
+      "delegue-judiciaire"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الترشح",
+        "value_ar": "تحدد في إعلان التوظيف الرسمي الجاري به العمل.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة والتخصص القانوني",
+        "value_ar": "يحددهما الإعلان الرسمي.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "يحدد في الإعلان الرسمي؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "registration",
+        "label_ar": "اجتياز المباراة",
+        "value_ar": "تنظمها الإدارة المشغلة بإعلان رسمي.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "الإعلانات الرسمية لمباريات التوظيف بالإدارات العمومية",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "النظام الأساسي للوظيفة العمومية",
+        "source_type": "legal_text",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي للوظيفة العمومية",
+        "relationship_type": "public_employment",
+        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة لعمل الإدارات العمومية والقرارات الإدارية",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "الإعلانات السنوية لمباريات الوظيفة العمومية",
+        "relationship_type": "annual_notice_reference",
+        "relationship_ar": "مرجع الإعلان السنوي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "juriste-administration-publique",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "annual_public_competition",
+      "competition_note_ar": "لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار؛ راجع الإعلانات الرسمية الجاري بها العمل.",
+      "related_quiz_topics": [
+        "القرار الإداري",
+        "المرفق العام",
+        "الوظيفة العمومية"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/juriste-administration-publique"
+  },
+  {
+    "id": "juriste-entreprise",
+    "slug": "juriste-entreprise",
+    "title_ar": "مستشار قانوني للشركات",
+    "title_fr": "Juriste d'entreprise",
+    "category_id": "private-academic",
+    "category_ar": "القطاع الخاص والبحث",
+    "short_description": "مستشار قانوني داخلي أو خارجي يساند الشركات في العقود والحكامة والامتثال والنزاعات، وتختلف شروط التوظيف حسب المشغل.",
+    "work_model": "private_sector",
+    "work_model_ar": "قطاع خاص",
+    "employment_modes": [
+      "شركة خاصة",
+      "مجموعة شركات",
+      "مكتب استشارات قانونية",
+      "شركة محاماة أو توثيق"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "العقود التجارية",
+      "قانون الشركات",
+      "المنازعات التجارية",
+      "الامتثال",
+      "الحكامة"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "تكوين قانوني أو ماستر مهني يحدده المشغل",
+      "status": "verify_official_source",
+      "note_ar": "المشغل هو من يحدد الشهادة والسنوات المطلوبة؛ لا توجد قاعدة موحدة لجميع الشركات."
+    },
+    "age_requirement": {
+      "has_requirement": false,
+      "minimum": null,
+      "maximum": null,
+      "basis": "institution_practice",
+      "status": "verify_official_source",
+      "note_ar": "الشروط يحددها إعلان التوظيف أو دفتر التحملات الخاص بالمشغل؛ تحقق من الإعلان نفسه."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين القانوني",
+        "description_ar": "إتمام الإجازة أو الماستر في القانون الخاص وتخصصات الأعمال."
+      },
+      {
+        "step": 2,
+        "title_ar": "بناء مهارات عملية",
+        "description_ar": "تداريب في مكاتب أو شركات وتكوين في صياغة العقود وقانون الشركات."
+      },
+      {
+        "step": 3,
+        "title_ar": "الترشح لمنصب شاغر",
+        "description_ar": "يتم التوظيف مباشرة من المشغل بإعلان أو مسطرة انتقاء داخلية."
+      },
+      {
+        "step": 4,
+        "title_ar": "التطور المهني داخل المنظمة",
+        "description_ar": "يشمل التطور التعمق في القطاع وتدبير العقود والملفات المعقدة."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين مستمر داخل الشركة أو المكتب وفق حاجة القطاع",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "صياغة العقود",
+      "قانون الشركات",
+      "التفاوض",
+      "تحليل المخاطر",
+      "التواصل مع الإدارات والشركاء",
+      "تنظيم الملفات"
+    ],
+    "best_for": [
+      "من يهتم بالشركات والأعمال والعقود",
+      "من يحب الحلول العملية وليس النزاعات فقط",
+      "من يرغب في مسار خاص يحدد فيه المشغل الشروط"
+    ],
+    "lexicon_term_ids": [
+      "contrat",
+      "societe-anonyme",
+      "sarl",
+      "capital-social",
+      "convention-collective",
+      "responsabilite-civile",
+      "faillite"
+    ],
+    "related_career_ids": [
+      "responsable-conformite",
+      "avocat",
+      "enseignant-chercheur-droit"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط التوظيف",
+        "value_ar": "يحددها المشغل في إعلان التوظيف أو دفتر التحملات.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة والخبرة",
+        "value_ar": "يحددهما المشغل ولا تكون موحدة بين الشركات.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "لا توجد قاعدة عامة؛ تحقق من إعلان التوظيف نفسه.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "registration",
+        "label_ar": "لا يوجد تسجيل مهني مطلوب",
+        "value_ar": "المسار توظيف خاص؛ وترشيح الشركة أمام القضاء يخضع لشروط مهنية مستقلة.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "إعلانات التوظيف الخاصة بالشركات",
+        "source_type": "private_employer",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "مدونة التجارة والشكل القانوني للشركات",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "قانون الالتزامات والعقود في المجال التعاقدي",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "مدونة الشغل في العلاقات المهنية",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "juriste-entreprise",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "private_recruitment",
+      "competition_note_ar": "التوظيف يقع مباشرة من المشغل ولا يوجد إعلان مباراة عمومية موحد؛ راجع إعلان كل مشغل.",
+      "related_quiz_topics": [
+        "العقد",
+        "الشركات التجارية",
+        "المسؤولية المدنية"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/juriste-entreprise"
+  },
+  {
+    "id": "responsable-conformite",
+    "slug": "responsable-conformite",
+    "title_ar": "مسؤول الامتثال",
+    "title_fr": "Responsable conformité",
+    "category_id": "private-academic",
+    "category_ar": "القطاع الخاص والبحث",
+    "short_description": "وظيفة قانونية-رقابية داخل المؤسسات تراقب مطابقة الأنشطة للقواعد القانونية والتنظيمية الداخلية، وتختلف شروطها حسب القطاع والمشغل.",
+    "work_model": "private_sector",
+    "work_model_ar": "قطاع خاص",
+    "employment_modes": [
+      "بنك أو مؤسسة مالية",
+      "شركة كبرى",
+      "مكتب تدقيق أو استشارة",
+      "مؤسسة تنظيمية"
+    ],
+    "can_freelance": true,
+    "can_work_government": false,
+    "can_work_private_sector": true,
+    "requires_legal_education": "recommended",
+    "school_recommendation_message": "دراسة القانون مفيدة لهذا المسار، لكن المتطلبات قد تختلف حسب المشغل أو الإعلان.",
+    "main_areas": [
+      "الامتثال التنظيمي",
+      "مكافحة غسل الأموال",
+      "حماية المعطيات",
+      "الرقابة الداخلية",
+      "المخاطر القانونية"
+    ],
+    "typical_degree": {
+      "level": "master_or_equivalent",
+      "label_ar": "تكوين قانوني أو مالي أو تدبيري يحدده المشغل والقطاع",
+      "status": "verify_official_source",
+      "note_ar": "المشغل والقطاع يحددان الشهادة والتكوين الملائم؛ تحقق من الإعلان والتأطير القطاعي."
+    },
+    "age_requirement": {
+      "has_requirement": false,
+      "minimum": null,
+      "maximum": null,
+      "basis": "institution_practice",
+      "status": "verify_official_source",
+      "note_ar": "لا توجد قاعدة عامة للسن في القطاع الخاص؛ تحقق من إعلان المشغل."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "التكوين المناسب",
+        "description_ar": "تكوين قانوني أو مالي مع تكوين متخصص في الامتثال والمخاطر."
+      },
+      {
+        "step": 2,
+        "title_ar": "بناء تجربة في القطاع",
+        "description_ar": "تداريب أو تجربة في البنوك أو الشركات أو مكاتب التدقيق."
+      },
+      {
+        "step": 3,
+        "title_ar": "الترشح لوظيفة امتثال",
+        "description_ar": "يتم الانتقاء مباشرة من المشغل وفق حاجته القطاعية."
+      },
+      {
+        "step": 4,
+        "title_ar": "التطور إلى مسؤول امتثال",
+        "description_ar": "يشمل المسار التعمق في التأطير القطاعي وتدبير المخاطر والرقابة."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "تكوين قطاعي مستمر وفق التأطير التنظيمي للمؤسسة",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "قراءة النصوص التنظيمية",
+      "تحليل المخاطر",
+      "التدقيق والرقابة",
+      "الكتابة التقنية",
+      "السر المهني",
+      "التنسيق بين المصالح"
+    ],
+    "best_for": [
+      "من يجمع بين القانون والتنظيم القطاعي",
+      "من يهتم بالرقابة الداخلية والمخاطر",
+      "من يرغب في مسار خاص يتطور داخل المؤسسات"
+    ],
+    "lexicon_term_ids": [
+      "responsabilite-civile",
+      "obligation",
+      "preuve",
+      "registre-commerce",
+      "secret-bancaire"
+    ],
+    "related_career_ids": [
+      "juriste-entreprise",
+      "avocat",
+      "enseignant-chercheur-droit"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط التوظيف",
+        "value_ar": "يحددها المشغل والقطاع في إعلان التوظيف.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "التكوين المطلوب",
+        "value_ar": "قد يكون قانونياً أو مالياً أو تدبيرياً حسب الوظيفة.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "لا توجد قاعدة عامة؛ تحقق من إعلان المشغل.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "registration",
+        "label_ar": "لا يوجد تسجيل مهني مطلوب",
+        "value_ar": "المسار وظيفة داخلية في المؤسسة.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "إعلانات التوظيف الخاصة بالقطاع المالي والشركات",
+        "source_type": "private_employer",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة للالتزامات المهنية والسر المهني",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "الإطار القانوني لحماية المعطيات الشخصية",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "القانون المنظم للمهنة",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "قواعد المطابقة والحكامة داخل المؤسسات",
+        "relationship_type": "professional_ethics",
+        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "responsable-conformite",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "private_recruitment",
+      "competition_note_ar": "لا توجد مباراة موحدة؛ الانتقاء يتم من المشغل وفق حاجته القطاعية.",
+      "related_quiz_topics": [
+        "المسؤولية",
+        "الالتزام",
+        "الإثبات",
+        "حماية المعطيات"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/responsable-conformite"
+  },
+  {
+    "id": "enseignant-chercheur-droit",
+    "slug": "enseignant-chercheur-droit",
+    "title_ar": "أستاذ جامعي وباحث قانوني",
+    "title_fr": "Enseignant-chercheur en droit",
+    "category_id": "private-academic",
+    "category_ar": "القطاع الخاص والبحث",
+    "short_description": "مسار أكاديمي وبحثي ينتقل فيه الباحث من الماستر إلى الدكتوراه ثم إلى مهام التدريس والبحث، وفق مساطر التأهيل العلمي الجامعي.",
+    "work_model": "academic",
+    "work_model_ar": "تعليم وبحث",
+    "employment_modes": [
+      "كلية أو مؤسسة جامعية",
+      "مختبر بحث",
+      "مركز دراسات"
+    ],
+    "can_freelance": true,
+    "can_work_government": true,
+    "can_work_private_sector": true,
+    "requires_legal_education": "required",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "main_areas": [
+      "التدريس",
+      "البحث القانوني",
+      "النشر العلمي",
+      "التأطير",
+      "الخبرة الأكاديمية"
+    ],
+    "typical_degree": {
+      "level": "doctorate",
+      "label_ar": "مسار جامعي حتى الدكتوراه ثم مساطر التأهيل العلمي",
+      "status": "verify_official_source",
+      "note_ar": "الترقي العلمي والولوج إلى مهام التدريس يخضعان لمساطر وطنية منشورة؛ تحقق منها."
+    },
+    "age_requirement": {
+      "has_requirement": false,
+      "minimum": null,
+      "maximum": null,
+      "basis": "institution_practice",
+      "status": "verify_official_source",
+      "note_ar": "لا توجد قاعدة عامة للسن في المسار الأكاديمي؛ تحقق من مساطر المؤسسة والقطاع."
+    },
+    "entry_path": [
+      {
+        "step": 1,
+        "title_ar": "الإجازة ثم الماستر",
+        "description_ar": "بناء المسار القانوني ثم التخصص في البحث خلال الماستر."
+      },
+      {
+        "step": 2,
+        "title_ar": "الدكتوراه",
+        "description_ar": "إنجاز أطروحة في القانون ونشر أعمال بحثية محكمة."
+      },
+      {
+        "step": 3,
+        "title_ar": "مساطر التأهيل العلمي",
+        "description_ar": "الترشح للخطة الجامعية وفق المساطر الوطنية المنشورة والمعلنة."
+      },
+      {
+        "step": 4,
+        "title_ar": "التدريس والبحث",
+        "description_ar": "ممارسة التدريس وتطوير مشروع البحث والتأطير والنشر."
+      }
+    ],
+    "training_after_admission": {
+      "label_ar": "مسار تكويني أكاديمي وخبرة ميدانية في الأقسام والمختبرات",
+      "status": "verify_official_source"
+    },
+    "skills": [
+      "البحث النظري",
+      "المنهجية العلمية",
+      "الكتابة الأكاديمية",
+      "التدريس والتبليغ",
+      "اللغات",
+      "التحليل النقدي"
+    ],
+    "best_for": [
+      "من يحب البحث والمنهجية العلمية",
+      "من يرغب في التدريس وقراءة النصوص القانونية معمقاً",
+      "من يقبل مساراً طويلاً يتطلب إنتاجاً علمياً"
+    ],
+    "lexicon_term_ids": [
+      "obligation",
+      "droit-reel",
+      "droits-de-lhomme",
+      "souverainete",
+      "abrogation",
+      "prescription"
+    ],
+    "related_career_ids": [
+      "magistrat",
+      "juriste-administration-publique",
+      "juriste-entreprise"
+    ],
+    "requirements": [
+      {
+        "id": "entry_conditions",
+        "label_ar": "شروط الترشح للخطة",
+        "value_ar": "تحددها المساطر الوطنية المنشورة للترقية والتأهيل العلمي.",
+        "requirement_type": "annual_notice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة العلمية",
+        "value_ar": "الدكتوراه أو ما يعادلها وفق المساطر ودفاتر التحملات.",
+        "requirement_type": "legal_text",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "age_condition",
+        "label_ar": "شرط السن",
+        "value_ar": "تحقق من المساطر المنشورة؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "registration",
+        "label_ar": "الترقية العلمية",
+        "value_ar": "تتم وفق مساطر وطنية ومحلية بإعلانات ومقاعد محددة.",
+        "requirement_type": "institution_practice",
+        "status": "verify_official_source",
+        "source_url": null,
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      }
+    ],
+    "sources": [
+      {
+        "title_ar": "المساطر الوطنية للترقية العلمي وتحضير الدكتوراه",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      }
+    ],
+    "law_slugs": [],
+    "legal_framework": [
+      {
+        "law_slug": null,
+        "label_ar": "النظام الأساسي للتعليم العالي والبحث العلمي",
+        "relationship_type": "public_employment",
+        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "النصوص المنظمة للدرجات العلمية والتأهيل",
+        "relationship_type": "training",
+        "relationship_ar": "التكوين والتأهيل",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "الإعلانات السنوية لولوج أسلاك التعليم العالي",
+        "relationship_type": "annual_notice_reference",
+        "relationship_ar": "مرجع الإعلان السنوي",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      }
+    ],
+    "quiz_config": {
+      "career_quiz_slug": "enseignant-chercheur-droit",
+      "has_knowledge_quiz": true,
+      "has_discovery_quiz": true,
+      "competition_path": "academic_competition",
+      "competition_note_ar": "الولوج يمر عبر مساطر التأهيل العلمي المنشورة؛ تحقق من الإعلان الجامعي الجاري به العمل.",
+      "related_quiz_topics": [
+        "منهجية البحث",
+        "نظرية الالتزام",
+        "الحقوق والحريات"
+      ]
+    },
+    "last_reviewed": "2026-09-23",
+    "review_status": "internal_review",
+    "canonical_url": "https://www.mizan.page/careers/enseignant-chercheur-droit"
+  }
+]

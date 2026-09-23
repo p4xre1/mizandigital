@@ -246,8 +246,15 @@ export async function onRequest(context) {
   // المسار وعرفنا أنه موجّه تطبيقي، نُسلّم هيكل التطبيق بحالة 200. لا قائمة
   // مسارات مفهرسة هنا: كل ما تحتها صفحات ثابتة مولّدة أو حالات 404 حقيقية.
   const CLIENT_ROUTE_PREFIXES = ["/u/", "/download/", "/admin/", "/pro-tools/"];
+  // مسارات تُولَّد في العميل ولا ملف ثابت لها:
+  //   /careers/<slug>/... — صفحات الدليل مولَّدة ثابتة، لكن صفحة تمارين
+  //   المباراة (`/quiz/careers/<slug>/practice/<id>`) لا تُولَّد إلا بسجل
+  //   مباراة متحقق منه؛ فتُسلَّم هيكل التطبيق بوسم noindex بدل 404 حتى يعمل
+  //   الرابط المشترك، ويبقى خارج الفهرس.
+  const CLIENT_ROUTE_PATTERNS = [/^\/quiz\/careers\/[^/]+\/practice\/[^/]+\/?$/];
   const isClientRoute = (pathname) =>
     CLIENT_ROUTE_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    CLIENT_ROUTE_PATTERNS.some((pattern) => pattern.test(pathname)) ||
     pathname === "/admin" ||
     pathname === "/pro-tools";
 

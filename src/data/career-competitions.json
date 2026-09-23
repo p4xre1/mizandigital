@@ -1,0 +1,74 @@
+[
+  {
+    "id": "delegue-judiciaire-annual",
+    "career_id": "delegue-judiciaire",
+    "title_ar": "تمارين تعليمية مرتبطة بمسار المنتدبين القضائيين",
+    "status": "unverified",
+    "official_notice_url": "",
+    "official_notice_date": null,
+    "source_verified_at": null,
+    "last_reviewed": "2026-09-23",
+    "note_ar": "لا يوجد إعلان رسمي مؤكد محفوظ في قاعدة بيانات ميزان لهذا المسار. لا تُعرض أي مواعيد أو شروط أو عدد مناصب، ويرجع للجهة المنظمة الرسمية.",
+    "disclaimer_ar": "هذه تمارين تعليمية مستقلة ولا تمثل اختباراً رسمياً لوزارة العدل أو أي جهة عمومية."
+  },
+  {
+    "id": "redacteur-judiciaire-annual",
+    "career_id": "redacteur-judiciaire",
+    "title_ar": "تمارين تعليمية مرتبطة بمسار المحررين القضائيين",
+    "status": "unverified",
+    "official_notice_url": "",
+    "official_notice_date": null,
+    "source_verified_at": null,
+    "last_reviewed": "2026-09-23",
+    "note_ar": "لا يوجد إعلان رسمي مؤكد محفوظ في قاعدة بيانات ميزان لهذا المسار. لا تُعرض أي مواعيد أو شروط أو عدد مناصب، ويرجع للجهة المنظمة الرسمية.",
+    "disclaimer_ar": "هذه تمارين تعليمية مستقلة ولا تمثل اختباراً رسمياً لوزارة العدل أو أي جهة عمومية."
+  },
+  {
+    "id": "greffe-annual",
+    "career_id": "greffe",
+    "title_ar": "تمارين تعليمية مرتبطة بهيئة كتابة الضبط",
+    "status": "unverified",
+    "official_notice_url": "",
+    "official_notice_date": null,
+    "source_verified_at": null,
+    "last_reviewed": "2026-09-23",
+    "note_ar": "لا يوجد إعلان رسمي مؤكد محفوظ في قاعدة بيانات ميزان لهذا المسار. لا تُعرض أي مواعيد أو شروط أو عدد مناصب، ويرجع للجهة المنظمة الرسمية.",
+    "disclaimer_ar": "هذه تمارين تعليمية مستقلة ولا تمثل اختباراً رسمياً لوزارة العدل أو أي جهة عمومية."
+  },
+  {
+    "id": "magistrat-annual",
+    "career_id": "magistrat",
+    "title_ar": "تمارين تعليمية مرتبطة بالمسار القضائي",
+    "status": "unverified",
+    "official_notice_url": "",
+    "official_notice_date": null,
+    "source_verified_at": null,
+    "last_reviewed": "2026-09-23",
+    "note_ar": "لا يوجد إعلان رسمي مؤكد محفوظ في قاعدة بيانات ميزان لهذا المسار. لا تُعرض أي مواعيد أو شروط أو عدد مناصب، ويرجع للجهة المنظمة الرسمية.",
+    "disclaimer_ar": "هذه تمارين تعليمية مستقلة ولا تمثل اختباراً رسمياً لوزارة العدل أو أي جهة عمومية."
+  },
+  {
+    "id": "juriste-administration-publique-annual",
+    "career_id": "juriste-administration-publique",
+    "title_ar": "تمارين تعليمية مرتبطة بالمباريات القانونية في الإدارة العمومية",
+    "status": "unverified",
+    "official_notice_url": "",
+    "official_notice_date": null,
+    "source_verified_at": null,
+    "last_reviewed": "2026-09-23",
+    "note_ar": "لا يوجد إعلان رسمي مؤكد محفوظ في قاعدة بيانات ميزان لهذا المسار. لا تُعرض أي مواعيد أو شروط أو عدد مناصب، ويرجع للجهة المنظمة الرسمية.",
+    "disclaimer_ar": "هذه تمارين تعليمية مستقلة ولا تمثل اختباراً رسمياً لوزارة العدل أو أي جهة عمومية."
+  },
+  {
+    "id": "enseignant-chercheur-droit-annual",
+    "career_id": "enseignant-chercheur-droit",
+    "title_ar": "تمارين تعليمية مرتبطة بمساطر التأهيل العلمي الجامعي",
+    "status": "unverified",
+    "official_notice_url": "",
+    "official_notice_date": null,
+    "source_verified_at": null,
+    "last_reviewed": "2026-09-23",
+    "note_ar": "لا يوجد إعلان رسمي مؤكد محفوظ في قاعدة بيانات ميزان لهذا المسار. لا تُعرض أي مواعيد أو شروط أو عدد مناصب، ويرجع للجهة المنظمة الرسمية.",
+    "disclaimer_ar": "هذه تمارين تعليمية مستقلة ولا تمثل اختباراً رسمياً لوزارة العدل أو أي جهة عمومية."
+  }
+]
