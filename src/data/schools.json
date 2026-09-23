@@ -16,6 +16,12 @@
       "address": "طريق المطار، عين السبع، الدار البيضاء",
       "googleMapsUrl": "https://maps.google.com/?q=FSJES+Ain+Sebaa+Casablanca"
     },
+    "location": {
+      "city_ar": "الدار البيضاء",
+      "region_ar": "الدار البيضاء سطات",
+      "latitude": 33.5731,
+      "longitude": -7.5898
+    },
     "synopsis": "مؤسسة جامعية عامة تابعة لجامعة الحسن الثاني بالدار البيضاء، تختص بتقديم تكوينات أكاديمية وبحثية في مجالات القانون والعلوم الاقتصادية والاجتماعية.",
     "studyAreas": [
       "القانون الخاص (بالعربية)",
@@ -66,6 +72,12 @@
       "address": "أكدال، الرباط، المغرب",
       "googleMapsUrl": "https://maps.google.com/?q=FSJES+Agdal+Rabat"
     },
+    "location": {
+      "city_ar": "الرباط",
+      "region_ar": "الرباط سلا القنيطرة",
+      "latitude": 34.0209,
+      "longitude": -6.8416
+    },
     "synopsis": "مؤسسة تابعة لجامعة محمد الخامس تعنى بالتكوين والبحث في المجالات القانونية والسياسية والاقتصادية والاجتماعية.",
     "studyAreas": [
       "القانون",
@@ -108,6 +120,12 @@
     "mapLocation": {
       "address": "المحاميد / طريق الصويرة، مراكش",
       "googleMapsUrl": "https://maps.google.com/?q=FSJES+Marrakech+Cadi+Ayyad"
+    },
+    "location": {
+      "city_ar": "مراكش",
+      "region_ar": "مراكش آسفي",
+      "latitude": 31.6295,
+      "longitude": -7.9811
     },
     "synopsis": "كلية تابعة لجامعة القاضي عياض تجمع التكوين والبحث في العلوم القانونية والاقتصادية والاجتماعية.",
     "studyAreas": [
@@ -153,6 +171,12 @@
       "address": "مجمع إستيفان / البوخالف، طنجة (جامعة عبد المالك السعدي)",
       "googleMapsUrl": "https://maps.google.com/?q=FSJES+Tangier+Boukhalef"
     },
+    "location": {
+      "city_ar": "طنجة",
+      "region_ar": "طنجة تطوان الحسيمة",
+      "latitude": 35.7595,
+      "longitude": -5.834
+    },
     "synopsis": "كلية تابعة لجامعة عبد المالك السعدي، تهتم بالتكوين والبحث في المجالات القانونية والاقتصادية والاجتماعية.",
     "studyAreas": [
       "القانون",
@@ -197,6 +221,12 @@
       "address": "مركب أيت ملول / أكادير، جامعة ابن زهر",
       "googleMapsUrl": "https://maps.google.com/?q=FSJES+Agadir+Ibn+Zohr"
     },
+    "location": {
+      "city_ar": "أكادير",
+      "region_ar": "سوس ماسة",
+      "latitude": 30.4278,
+      "longitude": -9.5981
+    },
     "synopsis": "مؤسسة تابعة لجامعة ابن زهر تقدم تكويناً وبحثاً في العلوم القانونية والاقتصادية والاجتماعية.",
     "studyAreas": [
       "القانون",
@@ -240,6 +270,12 @@
     "mapLocation": {
       "address": "سلوان، الناظور، المغرب",
       "googleMapsUrl": "https://maps.google.com/?q=FSJES+Nador+Selouane"
+    },
+    "location": {
+      "city_ar": "الناظور",
+      "region_ar": "الشرق",
+      "latitude": 35.1688,
+      "longitude": -2.9287
     },
     "synopsis": "مؤسسة تابعة لجامعة محمد الأول تقدم تكوينات جامعية وأبحاثاً في العلوم القانونية والاقتصادية والاجتماعية.",
     "studyAreas": [
@@ -297,7 +333,13 @@
     "dataSource": "partner-import",
     "_sourcePartnerId": "2538404c-7ab4-4f5a-9745-b666339acede",
     "_flag": "duplicate-suspect:kenitra (FSJP vs FSJES Kénitra - ba1a4273)",
-    "short_name": "كلية العلوم القانونية والسياسية القنيطرة"
+    "short_name": "كلية العلوم القانونية والسياسية القنيطرة",
+    "location": {
+      "city_ar": "القنيطرة",
+      "region_ar": "الرباط سلا القنيطرة",
+      "latitude": 34.261,
+      "longitude": -6.5802
+    }
   },
   {
     "id": "fsjes-souissi-rabat",
@@ -328,7 +370,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "38efa997-6ce5-4f3e-aff2-59d442b40fd2",
-    "short_name": "كلية الحقوق السويسي الرباط"
+    "short_name": "كلية الحقوق السويسي الرباط",
+    "location": {
+      "city_ar": "الرباط",
+      "region_ar": "الرباط سلا القنيطرة",
+      "latitude": 34.0209,
+      "longitude": -6.8416
+    }
   },
   {
     "id": "fsjes-sale",
@@ -356,7 +404,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "57c8afa3-6de5-471d-a456-b567902f8c10",
-    "short_name": "كلية الحقوق بسلا"
+    "short_name": "كلية الحقوق بسلا",
+    "location": {
+      "city_ar": "سلا",
+      "region_ar": "الرباط سلا القنيطرة",
+      "latitude": 34.0531,
+      "longitude": -6.7985
+    }
   },
   {
     "id": "fsjes-fes",
@@ -394,7 +448,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "5d3fc0a2-24e0-4102-ab05-e0f18f6a3666",
-    "short_name": "كلية الحقوق فاس"
+    "short_name": "كلية الحقوق فاس",
+    "location": {
+      "city_ar": "فاس",
+      "region_ar": "فاس مكناس",
+      "latitude": 34.0331,
+      "longitude": -5.0003
+    }
   },
   {
     "id": "fsjes-settat",
@@ -425,7 +485,13 @@
     "dataSource": "partner-import",
     "_sourcePartnerId": "7845439f-9379-44c6-b9fe-1953ff40293c",
     "_flag": "duplicate-suspect:settat (FSJES vs FSJP Settat - cfd8b8f3)",
-    "short_name": "كلية الحقوق سطات"
+    "short_name": "كلية الحقوق سطات",
+    "location": {
+      "city_ar": "سطات",
+      "region_ar": "الدار البيضاء سطات",
+      "latitude": 33.001,
+      "longitude": -7.6166
+    }
   },
   {
     "id": "fsjes-mohammedia",
@@ -458,7 +524,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "91d8b706-be97-4296-a715-1e165ed6b4dc",
-    "short_name": "كلية الحقوق المحمدية"
+    "short_name": "كلية الحقوق المحمدية",
+    "location": {
+      "city_ar": "المحمدية",
+      "region_ar": "الدار البيضاء سطات",
+      "latitude": 33.6861,
+      "longitude": -7.383
+    }
   },
   {
     "id": "fsjes-kenitra",
@@ -489,7 +561,13 @@
     "dataSource": "partner-import",
     "_sourcePartnerId": "ba1a4273-6a8a-486f-be07-be510b159884",
     "_flag": "duplicate-suspect:kenitra (FSJES vs FSJP Kénitra - 2538404c)",
-    "short_name": "كلية الحقوق القنيطرة"
+    "short_name": "كلية الحقوق القنيطرة",
+    "location": {
+      "city_ar": "القنيطرة",
+      "region_ar": "الرباط سلا القنيطرة",
+      "latitude": 34.261,
+      "longitude": -6.5802
+    }
   },
   {
     "id": "fsjes-oujda",
@@ -515,7 +593,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "bfd611af-c470-4054-8d54-691ad5331ac0",
-    "short_name": "كلية الحقوق وجدة"
+    "short_name": "كلية الحقوق وجدة",
+    "location": {
+      "city_ar": "وجدة",
+      "region_ar": "الشرق",
+      "latitude": 34.6814,
+      "longitude": -1.9086
+    }
   },
   {
     "id": "fsjes-kelaa-sraghna",
@@ -543,7 +627,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "ce61830f-f057-4a61-a1d0-fac021fe04bd",
-    "short_name": "كلية الحقوق بقلعة السراغنة"
+    "short_name": "كلية الحقوق بقلعة السراغنة",
+    "location": {
+      "city_ar": "قلعة السراغنة",
+      "region_ar": "مراكش آسفي",
+      "latitude": 32.0537,
+      "longitude": -7.4078
+    }
   },
   {
     "id": "fsjes-ait-melloul",
@@ -567,7 +657,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "cfc480d3-918c-4380-82dc-ee634ad39ebc",
-    "short_name": "كلية الحقوق أيت ملول"
+    "short_name": "كلية الحقوق أيت ملول",
+    "location": {
+      "city_ar": "أيت ملول",
+      "region_ar": "سوس ماسة",
+      "latitude": 30.3342,
+      "longitude": -9.4967
+    }
   },
   {
     "id": "fsjp-settat",
@@ -594,7 +690,13 @@
     "dataSource": "partner-import",
     "_sourcePartnerId": "cfd8b8f3-ebe3-4151-a464-4eae583e67c4",
     "_flag": "duplicate-suspect:settat (FSJES vs FSJP Settat - 7845439f)",
-    "short_name": "كلية العلوم القانونية والسياسية سطات"
+    "short_name": "كلية العلوم القانونية والسياسية سطات",
+    "location": {
+      "city_ar": "سطات",
+      "region_ar": "الدار البيضاء سطات",
+      "latitude": 33.001,
+      "longitude": -7.6166
+    }
   },
   {
     "id": "fsjes-meknes",
@@ -646,7 +748,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "d44e3924-3e7c-4453-8ae8-568a5b201617",
-    "short_name": "كلية الحقوق مكناس"
+    "short_name": "كلية الحقوق مكناس",
+    "location": {
+      "city_ar": "مكناس",
+      "region_ar": "فاس مكناس",
+      "latitude": 33.8935,
+      "longitude": -5.5473
+    }
   },
   {
     "id": "fsjes-el-jadida",
@@ -672,7 +780,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "da9a24a5-dd11-4440-ac22-e2d8b54f604d",
-    "short_name": "كلية الحقوق بالجديدة"
+    "short_name": "كلية الحقوق بالجديدة",
+    "location": {
+      "city_ar": "الجديدة",
+      "region_ar": "الدار البيضاء سطات",
+      "latitude": 33.2316,
+      "longitude": -8.5007
+    }
   },
   {
     "id": "fsjes-tetouan",
@@ -720,7 +834,13 @@
     "verifiedAt": "2026-08-29",
     "dataSource": "partner-import",
     "_sourcePartnerId": "ffda547d-178d-43fe-b63f-c94567986cf0",
-    "short_name": "كلية الحقوق بتطوان"
+    "short_name": "كلية الحقوق بتطوان",
+    "location": {
+      "city_ar": "تطوان",
+      "region_ar": "طنجة تطوان الحسيمة",
+      "latitude": 35.5785,
+      "longitude": -5.3684
+    }
   },
   {
     "id": "fsjes-ain-chock",
@@ -750,6 +870,12 @@
       "89c62f61",
       "8fca978a"
     ],
-    "short_name": "كلية الحقوق عين الشق الدار البيضاء"
+    "short_name": "كلية الحقوق عين الشق الدار البيضاء",
+    "location": {
+      "city_ar": "الدار البيضاء",
+      "region_ar": "الدار البيضاء سطات",
+      "latitude": 33.5731,
+      "longitude": -7.5898
+    }
   }
 ]

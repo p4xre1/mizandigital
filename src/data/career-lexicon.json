@@ -1,0 +1,470 @@
+[
+ {
+  "id": "obligation",
+  "slug": "الالتزام",
+  "term_ar": "الالتزام",
+  "term_fr": "Obligation",
+  "definition": "رابطة قانونية تفرض على المدين أداء عمل أو الامتناع عنه لفائدة الدائن.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "societe-anonyme",
+  "slug": "شركة-المساهمة",
+  "term_ar": "شركة المساهمة",
+  "term_fr": "Société anonyme",
+  "definition": "شركة تجارية يقسم رأسمالها إلى أسهم ويتحمل المساهمون الخسائر في حدود مساهماتهم.",
+  "category": "قانون تجاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "juridiction",
+  "slug": "المحكمة",
+  "term_ar": "المحكمة",
+  "term_fr": "Juridiction",
+  "definition": "جهة قضائية تملك صلاحية النظر في النزاعات وإصدار الأحكام وفق القانون.",
+  "category": "تنظيم قضائي",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "acte-administratif",
+  "slug": "القرار-الإداري",
+  "term_ar": "القرار الإداري",
+  "term_fr": "Acte administratif",
+  "definition": "إفصاح الإدارة عن إرادتها المنفردة بقصد إحداث أثر قانوني معين.",
+  "category": "قانون إداري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "droit-reel",
+  "slug": "الحق-العيني",
+  "term_ar": "الحق العيني",
+  "term_fr": "Droit réel",
+  "definition": "سلطة مباشرة يقررها القانون لشخص على شيء معين، مثل حق الملكية أو الانتفاع.",
+  "category": "قانون عقاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "droits-de-lhomme",
+  "slug": "حقوق-الإنسان",
+  "term_ar": "حقوق الإنسان",
+  "term_fr": "Droits de l'homme",
+  "definition": "حقوق وحريات أساسية تثبت لكل إنسان دون تمييز وتحميها القواعد الوطنية والدولية.",
+  "category": "حقوق الإنسان",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "contrat",
+  "slug": "العقد",
+  "term_ar": "العقد",
+  "term_fr": "Contrat",
+  "definition": "اتفاق بين شخصين أو أكثر يهدف إلى إنشاء أو نقل أو تعديل أو إنهاء التزام قانوني.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "mandat",
+  "slug": "الوكالة",
+  "term_ar": "الوكالة",
+  "term_fr": "Mandat",
+  "definition": "عقد يقضي بأن يقوم شخص بإجراء عمل قانوني لحساب شخص آخر.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "testament",
+  "slug": "الوصية",
+  "term_ar": "الوصية",
+  "term_fr": "Testament",
+  "definition": "تصرف في التركة مضاف لما بعد الموت.",
+  "category": "مدونة الأسرة",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "mariage",
+  "slug": "الزواج",
+  "term_ar": "الزواج",
+  "term_fr": "Mariage",
+  "definition": "ميثاق تراض وترابط شرعي بين رجل وامرأة غايته الإحصان وتكوين أسرة.",
+  "category": "مدونة الأسرة",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "divorce",
+  "slug": "الطلاق",
+  "term_ar": "الطلاق",
+  "term_fr": "Divorce",
+  "definition": "حل ميثاق الزوجية يمارسه الزوج أو الزوجة برعاية القضاء.",
+  "category": "مدونة الأسرة",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "parquet",
+  "slug": "النيابة-العامة",
+  "term_ar": "النيابة العامة",
+  "term_fr": "Parquet",
+  "definition": "جهاز قضائي يمثل المجتمع في القضايا الجنائية ويسهر على تطبيق القانون.",
+  "category": "مسطرة جنائية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "instruction",
+  "slug": "التحقيق",
+  "term_ar": "التحقيق",
+  "term_fr": "Instruction",
+  "definition": "مرحلة قضائية تسبق المحاكمة تهدف لجمع الأدلة والتحقق من التهم.",
+  "category": "مسطرة جنائية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "appel",
+  "slug": "الاستئناف",
+  "term_ar": "الاستئناف",
+  "term_fr": "Appel",
+  "definition": "طريق طعن عادي يهدف لإعادة النظر في حكم ابتدائي.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "cassation",
+  "slug": "النقض",
+  "term_ar": "النقض",
+  "term_fr": "Cassation",
+  "definition": "طعن يرفع أمام محكمة النقض لمراقبة مدى صحة تطبيق القانون من قبل المحاكم.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "saisie",
+  "slug": "الحجز",
+  "term_ar": "الحجز",
+  "term_fr": "Saisie",
+  "definition": "إجراء تحفظي أو تنفيذي يهدف لوضع أموال المدين تحت يد القضاء.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "execution",
+  "slug": "التنفيذ",
+  "term_ar": "التنفيذ",
+  "term_fr": "Exécution",
+  "definition": "إجبار المدين على تنفيذ التزامه الذي قضى به الحكم القضائي.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "faillite",
+  "slug": "الإفلاس",
+  "term_ar": "الإفلاس",
+  "term_fr": "Faillite",
+  "definition": "حالة التاجر الذي يتوقف عن دفع ديونه التجارية في مواعيد استحقاقها.",
+  "category": "قانون تجاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "registre-commerce",
+  "slug": "السجل-التجاري",
+  "term_ar": "السجل التجاري",
+  "term_fr": "Registre de commerce",
+  "definition": "سجل رسمي تقيد فيه الشركات والتجار لغرض الإشهار القانوني.",
+  "category": "قانون تجاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "service-public",
+  "slug": "المرفق-العام",
+  "term_ar": "المرفق العام",
+  "term_fr": "Service public",
+  "definition": "نشاط تديره السلطة العامة لإشباع حاجيات المصلحة العامة.",
+  "category": "قانون إداري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "abrogation",
+  "slug": "الإلغاء",
+  "term_ar": "الإلغاء",
+  "term_fr": "Abrogation",
+  "definition": "إزالة النص القانوني وتجريده من قوته الملزمة.",
+  "category": "قانون دستوري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "prescription",
+  "slug": "التقادم",
+  "term_ar": "التقادم",
+  "term_fr": "Prescription",
+  "definition": "مرور الزمن الذي يترتب عليه سقوط الحق أو الدعوى أو العقوبة.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "preuve",
+  "slug": "الإثبات",
+  "term_ar": "الإثبات",
+  "term_fr": "Preuve",
+  "definition": "إقامة الدليل أمام القضاء بالطرق القانونية على وجود واقعة أو حق.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "immatriculation",
+  "slug": "التحفيظ",
+  "term_ar": "التحفيظ",
+  "term_fr": "Immatriculation",
+  "definition": "مسطرة إدارية وقضائية لتسجيل العقار في السجل العقاري ليكون له سند نهائي.",
+  "category": "قانون عقاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "audition",
+  "slug": "الاستماع",
+  "term_ar": "الاستماع",
+  "term_fr": "Audition",
+  "definition": "إجراء يقوم به القاضي أو الضابطة القضائية لسماع أقوال الأطراف.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "plaidoyer",
+  "slug": "المرافعة",
+  "term_ar": "المرافعة",
+  "term_fr": "Plaidoyer",
+  "definition": "عرض المحامي أو الطرفين لمطالبهم وحججهم أمام القاضي.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "jugement",
+  "slug": "الحكم",
+  "term_ar": "الحكم",
+  "term_fr": "Jugement",
+  "definition": "قرار صادر عن هيئة قضائية لفض نزاع معروض عليها.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "avocat",
+  "slug": "المحامي",
+  "term_ar": "المحامي",
+  "term_fr": "Avocat",
+  "definition": "مساعد القضاء الذي يتولى الدفاع عن المتقاضين وتمثيلهم.",
+  "category": "مهن قضائية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "notaire",
+  "slug": "الموثق",
+  "term_ar": "الموثق",
+  "term_fr": "Notaire",
+  "definition": "ضابط عمومي يحرر العقود التي يفرض القانون إعطاءها الصبغة الرسمية.",
+  "category": "مهن قضائية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "greffier",
+  "slug": "كاتب-الضبط",
+  "term_ar": "كاتب الضبط",
+  "term_fr": "Greffier",
+  "definition": "موظف بالمحكمة يساعد القاضي ويسجل الجلسات ويحرر المحاضر.",
+  "category": "مهن قضائية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "expert",
+  "slug": "الخبير",
+  "term_ar": "الخبير",
+  "term_fr": "Expert",
+  "definition": "شخص مختص تقنياً يلجأ إليه القاضي لتنوير العدالة في أمور فنية.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "convention-collective",
+  "slug": "الاتفاقية-الجماعية",
+  "term_ar": "الاتفاقية الجماعية",
+  "term_fr": "Convention collective",
+  "definition": "اتفاق ينظم شروط العمل بين المشغلين وممثلي الأجراء.",
+  "category": "قانون الشغل",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "responsabilite-civile",
+  "slug": "المسؤولية-المدنية",
+  "term_ar": "المسؤولية المدنية",
+  "term_fr": "Responsabilité civile",
+  "definition": "التزام الشخص بجبر الضرر الناتج عن فعله أو فعل غيره.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "succession",
+  "slug": "الإرث",
+  "term_ar": "الإرث",
+  "term_fr": "Succession",
+  "definition": "انتقال التركة من الميت إلى ورثته حسب القواعد الشرعية.",
+  "category": "مدونة الأسرة",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "audience-publique",
+  "slug": "الجلسة-العلنية",
+  "term_ar": "الجلسة العلنية",
+  "term_fr": "Audience publique",
+  "definition": "جلسة المحكمة التي يسمح للعموم بالحضور لمتابعة أطوارها.",
+  "category": "تنظيم قضائي",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "ordonnance",
+  "slug": "الأمر-القضائي",
+  "term_ar": "الأمر القضائي",
+  "term_fr": "Ordonnance",
+  "definition": "قرار يصدره قاضي معين (مثل قاضي المستعجلات) في قضايا محددة.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "bail",
+  "slug": "الكراء",
+  "term_ar": "الكراء",
+  "term_fr": "Bail",
+  "definition": "عقد يمنح بموجبه المكري للمكتري منفعة عين لمدة محددة مقابل أجرة.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "recours-pour-exces-pouvoir",
+  "slug": "دعوى-تجاوز-السلطة",
+  "term_ar": "دعوى تجاوز السلطة",
+  "term_fr": "Recours pour excès de pouvoir",
+  "definition": "دعوى ترفع أمام المحكمة الإدارية لإلغاء قرار إداري غير مشروع.",
+  "category": "قانون إداري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "vente",
+  "slug": "البيع",
+  "term_ar": "البيع",
+  "term_fr": "Vente",
+  "definition": "عقد يلتزم بموجبه البائع بنقل ملكية شيء إلى المشتري مقابل ثمن.",
+  "category": "قانون مدني",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "sarl",
+  "slug": "الشركة-ذات-المسؤولية-المحدودة",
+  "term_ar": "الشركة ذات المسؤولية المحدودة",
+  "term_fr": "SARL",
+  "definition": "شركة تجارية لا يتحمل فيها الشركاء الخسائر إلا في حدود حصصهم.",
+  "category": "قانون تجاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "capital-social",
+  "slug": "رأس-المال-الاجتماعي",
+  "term_ar": "رأس المال الاجتماعي",
+  "term_fr": "Capital social",
+  "definition": "مجموع الحصص التي قدمها الشركاء عند تأسيس الشركة.",
+  "category": "قانون تجاري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "exploit-huissier",
+  "slug": "محضر-التبليغ",
+  "term_ar": "محضر التبليغ",
+  "term_fr": "Exploit d'huissier",
+  "definition": "وثيقة يحررها عون التنفيذ لتبليغ إجراء قضائي لطرف معين.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "notification",
+  "slug": "التبليغ",
+  "term_ar": "التبليغ",
+  "term_fr": "Notification",
+  "definition": "إجراء يعلم به الطرف المعني رسمياً بإجراء أو قرار قضائي.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "mainlevee",
+  "slug": "رفع-اليد",
+  "term_ar": "رفع اليد",
+  "term_fr": "Mainlevée",
+  "definition": "إجراء قانوني يضع حداً لآثار الحجز أو الضمانة.",
+  "category": "مسطرة مدنية",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "acte-adoulaire",
+  "slug": "العقد-العدلي",
+  "term_ar": "العقد العدلي",
+  "term_fr": "Acte adoulaire",
+  "definition": "عقد رسمي يحرره العدول ويوثقه القاضي المكلف بالتوثيق.",
+  "category": "مدونة الأسرة",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "adoul",
+  "slug": "العدول",
+  "term_ar": "العدول",
+  "term_fr": "Adoul",
+  "definition": "موثقون رسميون مؤهلون شرعاً وقانوناً لتوثيق عقود الزواج والتصرفات الشرعية.",
+  "category": "مدونة الأسرة",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "contrat-administratif",
+  "slug": "العقد-الإداري",
+  "term_ar": "العقد الإداري",
+  "term_fr": "Contrat administratif",
+  "definition": "عقد تبرمه الإدارة بقصد تسيير مرفق عام وتخضع فيه لقواعد استثنائية.",
+  "category": "قانون إداري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "marche-public",
+  "slug": "الصفقة-العمومية",
+  "term_ar": "الصفقة العمومية",
+  "term_fr": "Marché public",
+  "definition": "عقد تبرمه الإدارة مع الأغيار لإنجاز أشغال أو توريد لفائدتها.",
+  "category": "قانون إداري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "fonction-publique",
+  "slug": "الوظيفة-العمومية",
+  "term_ar": "الوظيفة العمومية",
+  "term_fr": "Fonction publique",
+  "definition": "مجموع الوظائف التي يشغلها الموظفون في خدمة الإدارات العمومية.",
+  "category": "قانون إداري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "souverainete",
+  "slug": "السيادة",
+  "term_ar": "السيادة",
+  "term_fr": "Souveraineté",
+  "definition": "السلطة العليا التي تملك الدولة بموجبها حق التقرير في شؤونها الداخلية والخارجية.",
+  "category": "قانون دستوري",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "secret-bancaire",
+  "slug": "السر-البنكي",
+  "term_ar": "السر البنكي",
+  "term_fr": "Secret bancaire",
+  "definition": "التزام البنك بعدم إفشاء المعلومات المتعلقة بحسابات زبنائه إلا في الحالات المحددة قانوناً.",
+  "category": "القانون البنكي",
+  "last_reviewed": "2026-09-20"
+ },
+ {
+  "id": "exequatur",
+  "slug": "الصيغة-التنفيذية-للأحكام-الأجنبية",
+  "term_ar": "الصيغة التنفيذية للأحكام الأجنبية",
+  "term_fr": "Exequatur",
+  "definition": "إجراء قضائي يمنح حكماً أجنبياً القوة التنفيذية داخل التراب الوطني.",
+  "category": "القانون الدولي الخاص",
+  "last_reviewed": "2026-09-20"
+ }
+]

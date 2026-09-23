@@ -17,6 +17,7 @@
  * لمحركات البحث) فلا يخرج للزاحف رابط بلا ملف، ولو تعطلت الشبكة وقت البناء.
  */
 import { readFile, writeFile } from "node:fs/promises";
+import { buildCareerSitemapEntries } from "./lib/career-pages.mjs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -130,7 +131,12 @@ function usableEntry(entry) {
   return false;
 }
 
+// صفحات دليل المسارات والمهن القانونية: تتقاسم المصدر مع prerender
+// (scripts/lib/career-pages.mjs) حتى لا ينشر sitemap رابطاً بلا ملف.
+const careerEntries = await buildCareerSitemapEntries();
+
 const dynamicEntries = [
+  ...careerEntries,
   // كل عناصر articles.json تُولد تحت /articles/ — بمن فيها ما يحمل
   // type: "news". كان السكربت السابق يحوّلها إلى /news/ بحسب النوع، بينما
   // prerender والواجهة (ArticlePage → canonical) يبقيان على /articles/،

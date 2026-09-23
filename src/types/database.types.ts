@@ -519,6 +519,104 @@ export interface Database {
         Relationships: []
       }
       /** سجل إثبات الموافقة على سياسة الخصوصية والشروط (20260925000000). */
+      career_training_profiles: {
+        Row: {
+          owner_id: string
+          career_slug: string
+          is_following: boolean
+          started_at: string
+          updated_at: string
+          last_practiced_at: string | null
+        }
+        Insert: {
+          owner_id?: string
+          career_slug: string
+          is_following?: boolean
+          started_at?: string
+          updated_at?: string
+          last_practiced_at?: string | null
+        }
+        Update: {
+          owner_id?: string
+          career_slug?: string
+          is_following?: boolean
+          started_at?: string
+          updated_at?: string
+          last_practiced_at?: string | null
+        }
+        Relationships: []
+      }
+      /**
+       * «تدريبي المهني»: تقدّم تعليمي مشتقّ لكل مسار.
+       * الملكية بـ owner_id (لا user_id) — RLS: owner_id = auth.uid().
+       * weak_topics مصفوفة JSON بمعرّفات مصطلحات القاموس (لا نصوص أسئلة).
+       */
+      career_training_progress: {
+        Row: {
+          owner_id: string
+          career_slug: string
+          attempted_count: number
+          completed_count: number
+          best_score: number | null
+          weak_topics: Json
+          updated_at: string
+        }
+        Insert: {
+          owner_id?: string
+          career_slug: string
+          attempted_count?: number
+          completed_count?: number
+          best_score?: number | null
+          weak_topics?: Json
+          updated_at?: string
+        }
+        Update: {
+          owner_id?: string
+          career_slug?: string
+          attempted_count?: number
+          completed_count?: number
+          best_score?: number | null
+          weak_topics?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      /**
+       * جسر اختياري بين مسار مهني تحريري ونص قانوني من الأرشيف.
+       * career_slug نصّي بلا FK (المسارات ملفات JSON)، و law_id يشير إلى
+       * public.laws(id) — ولا يوجد أي FK إلى schools بمفتاح uuid: معرّف
+       * public.schools.id نصّي (school_id text) في أي علاقة مستقبلية.
+       */
+      career_laws: {
+        Row: {
+          career_slug: string
+          law_id: string
+          relationship_type: string
+          note_ar: string
+          source_verified_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          career_slug: string
+          law_id: string
+          relationship_type?: string
+          note_ar?: string
+          source_verified_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          career_slug?: string
+          law_id?: string
+          relationship_type?: string
+          note_ar?: string
+          source_verified_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       legal_consents: {
         Row: {
           id: string

@@ -6,7 +6,7 @@ Allow: /
 
 # AI-friendly content declaration
 # Language: ar-MA (Arabic, Morocco)
-# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 9 docs, 3 events, 39 FAQ, 84 quiz questions
+# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 9 docs, 3 events, 39 FAQ, 224 quiz questions
 # (counts are the local baseline — published CMS content adds laws/articles/news; see /reference/index.json)
 
 # Primary sections:
@@ -15,7 +15,8 @@ Allow: /
 # - /lexicon — Legal dictionary (250 terms)
 # - /schools — Law faculties (21)
 # - /archive — S1-S6 summaries
-# - /quiz — 4-tier quiz system
+# - /quiz — 4-tier quiz system + career training quizzes
+# - /careers — legal careers guide in Morocco (14 careers, educational only, no job postings)
 # - /faq — FAQ (AEO)
 
 # Structured data:

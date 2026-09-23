@@ -153,6 +153,9 @@ export function Header({
             <NavLink to="/schools" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
               الكليات
             </NavLink>
+            <NavLink to="/careers" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
+              المسارات المهنية
+            </NavLink>
             <NavLink to="/archive" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
               الأرشيف
             </NavLink>
@@ -213,6 +216,9 @@ export function Header({
                 <NavLink to="/pro-tools" onClick={handleNavClick} className="flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold text-primary">أدوات Pro</NavLink>
                 <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
                   الكليات
+                </NavLink>
+                <NavLink to="/careers" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                  المسارات المهنية
                 </NavLink>
                 <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
                   الأرشيف
@@ -296,6 +302,7 @@ export function Footer() {
             <Link to="/news" className="hover:text-white transition-colors">الأخبار القانونية</Link>
             <Link to="/lexicon" className="hover:text-white transition-colors">القاموس القانوني</Link>
             <Link to="/schools" className="hover:text-white transition-colors">دليل الكليات</Link>
+            <Link to="/careers" className="hover:text-white transition-colors">المسارات المهنية</Link>
             <Link to="/events" className="hover:text-white transition-colors">الفعاليات</Link>
           </div>
         </div>

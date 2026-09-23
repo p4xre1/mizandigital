@@ -1,7 +1,7 @@
 {
  "dataset": "articles",
  "title": "المقالات القانونية",
- "generatedAt": "2026-09-22T00:54:50.276Z",
+ "generatedAt": "2026-09-23T13:02:27.518Z",
  "count": 8,
  "section": "https://www.mizan.page/articles",
  "urlPattern": "https://www.mizan.page/articles/{slug}",

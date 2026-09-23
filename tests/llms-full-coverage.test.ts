@@ -3,7 +3,7 @@ import { test, expect } from "vitest";
 
 /**
  * «أضف كل llms» — llms-full.txt أصبح تصديراً كاملاً: كل نص في كل مجموعة
- * بيانات بلا تقطيع، وllms.txt يعرض الجرد الكامل (427 سجلاً) مع إشارة
+ * بيانات بلا تقطيع، وllms.txt يعرض الجرد الكامل (567 سجلاً) مع إشارة
  * للنسخة الكاملة وطبقة المرجعيات. الفحص على الملف الملتزم (توليد محلي
  * بلا CMS) + على القوالب نفسها (لكي يبقى الأمر صحيحاً عند أي تعديلة).
  */
@@ -23,10 +23,10 @@ const quiz = JSON.parse(read("src/data/quiz-questions.json"));
 const LLMS_FULL = norm(read("public/llms-full.txt"));
 const LLMS_FULL_RAW = read("public/llms-full.txt");
 
-test("llms-full: جرد كامل (427 سجلاً محلياً) والأقسام الكاملة كلها موجودة", () => {
+test("llms-full: جرد كامل (567 سجلاً محلياً) والأقسام الكاملة كلها موجودة", () => {
   const raw = read("public/llms-full.txt");
-  // 8+13+250+21+9+0 laws(محلياً)+3+39+84 = 427
-  expect(raw).toContain("يضم 427 سجلاً");
+  // 8+13+250+21+9+0 laws(محلياً)+3+39+224 = 567
+  expect(raw).toContain("يضم 567 سجلاً");
   for (const section of [
     "كل المعجم القانوني (250) — التعريفات كاملة",
     "كل المقالات (8) — النصوص الكاملة",
@@ -34,7 +34,7 @@ test("llms-full: جرد كامل (427 سجلاً محلياً) والأقسام 
     "كل كليات الحقوق (21) — التفاصيل",
     "كل الفعاليات (3)",
     "كل الأرشيف الدراسي (9) — الملفات والملخصات",
-    "كل أسئلة الاختبارات (84) — كاملة",
+    "كل أسئلة الاختبارات (224) — كاملة",
     "الأسئلة الشائعة (FAQ — AEO) — كاملة (39)",
   ]) {
     expect(raw, `القسم مفقود: ${section}`).toContain(section);
@@ -90,7 +90,7 @@ test("القوالب: جرد كامل في llms.txt وقالب dist ومصادر
   // public/llms.txt (generate-llms.mjs)
   const llms = read("public/llms.txt");
   expect(llms).toContain("39 سؤالاً شائعاً");
-  expect(llms).toContain("84 سؤال اختبار");
+  expect(llms).toContain("224 سؤال اختبار");
   expect(llms).toContain("/llms-full.txt");
   expect(llms).toContain("/reference/index.json");
 
@@ -116,7 +116,7 @@ test("القوالب: جرد كامل في llms.txt وقالب dist ومصادر
 
 test("ai.txt: جرد مكتمل + طبقة المرجعيات + MCP", () => {
   const ai = read("public/ai.txt");
-  expect(ai).toContain("84 quiz questions");
+  expect(ai).toContain("224 quiz questions");
   expect(ai).toContain("39 FAQ");
   expect(ai).toContain("https://www.mizan.page/reference/index.json");
   expect(ai).toContain("https://www.mizan.page/mcp");

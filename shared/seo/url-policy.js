@@ -134,6 +134,11 @@ export function isIndexablePath(input) {
   // «قابلة للفهرسة» في السياسة بينما لا ملف ثابت لها ولا entry في sitemap —
   // نصف حالة تُنتج «Discovered – currently not indexed» في Search Console.
   if (path === "/pro-tools" || path.startsWith("/pro-tools/")) return false;
+  // صفحات تمارين المباريات: لا تُفهرس أبداً ولا تُولَّد ثابتة — تُعرض فقط
+  // عندما يوجد سجل مباراة متحقق منه (رابط إعلان رسمي + تاريخ تحقق)، وهي
+  // صفحة تدريب تعليمي مرتبطة بإعلان سنوي متغيّر. الفهرسة هنا تعني نشراً
+  // لمواعيد قد تتقادم بين إعلانين.
+  if (path.startsWith("/quiz/careers/") && path.includes("/practice/")) return false;
   return true;
 }
 

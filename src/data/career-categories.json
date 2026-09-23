@@ -1,0 +1,50 @@
+[
+  {
+    "id": "legal-documentary",
+    "slug": "legal-documentary",
+    "title_ar": "المهن القانونية والتوثيقية",
+    "title_fr": "Professions juridiques et documentaires",
+    "description_ar": "مهن منظمة أو مسطرية تعنى بالدفاع والتوثيق والتبليغ والتنفيذ، وتخضع لنصوص تنظيمية وللتحقق من الإعلانات والمؤسسات المختصة.",
+    "order": 1
+  },
+  {
+    "id": "technical-expert",
+    "slug": "technical-expert",
+    "title_ar": "المهن التقنية والخبرة",
+    "title_fr": "Professions techniques et expertise",
+    "description_ar": "مهن تعتمد على تخصص تقني أو لغوي إلى جانب الشروط التنظيمية، وتقدّم للقضاء عناصر فنية أو ترجمية لا رأياً قانونياً في النزاع.",
+    "order": 2
+  },
+  {
+    "id": "court-administration",
+    "slug": "court-administration",
+    "title_ar": "إدارة العدالة والمحاكم",
+    "title_fr": "Administration judiciaire",
+    "description_ar": "مسارات وظيفية داخل المحاكم وقطاع العدل، يكون الولوج إليها عادة عبر مباراة توظيف وتحدد شروطها في كل إعلان رسمي.",
+    "order": 3
+  },
+  {
+    "id": "magistrature",
+    "slug": "magistrature",
+    "title_ar": "القضاء والنيابة العامة",
+    "title_fr": "Magistrature",
+    "description_ar": "مسار قضائي مؤسسي يتطلب تكويناً قانونياً وتكويناً بالمعهد المختص، وتحدد النصوص والإعلانات الرسمية شروط الولوج إليه.",
+    "order": 4
+  },
+  {
+    "id": "public-legal",
+    "slug": "public-legal",
+    "title_ar": "القانون في الإدارة العمومية",
+    "title_fr": "Droit dans l'administration publique",
+    "description_ar": "وظائف قانونية داخل الإدارات والمؤسسات العمومية، تُمارس فيها الصياغة القانونية وتتبع النزاعات وتطبيق النصوص الإدارية.",
+    "order": 5
+  },
+  {
+    "id": "private-academic",
+    "slug": "private-academic",
+    "title_ar": "القطاع الخاص والبحث",
+    "title_fr": "Secteur privé et recherche",
+    "description_ar": "مسارات قانونية في الشركات والمكاتب الاستشارية والأوساط الأكاديمية، تختلف شروطها حسب المشغل أو مؤسسة التكوين والبحث.",
+    "order": 6
+  }
+]

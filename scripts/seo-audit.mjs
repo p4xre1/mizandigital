@@ -171,11 +171,12 @@ for (const file of sampledFiles) {
   a11yScores.push(checkAccessibility(html));
   schemaScores.push(checkStructuredData(html));
 
-  const hreflangs = [...html.matchAll(/hreflang\s*=\s*["']([^"']+)["']/gi)].map((m) => {
-    const tag = m[0];
-    const href = /href\s*=\s*["']([^"']+)["']/i.exec(tag)?.[1];
-    return href || "";
-  });
+  // نجمع الوسم كاملاً (اللغة + الرابط): تمرير الروابط وحدها كان يجعل فحص
+  // "x-default" يفشل في كل صفحة تحمل وسوم hreflang.
+  const hreflangs = [...html.matchAll(/<link\b[^>]*hreflang\s*=\s*["']([^"']+)["'][^>]*>/gi)].map((m) => ({
+    hreflang: m[1],
+    href: /href\s*=\s*["']([^"']+)["']/i.exec(m[0])?.[1] || null,
+  }));
   hreflangScores.push(checkHreflang(hreflangs, { expectSingleLanguage: true }));
 
   const { internal } = extractLinks(html, { origin: SITE_URL });
@@ -349,7 +350,7 @@ results.orphanPages = findOrphanPages(routes, [...linkedPaths]);
 // ── النتيجة المجمّعة ────────────────────────────────────────────────────────
 const overall = aggregateTechnical(results);
 
-const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "structuredData", "images", "siteIcons", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
+const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "hreflang", "structuredData", "images", "siteIcons", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
 for (const key of order) {
   const value = results[key];
   if (!value) continue;

@@ -3,8 +3,8 @@
 > Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.
 
 - **النطاق:** https://www.mizan.page
-- **تاريخ التوليد:** 2026-09-22T00:54:50.276Z
-- **إجمالي السجلات:** 427
+- **تاريخ التوليد:** 2026-09-23T13:02:27.518Z
+- **إجمالي السجلات:** 567
 - **الصادر:** بيانات محلية فقط (CMS غير متاح وقت البناء)
 
 ## مجموعات البيانات
@@ -19,7 +19,7 @@
 | الأرشيف الدراسي (ملفات وملخصات) (docs) | 9 | [/reference/docs.json](https://www.mizan.page/reference/docs.json) | [/reference/docs.md](https://www.mizan.page/reference/docs.md) | [/archive](https://www.mizan.page/archive) |
 | النصوص القانونية (laws) | 0 | [/reference/laws.json](https://www.mizan.page/reference/laws.json) | [/reference/laws.md](https://www.mizan.page/reference/laws.md) | [/pdf](https://www.mizan.page/pdf) |
 | الأسئلة الشائعة (faq) | 39 | [/reference/faq.json](https://www.mizan.page/reference/faq.json) | [/reference/faq.md](https://www.mizan.page/reference/faq.md) | [/faq](https://www.mizan.page/faq) |
-| بنك أسئلة الاختبارات (quiz) | 84 | [/reference/quiz.json](https://www.mizan.page/reference/quiz.json) | [/reference/quiz.md](https://www.mizan.page/reference/quiz.md) | [/quiz](https://www.mizan.page/quiz) |
+| بنك أسئلة الاختبارات (quiz) | 224 | [/reference/quiz.json](https://www.mizan.page/reference/quiz.json) | [/reference/quiz.md](https://www.mizan.page/reference/quiz.md) | [/quiz](https://www.mizan.page/quiz) |
 
 ## كيف تستعمل هذا المرجع (للوكلاء)
 

@@ -656,9 +656,21 @@ export function checkHtmlHead(html, { url = "" } = {}) {
  */
 export function checkHreflang(hreflangs = [], { expectSingleLanguage = true } = {}) {
   const issues = []
-  const details = [`${hreflangs.length} وسم hreflang`]
+  // المدخل قد يكون رمز لغة ("ar-MA") أو كائناً { hreflang, href }.
+  // الفصل ضروري: وسوم hreflang تحمل قيمتين مختلفتين — اللغة والرابط — وكان
+  // الفحص السابق يمرّر الروابط فقط ثم يبحث فيها عن "x-default"، فيسقط في كل
+  // صفحة تحمل الوسوم (خطأ في الفحص لا في الصفحة). الآن يُفحص كل شيء في موضعه.
+  const entries = (hreflangs || [])
+    .map((item) =>
+      typeof item === "string"
+        ? { hreflang: item, href: null }
+        : { hreflang: String(item?.hreflang ?? ""), href: item?.href ? String(item.href) : null }
+    )
+    .filter((entry) => entry.hreflang || entry.href)
 
-  if (hreflangs.length === 0) {
+  const details = [`${entries.length} وسم hreflang`]
+
+  if (entries.length === 0) {
     if (expectSingleLanguage) {
       // موقع بلغة واحدة: غياب hreflang صحيح، لكن يجب تأكيد ذلك صراحة
       return result(true, 100, [], ["موقع بلغة واحدة — hreflang غير مطلوب."])
@@ -666,9 +678,9 @@ export function checkHreflang(hreflangs = [], { expectSingleLanguage = true } = 
     return result(false, 0, ["لا توجد وسوم hreflang رغم تعدد اللغات."], details)
   }
 
-  const relative = hreflangs.filter((h) => !/^https?:\/\//.test(h))
+  const relative = entries.filter((entry) => entry.href && !/^https?:\/\//.test(entry.href))
   if (relative.length) issues.push(`${relative.length} hreflang بروابط نسبية — يجب أن تكون مطلقة.`)
-  if (!hreflangs.some((h) => h === "x-default")) issues.push("لا يوجد hreflang=\"x-default\".")
+  if (!entries.some((entry) => entry.hreflang === "x-default")) issues.push('لا يوجد hreflang="x-default".')
 
   return result(issues.length === 0, issues.length ? 40 : 100, issues, details)
 }

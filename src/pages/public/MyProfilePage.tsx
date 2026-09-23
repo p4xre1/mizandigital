@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { DeleteAccountSection } from "@/components/profile/DeleteAccountSection"
 import { ResumeEditor } from "@/components/profile/ResumeEditor"
+import { CareerTrainingDashboard } from "@/components/careers/CareerTrainingDashboard"
 import { supabase } from "@/lib/supabase/client"
 import {
   AlertCircle,
@@ -46,6 +47,7 @@ import {
   type RankBoardEntry,
 } from "../../lib/profiles/service"
 import { useAuth } from "../../lib/auth/AuthProvider"
+import { SECTION_TITLES } from "../../../shared/careers/copy.js"
 import type { MizanProfile, Semester, UserRole } from "../../types/quiz"
 import { ConfirmDeleteModal } from "../../components/ui/ConfirmDeleteModal"
 import {
@@ -121,6 +123,12 @@ export function MyProfilePage() {
   const [years, setYears] = useState<number>(1)
   const [interests, setInterests] = useState<string[]>([])
   const [city, setCity] = useState("")
+  /**
+   * تبويبا الملف: محرّر البروفايل (الافتراضي) و«تدريبي المهني».
+   * لماذا حالة محلية لا مسار URL؟ لأن /profile صفحة واحدة غير مفهرسة
+   * (noindex)، فلا حاجة لمسارين لصفحة واحدة، والتبويب لا يُشارَك عبر رابط.
+   */
+  const [profileTab, setProfileTab] = useState<"profile" | "career-training">("profile")
   const [bio, setBio] = useState("")
   const [occupation, setOccupation] = useState("")
   const [facultyId, setFacultyId] = useState("")
@@ -541,6 +549,54 @@ export function MyProfilePage() {
           {syncState}
         </p>
       )}
+
+      {/* تبويبان في صفحة واحدة: البروفايل، و«تدريبي المهني» (المسارات
+          المتابَعة وتقدّم التدريب). /profile صفحة noindex كما كانت. */}
+      <div role="tablist" aria-label="أقسام الملف" className="mt-6 flex flex-wrap items-center gap-2 border-b border-border">
+        <button
+          type="button"
+          role="tab"
+          id="profile-tab-profile"
+          aria-selected={profileTab === "profile"}
+          aria-controls="profile-panel-profile"
+          onClick={() => setProfileTab("profile")}
+          className={`-mb-px inline-flex items-center gap-2 rounded-t-xl border-b-2 px-4 py-2.5 text-[13px] font-extrabold transition ${
+            profileTab === "profile"
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <GraduationCap className="size-4" aria-hidden="true" />
+          ملفي
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="profile-tab-career-training"
+          aria-selected={profileTab === "career-training"}
+          aria-controls="profile-panel-career-training"
+          onClick={() => setProfileTab("career-training")}
+          className={`-mb-px inline-flex items-center gap-2 rounded-t-xl border-b-2 px-4 py-2.5 text-[13px] font-extrabold transition ${
+            profileTab === "career-training"
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <BriefcaseBusiness className="size-4" aria-hidden="true" />
+          {SECTION_TITLES.training}
+        </button>
+      </div>
+
+      {profileTab === "career-training" ? (
+        <div
+          role="tabpanel"
+          id="profile-panel-career-training"
+          aria-labelledby="profile-tab-career-training"
+        >
+          <CareerTrainingDashboard />
+        </div>
+      ) : (
+      <div role="tabpanel" id="profile-panel-profile" aria-labelledby="profile-tab-profile">
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         {/* ---------------- بطاقة البروفايل ---------------- */}
@@ -1186,6 +1242,9 @@ export function MyProfilePage() {
 
       {/* منطقة الخطر: حذف الحساب بمهلة 30 يوماً. آخر الصفحة عمداً —
           لا نضع إجراءً ينهي الحساب بجانب أزرار الحفظ اليومية. */}
+      </div>
+      )}
+
       <DeleteAccountSection username={username} />
 
       <ConfirmDeleteModal

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 683" width="1024" height="683" role="img" aria-hidden="true" focusable="false">
+  <title>مسار مهني من أربع مراحل: نقطة انطلاق، كتاب، حقيبة عمل، وراية إنجاز</title>
+  <defs>
+    <linearGradient id="cream" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf5ea"/>
+      <stop offset="1" stop-color="#f1e8d6"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1024" height="683" fill="url(#cream)"/>
+
+  <!-- أشكال هندسية مسطحة في الخلفية (بلا أي حروف أو أرقام) -->
+  <circle cx="150" cy="128" r="74" fill="#1e3a5f" opacity="0.06"/>
+  <circle cx="884" cy="574" r="118" fill="#c9a961" opacity="0.10"/>
+  <rect x="742" y="72" width="150" height="150" rx="34" fill="#1e3a5f" opacity="0.05" transform="rotate(14 817 147)"/>
+  <rect x="118" y="452" width="186" height="118" rx="28" fill="#c9a961" opacity="0.08" transform="rotate(-9 211 511)"/>
+
+  <!-- المسار المتدرج بين المراحل الأربع -->
+  <path d="M148 402 C 300 300, 352 288, 470 330 C 596 376, 660 372, 786 300"
+        fill="none" stroke="#1e3a5f" stroke-opacity="0.28" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 20"/>
+
+  <!-- المرحلة 1: الانطلاق -->
+  <g>
+    <circle cx="148" cy="402" r="34" fill="#faf5ea" stroke="#1e3a5f" stroke-width="8"/>
+    <circle cx="148" cy="402" r="12" fill="#c9a961"/>
+  </g>
+
+  <!-- المرحلة 2: التكوين (كتاب مفتوح) -->
+  <g transform="translate(470 330)">
+    <path d="M-56 24 C -38 8, -18 8, 0 20 C 18 8, 38 8, 56 24 L 56 -14 C 38 -30, 18 -30, 0 -18 C -18 -30, -38 -30, -56 -14 Z"
+          fill="#1e3a5f"/>
+    <path d="M0 20 L 0 -18" stroke="#faf5ea" stroke-width="6" stroke-linecap="round"/>
+    <rect x="-46" y="30" width="92" height="10" rx="5" fill="#c9a961"/>
+  </g>
+
+  <!-- المرحلة 3: الممارسة المهنية (حقيبة عمل) -->
+  <g transform="translate(786 300)">
+    <rect x="-58" y="-16" width="116" height="76" rx="16" fill="#c9a961"/>
+    <path d="M-20 -16 L -20 -30 A 20 20 0 0 1 20 -30 L 20 -16" fill="none" stroke="#1e3a5f" stroke-width="8" stroke-linecap="round"/>
+    <rect x="-58" y="14" width="116" height="12" fill="#1e3a5f" opacity="0.35"/>
+  </g>
+
+  <!-- المرحلة 4: الإنجاز (راية) -->
+  <g transform="translate(902 232)">
+    <path d="M0 -92 L 0 84" stroke="#1e3a5f" stroke-width="10" stroke-linecap="round"/>
+    <path d="M0 -92 L 92 -66 L 0 -34 Z" fill="#1e3a5f"/>
+    <path d="M0 -34 L 74 -12 L 0 12 Z" fill="#c9a961"/>
+  </g>
+
+  <!-- خط الأرض -->
+  <path d="M64 604 L 960 604" stroke="#1e3a5f" stroke-opacity="0.16" stroke-width="8" stroke-linecap="round"/>
+</svg>
