@@ -39,6 +39,7 @@ The **Mizan Digital Platform** is built using exceptional open-source software, 
     *   **Noto Serif Arabic / Cairo** — Typography optimized for Arabic legal texts (*SIL Open Font License*).
     *   **Inter** — Clean sans-serif typeface for UI interfaces (*SIL Open Font License*).
     *   **License:** [SIL Open Font License 1.1](https://scripts.sil.org/OFL)
+    *   **Self-hosted delivery:** the Cairo variable faces are served from `public/fonts/` (`cairo-arabic.woff2`, `cairo-latin.woff2`) instead of `fonts.gstatic.com`, so no third-party font connection is made at runtime. Sources are kept in `scripts/fonts-src/` under the same OFL license.
 
 ---
 

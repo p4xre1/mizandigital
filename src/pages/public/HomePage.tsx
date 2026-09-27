@@ -1,10 +1,11 @@
-import { useEffect, useState, lazy, Suspense } from "react"
+import { useEffect, useRef, useState, lazy, Suspense } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { canonicalHome } from "../../lib/canonical"
 import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { afterWindowLoad, scheduleWhenIdle } from "../../lib/utils/deferWork"
 import {
   BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
   Calendar, MapPin, Languages, GitBranch, Building2
@@ -50,7 +51,14 @@ export function HomePage() {
   const [schoolsCount] = useState<number>(counts.schools)
   const [articlesCount] = useState<number>(counts.articles)
 
+  // القسم الذي يحمل البطاقات (مقالات/فعاليات/قاموس): يُستعمل مرجعاً لمعرفة
+  // متى يقترب من الشاشة فنطلب بياناته — لا قبل ذلك.
+  const contentSectionRef = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
+    let cancelled = false
+    let started = false
+
     const loadLocal = async () => {
       try {
         const [{ default: articlesData }, { default: eventsData }, { default: lexiconData }] = await Promise.all([
@@ -69,6 +77,7 @@ export function HomePage() {
             image: item.coverImage || item.image,
           }))
           .filter((a) => !!a.image && a.image.trim() !== "")
+        if (cancelled) return
         setLatestArticles(diversifyByCategory(localArticles, 8))
 
         const localEvents: EventCard[] = (eventsData as any[])
@@ -83,6 +92,7 @@ export function HomePage() {
             organizer: e.organizer,
           }))
           .filter((e) => !!e.image && String(e.image).trim() !== "")
+        if (cancelled) return
         setLatestEvents(localEvents.slice(0, 4))
 
         const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 6).map((t) => ({
@@ -93,10 +103,50 @@ export function HomePage() {
           category: t.category,
           legal_sources: t.legal_sources || [],
         }))
+        if (cancelled) return
         setLatestTerms(localTerms)
-      } catch {}
+      } catch {
+        /* لا بيانات محلية: الأقسام تبقى فارغة كما كانت قبل الإصلاح */
+      }
     }
-    loadLocal()
+
+    /*
+      لماذا لم يعد loadLocal() يُستدعى فوراً:
+      ────────────────────────────────────────
+      كان يُنفَّذ في أول تركيب فينزّل ثلاثة ملفات (articles.json +
+      events.json + lexicon.client.json ≈ 72KB مضغوطة) في الثانية الأولى،
+      تتزاحم مع الخط والحزمة وCSS على نطاق 4G البطيء في نافذة قياس CWV —
+      وهي بيانات قسم أسفل الصفحة، لا يراها الزائر قبل أن يمرّر.
+      الجديد: تُطلب عند اقتراب القسم من الشاشة (هوامش 700px فتكون جاهزة قبل
+      ظهوره)، أو بعد اكتمال التحميل + خمول كسقف أعلى (3 ثوانٍ) لمن لا يمرّر.
+      النتيجة: أول رسم بلا تنزيل بيانات إطلاقاً، والمحتوى يظهر كما كان يظهر.
+    */
+    const startLocal = () => {
+      if (started || cancelled) return
+      started = true
+      void loadLocal()
+    }
+
+    const cancelIdle = afterWindowLoad(() => scheduleWhenIdle(startLocal, { timeout: 3000 }))
+    let cancelObserver: (() => void) | undefined
+
+    const target = contentSectionRef.current
+    if (target && typeof IntersectionObserver === "function") {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            observer.disconnect()
+            startLocal()
+          }
+        },
+        { rootMargin: "700px 0px" }
+      )
+      observer.observe(target)
+      cancelObserver = () => observer.disconnect()
+    } else {
+      // بيئة بلا IntersectionObserver: لا نترك القسم فارغاً بلا نهاية
+      scheduleWhenIdle(startLocal, { timeout: 2000 })
+    }
 
     const loadRemote = async () => {
       try {
@@ -215,6 +265,12 @@ export function HomePage() {
     } else {
       window.addEventListener("load", scheduleRemoteSync, { once: true })
     }
+
+    return () => {
+      cancelled = true
+      cancelIdle()
+      cancelObserver?.()
+    }
   }, [])
 
   return (
@@ -312,7 +368,7 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
+        <section ref={contentSectionRef} className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
               <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
@@ -344,7 +400,7 @@ export function HomePage() {
             <div className="mt-12">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
-                <Link to="/articles" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                <Link to="/articles" aria-label="عرض الكل: أحدث المقالات" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                 {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
@@ -375,13 +431,13 @@ export function HomePage() {
                     <span className="grid size-7 place-items-center rounded-full bg-[#f59e0b]/10 text-[#f59e0b]"><Calendar className="size-4" /></span>
                     الفعاليات والندوات
                   </h3>
-                  <Link to="/events" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                  <Link to="/events" aria-label="عرض الكل: الفعاليات والندوات" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                   {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
                     <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 hover:shadow-[0_8px_24px_rgba(245,158,11,0.10)] hover:-translate-y-0.5 transition-all flex flex-col">
                       <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
-                        <img src={ev.image!} alt={ev.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
+                        <img src={ev.image!} alt={ev.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
                         <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
                         {ev.date && <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
                       </div>
@@ -407,7 +463,7 @@ export function HomePage() {
                     <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
                     القاموس القانوني — مع الشجرة القانونية
                   </h3>
-                  <Link to="/lexicon" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" /></Link>
+                  <Link to="/lexicon" aria-label="عرض الكل: القاموس القانوني" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
                 </div>
 
                 {/* Featured term with tree */}
@@ -626,7 +682,11 @@ export function HomePage() {
               ].map((stat, i) => (
                 <div key={i}>
                   <div className="text-[24px] font-black">{stat.value}</div>
-                  <div className="text-[11px] opacity-80 font-bold mt-1">{stat.label}</div>
+                  {/* بلا opacity-80: أبيض بشفافية 80% فوق #2563eb يعطي
+                      تبايناً 3.86:1 وهو أقل من 4.5:1 المطلوب لنص 11px،
+                      فرصده Lighthouse في تدقيق color-contrast (96/100).
+                      الأبيض الكامل يعطي 5.12:1 ⇒ AAA للنص الصغير. */}
+                  <div className="text-[11px] font-bold mt-1 text-white">{stat.label}</div>
                 </div>
               ))}
             </div>

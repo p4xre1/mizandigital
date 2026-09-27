@@ -15,7 +15,10 @@
  * جديد تلقائياً — وهذا هو السلوك الصحيح قانوناً.
  */
 
-import { LEGAL_LAST_UPDATED } from "@/content/legal/policies.js"
+// من version.js لا من policies.js: هذا الملف في مسار الدخول، واستيراد
+// تاريخ النسخة من ملف السياسات كان يسحب نصّ السياسات كاملاً (39KB) إلى أول
+// حزمة تُحمَّل — انظر التعليق في src/content/legal/version.js.
+import { LEGAL_LAST_UPDATED } from "@/content/legal/version.js"
 
 export const CONSENT_STORAGE_KEY = "mizan:legal:consent:v1"
 

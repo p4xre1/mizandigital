@@ -161,18 +161,16 @@ export function SEOHead({
     }
     canonical.setAttribute("href", url)
 
-    // Preconnect for speed
-    const addLink = (rel: string, href: string, extra?: Record<string, string>) => {
-      if (document.querySelector(`link[rel="${rel}"][href="${href}"]`)) return
-      const link = document.createElement("link")
-      link.setAttribute("rel", rel)
-      link.setAttribute("href", href)
-      if (extra) Object.entries(extra).forEach(([k, v]) => link.setAttribute(k, v))
-      document.head.appendChild(link)
-    }
-
-    addLink("preconnect", "https://fonts.googleapis.com")
-    addLink("preconnect", "https://www.googletagmanager.com")
+    /*
+      ملاحظة أداء (تدقيق Lighthouse: «Unused preconnect»):
+      كان هنا preconnect إلى fonts.googleapis.com (ملف CSS لخطوط Google) وآخر
+      إلى www.googletagmanager.com. الأول لم يعد له معنى إطلاقاً: خط Cairo صار
+      محلياً في /fonts/ بلا أي طلب إلى Google Fonts. والثاني كان يُنشئ اتصالاً
+      كاملاً (DNS + TCP + TLS) ثم لا يُستعمل إلا بعد ثوانٍ — لأن تحليلات GA
+      تُحمَّل في وقت الخمول لا في المسار الحرج — فصار اتصالاً مفتوحاً بلا فائدة
+      يتنافس مع طلبات الصفحة الأولى على النطاق الترددي.
+      لا يُضاف أي preconnect جديد هنا إلا لأصل يُطلَب فعلاً في أول ثانيتين.
+    */
   }, [
     fullTitle,
     description,

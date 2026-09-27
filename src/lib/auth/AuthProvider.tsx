@@ -20,6 +20,7 @@ import {
   type SyncResult,
 } from "@/lib/profiles/service"
 import { readStoredConsent, syncPendingConsent } from "@/lib/legal/consent"
+import { firstOf, onFirstInteraction, scheduleWhenIdle } from "@/lib/utils/deferWork"
 
 /**
  * AuthProvider — Supabase Auth هو مزوّد الهوية الوحيد في ميزان.
@@ -182,6 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let unsubscribe: (() => void) | undefined
     let cancelled = false
+    let cancelSchedule: (() => void) | undefined
 
     const bootstrap = async () => {
       const { supabase } = await import("@/lib/supabase/client")
@@ -218,10 +220,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       unsubscribe = () => subscription.subscription.unsubscribe()
     }
 
-    void bootstrap()
+    /*
+      متى نبدأ قراءة الجلسة؟ (تقرير Lighthouse: vendor-supabase 57.5KB، منها
+      44.7KB «كود غير مستعمل»، تُنزَّل في الثانية الأولى ثم تنافس الخط والمحتوى
+      على النطاق الترددي على 4G بطيء.)
+      ────────────────────────────────────────────────────────────────────
+      كانت القراءة تبدأ فور تركيب المكوّن في كل زيارة، أي أن كل زائر — حتى من
+      لا حساب له ولا ينوي الدخول (معظم زوّار المقالات والقاموس) — ينزّل حزمة
+      Supabase كاملة على المسار الحرج ليرى زر «دخول» عادياً.
+      القاعدة الآن:
+        • توجد جلسة محفوظة، أو عودة من OAuth/إعادة تعيين كلمة المرور، أو بصمة
+          هاش في الرابط (detectSessionInUrl) → ابدأ فوراً: المستخدم مسجَّل
+          فعلاً وواجهته تنتظره.
+        • وإلا (زائر مجهول) → ابدأ عند أول خمول (سقف 1.5 ثانية) أو أول تفاعل،
+          أيهما أسبق: زر «دخول» الثابت (المُهيّأ مسبقاً في HTML) يعمل حينها
+          كرابط عادي، فالمستخدم لا ينتظر شيئاً.
+      ولا يتغيّر أي سلوك وظيفي: هذا تأجيل لبدء القراءة لا إلغاء لها.
+    */
+    const hasStoredSession = (() => {
+      try {
+        return window.localStorage.getItem("sb-mizan-auth") !== null
+      } catch {
+        // التخزين محظور (وضع خاص/كوكيز مقفلة): لا نعرف، ولا نؤجّل — الأثر
+        // الوظيفي هنا أهم من بضعة كيلوبايتات.
+        return true
+      }
+    })()
+
+    const url = new URL(window.location.href)
+    const isAuthCallback =
+      url.searchParams.has("code") ||
+      url.hash.includes("access_token") ||
+      url.hash.includes("error_description") ||
+      url.searchParams.get("type") === "recovery"
+
+    if (hasStoredSession || isAuthCallback) {
+      void bootstrap()
+    } else {
+      const schedule = firstOf(onFirstInteraction, (run) =>
+        scheduleWhenIdle(run, { timeout: 1500 })
+      )
+      cancelSchedule = schedule(() => void bootstrap())
+    }
 
     return () => {
       cancelled = true
+      cancelSchedule?.()
       unsubscribe?.()
     }
   }, [loadAdminFlag, loadProfile])
