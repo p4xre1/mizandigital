@@ -2,7 +2,7 @@
  * Preview mode for admin — allows viewing site as different roles / users
  */
 
-export type PreviewRole = "guest" | "student" | "pro" | "admin";
+export type PreviewRole = "guest" | "student" | "admin";
 
 const STORAGE_KEY = "mizan:admin:preview:v1";
 
@@ -34,6 +34,5 @@ export function clearPreviewRole() {
 export const PREVIEW_ROLES: { id: PreviewRole; label: string; description: string }[] = [
   { id: "guest", label: "زائر", description: "بدون تسجيل" },
   { id: "student", label: "طالب مجاني", description: "رتبة D-C" },
-  { id: "pro", label: "ميزان برو", description: "اشتراك نشط" },
   { id: "admin", label: "إدارة", description: "صلاحيات كاملة" },
 ];

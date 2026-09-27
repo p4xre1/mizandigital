@@ -14,7 +14,7 @@ export default function LimitsMonitoringPage() {
       { key: "reports", label: "بلاغات / ساعة / مستخدم", current: 2, max: 5, unit: "", desc: "الحوكمة", icon: Flag },
       { key: "storage", label: "تخزين Supabase", current: 2.3, max: 8, unit: "GB", desc: "قاعدة البيانات + التخزين", icon: Database },
       { key: "bandwidth", label: "نطاق R2", current: 12, max: 100, unit: "GB", desc: "تحميل PDF + صور", icon: HardDrive },
-      { key: "checkout", label: "Checkout / دقيقة / IP", current: 2, max: 10, unit: "", desc: "Stripe + مكافحة الاحتيال", icon: Zap },
+      { key: "api", label: "طلبات الواجهة / دقيقة / IP", current: 2, max: 10, unit: "", desc: "حدود حماية الخدمة", icon: Zap },
       { key: "auth", label: "تسجيل دخول / دقيقة / IP", current: 3, max: 15, unit: "", desc: "Supabase Auth", icon: Database },
     ])
   }, [])
@@ -25,7 +25,7 @@ export default function LimitsMonitoringPage() {
         <span className="grid size-11 place-items-center rounded-2xl bg-slate-500/10 text-slate-700"><Gauge className="size-6" /></span>
         <div>
           <h1 className="text-xl font-black text-foreground">مراقبة الحدود والموارد — تحكم كامل</h1>
-          <p className="text-[12px] text-muted-foreground">كل حدود الموقع: R2، Supabase، تعليقات، اختبارات، بلاغات، مدفوعات، مصادقة</p>
+          <p className="text-[12px] text-muted-foreground">حدود حماية الموقع: R2، Supabase، تعليقات، اختبارات، بلاغات ومصادقة</p>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ export default function LimitsMonitoringPage() {
             <li><code>Cloudflare _headers</code> — CSP, HSTS, X-Frame-Options</li>
             <li><code>IP_HASH_SALT</code> — تجريد IP بملح</li>
             <li><code>Supabase RLS</code> — حماية XP/Rank عبر trigger 20260920000000</li>
-            <li><code>Stripe Radar</code> — حماية مدفوعات</li>
+
           </ul>
         </div>
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
@@ -69,7 +69,7 @@ export default function LimitsMonitoringPage() {
             <div className="flex justify-between"><span>320 route prerendered</span><span className="font-bold text-emerald-700">✅</span></div>
             <div className="flex justify-between"><span>21 school + 250 lexicon</span><span className="font-bold text-emerald-700">✅</span></div>
             <div className="flex justify-between"><span>بلا Adsterra</span><span className="font-bold text-emerald-700">✅ منذ 15 شتنبر</span></div>
-            <div className="flex justify-between"><span>Mizan Pro 49/399 MAD</span><span className="font-bold text-emerald-700">✅ بيع نهائي</span></div>
+            <div className="flex justify-between"><span>موارد المنصة</span><span className="font-bold text-emerald-700">✅ متاحة مجاناً</span></div>
             <div className="flex justify-between"><span>كوكيز محدثة</span><span className="font-bold text-emerald-700">sb-mizan-auth, mizan:*</span></div>
           </div>
         </div>

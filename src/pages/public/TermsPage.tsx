@@ -1,7 +1,7 @@
 import { AEOHead } from "../../components/seo/AEOHead"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { LegalBlocks } from "../../components/legal/LegalBlocks"
-import { Scale, ShieldAlert, CreditCard } from "lucide-react"
+import { Scale, ShieldAlert, BookOpen } from "lucide-react"
 import { TERMS_POLICY } from "@/content/legal/policies.js"
 
 /**
@@ -45,32 +45,10 @@ export function TermsPage() {
           </div>
         </div>
 
-        <div className="mb-8 grid gap-3 rounded-2xl border border-border bg-card p-5">
+        <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
           <div className="flex items-center gap-2 text-sm font-bold text-foreground">
-            <CreditCard size={16} className="text-primary" /> ملخص سياسة الاشتراك (مهم)
+            <BookOpen size={16} className="text-emerald-600" /> المنصة مجانية بالكامل — موارد للجميع دون إعلانات تجارية
           </div>
-          <ul className="list-disc pr-5 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
-            <li>
-              <strong>Mizan Pro شهري:</strong> 49 د.م — 500 كريدتس، مزايا: شجرة قوانين متقدمة، تحديات
-              مميزة، دعم أولوية
-            </li>
-            <li>
-              <strong>Mizan Pro سنوي:</strong> 399 د.م — 7000 كريدتس + 1000 هدية، خصم 32%
-            </li>
-            <li>
-              <strong>باقات كريدتس:</strong> 100 (19 د.م) — 350 (49 د.م) — 800 (99 د.م) — 2000 (199 د.م)
-            </li>
-            <li>
-              <strong>البيع نهائي:</strong> لا إلغاء ولا استرداد خلال المدة النشطة
-            </li>
-            <li>
-              <strong>بعد الانتهاء:</strong> ينتهي الوصول لمزايا Pro تلقائياً، يجب الدفع مجدداً
-              للاستمرار — لا تجديد تلقائي إجباري
-            </li>
-            <li>
-              <strong>حذف الحساب:</strong> غير متاح ذاتياً، يجب طلب عبر البريد (GDPR)
-            </li>
-          </ul>
         </div>
 
         <div className="space-y-8">

@@ -25,10 +25,8 @@ const LawsPage = lazy(() => import("@/pages/admin/LawsPage"))
 const SettingsPage = lazy(() => import("@/pages/admin/SettingsPage"))
 const AdminQuizzesPage = lazy(() => import("@/pages/admin/quizzes/QuizzesPage"))
 const ModerationPage = lazy(() => import("@/pages/admin/ModerationPage"))
-const PaymentsAdminPage = lazy(() => import("@/pages/admin/PaymentsAdminPage"))
 const UsersManagementPage = lazy(() => import("@/pages/admin/UsersManagementPage"))
 const UserDataPage = lazy(() => import("@/pages/admin/UserDataPage"))
-const PricingManagementPage = lazy(() => import("@/pages/admin/PricingManagementPage"))
 const LimitsMonitoringPage = lazy(() => import("@/pages/admin/LimitsMonitoringPage"))
 const IntelligencePage = lazy(() => import("@/pages/admin/IntelligencePage"))
 const FraudPreventionPage = lazy(() => import("@/pages/admin/FraudPreventionPage"))
@@ -79,7 +77,6 @@ const CookiePolicyPage = lazy(() =>
   import("@/pages/public/CookiePolicyPage").then((m) => ({ default: m.CookiePolicyPage }))
 )
 const TermsPage = lazy(() => import("@/pages/public/TermsPage").then((m) => ({ default: m.TermsPage })))
-const PaymentsPage = lazy(() => import("@/pages/public/PaymentsPage").then((m) => ({ default: m.PaymentsPage })))
 const GuidelinesPage = lazy(() => import("@/pages/public/GuidelinesPage").then((m) => ({ default: m.GuidelinesPage })))
 const PricingPage = lazy(() => import("@/pages/public/PricingPage").then((m) => ({ default: m.PricingPage })))
 const SavedContentPage = lazy(() => import("@/pages/public/SavedContentPage").then((m) => ({ default: m.SavedContentPage })))
@@ -168,7 +165,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/careers" element={<CareersPage />} /><Route path="/careers/:slug" element={<CareerDetailWrapper />} />
           <Route path="/quiz/careers" element={<CareerQuizHubPage />} /><Route path="/quiz/careers/:careerSlug" element={<CareerQuizWrapper />} /><Route path="/quiz/careers/:careerSlug/practice/:competitionId" element={<CareerPracticeWrapper />} />
           <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/platform" element={<PlatformPage />} /><Route path="/guides/free-legal-resources-morocco" element={<FreeLegalResourcesPage />} /><Route path="/guides/new-law-student-morocco" element={<NewLawStudentGuidePage />} />
-          <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<PaymentsPage />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
+          <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<Navigate to="/pricing" replace />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
         </Route>
         {/* صفحة المصادقة الموحّدة (Supabase Auth) تتكفّل بتحويل المستخدم
             المسجّل إلى وجهته: /admin/dashboard للإدارة و/profile للبقية. */}
@@ -200,12 +197,12 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="gmail" element={<GmailInboxPage />} />
           <Route path="law-trends" element={<LawTrendsPage />} />
           <Route path="moderation" element={<ModerationPage />} />
-          <Route path="payments" element={<PaymentsAdminPage />} />
+          <Route path="payments" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="fraud" element={<FraudPreventionPage />} />
           <Route path="intelligence" element={<IntelligencePage />} />
           <Route path="limits" element={<LimitsMonitoringPage />} />
           <Route path="pro-tools" element={<ProToolsManagementPage />} />
-          <Route path="pricing" element={<PricingManagementPage />} />
+          <Route path="pricing" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="users" element={<UsersManagementPage />} />
           <Route path="userdata" element={<UserDataPage />} />
           <Route path="settings" element={<SettingsPage />} />

@@ -277,8 +277,8 @@ export function HomePage() {
     <>
       <AEOHead
         title="ميزان الرقمية – منصة طلبة الحقوق في المغرب"
-        description="ميزان الرقمية منصة مغربية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM."
-        directAnswer="ميزان الرقمية منصة مغربية لطلبة كليات الحقوق بالمغرب، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات تحليلية، أخبار تشريعية محينة واختبارات QCM للتحضير للمباريات."
+        description="ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM، بلا إعلانات تجارية."
+        directAnswer="ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة كليات الحقوق، تضم ملخصات S1-S6، قاموساً قانونياً، دليلاً للكليات، مقالات وأخباراً واختبارات وأدوات قانونية، بلا إعلانات تجارية."
         keywords={[
           "ملخصات القانون S1 S2 S3 S4 S5 S6",
           "قاموس قانوني عربي فرنسي",
@@ -291,8 +291,8 @@ export function HomePage() {
         ]}
         canonicalUrl={canonicalHome()}
         faq={[
-          { question: "ما هي منصة ميزان الرقمية؟", answer: "ميزان الرقمية منصة مغربية تعليمية لطلبة القانون، محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك ميزان برو، تضم ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM." },
-          { question: "هل المحتوى مجاني؟", answer: "المحتوى الأساسي مجاني دون تسجيل: القاموس القانوني، وملخصات الأرشيف S1-S6، ودليل الكليات، والمقالات، والأخبار. المزايا المتقدمة مؤدّاة عبر اشتراك ميزان برو (49 درهماً شهرياً أو 399 درهماً سنوياً) أو عبر حزم الكريدتس. المنصة لم تعد مجانية بالكامل كما كانت في مرحلة سابقة، وهذا معلن في صفحة الأسعار." },
+          { question: "ما هي منصة ميزان الرقمية؟", answer: "ميزان الرقمية منصة تعليمية مغربية مجانية بالكامل لطلبة القانون، تضم ملخصات S1-S6، قاموساً قانونياً، دليل الكليات، مقالات وأخباراً واختبارات وأدوات قانونية، بلا إعلانات تجارية." },
+          { question: "هل المنصة مجانية؟", answer: "نعم، ميزان مجانية بالكامل: جميع الموارد والأدوات متاحة للجميع، ولا توجد إعلانات تجارية." },
           { question: "كم عدد كليات الحقوق في الدليل؟", answer: "دليلنا يضم 21 كلية حقوق وعلوم قانونية واقتصادية FSJES بالمغرب: الرباط، الدار البيضاء، مراكش، فاس، طنجة، أكادير، وجدة، مكناس وغيرها." },
         ]}
       />
@@ -518,121 +518,35 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:900px]">
-          <div className="container relative mx-auto max-w-[1280px] px-6">
-            <div className="text-center max-w-[640px] mx-auto">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#eff6ff] dark:bg-[#1e293b] border border-[#dbeafe] dark:border-[#334155] px-3 py-1 text-[11px] font-black text-[#2563eb] dark:text-[#60a5fa]">
-                الأسعار - خطط مرنة
+        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:380px]">
+          <div className="container relative mx-auto max-w-[1000px] px-6">
+            <div className="mx-auto max-w-3xl rounded-3xl border border-emerald-500/20 bg-emerald-500/[0.04] p-7 text-center sm:p-10">
+              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-black text-emerald-700 dark:text-emerald-300">
+                <ShieldCheck className="size-4" /> مجانية بالكامل
               </span>
-              <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
-                خطط تناسب كل
-                <span className="text-[#2563eb]"> طالب قانون</span>
+              <h2 className="mt-4 text-[26px] font-black leading-tight text-[#0f172a] dark:text-white md:text-[32px]">
+                المعرفة القانونية للجميع
               </h2>
-              <p className="mt-3 text-[13px] leading-6 text-[#64748b] dark:text-[#94a3b8]">
-                ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع.
+              <p className="mx-auto mt-3 max-w-2xl text-[13px] leading-7 text-[#64748b] dark:text-[#94a3b8]">
+                كل موارد ميزان وأدواتها مجانية، بلا إعلانات تجارية. كل ما تحتاجه للدراسة في مكان واحد.
               </p>
-            </div>
-
-            <div className="mt-10 grid md:grid-cols-3 gap-5 max-w-[1000px] mx-auto items-start">
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
-                <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-white">
-                    <BookOpen className="size-5" />
+              <div className="mt-7 grid gap-3 text-right sm:grid-cols-2">
+                {[
+                  "أرشيف الفصول S1 إلى S6",
+                  "قاموس قانوني يضم 250 مصطلحاً",
+                  "جميع المقالات والأخبار القانونية",
+                  "اختبارات ومسارات تدريبية متنوعة",
+                  "دليل 21 كلية حقوق",
+                  "أدوات البحث والتدريب القانوني",
+                ].map((feature) => (
+                  <div key={feature} className="flex items-center gap-2 rounded-xl bg-white/80 p-3 text-[12px] font-bold text-[#334155] dark:bg-[#1e293b] dark:text-[#cbd5e1]">
+                    <ShieldCheck className="size-4 shrink-0 text-emerald-600" /> {feature}
                   </div>
-                  <div>
-                    <h3 className="font-black text-[14px] text-[#0f172a] dark:text-white">المجاني</h3>
-                    <p className="text-[11px] text-[#64748b]">للجميع - للأبد</p>
-                  </div>
-                </div>
-                <div className="mt-5">
-                  <span className="text-[28px] font-black text-[#0f172a] dark:text-white">0</span>
-                  <span className="text-[13px] font-bold text-[#64748b]"> د.م / للأبد</span>
-                </div>
-                <ul className="mt-5 space-y-2.5">
-                  {[
-                    "الوصول للأرشيف S1-S6",
-                    "القاموس 250 مصطلح",
-                    "المقالات المجانية",
-                    "الاختبارات الأساسية",
-                    "دليل الكليات 21 كلية",
-                  ].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[12px] text-[#334155] dark:text-[#cbd5e1]">
-                      <span className="grid size-5 place-items-center rounded-full bg-[#dcfce7] text-[#16a34a]"><ShieldCheck className="size-3" /></span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/articles" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border bg-white dark:bg-[#0f172a] py-3 text-[13px] font-bold">
-                  ابدأ مجاناً ←
-                </Link>
+                ))}
               </div>
-
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
-                <div className="flex items-center gap-3">
-                  <div className="grid size-10 place-items-center rounded-xl bg-[#eff6ff] text-[#2563eb]">
-                    <Clock className="size-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-[14px]">شهري</h3>
-                    <p className="text-[11px] text-[#64748b]">500 كريدتس</p>
-                  </div>
-                </div>
-                <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-[28px] font-black">49</span>
-                  <span className="text-[13px] font-bold text-[#64748b]"> د.م / شهر</span>
-                </div>
-                <ul className="mt-5 space-y-2.5">
-                  {[
-                    "شجرة القوانين المتقدمة",
-                    "تحديات مميزة",
-                    "دعم أولوية",
-                    "كل مزايا المجاني",
-                  ].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[12px]">
-                      <span className="grid size-5 place-items-center rounded-full bg-[#eff6ff] text-[#2563eb]"><ShieldCheck className="size-3" /></span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#0f172a] dark:bg-white text-white dark:text-black py-3 text-[13px] font-bold">
-                  اختر الشهري ←
-                </Link>
-              </div>
-
-              <div className="rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-6">
-                <span className="inline-block mb-3 rounded-full border border-border bg-muted px-2.5 py-1 text-[10px] font-bold text-foreground">الأفضل قيمة — خصم 32%</span>
-                <div className="flex items-center gap-3 mt-1">
-                  <div className="grid size-10 place-items-center rounded-xl bg-muted text-muted-foreground">
-                    <Award className="size-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-black text-[14px] text-foreground">سنوي</h3>
-                    <p className="text-[11px] text-muted-foreground">7000 + 1000 هدية</p>
-                  </div>
-                </div>
-                <div className="mt-5 flex items-baseline gap-1">
-                  <span className="text-[28px] font-black text-foreground">399</span>
-                  <span className="text-[13px] font-bold text-muted-foreground"> د.م / سنة</span>
-                </div>
-                <p className="mt-1 text-[11px] text-muted-foreground font-bold">1000 كريدتس هدية + خصم 32%</p>
-                <ul className="mt-5 space-y-2.5">
-                  {[
-                    "كل مزايا الشهري",
-                    "خصم 32% عن الشهري",
-                    "1000 كريدتس هدية",
-                    "شهادة توصية",
-                    "شارات حصرية",
-                  ].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[12px] text-foreground">
-                      <span className="grid size-5 place-items-center rounded-full bg-muted"><ShieldCheck className="size-3" /></span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link to="/pricing" className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#2563eb] text-white py-3 text-[13px] font-bold">
-                  اختر السنوي ←
-                </Link>
-              </div>
+              <Link to="/articles" className="mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#2563eb] px-7 py-3 text-[13px] font-bold text-white transition hover:opacity-90">
+                استكشف الموارد المجانية <ArrowRight className="size-4" />
+              </Link>
             </div>
           </div>
         </section>

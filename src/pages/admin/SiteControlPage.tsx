@@ -47,7 +47,7 @@ export default function SiteControlPage() {
           if (r.error) dbOk = false
         })
         setStats(map)
-        setHealth({ db: dbOk, auth: true, payments: (map["credit_packages"] || 0) > 0, analytics: true })
+        setHealth({ db: dbOk, auth: true, payments: false, analytics: true })
       } catch {
         setHealth({ db: false, auth: false, payments: false, analytics: false })
       } finally {
@@ -67,9 +67,9 @@ export default function SiteControlPage() {
     { key: "seminars", label: "Seminars", labelAr: "الندوات والفعاليات", count: stats["seminars"] || 0, icon: Video, path: "/admin/seminars", color: "text-rose-600 bg-rose-500/10", status: (stats["seminars"] || 0) > 0 ? "ok" : "empty", description: "3 فعاليات + بثوث" },
     { key: "quiz_attempts", label: "Quizzes", labelAr: "بنك الأسئلة", count: stats["quiz_attempts"] || 0, icon: ListChecks, path: "/admin/quizzes", color: "text-cyan-600 bg-cyan-500/10", status: "ok", description: "4 مسارات: جامعي، عام، مباريات، مقابلات + رتب D-SSS" },
     { key: "profiles", label: "Users", labelAr: "المستخدمون", count: stats["profiles"] || 0, icon: Users, path: "/admin/users", color: "text-orange-600 bg-orange-500/10", status: (stats["profiles"] || 0) > 0 ? "ok" : "empty", description: "Supabase Auth + Mizan Profiles + تجميد" },
-    { key: "mizan_profiles", label: "Mizan Profiles", labelAr: "ملفات ميزان", count: stats["mizan_profiles"] || 0, icon: BookMarked, path: "/admin/users", color: "text-pink-600 bg-pink-500/10", status: "ok", description: "XP، كريدتس، رتب، شارات" },
-    { key: "credit_packages", label: "Pricing", labelAr: "التسعير والباقات", count: stats["credit_packages"] || 0, icon: Tag, path: "/admin/pricing", color: "text-emerald-700 bg-emerald-500/10", status: (stats["credit_packages"] || 0) > 0 ? "ok" : "warning", description: "Mizan Pro 49/399 MAD + باقات كريدتس 19-199" },
-    { key: "payments", label: "Payments", labelAr: "المدفوعات", count: stats["payments"] || 0, icon: Coins, path: "/admin/payments", color: "text-green-600 bg-green-500/10", status: "ok", description: "Stripe + Radar + بيع نهائي" },
+    { key: "mizan_profiles", label: "Mizan Profiles", labelAr: "ملفات ميزان", count: stats["mizan_profiles"] || 0, icon: BookMarked, path: "/admin/users", color: "text-pink-600 bg-pink-500/10", status: "ok", description: "XP، نقاط التقدم، رتب، شارات" },
+    { key: "credit_packages", label: "Credit packages", labelAr: "جداول أرصدة قديمة", count: stats["credit_packages"] || 0, icon: Tag, path: "/admin/dashboard", color: "text-slate-600 bg-slate-500/10", status: "warning", description: "بيانات قديمة غير مستخدمة في واجهة الموقع" },
+    { key: "payments", label: "Historical payments", labelAr: "سجلات معاملات سابقة", count: stats["payments"] || 0, icon: Coins, path: "/admin/dashboard", color: "text-slate-600 bg-slate-500/10", status: "warning", description: "لأغراض المحاسبة فقط؛ بيانات تاريخية محفوظة للالتزامات القانونية فقط" },
     { key: "reports", label: "Reports", labelAr: "البلاغات والحوكمة", count: stats["reports"] || 0, icon: Flag, path: "/admin/moderation", color: "text-amber-700 bg-amber-500/10", status: "ok", description: "بلاغات + إجراءات إشراف" },
     { key: "trending_topics", label: "Trends", labelAr: "الرائج القانوني", count: stats["trending_topics"] || 0, icon: TrendingUp, path: "/admin/trends", color: "text-blue-700 bg-blue-500/10", status: "ok", description: "Google Trends + تحويل لمقال" },
   ]
@@ -84,12 +84,12 @@ export default function SiteControlPage() {
     { label: "الاختبارات", path: "/quiz", icon: ListChecks, desc: "4 مسارات + رتب" },
     { label: "الملف الشخصي", path: "/profile", icon: Users, desc: "XP، رتبة، محفوظات" },
     { label: "المحفوظات", path: "/saved", icon: Bookmark, desc: "mizan:saved:content:v1" },
-    { label: "التسعير", path: "/pricing", icon: Tag, desc: "Mizan Pro 49/399" },
+    { label: "المجانية", path: "/pricing", icon: Tag, desc: "الخدمة مجانية بالكامل" },
     { label: "الأسئلة الشائعة", path: "/faq", icon: HelpCircle, desc: "FAQ" },
     { label: "حول", path: "/about", icon: Info, desc: "About" },
     { label: "اتصل بنا", path: "/contact", icon: Mail, desc: "Contact" },
-    { label: "الشروط", path: "/terms", icon: Shield, desc: "بلا إعلانات + لا إلغاء" },
-    { label: "الخصوصية", path: "/privacy", icon: ShieldCheck, desc: "GDPR + حذف عبر البريد" },
+    { label: "الشروط", path: "/terms", icon: Shield, desc: "بلا إعلانات تجارية" },
+    { label: "الخصوصية", path: "/privacy", icon: ShieldCheck, desc: "بيانات وحذف ذاتي للحساب" },
     { label: "الكوكيز", path: "/cookies", icon: Settings, desc: "بلا Adsterra" },
   ]
 
@@ -116,11 +116,10 @@ export default function SiteControlPage() {
       </div>
 
       {/* Health */}
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         {[
           { k: "db", label: "قاعدة البيانات", ok: health.db },
           { k: "auth", label: "Supabase Auth", ok: health.auth },
-          { k: "payments", label: "Stripe + التسعير", ok: health.payments },
           { k: "analytics", label: "التحليلات + GA4", ok: health.analytics },
         ].map(h => (
           <div key={h.k} className={`rounded-2xl border p-4 ${h.ok ? "border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20" : "border-rose-200 bg-rose-50 dark:bg-rose-950/20"}`}>
@@ -215,7 +214,7 @@ export default function SiteControlPage() {
             <div className="flex justify-between"><span className="text-muted-foreground">المصطلحات</span><span className="font-bold">{stats["lexicon_terms"] || 0} / 250</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">الكليات</span><span className="font-bold">{stats["faculties"] || 0} / 21</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">المستخدمون</span><span className="font-bold">{stats["profiles"] || 0}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">المدفوعات</span><span className="font-bold">{stats["payments"] || 0}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">السجلات التاريخية</span><span className="font-bold">{stats["payments"] || 0}</span></div>
           </div>
         </div>
 
@@ -223,10 +222,10 @@ export default function SiteControlPage() {
           <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-foreground"><ShieldCheck className="size-4 text-primary" /> حالة الموقع</h3>
           <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
             <li>بلا إعلانات Adsterra منذ 15 شتنبر 2026</li>
-            <li>التمويل: Mizan Pro 49/399 MAD + كريدتس 19-199</li>
-            <li>البيع نهائي، لا إلغاء خلال المدة، بعد الانتهاء يجب الدفع</li>
-            <li>لا حذف ذاتي للحساب — عبر contact@mizan.page GDPR</li>
-            <li>كوكيز: sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
+            <li>الموارد والأدوات متاحة مجاناً للجميع، بلا إعلانات تجارية</li>
+            <li>تظل السجلات التاريخية محصورة في الإدارة والالتزامات القانونية</li>
+            <li>حذف الحساب ذاتي من صفحة الملف الشخصي</li>
+            <li>كوكيز: sb-mizan-auth (Supabase Auth), mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
           </ul>
         </div>
       </div>

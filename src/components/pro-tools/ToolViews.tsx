@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/lib/auth/AuthProvider';
 import { calculateCalendarDeadline, exportResearch, safeSource, type Entry, type Note } from '@/lib/pro-tools/model';
+import { createResearchPdf } from '@/lib/pro-tools/pdfExport';
 import { toolsService } from '@/lib/pro-tools/service';
 export const inputClass = 'w-full rounded-lg border border-border bg-background p-3 text-sm';
 export const buttonClass = 'rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50';
@@ -10,6 +13,7 @@ export function Source({ url, children }: { url: string; children: React.ReactNo
 }
 
 export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases' }) {
+  const { user } = useAuth();
   const [notes, setNotes] = useState<Note[]>([]);
   const [draft, setDraft] = useState<Partial<Note>>({ title: '', body: '', citation: '' });
   const [loading, setLoading] = useState(true);
@@ -17,16 +21,17 @@ export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases'
   const [message, setMessage] = useState('');
   useEffect(() => {
     let active = true;
+    if (!user) { setNotes([]); setLoading(false); return () => { active = false; }; }
     toolsService.notes(mode).then(data => { if (active) setNotes(data); }).catch(() => { if (active) setMessage('تعذر تحميل ملاحظاتك. حاول تحديث الصفحة.'); }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [mode]);
+  }, [mode, user]);
   async function save(event: React.FormEvent) {
     event.preventDefault(); setBusy(true); setMessage('');
     try {
       const saved = await toolsService.saveNote({ ...draft, tool_slug: mode });
       setNotes(prev => [saved, ...prev.filter(n => n.id !== saved.id)]);
       setDraft({ title: '', body: '', citation: '' }); setMessage('تم الحفظ.');
-    } catch { setMessage('تعذر الحفظ. تحقق من اتصالك وصلاحية اشتراكك.'); } finally { setBusy(false); }
+    } catch { setMessage('تعذر الحفظ. تحقق من اتصالك ثم حاول مرة أخرى.'); } finally { setBusy(false); }
   }
   async function remove(id: string) {
     if (!window.confirm('حذف هذه الملاحظة نهائياً؟')) return;
@@ -34,10 +39,27 @@ export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases'
     try { await toolsService.deleteNote(id); setNotes(prev => prev.filter(n => n.id !== id)); if (draft.id === id) setDraft({ title: '', body: '', citation: '' }); }
     catch { setMessage('تعذر الحذف.'); } finally { setBusy(false); }
   }
-  function download() {
-    const url = URL.createObjectURL(new Blob(['\uFEFF', exportResearch(notes)], { type: 'text/plain;charset=utf-8' }));
-    const link = document.createElement('a'); link.href = url; link.download = 'mizan-research.txt'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  function saveBlob(blob: Blob, fileName: string) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a'); link.href = url; link.download = fileName; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  function download() {
+    saveBlob(new Blob(['\uFEFF', exportResearch(notes)], { type: 'text/plain;charset=utf-8' }), 'mizan-research.txt');
+  }
+  function downloadPdf() {
+    try {
+      saveBlob(createResearchPdf(notes), 'mizan-research.pdf');
+      setMessage('تم تجهيز ملف PDF للتنزيل.');
+    } catch {
+      setMessage('تعذر إنشاء ملف PDF في هذا المتصفح. حاول تصدير TXT بدلاً منه.');
+    }
+  }
+  if (!user) return <section className={cardClass} dir="rtl">
+    <h2 className="text-xl font-bold">{mode === 'cases' ? 'دفتر إجاباتي وتقدمي' : 'ملف البحث الخاص بي'}</h2>
+    <p className="text-sm text-muted-foreground">الأداة مجانية. سجّل الدخول مجاناً لحفظ ملاحظاتك الخاصة.</p>
+    <Link className="font-bold text-primary underline" to={`/login?next=${encodeURIComponent(mode === 'cases' ? '/pro-tools/cases' : '/pro-tools/workspace')}`}>تسجيل الدخول أو إنشاء حساب</Link>
+  </section>;
   return <section className="space-y-5">
     <h2 className="text-xl font-bold">{mode === 'cases' ? 'دفتر إجاباتي وتقدمي' : 'ملف البحث الخاص بي'}</h2>
     <p className="text-sm text-muted-foreground">ملاحظات خاصة بحسابك. تجنب إدخال بيانات حساسة تخص أطراف القضايا.</p>
@@ -49,7 +71,10 @@ export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases'
     </form>
     <p role="status">{message}</p>
     {loading ? <p>جارٍ التحميل...</p> : <>
-      <button className={buttonClass} disabled={!notes.length} onClick={download}>تصدير جميع الملاحظات والمراجع TXT</button>
+      <div className="flex flex-wrap gap-3">
+        <button className={buttonClass} disabled={!notes.length || busy} onClick={download}>تصدير جميع الملاحظات والمراجع TXT</button>
+        <button className={buttonClass} disabled={!notes.length || busy} onClick={downloadPdf}>تصدير جميع الملاحظات والمراجع PDF</button>
+      </div>
       {!notes.length && <p>لا توجد ملاحظات محفوظة بعد.</p>}
       {notes.map(note => <article className={cardClass} key={note.id}>
         <h3 className="font-bold">{note.title}</h3><p className="whitespace-pre-wrap">{note.body}</p><p className="whitespace-pre-wrap text-sm text-muted-foreground">{note.citation}</p>
@@ -59,7 +84,7 @@ export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases'
   </section>;
 }
 
-function CasePractice({ entry }: { entry: Entry }) {
+function CasePractice({ entry, signedIn }: { entry: Entry; signedIn: boolean }) {
   const [answer, setAnswer] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [message, setMessage] = useState('');
@@ -69,12 +94,13 @@ function CasePractice({ entry }: { entry: Entry }) {
     <label className="block">تحليلك القانوني<textarea className={inputClass} rows={5} maxLength={30000} value={answer} onChange={e => setAnswer(e.target.value)} /></label>
     <div className="flex flex-wrap gap-3">
       <button className={buttonClass} disabled={!answer.trim()} onClick={() => setRevealed(true)}>مقارنة مع الإجابة المراجعة</button>
-      <button className={buttonClass} disabled={!answer.trim() || busy} onClick={async () => {
+      <button className={buttonClass} disabled={!answer.trim() || busy || !signedIn} onClick={async () => {
         setBusy(true);
         try { await toolsService.saveNote({ tool_slug: 'cases', title: entry.title, body: answer, citation: `${entry.source_reference}\n${entry.source_url}` }); setMessage('تم حفظ الإجابة في دفتر إجاباتي.'); }
         catch { setMessage('تعذر حفظ الإجابة.'); } finally { setBusy(false); }
       }}>حفظ إجابتي</button>
     </div>
+    {!signedIn && <Link className="font-bold text-primary underline" to={`/login?next=${encodeURIComponent('/pro-tools/cases')}`}>سجّل الدخول مجاناً لحفظ إجابتك</Link>}
     <p role="status">{message}</p>
     {revealed && <div className="space-y-3 rounded-lg bg-muted p-4">
       <h4 className="font-bold">تقييم ذاتي، وليس تنقيطاً آلياً</h4>
@@ -100,7 +126,7 @@ function Deadline({ entry }: { entry: Entry }) {
     <button className={buttonClass} disabled={!accepted}>حساب أولي</button><p role="status" className="font-bold">{result}</p>
   </form>;
 }
-export function EntryView({ entry }: { entry: Entry }) {
+export function EntryView({ entry, signedIn = false }: { entry: Entry; signedIn?: boolean }) {
   const p = entry.payload;
   return <article className={cardClass}>
     <div><p className="text-sm text-muted-foreground">{entry.topic}</p><h3 className="mt-1 text-lg font-bold">{entry.title}</h3></div>
@@ -108,7 +134,7 @@ export function EntryView({ entry }: { entry: Entry }) {
       <section className="rounded-lg border border-border p-4"><h4 className="font-bold">النسخة السابقة - {p.before_date}</h4><p className="my-3 whitespace-pre-wrap leading-8">{p.before}</p><Source url={p.before_source_url}>مصدر النسخة السابقة</Source></section>
       <section className="rounded-lg border border-border p-4"><h4 className="font-bold">النسخة الجديدة - {p.after_date}</h4><p className="my-3 whitespace-pre-wrap leading-8">{p.after}</p><Source url={entry.source_url}>مصدر النسخة الجديدة</Source></section>
     </div>}
-    {entry.tool_slug === 'cases' && <CasePractice entry={entry} />}
+    {entry.tool_slug === 'cases' && <CasePractice entry={entry} signedIn={signedIn} />}
     {entry.tool_slug === 'references' && <div className="space-y-3"><p className="font-bold">{p.from_article} ← {p.to_article}</p><p className="whitespace-pre-wrap">{p.relationship}</p><Source url={p.target_url}>فتح النص المرتبط</Source></div>}
     {entry.tool_slug === 'alerts' && <div><p className="whitespace-pre-wrap leading-8">{p.summary}</p><p className="mt-3 text-sm">تاريخ النفاذ: {p.effective_date}</p><p className="text-sm">آخر تحديث في المنصة: {new Date(entry.updated_at).toLocaleDateString('ar-MA')}</p></div>}
     {entry.tool_slug === 'deadlines' && <Deadline entry={entry} />}

@@ -161,7 +161,6 @@ export default function PlatformPage() {
           applicationCategory: "EducationalApplication",
           isAccessibleForFree: true,
           inLanguage: ["ar-MA", "fr-MA"],
-          offers: { "@type": "Offer", price: "0", priceCurrency: "MAD" },
           featureList: FEATURES.map((f) => f.title),
         }}
       />
@@ -242,7 +241,7 @@ export default function PlatformPage() {
               },
               {
                 t: "بلا حساب إجباري ولا جدار أداء",
-                d: "تصفح المعجم والأرشيف ودليل الكليات والأخبار متاح مباشرة. الاشتراك (ميزان برو) يفتح أدوات متقدمة فقط، والمحتوى التعليمي الأساسي يبقى مجانياً.",
+                d: "تصفح المعجم والأرشيف ودليل الكليات والأخبار والاختبارات والأدوات القانونية مجاناً للجميع، بلا إعلانات تجارية.",
               },
               {
                 t: "مفهوم المصدر، لا منقول بلا مصدر",

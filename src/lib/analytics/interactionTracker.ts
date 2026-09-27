@@ -3,7 +3,7 @@
  * Sends to Supabase page_views or a custom endpoint if available
  */
 
-type EventType = "quiz_start" | "quiz_complete" | "reaction" | "save" | "report" | "payment_click" | "page_view";
+type EventType = "quiz_start" | "quiz_complete" | "reaction" | "save" | "report" | "page_view";
 
 interface TrackEvent {
   type: EventType;
@@ -64,9 +64,6 @@ export function trackSave(targetType: string, targetId: string) {
   track("save", { target_type: targetType, target_id: targetId });
 }
 
-export function trackPaymentClick(packageSlug: string) {
-  track("payment_click", { target_type: "credit_package", target_id: packageSlug });
-}
 
 // Periodic flush
 if (typeof window !== "undefined") {

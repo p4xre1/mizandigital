@@ -267,17 +267,10 @@ export function completePlacement(attempt: QuizAttempt, rank: RankId, xpGrant: n
   }
 }
 
-/**
- * خاصية التجاوز المدفوع (Pay-to-Skip): مقابل كمية من الكريدتس يتجاوز
- * المستخدم (الذي قد يكون محامياً مشغولاً) اختبار التحديد الطويل ويحصل على
- * الرتبة المتقدمة مباشرة. الكريدتس تُخصم أولاً، فإن لم تكفِ ترجع false.
- */
-export function skipPlacement(rank: RankId, xpGrant: number, cost: number): boolean {
-  if (state.credits < cost) return false
-  const rankBefore = getRankForXp(state.xp)
+/** تخطي اختبار تحديد المستوى مجاناً؛ لا يُخصم أي رصيد. */
+export function skipPlacement(rank: RankId, xpGrant: number): boolean {
   const next: QuizProgress = {
     ...state,
-    credits: state.credits - cost,
     // لا ننقص الخبرة أبداً: إن كان المستخدم أعلى من العتبة الممنوحة يبقى كما هو
     xp: Math.max(state.xp, xpGrant),
     lastPlayedDate: todayKey(),
@@ -286,15 +279,6 @@ export function skipPlacement(rank: RankId, xpGrant: number, cost: number): bool
   }
   next.badges = evaluateBadges(next)
   commit(next)
-  void rankBefore
-  return true
-}
-
-/** ينقص الكريدتس مقابل ميزة مدفوعة (مثل تجاوز اختبار التحديد). */
-export function spendCredits(amount: number): boolean {
-  if (amount <= 0) return true
-  if (state.credits < amount) return false
-  commit({ ...state, credits: state.credits - amount })
   return true
 }
 

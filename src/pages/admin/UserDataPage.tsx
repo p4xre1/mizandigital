@@ -63,7 +63,7 @@ export default function UserDataPage() {
 
   const handleDelete = async () => {
     if (!data?.uid) return
-    if (!confirm(`هل أنت متأكد من حذف المستخدم ${data.uid}؟ سيتم حذف: الملف الشخصي، mizan_profiles، محاولات، مدفوعات، معاملات كريدتس، تفاعلات، بلاغات. سيُحتفظ بـ audit_logs فقط. الاشتراك النشط لا يُسترد.`)) return
+    if (!confirm(`هل تريد تنفيذ الحذف الإداري لبيانات المستخدم ${data.uid}؟ راجع سياسة الاحتفاظ بالبيانات والسجلات قبل المتابعة.`)) return
     setDeleting(true)
     try {
       // Delete in order
@@ -96,11 +96,11 @@ export default function UserDataPage() {
       <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
         <h3 className="flex items-center gap-2 text-[12px] font-extrabold text-amber-900 dark:text-amber-200"><AlertTriangle className="size-4" /> سياسة حذف الحساب الجديدة</h3>
         <ul className="mt-2 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
-          <li>لا يوجد زر حذف ذاتي في /profile — لمنع التحايل (إنشاء، شراء، حذف، إعادة إنشاء)</li>
+          <li>طلبات حذف الحساب تُدار من صفحة الملف الشخصي وفق مهلة التراجع المذكورة في سياسة الخصوصية</li>
           <li>الحذف فقط عبر طلب إلى contact@mizan.page بعنوان "طلب حذف حساب - GDPR" — خلال 30 يوم</li>
           <li>سيُحذف: profiles, mizan_profiles, quiz_attempts, payments, credit_transactions, reactions, reports</li>
           <li>سيُحتفظ: audit_logs, moderation_actions (بلا بيانات تعريفية) لأغراض قانونية</li>
-          <li>الاشتراك النشط لا يُسترد عند الحذف — ننصح المستخدم بالانتظار حتى انتهاء اشتراكه</li>
+          <li>تظل أي سجلات تاريخية لازمة محفوظة للمدة التي يفرضها القانون</li>
         </ul>
       </div>
 
@@ -140,11 +140,11 @@ export default function UserDataPage() {
             <pre className="mt-2 max-h-80 overflow-auto rounded-xl bg-muted p-3 text-[11px]">{JSON.stringify(data.quizAttempts, null, 2)}</pre>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
-            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground"><Coins className="size-4" /> المدفوعات ({data.payments?.length || 0}) — Mizan Pro 49/399</h3>
+            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground"><Coins className="size-4" /> معاملات تاريخية ({data.payments?.length || 0})</h3>
             <pre className="mt-2 max-h-80 overflow-auto rounded-xl bg-muted p-3 text-[11px]">{JSON.stringify(data.payments, null, 2)}</pre>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
-            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground"><Coins className="size-4" /> معاملات الكريدتس ({data.transactions?.length || 0})</h3>
+            <h3 className="flex items-center gap-2 text-[13px] font-bold text-foreground"><Coins className="size-4" /> سجل نقاط التقدم ({data.transactions?.length || 0})</h3>
             <pre className="mt-2 max-h-80 overflow-auto rounded-xl bg-muted p-3 text-[11px]">{JSON.stringify(data.transactions, null, 2)}</pre>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">

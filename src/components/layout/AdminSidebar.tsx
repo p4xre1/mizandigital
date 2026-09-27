@@ -12,14 +12,12 @@ import {
   MessageCircle,
   ListChecks,
   Flag,
-  Coins,
   ChevronsLeft,
   ChevronsRight,
   LogOut,
   BarChart3,
   Brain,
   Gauge,
-  Tag,
   Database,
   TrendingUp,
   Globe,
@@ -91,10 +89,8 @@ const navGroups = [
     ],
   },
   {
-    label: "التمويل",
+    label: "النظام",
     items: [
-      { label: "المدفوعات", path: "/admin/payments", icon: Coins },
-      { label: "التسعير Mizan Pro", path: "/admin/pricing", icon: Tag },
       { label: "مراقبة الحدود", path: "/admin/limits", icon: Gauge },
     ],
   },
@@ -200,8 +196,8 @@ export default function AdminSidebar({
       <div className="shrink-0 space-y-1 border-t border-border p-3">
         {!collapsed && (
           <div className="mb-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-2.5">
-            <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">Mizan Pro - بلا Adsterra</p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">49/399 MAD - بيع نهائي - لا حذف ذاتي</p>
+            <p className="text-[10px] font-bold text-emerald-800 dark:text-emerald-300">ميزان مجانية بالكامل - بلا إعلانات</p>
+            <p className="mt-0.5 text-[10px] text-muted-foreground">موارد مجانية بلا إعلانات</p>
           </div>
         )}
         <button

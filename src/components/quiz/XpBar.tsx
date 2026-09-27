@@ -29,7 +29,7 @@ export function XpBar({
         {showNumbers && (
           <span className="text-[11px] font-bold text-muted-foreground" dir="ltr">
             {xp.toLocaleString("ar-MA")} XP
-            {typeof credits === "number" && <> - {credits.toLocaleString("ar-MA")} كريدت</>}
+            {typeof credits === "number" && <> - {credits.toLocaleString("ar-MA")} نقطة</>}
           </span>
         )}
       </div>

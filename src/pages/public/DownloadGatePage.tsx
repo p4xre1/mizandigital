@@ -4,9 +4,8 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
 import { useTrackView } from "@/hooks/useTrackView"
-import { Download, Loader2, ArrowRight, FileText, Clock, AlertCircle } from "lucide-react"
+import { Download, Loader2, ArrowRight, FileText, AlertCircle } from "lucide-react"
 
-const WAIT_SECONDS = 30
 
 interface DownloadTarget {
   title: string
@@ -22,7 +21,6 @@ export function DownloadGatePage() {
 
   const [target, setTarget] = useState<DownloadTarget | null>(stateTarget)
   const [loading, setLoading] = useState(!stateTarget)
-  const [secondsLeft, setSecondsLeft] = useState(WAIT_SECONDS)
 
   // تتبّع قراءة/معاينة حقيقية لهذا الملف (مرة واحدة لكل جلسة متصفح)
   useTrackView("pdf", id)
@@ -59,16 +57,6 @@ export function DownloadGatePage() {
       cancelled = true
     }
   }, [id, stateTarget])
-
-  // العدّ التنازلي
-  useEffect(() => {
-    if (!target || secondsLeft <= 0) return
-    const timer = setTimeout(() => setSecondsLeft((s) => s - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [target, secondsLeft])
-
-  const readyToDownload = secondsLeft <= 0
-  const progressPct = Math.round(((WAIT_SECONDS - secondsLeft) / WAIT_SECONDS) * 100)
 
   const handleFinalDownload = async () => {
     // زيادة عدّاد التحميلات (لا يوقف التحميل إن فشل)
@@ -131,11 +119,6 @@ export function DownloadGatePage() {
       />
 
       <main className="container mx-auto max-w-2xl px-4 py-10" dir="rtl">
-        {/* شريط إعلاني علوي — وحدة Adsterra (Banner 300x250) */}
-        <div className="mb-6 flex min-h-24 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
-          <span>مساحة إعلانية</span>
-        </div>
-
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm text-center">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <FileText size={26} />
@@ -151,47 +134,21 @@ export function DownloadGatePage() {
             </p>
           )}
 
-          {/* شريط التقدّم / العدّ التنازلي */}
-          <div className="mt-6">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full bg-primary transition-all duration-1000 ease-linear"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-            <p className="mt-2 flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <Clock size={13} />
-              {readyToDownload ? "الملف جاهز الآن" : `يرجى الانتظار ${secondsLeft} ثانية...`}
-            </p>
-          </div>
-
-          {/* إعلان أوسط — وحدة Adsterra (Banner 320x50) */}
-          <div className="mt-6 flex min-h-[50px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
-            <span>مساحة إعلانية</span>
-          </div>
+          <p className="mt-5 flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+            الملف جاهز للتحميل مجاناً
+          </p>
 
           {/* زر التحميل الحقيقي */}
           <a
-            href={readyToDownload ? target.downloadUrl : undefined}
+            href={target.downloadUrl}
             title={`تحميل ${target.title}`}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!readyToDownload) {
-                e.preventDefault()
-                return
-              }
-              handleFinalDownload()
-            }}
-            aria-disabled={!readyToDownload}
-            className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold shadow-md transition ${
-              readyToDownload
-                ? "bg-primary text-primary-foreground hover:opacity-90 cursor-pointer"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-            }`}
+            onClick={() => handleFinalDownload()}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-md transition hover:opacity-90"
           >
-            {readyToDownload ? <Download size={18} /> : <Loader2 size={18} className="animate-spin" />}
-            <span>{readyToDownload ? "تحميل الملف الآن" : `تحميل الملف (${secondsLeft})`}</span>
+            <Download size={18} />
+            <span>تحميل الملف الآن</span>
           </a>
 
           <Link

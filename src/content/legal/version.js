@@ -17,7 +17,7 @@
  */
 
 /** تاريخ آخر تحديث للسياسات — يظهر في النص ويُخزَّن مع الموافقة. */
-export const LEGAL_LAST_UPDATED = "17 شتنبر 2026";
+export const LEGAL_LAST_UPDATED = "27 شتنبر 2026";
 
 /** تاريخ إزالة شبكة الإعلانات (مذكور في إفصاح السياسة). */
 export const ADSTERRA_REMOVED_ON = "15 شتنبر 2026";

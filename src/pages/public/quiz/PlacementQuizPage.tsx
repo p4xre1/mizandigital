@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { Compass, Play, ArrowRight, Clock, Sparkles, CreditCard, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Compass, Play, ArrowRight, Clock, Sparkles, CheckCircle2 } from "lucide-react"
 import { SEOHead } from "../../../components/seo/SEOHead"
 import { canonicalFor } from "@/lib/canonical"
 import { generateBreadcrumbSchema } from "../../../lib/seo/schema"
@@ -12,35 +12,25 @@ import { buildPlacementPool } from "../../../lib/quiz/engine"
 import { saveAttempt } from "../../../lib/quiz/repository"
 import { getRankDefinition } from "../../../lib/quiz/ranks"
 
-/** تكلفة تجاوز اختبار التحديد (بالكريدتس) والرتبة الممنوحة مقابلها. */
-const SKIP_COST = 150
+/** الرتبة الابتدائية عند اختيار تخطي الاختبار. */
 const SKIP_RANK = "A"
-const PLACEMENT_XP_GRANT = 60
 
 /**
  * اختبار تحديد المستوى (/quiz/placement) على طريقة تطبيقات تعلّم اللغات:
  * 15 سؤالاً ممزوجة تتدرج من الأسهل إلى الأصعب، وتُتوج برتبة ابتدائية.
- * المحامون والخبراء (من لا وقت لديهم) يمكنهم تجاوزه مقابل الكريدتس.
+ * يمكن لأي زائر تخطيه مجاناً إذا لم يرغب في إجرائه.
  */
 export function PlacementQuizPage() {
   const { questions } = useQuizQuestions("placement")
-  const { profile, credits, placementCompleted, placementRank, rank, payToSkipPlacement } = useQuizProgress()
+  const { profile, placementCompleted, placementRank, rank, skipToPlacement } = useQuizProgress()
 
   const [started, setStarted] = useState(false)
-  const [skipError, setSkipError] = useState<string | null>(null)
   const [skipDone, setSkipDone] = useState(false)
 
   const pool = useMemo(() => buildPlacementPool(questions), [questions])
 
   const handleSkip = () => {
-    setSkipError(null)
-    const ok = payToSkipPlacement(SKIP_RANK, getRankDefinition(SKIP_RANK).minXp, SKIP_COST)
-    if (!ok) {
-      setSkipError(
-        `تحتاج إلى ${SKIP_COST} كريدت لتجاوز الاختبار (رصيدك الحالي: ${credits}). اجمع الكريدتس من الاختبارات القصيرة ثم عد.`
-      )
-      return
-    }
+    skipToPlacement(SKIP_RANK, getRankDefinition(SKIP_RANK).minXp)
     setSkipDone(true)
   }
 
@@ -66,7 +56,7 @@ export function PlacementQuizPage() {
     <main className="container-wide py-10" dir="rtl">
       <SEOHead
         title="اختبار تحديد المستوى — حدد رتبتك في 5 دقائق"
-        description="15 سؤالاً متدرجة تحدد مستواك الابتدائي في القانون المغربي وتمنحك الرتبة التي تناسبك. يمكنك أيضاً تجاوزه مقابل الكريدتس إن كنت محامياً أو خبيراً."
+        description="15 سؤالاً متدرجة تحدد مستواك الابتدائي في القانون المغربي وتمنحك الرتبة التي تناسبك، مع خيار مجاني لتخطي الاختبار."
         canonicalUrl={canonicalFor("/quiz/placement")}
         keywords={["تحديد المستوى القانوني", "placement test law", "رتبة ميزان"]}
         schema={[
@@ -101,7 +91,7 @@ export function PlacementQuizPage() {
           {[
             { icon: Clock, title: "5 دقائق", text: "15 سؤالاً متدرجة بلا عدّاد زمني — خذ وقتك في التفكير." },
             { icon: Sparkles, title: "رتبة ابتدائية فورية", text: "من D إلى A بحسب نتيجتك، وتُبنى عليها كل الاختبارات اللاحقة." },
-            { icon: CreditCard, title: "خيار التجاوز", text: `للمحامين والخبراء: تجاوز الاختبار مقابل ${SKIP_COST} كريدت.` },
+            { icon: Sparkles, title: "خيار التجاوز", text: "يمكنك تخطي الاختبار مجاناً والبدء مباشرة." },
           ].map((item) => (
             <div key={item.title} className="rounded-2xl border border-border bg-background p-4">
               <item.icon className="mb-2 size-4 text-primary" aria-hidden="true" />
@@ -124,7 +114,7 @@ export function PlacementQuizPage() {
         {skipDone && (
           <p className="mt-5 flex items-center gap-2 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-[12.5px] font-bold text-emerald-700 dark:text-emerald-300">
             <CheckCircle2 className="size-4" aria-hidden="true" />
-            تم التجاوز: خُصم {SKIP_COST} كريدت ومُنحت الرتبة {SKIP_RANK} ({getRankDefinition(SKIP_RANK).label}) مباشرة.
+            تم تجاوز الاختبار مجاناً ومُنحت الرتبة {SKIP_RANK} ({getRankDefinition(SKIP_RANK).label}) مباشرة.
           </p>
         )}
 
@@ -144,19 +134,12 @@ export function PlacementQuizPage() {
             onClick={handleSkip}
             className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-[13.5px] font-extrabold text-foreground transition hover:border-accent-gold/60"
           >
-            <CreditCard className="size-4" aria-hidden="true" />
-            تجاوز الاختبار ({SKIP_COST} كريدت)
+            <Sparkles className="size-4" aria-hidden="true" />
+            تجاوز الاختبار مجاناً
           </button>
 
-          <span className="text-[12px] font-semibold text-muted-foreground">رصيدك: {credits} كريدت</span>
         </div>
 
-        {skipError && (
-          <p className="mt-3 flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-3 text-[12.5px] font-bold text-rose-700 dark:text-rose-300">
-            <AlertCircle className="size-4" aria-hidden="true" />
-            {skipError}
-          </p>
-        )}
       </header>
 
       <section className="mt-6 rounded-3xl border border-border bg-card p-6">

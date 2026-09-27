@@ -10,7 +10,7 @@ export default function UsersManagementPage() {
   const [mizanProfiles, setMizanProfiles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState("")
-  const [filter, setFilter] = useState<"all" | "frozen" | "active" | "pro">("all")
+  const [filter, setFilter] = useState<"all" | "frozen" | "active">("all")
 
   useEffect(() => {
     const load = async () => {
@@ -53,7 +53,6 @@ export default function UsersManagementPage() {
     if (q && !((u.email || "").toLowerCase().includes(q.toLowerCase()) || (u.full_name || "").includes(q))) return false
     if (filter === "frozen" && !u.is_frozen) return false
     if (filter === "active" && u.is_frozen) return false
-    if (filter === "pro" && !u.ads_exempt) return false
     return true
   })
 
@@ -62,10 +61,6 @@ export default function UsersManagementPage() {
     setUsers(prev => prev.map(u => u.id === id ? { ...u, is_frozen: !banned } : u))
   }
 
-  const togglePro = async (id: string, isPro: boolean) => {
-    await (supabase as any).from("profiles").update({ ads_exempt: !isPro }).eq("id", id)
-    setUsers(prev => prev.map(u => u.id === id ? { ...u, ads_exempt: !isPro } : u))
-  }
 
   return (
     <div className="space-y-6 p-6" dir="rtl">
@@ -74,16 +69,15 @@ export default function UsersManagementPage() {
           <span className="grid size-11 place-items-center rounded-2xl bg-orange-500/10 text-orange-600"><Users className="size-6" /></span>
           <div>
             <h1 className="text-xl font-black text-foreground">إدارة المستخدمين — تحكم كامل</h1>
-            <p className="text-[12px] text-muted-foreground">Supabase Auth + Mizan Profiles + بروفايل مخصص + XP + رتب D-SSS مطبّقة من القاعدة + Pro + تجميد</p>
+            <p className="text-[12px] text-muted-foreground">Supabase Auth + Mizan Profiles + بروفايل مخصص + XP + رتب D-SSS مطبّقة من القاعدة + تجميد</p>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-card p-4"><p className="text-[11px] text-muted-foreground">الإجمالي</p><p className="text-xl font-black">{users.length}</p></div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:bg-emerald-950/20"><p className="text-[11px] font-bold text-emerald-700">نشط</p><p className="text-xl font-black">{users.filter(u => !u.is_frozen).length}</p></div>
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 dark:bg-rose-950/20"><p className="text-[11px] font-bold text-rose-700">مجمد</p><p className="text-xl font-black">{users.filter(u => u.is_frozen).length}</p></div>
-        <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4 dark:bg-violet-950/20"><p className="text-[11px] font-bold text-violet-700">Mizan Pro</p><p className="text-xl font-black">{users.filter(u => u.ads_exempt).length}</p></div>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -93,7 +87,7 @@ export default function UsersManagementPage() {
         </div>
         <div className="flex gap-2">
           {[
-            { k: "all", l: "الكل" }, { k: "active", l: "نشط" }, { k: "frozen", l: "مجمد" }, { k: "pro", l: "Pro" }
+            { k: "all", l: "الكل" }, { k: "active", l: "نشط" }, { k: "frozen", l: "مجمد" }
           ].map(f => (
             <button key={f.k} onClick={() => setFilter(f.k as any)} className={`rounded-full border px-3 py-1.5 text-[11px] font-bold ${filter === f.k ? "bg-primary text-primary-foreground border-primary" : "border-border bg-background text-muted-foreground"}`}>{f.l}</button>
           ))}
@@ -105,7 +99,7 @@ export default function UsersManagementPage() {
           {loading ? <p className="py-10 text-center text-sm text-muted-foreground">جارٍ التحميل...</p> : (
             <div className="overflow-x-auto rounded-2xl border border-border bg-card">
               <table className="w-full text-right text-[12px]">
-                <thead className="bg-muted text-[11px]"><tr><th className="p-3">البريد</th><th className="p-3">الاسم</th><th className="p-3">البروفايل</th><th className="p-3">الرتبة</th><th className="p-3">كريدتس</th><th className="p-3">Pro</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th></tr></thead>
+                <thead className="bg-muted text-[11px]"><tr><th className="p-3">البريد</th><th className="p-3">الاسم</th><th className="p-3">البروفايل</th><th className="p-3">الرتبة</th><th className="p-3">نقاط التقدم</th><th className="p-3">الحالة</th><th className="p-3">إجراءات</th></tr></thead>
                 <tbody>
                   {filtered.map(u => (
                     <tr key={u.id} className="border-t border-border">
@@ -132,12 +126,10 @@ export default function UsersManagementPage() {
                         )}
                       </td>
                       <td className="p-3">{u.bonus_credits || 0}</td>
-                      <td className="p-3">{u.ads_exempt ? <span className="rounded-full bg-violet-100 px-2 py-1 text-[10px] font-bold text-violet-700">Pro</span> : <span className="text-[10px] text-muted-foreground">—</span>}</td>
                       <td className="p-3">{u.is_frozen ? <span className="rounded-full bg-rose-100 px-2 py-1 text-[10px] text-rose-700">مجمد</span> : <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] text-emerald-700">نشط</span>}</td>
                       <td className="p-3">
                         <div className="flex gap-1">
                           <button onClick={() => toggleBan(u.id, !!u.is_frozen)} className="rounded-lg bg-muted px-2 py-1 text-[10px] font-bold">{u.is_frozen ? "إلغاء التجميد" : "تجميد"}</button>
-                          <button onClick={() => togglePro(u.id, !!u.ads_exempt)} className="rounded-lg bg-violet-500/10 px-2 py-1 text-[10px] font-bold text-violet-700">{u.ads_exempt ? "إلغاء Pro" : "منح Pro"}</button>
                         </div>
                       </td>
                     </tr>
@@ -191,11 +183,11 @@ export default function UsersManagementPage() {
             <h3 className="flex items-center gap-2 text-[12px] font-extrabold text-amber-900 dark:text-amber-200"><Shield className="size-4" /> سياسات</h3>
             <ul className="mt-2 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
               <li>التجميد: is_frozen — يمنع التعليق والاختبارات</li>
-              <li>Mizan Pro: ads_exempt — وصول Pro 49/399 MAD</li>
-              <li>لا حذف ذاتي — عبر contact@mizan.page GDPR</li>
+              <li>جميع الموارد والأدوات متاحة مجاناً للمستخدمين</li>
+              <li>الحذف الذاتي متاح من صفحة الملف الشخصي</li>
               <li>XP/Rank محمي بـ trigger — لا تعديل من الواجهة</li>
               <li>كل حساب Supabase جديد ينشئ له بروفايل عام تلقائياً (handle_new_user)</li>
-              <li>البيع نهائي — لا إلغاء خلال المدة</li>
+              <li>جميع الموارد والأدوات متاحة للمستخدمين</li>
             </ul>
           </div>
         </div>

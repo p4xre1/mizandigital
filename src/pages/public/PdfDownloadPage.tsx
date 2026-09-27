@@ -10,10 +10,6 @@ import docsData from "../../data/docs.json"
 import { titledSlugById } from "../../lib/utils/generateSlug"
 import { Download, Loader2, ArrowRight, FileText, ShieldCheck, AlertCircle } from "lucide-react"
 
-// مدة الانتظار قبل تفعيل زر التحميل — بوابة أمان بسيطة تمنع الربط
-// المباشر الفوري (hotlinking) وتمنح وقتاً كافياً لعرض الإعلانات المسؤولة
-// وتحسين تجربة الانتظار قبل الوصول إلى ملف Cloudflare R2.
-const WAIT_SECONDS = 10
 
 type SourceTable = "local" | "pdf_summaries" | "laws"
 
@@ -51,7 +47,6 @@ export function PdfDownloadPage() {
   const [target, setTarget] = useState<DownloadTarget | null>(stateTarget)
   const [loading, setLoading] = useState(!stateTarget)
   const [notFound, setNotFound] = useState(false)
-  const [secondsLeft, setSecondsLeft] = useState(WAIT_SECONDS)
 
   // خريطة الروابط الصديقة للمستندات المحلية (docs.json) — نفس المنطق
   // المستخدم بالضبط في صفحة الأرشيف، لضمان تطابق الروابط بين الصفحتين
@@ -166,16 +161,6 @@ export function PdfDownloadPage() {
     }
   }, [slug, stateTarget, localSlugMap])
 
-  // العدّ التنازلي
-  useEffect(() => {
-    if (!target || secondsLeft <= 0) return
-    const timer = setTimeout(() => setSecondsLeft((s) => s - 1), 1000)
-    return () => clearTimeout(timer)
-  }, [target, secondsLeft])
-
-  const readyToDownload = secondsLeft <= 0
-  const progressPct = Math.round(((WAIT_SECONDS - secondsLeft) / WAIT_SECONDS) * 100)
-
   const handleFinalDownload = async () => {
     // زيادة عدّاد التحميلات بحسب مصدر الملف (لا يوقف التحميل إن فشل الطلب)
     try {
@@ -252,11 +237,6 @@ export function PdfDownloadPage() {
       />
 
       <main className="container mx-auto max-w-2xl px-4 py-10" dir="rtl">
-        {/* شريط إعلاني علوي — وحدة Adsterra (Banner 300x250) */}
-        <div className="mb-6 flex min-h-24 items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
-          <span>مساحة إعلانية</span>
-        </div>
-
         <div className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-sm text-center">
           <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
             <FileText size={26} />
@@ -272,48 +252,21 @@ export function PdfDownloadPage() {
             </p>
           )}
 
-          {/* شريط التقدّم / العدّ التنازلي */}
-          <div className="mt-6" role="status" aria-live="polite">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full bg-primary transition-all duration-1000 ease-linear"
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
-            <p className="mt-2 flex items-center justify-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <ShieldCheck size={13} />
-              {readyToDownload ? "الملف جاهز الآن" : `جارٍ تجهيز رابط التحميل الآمن... ${secondsLeft} ثانية`}
-            </p>
-          </div>
-
-          {/* إعلان أوسط — وحدة Adsterra (Banner 320x50) */}
-          <div className="mt-6 flex min-h-[50px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/40 text-xs text-muted-foreground">
-            <span>مساحة إعلانية</span>
-          </div>
+          <p className="mt-5 flex items-center justify-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300" role="status">
+            <ShieldCheck size={13} /> الملف جاهز للتحميل مجاناً
+          </p>
 
           {/* زر التحميل الحقيقي (رابط Cloudflare R2 الآمن) */}
           <a
-            href={readyToDownload ? target.downloadUrl : undefined}
+            href={target.downloadUrl}
             title={`تحميل ${target.title}`}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!readyToDownload) {
-                e.preventDefault()
-                return
-              }
-              handleFinalDownload()
-            }}
-            aria-disabled={!readyToDownload}
-            tabIndex={readyToDownload ? 0 : -1}
-            className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-bold shadow-md transition ${
-              readyToDownload
-                ? "bg-primary text-primary-foreground hover:opacity-90 cursor-pointer"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-            }`}
+            onClick={() => handleFinalDownload()}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-bold text-primary-foreground shadow-md transition hover:opacity-90"
           >
-            {readyToDownload ? <Download size={18} /> : <Loader2 size={18} className="animate-spin" />}
-            <span>{readyToDownload ? "تحميل الملف الآن" : `تحميل الملف (${secondsLeft})`}</span>
+            <Download size={18} />
+            <span>تحميل الملف الآن</span>
           </a>
 
           <Link

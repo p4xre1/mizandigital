@@ -1,62 +1,66 @@
 import { Link } from "react-router-dom";
 import { AEOHead } from "@/components/seo/AEOHead";
-import { canonicalFor } from "@/lib/canonical"
-import { MizanProCard } from "@/components/billing/MizanProCard";
-import { PackageCard } from "@/components/payments/PackageCard";
-import { fetchPackages } from "@/lib/payments/service";
-import { useEffect, useState } from "react";
-import type { CreditPackage } from "@/lib/payments/types";
-import { useSubscription } from "@/lib/billing/useSubscription";
-import { ShieldCheck, Zap, BookOpen } from "lucide-react";
+import { canonicalFor } from "@/lib/canonical";
+import { ArrowLeft, BookOpen, Check, GraduationCap } from "lucide-react";
+
+const freeFeatures = [
+  "أرشيف الفصول S1 إلى S6",
+  "القاموس القانوني: 250 مصطلحاً",
+  "كل المقالات والأخبار القانونية",
+  "جميع الاختبارات والمسارات التدريبية",
+  "دليل 21 كلية حقوق",
+  "أدوات البحث والتدريب القانوني",
+  "تحميل الملفات المتاحة في الأرشيف",
+];
 
 export function PricingPage() {
-  const [packages, setPackages] = useState<CreditPackage[]>([]);
-  const { subscription } = useSubscription();
-
-  useEffect(() => {
-    fetchPackages().then(setPackages);
-  }, []);
-
   return (
-    <main className="container-wide py-10" dir="rtl">
-      <AEOHead title="الأسعار — ميزان برو وحزم الكريدتس" description="اختر خطة ميزان برو الشهرية أو السنوية، أو اشترِ حزم الكريدتس لدعم المنصة وفتح المزايا."
-        directAnswer="تسعير ميزان الرقمية: Mizan Pro شهري 49 د.م (500 كريدتس) وسنوي 399 د.م (7000 كريدتس + 1000 هدية)، مع باقات كريدتس للطلبة والباحثين."
-        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الأسعار — ميزان برو وحزم الكريدتس", url: "/pricing" }]} canonicalUrl={canonicalFor("/pricing")} />
+    <main className="container-wide py-12" dir="rtl">
+      <AEOHead
+        title="الموارد التعليمية — ميزان الرقمية"
+        description="استكشف المحتوى والأدوات التعليمية المتاحة للجميع في ميزان الرقمية."
+        directAnswer="تتيح ميزان الرقمية مواردها وأدواتها التعليمية للجميع."
+        breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الموارد التعليمية", url: "/pricing" }]}
+        canonicalUrl={canonicalFor("/pricing")}
+      />
 
-      <div className="mx-auto max-w-4xl text-center">
-        <h1 className="text-3xl font-black text-foreground">خطط تناسب كل طالب قانون</h1>
-        <p className="mt-3 text-[14px] leading-7 text-muted-foreground">ميزان برو يمول المحتوى المجاني. كل اشتراك يدعم استمرار الأرشيف والاختبارات للجميع.</p>
-      </div>
+      <header className="mx-auto max-w-3xl text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-extrabold text-emerald-700 dark:text-emerald-300">
+          <GraduationCap className="size-4" /> للتعلم بلا حواجز
+        </span>
+        <h1 className="mt-4 text-3xl font-black tracking-tight text-foreground sm:text-4xl">موارد ميزان التعليمية المجانية بالكامل</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">
+          تصفح الموارد والأدوات التعليمية المتاحة للجميع.
+        </p>
+      </header>
 
-      <div className="mt-6 text-center"><Link to="/pro-tools" className="font-bold text-primary underline">استكشف أدوات Pro القانونية وإتاحتها الحالية</Link></div>
+      <section className="mx-auto mt-9 max-w-4xl rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-9" aria-label="مزايا ميزان المجانية">
+        <div className="flex items-center gap-3">
+          <span className="grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary"><BookOpen className="size-6" /></span>
+          <div>
+            <h2 className="text-xl font-black text-foreground">كل الموارد التعليمية</h2>
+            <p className="mt-1 text-sm text-muted-foreground">محتوى متاح للتصفح والتعلم.</p>
+          </div>
+        </div>
 
-      <section className="mt-10">
-        <h2 className="mb-4 text-lg font-extrabold text-foreground">ميزان برو</h2>
-        <MizanProCard currentPlan={subscription.planSlug} onSelect={(slug) => (window.location.href = `/payments?plan=${slug}`)} />
-      </section>
-
-      <section className="mt-12">
-        <h2 className="mb-4 text-lg font-extrabold text-foreground">حزم الكريدتس (دفع مرة واحدة)</h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {packages.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} onSelect={(slug) => (window.location.href = `/payments?package=${slug}`)} />
+        <ul className="mt-7 grid gap-3 border-t border-border pt-6 sm:grid-cols-2">
+          {freeFeatures.map((feature) => (
+            <li key={feature} className="flex items-start gap-2.5 text-sm leading-6 text-foreground">
+              <Check className="mt-1 size-4 shrink-0 text-emerald-600" /> {feature}
+            </li>
           ))}
+        </ul>
+
+        <div className="mt-7 flex flex-col gap-3 border-t border-border pt-6 sm:flex-row">
+          <Link to="/articles" className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-extrabold text-primary-foreground transition hover:opacity-90">
+            ابدأ التصفح <ArrowLeft className="size-4" />
+          </Link>
+          <Link to="/archive" className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-extrabold text-foreground transition hover:bg-muted">
+            افتح الأرشيف <ArrowLeft className="size-4" />
+          </Link>
         </div>
       </section>
 
-      <section className="mt-12 grid gap-4 md:grid-cols-3">
-        {[
-          { icon: ShieldCheck, title: "دفع آمن", text: "CMI، Stripe، MoPay — بياناتك محمية" },
-          { icon: Zap, title: "تفعيل فوري", text: "الكريدتس والاشتراك يُفعّل مباشرة بعد الدفع" },
-          { icon: BookOpen, title: "دعم التعليم", text: "30% من العائد يمول منح محتوى مجاني" },
-        ].map((f) => (
-          <div key={f.title} className="rounded-2xl border border-border bg-card p-5">
-            <f.icon className="mb-2 size-5 text-primary" />
-            <h3 className="text-[13px] font-extrabold text-foreground">{f.title}</h3>
-            <p className="mt-1 text-[12px] text-muted-foreground">{f.text}</p>
-          </div>
-        ))}
-      </section>
     </main>
   );
 }

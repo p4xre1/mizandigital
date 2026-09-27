@@ -236,8 +236,7 @@ export function generateEducationalResourceSchema(resource: EducationalResourceI
  *      (البند 5)، على المحامين المقيدين بجدول الهيئات. والمنصة يديرها طالب
  *      قانون لا محامٍ، فالإعلان عن نفسنا «خدمة قانونية» في البيانات المهيكلة
  *      إشارة لا نريدها ولا تستند إلى أساس.
- *   2) تجاري — لم يعُد نموذج التشغيل مجانياً بالكامل؛ صار فيه اشتراك ميزان برو وحزم
- *      كريدتس، فـ priceRange «مجاني» بيان غير مطابق للواقع.
+ *   2) تشغيلي — المنصة التعليمية متاحة للجميع؛ لا تُدرج معلومات تسعير في المخطط.
  */
 export function generateLegalServiceSchema() {
   return {
@@ -249,7 +248,7 @@ export function generateLegalServiceSchema() {
     url: SITE_CONFIG.url,
     image: SITE_CONFIG.defaultImage,
     description:
-      "منصة مغربية تعليمية للمعرفة القانونية، تقدّم مقالات ومعجماً قانونياً وأرشيفاً دراسياً لطلبة القانون والمهتمين بالقانون المغربي. محتواها الأساسي مجاني ومزاياها المتقدمة باشتراك. لا تقدم المنصة استشارات قانونية فردية وليست مكتب محاماة.",
+      "منصة مغربية تعليمية مجانية بالكامل للمعرفة القانونية، تقدّم مقالات ومعجماً قانونياً وأرشيفاً دراسياً واختبارات وأدوات مجانية لطلبة القانون والمهتمين بالقانون المغربي، دون إعلانات تجارية. لا تقدم المنصة استشارات قانونية فردية وليست مكتب محاماة.",
     areaServed: {
       "@type": "Country",
       name: "المغرب",
@@ -258,8 +257,7 @@ export function generateLegalServiceSchema() {
       "@type": "PostalAddress",
       addressCountry: SITE_CONFIG.country,
     },
-    // صريح بدل «مجاني»: الأساسي مجاني وأعلى اشتراك 399 درهم سنوياً.
-    priceRange: "0-399 MAD",
+    isAccessibleForFree: true,
     knowsLanguage: ["ar", "fr"],
     parentOrganization: {
       "@id": `${SITE_CONFIG.url}/#organization`,
@@ -272,17 +270,6 @@ export function generateLegalServiceSchema() {
       address: { "@type": "PostalAddress", addressLocality: "طنجة", addressCountry: "MA" },
       description:
         "طالب بالسنة الثالثة من سلك الإجازة في القانون الخاص بالمغرب. ليس محامياً مقيّداً ولا يقدّم استشارات قانونية.",
-    },
-    hasOfferCatalog: {
-      "@type": "OfferCatalog",
-      name: "الموارد القانونية التعليمية",
-      itemListElement: [
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "معجم قانوني ثنائي اللغة" }, price: "0", priceCurrency: "MAD" },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "أرشيف دراسي حسب الفصول (S1-S6)" }, price: "0", priceCurrency: "MAD" },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "مقالات ومستجدات تشريعية وقضائية" }, price: "0", priceCurrency: "MAD" },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "اشتراك ميزان برو الشهري" }, price: "49", priceCurrency: "MAD" },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "اشتراك ميزان برو السنوي" }, price: "399", priceCurrency: "MAD" },
-      ],
     },
   }
 }

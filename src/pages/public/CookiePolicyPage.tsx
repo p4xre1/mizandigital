@@ -50,8 +50,7 @@ export function CookiePolicyPage() {
           <p className="text-xs leading-relaxed text-emerald-800 dark:text-emerald-200">
             ابتداءً من 15 شتنبر 2026، تمت <strong>إزالة Adsterra وكل شبكات الإعلانات</strong> نهائياً من
             ميزان الرقمية. لا نستخدم أي كوكيز إعلانية، لا تتبع بين المواقع، ولا بيع بيانات لمعلنين.
-            التمويل الآن عبر <strong>Mizan Pro</strong> (اشتراك شهري 49 د.م / سنوي 399 د.م) وباقات
-            الكريدتس فقط.
+            جميع موارد ميزان متاحة للجميع، ولا نستخدم كوكيز إعلانية.
           </p>
         </div>
 

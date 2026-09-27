@@ -10,7 +10,6 @@ import {
   resetProgress,
   saveProfile,
   skipPlacement,
-  spendCredits,
   subscribe,
 } from "@/lib/quiz/progressStore"
 import { getRankProgress } from "@/lib/quiz/ranks"
@@ -35,10 +34,9 @@ export function useQuizProgress() {
     []
   )
   const updateProfile = useCallback((profile: MizanProfile) => saveProfile(profile), [])
-  const payCredits = useCallback((amount: number) => spendCredits(amount), [])
   const addCredits = useCallback((amount: number) => grantCredits(amount), [])
   const reset = useCallback(() => resetProgress(), [])
-  const payToSkipPlacement = useCallback((rank: RankId, xpGrant: number, cost: number) => skipPlacement(rank, xpGrant, cost), [])
+  const skipToPlacement = useCallback((rank: RankId, xpGrant: number) => skipPlacement(rank, xpGrant), [])
 
   return {
     progress,
@@ -56,9 +54,8 @@ export function useQuizProgress() {
     submitAttempt,
     finishPlacement,
     updateProfile,
-    payCredits,
     addCredits,
-    payToSkipPlacement,
+    skipToPlacement,
     reset,
   }
 }

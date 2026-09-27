@@ -102,7 +102,7 @@ export function ArticlesPage() {
   const featured = filteredItems[0]
 
   const pageTitle = "المقالات والدراسات القانونية"
-  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي — تصميم تعليمي نظيف مستوحى من EduFlex."
+  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي."
 
   const listSchema = {
     "@context": "https://schema.org",
@@ -132,7 +132,7 @@ export function ArticlesPage() {
       <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} canonicalUrl={canonicalArticlesHub()} schema={[listSchema, breadcrumbSchema]} />
 
       <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
-        {/* Header - EduFlex */}
+        {/* Article page header */}
         <div className="bg-[#f8fafc] dark:bg-[#0f172a] border-b border-[#e2e8f0] dark:border-[#1e293b]">
           <div className="container mx-auto max-w-[1280px] px-6 py-10">
             <div className="max-w-[720px]">
@@ -165,7 +165,7 @@ export function ArticlesPage() {
             </div>
           ) : filteredItems.length > 0 ? (
             <>
-              {/* Featured hero - EduFlex */}
+              {/* Featured article */}
               {featured && (
                 <div className="mb-8 rounded-2xl overflow-hidden border border-[#e2e8f0] dark:border-[#1e293b] bg-white dark:bg-[#1e293b] grid md:grid-cols-2">
                   <div className="aspect-[16/10] md:aspect-auto bg-[#f1f5f9] dark:bg-[#334155] relative overflow-hidden">
@@ -186,7 +186,7 @@ export function ArticlesPage() {
                 </div>
               )}
 
-              {/* Grid - EduFlex course cards */}
+              {/* Article card grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {filteredItems.slice(featured ? 1 : 0).map((item) => (
                   <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">

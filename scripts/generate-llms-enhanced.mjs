@@ -278,7 +278,7 @@ lines.push(link("الشروط وإخلاء المسؤولية", "/terms", "حد�
 lines.push(link("سياسة الخصوصية", "/privacy", "معالجة البيانات الشخصية"));
 lines.push(link("سياسة ملفات الارتباط", "/cookies", ""));
 lines.push(link("تواصل معنا", "/contact", "contact@mizan.page"));
-lines.push(link("الدعم والكريدتس", "/pricing", "Mizan Pro شهري 49 د.م / سنوي 399 د.م + باقات كريدتس"));
+lines.push(link("الموارد التعليمية", "/pricing", "المحتوى والأدوات التعليمية متاحة للجميع دون إعلانات تجارية"));
 lines.push("");
 
 lines.push("## مصادر رسمية للتحقق (مهم للـ AI)");
