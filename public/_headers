@@ -24,6 +24,14 @@
 # فيرمي TypeError ويُسقط الرسم. أي إعادة له تحتاج أولاً إنشاء default policy.
 #
 # التوجيهات الأخرى (object-src 'none'، base-uri، frame-ancestors…) كما هي.
+#
+# ملاحظة ثالثة: أُزيل من style-src مضيفا Google Fonts
+# (https://fonts.googleapis.com وhttps://www.gstatic.com)، وأُزيل من font-src
+# مضيف https://fonts.gstatic.com — الخطوط صارت محلية في /fonts/ ولم يبقَ أي
+# طلب إليها (انظر src/styles/fonts.css). تضييق القائمة مقصود: سياسة أضيق
+# وأصدق مع ما تُحمّله الصفحة فعلاً. ويبقى 'unsafe-inline' في style-src لأنه
+# ضروري: ملف CSS يُضمَّن الآن داخل كل مستند (scripts/inline-css.mjs) لإلغاء
+# طلب يحجب الرسم، ووضعه في ملف خارجي مع hash لكل مستند عبث بلا مقابل.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
@@ -31,7 +39,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Cross-Origin-Opener-Policy: same-origin-allow-popups
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'sha256-__MIZAN_INLINE_HASH__' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://www.gstatic.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://translate.googleapis.com https://api.mymemory.translated.net https://lingva.ml https://lingva.thedaviddelta.com https://translate.plausibility.cloud; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'sha256-__MIZAN_INLINE_HASH__' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://translate.googleapis.com https://api.mymemory.translated.net https://lingva.ml https://lingva.thedaviddelta.com https://translate.plausibility.cloud; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'
 
 /
   Link: <https://www.mizan.page/.well-known/agent-card.json>; rel="agent"; type="application/json"

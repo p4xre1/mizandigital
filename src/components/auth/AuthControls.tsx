@@ -63,11 +63,29 @@ function AuthControlsInner({ className = "hidden md:flex items-center gap-2", on
     navigate(path)
   }
 
-  // الجلسة ما زالت تُقرأ: هيكل ثابت العرض بدل زر يظهر ويختفي
+  /*
+    الجلسة ما زالت تُقرأ (زائر مجهول بدأنا قراءة جلسته في وقت الخمول).
+    ─────────────────────────────────────────────────────────────────────
+    كان هنا هيكل رمادي `h-9 w-24` — أي 96px عرضاً بينما زر «دخول» الحقيقي
+    ~66px: فيلزم إعادة تدفّق للشريط الثابت لحظة استبداله (رصد Lighthouse هذا
+    تحديداً في «Layout shift culprits» بعنصر الشريط)، كما يختفي أكبر عنصر نصّي
+    مرئي ثم يعود، وهو ما يُنتج رسمة LCP جديدة متأخرة.
+    الآن: عنصر واحد بنفس النص ونفس الأصناف تماماً (px-4 py-2 text-[13px]) ⇒
+    نفس الأبعاد ونفس اللون، فلا انزياح ولا اختفاء لأكبر عنصر نصّي في الشريط.
+    وهو <span> لا <a> مع aria-hidden: العنصر داخل شجرة مخفية عن قارئ الشاشة
+    وقابل للتركيز يخالف قاعدة aria-hidden-focus، وtabIndex=-1 يجعل الحالة
+    «تحتاج مراجعة» لا «سليمة». بلا رابط لا يوجد تركيز أصلاً، والرابط الحقيقي
+    (المُهيّأ مسبقاً في HTML) يبقى هو ما يعمل إذا تعطّل JavaScript كلياً.
+  */
   if (!initialized && !user) {
     return (
-      <div className={className} aria-hidden="true">
-        <span className="h-9 w-24 animate-pulse rounded-full bg-[#f1f5f9] dark:bg-[#334155]" />
+      <div className={className}>
+        <span
+          aria-hidden="true"
+          className="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0]"
+        >
+          دخول
+        </span>
       </div>
     )
   }

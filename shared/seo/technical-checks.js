@@ -231,6 +231,40 @@ export function checkRobots(content, { siteUrl = "", criticalPaths = [] } = {}) 
   const blocked = criticalPaths.filter((p) => disallows.some((d) => d !== "/" && p.startsWith(d)))
   if (blocked.length) issues.push(`مسارات مهمة محجوبة في robots.txt: ${blocked.join(", ")}`)
 
+  // ── صلاحية التوجيهات (نفس قائمة Lighthouse الحرفية) ─────────────────────
+  // robots.txt لا يعرف إلا توجيهات محدودة؛ أي توجيه آخر («Agentmap:» مثلاً في
+  // مواصفة ARD) يجعل الملف «غير صالح» في تدقيق SEO ويسقط 8 نقاط، وبعض الزواحف
+  // الصارمة ترفض الملف كله. الفحص مُعاد حرفياً من
+  // core/audits/seo/robots-txt.js (DIRECTIVE_SAFELIST) حتى يُرصد محلياً قبل
+  // Lighthouse. التعليقات مستثناة كما في المحلّل نفسه.
+  const SAFELIST = new Set([
+    "user-agent", "disallow", "allow", "sitemap",
+    "crawl-delay", "clean-param", "host",
+    "request-rate", "visit-time", "noindex", "content-signal",
+  ])
+  const unknownDirectives = []
+  text.split(/\r\n|\r|\n/).forEach((rawLine) => {
+    const hashIndex = rawLine.indexOf("#")
+    const line = (hashIndex === -1 ? rawLine : rawLine.slice(0, hashIndex)).trim()
+    if (!line) return
+    const colonIndex = line.indexOf(":")
+    if (colonIndex === -1) {
+      unknownDirectives.push(line)
+      return
+    }
+    const name = line.slice(0, colonIndex).trim().toLowerCase()
+    if (!SAFELIST.has(name)) unknownDirectives.push(name)
+  })
+  if (unknownDirectives.length) {
+    const unique = [...new Set(unknownDirectives)]
+    issues.push(
+      `توجيهات غير معروفة في robots.txt تجعل الملف غير صالح (${unknownDirectives.length}): ` +
+        `${unique.slice(0, 5).join(", ")} — حوّلها إلى تعليق أو أزلْها.`
+    )
+  } else {
+    details.push("كل التوجيهات ضمن قائمة robots.txt المعروفة")
+  }
+
   const score = 100 - issues.length * 25
   return result(issues.length === 0, score, issues, details)
 }

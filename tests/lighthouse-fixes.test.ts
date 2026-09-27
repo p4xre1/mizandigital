@@ -80,27 +80,48 @@ describe("تحميل خط Cairo", () => {
     expect(indexHtml).not.toContain('rel="preconnect" href="https://fonts.googleapis.com"');
   });
 
-  test("يُحمَّل ملفا woff2 (العربي واللاتيني) مسبقاً", () => {
-    const preloads = indexHtml.match(/<link rel="preload" as="font"[^>]*>/g) ?? [];
-    expect(preloads).toHaveLength(2);
-    for (const tag of preloads) {
-      expect(tag).toContain('type="font/woff2"');
-      expect(tag).toContain("crossorigin");
-      expect(tag).toContain("https://fonts.gstatic.com/");
+  test("لا طلب لأصل خطوط خارجي: الملفات محلية في /fonts/", () => {
+    // كان الخط يأتي من fonts.gstatic.com: DNS + TCP + TLS قبل أول بايت
+    // (~300ms على 4G بطيء) على المسار الحرج. الملفان الآن من نفس الأصل.
+    // العنوان كاملاً (لا مجرّد ذكر الاسم في شرح/تعليق داخل الملف)
+    expect(indexHtml).not.toContain("https://fonts.gstatic.com");
+    expect(fontsCss).not.toContain("https://fonts.gstatic.com");
+    expect(indexHtml).not.toMatch(/rel="preconnect"[^>]*gstatic/);
+    for (const file of ["public/fonts/cairo-arabic.woff2", "public/fonts/cairo-latin.woff2"]) {
+      const bytes = readFileSync(new URL(`../${file}`, import.meta.url));
+      expect(bytes.byteLength).toBeGreaterThan(10_000);
+      // woff2: التوقيع السحري "wOF2"
+      expect(bytes.subarray(0, 4).toString("latin1")).toBe("wOF2");
     }
   });
 
-  test("@font-face مضمّن محلياً لكل الأوزان المستعملة مع font-display: swap", () => {
+  test("يُحمَّل ملفا woff2 (العربي واللاتيني) مسبقاً من نفس الأصل", () => {
+    const preloads = indexHtml.match(/<link rel="preload" as="font"[^>]*>/g) ?? [];
+    expect(preloads).toHaveLength(2);
+    const hrefs = preloads.map((tag) => /href="([^"]+)"/.exec(tag)?.[1]);
+    expect(hrefs.sort()).toEqual(["/fonts/cairo-arabic.woff2", "/fonts/cairo-latin.woff2"]);
+    for (const tag of preloads) {
+      expect(tag).toContain('type="font/woff2"');
+      expect(tag).toContain("crossorigin");
+      // بلا crossorigin يرفض المتصفح استخدام الـpreload للخط ويعيد تنزيله
+      expect(tag).not.toContain("http://");
+    }
+  });
+
+  test("@font-face محلي لكل المجموعات مع font-display: swap ووزن متغيّر 200-1000", () => {
     const faces = fontsCss.match(/@font-face \{[^}]*\}/g) ?? [];
-    expect(faces.length).toBeGreaterThanOrEqual(8);
+    expect(faces).toHaveLength(2);
     for (const face of faces) {
       expect(face).toContain('font-family: "Cairo"');
       expect(face).toContain("font-display: swap");
-      expect(face).toContain("fonts.gstatic.com");
+      expect(face).toContain('src: url("/fonts/');
+      // خط متغيّر: وزن واحد يغطي كل الأوزان المستعملة (400/700/800/900)
+      expect(face).toMatch(/font-weight: 200 1000;/);
+      // بلا unicode-range تتعارض التعريفات ويختار المتصفح أيهما شاء
+      expect(face).toContain("unicode-range:");
     }
-    for (const weight of [400, 700, 800, 900]) {
-      expect(fontsCss).toContain(`font-weight: ${weight};`);
-    }
+    expect(fontsCss).toContain("/fonts/cairo-arabic.woff2");
+    expect(fontsCss).toContain("/fonts/cairo-latin.woff2");
   });
 });
 

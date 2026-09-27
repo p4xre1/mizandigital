@@ -151,8 +151,21 @@ Allow: /
 # MCP: https://www.mizan.page/.well-known/mcp/server-card.json
 # AI Reference (all content as JSON/MD): https://www.mizan.page/reference/index.json
 
-# Agentmap directive (ARD spec) - entry source for agent registries
-Agentmap: https://www.mizan.page/.well-known/ard.json
+# ── Agentmap مُعلَّق عن قصد (تدقيق Lighthouse: robots.txt غير صالح) ─────────
+# كان السطر هنا موجّهاً فعلياً بالصيغة التي تقترحها وثيقة ARD:
+#     Agentmap: https://www.mizan.page/.well-known/ard.json
+# وهي صيغة تحاكي Sitemap، لكن بروتوكول استبعاد الروبوتات لا يعرف إلا مجموعة
+# محدودة من التوجيهات (User-agent / Allow / Disallow / Sitemap / Crawl-delay…)
+# فأي توجيه آخر يُعدّ خطأً في الملف: رصده Lighthouse في «robots.txt is not
+# valid» وخسر 8 نقاط من تقييم SEO، وبعض الزواحف الصارمة ترفض الملف كله.
+# الوثيقة نفسها تصنّف مسار Agentmap بـ «may» (اختياري)، بينما المسارات
+# الواجبة موجودة عندنا فعلا وبصيغ معتمدة:
+#   • /.well-known/ard.json                     ← مسار well-known الواجب
+#   • <link rel="ard" …> في index.html          ← وسم رابط في الصفحة
+#   • Link: <…/ard.json>; rel="ard" في _headers ← ترويسة HTTP
+# فحُوِّل التوجيه إلى تعليق: يبقى الدليل مقروءاً للبشر والوكلاء، ويبقى الملف
+# صالحاً لكل محلّلات robots.txt. أعِد تفعيله فقط إذا صار التوجيه قياسياً.
+# Agentmap: https://www.mizan.page/.well-known/ard.json
 
 # =====================================================
 # 7. Sitemap + AI Discovery

@@ -14,11 +14,23 @@
  * السلوك مطابق تماماً للنسخة السابقة:
  *  - تعريف window.dataLayer / window.gtag (تستعين بها cookieConsent.ts).
  *  - الافتراض: analytics_storage: "denied" (Google Consent Mode v2).
- *  - التحميل الفعلي مؤجّل إلى وقت الخمول (requestIdleCallback، سقف 4 ثوانٍ)
- *    ولا يحدث إلا إن كان معرّف GA متوفراً.
+ *  - التحميل الفعلي مؤجّل إلى وقت الخمول ولا يحدث إلا إن كان معرّف GA متوفراً.
  *  - تحترم موافقة الكوكي المخزنة (mizan-cookie-consent).
+ *
+ * تعديل الأداء (تقرير Lighthouse: «3rd party — Google Tag Manager 191 KiB،
+ * مهمة 99ms على الخيط الرئيسي»، و«unused JavaScript ≈ 102 KiB» منه):
+ * ─────────────────────────────────────────────────────────────────────────
+ * كان التحميل يُجدول بـ requestIdleCallback بسقف 4 ثوانٍ من لحظة الإقلاع،
+ * فوقع في نافذة قياس Core Web Vitals نفسها: 191KB تنافس الخط والحزمة على
+ * النطاق الترددي على 4G بطيء، ومهمة طويلة على الخيط الرئيسي.
+ * القاعدة الآن: لا يُحمَّل أي كود تحليلات قبل أن تصبح الصفحة قابلة للاستعمال:
+ *   • عند أول تفاعل حقيقي (نقرة/لمسة/مفتاح/تمرير) → التحميل فوري.
+ *   • أو بعد اكتمال load + خمول بسقف 10 ثوانٍ → لمن لا يتفاعل أصلاً.
+ * وبهذا لا يتنافس GA مع موارد أول رسم إطلاقاً، ولا يُقايَض شيء من البيانات:
+ * كل زيارة تُقاس (تفاعل أو مهلة)، والتفاعل يقدّم القياس لا يؤخّره.
  */
 import { CONSENT_STORAGE_KEY } from "@/lib/utils/cookieConsent"
+import { afterWindowLoad, firstOf, onFirstInteraction, scheduleWhenIdle } from "@/lib/utils/deferWork"
 
 declare global {
   interface Window {
@@ -61,17 +73,9 @@ export function initAnalytics(): void {
     document.head.appendChild(s)
   }
 
-  // type-cast تحوطاً: بعض المكتبات القديمة (أو بيئات غير متصفحية) قد لا توفرها
-  const idleWindow = window as Window & {
-    requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void
-  }
-  if (typeof idleWindow.requestIdleCallback === "function") {
-    idleWindow.requestIdleCallback(loadMizanAnalytics, { timeout: 4000 })
-  } else {
-    window.addEventListener(
-      "load",
-      () => setTimeout(loadMizanAnalytics, 2500),
-      { once: true }
-    )
-  }
+  // جدولة مزدوجة: أول تفاعل، أو بعد load + خمول (سقف 10 ثوانٍ) — أيّهما أسبق.
+  // السقف الطويل مقصود: من يقرأ الصفحة بلا تفاعل لا يحتاج كود القياس على
+  // المسار الحرج، ومن يتفاعل يُقاس في الحال.
+  const schedule = firstOf(onFirstInteraction, (run) => afterWindowLoad(() => scheduleWhenIdle(run, { timeout: 10000 })))
+  schedule(loadMizanAnalytics)
 }

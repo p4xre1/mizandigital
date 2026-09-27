@@ -46,18 +46,22 @@
 
     <!--
       Performance: الخطوط
-      سابقاً كان يُطلب ملف CSS من fonts.googleapis.com أولاً، ومن داخله فقط
-      يُكتشف ملف woff2 — أي جولتا شبكة قبل بدء تنزيل الخط، فيظهر النص بخط
-      بديل ثم يُستبدل (font swap) ويتحرك تخطيط الصفحة (مساهم رئيسي في CLS).
-      الآن @font-face مضمّن مباشرة في src/styles/fonts.css وملفا woff2
-      (العربي واللاتيني) يُحمَّلان مسبقاً بأعلى أولوية، فيصل الخط عادة قبل
-      أول رسم فلا يحدث استبدال ولا انزياح.
+      ─────────────────────
+      1) كان يُطلب ملف CSS من fonts.googleapis.com، ومن داخله فقط يُكتشف ملف
+         woff2 — جولتان شبكيتان قبل بدء تنزيل الخط، فيُرسم النص بخط بديل ثم
+         يُستبدل ويتحرّك التخطيط. صار @font-face داخل CSS التطبيق مباشرة.
+      2) كان ملف woff2 نفسه يُجلَب من fonts.gstatic.com — أصل ثالث يستلزم
+         DNS + TCP + TLS قبل أول بايت (~300ms على 4G بطيء). الملفان الآن
+         محليان في /fonts/، فيسافران على نفس اتصال HTTP/2 الذي حمّل المستند،
+         ولا حاجة إلى preconnect لأصل الخطوط أصلاً.
+      3) يُحمَّل الملفان مسبقاً بأولوية عالية لأن العنصر الأكبر (LCP) في
+         الصفحة الرئيسية نصّي: وصول الخط قبل أول رسم يمنع إعادة رسم العنصر
+         الأكبر، فيصبح LCP هو FCP بدل أن يكون موعد وصول الخط.
+      (أُزيل أيضاً dns-prefetch إلى googletagmanager.com: تدقيق Lighthouse
+      يعدّه «preconnect غير مستعمل» لأن تحليلات GA تُحمَّل بعد الخمول أصلاً.)
     -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cairo/v31/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS4J0.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cairo/v31/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscRiyS.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/cairo-arabic.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/cairo-latin.woff2">
 
     <!--
       Canonical & Hreflang

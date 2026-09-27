@@ -13,12 +13,12 @@
  * صيغة النص: **عريض**، `معرّف` (يُعرض لاتينياً)، [نص](/مسار).
  */
 
-export const CONTACT_EMAIL = "contact@mizan.page";
-export const LEGAL_LAST_UPDATED = "17 شتنبر 2026";
-export const ADSTERRA_REMOVED_ON = "15 شتنبر 2026";
+// الثوابت الصغيرة تسكن معاً في version.js (لأن مسار الدخول يقرأ تاريخ النسخة
+// وحده، ولا يجوز أن يسحب معه نص السياسات كاملاً) — وتُعاد تصديرها هنا حتى لا
+// ينكسر أي مستورد قديم ولا تختلف قيمة واحدة بين الموضعين.
+import { ADSTERRA_REMOVED_ON, AUTH_STORAGE_KEY, CONTACT_EMAIL, LEGAL_LAST_UPDATED } from "./version.js";
 
-/** مفتاح جلسة Supabase Auth — مثبَّت في src/lib/supabase/client.ts (storageKey). */
-export const AUTH_STORAGE_KEY = "sb-mizan-auth";
+export { ADSTERRA_REMOVED_ON, AUTH_STORAGE_KEY, CONTACT_EMAIL, LEGAL_LAST_UPDATED } from "./version.js";
 
 /**
  * الجداول التي يحذفها طلب الحذف فعلياً.
