@@ -237,10 +237,14 @@ export function checkRobots(content, { siteUrl = "", criticalPaths = [] } = {}) 
   // الصارمة ترفض الملف كله. الفحص مُعاد حرفياً من
   // core/audits/seo/robots-txt.js (DIRECTIVE_SAFELIST) حتى يُرصد محلياً قبل
   // Lighthouse. التعليقات مستثناة كما في المحلّل نفسه.
+  // ملاحظة: «content-signal» مقبول في أحدث إصدارات Lighthouse لكنه اقتراح غير
+  // معتمد (contentsignals.org) ترفزه محلّلات صارمة وأدوات تدقيق أقدم (ورصدت
+  // أداة تدقيق الموقع السطر فعلاً في robots.txt)، لذا يُستبعد هنا عمداً:
+  // نبقى على التقاطع المشترك بين كل المحلّلات، والإشارة تُعلن في ai.txt.
   const SAFELIST = new Set([
     "user-agent", "disallow", "allow", "sitemap",
     "crawl-delay", "clean-param", "host",
-    "request-rate", "visit-time", "noindex", "content-signal",
+    "request-rate", "visit-time", "noindex",
   ])
   const unknownDirectives = []
   text.split(/\r\n|\r|\n/).forEach((rawLine) => {
