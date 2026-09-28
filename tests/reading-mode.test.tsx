@@ -268,6 +268,15 @@ describe("مراساة موضع القراءة", () => {
     // 7 كتل: عنوان، فقرة، صورة، اقتباس، قائمة مرتبة، قائمة نقطية، فاصل
     expect(content.match(/data-reader-anchor=""/g)).toHaveLength(7)
   })
+
+  test("عناوين المقال بلا شارات الأرقام المتدرجة (أُزيلت)", () => {
+    const content = read("src/components/articles/ArticleContent.tsx")
+    // كانت كل h2 تحمل شارة رقم بخلفية متدرجة — أُزيلت بطلب المراجعة
+    expect(content).not.toContain("bg-gradient-to-br from-primary to-violet-600")
+    expect(content).not.toContain("{idx + 1}")
+    // أرقام القوائم المرتبة باقية (خلفية صلبة، لا تدرج) لأنها وظيفية
+    expect(content).toContain("{i2 + 1}")
+  })
 })
 
 /* ────────────────────────────────────────────────────────────────────────
@@ -549,6 +558,8 @@ describe("تكامل صفحة المقال — وضع القراءة الأقص�
     // المقال المحلي مرسوم فعلاً
     expect(host.querySelector("article")).toBeTruthy()
     expect(host.textContent).toContain("خطة مراجعة")
+    // عناوين h2 بلا شارة رقم متدرجة
+    expect(host.querySelector("h2 .bg-gradient-to-br")).toBeNull()
 
     // زرا الدخول موجودان: بجانب شارة وقت القراءة وفي رأس بطاقة الخيارات
     const entries = host.querySelectorAll('button[aria-label^="وضع القراءة الأقصى"]')

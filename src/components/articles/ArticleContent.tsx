@@ -127,15 +127,10 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
                 data-reader-anchor=""
                 className={
                   block.level === 2
-                    ? "group/heading scroll-mt-28 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0 flex items-center gap-3"
+                    ? "group/heading scroll-mt-28 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0"
                     : "scroll-mt-28 mt-8 mb-4 text-[1.1rem] md:text-[1.25rem] font-bold text-foreground/90 flex items-center gap-2.5"
                 }
               >
-                {block.level === 2 && (
-                  <span className="hidden md:grid size-8 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet-600 text-white shadow-[0_4px_12px_hsl(var(--primary)/0.2)] text-[12px] font-black shrink-0">
-                    {idx + 1}
-                  </span>
-                )}
                 <span className="relative">
                   {block.text}
                   {block.level === 2 && (
