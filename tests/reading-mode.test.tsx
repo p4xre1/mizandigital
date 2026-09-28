@@ -505,6 +505,48 @@ describe("ReadingOptionsControls", () => {
 })
 
 /* ────────────────────────────────────────────────────────────────────────
+   8.5) أدوات القراءة خلف نقرة — لا بطاقات جانبية دائمة
+──────────────────────────────────────────────────────────────────────── */
+
+describe("أدوات القراءة خلف نقرة (العمود كله للمقال)", () => {
+  const articlePage = read("src/pages/public/ArticlePage.tsx")
+  const drawer = read("src/components/articles/ArticleToolDrawer.tsx")
+
+  test("لا شبكة بثلاثة أعمدة ولا بطاقات جانبية — العمود مقياس قراءة", () => {
+    expect(articlePage).not.toContain("xl:col-span-3")
+    expect(articlePage).not.toContain("xl:col-span-6")
+    expect(articlePage).toContain('"max-w-[98%] xl:max-w-[95%]" : "max-w-3xl"')
+    // درج واحد مفتوح في كل مرة (أو لا شيء) بدل علمَي إظهار مستقلَّين
+    expect(articlePage).toContain('type ReaderTool = "toc" | "options" | "share"')
+    expect(articlePage).not.toContain("showAppearance")
+  })
+
+  test("الأدوات الثلاث أزرار في شريط لاصق تحت الهيدر تفتح أدراجاً", () => {
+    expect(articlePage).toContain("sticky top-16 z-40")
+    for (const label of ["محتويات المقال", "خيارات القراءة", "شارك المقال"]) {
+      expect(articlePage).toContain(`aria-label="${label}"`)
+    }
+    expect(articlePage).toContain("<ArticleToolDrawer")
+  })
+
+  test("العناوين تُزيح 128px: هيدر لاصق + شريط أدوات لاصق", () => {
+    // القفز من الفهرس يمرّ تحت شريطَين لاصقين (64 + ~58px) — scroll-mt-28 كانت
+    // تكفي الهيدر وحده فتُسقِط العنوان تحت شريط الأدوات
+    const content = read("src/components/articles/ArticleContent.tsx")
+    expect(content).not.toContain("scroll-mt-28")
+    expect(content).toContain('"group/heading scroll-mt-32 relative') // h2
+    expect(content).toContain(': "scroll-mt-32 mt-8 mb-4')             // h3
+  })
+
+  test("الدرج حوار modal بلا أثر على التصدير والطباعة", () => {
+    expect(drawer).toContain('role="dialog"')
+    expect(drawer).toContain('aria-modal="true"')
+    expect(drawer).toContain("no-pdf fixed inset-0")
+    expect(drawer).toMatch(/removeEventListener\("keydown", handleKeyDown, true\)/)
+  })
+})
+
+/* ────────────────────────────────────────────────────────────────────────
    9) تكامل صفحة المقال — الدخول للوضع الأقصى والخروج منه فعلياً
 ──────────────────────────────────────────────────────────────────────── */
 
@@ -614,7 +656,7 @@ describe("تكامل صفحة المقال — وضع القراءة الأقص�
     host.remove()
   })
 
-  test("اختيار خط من اللوحة الحقيقية يحفظ التفضيل ويطبّق السمة", async () => {
+  test("اختيار خط من درج الخيارات (نقرة ثم رقاقتان) يحفظ التفضيل ويطبّق السمة", async () => {
     ;(globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IO
     const { ArticlePage } = await import("../src/pages/public/ArticlePage")
     const { MemoryRouter } = await import("react-router-dom")
@@ -630,17 +672,25 @@ describe("تكامل صفحة المقال — وضع القراءة الأقص�
     })
     await act(async () => { await new Promise((resolve) => setTimeout(resolve, 100)) })
 
-    // بطاقة الخيارات الجانبية (مخفية تحت xl بـ CSS لكنها في الشجرة)
-    const amiriChip = Array.from(host.querySelectorAll("button")).find(
+    // لوحة الخيارات لم تعد بطاقة دائمة في الشجرة: تُفتح بالنقر في درج،
+    // والرقاقات تُختار من داخله (الاختيار لا يُغلق الدرج — القارئ يقارن)
+    const optionsButton = host.querySelector<HTMLButtonElement>('button[aria-label="خيارات القراءة"]')
+    expect(optionsButton, "زر خيارات القراءة في الشريط اللاصق").toBeTruthy()
+    await act(async () => { optionsButton!.click() })
+    const drawer = host.querySelector('aside[aria-label="خيارات القراءة"]')
+    expect(drawer, "درج خيارات القراءة مفتوح").toBeTruthy()
+
+    const amiriChip = Array.from(drawer!.querySelectorAll("button")).find(
       (b) => (b.textContent ?? "").includes("أميري")
     )
     expect(amiriChip, "رقاقة أميري في اللوحة").toBeTruthy()
     await act(async () => { amiriChip!.click() })
     expect(JSON.parse(window.localStorage.getItem(READING_PREFS_STORAGE_KEY)!).font).toBe("amiri")
     expect(document.documentElement.getAttribute("data-reader-font")).toBe("amiri")
+    expect(host.querySelector('aside[aria-label="خيارات القراءة"]'), "الدرج بقي مفتوحاً").toBeTruthy()
 
     // سمة ورقي
-    const sepiaChip = Array.from(host.querySelectorAll("button")).find(
+    const sepiaChip = Array.from(drawer!.querySelectorAll("button")).find(
       (b) => (b.textContent ?? "").includes("ورقي")
     )!
     await act(async () => { sepiaChip.click() })
@@ -650,5 +700,96 @@ describe("تكامل صفحة المقال — وضع القراءة الأقص�
     host.remove()
     document.documentElement.removeAttribute("data-reader-font")
     document.documentElement.removeAttribute("data-reader-theme")
+  })
+
+  test("الأدوات الثلاث مخفية حتى النقر: درج واحد يفتح ويُغلق بـ Esc والنقر خارجها", async () => {
+    ;(globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IO
+    const { ArticlePage } = await import("../src/pages/public/ArticlePage")
+    const { MemoryRouter } = await import("react-router-dom")
+    const host = document.createElement("div")
+    document.body.appendChild(host)
+    const pageRoot = createRoot(host)
+    await act(async () => {
+      pageRoot.render(
+        <MemoryRouter initialEntries={["/articles/kif-tabni-khitat-murajaa-qanuniya"]}>
+          <ArticlePage slug="kif-tabni-khitat-murajaa-qanuniya" />
+        </MemoryRouter>
+      )
+    })
+    await act(async () => { await new Promise((resolve) => setTimeout(resolve, 100)) })
+
+    // لا درج ولا إحصائيات قبل النقر — العمود كله للمقال
+    expect(host.querySelector("aside")).toBeNull()
+    expect(host.textContent).not.toContain("إحصائيات القراءة")
+
+    // الأدوات أزرار في شريط لاصق تحت هيدر الموقع (h-16)، dialog معلَن و aria-expanded
+    expect(host.querySelector(".sticky.top-16"), "الشريط اللاصق").toBeTruthy()
+    const buttons = {
+      toc: host.querySelector<HTMLButtonElement>('button[aria-label="محتويات المقال"]')!,
+      options: host.querySelector<HTMLButtonElement>('button[aria-label="خيارات القراءة"]')!,
+      share: host.querySelector<HTMLButtonElement>('button[aria-label="شارك المقال"]')!,
+    }
+    for (const button of Object.values(buttons)) {
+      expect(button, "زر الأداة").toBeTruthy()
+      expect(button.getAttribute("aria-haspopup")).toBe("dialog")
+      expect(button.getAttribute("aria-expanded")).toBe("false")
+      expect(button.className).toMatch(/min-h-\[44px\]/)
+    }
+
+    // نقرة تفتح الفهرس، وإحصائيات القراءة في ذيله، والتركيز يُستقبل في الدرج
+    await act(async () => { buttons.toc.click() })
+    const tocDrawer = host.querySelector('aside[aria-label="محتويات المقال"]')
+    expect(tocDrawer, "درج الفهرس").toBeTruthy()
+    expect(tocDrawer!.getAttribute("aria-modal")).toBe("true")
+    expect(tocDrawer!.textContent).toContain("بداية المقال")
+    expect(tocDrawer!.textContent).toContain("إحصائيات القراءة")
+    expect(buttons.toc.getAttribute("aria-expanded")).toBe("true")
+    expect(document.activeElement).toBe(tocDrawer)
+
+    // Esc يغلق ويعيد التركيز إلى الزر الذي فتحه (كما في المتصفح: الحدث على document)
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))
+    })
+    expect(host.querySelector("aside")).toBeNull()
+    expect(document.activeElement).toBe(buttons.toc)
+    expect(buttons.toc.getAttribute("aria-expanded")).toBe("false")
+
+    // Tab محبوس داخل الحوار: من آخر عنصر يعود إلى أوله، والتركيز الشارد يُسحب إليه
+    await act(async () => { buttons.toc.click() })
+    const tocAgain = host.querySelector('aside[aria-label="محتويات المقال"]')!
+    const focusables = Array.from(tocAgain.querySelectorAll<HTMLElement>("a[href], button"))
+    expect(focusables.length).toBeGreaterThan(1)
+    focusables[focusables.length - 1].focus()
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }))
+    })
+    expect(document.activeElement).toBe(focusables[0])
+    host.querySelector<HTMLButtonElement>('button[aria-label="إغلاق محتويات المقال"]')!.focus()
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }))
+    })
+    expect(document.activeElement, "التركيز خارج الدرج يُعاد إليه").toBe(focusables[0])
+    await act(async () => {
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }))
+    })
+    expect(host.querySelector("aside")).toBeNull()
+
+    // المشاركة تُفتح وتُغلق بالنقر على الخلفية
+    await act(async () => { buttons.share.click() })
+    const shareDrawer = host.querySelector('aside[aria-label="شارك المقال"]')
+    expect(shareDrawer!.textContent).toContain("نسخ رابط المقال")
+    await act(async () => {
+      host.querySelector<HTMLButtonElement>('button[aria-label="إغلاق شارك المقال"]')!.click()
+    })
+    expect(host.querySelector("aside")).toBeNull()
+
+    // درج واحد في كل مرة: فتح الخيارات يُنهي المشاركة بدل تكديس الألواح
+    await act(async () => { buttons.share.click() })
+    await act(async () => { buttons.options.click() })
+    expect(host.querySelectorAll("aside")).toHaveLength(1)
+    expect(host.querySelector('aside[aria-label="خيارات القراءة"]')).toBeTruthy()
+
+    await act(async () => { pageRoot.unmount() })
+    host.remove()
   })
 })

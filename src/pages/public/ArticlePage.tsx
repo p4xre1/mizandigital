@@ -17,6 +17,8 @@ import { ContentTags } from "../../components/content/ContentTags"
 import { ArticleTranslateWidget } from "../../components/articles/ArticleTranslateWidget"
 import { ReadingOptionsControls } from "../../components/articles/ReadingOptionsControls"
 import { MaxReadBar } from "../../components/articles/MaxReadBar"
+import { ArticleToolDrawer } from "../../components/articles/ArticleToolDrawer"
+import { ArticleSharePanel } from "../../components/articles/ArticleSharePanel"
 import { ReactionBar } from "@/components/reactions/ReactionBar"
 import { ReportDialog } from "@/components/governance/ReportDialog"
 import { useReadingPrefs } from "@/hooks/useReadingPrefs"
@@ -24,8 +26,8 @@ import { useTrackView } from "@/hooks/useTrackView"
 import { collectReaderAnchors, scrollToAnchor, topAnchorIndex } from "@/lib/reading/anchor"
 import { exportElementToPdf } from "@/lib/articles/exportPdf"
 import {
-  Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen, KeyRound,
-  List, SlidersHorizontal, ChevronDown, Maximize2, Download, X,
+  Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen,
+  List, SlidersHorizontal, Maximize2, Download, Share2,
 } from "lucide-react"
 
 interface ArticleDetail {
@@ -54,6 +56,25 @@ interface RelatedArticle {
   date?: string
 }
 
+/**
+ * أدوات القراءة التي تُفتح بالنقر في درج جانبي بدل بطاقات دائمة:
+ * فهرس المقال، خيارات القراءة، والمشاركة.
+ */
+type ReaderTool = "toc" | "options" | "share"
+
+/**
+ * صنف زر في شريط الأدوات اللاصق — هدف لمس 44px، وحالة «مفتوح» لا تُخطئها
+ * العين (خلفية الأساسية) لأن الدرج يغطي جزءاً من الصفحة. التسميات نصية من
+ * sm فأعلى وأيقونات فقط تحتها، فيبقى الشريط سطراً واحداً على الجوال.
+ */
+const toolButtonClass = (active: boolean) =>
+  `inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[11px] font-bold ` +
+  `focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-colors ${
+    active
+      ? "border-primary bg-primary text-primary-foreground shadow"
+      : "border-border bg-card/80 text-muted-foreground hover:text-foreground"
+  }`
+
 interface ArticlePageProps { slug?: string }
 
 export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
@@ -76,8 +97,9 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
 
   useTrackView(article?.sourceTable === "news" ? "news" : "article", article?.slug)
 
-  const [showContents, setShowContents] = useState<boolean>(false)
-  const [showAppearance, setShowAppearance] = useState<boolean>(false)
+  // أدوات القراءة خلف نقرة واحدة: درج واحد مفتوح في كل مرة (أو لا شيء) —
+  // لا بطاقات جانبية دائمة تأكل نصفَي العمود وتترك المقال في شريط ضيّق
+  const [openTool, setOpenTool] = useState<ReaderTool | null>(null)
   const [activeSection, setActiveSection] = useState<string>("top")
   const [readingProgress, setReadingProgress] = useState<number>(0)
 
@@ -133,6 +155,21 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
 
   /* ── وضع القراءة الأقصى: آليات التبديل والشريط والمراساة ────────────── */
 
+  /* ── أدوات القراءة بالنقر: فهرس / خيارات / مشاركة ─────────────────────── */
+
+  // أزرار الشريط اللاصق — إليها يعود التركيز حين يُغلق الدرج (Esc/الخلفية/X)
+  const toolAnchors = useRef<{ toc: HTMLButtonElement | null; options: HTMLButtonElement | null; share: HTMLButtonElement | null }>({ toc: null, options: null, share: null })
+  const anchorToc = useCallback((el: HTMLButtonElement | null) => { toolAnchors.current.toc = el }, [])
+  const anchorOptions = useCallback((el: HTMLButtonElement | null) => { toolAnchors.current.options = el }, [])
+  const anchorShare = useCallback((el: HTMLButtonElement | null) => { toolAnchors.current.share = el }, [])
+
+  /** درج واحد في كل مرة: النقر على الزر نفسه ثانيةً يُغلقه. */
+  const toggleTool = useCallback((tool: ReaderTool) => {
+    setOpenTool((current) => (current === tool ? null : tool))
+  }, [])
+
+  const closeTool = useCallback(() => setOpenTool(null), [])
+
   /**
    * تبديل الوضع مع مراساة موضع القراءة: قبل التبديل نحفظ رقم العنصر الظاهر
    * أعلى الشاشة من بين كتل المقال، وبعد أن يرسم React التخطيط الجديد نعود
@@ -141,12 +178,14 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   const toggleMaxRead = useCallback(() => {
     const anchors = collectReaderAnchors(articleBodyRef.current)
     pendingAnchorRef.current = anchors.length ? topAnchorIndex(anchors) : null
+    setOpenTool(null)
     setSettingsOpen(false)
     setTocOpen(false)
     setMaxRead((visible) => !visible)
   }, [])
 
   const exitMaxRead = useCallback(() => {
+    setOpenTool(null)
     setSettingsOpen(false)
     setTocOpen(false)
     const anchors = collectReaderAnchors(articleBodyRef.current)
@@ -309,9 +348,10 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   if (!article) return <main className="container mx-auto max-w-4xl px-4 py-16 text-center" dir="rtl"><h1 className="text-2xl font-bold">المقال غير موجود</h1><Link to="/articles" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground"><ArrowRight size={16} />العودة إلى المقالات</Link></main>
 
   const formattedDate = article.date ? new Date(article.date).toLocaleDateString("ar-MA", { year: "numeric", month: "long", day: "numeric" }) : null
-  // في وضع القراءة الأقصى يُقيَّد العمود (~70 حرفاً) بغضّ النظر عن «عريض» —
-  // العريض للجداول في الوضع العادي، وطول سطر مريح للعين أهم في القراءة المركزة.
-  const maxWidthClass = pageWidth === "Wide" && !maxRead ? "max-w-[98%] xl:max-w-[95%]" : "max-w-6xl"
+  // البطاقات الجانبية أُزيلت (الأدوات صارت درجاً بالنقر) فالعمود كله للمقال:
+  // «عادي» مقياس قراءة مريح (~760px، طول السطر نفسه الذي اختاره الوضع الأقصى)،
+  // و«عريض» للجداول. وفي الوضع الأقصى يُقيَّد العمود دائماً مهما كان الاختيار.
+  const maxWidthClass = pageWidth === "Wide" && !maxRead ? "max-w-[98%] xl:max-w-[95%]" : "max-w-3xl"
   const sectionsList = parsed.toc
 
   const tocPanel = (
@@ -322,6 +362,17 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
         return <a key={idx} href={`#${section.id}`} className={`flex items-center gap-2.5 rounded-xl py-2 px-3 transition-all ${section.level === 3 ? "mr-4 text-[12px]" : ""} ${isActive ? "bg-gradient-to-r from-primary/10 to-violet-500/10 text-primary font-bold border border-primary/20 shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}><span className={`size-1.5 rounded-full ${isActive ? "bg-primary animate-pulse" : "bg-border"}`} /><span className="truncate">{section.title}</span></a>
       })}
     </nav>
+  )
+
+  // إحصائيات القراءة: كانت بطاقة جانبية دائمة، فصارت ذيل درج الفهرس — تظهر
+  // حين يسأل القارئ «أين أنا؟» (لحظة فتح الفهرس) لا في كل زيارة.
+  const readingStatsPanel = (
+    <div className="space-y-2.5 rounded-[16px] border border-border/50 bg-gradient-to-br from-primary/[0.04] to-violet-500/[0.03] p-4">
+      <h3 className="text-[11px] font-black">إحصائيات القراءة</h3>
+      <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">التقدم</span><span className="font-bold text-primary">{Math.round(readingProgress)}%</span></div>
+      <div className="h-1.5 rounded-full bg-muted overflow-hidden"><div className="h-full bg-gradient-to-r from-primary to-violet-600 transition-all" style={{ width: `${readingProgress}%` }} /></div>
+      <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">وقت القراءة</span><span className="font-bold">{article.readingTime || "5 د"}</span></div>
+    </div>
   )
 
   const readingOptionsControls = (
@@ -408,18 +459,41 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
         />
       )}
       <main className={`mx-auto ${maxRead ? "w-full max-w-[760px]" : maxWidthClass} ${maxRead ? "px-3 md:px-6 pt-20 md:pt-24 pb-10" : "px-3 md:px-6 py-6 md:py-10"} ${maxRead ? "" : "transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"}`} dir="rtl">
-        {/* صف المسار + الترجمة + أزرار الجوال — يُفكك في وضع القراءة الأقصى
-            (أداة الترجمة تعيش في الشريط النحيف هناك). فكّ الصف يعيد تركيب
-            أداة الترجمة عند الخروج ويعيد تطبيق اللغة المحفوظة بأمان بفضل
-            علامة الوحدة في ArticleTranslateWidget. */}
-        {!maxRead && (<div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 text-[12px]"><Link to="/" className="text-muted-foreground hover:text-foreground">الرئيسية</Link><span className="text-border">/</span><Link to={article.sourceTable === "news" ? "/news" : "/articles"} className="text-muted-foreground hover:text-primary font-bold">{article.sourceTable === "news" ? "الأخبار" : "المقالات"}</Link><span className="text-border">/</span><span className="text-foreground font-bold truncate max-w-[200px]">{article.title.slice(0,30)}...</span></div>
-          <div className="flex items-center gap-2 flex-wrap"><button type="button" onClick={handleExportPdf} disabled={exportingPdf} title="تحميل المقال بصيغة PDF" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-border bg-card/80 px-3.5 py-2 text-[11px] font-bold text-muted-foreground hover:text-foreground disabled:opacity-60 motion-safe:transition-colors">{exportingPdf ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Download size={14} aria-hidden="true" />}تحميل PDF</button><ArticleTranslateWidget /><div className="flex items-center gap-2 xl:hidden"><button onClick={() => { setShowContents((v) => !v); setShowAppearance(false) }} className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[11px] font-bold backdrop-blur ${showContents ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card/80 text-muted-foreground hover:text-foreground"}`}><List size={14} />المحتويات<ChevronDown size={12} className={`transition-transform ${showContents ? "rotate-180" : ""}`} /></button><button onClick={() => { setShowAppearance((v) => !v); setShowContents(false) }} className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[11px] font-bold backdrop-blur ${showAppearance ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card/80 text-muted-foreground hover:text-foreground"}`}><SlidersHorizontal size={14} />المظهر</button></div></div>
+        {/* صف المسار ثم شريط الأدوات اللاصق — يُفكَّكان في وضع القراءة الأقصى
+            (أدوات هناك تعيش في الشريط النحيف). فكّ الصف يعيد تركيب أداة الترجمة
+            عند الخروج ويعيد تطبيق اللغة المحفوظة بأمان بفضل علامة الوحدة في
+            ArticleTranslateWidget.
+
+            البطاقات الجانبية (محتويات المقال / خيارات القراءة / شارك المقال)
+            لم تعد تأكل نصفَي العمود: صارت أدراجاً تُفتح بالنقر من هذا الشريط،
+            والشريط لاصق تحت هيدر الموقع (h-16) فتبقى الأدوات في المتناول وسط
+            المقال الطويل بلا ثمن من مساحة النص. الضيق يُعالَج بالالتفاف
+            (flex-wrap) لا بالتمرير: overflow على الشريط كان سيقصّ قائمة اللغات
+            المنسدلة في أداة الترجمة. */}
+        {!maxRead && (<div className="mb-3 flex items-center gap-2 text-[12px]">
+          <Link to="/" className="text-muted-foreground hover:text-foreground">الرئيسية</Link><span className="text-border">/</span><Link to={article.sourceTable === "news" ? "/news" : "/articles"} className="text-muted-foreground hover:text-primary font-bold">{article.sourceTable === "news" ? "الأخبار" : "المقالات"}</Link><span className="text-border">/</span><span className="text-foreground font-bold truncate max-w-[200px]">{article.title.slice(0,30)}...</span>
         </div>)}
-        {!maxRead && (showContents || showAppearance) && <div className="mb-6 xl:hidden animate-[fadeUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"><div className="rounded-[20px] border border-border/50 bg-card/80 backdrop-blur-xl p-5 shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] relative overflow-hidden"><div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-primary via-violet-500 to-transparent opacity-60" /><button onClick={() => { setShowContents(false); setShowAppearance(false) }} className="absolute left-4 top-4 grid size-8 place-items-center rounded-full bg-muted text-muted-foreground hover:bg-foreground hover:text-background"><X size={14} /></button>{showContents && <><h3 className="font-black text-sm mb-4 flex items-center gap-2"><div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary"><List size={14} /></div>محتويات المقال</h3>{sectionsList.length > 0 ? tocPanel : <p className="text-[12px] text-muted-foreground">لا توجد عناوين فرعية.</p>}</>}{showAppearance && <><h3 className="font-black text-sm mb-4 flex items-center gap-2"><div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary"><SlidersHorizontal size={14} /></div>خيارات القراءة</h3>{readingOptionsControls}</>}</div></div>}
-        <div className={maxRead ? "relative" : "grid grid-cols-1 xl:grid-cols-12 gap-6 md:gap-8 items-start"}>
-          <div className={maxRead ? "hidden" : "hidden xl:block xl:col-span-3 xl:order-1"}><div className="sticky top-24 space-y-4">{sectionsList.length > 0 && <div className="group rounded-[20px] border border-border/50 bg-card/60 backdrop-blur-xl p-5 shadow-[0_8px_32px_hsl(0_0%_0%/0.04)] hover:shadow-[0_12px_40px_hsl(0_0%_0%/0.08)] transition-all"><div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-primary/50 via-violet-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" /><h3 className="flex items-center gap-2 pb-3 mb-3 border-b border-border/50 font-black text-[13px]"><div className="grid size-6 place-items-center rounded-lg bg-primary/10 text-primary"><List size={14} /></div>محتويات المقال<span className="mr-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{sectionsList.length}</span></h3>{tocPanel}</div>}<div className="rounded-[20px] border border-border/50 bg-gradient-to-br from-primary/[0.04] to-violet-500/[0.03] p-4 backdrop-blur"><h4 className="text-[11px] font-black mb-3">إحصائيات القراءة</h4><div className="space-y-2.5"><div className="flex justify-between text-[11px]"><span className="text-muted-foreground">التقدم</span><span className="font-bold text-primary">{Math.round(readingProgress)}%</span></div><div className="h-1.5 rounded-full bg-muted overflow-hidden"><div className="h-full bg-gradient-to-r from-primary to-violet-600 transition-all" style={{ width: `${readingProgress}%` }} /></div><div className="flex justify-between text-[11px]"><span className="text-muted-foreground">وقت القراءة</span><span className="font-bold">{article.readingTime || "5 د"}</span></div></div></div></div></div>
-          <article ref={articleBodyRef} className={`reader-shell xl:col-span-6 order-1 xl:order-2 group relative overflow-hidden ${maxRead ? "rounded-none border-0 bg-transparent shadow-none" : "rounded-[24px] border border-border/50 bg-card shadow-[0_8px_40px_hsl(0_0%_0%/0.06)] hover:shadow-[0_16px_60px_hsl(0_0%_0%/0.10)] transition-all duration-700"}`}>
+        {!maxRead && (<div className="no-pdf sticky top-16 z-40 mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-border/60 bg-card/85 px-2 py-1.5 shadow-[0_4px_20px_hsl(0_0%_0%/0.05)] backdrop-blur-md">
+          <button type="button" ref={anchorToc} onClick={() => toggleTool("toc")} aria-label="محتويات المقال" aria-expanded={openTool === "toc"} aria-haspopup="dialog" title="محتويات المقال" className={toolButtonClass(openTool === "toc")}>
+            <List size={14} aria-hidden="true" /><span className="hidden sm:inline">المحتويات</span>{sectionsList.length > 0 && <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-black ${openTool === "toc" ? "bg-primary-foreground/25" : "bg-primary/10 text-primary"}`}>{sectionsList.length}</span>}
+          </button>
+          <button type="button" ref={anchorOptions} onClick={() => toggleTool("options")} aria-label="خيارات القراءة" aria-expanded={openTool === "options"} aria-haspopup="dialog" title="خيارات القراءة (الخط والحجم والمظهر)" className={toolButtonClass(openTool === "options")}>
+            <SlidersHorizontal size={14} aria-hidden="true" /><span className="hidden sm:inline">خيارات القراءة</span>
+          </button>
+          <button type="button" ref={anchorShare} onClick={() => toggleTool("share")} aria-label="شارك المقال" aria-expanded={openTool === "share"} aria-haspopup="dialog" title="شارك المقال" className={toolButtonClass(openTool === "share")}>
+            <Share2 size={14} aria-hidden="true" /><span className="hidden sm:inline">شارك المقال</span>
+          </button>
+          <span className="mx-0.5 h-6 w-px shrink-0 bg-border" aria-hidden="true" />
+          <button type="button" onClick={handleExportPdf} disabled={exportingPdf} aria-label="تحميل المقال بصيغة PDF" title="تحميل المقال بصيغة PDF" className={`${toolButtonClass(false)} disabled:opacity-60`}>
+            {exportingPdf ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Download size={14} aria-hidden="true" />}<span className="hidden sm:inline">تحميل PDF</span>
+          </button>
+          <div className="shrink-0"><ArticleTranslateWidget /></div>
+          {/* دخول وضع القراءة الأقصى من الشريط (سطح المكتب) — على الجوال الزر بجانب شارة وقت القراءة */}
+          <button type="button" onClick={toggleMaxRead} aria-label="وضع القراءة الأقصى (اختصار F)" aria-pressed={maxRead} title="وضع القراءة الأقصى (F)" className="hidden xl:grid size-11 shrink-0 place-items-center rounded-xl border border-border text-muted-foreground hover:border-primary/40 hover:text-primary motion-safe:transition-colors"><Maximize2 size={15} aria-hidden="true" /></button>
+        </div>)}
+        {/* العمود كله للمقال — لا شبكة بثلاثة أعمدة بعد إخفاء الأدوات في أدراج */}
+        <div className="relative">
+          <article ref={articleBodyRef} className={`reader-shell group relative overflow-hidden ${maxRead ? "rounded-none border-0 bg-transparent shadow-none" : "rounded-[24px] border border-border/50 bg-card shadow-[0_8px_40px_hsl(0_0%_0%/0.06)] hover:shadow-[0_16px_60px_hsl(0_0%_0%/0.10)] transition-all duration-700"}`}>
             <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-primary via-violet-500 to-accent-gold opacity-80" />
             <div className={maxRead ? "p-4 md:p-8" : "p-6 md:p-10"}>
             <header className="space-y-5 mb-10">
@@ -437,9 +511,49 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             {article.sourceTable && <div className="no-pdf mt-8"><CommentSection table={article.sourceTable} slug={article.slug} /></div>}
             </div>
           </article>
-          <div className={maxRead ? "hidden" : "hidden xl:block xl:col-span-3 order-3"}><div className="sticky top-24 space-y-4"><div className="rounded-[20px] border border-border/50 bg-card/60 backdrop-blur-xl p-5 shadow-[0_8px_32px_hsl(0_0%_0%/0.04)]"><div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-border/50"><h3 className="flex items-center gap-2 font-black text-[13px]"><div className="grid size-6 place-items-center rounded-lg bg-primary/10 text-primary"><SlidersHorizontal size={14} /></div>خيارات القراءة</h3>{/* دخول وضع القراءة الأقصى من رأس البطاقة (F أيضاً) */}<button type="button" onClick={toggleMaxRead} aria-label="وضع القراءة الأقصى (اختصار F)" aria-pressed={maxRead} title="وضع القراءة الأقصى (F)" className="grid size-11 place-items-center rounded-xl border border-border text-muted-foreground hover:border-primary/40 hover:text-primary motion-safe:transition-colors"><Maximize2 size={15} /></button></div>{readingOptionsControls}</div><div className="rounded-[20px] border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 p-5"><h4 className="text-[12px] font-black mb-3">شارك المقال</h4><div className="grid grid-cols-4 gap-2">{["𝕏","f","in","↗"].map((icon,i) => <button key={i} className="grid size-10 place-items-center rounded-xl bg-card border border-border hover:bg-foreground hover:text-background transition-colors text-sm font-black">{icon}</button>)}</div></div></div></div>
         </div>
-        {relatedArticles.length > 0 && <section className="mt-20"><div className="flex items-center justify-between mb-8"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet-600 text-white shadow-[0_8px_20px_hsl(var(--primary)/0.25)]"><BookOpen className="size-5" /></div><div><h3 className="text-lg font-black">مقالات ذات صلة</h3><p className="text-[12px] text-muted-foreground">مختارة حسب اهتماماتك</p></div></div><Link to="/articles" className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold hover:border-primary/20"><span>عرض الكل</span><ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /></Link></div><div className="grid grid-cols-1 md:grid-cols-3 gap-6">{relatedArticles.map((item) => <Link key={item.id} to={`/articles/${item.slug}`} className="group relative overflow-hidden rounded-[20px] border border-border/50 bg-card p-5 shadow-[0_4px_24px_hsl(0_0%_0%/0.04)] hover:shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.12)] hover:border-primary/20 hover:-translate-y-1 transition-all duration-500"><div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-primary to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" /><div className="space-y-3">{item.category && <span className="inline-flex rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[10px] font-black text-primary">{item.category}</span>}<h4 className="font-black text-[14px] leading-snug line-clamp-2 group-hover:text-primary transition-colors">{item.title}</h4>{item.summary && <p className="text-[12px] text-muted-foreground line-clamp-2 leading-6">{item.summary}</p>}</div><div className="mt-4 flex items-center justify-between pt-3 border-t border-border/50 text-[11px] font-bold text-primary"><span>قراءة المقال</span><div className="grid size-7 place-items-center rounded-full bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><ArrowLeft size={14} /></div></div></Link>)}</div></section>}
+
+        {/* ── أدراج الأدوات: تُفتح بالنقر من الشريط اللاصق وتُغلق بالنقر خارجها
+               أو بـ Esc أو بالنقر على قسم في الفهرس. واحدة في كل مرة. ── */}
+        {!maxRead && openTool === "toc" && (
+          <ArticleToolDrawer
+            label="محتويات المقال"
+            icon={<List size={15} className="text-primary" aria-hidden="true" />}
+            badge={sectionsList.length > 0 ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] text-primary">{sectionsList.length}</span> : undefined}
+            onClose={closeTool}
+            closeOnNavigate
+            opener={toolAnchors.current.toc}
+            footer={readingStatsPanel}
+          >
+            {sectionsList.length > 0 ? tocPanel : <p className="text-[12px] text-muted-foreground">لا توجد عناوين فرعية.</p>}
+          </ArticleToolDrawer>
+        )}
+        {!maxRead && openTool === "options" && (
+          <ArticleToolDrawer
+            label="خيارات القراءة"
+            icon={<SlidersHorizontal size={15} className="text-primary" aria-hidden="true" />}
+            onClose={closeTool}
+            opener={toolAnchors.current.options}
+            footer={
+              <button type="button" onClick={toggleMaxRead} aria-label="وضع القراءة الأقصى (اختصار F)" aria-pressed={maxRead} className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-2.5 text-[12px] font-black text-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary motion-safe:transition-colors">
+                <Maximize2 size={15} aria-hidden="true" />وضع القراءة الأقصى (F)
+              </button>
+            }
+          >
+            {readingOptionsControls}
+          </ArticleToolDrawer>
+        )}
+        {!maxRead && openTool === "share" && (
+          <ArticleToolDrawer
+            label="شارك المقال"
+            icon={<Share2 size={15} className="text-primary" aria-hidden="true" />}
+            onClose={closeTool}
+            opener={toolAnchors.current.share}
+          >
+            <ArticleSharePanel title={article.title} url={detailCanonical} summary={article.summary} onToast={showMizanToast} />
+          </ArticleToolDrawer>
+        )}
+        {relatedArticles.length > 0 && <section className="mt-20"><div className="flex items-center justify-between mb-8"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet-600 text-white shadow-[0_8px_20px_hsl(var(--primary)/0.25)]"><BookOpen className="size-5" /></div><div><h3 className="text-lg font-black">مقالات ذات صلة</h3><p className="text-[12px] text-muted-foreground">مختارة حسب اهتماماتك</p></div></div><Link to="/articles" className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-bold hover:border-primary/20"><span>عرض الكل</span><ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /></Link></div><div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">{relatedArticles.map((item) => <Link key={item.id} to={`/articles/${item.slug}`} className="group relative overflow-hidden rounded-[20px] border border-border/50 bg-card p-5 shadow-[0_4px_24px_hsl(0_0%_0%/0.04)] hover:shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.12)] hover:border-primary/20 hover:-translate-y-1 transition-all duration-500"><div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-primary to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" /><div className="space-y-3">{item.category && <span className="inline-flex rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[10px] font-black text-primary">{item.category}</span>}<h4 className="font-black text-[14px] leading-snug line-clamp-2 group-hover:text-primary transition-colors">{item.title}</h4>{item.summary && <p className="text-[12px] text-muted-foreground line-clamp-2 leading-6">{item.summary}</p>}</div><div className="mt-4 flex items-center justify-between pt-3 border-t border-border/50 text-[11px] font-bold text-primary"><span>قراءة المقال</span><div className="grid size-7 place-items-center rounded-full bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"><ArrowLeft size={14} /></div></div></Link>)}</div></section>}
       </main></div>
     </>
   )
