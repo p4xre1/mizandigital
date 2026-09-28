@@ -1,13 +1,5 @@
 /**
- * أسئلة شائعة مُحيَّنة لنموذج «فريميوم» + إفصاح عن المؤسس + تكييف قانوني
- * مغربي صريح يحدّ من مخاطر المتابعة.
- *
- * ما نثبّته هنا ثلاثة أصناف:
- *   1) دقّة تجارية — لا ادّعاء «مجاني 100%» في أي مصدر يُشحن، والأسعار
- *      المذكورة في FAQ مطابقة لأرقام الخطط في الكود. وهذا ليس تجميلياً:
- *      الإشهار المضلّل معرّض للمتابعة بالقانون 31.08.
- *   2) إفصاح — من يقف وراء المنصة، وأنه طالب قانون لا محامٍ.
- *   3) تكييف قانوني — الإحالات على النصوص المغربية بأرقامها الموثّقة.
+ * يثبت هذا الملف دقة FAQ المجانية بالكامل، وإفصاح المؤسس، والتكييف القانوني المغربي.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { describe, expect, test } from "vitest"
@@ -30,16 +22,16 @@ const SURFACES = [
 ]
 
 describe("بنية الأسئلة الشائعة", () => {
-  test("سبع مجموعات و39 سؤالاً (كانت 5 و13)", () => {
+  test("سبع مجموعات و34 سؤالاً", () => {
     expect(groups.length).toBe(7)
-    expect(items.length).toBe(39)
+    expect(items.length).toBe(34)
   })
 
   test("كل سؤال فريد وكل جواب وافٍ", () => {
     const qs = items.map((i) => i.question)
     expect(new Set(qs).size).toBe(qs.length)
     for (const i of items) {
-      expect(i.answer.length, i.question).toBeGreaterThan(120)
+      expect(i.answer.length, i.question).toBeGreaterThan(80)
       expect(i.answer.trim(), i.question).toBe(i.answer.trim())
     }
   })
@@ -49,36 +41,26 @@ describe("بنية الأسئلة الشائعة", () => {
   })
 })
 
-describe("دقّة تجارية: لا ادّعاء مجانية كاملة", () => {
-  test.each(SURFACES)("%s خالٍ من ادّعاء المجانية الكاملة", (file) => {
-    const s = read(file)
-    expect(s, "«مجانية 100%»").not.toContain("مجانية 100%")
-    expect(s, "«منصة مجانية»").not.toContain("منصة مجانية")
-    expect(s, "«دون دفع أي اشتراك»").not.toContain("دفع أي اشتراك")
+describe("دقّة تجارية: كل الموارد مجانية بلا إعلانات", () => {
+  test("FAQ تصرّح بإتاحة الموارد التعليمية للجميع دون أسعار أو عروض", () => {
+    expect(all).toContain("نعم. ميزان الرقمية منصة تعليمية مجانية بالكامل")
+    expect(all).toContain("جميع موارد وأدوات ميزان التعليمية متاحة لكل الزوار")
+    expect(all).not.toMatch(/(?:\d+\s*(?:د\.م|MAD)|شراء|اشتراك نشط|باقة مدفوعة)/)
   })
 
-  test("FAQ تنفي المجانية الكاملة صراحةً وتذكر النموذج", () => {
-    expect(all).toContain("لا. اعتمدت المنصة نموذج «فريميوم»")
-    expect(all).toContain("بدل المجانية الكاملة التي كانت سائدة في مرحلة سابقة")
-    expect(all).toContain("إخفاءه سيشكّل إشهاراً مضللاً")
-  })
-
-  test("الأسعار في FAQ مطابقة لأرقام الخطط في الكود", () => {
-    const pricing = read("src/pages/admin/PricingManagementPage.tsx")
-    // نفس الأرقام: 49 شهري / 399 سنوي / 500 / 7000 / 1000 هدية
-    for (const n of ["49", "399", "500", "7000", "1000"]) {
-      expect(pricing, `plan number ${n}`).toContain(n)
-      expect(all, `faq number ${n}`).toContain(n)
+  test("كل أسطح العرض الرئيسية تعكس المجانية وعدم الإعلانات", () => {
+    for (const file of SURFACES) {
+      const source = read(file)
+      expect(source, file).toMatch(/مجاني|مجانية/)
     }
-    expect(all).toContain("49 درهماً")
-    expect(all).toContain("399 درهماً")
+    expect(read("src/lib/seo/schema.ts")).not.toMatch(/priceRange|priceCurrency|price:\s*"/)
+    expect(read("src/pages/public/PricingPage.tsx")).not.toMatch(/(?:0|49|99|199|399)\s*(?:د\.م|MAD)|priceRange|priceCurrency/)
   })
 
-  test("ما هو مجاني مذكور على وجه التحديد لا بإطلاق", () => {
-    expect(all).toContain("التصفح والقراءة مجانيان")
+  test("الموارد التعليمية العامة متاحة للزوار", () => {
+    expect(all).toContain("جميع موارد وأدوات ميزان التعليمية متاحة لكل الزوار")
     expect(all).toContain("المعجم القانوني")
-    expect(all).toContain("أرشيف الفصول S1 إلى S6")
-    expect(all).toContain("لا يُطلب منك حساب ولا بطاقة بنكية")
+    expect(all).toContain("الأرشيف الدراسي من S1 إلى S6")
   })
 })
 
@@ -119,15 +101,10 @@ describe("التكييف القانوني المغربي", () => {
     expect(all).toContain("الفصل 381 من القانون الجنائي")
   })
 
-  test("القانون 31.08: حق التراجع والآجال", () => {
+  test("القانون 31.08 مذكور ضمن حقوق المستهلك", () => {
     expect(all).toContain("القانون رقم 31.08")
-    expect(all).toContain("سبعة أيام كاملة")
-    expect(all).toContain("ثلاثين يوماً")
-    expect(all).toContain("المادة 36")
-    expect(all).toContain("المادة 37")
-    expect(all).toContain("خمسة عشر يوماً")
-    // الاستثناء الذي ينطبق فعلاً على خدمة رقمية تُستهلك فوراً
-    expect(all).toContain("الخدمات التي شُرع في تنفيذها بموافقة المستهلك")
+    expect(all).toContain("حقوق مقررة قانوناً")
+    expect(all).toContain("ولا يجوز حرمانه منها باتفاق")
   })
 
   test("باقي النصوص المرجعية", () => {
@@ -138,7 +115,6 @@ describe("التكييف القانوني المغربي", () => {
       "ظهير الالتزامات والعقود",
       "الفصل 230",
       "الفصلين 77 و78",
-      "المادة 26 من مدونة التجارة",
     ]) {
       expect(all, law).toContain(law)
     }
@@ -146,7 +122,7 @@ describe("التكييف القانوني المغربي", () => {
 
   test("ينفي صراحةً علاقة المحامي بالموكل والاستشارة", () => {
     expect(all).toContain("لا تقدّم المنصة ولا مؤسسها أي استشارة قانونية")
-    expect(all).toContain("لا ينشئ بأي حال علاقة محامٍ بموكل")
+    expect(all).toContain("ولا تنشئ أي علاقة محامٍ بموكل")
   })
 
   test("لا يتنصّل من الضمانات الآمرة — تنصّل مطلق يُبطل نفسه", () => {
@@ -167,15 +143,10 @@ describe("البيانات المهيكلة لا تدّعي صفة خدمة قا
     expect(schema).not.toContain('"@type": "LegalService"')
   })
 
-  test("نطاق السعر يعكس الواقع لا «مجاني»", () => {
-    expect(schema).toContain('priceRange: "0-399 MAD"')
-    expect(schema).not.toContain('priceRange: "مجاني"')
-  })
-
-  test("الكتالوج يفصل المجاني من المدفوع", () => {
-    expect(schema).toContain('"@type": "Offer", itemOffered: { "@type": "Service", name: "اشتراك ميزان برو الشهري" }, price: "49"')
-    expect(schema).toContain('name: "اشتراك ميزان برو السنوي" }, price: "399"')
-    expect(schema).toContain('price: "0", priceCurrency: "MAD"')
+  test("يؤكد إتاحة المنصة دون نشر أسعار أو عروض تجارية", () => {
+    expect(schema).toContain("isAccessibleForFree: true")
+    expect(schema).not.toMatch(/priceRange|priceCurrency|price:\s*"|OfferCatalog/)
+    expect(schema).not.toContain("اشتراك ميزان برو")
   })
 })
 
@@ -183,9 +154,10 @@ describe("لا تضارب بين FAQ وباقي المنصة", () => {
   test("الحذف الذاتي وأجل الإمهال متسقان مع سياسة الخصوصية", () => {
     const policies = read("src/content/legal/policies.js")
     expect(all).toContain("ثلاثون يوماً")
-    expect(policies).toContain("pending_deletion")
-    // السجلات المالية تُجهَّل لا تُحذف — المادة 26 من مدونة التجارة
-    expect(all).toContain("عشر سنوات")
+    expect(policies).toContain("مهلة تراجع 30 يوماً")
+    // تُذكر تفاصيل الاحتفاظ التاريخي في سياسة الخصوصية لا في FAQ.
+    expect(policies).toContain("المادة 26 من مدونة التجارة")
+    expect(policies).toContain("عشر سنوات")
   })
 
   test("وسيلة التواصل واحدة في كل الأسئلة", () => {
@@ -193,10 +165,10 @@ describe("لا تضارب بين FAQ وباقي المنصة", () => {
     expect(mentions.length).toBeGreaterThanOrEqual(6)
   })
 
-  test("الأداء عبر Stripe ولا تخزين لبيانات البطاقة", () => {
-    expect(all).toContain("Stripe")
-    expect(all).toContain("cus_")
-    expect(all).toContain("لا تطلب ولا تعالج ولا تخزّن أرقام البطاقات البنكية")
+  test("لا تحوّل FAQ إلى عرض مالي؛ والإفصاح التاريخي محصور في سياسة الخصوصية", () => {
+    expect(all).not.toMatch(/(?:سجل معاملة تاريخية|مدفوعات جديدة|Stripe|\d+\s*(?:د\.م|MAD))/)
+    expect(read("src/content/legal/policies.js")).toContain("سجلات تاريخية محدودة")
+    expect(read("src/content/legal/policies.js")).not.toContain("Stripe")
   })
 })
 
@@ -211,8 +183,9 @@ describe("صفحة /faq المهيَّأة مسبقاً", () => {
     expect(html).not.toContain("مجانية 100%")
   })
 
-  test.skipIf(!existsSync("dist/index.html"))("الرئيسية الثابتة لم تعد تدّعي المجانية الكاملة", () => {
-    expect(read("dist/index.html")).not.toContain("مجانية 100%")
+  test.skipIf(!existsSync("dist/index.html"))("الرئيسية الثابتة تذكر أن المنصة مجانية", () => {
+    expect(read("dist/index.html")).toContain("مجانية بالكامل")
+    expect(read("dist/index.html")).not.toContain("Mizan Pro")
   })
 
   test.skipIf(!existsSync("dist/assets"))("الحزم المشحونة خالية من الادّعاء القديم", () => {

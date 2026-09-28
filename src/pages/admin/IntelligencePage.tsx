@@ -25,7 +25,7 @@ export default function IntelligencePage() {
           (supabase as any).from("mizan_profiles").select("id, xp, credits, rank", { count: "exact" }),
           (supabase as any).from("quiz_attempts").select("id, score, xp_earned", { count: "exact" }),
           (supabase as any).from("articles").select("id, status", { count: "exact" }),
-          (supabase as any).from("payments").select("amount_mad, status").eq("status", "completed"),
+          (supabase as any).from("payments").select("id, status").eq("status", "completed"),
           (supabase as any).from("reports").select("id, status", { count: "exact" }),
           (supabase as any).from("lexicon_terms").select("id", { count: "exact", head: true }),
           (supabase as any).from("faculties").select("id", { count: "exact", head: true }),
@@ -35,7 +35,6 @@ export default function IntelligencePage() {
           (supabase as any).from("laws").select("id", { count: "exact", head: true }),
         ])
 
-        const totalRevenue = (payments.data || []).reduce((s: number, p: any) => s + Number(p.amount_mad || 0), 0)
         const totalXP = (mizanProfiles.data || []).reduce((s: number, p: any) => s + Number(p.xp || 0), 0)
         const avgScore = attempts.data?.length ? (attempts.data.reduce((s: number, a: any) => s + Number(a.score || 0), 0) / attempts.data.length).toFixed(1) : "0"
 
@@ -44,7 +43,6 @@ export default function IntelligencePage() {
           mizanUsers: mizanProfiles.count || 0,
           attempts: attempts.count || 0,
           articles: articles.count || 0,
-          revenue: totalRevenue,
           reports: reports.count || 0,
           lexicon: lexicon.count || 0,
           faculties: faculties.count || 0,
@@ -60,11 +58,11 @@ export default function IntelligencePage() {
         const ins: string[] = []
         if ((attempts.count || 0) > 100) ins.push(`🔥 ${attempts.count} محاولة اختبار — المسار الأكثر نشاطاً يحتاج تحديات يومية`)
         if ((profiles.count || 0) > 0 && (mizanProfiles.count || 0) / (profiles.count || 1) < 0.5) ins.push(`⚠️ فقط ${Math.round(((mizanProfiles.count || 0) / (profiles.count || 1)) * 100)}% من المستخدمين أكملوا ملف ميزان — حسّن onboarding`)
-        if (totalRevenue > 0) ins.push(`💰 إيرادات ${totalRevenue} MAD من ${payments.data?.length || 0} عملية دفع — Mizan Pro يعمل`)
+        if ((payments.data?.length || 0) > 0) ins.push(`سجلات تاريخية محفوظة للمدة التي يفرضها القانون: ${payments.data?.length || 0}`)
         if ((reports.count || 0) > 5) ins.push(`🚩 ${reports.count} بلاغ — راجع الحوكمة`)
         ins.push(`📚 ${lexicon.count || 0}/250 مصطلح + ${faculties.count || 0}/21 كلية — اكتمال المحتوى الأساسي`)
         ins.push(`🎯 متوسط نتيجة الاختبارات ${avgScore}% — XP إجمالي ${totalXP}`)
-        ins.push(`✅ بلا Adsterra منذ 15 شتنبر 2026 — التمويل عبر Pro فقط`)
+        ins.push(`✅ الموارد والأدوات متاحة للجميع بلا إعلانات تجارية`)
         setInsights(ins)
       } finally {
         setLoading(false)
@@ -84,7 +82,7 @@ export default function IntelligencePage() {
     { label: "المكتبة", value: stats.library, icon: BookOpen, color: "text-slate-600 bg-slate-500/10", path: "/admin/library" },
     { label: "التعليقات", value: stats.comments, icon: MessageCircle, color: "text-pink-600 bg-pink-500/10", path: "/admin/comments" },
     { label: "البلاغات", value: stats.reports, icon: Flag, color: "text-rose-600 bg-rose-500/10", path: "/admin/moderation" },
-    { label: "الإيرادات", value: `${stats.revenue || 0} MAD`, icon: Coins, label2: `${stats.paymentsCount || 0} دفع`, color: "text-emerald-700 bg-emerald-500/10", path: "/admin/payments" },
+    { label: "سجلات محفوظة", value: stats.paymentsCount || 0, icon: Coins, label2: "للالتزامات القانونية", color: "text-slate-700 bg-slate-500/10", path: "/admin/control" },
     { label: "الأرشيف", value: stats.laws, icon: BookOpen, color: "text-slate-700 bg-slate-500/10", path: "/admin/laws" },
   ]
 
@@ -95,7 +93,7 @@ export default function IntelligencePage() {
           <span className="grid size-11 place-items-center rounded-2xl bg-violet-500/10 text-violet-600"><Brain className="size-6" /></span>
           <div>
             <h1 className="text-xl font-black text-foreground">لوحة الاستخبارات الشاملة</h1>
-            <p className="text-[12px] text-muted-foreground">رؤى كاملة عن كل أجزاء الموقع — مستخدمون، محتوى، مدفوعات، حوكمة</p>
+            <p className="text-[12px] text-muted-foreground">رؤى كاملة عن كل أجزاء الموقع — مستخدمون، محتوى، سجلات، حوكمة</p>
           </div>
         </div>
         <button onClick={() => navigate("/admin/control")} className="rounded-xl bg-primary px-3.5 py-2 text-[11px] font-bold text-primary-foreground">التحكم الكامل</button>
@@ -133,7 +131,7 @@ export default function IntelligencePage() {
                 {[
                   { l: "الرئيسية", p: "/" }, { l: "المقالات", p: "/articles" }, { l: "الأخبار", p: "/news" },
                   { l: "القاموس 250", p: "/lexicon" }, { l: "الكليات 21", p: "/schools" }, { l: "الأرشيف", p: "/archive" },
-                  { l: "الاختبارات 4", p: "/quiz" }, { l: "التسعير Pro", p: "/pricing" }, { l: "الشروط", p: "/terms" },
+                  { l: "الاختبارات 4", p: "/quiz" }, { l: "الموارد التعليمية", p: "/pricing" }, { l: "الشروط", p: "/terms" },
                   { l: "الخصوصية", p: "/privacy" }, { l: "الكوكيز", p: "/cookies" }, { l: "FAQ", p: "/faq" },
                 ].map(item => (
                   <a key={item.p} href={item.p} target="_blank" rel="noreferrer" className="flex items-center justify-between rounded-lg border border-border bg-background px-2.5 py-1.5 hover:bg-muted">
@@ -148,7 +146,7 @@ export default function IntelligencePage() {
             <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-emerald-900 dark:text-emerald-200"><CheckCircle2 className="size-4" /> حالة المنصة</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-3 text-[11px]">
               <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">بلا إعلانات</p><p className="text-muted-foreground">Adsterra أُزيلت 15 شتنبر 2026</p></div>
-              <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">Mizan Pro</p><p className="text-muted-foreground">49 MAD شهري / 399 سنوي - بيع نهائي</p></div>
+              <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">السجلات التاريخية</p><p className="text-muted-foreground">تُحفظ عند الحاجة للامتثال القانوني فقط</p></div>
               <div className="rounded-xl bg-card p-3 border border-border"><p className="font-bold">GDPR</p><p className="text-muted-foreground">لا حذف ذاتي — عبر contact@mizan.page</p></div>
             </div>
           </div>

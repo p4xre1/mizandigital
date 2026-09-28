@@ -112,12 +112,12 @@ export function QuizResultPanel({
           ))}
         </div>
 
-        {/* شريط الخبرة والكريدتس */}
+        {/* شريط الخبرة ونقاط التقدم */}
         <div className="border-t border-border px-6 py-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <RankBadge rank={rankProgress.rank} size="md" />
             <span className="rounded-full border border-accent-gold/40 bg-accent-gold/10 px-3 py-1 text-[11px] font-extrabold text-accent-gold">
-              +{attempt.creditsEarned} كريدت
+              +{attempt.creditsEarned} نقطة
             </span>
           </div>
           <XpBar rankProgress={rankProgress} xp={totalXp} credits={totalCredits} />

@@ -155,7 +155,7 @@ const pages = [
   { path: "/archive", title: "الأرشيف الدراسي", hasFAQ: true, hasBreadcrumb: true },
   { path: "/quiz", title: "الاختبارات القانونية", hasFAQ: true, hasBreadcrumb: true },
   { path: "/faq", title: "الأسئلة الشائعة", hasFAQ: true, hasBreadcrumb: true },
-  { path: "/pricing", title: "التسعير والكريدتس", hasFAQ: true, hasBreadcrumb: true },
+  { path: "/pricing", title: "الموارد التعليمية", hasFAQ: true, hasBreadcrumb: true },
   { path: "/about", title: "من نحن", hasFAQ: false, hasBreadcrumb: true },
   { path: "/contact", title: "اتصل بنا", hasFAQ: false, hasBreadcrumb: true },
 ];

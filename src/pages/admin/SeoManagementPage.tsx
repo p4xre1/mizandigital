@@ -34,7 +34,7 @@ export default function SeoManagementPage() {
     { path: "/lexicon", label: "القاموس", aeo: "AEOHead + 250 terms prerendered", status: "ok" },
     { path: "/schools", label: "الكليات", aeo: "AEOHead + 21 schools prerendered", status: "ok" },
     { path: "/quiz", label: "الاختبارات", aeo: "AEOHead + HowTo + FAQ", status: "ok" },
-    { path: "/pricing", label: "التسعير", aeo: "AEOHead + Product + Offer", status: "ok" },
+    { path: "/pricing", label: "الموارد التعليمية", aeo: "AEOHead + WebPage", status: "ok" },
     { path: "/terms", label: "الشروط", aeo: "AEOHead + directAnswer (لا إعلانات + لا إلغاء)", status: "ok" },
     { path: "/privacy", label: "الخصوصية", aeo: "AEOHead + directAnswer (GDPR + لا بيع بيانات)", status: "ok" },
     { path: "/cookies", label: "الكوكيز", aeo: "AEOHead + directAnswer (بلا Adsterra + كوكيز جديدة)", status: "ok" },

@@ -149,7 +149,7 @@ export function Header({
             <NavLink to="/lexicon" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
               القاموس
             </NavLink>
-            <NavLink to="/pro-tools" className="px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap text-primary">أدوات Pro</NavLink>
+            <NavLink to="/pro-tools" className="px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap text-primary">الأدوات القانونية</NavLink>
             <NavLink to="/schools" className={({ isActive }) => `px-4 py-2 rounded-full text-[13px] font-bold whitespace-nowrap transition-all ${isActive ? "bg-[#2563eb] text-white shadow-sm" : "text-[#475569] hover:bg-[#f1f5f9] hover:text-[#0f172a] dark:text-[#94a3b8] dark:hover:bg-[#1e293b] dark:hover:text-white"}`}>
               الكليات
             </NavLink>
@@ -213,7 +213,7 @@ export function Header({
                 <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
                   القاموس
                 </NavLink>
-                <NavLink to="/pro-tools" onClick={handleNavClick} className="flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold text-primary">أدوات Pro</NavLink>
+                <NavLink to="/pro-tools" onClick={handleNavClick} className="flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold text-primary">الأدوات القانونية</NavLink>
                 <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
                   الكليات
                 </NavLink>
@@ -255,7 +255,7 @@ export function Footer() {
             </span>
           </div>
           <p className="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
-            منصة تعليمية عصرية بتصميم نظيف — تعلم القانون بطريقة مرنة وجذابة، بمحتوى أساسي مجاني ومزايا متقدمة باشتراك للطلبة بالمغرب.
+            منصة تعليمية مغربية مجانية بالكامل — تعلّم القانون بطريقة مرنة وجذابة مع موارد وأدوات واختبارات بلا إعلانات تجارية.
           </p>
           <div className="mt-4 flex items-center gap-2">
             <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إنستغرام" title="إنستغرام" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
@@ -334,8 +334,7 @@ export function Footer() {
             <Link to="/about" className="hover:text-white transition-colors">من نحن</Link>
             <Link to="/contact" className="hover:text-white transition-colors">اتصل بنا</Link>
             <Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link>
-            <Link to="/pricing" className="hover:text-white transition-colors">الأسعار</Link>
-            <Link to="/payments" className="hover:text-white transition-colors">شراء كريدتس</Link>
+            <Link to="/pro-tools" className="hover:text-white transition-colors">الأدوات القانونية المجانية</Link>
             <Link to="/saved" className="hover:text-white transition-colors">المحفوظات</Link>
             <Link to="/profile" className="hover:text-white transition-colors">حسابي</Link>
           </div>
@@ -359,7 +358,7 @@ export function Footer() {
           color-contrast في Lighthouse. #94a3b8 على نفس الخلفية = 6.96:1.
         */}
         <div className="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#94a3b8]">
-          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة - منصة تعليمية، المحتوى الأساسي مجاني</span>
+          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة - منصة تعليمية مجانية بالكامل، بلا إعلانات</span>
           <span className="flex items-center gap-2">
             <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" aria-hidden="true" />
             تصميم عصري - خطوط مجانية

@@ -3,8 +3,8 @@
 > Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.
 
 - **النطاق:** https://www.mizan.page
-- **تاريخ التوليد:** 2026-09-23T13:02:27.518Z
-- **إجمالي السجلات:** 567
+- **تاريخ التوليد:** 2026-09-27T16:25:57.487Z
+- **إجمالي السجلات:** 562
 - **الصادر:** بيانات محلية فقط (CMS غير متاح وقت البناء)
 
 ## مجموعات البيانات
@@ -18,7 +18,7 @@
 | الفعاليات والندوات (events) | 3 | [/reference/events.json](https://www.mizan.page/reference/events.json) | [/reference/events.md](https://www.mizan.page/reference/events.md) | [/events](https://www.mizan.page/events) |
 | الأرشيف الدراسي (ملفات وملخصات) (docs) | 9 | [/reference/docs.json](https://www.mizan.page/reference/docs.json) | [/reference/docs.md](https://www.mizan.page/reference/docs.md) | [/archive](https://www.mizan.page/archive) |
 | النصوص القانونية (laws) | 0 | [/reference/laws.json](https://www.mizan.page/reference/laws.json) | [/reference/laws.md](https://www.mizan.page/reference/laws.md) | [/pdf](https://www.mizan.page/pdf) |
-| الأسئلة الشائعة (faq) | 39 | [/reference/faq.json](https://www.mizan.page/reference/faq.json) | [/reference/faq.md](https://www.mizan.page/reference/faq.md) | [/faq](https://www.mizan.page/faq) |
+| الأسئلة الشائعة (faq) | 34 | [/reference/faq.json](https://www.mizan.page/reference/faq.json) | [/reference/faq.md](https://www.mizan.page/reference/faq.md) | [/faq](https://www.mizan.page/faq) |
 | بنك أسئلة الاختبارات (quiz) | 224 | [/reference/quiz.json](https://www.mizan.page/reference/quiz.json) | [/reference/quiz.md](https://www.mizan.page/reference/quiz.md) | [/quiz](https://www.mizan.page/quiz) |
 
 ## كيف تستعمل هذا المرجع (للوكلاء)

@@ -114,11 +114,10 @@ export default function DashboardPage() {
     { title: "الندوات", value: stats.seminarsCount, icon: Video, path: "/admin/seminars", color: "bg-rose-500/10 text-rose-600" },
     { title: "بنك الأسئلة", value: stats.quizAttemptsCount, icon: ListChecks, path: "/admin/quizzes", color: "bg-cyan-500/10 text-cyan-600" },
     { title: "المستخدمون", value: stats.usersCount, icon: Users, path: "/admin/users", color: "bg-orange-500/10 text-orange-600" },
-    { title: "المدفوعات", value: stats.paymentsCount, icon: Coins, path: "/admin/payments", color: "bg-green-500/10 text-green-600" },
+    { title: "السجلات التاريخية", value: stats.paymentsCount, icon: Coins, path: "/admin/control", color: "bg-slate-500/10 text-slate-600" },
     { title: "البلاغات", value: stats.reportsCount, icon: Flag, path: "/admin/moderation", color: "bg-amber-600/10 text-amber-700" },
     { title: "التعليقات", value: stats.commentsCount, icon: MessageCircle, path: "/admin/comments", color: "bg-pink-500/10 text-pink-600" },
     { title: "الرائج", value: stats.trendingCount, icon: TrendingUp, path: "/admin/trends", color: "bg-blue-600/10 text-blue-700" },
-    { title: "الباقات", value: stats.creditPackagesCount, icon: Tag, path: "/admin/pricing", color: "bg-emerald-600/10 text-emerald-700" },
   ]
 
   const controlModules = [
@@ -131,7 +130,7 @@ export default function DashboardPage() {
     { title: "بريد Gmail 📧", desc: "contact@mizan.page MCP", icon: Mail, path: "/admin/gmail", color: "bg-red-500/10 text-red-600" },
     { title: "تتبع المحتوى 🔥", desc: "الأكثر رواجاً + نمو", icon: TrendingUp, path: "/admin/content-analytics", color: "bg-orange-500/10 text-orange-600" },
     { title: "الذكاء", desc: "رؤى + إيرادات + نشاط", icon: Brain, path: "/admin/intelligence", color: "bg-amber-500/10 text-amber-600" },
-    { title: "مكافحة الاحتيال", desc: "Stripe Radar + مخاطر", icon: ShieldCheck, path: "/admin/fraud", color: "bg-rose-500/10 text-rose-600" },
+    { title: "مراجعة السجلات", desc: "مراجعة أرشيفية محدودة", icon: ShieldCheck, path: "/admin/fraud", color: "bg-rose-500/10 text-rose-600" },
     { title: "مراقبة الحدود", desc: "Rate limits + تخزين", icon: Gauge, path: "/admin/limits", color: "bg-slate-500/10 text-slate-600" },
     { title: "تحسين المحتوى ✨", desc: "روابط المصطلحات + SEO", icon: Sparkles, path: "/admin/content-optimization", color: "bg-emerald-500/10 text-emerald-600" },
   ]
@@ -145,7 +144,7 @@ export default function DashboardPage() {
             لوحة التحكم الشاملة
           </h1>
           <p className="mt-1 text-xs text-muted-foreground">
-            مرحباً بك في ميزان الرقمية — تحكم كامل بكل أجزاء الموقع: محتوى، مستخدمون، مدفوعات، SEO، وحوكمة
+            مرحباً بك في ميزان الرقمية — تحكم كامل بكل أجزاء الموقع: محتوى، مستخدمون، سجلات، SEO، وحوكمة
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -163,9 +162,9 @@ export default function DashboardPage() {
 
       <div className="grid gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 sm:grid-cols-4">
         <div className="flex items-center gap-2 text-[11px]"><CheckCircle2 className="size-3.5 text-emerald-600" /><span className="font-bold text-emerald-900 dark:text-emerald-200">بلا Adsterra منذ 15 شتنبر 2026</span></div>
-        <div className="flex items-center gap-2 text-[11px]"><Coins className="size-3.5 text-emerald-600" /><span className="font-bold">Mizan Pro 49/399 MAD</span></div>
-        <div className="flex items-center gap-2 text-[11px]"><Shield className="size-3.5 text-emerald-600" /><span className="font-bold">لا إلغاء خلال المدة — بيع نهائي</span></div>
-        <div className="flex items-center gap-2 text-[11px]"><Users className="size-3.5 text-emerald-600" /><span className="font-bold">لا حذف ذاتي — GDPR عبر البريد</span></div>
+        <div className="flex items-center gap-2 text-[11px]"><Coins className="size-3.5 text-emerald-600" /><span className="font-bold">خدمات المنصة مجانية بالكامل</span></div>
+        <div className="flex items-center gap-2 text-[11px]"><Shield className="size-3.5 text-emerald-600" /><span className="font-bold">الموارد التعليمية متاحة للجميع</span></div>
+        <div className="flex items-center gap-2 text-[11px]"><Users className="size-3.5 text-emerald-600" /><span className="font-bold">حذف الحساب ذاتي من الملف الشخصي</span></div>
       </div>
 
       {loading ? (
@@ -188,7 +187,7 @@ export default function DashboardPage() {
           </div>
 
           <div>
-            <h2 className="mb-3 flex items-center gap-2 text-[13px] font-extrabold text-foreground"><Database className="size-4 text-primary" /> كل المحتوى والأنظمة (14 وحدة)</h2>
+            <h2 className="mb-3 flex items-center gap-2 text-[13px] font-extrabold text-foreground"><Database className="size-4 text-primary" /> كل المحتوى والأنظمة (13 وحدة)</h2>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
               {statCards.map((card, idx) => {
                 const Icon = card.icon
@@ -282,13 +281,13 @@ export default function DashboardPage() {
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <div className="flex items-center gap-2"><Coins className="size-4 text-primary" /><h2 className="text-sm font-bold text-foreground">أحدث المدفوعات</h2></div>
+            <div className="flex items-center gap-2"><Coins className="size-4 text-primary" /><h2 className="text-sm font-bold text-foreground">السجلات التاريخية</h2></div>
             <button onClick={() => navigate("/admin/payments")} className="text-xs font-bold text-primary hover:underline">عرض الكل</button>
           </div>
           <div className="mt-4 space-y-2">
-            {recentPayments.length === 0 ? <p className="py-6 text-center text-xs text-muted-foreground">لا توجد مدفوعات</p> : recentPayments.map(p => (
+            {recentPayments.length === 0 ? <p className="py-6 text-center text-xs text-muted-foreground">لا توجد سجلات تاريخية</p> : recentPayments.map(p => (
               <div key={p.id} className="flex items-center justify-between rounded-xl border border-border/40 p-2.5">
-                <div><p className="text-xs font-bold text-foreground">{p.amount_mad} MAD</p><p className="font-mono text-[10px] text-muted-foreground">{p.user_ref?.slice(0, 18)}</p></div>
+                <div><p className="text-xs font-bold text-foreground">سجل تاريخي</p><p className="font-mono text-[10px] text-muted-foreground">{p.user_ref?.slice(0, 18)}</p></div>
                 <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${p.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{p.status}</span>
               </div>
             ))}
@@ -303,7 +302,7 @@ export default function DashboardPage() {
             {[
               { label: "الرئيسية", path: "/" }, { label: "المقالات", path: "/articles" }, { label: "الأخبار", path: "/news" },
               { label: "القاموس", path: "/lexicon" }, { label: "الكليات", path: "/schools" }, { label: "الأرشيف", path: "/archive" },
-              { label: "الاختبارات", path: "/quiz" }, { label: "التسعير", path: "/pricing" }, { label: "الشروط", path: "/terms" },
+              { label: "الاختبارات", path: "/quiz" }, { label: "المجانية", path: "/pricing" }, { label: "الشروط", path: "/terms" },
               { label: "الخصوصية", path: "/privacy" }, { label: "الكوكيز", path: "/cookies" }, { label: "FAQ", path: "/faq" },
             ].map(p => (
               <a key={p.path} href={p.path} target="_blank" rel="noreferrer" className="rounded-lg bg-muted px-2 py-1.5 font-bold text-muted-foreground hover:bg-primary/10 hover:text-primary">{p.label}</a>
@@ -326,7 +325,7 @@ export default function DashboardPage() {
             <li>llms-full.txt 87KB - 535 lines</li>
             <li>320 route prerendered</li>
             <li>27 صفحة AEOHead</li>
-            <li>بلا Adsterra — تمويل Pro فقط</li>
+            <li>موارد تعليمية متاحة للجميع دون إعلانات تجارية</li>
           </ul>
         </div>
       </div>

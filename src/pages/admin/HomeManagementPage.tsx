@@ -35,7 +35,7 @@ export default function HomeManagementPage() {
     { key: "stats", label: "الإحصائيات الحية", desc: `مقالات ${stats["articles"] || 8}، مصطلحات ${stats["lexicon_terms"] || 250}، كليات ${stats["faculties"] || 21}، مستخدمون ${stats["profiles"] || 0}`, status: "ok", path: "Supabase counts" },
     { key: "latest", label: "أحدث المحتوى", desc: "أحدث 3 مقالات + 3 أخبار + 3 مصطلحات", status: "ok", path: "HomePage queries" },
     { key: "quiz", label: "قسم الاختبارات", desc: "4 مسارات + رتب D-SSS + CTA", status: "ok", path: "HomePage quiz section" },
-    { key: "pricing", label: "قسم التسعير", desc: "Mizan Pro 49/399 MAD + باقات كريدتس + لا إعلانات", status: "updated", path: "PricingPage + HomePage" },
+    { key: "pricing", label: "معلومات المجانية", desc: "كل الموارد والأدوات متاحة للجميع بلا إعلانات تجارية", status: "updated", path: "PricingPage + HomePage" },
     { key: "seo", label: "SEO & AEO", desc: "AEOHead + directAnswer + breadcrumbs + FAQ + speakable + llms.txt 39KB", status: "ok", path: "AEOHead + scripts/generate-llms-enhanced.mjs" },
   ]
 
@@ -125,11 +125,11 @@ export default function HomeManagementPage() {
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
               <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-emerald-900 dark:text-emerald-200"><CheckCircle2 className="size-4" /> حالة الرئيسية</h3>
               <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
-                <li>✅ بلا إعلانات Adsterra — تمويل عبر Mizan Pro فقط</li>
+                <li>✅ جميع الموارد متاحة للجميع، بلا إعلانات تجارية</li>
                 <li>✅ AEOHead + directAnswer + breadcrumbs + FAQ + speakable</li>
                 <li>✅ 320 route prerendered + 21 school + 250 lexicon</li>
-                <li>✅ Mizan Pro 49/399 MAD + باقات 19-199 MAD</li>
-                <li>✅ كوكيز محدثة: sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
+                <li>✅ جميع الموارد والأدوات متاحة مجاناً</li>
+                <li>✅ كوكيز محدثة: sb-mizan-auth (Supabase Auth), mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
                 <li>⚠️ لوحة تحرير مرئية للرئيسية مستقبلاً (حالياً عبر الكود)</li>
               </ul>
             </div>
@@ -143,7 +143,7 @@ export default function HomeManagementPage() {
               <Link to="/admin/faculties" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><GraduationCap className="size-3.5" /> إدارة الكليات (21)</Link>
               <Link to="/admin/news" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><FileText className="size-3.5" /> إدارة الأخبار (13)</Link>
               <Link to="/admin/seminars" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><BarChart3 className="size-3.5" /> إدارة الندوات (3)</Link>
-              <Link to="/admin/pricing" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><Tag className="size-3.5" /> إدارة التسعير (Mizan Pro)</Link>
+              <Link to="/admin/pricing" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><Tag className="size-3.5" /> صفحة معلومات المجانية</Link>
             </div>
           </div>
         </>

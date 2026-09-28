@@ -39,8 +39,8 @@ export default function FraudPreventionPage() {
         <div className="flex items-center gap-3">
           <span className="grid size-11 place-items-center rounded-2xl bg-rose-500/10 text-rose-600"><ShieldAlert className="size-6" /></span>
           <div>
-            <h1 className="text-xl font-black text-foreground">مكافحة الاحتيال — Stripe Radar + Risk Engine</h1>
-            <p className="text-[12px] text-muted-foreground">تحكم كامل بمدفوعات Mizan Pro والكريدتس — كشف الاحتيال والبلد والمخاطر</p>
+            <h1 className="text-xl font-black text-foreground">مراجعة السجلات التاريخية</h1>
+            <p className="text-[12px] text-muted-foreground">مراجعة إدارية للسجلات المؤرشفة عند الحاجة القانونية فقط</p>
           </div>
         </div>
       </div>
@@ -63,20 +63,18 @@ export default function FraudPreventionPage() {
       </div>
 
       <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-[13px] font-extrabold text-foreground">كيف يعمل كشف الاحتيال؟</h2>
+        <h2 className="text-[13px] font-extrabold text-foreground">ملاحظات حول السجلات المؤرشفة</h2>
         <ul className="mt-2 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
-          <li><code>evaluatePaymentRisk</code> في <code>shared/billing/risk.js</code> — يحلل: سرعة إنشاء Checkout، بلد البطاقة vs IP، أكواد الرفض (stolen_card, fraudulent)</li>
-          <li><code>Stripe Radar</code> — يحمي تلقائياً من البطاقات المسروقة</li>
-          <li><code>provider_payment_id</code> + <code>card_country</code> + <code>client_ip_country</code> — للكشف الجغرافي</li>
-          <li>البيع نهائي — لا إلغاء خلال المدة — يقلل chargebacks</li>
+          <li>تعرض هذه الصفحة مؤشرات من سجلات محفوظة مسبقاً لأغراض المراجعة الإدارية.</li>
+          <li>لا تنشئ الصفحة أي عمليات جديدة؛ تُحفظ السجلات اللازمة للمدة التي يفرضها القانون.</li>
         </ul>
       </div>
 
       {loading ? <p className="py-10 text-center text-sm text-muted-foreground">جارٍ التحميل...</p> : filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
           <CheckCircle2 className="mx-auto mb-2 size-8 text-emerald-500" />
-          <p className="text-sm font-bold text-foreground">لا توجد معاملات مشبوهة</p>
-          <p className="mt-1 text-[12px] text-muted-foreground">كل المدفوعات آمنة — {lowCount} عملية آمنة</p>
+          <p className="text-sm font-bold text-foreground">لا توجد سجلات تستلزم المراجعة</p>
+          <p className="mt-1 text-[12px] text-muted-foreground">{lowCount} سجل تاريخي منخفض المخاطر</p>
         </div>
       ) : (
         <div className="grid gap-3">
@@ -86,7 +84,7 @@ export default function FraudPreventionPage() {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-[11px] font-bold" dir="ltr">{p.user_ref?.slice(0, 24) || "مجهول"}</span>
-                    <span className="rounded-full bg-card px-2 py-1 text-[11px] font-bold border border-border">{p.amount_mad} MAD - {p.credits_purchased + (p.bonus_credits || 0)} كريدتس</span>
+                    <span className="rounded-full bg-card px-2 py-1 text-[11px] font-bold border border-border">سجل تاريخي</span>
                     <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${p.risk.level === "high" ? "bg-rose-500 text-white" : "bg-amber-500 text-white"}`}>{p.risk.level} - {p.risk.score} نقطة</span>
                     <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${p.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{p.status}</span>
                   </div>

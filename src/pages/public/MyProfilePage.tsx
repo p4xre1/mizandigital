@@ -1299,7 +1299,7 @@ function RankLadder({ xp, currentRank }: { xp: number; currentRank?: string }) {
       <p className="mt-2 text-[12.5px] leading-6 text-muted-foreground">
         كلما أجبت عن أسئلة QCM بشكل صحيح تجمع نقاط خبرة <span className="font-bold text-foreground">XP</span>. تبدأ من{" "}
         <strong>مبتدئ D</strong> (0 XP) وتصعد حتى <strong>النخبة العليا SSS</strong> (4000 XP+). الرتبة تُطبَّق على
-        بروفايلك تلقائياً في قاعدة البيانات، وهي التي تمنح الصلاحيات — لا الاشتراك.
+        بروفايلك تلقائياً في قاعدة البيانات، وتعرض تقدمك وإنجازاتك التعليمية.
       </p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

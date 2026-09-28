@@ -231,7 +231,7 @@ export function PublicProfilePage() {
           {[
             { icon: Trophy, label: "الرتبة", value: rank.id },
             { icon: Target, label: "نقاط الخبرة", value: profile.xp.toLocaleString("ar-MA") },
-            { icon: Flame, label: "الكريدتس", value: profile.credits.toLocaleString("ar-MA") },
+            { icon: Flame, label: "نقاط التقدم", value: profile.credits.toLocaleString("ar-MA") },
           ].map((item) => (
             <div key={item.label} className="rounded-2xl border border-border bg-background p-4 text-center">
               <item.icon className="mx-auto mb-1.5 size-4 text-primary" aria-hidden="true" />

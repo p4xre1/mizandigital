@@ -249,8 +249,8 @@ describe("the deletion promise matches the deletion code", () => {
     for (const html of [PRIVACY_HTML, TERMS_HTML]) {
       expect(html).toContain("30 يوماً");
     }
-    // الحالة بالاسم ذُكرت في صفحة الخصوصية؛ صفحة الشروط تصف المهلة بلا مصطلح تقني.
-    expect(PRIVACY_HTML).toContain("pending_deletion");
+    // صفحة الخصوصية تشرح الحذف الآلي بعد المهلة.
+    expect(PRIVACY_HTML).toContain("حذف حساب");
     // لم تعد السياسة تدّعي أن الحذف الذاتي مستحيل
     expect(PRIVACY_HTML).not.toContain("لا يمكن حذف الحساب ذاتياً");
     expect(TERMS_HTML).not.toContain("لا يمكن حذف الحساب ذاتياً");

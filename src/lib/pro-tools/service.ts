@@ -9,7 +9,6 @@ async function result<T>(request: PromiseLike<{ data: T; error: { message: strin
 }
 export const toolsService = {
   catalog: () => result<Tool[]>(db.from('pro_tools').select('*').order('slug')),
-  access: () => result<boolean>(db.rpc('has_pro_tools_access')),
   entries: (slug: ToolSlug) => result<Entry[]>(db.from('pro_tool_entries').select('*').eq('tool_slug', slug).order('updated_at', { ascending: false })),
   configure: (tool: Tool) => result<Tool>(db.from('pro_tools').update({ title: tool.title, description: tool.description, enabled: tool.enabled }).eq('slug', tool.slug).select().single()),
   saveEntry: (entry: Partial<Entry>) => result<Entry>(db.from('pro_tool_entries').upsert(entry).select().single()),

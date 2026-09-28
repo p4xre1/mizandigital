@@ -38,8 +38,8 @@ function ToolEditor({ initial, onConfigured }: { initial: Tool; onConfigured: (t
       <h2 className="text-xl font-bold">إعدادات الأداة</h2>
       <label className="block">الاسم<input className={inputClass} required maxLength={120} value={tool.title} onChange={e => setTool({ ...tool, title: e.target.value })} /></label>
       <label className="block">الوصف<textarea className={inputClass} required maxLength={1000} value={tool.description} onChange={e => setTool({ ...tool, description: e.target.value })} /></label>
-      <label className="flex gap-2"><input type="checkbox" checked={tool.enabled} onChange={e => setTool({ ...tool, enabled: e.target.checked })} />تفعيل الأداة لمشتركي Pro</label>
-      <p className="text-sm text-muted-foreground">الوصول مدفوع دائماً. تعطيل الأداة يمنع قراءة محتواها وكتابة البيانات من قاعدة البيانات أيضاً.</p>
+      <label className="flex gap-2"><input type="checkbox" checked={tool.enabled} onChange={e => setTool({ ...tool, enabled: e.target.checked })} />إتاحة الأداة للجميع</label>
+      <p className="text-sm text-muted-foreground">الأدوات المتاحة مفتوحة للجميع. استخدم هذا الخيار لإخفاء الأداة مؤقتاً عند صيانة المحتوى أو مراجعته.</p>
       <button className={buttonClass} disabled={busy}>حفظ الإعدادات</button>
     </form>
     <p role="status" className="font-bold">{message}</p>
@@ -93,7 +93,7 @@ export default function ProToolsManagementPage() {
   }, []);
   const tool = tools.find(t => t.slug === selected);
   return <div dir="rtl" className="space-y-6">
-    <header><h1 className="text-2xl font-black">إدارة أدوات Pro القانونية</h1><p className="mt-2 text-muted-foreground">التفعيل، المحتوى، المراجعة والنشر. الاشتراك والتحقق من الصلاحية مفروضان من قاعدة البيانات.</p><Link to="/pro-tools" className="text-primary underline">عرض صفحة الأدوات</Link></header>
+    <header><h1 className="text-2xl font-black">إدارة الأدوات القانونية</h1><p className="mt-2 text-muted-foreground">إدارة المحتوى ومراجعته ونشر الأدوات المتاحة للجميع.</p><Link to="/pro-tools" className="text-primary underline">عرض صفحة الأدوات</Link></header>
     {error && <p role="alert">{error}</p>}{loading && <p>جارٍ التحميل...</p>}
     {tools.length > 0 && <label className="block">اختر الأداة<select className={inputClass} value={selected} onChange={e => setSelected(e.target.value)}>{tools.map(t => <option value={t.slug} key={t.slug}>{t.title}</option>)}</select></label>}
     {tool && <ToolEditor key={tool.slug} initial={tool} onConfigured={saved => setTools(prev => prev.map(t => t.slug === saved.slug ? saved : t))} />}

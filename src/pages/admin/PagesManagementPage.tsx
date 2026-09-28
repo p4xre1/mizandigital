@@ -30,14 +30,14 @@ export default function PagesManagementPage() {
     { key: "schools", label: "الكليات", path: "/schools", icon: FileText, status: "ok", lastUpdated: "15 شتنبر 2026", description: "21 كلية + دليل + خريطة", seo: "AEO + 21 prerendered", aeo: true, hasAdmin: true },
     { key: "archive", label: "الأرشيف", path: "/archive", icon: Scale, status: "ok", lastUpdated: "15 شتنبر 2026", description: "قوانين S1-S6 + تحميل", seo: "AEO", aeo: true, hasAdmin: true },
     { key: "quiz", label: "الاختبارات", path: "/quiz", icon: FileQuestion, status: "ok", lastUpdated: "15 شتنبر 2026", description: "4 مسارات + رتب D-SSS + XP", seo: "AEO + HowTo", aeo: true, hasAdmin: true },
-    { key: "pricing", label: "التسعير", path: "/pricing", icon: Tag, status: "updated", lastUpdated: "15 شتنبر 2026", description: "Mizan Pro 49/399 MAD + باقات 19-199 + لا إلغاء", seo: "AEO + Product schema", aeo: true, hasAdmin: true },
+    { key: "pricing", label: "الموارد التعليمية", path: "/pricing", icon: Tag, status: "updated", lastUpdated: "15 شتنبر 2026", description: "موارد تعليمية متاحة للجميع دون إعلانات تجارية", seo: "AEO + WebPage schema", aeo: true, hasAdmin: true },
     { key: "about", label: "حول", path: "/about", icon: Info, status: "ok", lastUpdated: "15 شتنبر 2026", description: "قصة المنصة + بلا إعلانات", seo: "AEOHead", aeo: true, hasAdmin: false },
     { key: "contact", label: "اتصل بنا", path: "/contact", icon: Mail, status: "ok", lastUpdated: "15 شتنبر 2026", description: "contact@mizan.page + نموذج", seo: "AEOHead", aeo: true, hasAdmin: false },
-    { key: "faq", label: "الأسئلة الشائعة", path: "/faq", icon: HelpCircle, status: "ok", lastUpdated: "15 شتنبر 2026", description: "FAQ + لا حذف ذاتي + لا إلغاء اشتراك", seo: "AEOHead + FAQ schema", aeo: true, hasAdmin: false },
+    { key: "faq", label: "الأسئلة الشائعة", path: "/faq", icon: HelpCircle, status: "ok", lastUpdated: "15 شتنبر 2026", description: "FAQ + موارد متاحة للجميع", seo: "AEOHead + FAQ schema", aeo: true, hasAdmin: false },
     { key: "guidelines", label: "الإرشادات", path: "/guidelines", icon: BookOpen, status: "ok", lastUpdated: "15 شتنبر 2026", description: "قواعد الاستخدام + الحوكمة", seo: "AEOHead", aeo: true, hasAdmin: false },
-    { key: "terms", label: "الشروط والأحكام", path: "/terms", icon: Shield, status: "updated", lastUpdated: "15 شتنبر 2026", description: "بلا Adsterra + Mizan Pro بيع نهائي + لا حذف ذاتي", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
-    { key: "privacy", label: "سياسة الخصوصية", path: "/privacy", icon: ShieldCheck, status: "updated", lastUpdated: "15 شتنبر 2026", description: "GDPR + بيانات الاشتراك + لا بيع بيانات + حذف عبر البريد", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
-    { key: "cookies", label: "سياسة الكوكيز", path: "/cookies", icon: Settings, status: "updated", lastUpdated: "15 شتنبر 2026", description: "بلا Adsterra + sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
+    { key: "terms", label: "الشروط والأحكام", path: "/terms", icon: Shield, status: "updated", lastUpdated: "15 شتنبر 2026", description: "موارد متاحة للجميع بلا إعلانات مع حذف ذاتي للحساب", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
+    { key: "privacy", label: "سياسة الخصوصية", path: "/privacy", icon: ShieldCheck, status: "updated", lastUpdated: "15 شتنبر 2026", description: "GDPR + بيانات الحساب + لا بيع بيانات + حذف ذاتي", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
+    { key: "cookies", label: "سياسة الكوكيز", path: "/cookies", icon: Settings, status: "updated", lastUpdated: "15 شتنبر 2026", description: "بلا Adsterra + sb-mizan-auth (Supabase Auth), mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue", seo: "AEOHead + directAnswer + FAQ", aeo: true, hasAdmin: false },
     { key: "saved", label: "المحفوظات", path: "/saved", icon: Bookmark, status: "ok", lastUpdated: "15 شتنبر 2026", description: "mizan:saved:content:v1 + تفاعلات", seo: "AEOHead", aeo: true, hasAdmin: false },
   ]
 
@@ -135,8 +135,8 @@ export default function PagesManagementPage() {
         </h3>
         <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
           <li>تمت إزالة Adsterra نهائياً من /cookies, /terms, /privacy — لا إعلانات خارجية</li>
-          <li>/terms و /privacy و /cookies محدثة بـ Mizan Pro 49/399 MAD بيع نهائي لا إلغاء خلال المدة، بعد الانتهاء يجب الدفع، لا حذف ذاتي للحساب</li>
-          <li>كوكيز محدثة: sb-mizan-auth (Supabase Auth), mizan:subscription:v1, mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue (D-SSS)</li>
+          <li>/terms و /privacy و /cookies محدثة: الخدمات متاحة للجميع، بلا إعلانات تجارية، مع حذف ذاتي للحساب</li>
+          <li>كوكيز محدثة: sb-mizan-auth (Supabase Auth), mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue (D-SSS)</li>
           <li>كل الصفحات الآن AEOHead مع directAnswer + breadcrumbs + FAQ + speakable</li>
           <li>الصفحات الثابتة (About, Contact, FAQ, Guidelines) تحتاج لوحة تحرير مستقبلية — حالياً تعديل عبر الكود</li>
         </ul>

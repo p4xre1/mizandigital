@@ -3,7 +3,7 @@ import { test, expect } from "vitest";
 
 /**
  * «أضف كل llms» — llms-full.txt أصبح تصديراً كاملاً: كل نص في كل مجموعة
- * بيانات بلا تقطيع، وllms.txt يعرض الجرد الكامل (567 سجلاً) مع إشارة
+ * بيانات بلا تقطيع، وllms.txt يعرض الجرد الكامل (562 سجلاً محلياً) مع إشارة
  * للنسخة الكاملة وطبقة المرجعيات. الفحص على الملف الملتزم (توليد محلي
  * بلا CMS) + على القوالب نفسها (لكي يبقى الأمر صحيحاً عند أي تعديلة).
  */
@@ -23,10 +23,10 @@ const quiz = JSON.parse(read("src/data/quiz-questions.json"));
 const LLMS_FULL = norm(read("public/llms-full.txt"));
 const LLMS_FULL_RAW = read("public/llms-full.txt");
 
-test("llms-full: جرد كامل (567 سجلاً محلياً) والأقسام الكاملة كلها موجودة", () => {
+test("llms-full: جرد كامل (562 سجلاً محلياً) والأقسام الكاملة كلها موجودة", () => {
   const raw = read("public/llms-full.txt");
-  // 8+13+250+21+9+0 laws(محلياً)+3+39+224 = 567
-  expect(raw).toContain("يضم 567 سجلاً");
+  // 8+13+250+21+9+0 laws(محلياً)+3+34+224 = 562
+  expect(raw).toContain("يضم 562 سجلاً");
   for (const section of [
     "كل المعجم القانوني (250) — التعريفات كاملة",
     "كل المقالات (8) — النصوص الكاملة",
@@ -35,7 +35,7 @@ test("llms-full: جرد كامل (567 سجلاً محلياً) والأقسام 
     "كل الفعاليات (3)",
     "كل الأرشيف الدراسي (9) — الملفات والملخصات",
     "كل أسئلة الاختبارات (224) — كاملة",
-    "الأسئلة الشائعة (FAQ — AEO) — كاملة (39)",
+    "الأسئلة الشائعة (FAQ — AEO) — كاملة (34)",
   ]) {
     expect(raw, `القسم مفقود: ${section}`).toContain(section);
   }
@@ -89,7 +89,7 @@ test("llms-full: كل كلية وفعالية وملف وأسئلة FAQ واخت
 test("القوالب: جرد كامل في llms.txt وقالب dist ومصادر المولّدات", () => {
   // public/llms.txt (generate-llms.mjs)
   const llms = read("public/llms.txt");
-  expect(llms).toContain("39 سؤالاً شائعاً");
+  expect(llms).toContain("34 سؤالاً شائعاً");
   expect(llms).toContain("224 سؤال اختبار");
   expect(llms).toContain("/llms-full.txt");
   expect(llms).toContain("/reference/index.json");

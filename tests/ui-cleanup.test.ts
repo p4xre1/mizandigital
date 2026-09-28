@@ -27,20 +27,17 @@ describe("clean UI presentation", () => {
     expect(login).toContain("إنشاء الحساب والبروفايل");
   });
 
-  it("uses solid backgrounds and standard borders on pricing cards", () => {
+  it("removes public subscription and credit-purchase cards", () => {
     for (const path of [
       "src/components/billing/MizanProCard.tsx",
       "src/components/billing/ProUpgradeCard.tsx",
       "src/components/payments/PackageCard.tsx",
+      "src/pages/public/PaymentsPage.tsx",
     ]) {
-      const card = read(path);
-      expect(card, path).toContain("border border-border bg-card");
-      expect(card, path).not.toMatch(/gradient|shadow|ring-2|animate-|glow/);
+      expect(() => read(path), path).toThrow();
     }
-    const home = read("src/pages/public/HomePage.tsx");
-    const pricing = home.slice(home.indexOf("الأسعار - خطط مرنة"), home.indexOf("لماذا نحن"));
-    expect(pricing).not.toMatch(/gradient|shadow|animate-|glow|md:-mt-/);
-    expect(pricing).toContain('text-foreground">سنوي');
-    expect(read("src/pages/public/PaymentsPage.tsx")).not.toContain("bg-gradient");
+    const pricing = read("src/pages/public/PricingPage.tsx");
+    expect(pricing).toContain("مجانية بالكامل");
+    expect(pricing).not.toMatch(/Stripe|pro-checkout|شراء كريدت/);
   });
 });
