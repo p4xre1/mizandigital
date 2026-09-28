@@ -272,3 +272,38 @@ describe("روابط التحميل في صفحات /pdf/ بدون nofollow", ()
     }
   })
 })
+
+/* ────────────────────────────────────────────────────────────────────────
+   9) روابط المواقع الرسمية للكليات — بلا nofollow
+      (رصدت أداة التدقيق 20 رابطاً خارجياً nofollow نحو مواقع الكليات
+       في صفحة /schools الثابتة: روابط مرجعية موثوقة وهي نفس الروابط
+       التي تُعرض بـ follow في صفحة الكلية نفسها SchoolPage.tsx).
+──────────────────────────────────────────────────────────────────────── */
+
+describe("روابط المواقع الرسمية للكليات بدون nofollow", () => {
+  const enhanceSrc = read("scripts/enhance-schools-prerender.mjs")
+  const nearbySrc = read("src/components/careers/NearbyLawSchools.tsx")
+
+  test("قالب prerender ومكوّن NearbyLawSchools لا يُخرجان nofollow", () => {
+    // القالب في enhance-schools-prerender.mjs: <a href="..." rel="..." target="_blank">
+    const tpl = /<p><a href="\$\{esc\(official\)\}"([^>]*)target=/.exec(enhanceSrc)?.[1] ?? ""
+    expect(tpl, "لم يُعثر على قالب رابط الموقع الرسمي في enhance-schools-prerender.mjs").toBeTruthy()
+    expect(tpl).not.toMatch(/nofollow/i)
+
+    // المكوّن العميل: anchor لـ school.officialUrl بلا nofollow (تطابقاً مع SchoolPage.tsx)
+    const block = /href=\{school\.officialUrl\}([\s\S]{0,200}?)\n\s*>/.exec(nearbySrc)?.[1] ?? ""
+    expect(block, "لم يُعثر على anchor لـ school.officialUrl في NearbyLawSchools.tsx").toBeTruthy()
+    expect(block).not.toMatch(/nofollow/i)
+  })
+
+  const distReady = hasFile("dist/schools.html")
+  test.skipIf(!distReady)("dist/schools.html: كل روابط الجامعات بلا nofollow", () => {
+    const html = read("dist/schools.html")
+    const anchors = html.match(/<a\b[^>]*>/g) ?? []
+    const uniAnchors = anchors.filter((t) => /href="https?:\/\/[^"]*\.ac\.ma/i.test(t))
+    expect(uniAnchors.length, "لم تُولَّد روابط الجامعات في dist/schools.html").toBeGreaterThan(0)
+    for (const tag of uniAnchors) {
+      expect(tag, `رابط جامعة nofollow: ${tag}`).not.toMatch(/nofollow/i)
+    }
+  })
+})
