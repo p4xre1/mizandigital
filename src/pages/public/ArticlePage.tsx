@@ -22,9 +22,10 @@ import { ReportDialog } from "@/components/governance/ReportDialog"
 import { useReadingPrefs } from "@/hooks/useReadingPrefs"
 import { useTrackView } from "@/hooks/useTrackView"
 import { collectReaderAnchors, scrollToAnchor, topAnchorIndex } from "@/lib/reading/anchor"
+import { exportElementToPdf } from "@/lib/articles/exportPdf"
 import {
   Calendar, Tag, ArrowRight, ArrowLeft, Loader2, BookOpen, KeyRound,
-  List, SlidersHorizontal, ChevronDown, Maximize2, X,
+  List, SlidersHorizontal, ChevronDown, Maximize2, Download, X,
 } from "lucide-react"
 
 interface ArticleDetail {
@@ -93,6 +94,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
   const [maxReadBarHidden, setMaxReadBarHidden] = useState<boolean>(false)
   const [settingsOpen, setSettingsOpen] = useState<boolean>(false)
   const [tocOpen, setTocOpen] = useState<boolean>(false)
+  const [exportingPdf, setExportingPdf] = useState<boolean>(false)
   const pendingAnchorRef = useRef<number | null>(null)
 
   const articleBodyRef = useRef<HTMLDivElement | null>(null)
@@ -151,6 +153,39 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
     pendingAnchorRef.current = anchors.length ? topAnchorIndex(anchors) : null
     setMaxRead((visible) => (visible ? false : visible))
   }, [])
+
+  /* ── تصدير المقال/الخبر PDF ──────────────────────────────────────────── */
+
+  const showMizanToast = useCallback((message: string) => {
+    window.dispatchEvent(new CustomEvent("mizan:toast", { detail: message }))
+  }, [])
+
+  /**
+   * تنزيل المقال PDF من المحتوى المعروض نفسه (لقطة للمقال كما يقرؤه
+   * الزائر: خط القارئ وحجمه وتباعده). الحِزم تُحمَّل عند الطلب فقط، وعند
+   * أي فشل يُفتح حوار الطباعة كمسار بديل (حفظ كـ PDF من المتصفح).
+   */
+  const handleExportPdf = useCallback(async () => {
+    const el = articleBodyRef.current
+    if (!el || exportingPdf) return
+    setExportingPdf(true)
+    try {
+      const path = article?.sourceTable === "news" ? itemPath.news(article.slug) : itemPath.article(article?.slug ?? "")
+      await exportElementToPdf({
+        element: el,
+        fileName: `mizan-${article?.slug ?? "article"}.pdf`,
+        title: article?.title ?? "ميزان الرقمية",
+        sourceUrl: `${window.location.origin}${path}`,
+      })
+      showMizanToast("تم تجهيز ملف PDF وبدأ تنزيله")
+    } catch (error) {
+      console.error("pdf export failed:", error)
+      showMizanToast("تعذّر إنشاء PDF — فُتح حوار الطباعة كبديل (اختر «حفظ كـ PDF»)")
+      window.setTimeout(() => window.print(), 400)
+    } finally {
+      setExportingPdf(false)
+    }
+  }, [article, exportingPdf, showMizanToast])
 
   // إعادة التمرير إلى العنصر المُراسَط بعد التقطّع والتخطيط الجديد (دوران
   // اثنان من rAF تضمن أن التخطيط استقر قبل قياس الإزاحة).
@@ -351,7 +386,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
         canonicalUrl={detailCanonical}
         schema={detailSchema}
       />
-      <div className={`${maxRead ? "hidden" : ""} fixed inset-x-0 top-0 z-50 h-[3px] bg-transparent`}><div className="h-full bg-gradient-to-r from-primary via-violet-600 to-accent-gold transition-[width] duration-150 ease-out shadow-[0_0_8px_hsl(var(--primary)/0.5)]" style={{ width: `${readingProgress}%` }} /><div className="absolute top-0 h-full w-20 bg-gradient-to-r from-transparent via-white/20 to-transparent blur-sm" style={{ left: `${readingProgress}%`, transform: "translateX(-50%)", opacity: readingProgress > 5 ? 1 : 0 }} /></div>
+      <div className={`${maxRead ? "hidden" : ""} site-progress-bar fixed inset-x-0 top-0 z-50 h-[3px] bg-transparent`}><div className="h-full bg-gradient-to-r from-primary via-violet-600 to-accent-gold transition-[width] duration-150 ease-out shadow-[0_0_8px_hsl(var(--primary)/0.5)]" style={{ width: `${readingProgress}%` }} /><div className="absolute top-0 h-full w-20 bg-gradient-to-r from-transparent via-white/20 to-transparent blur-sm" style={{ left: `${readingProgress}%`, transform: "translateX(-50%)", opacity: readingProgress > 5 ? 1 : 0 }} /></div>
       <div id="top" />
       <div className={maxRead ? "reader-shell min-h-screen bg-[hsl(var(--background))]" : "min-h-screen bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.04),transparent_60%)]"}>
       {/* الشريط داخل الغلاف (.reader-shell) حتى يرث متغيرات سمة «ورقي» كما يرثها
@@ -379,7 +414,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             علامة الوحدة في ArticleTranslateWidget. */}
         {!maxRead && (<div className="mb-6 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2 text-[12px]"><Link to="/" className="text-muted-foreground hover:text-foreground">الرئيسية</Link><span className="text-border">/</span><Link to={article.sourceTable === "news" ? "/news" : "/articles"} className="text-muted-foreground hover:text-primary font-bold">{article.sourceTable === "news" ? "الأخبار" : "المقالات"}</Link><span className="text-border">/</span><span className="text-foreground font-bold truncate max-w-[200px]">{article.title.slice(0,30)}...</span></div>
-          <div className="flex items-center gap-2 flex-wrap"><ArticleTranslateWidget /><div className="flex items-center gap-2 xl:hidden"><button onClick={() => { setShowContents((v) => !v); setShowAppearance(false) }} className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[11px] font-bold backdrop-blur ${showContents ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card/80 text-muted-foreground hover:text-foreground"}`}><List size={14} />المحتويات<ChevronDown size={12} className={`transition-transform ${showContents ? "rotate-180" : ""}`} /></button><button onClick={() => { setShowAppearance((v) => !v); setShowContents(false) }} className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[11px] font-bold backdrop-blur ${showAppearance ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card/80 text-muted-foreground hover:text-foreground"}`}><SlidersHorizontal size={14} />المظهر</button></div></div>
+          <div className="flex items-center gap-2 flex-wrap"><button type="button" onClick={handleExportPdf} disabled={exportingPdf} title="تحميل المقال بصيغة PDF" className="inline-flex min-h-[44px] items-center gap-1.5 rounded-xl border border-border bg-card/80 px-3.5 py-2 text-[11px] font-bold text-muted-foreground hover:text-foreground disabled:opacity-60 motion-safe:transition-colors">{exportingPdf ? <Loader2 size={14} className="animate-spin" aria-hidden="true" /> : <Download size={14} aria-hidden="true" />}تحميل PDF</button><ArticleTranslateWidget /><div className="flex items-center gap-2 xl:hidden"><button onClick={() => { setShowContents((v) => !v); setShowAppearance(false) }} className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[11px] font-bold backdrop-blur ${showContents ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card/80 text-muted-foreground hover:text-foreground"}`}><List size={14} />المحتويات<ChevronDown size={12} className={`transition-transform ${showContents ? "rotate-180" : ""}`} /></button><button onClick={() => { setShowAppearance((v) => !v); setShowContents(false) }} className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-2 text-[11px] font-bold backdrop-blur ${showAppearance ? "border-primary bg-primary text-primary-foreground shadow" : "border-border bg-card/80 text-muted-foreground hover:text-foreground"}`}><SlidersHorizontal size={14} />المظهر</button></div></div>
         </div>)}
         {!maxRead && (showContents || showAppearance) && <div className="mb-6 xl:hidden animate-[fadeUp_0.4s_cubic-bezier(0.16,1,0.3,1)]"><div className="rounded-[20px] border border-border/50 bg-card/80 backdrop-blur-xl p-5 shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] relative overflow-hidden"><div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-primary via-violet-500 to-transparent opacity-60" /><button onClick={() => { setShowContents(false); setShowAppearance(false) }} className="absolute left-4 top-4 grid size-8 place-items-center rounded-full bg-muted text-muted-foreground hover:bg-foreground hover:text-background"><X size={14} /></button>{showContents && <><h3 className="font-black text-sm mb-4 flex items-center gap-2"><div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary"><List size={14} /></div>محتويات المقال</h3>{sectionsList.length > 0 ? tocPanel : <p className="text-[12px] text-muted-foreground">لا توجد عناوين فرعية.</p>}</>}{showAppearance && <><h3 className="font-black text-sm mb-4 flex items-center gap-2"><div className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary"><SlidersHorizontal size={14} /></div>خيارات القراءة</h3>{readingOptionsControls}</>}</div></div>}
         <div className={maxRead ? "relative" : "grid grid-cols-1 xl:grid-cols-12 gap-6 md:gap-8 items-start"}>
@@ -388,7 +423,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-primary via-violet-500 to-accent-gold opacity-80" />
             <div className={maxRead ? "p-4 md:p-8" : "p-6 md:p-10"}>
             <header className="space-y-5 mb-10">
-              <div className="flex items-center gap-2 flex-wrap">{article.category && <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary/10 to-violet-500/10 border border-primary/20 px-3.5 py-1.5 text-[11px] font-black text-primary"><div className="size-1.5 rounded-full bg-primary animate-pulse" />{article.category}</span>}{formattedDate && <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border/50 px-3 py-1 text-[11px] font-bold text-muted-foreground"><Calendar size={12} />{formattedDate}</span>}{article.readingTime && <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-700"><BookOpen size={12} />{article.readingTime}</span>}{article.sourceTable && <ViewCounter table={article.sourceTable} slug={article.slug} />}{/* دخول وضع القراءة الأقصى على الجوال — بجانب شارة وقت القراءة (F أيضاً) */}<button type="button" onClick={toggleMaxRead} aria-label="وضع القراءة الأقصى (اختصار F)" aria-pressed={maxRead} title="وضع القراءة الأقصى (F)" className={`xl:hidden ${maxRead ? "hidden" : ""} grid size-11 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 motion-safe:transition-colors`}><Maximize2 size={16} aria-hidden="true" /></button></div>
+              <div className="flex items-center gap-2 flex-wrap">{article.category && <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-primary/10 to-violet-500/10 border border-primary/20 px-3.5 py-1.5 text-[11px] font-black text-primary"><div className="size-1.5 rounded-full bg-primary animate-pulse" />{article.category}</span>}{formattedDate && <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border/50 px-3 py-1 text-[11px] font-bold text-muted-foreground"><Calendar size={12} />{formattedDate}</span>}{article.readingTime && <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 px-3 py-1 text-[11px] font-bold text-amber-700"><BookOpen size={12} />{article.readingTime}</span>}{article.sourceTable && <span className="no-pdf"><ViewCounter table={article.sourceTable} slug={article.slug} /></span>}{/* دخول وضع القراءة الأقصى على الجوال — بجانب شارة وقت القراءة (F أيضاً) */}<button type="button" onClick={toggleMaxRead} aria-label="وضع القراءة الأقصى (اختصار F)" aria-pressed={maxRead} title="وضع القراءة الأقصى (F)" className={`no-pdf xl:hidden ${maxRead ? "hidden" : ""} grid size-11 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 motion-safe:transition-colors`}><Maximize2 size={16} aria-hidden="true" /></button>{/* تنزيل المقال PDF — من المحتوى المعروض نفسه */}<button type="button" onClick={handleExportPdf} disabled={exportingPdf} aria-label="تحميل المقال بصيغة PDF" title="تحميل المقال بصيغة PDF" className="no-pdf grid size-11 place-items-center rounded-full border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 disabled:opacity-60 motion-safe:transition-colors">{exportingPdf ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Download size={16} aria-hidden="true" />}</button></div>
               <h1 className="text-[1.7rem] md:text-[2.2rem] font-black leading-[1.15] tracking-tight">{article.title}</h1>
               {article.summary && <div className="relative rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/[0.04] to-violet-500/[0.02] p-4 md:p-5"><p className="text-[13px] md:text-[14px] leading-7 text-foreground/80 font-medium">{article.summary}</p></div>}
               {article.keywords && article.keywords.length > 0 && <div className="flex flex-wrap items-center gap-2"><span className="text-[11px] font-black text-muted-foreground flex items-center gap-1.5"><div className="grid size-5 place-items-center rounded-full bg-primary/10 text-primary"><Tag size={10} /></div>الكلمات المفتاحية:</span>{article.keywords.map((kw, idx) => <span key={idx} className="rounded-full bg-muted hover:bg-primary/10 hover:text-primary border border-border hover:border-primary/20 px-3 py-1 text-[11px] font-bold text-muted-foreground transition-all">#{kw}</span>)}</div>}
@@ -396,10 +431,10 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
             {article.image && <div className="mb-10 group/img relative overflow-hidden rounded-[20px] border border-border/50 bg-muted shadow-[0_8px_32px_hsl(0_0%_0%/0.08)]"><img src={article.image} alt={article.imageAlt || article.title} className="max-h-[480px] w-full object-cover transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/img:scale-[1.02]" /></div>}
             {article.highlights && article.highlights.length > 0 && <div className="mb-10 relative overflow-hidden rounded-[20px] border border-primary/15 bg-gradient-to-br from-primary/[0.06] to-violet-500/[0.04] p-6"><div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-primary/50 to-transparent" /><h3 className="flex items-center gap-2 text-[13px] font-black text-primary mb-4"><div className="grid size-6 place-items-center rounded-lg bg-primary/10"><BookOpen className="size-3.5" /></div>أبرز النقاط</h3><ul className="space-y-3">{article.highlights.map((h, idx) => <li key={idx} className="flex items-start gap-3 text-[13px] leading-6 text-foreground/90"><span className="mt-2 size-1.5 rounded-full bg-primary shrink-0" /><span className="flex-1">{h}</span></li>)}</ul></div>}
             <div className="prose prose-neutral dark:prose-invert max-w-none reader-body text-foreground/90 prose-headings:font-black prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-lg prose-p:my-5"><ArticleContent blocks={parsed.blocks} lexiconTerms={lexiconTerms} /></div>
-            <ContentTags tags={[article.category, article.targetKeyword, ...(article.keywords || [])]} className="mt-10 border-t border-border/50 pt-6" />
-            <PartnerSuggestionBox href="https://www.wadifapublic.ma/ar/tawjih" title="عروض التسجيل والتوجيه الجامعي" description="تصفّح مباريات ولوج المدارس والجامعات، عتبات الانتقاء ومواعيد التسجيل عبر بوابة WadifaPublic.ma." ctaLabel="شاهد عروض التسجيل" />
-            <div className="mt-10 rounded-[20px] border border-border/50 bg-muted/30 p-6"><div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-[14px] font-black flex items-center gap-2"><div className="grid size-7 place-items-center rounded-full bg-amber-500/10 text-amber-600">👍</div>هل كان هذا المقال مفيداً؟</h3><ReportDialog targetType={article.sourceTable === "news" ? "news" : "article"} targetId={article.slug} /></div><ReactionBar targetType={article.sourceTable === "news" ? "news" : "article"} targetId={article.slug} /></div>
-            {article.sourceTable && <div className="mt-8"><CommentSection table={article.sourceTable} slug={article.slug} /></div>}
+            <ContentTags tags={[article.category, article.targetKeyword, ...(article.keywords || [])]} className="no-pdf mt-10 border-t border-border/50 pt-6" />
+            <div className="no-pdf"><PartnerSuggestionBox href="https://www.wadifapublic.ma/ar/tawjih" title="عروض التسجيل والتوجيه الجامعي" description="تصفّح مباريات ولوج المدارس والجامعات، عتبات الانتقاء ومواعيد التسجيل عبر بوابة WadifaPublic.ma." ctaLabel="شاهد عروض التسجيل" /></div>
+            <div className="no-pdf mt-10 rounded-[20px] border border-border/50 bg-muted/30 p-6"><div className="flex items-center justify-between gap-3 mb-4"><h3 className="text-[14px] font-black flex items-center gap-2"><div className="grid size-7 place-items-center rounded-full bg-amber-500/10 text-amber-600">👍</div>هل كان هذا المقال مفيداً؟</h3><ReportDialog targetType={article.sourceTable === "news" ? "news" : "article"} targetId={article.slug} /></div><ReactionBar targetType={article.sourceTable === "news" ? "news" : "article"} targetId={article.slug} /></div>
+            {article.sourceTable && <div className="no-pdf mt-8"><CommentSection table={article.sourceTable} slug={article.slug} /></div>}
             </div>
           </article>
           <div className={maxRead ? "hidden" : "hidden xl:block xl:col-span-3 order-3"}><div className="sticky top-24 space-y-4"><div className="rounded-[20px] border border-border/50 bg-card/60 backdrop-blur-xl p-5 shadow-[0_8px_32px_hsl(0_0%_0%/0.04)]"><div className="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-border/50"><h3 className="flex items-center gap-2 font-black text-[13px]"><div className="grid size-6 place-items-center rounded-lg bg-primary/10 text-primary"><SlidersHorizontal size={14} /></div>خيارات القراءة</h3>{/* دخول وضع القراءة الأقصى من رأس البطاقة (F أيضاً) */}<button type="button" onClick={toggleMaxRead} aria-label="وضع القراءة الأقصى (اختصار F)" aria-pressed={maxRead} title="وضع القراءة الأقصى (F)" className="grid size-11 place-items-center rounded-xl border border-border text-muted-foreground hover:border-primary/40 hover:text-primary motion-safe:transition-colors"><Maximize2 size={15} /></button></div>{readingOptionsControls}</div><div className="rounded-[20px] border border-violet-500/10 bg-gradient-to-br from-violet-500/5 to-fuchsia-500/5 p-5"><h4 className="text-[12px] font-black mb-3">شارك المقال</h4><div className="grid grid-cols-4 gap-2">{["𝕏","f","in","↗"].map((icon,i) => <button key={i} className="grid size-10 place-items-center rounded-xl bg-card border border-border hover:bg-foreground hover:text-background transition-colors text-sm font-black">{icon}</button>)}</div></div></div></div>

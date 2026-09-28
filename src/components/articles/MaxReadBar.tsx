@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react"
-import { List, X } from "lucide-react"
+import { Download, List, Loader2, X } from "lucide-react"
 
 import { ArticleTranslateWidget } from "./ArticleTranslateWidget"
 
@@ -16,6 +16,9 @@ interface MaxReadBarProps {
   onCloseSettings: () => void
   onCloseToc: () => void
   onExit: () => void
+  /** تنزيل المقال PDF — اختياري: دون الزر لا يظهر */
+  onExportPdf?: () => void
+  exportingPdf?: boolean
   /** محتوى النافذة المنبثقة: مكوّن خيارات القراءة ذاته المستعمل في البطاقة الجانبية */
   settingsContent: ReactNode
   /** محتوى درج الفهرس: لوحة محتويات المقال نفسها */
@@ -45,6 +48,8 @@ export function MaxReadBar({
   onCloseSettings,
   onCloseToc,
   onExit,
+  onExportPdf,
+  exportingPdf = false,
   settingsContent,
   tocContent,
 }: MaxReadBarProps) {
@@ -107,7 +112,7 @@ export function MaxReadBar({
     <>
       <header
         dir="rtl"
-        className={`fixed inset-x-0 top-0 z-[70] border-b border-border/60 bg-card/90 shadow-sm backdrop-blur-md ${
+        className={`no-pdf fixed inset-x-0 top-0 z-[70] border-b border-border/60 bg-card/90 shadow-sm backdrop-blur-md ${
           barHidden ? "-translate-y-full" : "translate-y-0"
         } motion-safe:transition-transform motion-safe:duration-300`}
       >
@@ -160,6 +165,19 @@ export function MaxReadBar({
             <List size={17} aria-hidden="true" />
           </button>
 
+          {onExportPdf && (
+            <button
+              type="button"
+              onClick={onExportPdf}
+              disabled={exportingPdf}
+              className={`${barButton} no-pdf`}
+              aria-label="تحميل المقال بصيغة PDF"
+              title="تحميل المقال بصيغة PDF"
+            >
+              {exportingPdf ? <Loader2 size={17} className="animate-spin" aria-hidden="true" /> : <Download size={17} aria-hidden="true" />}
+            </button>
+          )}
+
           <div className="shrink-0">
             <ArticleTranslateWidget />
           </div>
@@ -175,7 +193,7 @@ export function MaxReadBar({
       </header>
 
       {tocOpen && (
-        <div className="fixed inset-0 z-[90]">
+        <div className="no-pdf fixed inset-0 z-[90]">
           <button
             type="button"
             aria-label="إغلاق المحتويات"
