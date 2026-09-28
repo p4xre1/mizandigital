@@ -20,6 +20,22 @@ import {
 
 const STORAGE_KEY = "mizan_translate_lang"
 
+/*
+  لغة مُطبَّقة حالياً على مستوى الوحدة (لا لكل نسخة من المكوّن).
+  المكوّن يُركَّب في موضعين بحسب الوضع — صف breadcrumb العادي وشريط وضع
+  القراءة الأقصى — والتبديل بينهما يفكك نسخة ويركّب أخرى. بدون هذه العلامة
+  كانت النسخة الجديدة تعيد ترجمة نصٍّ مترجم أصلاً (ترجمة الترجمة)، لأن
+  أثر التطبيق الفعلي على DOM تبقى بعد تفكيك النسخة الأولى.
+*/
+let moduleAppliedLanguage: string | null = null
+
+/*
+  الاتجاه واللغة الأصليان للجذر قبل أول ترجمة — على مستوى الوحدة أيضاً،
+  حتى تنجح «استعادة النص الأصلي» من أي نسخة من المكوّن (الشريط النحيف في
+  وضع القراءة الأقصى مثلاً) ولو لم تكن النسخة التي ترجمت هي القائمة.
+*/
+let moduleOriginalDirection: { dir: string | null; lang: string | null } | null = null
+
 export interface ArticleTranslateWidgetProps {
   className?: string
   /**
@@ -50,7 +66,6 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
   const [progress, setProgress] = useState<string | null>(null)
 
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const originalDirection = useRef<{ dir: string | null; lang: string | null } | null>(null)
   const appliedFromStorage = useRef(false)
 
   // إغلاق القائمة عند النقر خارجها
@@ -70,9 +85,10 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
   const restore = useCallback(() => {
     const root = resolveRoot()
     restoreOriginals()
-    if (root && originalDirection.current) {
-      resetDirection(root, originalDirection.current.dir, originalDirection.current.lang)
-      originalDirection.current = null
+    if (root && moduleOriginalDirection) {
+      resetDirection(root, moduleOriginalDirection.dir, moduleOriginalDirection.lang)
+      moduleOriginalDirection = null
+      moduleAppliedLanguage = null
     }
     setActiveLang(null)
     setError(null)
@@ -84,6 +100,7 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
       if (code === SOURCE_LANG) {
         restore()
         window.localStorage.setItem(STORAGE_KEY, SOURCE_LANG)
+        moduleAppliedLanguage = null
         setOpen(false)
         return
       }
@@ -96,9 +113,10 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
         const root = resolveRoot()
         if (!root) throw new Error("تعذّر تحديد محتوى الصفحة")
 
-        // حفظ الاتجاه الأصلي مرة واحدة قبل أول ترجمة
-        if (!originalDirection.current) {
-          originalDirection.current = {
+        // حفظ الاتجاه الأصلي مرة واحدة قبل أول ترجمة (على مستوى الوحدة —
+        // التطبيق الفعلي على DOM يتجاوز عمر نسخة المكوّن الواحدة)
+        if (!moduleOriginalDirection) {
+          moduleOriginalDirection = {
             dir: root.getAttribute("dir"),
             lang: root.getAttribute("lang"),
           }
@@ -118,6 +136,7 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
 
         setActiveLang(code)
         window.localStorage.setItem(STORAGE_KEY, code)
+        moduleAppliedLanguage = code
         setProgress(null)
         if (partial || provider === "none") {
           setError("ترجمة جزئية — بعض المقاطع لم يُترجم. جرّب لغة أخرى أو أعد المحاولة.")
@@ -133,7 +152,9 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
     [resolveRoot, restore]
   )
 
-  // إعادة تطبيق آخر لغة اختارها القارئ عند فتح صفحة أخرى
+  // إعادة تطبيق آخر لغة اختارها القارئ عند فتح صفحة أخرى — لكن ليس فوق نص
+  // مترجم بالفعل: إن طبّقت نسخة سابقة من المكوّن (نفس الوحدة) اللغة نفسها
+  // فيكتفي هذا التركيب بمزامنة واجهته معها دون لمس DOM.
   useEffect(() => {
     if (appliedFromStorage.current) return
     appliedFromStorage.current = true
@@ -144,14 +165,22 @@ export function ArticleTranslateWidget({ className = "", target = "main" }: Arti
       stored = null
     }
     if (stored && stored !== SOURCE_LANG && getLanguage(stored)) {
+      if (moduleAppliedLanguage === stored) {
+        setActiveLang(stored)
+        return
+      }
       void applyLanguage(stored)
     }
   }, [applyLanguage])
 
-  // تفكيك الترجمة عند مغادرة الصفحة كي لا تنتقل نصوص مترجمة لصفحة أخرى
+  // تفكيك الترجمة عند مغادرة الصفحة كي لا تنتقل نصوص مترجمة لصفحة أخرى —
+  // ومع تصفير علامة الوحدة حتى يعيد التركيب الجديد التطبيق من الصفر إن لزم
+  // (كالتبديل إلى/من وضع القراءة الأقصى الذي ينقل المكوّن بين موضعين).
   useEffect(() => {
     return () => {
       restoreOriginals()
+      moduleAppliedLanguage = null
+      moduleOriginalDirection = null
     }
   }, [])
 

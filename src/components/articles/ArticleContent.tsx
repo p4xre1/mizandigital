@@ -124,17 +124,13 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             blockNode = (
               <Tag
                 id={block.id}
+                data-reader-anchor=""
                 className={
                   block.level === 2
-                    ? "group/heading scroll-mt-28 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0 flex items-center gap-3"
+                    ? "group/heading scroll-mt-28 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0"
                     : "scroll-mt-28 mt-8 mb-4 text-[1.1rem] md:text-[1.25rem] font-bold text-foreground/90 flex items-center gap-2.5"
                 }
               >
-                {block.level === 2 && (
-                  <span className="hidden md:grid size-8 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet-600 text-white shadow-[0_4px_12px_hsl(var(--primary)/0.2)] text-[12px] font-black shrink-0">
-                    {idx + 1}
-                  </span>
-                )}
                 <span className="relative">
                   {block.text}
                   {block.level === 2 && (
@@ -146,15 +142,17 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             break
           }
           case "paragraph":
+            // الحجم والتباعد يأتيان من متغيرات القارئ (--reader-*) التي تديرها
+            // خيارات القراءة عبر غلاف المقال — بلا قيم ثابتة على الفقرة نفسها.
             blockNode = (
-              <p className="leading-[1.9] text-[15px] md:text-[16px] text-foreground/85 font-[450] tracking-[-0.01em] selection:bg-primary/20">
+              <p data-reader-anchor="" className="text-foreground/85 font-[450] tracking-[-0.01em] selection:bg-primary/20">
                 {renderInline(block.text, lexiconTerms, linkedTermIds)}
               </p>
             )
             break
           case "image":
             blockNode = (
-              <figure className="group/fig my-10 overflow-hidden rounded-[20px] border border-border/50 bg-muted shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] hover:shadow-[0_16px_48px_hsl(0_0%_0%/0.12)] transition-all duration-500">
+              <figure data-reader-anchor="" className="group/fig my-10 overflow-hidden rounded-[20px] border border-border/50 bg-muted shadow-[0_8px_32px_hsl(0_0%_0%/0.08)] hover:shadow-[0_16px_48px_hsl(0_0%_0%/0.12)] transition-all duration-500">
                 <div className="relative overflow-hidden">
                   <img
                     src={block.src}
@@ -175,12 +173,12 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             break
           case "quote":
             blockNode = (
-              <blockquote className="group/quote relative my-8 overflow-hidden rounded-[16px] border border-primary/10 bg-gradient-to-br from-primary/[0.06] via-violet-500/[0.03] to-transparent p-5 md:p-6">
+              <blockquote data-reader-anchor="" className="group/quote relative my-8 overflow-hidden rounded-[16px] border border-primary/10 bg-gradient-to-br from-primary/[0.06] via-violet-500/[0.03] to-transparent p-5 md:p-6">
                 <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-primary/30 via-violet-500/20 to-transparent" />
                 <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-primary to-violet-600" />
                 <div className="flex gap-4">
                   <div className="hidden md:grid size-8 place-items-center rounded-full bg-primary/10 text-primary shrink-0 mt-1">“</div>
-                  <p className="flex-1 text-[14px] md:text-[15px] leading-7 font-medium italic text-foreground/80">
+                  <p className="flex-1 font-medium italic text-foreground/80">
                     {renderInline(block.text, lexiconTerms, linkedTermIds)}
                   </p>
                 </div>
@@ -189,24 +187,24 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             break
           case "list":
             blockNode = block.ordered ? (
-              <ol className="my-6 space-y-3 ps-1">
+              <ol data-reader-anchor="" className="my-6 space-y-3 ps-1">
                 {block.items.map((item, i2) => (
                   <li key={i2} className="group/li flex gap-3">
                     <span className="grid size-6 place-items-center rounded-full bg-foreground text-background text-[11px] font-black shrink-0 mt-0.5 group-hover/li:bg-primary group-hover/li:scale-110 transition-all">
                       {i2 + 1}
                     </span>
-                    <span className="flex-1 text-[14px] leading-7 text-foreground/80 pt-0.5">
+                    <span className="flex-1 text-foreground/80 pt-0.5">
                       {renderInline(item, lexiconTerms, linkedTermIds)}
                     </span>
                   </li>
                 ))}
               </ol>
             ) : (
-              <ul className="my-6 space-y-3 ps-1">
+              <ul data-reader-anchor="" className="my-6 space-y-3 ps-1">
                 {block.items.map((item, i2) => (
                   <li key={i2} className="group/li flex gap-3">
                     <span className="mt-2 size-1.5 rounded-full bg-primary group-hover/li:scale-[1.8] group-hover/li:bg-violet-600 transition-all shrink-0" />
-                    <span className="flex-1 text-[14px] leading-7 text-foreground/80">
+                    <span className="flex-1 text-foreground/80">
                       {renderInline(item, lexiconTerms, linkedTermIds)}
                     </span>
                   </li>
@@ -216,7 +214,7 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
             break
           case "hr":
             blockNode = (
-              <div className="my-12 flex items-center gap-3">
+              <div data-reader-anchor="" className="my-12 flex items-center gap-3">
                 <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-border to-transparent" />
                 <div className="grid size-8 place-items-center rounded-full border border-border bg-card text-muted-foreground">
                   <span className="text-[10px]">✦</span>

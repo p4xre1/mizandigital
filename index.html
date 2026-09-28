@@ -12,18 +12,36 @@
       داكن→فاتح على كل زيارة، وإعادة رسم لكل عناصر transition-colors/
       transition-all (رصد Lighthouse منها 49 عنصر «non-composited animation»).
       هذا السكربت يطبّق السمة الصحيحة قبل أول رسم فيختفي الوميض والسبب معه.
+
+      وهو يطبّق كذلك تفضيلات القراءة (mizan_reading_prefs: خط، حجم، تباعد،
+      سمة قراءة) كسمات data-reader-* على <html> قبل أول رسم — بلا وميض خط
+      أو سمة ورقية. «ورقي» لا يغيّر سمة الموقع؛ هو غلاف مقال فقط (شوف
+      .reader-shell في globals.css)، فتبقى سمة الموقع من mizan_theme أو
+      تفضيل النظام. وضع القراءة الأقصى لا يُستأنف أبداً من التخزين: الزيارة
+      تبدأ دائماً في الوضع العادي.
     -->
     <script>
       (function () {
         try {
+          var prefs = null;
+          try { prefs = JSON.parse(localStorage.getItem("mizan_reading_prefs") || "null"); } catch (e) { prefs = null; }
+          var inList = function (v, list) { return typeof v === "string" && list.indexOf(v) !== -1; };
+          var font = inList(prefs && prefs.font, ["naskh", "amiri", "plex", "readex"]) ? prefs.font : null;
+          var size = inList(prefs && prefs.size, ["small", "large"]) ? prefs.size : null;
+          var leading = inList(prefs && prefs.lineHeight, ["tight", "relaxed"]) ? prefs.lineHeight : null;
+          var sepia = prefs && prefs.theme === "sepia";
+          var readerChoice = inList(prefs && prefs.theme, ["light", "dark"]) ? prefs.theme : null;
           var stored = localStorage.getItem("mizan_theme");
-          var theme = (stored === "light" || stored === "dark")
-            ? stored
-            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          var system = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          var theme = readerChoice || (stored === "light" || stored === "dark" ? stored : system);
           var root = document.documentElement;
           root.classList.remove("light", "dark");
           root.classList.add(theme);
           root.style.colorScheme = theme;
+          if (font) root.setAttribute("data-reader-font", font);
+          if (size) root.setAttribute("data-reader-size", size);
+          if (leading) root.setAttribute("data-reader-leading", leading);
+          if (sepia) root.setAttribute("data-reader-theme", "sepia");
         } catch (e) {}
       })();
     </script>

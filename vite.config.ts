@@ -55,6 +55,10 @@ export default defineConfig({
             { name: "vendor-react", test: /node_modules\/(?:react|react-dom|scheduler|react-router|react-router-dom)\//, priority: 80 },
             { name: "vendor-supabase", test: /@supabase/, priority: 70 },
             { name: "vendor-pdfjs", test: /pdfjs-dist/, priority: 50 },
+            // تصدير المقال PDF (jspdf + html2canvas-pro): مجموعة مستقلة حتى لا
+            // يجرفه group الـvendor العام إلى حزمة تُحمَّل مع كل صفحة — تظل
+            // chunkاً خاملاً لا يُنزَّل إلا عند أول ضغطة على زر التنزيل.
+            { name: "vendor-pdf-export", test: /(?:^|node_modules)\/(?:jspdf|html2canvas-pro|fflate|canvas|core-js)\//, priority: 51 },
             { name: "quiz-questions", test: /quiz-questions\.json/, priority: 40 },
             { name: "lexicon", test: /lexicon\.json/, priority: 40 },
             { name: "schools", test: /schools\.json/, priority: 40 },
