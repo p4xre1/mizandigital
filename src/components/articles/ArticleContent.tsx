@@ -126,9 +126,12 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
                 id={block.id}
                 data-reader-anchor=""
                 className={
+                  /* scroll-mt-32 (128px): هيدر الموقع اللاصق (64px) + شريط
+                     أدوات القراءة اللاصق (~58px) — بدونه يسقط العنوان المقفوز
+                     إليه تحت الشريطَين فيبدو الفهرس وكأنه يخطئ الوجهة */
                   block.level === 2
-                    ? "group/heading scroll-mt-28 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0"
-                    : "scroll-mt-28 mt-8 mb-4 text-[1.1rem] md:text-[1.25rem] font-bold text-foreground/90 flex items-center gap-2.5"
+                    ? "group/heading scroll-mt-32 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0"
+                    : "scroll-mt-32 mt-8 mb-4 text-[1.1rem] md:text-[1.25rem] font-bold text-foreground/90 flex items-center gap-2.5"
                 }
               >
                 <span className="relative">

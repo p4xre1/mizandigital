@@ -190,50 +190,12 @@ export function buildProfileShare(input: { displayName: string; username: string
   }
 }
 
-/**
- * يفتح نافذة مشاركة خارجية (واتساب/لينكد إن...).
- *
- * داخل الإطارات المعزولة (iframes) — مثل نافذة المعاينة في بيئات التطوير —
- * يحجب المتصفح النوافذ المنبثقة، فيرجع `window.open` بـ null. نميّز هذه
- * الحالة ونُرجع "blocked" لتعرض الواجهة حينها صندوق نسخ الرابط بدل أن تبدو
- * وكأن الزر معطّل.
- */
-export function openExternalShare(url: string): "opened" | "blocked" {
-  if (typeof window === "undefined") return "blocked"
-  try {
-    const win = window.open(url, "_blank", "noopener,noreferrer")
-    return win ? "opened" : "blocked"
-  } catch {
-    return "blocked"
-  }
-}
-
-/** نسخ نص إلى الحافظة مع بديل (execCommand) لأن الـ API محجوب في بعض الإطارات. */
-export async function copyToClipboard(text: string): Promise<boolean> {
-  if (typeof document === "undefined") return false
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text)
-      return true
-    }
-  } catch {
-    /* نكمل بالبديل أدناه */
-  }
-  try {
-    const textarea = document.createElement("textarea")
-    textarea.value = text
-    textarea.setAttribute("readonly", "")
-    textarea.style.position = "fixed"
-    textarea.style.opacity = "0"
-    document.body.appendChild(textarea)
-    textarea.select()
-    const ok = document.execCommand("copy")
-    document.body.removeChild(textarea)
-    return ok
-  } catch {
-    return false
-  }
-}
+/*
+  مساعدان عامّان (فتح نافذة خارجية + النسخ إلى الحافظة) انتقلا إلى
+  lib/utils/share لأن لوحة مشاركة المقال صارت تستعملهما أيضاً؛ ويُعاد
+  تصديرهما هنا حتى تبقى واجهة هذا الملف — وكل مستورداته واختباراته — كما هي.
+*/
+export { copyToClipboard, openExternalShare } from "@/lib/utils/share"
 
 /** ينشئ رابطاً مؤقتاً للصورة لعرضها أو تنزيلها داخل الواجهة. */
 export function blobToObjectUrl(blob: Blob): string | null {

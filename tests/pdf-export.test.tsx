@@ -10,13 +10,19 @@
 //     فقط، في chunk مستقل لا يجرفه vendor العام إلى كل صفحة.
 //   • خِضالة التفاعل (تعليقات/تفاعلات/شريك/أزرار) تُستبعد بـ .no-pdf فيخرج
 //     الملف للمذاكرة والطباعة، والسمة فاتحة قسراً حتى لو كان الموقع داكناً.
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { readFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { act } from "react"
 
-import { PDF_EXPORT_CLASS, exportElementToPdf, planPdfPages } from "../src/lib/articles/exportPdf"
+import {
+  PDF_EXPORT_CLASS,
+  canvasHasInk,
+  exportElementToPdf,
+  pixelsHaveInk,
+  planPdfPages,
+} from "../src/lib/articles/exportPdf"
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const read = (file: string) => readFileSync(path.join(rootDir, file), "utf8")
@@ -30,6 +36,8 @@ const pdfState = vi.hoisted(() => ({
   saved: null as string | null,
   props: null as Record<string, string> | null,
   failCanvas: false,
+  /** كل نداء لقطة: أي عنصر التُقط وبأي نافذة قصّ (x/y/width/height) */
+  calls: [] as { element: HTMLElement; options: Record<string, unknown> }[],
 }))
 
 vi.mock("jspdf", () => ({
@@ -39,6 +47,7 @@ vi.mock("jspdf", () => ({
       pdfState.pages = 1
       pdfState.saved = null
       pdfState.props = null
+      pdfState.calls = []
     }
     setProperties(props: Record<string, string>) {
       pdfState.props = props
@@ -56,8 +65,12 @@ vi.mock("jspdf", () => ({
 }))
 
 vi.mock("html2canvas-pro", () => ({
-  default: async (element: HTMLElement, options?: { width?: number; height?: number; scale?: number }) => {
+  default: async (
+    element: HTMLElement,
+    options?: { width?: number; height?: number; scale?: number; x?: number; y?: number }
+  ) => {
     if (pdfState.failCanvas) throw new Error("canvas boom")
+    pdfState.calls.push({ element, options: { ...(options ?? {}) } })
     const scale = options?.scale ?? 1
     const width = Math.round((options?.width ?? element.offsetWidth) * scale)
     const height = Math.round((options?.height ?? element.offsetHeight) * scale)
@@ -72,6 +85,42 @@ vi.mock("html2canvas-pro", () => ({
 beforeEach(() => {
   pdfState.failCanvas = false
 })
+
+/*
+  jsdom لا ينفّذ canvas 2D (getContext → null)، وفحص «هل اللقطة بيضاء؟» يحتاج
+  سياقاً حقيقياً. نستبدل getContext على الـprototype بسياق مزيف يُرجع بكسلات
+  نحددها نحن، ثم نُعيد الواصف الأصلي كما كان — لا delete الذي كان سيترك
+  الـprototype بلا getContext إطلاقاً.
+*/
+const originalContextDescriptor = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "getContext")
+
+/** بكسلات بيضاء = «لا حبر»، وداكنة = «حبر» — والعدّاد يقرر أيهما في كل نداء */
+function stubCanvasContext(nextPixels: () => "white" | "ink") {
+  Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+    configurable: true,
+    value: () => ({
+      drawImage: () => {},
+      getImageData: (_x: number, _y: number, w: number, h: number) => {
+        const data = new Uint8ClampedArray(w * h * 4).fill(255)
+        if (nextPixels() === "ink") {
+          // عُشر العيّنة داكن — أعلى بكثير من عتبة 0.01%
+          for (let i = 0; i < data.length; i += 40) {
+            data[i] = 30
+            data[i + 1] = 30
+            data[i + 2] = 30
+          }
+        }
+        return { data }
+      },
+    }),
+  })
+}
+
+function restoreCanvasContext() {
+  if (originalContextDescriptor) {
+    Object.defineProperty(HTMLCanvasElement.prototype, "getContext", originalContextDescriptor)
+  }
+}
 
 /* ────────────────────────────────────────────────────────────────────────
    1) خطة التقسيم إلى صفحات A4
@@ -159,6 +208,51 @@ describe("exportElementToPdf", () => {
     el.remove()
   })
 
+  test("اللقطة من المستنسخ بإزاحات نسبية — لا إحداثيات المستنسخ المستندية (انحدار الملف الفارغ)", async () => {
+    const el = makeArticleElement(2400)
+
+    /*
+      في jsdom كل الأبعاد صفر، وهو بالضبط ما أخفى هذا الخطأ: إحداثيات
+      المستنسخ المستندية (getBoundingClientRect + scrollY) كانت صفراً فبدت
+      نافذة القصّ سليمة. في المتصفح المستنسخ عند left:-10000px والصفحة
+      مُمرَّرة، فتمرير تلك الإحداثيات كـ x/y — وhtml2canvas-pro 2.x يعاملهما
+      إزاحتين نسبيتين إلى أعلى-يسار العنصر — كان يُزيح القصّ خارج المحتوى
+      تماماً: صفحات بيضاء وملف «فارغ». نُحاكي المتصفح هنا حتى يبقى الانحدار
+      مكشوفاً.
+    */
+    Object.defineProperty(window, "scrollY", { value: 500, configurable: true, writable: true })
+    Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", {
+      configurable: true,
+      value: () =>
+        ({ left: -10000, top: -500, width: 560, height: 2400, right: -9440, bottom: 1900, x: -10000, y: -500 }) as DOMRect,
+    })
+
+    try {
+      await act(async () => {
+        await exportElementToPdf({ element: el, fileName: "crop.pdf", title: "مقال تجريبي" })
+      })
+
+      const plan = planPdfPages(560, 2400)
+      expect(pdfState.saved).toBe("crop.pdf")
+      expect(pdfState.calls).toHaveLength(plan.pageCount)
+      pdfState.calls.forEach((call, i) => {
+        // الملتقط هو المستنسخ (pdf-export: سمة فاتحة + إخفاء .no-pdf) لا الصفحة الحية
+        expect(call.element, "لا تلتقط العنصر الحيّ").not.toBe(el)
+        expect(call.element.classList.contains(PDF_EXPORT_CLASS)).toBe(true)
+        // نافذة القصّ: من أعلى العنصر، وتنزل شريحةً في كل صفحة — بلا تمرير ولا -10000px
+        expect(call.options.x).toBe(0)
+        expect(call.options.y).toBe(i * plan.sliceHeightPx)
+        expect(call.options.width).toBe(560)
+      })
+      // الصفحة الأخيرة أقصر: ما تبقّى من ارتفاع المقال فقط
+      expect(pdfState.calls[plan.pageCount - 1].options.height).toBe(2400 - (plan.pageCount - 1) * plan.sliceHeightPx)
+    } finally {
+      Object.defineProperty(window, "scrollY", { value: 0, configurable: true, writable: true })
+      delete (HTMLElement.prototype as unknown as { getBoundingClientRect?: unknown }).getBoundingClientRect
+      el.remove()
+    }
+  })
+
   test("أثناء التصدير يُخفى .no-pdf من اللقطة (قاعدة CSS موجودة)", async () => {
     const css = read("src/styles/globals.css")
     expect(css).toMatch(/\.pdf-export \.no-pdf \{ display: none !important; \}/)
@@ -180,6 +274,122 @@ describe("exportElementToPdf", () => {
     expect(el.className).toBe("reader-shell")
     expect(document.querySelector(".pdf-export")).toBeNull()
     expect(pdfState.saved).toBeNull()
+    el.remove()
+  })
+})
+
+/* ────────────────────────────────────────────────────────────────────────
+   2.5) كشف اللقطة البيضاء — لا ينزل ملف فارغ أبداً
+──────────────────────────────────────────────────────────────────────── */
+
+describe("pixelsHaveInk — عتبة «لا حبر إطلاقاً»", () => {
+  const white = (pixels: number) => new Uint8ClampedArray(pixels * 4).fill(255)
+
+  test("بيضاء تماماً → بلا حبر", () => {
+    expect(pixelsHaveInk(white(1000))).toBe(false)
+  })
+
+  test("مصفوفة فارغة → بلا حبر (لا قسمة على صفر)", () => {
+    expect(pixelsHaveInk(new Uint8ClampedArray(0))).toBe(false)
+  })
+
+  test("بكسلان داكنان في عشرة آلاف → حبر (العتبة عند الحدّ الأدنى)", () => {
+    const data = white(10_000)
+    data[0] = 20; data[1] = 20; data[2] = 20
+    data[4] = 20; data[5] = 20; data[6] = 20
+    expect(pixelsHaveInk(data)).toBe(true)
+  })
+
+  test("شبه أبيض (فرق ≤ 6 درجات) ليس حبراً — لا إيجاب كاذب على صفحة هامش", () => {
+    const data = white(500)
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 250; data[i + 1] = 251; data[i + 2] = 249
+    }
+    expect(pixelsHaveInk(data)).toBe(false)
+  })
+
+  test("شفاف تماماً لا يُحسب حبراً", () => {
+    const data = white(500)
+    for (let i = 3; i < data.length; i += 4) data[i] = 0
+    expect(pixelsHaveInk(data)).toBe(false)
+  })
+})
+
+describe("canvasHasInk — الفحص نفسه على canvas", () => {
+  afterEach(restoreCanvasContext)
+
+  function fakeCanvas(width = 1488, height = 2104): HTMLCanvasElement {
+    const canvas = document.createElement("canvas")
+    Object.defineProperty(canvas, "width", { value: width, configurable: true })
+    Object.defineProperty(canvas, "height", { value: height, configurable: true })
+    return canvas
+  }
+
+  test("لقطة بيضاء → false، ولقطة فيها حبر → true", () => {
+    stubCanvasContext(() => "white")
+    expect(canvasHasInk(fakeCanvas())).toBe(false)
+    restoreCanvasContext()
+    stubCanvasContext(() => "ink")
+    expect(canvasHasInk(fakeCanvas())).toBe(true)
+  })
+
+  test("canvas بأبعاد صفرية → false (لا استثناء)", () => {
+    stubCanvasContext(() => "ink")
+    expect(canvasHasInk(fakeCanvas(0, 0))).toBe(false)
+  })
+
+  test("بلا سياق 2D (jsdom) → true: الشكّ لا يُفسد تصديراً ناجحاً", () => {
+    // getContext الأصلي في jsdom يعيد null
+    expect(canvasHasInk(fakeCanvas())).toBe(true)
+  })
+})
+
+describe("exportElementToPdf — لقطة بيضاء", () => {
+  afterEach(restoreCanvasContext)
+
+  function makeArticleElement(heightPx: number): HTMLElement {
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { value: 560, configurable: true })
+    Object.defineProperty(HTMLElement.prototype, "offsetHeight", { value: heightPx, configurable: true })
+    const el = document.createElement("article")
+    el.className = "reader-shell"
+    document.body.appendChild(el)
+    return el
+  }
+
+  test("فشل صريح بدل ملف صفحاته بيضاء (فيسقط مسار الطباعة البديل)", async () => {
+    stubCanvasContext(() => "white")
+    const el = makeArticleElement(800)
+    await act(async () => {
+      await expect(
+        exportElementToPdf({ element: el, fileName: "blank.pdf", title: "مقال" })
+      ).rejects.toThrow("لقطة فارغة")
+    })
+    // لم يُحفظ ملف، ولم يبقَ أثر للمستنسخ
+    expect(pdfState.saved).toBeNull()
+    expect(document.querySelector(".pdf-export")).toBeNull()
+    expect(el.className).toBe("reader-shell")
+    el.remove()
+  })
+
+  test("بيضاء عند التكبير 2 → إعادة محاولة بتكبير 1 ثم ملف كامل", async () => {
+    // أول فحص (شريحة التكبير 2) بيضاء، وكل ما بعده فيه حبر
+    let checks = 0
+    stubCanvasContext(() => (checks++ === 0 ? "white" : "ink"))
+    const el = makeArticleElement(2400)
+    await act(async () => {
+      await exportElementToPdf({ element: el, fileName: "retry.pdf", title: "مقال" })
+    })
+    const plan = planPdfPages(560, 2400)
+    expect(plan.scale).toBe(2)
+    // 4 صفحات + إعادة محاولة واحدة للصفحة الأولى
+    expect(pdfState.calls).toHaveLength(plan.pageCount + 1)
+    expect(pdfState.calls[0].options.scale).toBe(2)
+    expect(pdfState.calls[1].options.scale).toBe(1)
+    // نفس نافذة القصّ في المحاولتين: التكبير لا يغيّر الإزاحات
+    expect(pdfState.calls[1].options.x).toBe(0)
+    expect(pdfState.calls[1].options.y).toBe(0)
+    expect(pdfState.saved).toBe("retry.pdf")
+    expect(pdfState.pages).toBe(plan.pageCount)
     el.remove()
   })
 })
