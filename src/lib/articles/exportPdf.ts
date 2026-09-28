@@ -111,8 +111,9 @@ export interface ExportElementToPdfOptions {
  *
  * لا نلمس الصفحة الحية إطلاقاً: يُستنسخ عنصر المقال إلى حاوية خارج
  * الشاشة ويُطبَّق عليها صنف PDF_EXPORT_CLASS (سمة فاتحة وإخفاء عناصر
- * .no-pdf) فلا يرى الزائر وميضاً ولا قفزة أثناء التجهيز، والحاوية كلها
- * تُزال في النهاية — حتى عند الفشل.
+ * .no-pdf)، واللّقطة تُؤخذ من هذا المستنسخ نفسه (لا من العنصر المعروض) فلا
+ * يرى الزائر وميضاً ولا قفزة أثناء التجهيز، ولا تدخل خِضالة التفاعل في
+ * الملف، والحاوية كلها تُزال في النهاية — حتى عند الفشل.
  */
 export async function exportElementToPdf(options: ExportElementToPdfOptions): Promise<void> {
   const { element, fileName, title, sourceUrl, backgroundColor = "#ffffff", onProgress } = options
@@ -145,9 +146,6 @@ export async function exportElementToPdf(options: ExportElementToPdfOptions): Pr
     if (!height) throw new Error("عنصر المقال بلا أبعاد")
 
     const plan = planPdfPages(width, height)
-    const cloneRect = clone.getBoundingClientRect()
-    const docTop = cloneRect.top + (window.scrollY || 0)
-    const docLeft = cloneRect.left + (window.scrollX || 0)
 
     // الحِزم تُنزَّل الآن فقط (أول تصدير) — انظر التعليق أعلى الملف
     const [{ jsPDF }, { default: html2canvas }] = await Promise.all([
@@ -169,7 +167,20 @@ export async function exportElementToPdf(options: ExportElementToPdfOptions): Pr
 
     for (let i = 0; i < plan.pageCount; i += 1) {
       const sliceHeight = Math.min(plan.sliceHeightPx, height - i * plan.sliceHeightPx)
-      const canvas = await html2canvas(element, {
+      /*
+        الملتقط هو المستنسخ لا العنصر الحيّ: المستنسخ يحمل صنف pdf-export
+        (سمة فاتحة قسراً + إخفاء خِضالة التفاعل .no-pdf) فالملف يطابق ما
+        قُرِّر أن يخرج، والصفحة الحية لا تُلمس.
+
+        ⚠ x/y في html2canvas-pro (2.x) إزاحتان نسبيتان إلى أعلى-يسار العنصر
+        الملتقط — تُجمعان مع حدوده داخل المستنسخ:
+            x = (opts.x ?? 0) + left   ,   y = (opts.y ?? 0) + top
+        وليستا إحداثيات مستندية مطلقة كما في html2canvas 1.x. تمرير إحداثيات
+        المستنسخ (top:0;left:-10000px) كان يُزيح نافذة القص ~10000px خارج
+        المحتوى في كل صفحة، فينزل الملف صفحات بيضاء فارغة. الصحيح: القص من
+        أعلى العنصر (x=0) والنزول شريحةً في كل صفحة (y = i × ارتفاع الشريحة).
+      */
+      const canvas = await html2canvas(clone, {
         backgroundColor,
         scale: plan.scale,
         // صور المقال من مخزن Supabase/R2 — CORS مطلوب لتضمينها؛ ما لا
@@ -178,8 +189,8 @@ export async function exportElementToPdf(options: ExportElementToPdfOptions): Pr
         allowTaint: false,
         logging: false,
         imageTimeout: 10000,
-        x: docLeft,
-        y: docTop + i * plan.sliceHeightPx,
+        x: 0,
+        y: i * plan.sliceHeightPx,
         width,
         height: sliceHeight,
       })

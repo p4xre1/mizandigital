@@ -30,6 +30,8 @@ const pdfState = vi.hoisted(() => ({
   saved: null as string | null,
   props: null as Record<string, string> | null,
   failCanvas: false,
+  /** كل نداء لقطة: أي عنصر التُقط وبأي نافذة قصّ (x/y/width/height) */
+  calls: [] as { element: HTMLElement; options: Record<string, unknown> }[],
 }))
 
 vi.mock("jspdf", () => ({
@@ -39,6 +41,7 @@ vi.mock("jspdf", () => ({
       pdfState.pages = 1
       pdfState.saved = null
       pdfState.props = null
+      pdfState.calls = []
     }
     setProperties(props: Record<string, string>) {
       pdfState.props = props
@@ -56,8 +59,12 @@ vi.mock("jspdf", () => ({
 }))
 
 vi.mock("html2canvas-pro", () => ({
-  default: async (element: HTMLElement, options?: { width?: number; height?: number; scale?: number }) => {
+  default: async (
+    element: HTMLElement,
+    options?: { width?: number; height?: number; scale?: number; x?: number; y?: number }
+  ) => {
     if (pdfState.failCanvas) throw new Error("canvas boom")
+    pdfState.calls.push({ element, options: { ...(options ?? {}) } })
     const scale = options?.scale ?? 1
     const width = Math.round((options?.width ?? element.offsetWidth) * scale)
     const height = Math.round((options?.height ?? element.offsetHeight) * scale)
@@ -157,6 +164,51 @@ describe("exportElementToPdf", () => {
     expect(document.querySelector(".pdf-export")).toBeNull()
     expect(document.querySelector("div[aria-hidden='true'][style*='-10000px']")).toBeNull()
     el.remove()
+  })
+
+  test("اللقطة من المستنسخ بإزاحات نسبية — لا إحداثيات المستنسخ المستندية (انحدار الملف الفارغ)", async () => {
+    const el = makeArticleElement(2400)
+
+    /*
+      في jsdom كل الأبعاد صفر، وهو بالضبط ما أخفى هذا الخطأ: إحداثيات
+      المستنسخ المستندية (getBoundingClientRect + scrollY) كانت صفراً فبدت
+      نافذة القصّ سليمة. في المتصفح المستنسخ عند left:-10000px والصفحة
+      مُمرَّرة، فتمرير تلك الإحداثيات كـ x/y — وhtml2canvas-pro 2.x يعاملهما
+      إزاحتين نسبيتين إلى أعلى-يسار العنصر — كان يُزيح القصّ خارج المحتوى
+      تماماً: صفحات بيضاء وملف «فارغ». نُحاكي المتصفح هنا حتى يبقى الانحدار
+      مكشوفاً.
+    */
+    Object.defineProperty(window, "scrollY", { value: 500, configurable: true, writable: true })
+    Object.defineProperty(HTMLElement.prototype, "getBoundingClientRect", {
+      configurable: true,
+      value: () =>
+        ({ left: -10000, top: -500, width: 560, height: 2400, right: -9440, bottom: 1900, x: -10000, y: -500 }) as DOMRect,
+    })
+
+    try {
+      await act(async () => {
+        await exportElementToPdf({ element: el, fileName: "crop.pdf", title: "مقال تجريبي" })
+      })
+
+      const plan = planPdfPages(560, 2400)
+      expect(pdfState.saved).toBe("crop.pdf")
+      expect(pdfState.calls).toHaveLength(plan.pageCount)
+      pdfState.calls.forEach((call, i) => {
+        // الملتقط هو المستنسخ (pdf-export: سمة فاتحة + إخفاء .no-pdf) لا الصفحة الحية
+        expect(call.element, "لا تلتقط العنصر الحيّ").not.toBe(el)
+        expect(call.element.classList.contains(PDF_EXPORT_CLASS)).toBe(true)
+        // نافذة القصّ: من أعلى العنصر، وتنزل شريحةً في كل صفحة — بلا تمرير ولا -10000px
+        expect(call.options.x).toBe(0)
+        expect(call.options.y).toBe(i * plan.sliceHeightPx)
+        expect(call.options.width).toBe(560)
+      })
+      // الصفحة الأخيرة أقصر: ما تبقّى من ارتفاع المقال فقط
+      expect(pdfState.calls[plan.pageCount - 1].options.height).toBe(2400 - (plan.pageCount - 1) * plan.sliceHeightPx)
+    } finally {
+      Object.defineProperty(window, "scrollY", { value: 0, configurable: true, writable: true })
+      delete (HTMLElement.prototype as unknown as { getBoundingClientRect?: unknown }).getBoundingClientRect
+      el.remove()
+    }
   })
 
   test("أثناء التصدير يُخفى .no-pdf من اللقطة (قاعدة CSS موجودة)", async () => {
