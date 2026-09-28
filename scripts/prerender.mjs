@@ -1651,7 +1651,7 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
 
             ${
               fileUrl
-                ? `<p><a href="${escapeHtml(fileUrl)}" rel="nofollow noopener" download>تحميل الملف</a></p>`
+                ? `<p><a href="${escapeHtml(fileUrl)}" rel="noopener" download>تحميل الملف</a></p>`
                 : ""
             }
 

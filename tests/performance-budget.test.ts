@@ -11,7 +11,7 @@
  * الاختبارات التي تلمس dist/ تُتخطّى تلقائياً إن لم يكن البناء قد جرى
  * (CI يشغّل pnpm test قبل pnpm build).
  */
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import { gzipSync } from "node:zlib"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -229,6 +229,46 @@ describe("صور البطاقات البعيدة", () => {
       // width/height صريحان: يمنعان انزياح التخطيط
       expect(img).toMatch(/width=\{\d+\}/)
       expect(img).toMatch(/height=\{\d+\}/)
+    }
+  })
+})
+
+/* ────────────────────────────────────────────────────────────────────────
+   8) روابط التحميل في صفحات /pdf/ — لا nofollow على الروابط الداخلية
+      (كانت أداة التدقيق ترصد 9 روابط داخلية nofollow نحو /docs/*.pdf:
+       الملف نفسه هو محتوى الصفحة الأساسي، وكبح الرابط يُفقدنا إشارة
+       التوجيه الداخلي التي نريد تمريرها لمكتبتنا).
+──────────────────────────────────────────────────────────────────────── */
+
+describe("روابط التحميل في صفحات /pdf/ بدون nofollow", () => {
+  const prerenderSrc = read("scripts/prerender.mjs")
+
+  test("قالب التحميل في prerender لا يُخرج nofollow", () => {
+    // نمط القالب: <a href="..." rel="..." download> — نثبّت أن rel لا يحمل nofollow
+    const tpl = /<p><a href="\$\{escapeHtml\(fileUrl\)\}"([^>]*)download/.exec(prerenderSrc)?.[1] ?? ""
+    expect(tpl, "لم يُعثر على قالب رابط التحميل في scripts/prerender.mjs").toBeTruthy()
+    expect(tpl).not.toMatch(/nofollow/i)
+  })
+
+  const distReady = hasFile("dist/index.html")
+  test.skipIf(!distReady)("الصفحات المُولَّدة: لا رابط داخلي nofollow نحو /docs/", () => {
+    const pdfDir = path.join(rootDir, "dist", "pdf")
+    if (!existsSync(pdfDir)) return
+    const files = readdirSync(pdfDir).filter((f) => f.endsWith(".html"))
+    expect(files.length, "لم تُولَّد صفحات /pdf/").toBeGreaterThan(0)
+    for (const file of files) {
+      const html = readFileSync(path.join(pdfDir, file), "utf8")
+      const anchors = html.match(/<a\b[^>]*>/g) ?? []
+      for (const tag of anchors) {
+        const rel = /rel="([^"]*)"/i.exec(tag)?.[1] ?? ""
+        if (!/nofollow/i.test(rel)) continue
+        const href = /href="([^"]*)"/i.exec(tag)?.[1] ?? ""
+        const isInternal = !/^https?:\/\//i.test(href) || href.startsWith("https://www.mizan.page")
+        expect(
+          isInternal,
+          `رابط داخلي nofollow في dist/pdf/${file}: ${href}`,
+        ).toBe(false)
+      }
     }
   })
 })
