@@ -15,6 +15,12 @@
  * فلا تُنشأ أبداً canvas أطول من صفحة واحدة — هذا يُجنّب حدود مساحة canvas
  * في iOS Safari (~16.7 مليون بكسل) مهما طال المقال.
  *
+ * وكل لقطة تُفحص قبل تغليفها (canvasHasInk): مكتبة اللقطة تُرجع صفحة بيضاء
+ * **بلا استثناء** حين يفشل تخصيص الذاكرة أو تُقصّ نافذة الرسم خارج المحتوى،
+ * فبدون الفحص ينزل ملف «فارغ» ويظنّه القارئ عطلاً في المقال. عند البياض:
+ * إعادة محاولة بتكبير أخفّ، ثم فشل صريح يُسقط المسار البديل في الصفحة
+ * (حوار الطباعة ← «حفظ كـ PDF») فلا يخرج القارئ بلا ملف أبداً.
+ *
  * الحِزم تُحمَّل ديناميكياً عند أول ضغطة فقط: زائر الصفحة العادي لا يدفع
  * بايتاً منها، ولا أي طلب خارجي (لا تغيير في CSP) — تُبنى داخل الحزمة
  * كأي مصدر محلي وتُخدَّم من نفس النطاق.
@@ -93,6 +99,71 @@ function buildSourceNode(url: string | undefined): HTMLElement {
   return row
 }
 
+/** أصناف هيكل الموقع — تُستبعد من استنساخ المستند (خارج اللقطة أصلاً) */
+const SITE_CHROME_CLASSES = ["site-header", "site-footer", "site-mobile-menu", "site-progress-bar"]
+
+/** حافة عيّنة الفحص: 96px تكفي للحكم على «بيضاء تماماً» بكلفة ذاكرة ضئيلة */
+const INK_SAMPLE_EDGE = 96
+
+/**
+ * هل في هذه البكسلات حبر فعلاً؟ (دالة خالصة على مصفوفة RGBA — قابلة للاختبار
+ * بلا canvas). الخلفية في ملف PDF بيضاء قسراً (`.pdf-export`)، فأي بكسل يختلف
+ * عنها بما يزيد على `tolerance` هو حبر.
+ *
+ * العتبتان متساهلتان عمداً (6 درجات و0.01% من العيّنة): المطلوب كشف الصفحة
+ * البيضاء تماماً — وهي صفر حبر — لا الحكم على صفحة «شبه فارغة» شرعية مثل
+ * صفحة تقع في هامش سفلي. الخطأ هنا باتجاهين: إيجاب كاذب يُسقِط تصديراً
+ * ناجحاً، وسلب كاذب يُمرّر ملفاً فارغاً؛ لذا نُبقي العتبات عند الحدّ الأدنى
+ * الذي يفصل «لا حبر إطلاقاً» عمّا سواه.
+ */
+export function pixelsHaveInk(data: ArrayLike<number>, tolerance = 6, minInkRatio = 0.0001): boolean {
+  let ink = 0
+  let total = 0
+  for (let i = 0; i + 3 < data.length; i += 4) {
+    total += 1
+    const alpha = data[i + 3]
+    if (alpha <= 8) continue
+    if (
+      Math.abs(data[i] - 255) > tolerance ||
+      Math.abs(data[i + 1] - 255) > tolerance ||
+      Math.abs(data[i + 2] - 255) > tolerance
+    ) {
+      ink += 1
+    }
+  }
+  return total > 0 && ink / total >= minInkRatio
+}
+
+/**
+ * فحص لقطة html2canvas قبل تغليفها في الملف.
+ *
+ * لماذا؟ لأن مكتبة اللقطة تُرجع canvas بيضاء **بلا استثناء** حين يفشل تخصيص
+ * الذاكرة أو حين تُقصّ نافذة الرسم خارج المحتوى — وهذا بالضبط ما كان يُنزِل
+ * ملفاً «فارغاً» (صفحات بيضاء) بدل خطأ واضح. بالفحص نصبح قادرين على:
+ *   1) إعادة المحاولة بتكبير أخفّ (الذاكرة هي السبب الأكثر شيوعاً)،
+ *   2) الفشل صراحةً فيسقط المسار البديل (حوار الطباعة ← «حفظ كـ PDF»)
+ *      بدل تسليم القارئ ملفاً لا شيء فيه.
+ *
+ * عند التعذّر (بيئة بلا canvas 2D مثل jsdom، أو canvas ملوّثة) تُرجع true:
+ * الشكّ لا يُفسد تصديراً ناجحاً.
+ */
+export function canvasHasInk(canvas: HTMLCanvasElement): boolean {
+  try {
+    if (!canvas.width || !canvas.height) return false
+    const sampleWidth = Math.min(INK_SAMPLE_EDGE, canvas.width)
+    const sampleHeight = Math.max(1, Math.round((canvas.height / canvas.width) * sampleWidth))
+    const sample = document.createElement("canvas")
+    sample.width = sampleWidth
+    sample.height = sampleHeight
+    const ctx = sample.getContext("2d", { willReadFrequently: true })
+    if (!ctx) return true
+    ctx.drawImage(canvas, 0, 0, sampleWidth, sampleHeight)
+    return pixelsHaveInk(ctx.getImageData(0, 0, sampleWidth, sampleHeight).data)
+  } catch {
+    return true
+  }
+}
+
 export interface ExportElementToPdfOptions {
   /** عنصر المقال المعروض (يُلتقط كما هو: خط القارئ وحجمه وتباعده) */
   element: HTMLElement
@@ -165,40 +236,79 @@ export async function exportElementToPdf(options: ExportElementToPdfOptions): Pr
     const marginMm = 6
     const contentWidthMm = 210 - marginMm * 2
 
-    for (let i = 0; i < plan.pageCount; i += 1) {
-      const sliceHeight = Math.min(plan.sliceHeightPx, height - i * plan.sliceHeightPx)
-      /*
-        الملتقط هو المستنسخ لا العنصر الحيّ: المستنسخ يحمل صنف pdf-export
-        (سمة فاتحة قسراً + إخفاء خِضالة التفاعل .no-pdf) فالملف يطابق ما
-        قُرِّر أن يخرج، والصفحة الحية لا تُلمس.
-
-        ⚠ x/y في html2canvas-pro (2.x) إزاحتان نسبيتان إلى أعلى-يسار العنصر
-        الملتقط — تُجمعان مع حدوده داخل المستنسخ:
-            x = (opts.x ?? 0) + left   ,   y = (opts.y ?? 0) + top
-        وليستا إحداثيات مستندية مطلقة كما في html2canvas 1.x. تمرير إحداثيات
-        المستنسخ (top:0;left:-10000px) كان يُزيح نافذة القص ~10000px خارج
-        المحتوى في كل صفحة، فينزل الملف صفحات بيضاء فارغة. الصحيح: القص من
-        أعلى العنصر (x=0) والنزول شريحةً في كل صفحة (y = i × ارتفاع الشريحة).
-      */
-      const canvas = await html2canvas(clone, {
+    /**
+     * لقطة شريحة صفحة واحدة من المستنسخ.
+     *
+     * ⚠ x/y في html2canvas-pro (2.x) إزاحتان نسبيتان إلى أعلى-يسار العنصر
+     * الملتقط — تُجمعان مع حدوده داخل المستنسخ:
+     *     x = (opts.x ?? 0) + left   ,   y = (opts.y ?? 0) + top
+     * وليستا إحداثيات مستندية مطلقة كما في html2canvas 1.x. تمرير إحداثيات
+     * المستنسخ (top:0;left:-10000px) كان يُزيح نافذة القصّ ~10000px خارج
+     * المحتوى في كل صفحة، فينزل الملف صفحات بيضاء فارغة. الصحيح: القصّ من أعلى
+     * العنصر (x=0) والنزول شريحةً في كل صفحة (y = i × ارتفاع الشريحة).
+     *
+     * و scrollX/scrollY مثبَّتان على الصفر: الإزاحات نسبية للعنصر، فلا سبب
+     * لأن يتسرّب موضع تمرير الصفحة لحظة الضغط إلى هندسة القصّ.
+     */
+    const captureSlice = (index: number, sliceHeightPx: number, scale: number) =>
+      html2canvas(clone, {
         backgroundColor,
-        scale: plan.scale,
+        scale,
         // صور المقال من مخزن Supabase/R2 — CORS مطلوب لتضمينها؛ ما لا
         // يُحمَّل يُترك فارغاً ولا يُفسد الملف كله (لا تلويث للـcanvas)
         useCORS: true,
         allowTaint: false,
         logging: false,
         imageTimeout: 10000,
+        scrollX: 0,
+        scrollY: 0,
+        // هيكل الموقع ليس داخل المستنسخ الملتقط أصلاً؛ استبعاده من استنساخ
+        // المستند يوفّر ذاكرة ووقتاً (الهيدر والتذييل وحدهما عشرات الروابط)
+        ignoreElements: (node) =>
+          node instanceof Element && SITE_CHROME_CLASSES.some((name) => node.classList.contains(name)),
+        onError: (error) => console.warn("[pdf] resource failed during capture:", error),
         x: 0,
-        y: i * plan.sliceHeightPx,
+        y: index * plan.sliceHeightPx,
         width,
-        height: sliceHeight,
+        height: sliceHeightPx,
       })
+
+    let blankPages = 0
+
+    for (let i = 0; i < plan.pageCount; i += 1) {
+      const sliceHeight = Math.min(plan.sliceHeightPx, height - i * plan.sliceHeightPx)
+      let canvas = await captureSlice(i, sliceHeight, plan.scale)
+
+      if (!canvasHasInk(canvas) && plan.scale > MIN_SCALE) {
+        // بيضاء: الأرجح فشل تخصيص ذاكرة عند التكبير — نُخفّفه ونعيد المحاولة
+        // مرة واحدة (نفس نافذة القصّ؛ التكبير لا يغيّر الإحداثيات بالبكسل CSS)
+        console.warn(
+          `[pdf] page ${i + 1}/${plan.pageCount} came back blank at scale ${plan.scale} — retrying at ${MIN_SCALE}`
+        )
+        canvas = await captureSlice(i, sliceHeight, MIN_SCALE)
+      }
+
+      if (!canvasHasInk(canvas)) {
+        blankPages += 1
+        console.warn(`[pdf] page ${i + 1}/${plan.pageCount} is still blank (${canvas.width}×${canvas.height})`)
+        // لا معنى لبناء ملف صفحاته بيضاء: نفشل مبكراً (من أول صفحة) فيسقط
+        // المسار البديل في الصفحة — حوار الطباعة «حفظ كـ PDF» — وهو ملف حقيقي
+        if (i === 0) {
+          throw new Error(
+            `لقطة فارغة: الصفحة الأولى بيضاء تماماً (مقال ${width}×${height}px، تكبير ${plan.scale})`
+          )
+        }
+      }
+
       const dataUrl = canvas.toDataURL("image/jpeg", 0.95)
       const sliceHeightMm = contentWidthMm * (canvas.height / canvas.width)
       if (i > 0) pdf.addPage()
       pdf.addImage(dataUrl, "JPEG", marginMm, marginMm, contentWidthMm, sliceHeightMm)
       onProgress?.(i + 1, plan.pageCount)
+    }
+
+    if (blankPages === plan.pageCount) {
+      throw new Error(`لقطات فارغة: كل صفحات المقال (${plan.pageCount}) خرجت بيضاء`)
     }
 
     pdf.save(fileName)

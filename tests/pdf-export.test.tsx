@@ -10,13 +10,19 @@
 //     فقط، في chunk مستقل لا يجرفه vendor العام إلى كل صفحة.
 //   • خِضالة التفاعل (تعليقات/تفاعلات/شريك/أزرار) تُستبعد بـ .no-pdf فيخرج
 //     الملف للمذاكرة والطباعة، والسمة فاتحة قسراً حتى لو كان الموقع داكناً.
-import { beforeEach, describe, expect, test, vi } from "vitest"
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { readFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 import { act } from "react"
 
-import { PDF_EXPORT_CLASS, exportElementToPdf, planPdfPages } from "../src/lib/articles/exportPdf"
+import {
+  PDF_EXPORT_CLASS,
+  canvasHasInk,
+  exportElementToPdf,
+  pixelsHaveInk,
+  planPdfPages,
+} from "../src/lib/articles/exportPdf"
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const read = (file: string) => readFileSync(path.join(rootDir, file), "utf8")
@@ -79,6 +85,42 @@ vi.mock("html2canvas-pro", () => ({
 beforeEach(() => {
   pdfState.failCanvas = false
 })
+
+/*
+  jsdom لا ينفّذ canvas 2D (getContext → null)، وفحص «هل اللقطة بيضاء؟» يحتاج
+  سياقاً حقيقياً. نستبدل getContext على الـprototype بسياق مزيف يُرجع بكسلات
+  نحددها نحن، ثم نُعيد الواصف الأصلي كما كان — لا delete الذي كان سيترك
+  الـprototype بلا getContext إطلاقاً.
+*/
+const originalContextDescriptor = Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype, "getContext")
+
+/** بكسلات بيضاء = «لا حبر»، وداكنة = «حبر» — والعدّاد يقرر أيهما في كل نداء */
+function stubCanvasContext(nextPixels: () => "white" | "ink") {
+  Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
+    configurable: true,
+    value: () => ({
+      drawImage: () => {},
+      getImageData: (_x: number, _y: number, w: number, h: number) => {
+        const data = new Uint8ClampedArray(w * h * 4).fill(255)
+        if (nextPixels() === "ink") {
+          // عُشر العيّنة داكن — أعلى بكثير من عتبة 0.01%
+          for (let i = 0; i < data.length; i += 40) {
+            data[i] = 30
+            data[i + 1] = 30
+            data[i + 2] = 30
+          }
+        }
+        return { data }
+      },
+    }),
+  })
+}
+
+function restoreCanvasContext() {
+  if (originalContextDescriptor) {
+    Object.defineProperty(HTMLCanvasElement.prototype, "getContext", originalContextDescriptor)
+  }
+}
 
 /* ────────────────────────────────────────────────────────────────────────
    1) خطة التقسيم إلى صفحات A4
@@ -232,6 +274,122 @@ describe("exportElementToPdf", () => {
     expect(el.className).toBe("reader-shell")
     expect(document.querySelector(".pdf-export")).toBeNull()
     expect(pdfState.saved).toBeNull()
+    el.remove()
+  })
+})
+
+/* ────────────────────────────────────────────────────────────────────────
+   2.5) كشف اللقطة البيضاء — لا ينزل ملف فارغ أبداً
+──────────────────────────────────────────────────────────────────────── */
+
+describe("pixelsHaveInk — عتبة «لا حبر إطلاقاً»", () => {
+  const white = (pixels: number) => new Uint8ClampedArray(pixels * 4).fill(255)
+
+  test("بيضاء تماماً → بلا حبر", () => {
+    expect(pixelsHaveInk(white(1000))).toBe(false)
+  })
+
+  test("مصفوفة فارغة → بلا حبر (لا قسمة على صفر)", () => {
+    expect(pixelsHaveInk(new Uint8ClampedArray(0))).toBe(false)
+  })
+
+  test("بكسلان داكنان في عشرة آلاف → حبر (العتبة عند الحدّ الأدنى)", () => {
+    const data = white(10_000)
+    data[0] = 20; data[1] = 20; data[2] = 20
+    data[4] = 20; data[5] = 20; data[6] = 20
+    expect(pixelsHaveInk(data)).toBe(true)
+  })
+
+  test("شبه أبيض (فرق ≤ 6 درجات) ليس حبراً — لا إيجاب كاذب على صفحة هامش", () => {
+    const data = white(500)
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 250; data[i + 1] = 251; data[i + 2] = 249
+    }
+    expect(pixelsHaveInk(data)).toBe(false)
+  })
+
+  test("شفاف تماماً لا يُحسب حبراً", () => {
+    const data = white(500)
+    for (let i = 3; i < data.length; i += 4) data[i] = 0
+    expect(pixelsHaveInk(data)).toBe(false)
+  })
+})
+
+describe("canvasHasInk — الفحص نفسه على canvas", () => {
+  afterEach(restoreCanvasContext)
+
+  function fakeCanvas(width = 1488, height = 2104): HTMLCanvasElement {
+    const canvas = document.createElement("canvas")
+    Object.defineProperty(canvas, "width", { value: width, configurable: true })
+    Object.defineProperty(canvas, "height", { value: height, configurable: true })
+    return canvas
+  }
+
+  test("لقطة بيضاء → false، ولقطة فيها حبر → true", () => {
+    stubCanvasContext(() => "white")
+    expect(canvasHasInk(fakeCanvas())).toBe(false)
+    restoreCanvasContext()
+    stubCanvasContext(() => "ink")
+    expect(canvasHasInk(fakeCanvas())).toBe(true)
+  })
+
+  test("canvas بأبعاد صفرية → false (لا استثناء)", () => {
+    stubCanvasContext(() => "ink")
+    expect(canvasHasInk(fakeCanvas(0, 0))).toBe(false)
+  })
+
+  test("بلا سياق 2D (jsdom) → true: الشكّ لا يُفسد تصديراً ناجحاً", () => {
+    // getContext الأصلي في jsdom يعيد null
+    expect(canvasHasInk(fakeCanvas())).toBe(true)
+  })
+})
+
+describe("exportElementToPdf — لقطة بيضاء", () => {
+  afterEach(restoreCanvasContext)
+
+  function makeArticleElement(heightPx: number): HTMLElement {
+    Object.defineProperty(HTMLElement.prototype, "offsetWidth", { value: 560, configurable: true })
+    Object.defineProperty(HTMLElement.prototype, "offsetHeight", { value: heightPx, configurable: true })
+    const el = document.createElement("article")
+    el.className = "reader-shell"
+    document.body.appendChild(el)
+    return el
+  }
+
+  test("فشل صريح بدل ملف صفحاته بيضاء (فيسقط مسار الطباعة البديل)", async () => {
+    stubCanvasContext(() => "white")
+    const el = makeArticleElement(800)
+    await act(async () => {
+      await expect(
+        exportElementToPdf({ element: el, fileName: "blank.pdf", title: "مقال" })
+      ).rejects.toThrow("لقطة فارغة")
+    })
+    // لم يُحفظ ملف، ولم يبقَ أثر للمستنسخ
+    expect(pdfState.saved).toBeNull()
+    expect(document.querySelector(".pdf-export")).toBeNull()
+    expect(el.className).toBe("reader-shell")
+    el.remove()
+  })
+
+  test("بيضاء عند التكبير 2 → إعادة محاولة بتكبير 1 ثم ملف كامل", async () => {
+    // أول فحص (شريحة التكبير 2) بيضاء، وكل ما بعده فيه حبر
+    let checks = 0
+    stubCanvasContext(() => (checks++ === 0 ? "white" : "ink"))
+    const el = makeArticleElement(2400)
+    await act(async () => {
+      await exportElementToPdf({ element: el, fileName: "retry.pdf", title: "مقال" })
+    })
+    const plan = planPdfPages(560, 2400)
+    expect(plan.scale).toBe(2)
+    // 4 صفحات + إعادة محاولة واحدة للصفحة الأولى
+    expect(pdfState.calls).toHaveLength(plan.pageCount + 1)
+    expect(pdfState.calls[0].options.scale).toBe(2)
+    expect(pdfState.calls[1].options.scale).toBe(1)
+    // نفس نافذة القصّ في المحاولتين: التكبير لا يغيّر الإزاحات
+    expect(pdfState.calls[1].options.x).toBe(0)
+    expect(pdfState.calls[1].options.y).toBe(0)
+    expect(pdfState.saved).toBe("retry.pdf")
+    expect(pdfState.pages).toBe(plan.pageCount)
     el.remove()
   })
 })
