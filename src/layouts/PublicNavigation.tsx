@@ -132,7 +132,9 @@ export function Header({
 
   return (
     <>
-      <header className="sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
+      {/* site-header / site-mobile-menu: هوية بذاتها حتى يستطيع وضع القراءة
+          الأقصى إخفاء هيكل الموقع من CSS (globals.css) بلا تفكيك للشجرة */}
+      <header className="site-header sticky top-0 z-[50] w-full bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-md border-b border-[#e2e8f0] dark:border-[#1e293b]">
         <div className="container mx-auto max-w-[1280px] px-4 h-16 flex items-center justify-between gap-3">
           <Brand onClick={handleNavClick} />
 
@@ -197,8 +199,8 @@ export function Header({
 
       {menuOpen && (
         <>
-          <div className="lg:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-[1px] z-[60]" onClick={onCloseMenu} aria-hidden="true" />
-          <div className="lg:hidden fixed right-3 top-[70px] w-[300px] max-w-[calc(100vw-24px)] z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="site-mobile-menu lg:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-[1px] z-[60]" onClick={onCloseMenu} aria-hidden="true" />
+          <div className="site-mobile-menu lg:hidden fixed right-3 top-[70px] w-[300px] max-w-[calc(100vw-24px)] z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
               <nav className="p-2.5 space-y-1 max-h-[70vh] overflow-y-auto">
                 <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
@@ -244,7 +246,7 @@ export function Header({
 
 export function Footer() {
   return (
-    <footer className="mt-20 bg-[#0f172a] text-white">
+    <footer className="site-footer mt-20 bg-[#0f172a] text-white">
       <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_0.9fr]">
         <div>
           <div className="flex items-center gap-2.5">

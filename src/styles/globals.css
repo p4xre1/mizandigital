@@ -145,3 +145,83 @@
 
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   تفضيلات القراءة ووضع القراءة الأقصى (صفحة المقال/الخبر)
+   ─────────────────────────────────────────────────────────────────────
+   المتغيرات تُقاد من سمات على <html> (data-reader-font/size/leading/theme)
+   يضبطها سكربت الاستباق في index.html قبل أول رسم — بلا وميض خط أو سمة —
+   ثم يزامنها React عبر src/lib/reading/prefs.ts. القيم الافتراضية أدناه
+   هي نفسها قيم «عادي/متوسط» حتى يكون غياب السمة مكافئاً لها تماماً.
+   ═══════════════════════════════════════════════════════════════════════ */
+:root {
+  --reader-font-size: 1rem;        /* عادي */
+  --reader-font-size-md: 1.0625rem;
+  --reader-leading: 1.9;           /* متوسط */
+}
+:root[data-reader-size="small"] { --reader-font-size: 0.875rem; --reader-font-size-md: 0.9375rem; }
+:root[data-reader-size="large"] { --reader-font-size: 1.125rem; --reader-font-size-md: 1.25rem; }
+:root[data-reader-leading="tight"] { --reader-leading: 1.7; }
+:root[data-reader-leading="relaxed"] { --reader-leading: 2.1; }
+/* الخط يُطبَّق على متن المقال فقط؛ الخطوط ذاتية الاستضافة عبر @fontsource
+   وتُحمَّل ديناميكياً عند الاختيار (لا طلب خارجي ولا تغيير في CSP). */
+:root[data-reader-font="naskh"] { --reader-font-family: "Noto Naskh Arabic", "Cairo", serif; }
+:root[data-reader-font="amiri"] { --reader-font-family: "Amiri", "Cairo", serif; }
+:root[data-reader-font="plex"] { --reader-font-family: "IBM Plex Sans Arabic", "Cairo", sans-serif; }
+:root[data-reader-font="readex"] { --reader-font-family: "Readex Pro", "Cairo", sans-serif; }
+
+/* متن المقال: خط القارئ + حجمه + تباعده؛ العناوين تحتفظ بخط الموقع */
+.reader-body {
+  font-family: var(--reader-font-family, var(--font-sans));
+  font-size: var(--reader-font-size);
+  line-height: var(--reader-leading);
+}
+@media (min-width: 768px) {
+  .reader-body { font-size: var(--reader-font-size-md); }
+}
+.reader-body h2,
+.reader-body h3 { font-family: var(--font-sans); }
+
+/*
+  سمة «ورقي» (sepia): محصورة بغلاف المقال .reader-shell عبر متغيرات CSS،
+  فتعيد تلوين كل ما بداخله (البطاقة، التفاعلات، التعليقات) دون أن تلمس
+  سمة الموقع التي يديرها useTheme — لا اصطدام ولا تسريب للخارج.
+*/
+:root[data-reader-theme="sepia"] .reader-shell {
+  --background: 41 36% 93%;
+  --foreground: 28 30% 16%;
+  --card: 42 42% 90%;
+  --card-foreground: 28 30% 16%;
+  --primary: 25 55% 34%;
+  --primary-foreground: 43 42% 95%;
+  --secondary: 40 30% 85%;
+  --secondary-foreground: 25 50% 26%;
+  --muted: 40 28% 84%;
+  --muted-foreground: 28 20% 34%;
+  --border: 35 26% 74%;
+  --input: 35 26% 74%;
+  --ring: 25 55% 34%;
+  --accent: 40 30% 85%;
+  --accent-foreground: 25 50% 26%;
+  --edu-blue: 25 55% 34%;
+  --edu-light-blue: 40 30% 85%;
+  --edu-sky: 30 45% 45%;
+}
+
+/*
+  وضع القراءة الأقصى: إخفاء هيكل الموقع (الهيدر، الفوتر، قائمة الجوال المفتوحة)
+  بينما تبقى العناصر في الشجرة — لا تُفقد أي حالة في مكوّنات المقال عند
+  التبديل، والعودة للوضع العادي فورية بلا إعادة تركيب.
+*/
+body.reader-max-active .site-header,
+body.reader-max-active .site-footer,
+body.reader-max-active .site-mobile-menu { display: none !important; }
+
+/* درج الفهرس في وضع القراءة الأقصى — ينزلق من جهة البداية (يمين في RTL) */
+@keyframes readerDrawer {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*="readerDrawer"] { animation: none !important; }
+}
