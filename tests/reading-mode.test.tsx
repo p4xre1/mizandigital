@@ -117,7 +117,7 @@ describe("سكربت الاستباق يطبّق التفضيلات قبل أو�
   })
 
   test("«ورقي» لا يغير سمة الموقع — تُقرأ من mizan_theme أو النظام", () => {
-    const script = /<script>\s*\(function \(\) \{[\s\S]*?\}\)\(\);\s*<\/script>/.exec(indexHtml)?.[0] ?? ""
+    const script = /<script>\s*\(function \(\) \{[\s\S]*?\}\)\(\);\s*<\/script>/i.exec(indexHtml)?.[0] ?? ""
     expect(script).toContain('sepia')
     expect(script).toContain('localStorage.getItem("mizan_theme")')
   })
@@ -127,7 +127,7 @@ describe("سكربت الاستباق يطبّق التفضيلات قبل أو�
   })
 
   test("يبقى سكربتاً مضمّناً واحداً قابلاً للتنفيذ (CSP hash واحد)", () => {
-    const scripts = indexHtml.match(/<script>/g) ?? []
+    const scripts = indexHtml.match(/<script>/gi) ?? []
     expect(scripts).toHaveLength(1)
   })
 })

@@ -2,6 +2,9 @@ packages:
   - "."
 allowBuilds:
   '@tailwindcss/oxide': true
+  # تبعية انتقالية لـ jspdf (تصدير PDF): سكربت postinstall عندها إعلان تمويل
+  # فقط ولا حاجة له في البناء — قرار صريح حتى لا يفشل pnpm 12 الصارم
+  core-js: false
   esbuild: true
   puppeteer: true
   sharp: true
