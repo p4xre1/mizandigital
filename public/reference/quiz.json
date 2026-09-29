@@ -1,7 +1,7 @@
 {
  "dataset": "quiz",
  "title": "بنك أسئلة الاختبارات",
- "generatedAt": "2026-09-29T01:01:29.978Z",
+ "generatedAt": "2026-09-29T01:36:40.696Z",
  "count": 224,
  "section": "https://www.mizan.page/quiz",
  "urlPattern": "https://www.mizan.page/quiz/{tier}",

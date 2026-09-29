@@ -1,7 +1,7 @@
 {
  "dataset": "docs",
  "title": "الأرشيف الدراسي (ملفات وملخصات)",
- "generatedAt": "2026-09-29T01:01:29.978Z",
+ "generatedAt": "2026-09-29T01:36:40.696Z",
  "count": 9,
  "section": "https://www.mizan.page/archive",
  "urlPattern": "https://www.mizan.page/pdf/{slug}",

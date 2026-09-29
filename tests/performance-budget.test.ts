@@ -279,7 +279,18 @@ describe("روابط التحميل في صفحات /pdf/ بدون nofollow", ()
         const rel = /rel="([^"]*)"/i.exec(tag)?.[1] ?? ""
         if (!/nofollow/i.test(rel)) continue
         const href = /href="([^"]*)"/i.exec(tag)?.[1] ?? ""
-        const isInternal = !/^https?:\/\//i.test(href) || href.startsWith("https://www.mizan.page")
+        const isHttp = /^https?:\/\//i.test(href)
+        let isInternal = !isHttp
+        if (isHttp) {
+          // مقارنة(hostname) الكاملة بعد التحليل — لا substring، حتى لا تُعدّ
+          // نطاقات مثل www.mizan.page.evil.com داخلية (CodeQL: incomplete URL sanitization)
+          try {
+            const parsed = new URL(href)
+            isInternal = parsed.protocol === "https:" && parsed.hostname === "www.mizan.page"
+          } catch {
+            isInternal = false
+          }
+        }
         expect(
           isInternal,
           `رابط داخلي nofollow في dist/pdf/${file}: ${href}`,
