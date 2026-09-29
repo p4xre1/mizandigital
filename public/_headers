@@ -30,8 +30,10 @@
 # مضيف https://fonts.gstatic.com — الخطوط صارت محلية في /fonts/ ولم يبقَ أي
 # طلب إليها (انظر src/styles/fonts.css). تضييق القائمة مقصود: سياسة أضيق
 # وأصدق مع ما تُحمّله الصفحة فعلاً. ويبقى 'unsafe-inline' في style-src لأنه
-# ضروري: ملف CSS يُضمَّن الآن داخل كل مستند (scripts/inline-css.mjs) لإلغاء
-# طلب يحجب الرسم، ووضعه في ملف خارجي مع hash لكل مستند عبث بلا مقابل.
+# ضروري: React وسكربت السمة يضبطان سمات style= مباشرة على العناصر (color-scheme
+# وغيرها) ولا يمكن استبدالها بclasses ديناميكياً. ملف CSS نفسه لم يعد
+# مضمَّناً: يُحمَّل preload غير حاجب ثم يقلبه سكربت السمة (انظر
+# scripts/nonblocking-css.mjs) — بلا <style> مضمّن في المستندات.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN

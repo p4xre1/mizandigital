@@ -3,7 +3,7 @@
 > Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.
 
 - **النطاق:** https://www.mizan.page
-- **تاريخ التوليد:** 2026-09-28T23:25:28.866Z
+- **تاريخ التوليد:** 2026-09-29T01:01:29.978Z
 - **إجمالي السجلات:** 562
 - **الصادر:** بيانات محلية فقط (CMS غير متاح وقت البناء)
 

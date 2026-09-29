@@ -75,28 +75,44 @@ describe("الخطوط محلية", () => {
 })
 
 /* ────────────────────────────────────────────────────────────────────────
-   3) CSS — لا طلب يحجب الرسم: يُضمَّن في كل مستند أثناء البناء
+   3) CSS — لا طلب يحجب الرسم: preload غير حاجب + قَلب بسكربت السمة
+   (قرار 2026-09-29: التضمين الكامل — 181KB في كل مستند — كان يفلس
+   مؤشر text/HTML ratio؛ انظر docs/audits و scripts/nonblocking-css.mjs)
 ──────────────────────────────────────────────────────────────────────── */
 
-describe("CSS مضمّن في المستند (إلغاء الطلب الحاجب للرسم)", () => {
-  test("خطوة inline-css موجودة ومركّبة في أمر البناء قبل فحص CSP", () => {
-    expect(hasFile("scripts/inline-css.mjs")).toBe(true)
+describe("CSS غير حاجب للرسم (preload + قَلب بسكربت السمة)", () => {
+  test("خطوة nonblocking-css موجودة ومركّبة في أمر البناء قبل فحص CSP", () => {
+    expect(hasFile("scripts/nonblocking-css.mjs")).toBe(true)
     const build = pkg.scripts.build
-    expect(build).toContain("node scripts/inline-css.mjs")
-    expect(build.indexOf("inline-css.mjs")).toBeLessThan(build.indexOf("csp-hashes.mjs"))
-    // بعد كل خطوات توليد HTML، وإلا أُضيفت صفحات بلا CSS مضمّن
-    expect(build.indexOf("enhance-lexicon-prerender.mjs")).toBeLessThan(build.indexOf("inline-css.mjs"))
+    expect(build).toContain("node scripts/nonblocking-css.mjs")
+    expect(build.indexOf("nonblocking-css.mjs")).toBeLessThan(build.indexOf("csp-hashes.mjs"))
+    // بعد كل خطوات توليد HTML، وإلا أُضيفت صفحات بلا preload للنمط
+    expect(build.indexOf("enhance-lexicon-prerender.mjs")).toBeLessThan(build.indexOf("nonblocking-css.mjs"))
+    // لا عودة إلى التضمين: السكربت القديم ومكانه في البناء محذوفان
+    expect(build).not.toContain("inline-css.mjs")
   })
 
   const distReady = hasFile("dist/index.html")
-  test.skipIf(!distReady)("dist/index.html: نمط مضمّن، ولا وسم stylesheet يحجب الرسم", () => {
+  test.skipIf(!distReady)("dist/index.html: preload للنمط، ولا وسم stylesheet يحجب الرسم", () => {
     const html = read("dist/index.html")
-    expect(html).toContain("<style data-mizan-inline-css>")
-    const links = html.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []
-    expect(links.filter((tag) => /href="\/assets\//.test(tag))).toEqual([])
+    // لا نمط مضمّن: المستند يبقى نحيفاً من أجل text/HTML ratio
+    expect(html).not.toContain("data-mizan-inline-css")
+    // النمط preload غير حاجب مع وسمة القَلب
+    expect(html).toMatch(/<link rel="preload" as="style" href="\/assets\/[^"]+\.css" data-mizan-async-css>/)
+    // fallback للمتصفحات بلا JS
+    expect(html).toMatch(/<noscript><link rel="stylesheet" href="\/assets\/[^"]+\.css"><\/noscript>/)
+    // لا وسم stylesheet خارجي حاجب (خارج <noscript>)
+    const withoutNoscript = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, "")
+    const blocking = (withoutNoscript.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []).filter(
+      (tag) => /href="\/assets\//.test(tag)
+    )
+    expect(blocking).toEqual([])
+    // سكربت السمة يحمل منطق القَلب قبل أي محتوى
+    expect(html).toContain("data-mizan-async-css]")
+    expect(html.indexOf("data-mizan-async-css]")).toBeLessThan(html.indexOf('<div id="root">'))
     // التحميل المسبق للخطوط قبل النمط وقبل أي محتوى
-    expect(html.indexOf('rel="preload" as="font"')).toBeLessThan(html.indexOf("<style data-mizan-inline-css>"))
-    expect(html.indexOf("<style data-mizan-inline-css>")).toBeLessThan(html.indexOf('<div id="root">'))
+    expect(html.indexOf('rel="preload" as="font"')).toBeLessThan(html.indexOf('rel="preload" as="style"'))
+    expect(html.indexOf('rel="preload" as="style"')).toBeLessThan(html.indexOf('<div id="root">'))
   })
 })
 
