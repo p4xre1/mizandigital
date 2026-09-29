@@ -11,7 +11,19 @@
 
 User-agent: *
 Allow: /
-Content-Signal: search=yes, ai-input=yes, ai-train=yes
+
+# ── Content-Signal مُعلَّق عن قصد (تدقيق SEO: robots.txt غير صالح) ─────────
+# كان السطر هنا:
+#     Content-Signal: search=yes, ai-input=yes, ai-train=yes
+# بروتوكول استبعاد الروبوتات لا يعرف إلا مجموعة محدودة من التوجيهات
+# (User-agent / Allow / Disallow / Sitemap / Crawl-delay…)؛ «Content-Signal»
+# اقتراح غير معتمد بعد (contentsignals.org)، فترفضه محلّلات صارمة وبعض
+# إصدارات Lighthouse بوصفه «Unknown directive» — فيصبح الملف كله «غير صالح»
+# وتُسحب 8 نقاط من تقييم SEO، وهي نفس المشكلة التي حُوِّل توجيه Agentmap
+# بسببها إلى تعليق. الإشارات نفسها تُعلن في قنوات معتمدة: ai.txt (تحت
+# «AI-friendly content declaration») وllms.txt وترويسات Link في public/_headers.
+# أعِد التفعيل فقط بعد اعتماد التوجيه في كل المحلّلات التي نتتبعها.
+# Content-Signal: search=yes, ai-input=yes, ai-train=yes
 
 # =====================================================
 # 2. Meta / Facebook / WhatsApp

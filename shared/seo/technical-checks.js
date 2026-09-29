@@ -237,10 +237,14 @@ export function checkRobots(content, { siteUrl = "", criticalPaths = [] } = {}) 
   // الصارمة ترفض الملف كله. الفحص مُعاد حرفياً من
   // core/audits/seo/robots-txt.js (DIRECTIVE_SAFELIST) حتى يُرصد محلياً قبل
   // Lighthouse. التعليقات مستثناة كما في المحلّل نفسه.
+  // ملاحظة: «content-signal» مقبول في أحدث إصدارات Lighthouse لكنه اقتراح غير
+  // معتمد (contentsignals.org) ترفزه محلّلات صارمة وأدوات تدقيق أقدم (ورصدت
+  // أداة تدقيق الموقع السطر فعلاً في robots.txt)، لذا يُستبعد هنا عمداً:
+  // نبقى على التقاطع المشترك بين كل المحلّلات، والإشارة تُعلن في ai.txt.
   const SAFELIST = new Set([
     "user-agent", "disallow", "allow", "sitemap",
     "crawl-delay", "clean-param", "host",
-    "request-rate", "visit-time", "noindex", "content-signal",
+    "request-rate", "visit-time", "noindex",
   ])
   const unknownDirectives = []
   text.split(/\r\n|\r|\n/).forEach((rawLine) => {
@@ -306,7 +310,19 @@ export function checkSitemap(xml, expectedRoutes = [], { siteUrl = "" } = {}) {
     issues.push(`${slashed.length} رابط بشرطة نهاية في الخريطة (النطاق القانوني بلا شرطة): ${slashed.slice(0, 3).join(", ")}`)
   }
 
-  const wrongHost = locs.filter((l) => /^https?:\/\/(?:www\.)?mizan\.page/i.test(l) && !l.startsWith(siteUrl || "https://www.mizan.page"))
+  // مقارنة hostname كاملة بعد التحليل — لا substring، حتى لا تُعدّ نطاقات
+  // مماثلة مثل mizan.page.evil.com من ضمن العائلة (CodeQL: incomplete URL sanitization)
+  const canonical = siteUrl || "https://www.mizan.page"
+  const wrongHost = locs.filter((l) => {
+    let host
+    try {
+      host = new URL(l).hostname
+    } catch {
+      return false
+    }
+    if (host !== "mizan.page" && host !== "www.mizan.page") return false
+    return l !== canonical && !l.startsWith(`${canonical}/`)
+  })
   if (wrongHost.length) {
     issues.push(`${wrongHost.length} رابط على نطاق غير النطاق القانوني (mizan.page بلا www؟): ${wrongHost.slice(0, 2).join(", ")}`)
   }

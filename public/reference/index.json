@@ -1,7 +1,7 @@
 {
  "name": "Mizan Digital AI Reference",
  "version": "1.0.0",
- "generatedAt": "2026-09-27T16:25:57.487Z",
+ "generatedAt": "2026-09-29T01:36:40.696Z",
  "domain": "https://www.mizan.page",
  "description": "Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.",
  "disclaimer": "Educational and research content for Moroccan law students. Verify legal claims against official sources: sgg.gov.ma (Official Gazette) and adala.justice.gov.ma (Adala portal).",

@@ -5,21 +5,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-    <!--
-      Theme bootstrap — يجب أن يُنفَّذ قبل أي رسم.
-      سابقاً كان <html class="dark"> ثابتاً في المستند، ثم بعد تحميل React
-      يقوم useTheme() بتبديله إلى light حسب تفضيل النظام. النتيجة: وميض
-      داكن→فاتح على كل زيارة، وإعادة رسم لكل عناصر transition-colors/
-      transition-all (رصد Lighthouse منها 49 عنصر «non-composited animation»).
-      هذا السكربت يطبّق السمة الصحيحة قبل أول رسم فيختفي الوميض والسبب معه.
-
-      وهو يطبّق كذلك تفضيلات القراءة (mizan_reading_prefs: خط، حجم، تباعد،
-      سمة قراءة) كسمات data-reader-* على <html> قبل أول رسم — بلا وميض خط
-      أو سمة ورقية. «ورقي» لا يغيّر سمة الموقع؛ هو غلاف مقال فقط (شوف
-      .reader-shell في globals.css)، فتبقى سمة الموقع من mizan_theme أو
-      تفضيل النظام. وضع القراءة الأقصى لا يُستأنف أبداً من التخزين: الزيارة
-      تبدأ دائماً في الوضع العادي.
-    -->
+    <!-- Theme bootstrap: يثبّت السمة وتفضيلات القراءة (data-reader-*) قبل أول
+         رسم — يمنع الوميض الداكن→فاتح (docs/audits). يحمل أيضاً قَلب
+         الـpreload إلى stylesheet (scripts/nonblocking-css.mjs). -->
     <script>
       (function () {
         try {
@@ -42,6 +30,21 @@
           if (size) root.setAttribute("data-reader-size", size);
           if (leading) root.setAttribute("data-reader-leading", leading);
           if (sepia) root.setAttribute("data-reader-theme", "sepia");
+
+          // CSS غير حاجب للرسم: يبني Vite وسم preload للنمط (يبدأ التنزيل فوراً
+          // دون حبس التحليل)، ثم يقلّبه هذا السكربت إلى stylesheet في أول إطار
+          // يتوفر فيه الوسم (Vite يحقنه قرب نهاية <head>). النتيجة: FCP بلا
+          // انتظار CSS، والنمط يطبق لحظة وصوله دون أي طلب يحجب الرسم —
+          // (scripts/nonblocking-css.mjs يحول الوسم، وهذه هي القارئة الوحيدة).
+          var flip = function () {
+            var links = document.querySelectorAll("link[data-mizan-async-css]");
+            if (links.length) {
+              for (var i = 0; i < links.length; i++) links[i].rel = "stylesheet";
+            } else if (!document.body) {
+              requestAnimationFrame(flip);
+            }
+          };
+          flip();
         } catch (e) {}
       })();
     </script>
@@ -62,34 +65,13 @@
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="bingbot" content="index, follow, max-image-preview:large">
 
-    <!--
-      Performance: الخطوط
-      ─────────────────────
-      1) كان يُطلب ملف CSS من fonts.googleapis.com، ومن داخله فقط يُكتشف ملف
-         woff2 — جولتان شبكيتان قبل بدء تنزيل الخط، فيُرسم النص بخط بديل ثم
-         يُستبدل ويتحرّك التخطيط. صار @font-face داخل CSS التطبيق مباشرة.
-      2) كان ملف woff2 نفسه يُجلَب من fonts.gstatic.com — أصل ثالث يستلزم
-         DNS + TCP + TLS قبل أول بايت (~300ms على 4G بطيء). الملفان الآن
-         محليان في /fonts/، فيسافران على نفس اتصال HTTP/2 الذي حمّل المستند،
-         ولا حاجة إلى preconnect لأصل الخطوط أصلاً.
-      3) يُحمَّل الملفان مسبقاً بأولوية عالية لأن العنصر الأكبر (LCP) في
-         الصفحة الرئيسية نصّي: وصول الخط قبل أول رسم يمنع إعادة رسم العنصر
-         الأكبر، فيصبح LCP هو FCP بدل أن يكون موعد وصول الخط.
-      (أُزيل أيضاً dns-prefetch إلى googletagmanager.com: تدقيق Lighthouse
-      يعدّه «preconnect غير مستعمل» لأن تحليلات GA تُحمَّل بعد الخمول أصلاً.)
-    -->
+    <!-- الخطوط محلية في /fonts/ (بلا أصل ثالث) وتُحمَّل مسبقاً: العنصر
+         الأكبر (LCP) نصّي، فوصول الخط قبل أول رسم يمنع إعادة رسمه. -->
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/cairo-arabic.woff2">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/cairo-latin.woff2">
 
-    <!--
-      Canonical & Hreflang
-      ─────────────────────
-      بلا شرطة مائلة في النهاية، حتى على الجذر. الرابط القانوني الموحد هو
-      https://www.mizan.page — أي نسخة أخرى (بشرطة، أو بلا www) هي نفسها
-      في المحتوى وتحتاج canonical يوجّه إليها، وإلا انقسمت إشارة الفهرسة.
-      توحيد الشرطة المائلة على الحافة ينفّذه functions/[[path]].js بقاعدة 301،
-      وهذا الوسم يخبر محركات البحث بالرابط المقصود في كل الأحوال.
-    -->
+    <!-- canonical بلا شرطة نهاية (https://www.mizan.page)؛ الحافة توحد
+         النسخ بـ301 (functions/[[path]].js) -->
     <link rel="canonical" href="https://www.mizan.page">
     <link rel="alternate" hreflang="ar-MA" href="https://www.mizan.page">
     <link rel="alternate" hreflang="ar" href="https://www.mizan.page">
@@ -122,30 +104,17 @@
     <meta name="twitter:image" content="https://www.mizan.page/og-image.png">
     <meta name="twitter:image:alt" content="ميزان الرقمية - منصة المعرفة القانونية">
 
-    <!--
-      أيقونة الموقع في نتائج البحث. سياسة Google تطلب: PNG مربّع أكبر من 48px،
-      رابطًا مستقرًا، وشعارًا يبدو صحيحًا على خلفية بيضاء
-      (developers.google.com/search/docs/appearance/favicon-in-search و /logo).
-      لذلك الأساس هاهنا بلاطة كحلية معتمة — public/logo-512.png المولّد من
-      Logo.svg بواسطة scripts/generate-site-icons.mjs — لا النسخة البيضاء
-      (logo-white-*.png، متوسط RGB ≈ 206,217,241 وشبه شفافة) التي كانت تُعرض
-      فتختفي فوق خلفية نتائج البحث البيضاء. كل sizes يكتب بُعد الملف الحقيقي،
-      ولا اعتماد على SVG لأن صيغ الأيقونات المدعومة عند Google هي
-      BMP/GIF/ICO/PNG/JPEG/PPM/TIFF.
-    -->
+    <!-- أيقونات: أساس PNG كحلي معتّم (يظهر فوق خلفية نتائج Google البيضاء)،
+         كل sizes ببُعد حقيقي، بلا SVG (scripts/generate-site-icons.mjs) -->
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/logo-512.png">
-    <!-- نسخة المتصفح من المتجه: للتبويب فقط، مذكورة بعد النسخ النقطية -->
-    <link rel="icon" type="image/svg+xml" sizes="any" href="/Logo.svg">
-    <!-- أيقونة الشرائط الداكنة؛ تُذكر أخيرًا لأن اختيار Google لا يقرأ media -->
-    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" media="(prefers-color-scheme: dark)">
-    <!-- ICO صالح: 16/32/48 مغلّفة رأسًا؛ سابقًا كان الملف PNG مسمّى .ico -->
-    <link rel="shortcut icon" href="/favicon.ico">
-    <!-- iOS تقصّ الزوايا بنفسها، فتُترك البلاطة معتمة على كامل المربّع -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/svg+xml" sizes="any" href="/Logo.svg">
+        <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" media="(prefers-color-scheme: dark)">
+        <link rel="shortcut icon" href="/favicon.ico">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <meta name="apple-mobile-web-app-title" content="ميزان الرقمية">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">

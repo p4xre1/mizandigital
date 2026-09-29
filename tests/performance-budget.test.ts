@@ -11,7 +11,7 @@
  * الاختبارات التي تلمس dist/ تُتخطّى تلقائياً إن لم يكن البناء قد جرى
  * (CI يشغّل pnpm test قبل pnpm build).
  */
-import { existsSync, readFileSync } from "node:fs"
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs"
 import { gzipSync } from "node:zlib"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
@@ -75,28 +75,44 @@ describe("الخطوط محلية", () => {
 })
 
 /* ────────────────────────────────────────────────────────────────────────
-   3) CSS — لا طلب يحجب الرسم: يُضمَّن في كل مستند أثناء البناء
+   3) CSS — لا طلب يحجب الرسم: preload غير حاجب + قَلب بسكربت السمة
+   (قرار 2026-09-29: التضمين الكامل — 181KB في كل مستند — كان يفلس
+   مؤشر text/HTML ratio؛ انظر docs/audits و scripts/nonblocking-css.mjs)
 ──────────────────────────────────────────────────────────────────────── */
 
-describe("CSS مضمّن في المستند (إلغاء الطلب الحاجب للرسم)", () => {
-  test("خطوة inline-css موجودة ومركّبة في أمر البناء قبل فحص CSP", () => {
-    expect(hasFile("scripts/inline-css.mjs")).toBe(true)
+describe("CSS غير حاجب للرسم (preload + قَلب بسكربت السمة)", () => {
+  test("خطوة nonblocking-css موجودة ومركّبة في أمر البناء قبل فحص CSP", () => {
+    expect(hasFile("scripts/nonblocking-css.mjs")).toBe(true)
     const build = pkg.scripts.build
-    expect(build).toContain("node scripts/inline-css.mjs")
-    expect(build.indexOf("inline-css.mjs")).toBeLessThan(build.indexOf("csp-hashes.mjs"))
-    // بعد كل خطوات توليد HTML، وإلا أُضيفت صفحات بلا CSS مضمّن
-    expect(build.indexOf("enhance-lexicon-prerender.mjs")).toBeLessThan(build.indexOf("inline-css.mjs"))
+    expect(build).toContain("node scripts/nonblocking-css.mjs")
+    expect(build.indexOf("nonblocking-css.mjs")).toBeLessThan(build.indexOf("csp-hashes.mjs"))
+    // بعد كل خطوات توليد HTML، وإلا أُضيفت صفحات بلا preload للنمط
+    expect(build.indexOf("enhance-lexicon-prerender.mjs")).toBeLessThan(build.indexOf("nonblocking-css.mjs"))
+    // لا عودة إلى التضمين: السكربت القديم ومكانه في البناء محذوفان
+    expect(build).not.toContain("inline-css.mjs")
   })
 
   const distReady = hasFile("dist/index.html")
-  test.skipIf(!distReady)("dist/index.html: نمط مضمّن، ولا وسم stylesheet يحجب الرسم", () => {
+  test.skipIf(!distReady)("dist/index.html: preload للنمط، ولا وسم stylesheet يحجب الرسم", () => {
     const html = read("dist/index.html")
-    expect(html).toContain("<style data-mizan-inline-css>")
-    const links = html.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []
-    expect(links.filter((tag) => /href="\/assets\//.test(tag))).toEqual([])
+    // لا نمط مضمّن: المستند يبقى نحيفاً من أجل text/HTML ratio
+    expect(html).not.toContain("data-mizan-inline-css")
+    // النمط preload غير حاجب مع وسمة القَلب
+    expect(html).toMatch(/<link rel="preload" as="style" href="\/assets\/[^"]+\.css" data-mizan-async-css>/)
+    // fallback للمتصفحات بلا JS
+    expect(html).toMatch(/<noscript><link rel="stylesheet" href="\/assets\/[^"]+\.css"><\/noscript>/)
+    // لا وسم stylesheet خارجي حاجب (خارج <noscript>)
+    const withoutNoscript = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, "")
+    const blocking = (withoutNoscript.match(/<link[^>]*rel="stylesheet"[^>]*>/g) ?? []).filter(
+      (tag) => /href="\/assets\//.test(tag)
+    )
+    expect(blocking).toEqual([])
+    // سكربت السمة يحمل منطق القَلب قبل أي محتوى
+    expect(html).toContain("data-mizan-async-css]")
+    expect(html.indexOf("data-mizan-async-css]")).toBeLessThan(html.indexOf('<div id="root">'))
     // التحميل المسبق للخطوط قبل النمط وقبل أي محتوى
-    expect(html.indexOf('rel="preload" as="font"')).toBeLessThan(html.indexOf("<style data-mizan-inline-css>"))
-    expect(html.indexOf("<style data-mizan-inline-css>")).toBeLessThan(html.indexOf('<div id="root">'))
+    expect(html.indexOf('rel="preload" as="font"')).toBeLessThan(html.indexOf('rel="preload" as="style"'))
+    expect(html.indexOf('rel="preload" as="style"')).toBeLessThan(html.indexOf('<div id="root">'))
   })
 })
 
@@ -229,6 +245,92 @@ describe("صور البطاقات البعيدة", () => {
       // width/height صريحان: يمنعان انزياح التخطيط
       expect(img).toMatch(/width=\{\d+\}/)
       expect(img).toMatch(/height=\{\d+\}/)
+    }
+  })
+})
+
+/* ────────────────────────────────────────────────────────────────────────
+   8) روابط التحميل في صفحات /pdf/ — لا nofollow على الروابط الداخلية
+      (كانت أداة التدقيق ترصد 9 روابط داخلية nofollow نحو /docs/*.pdf:
+       الملف نفسه هو محتوى الصفحة الأساسي، وكبح الرابط يُفقدنا إشارة
+       التوجيه الداخلي التي نريد تمريرها لمكتبتنا).
+──────────────────────────────────────────────────────────────────────── */
+
+describe("روابط التحميل في صفحات /pdf/ بدون nofollow", () => {
+  const prerenderSrc = read("scripts/prerender.mjs")
+
+  test("قالب التحميل في prerender لا يُخرج nofollow", () => {
+    // نمط القالب: <a href="..." rel="..." download> — نثبّت أن rel لا يحمل nofollow
+    const tpl = /<p><a href="\$\{escapeHtml\(fileUrl\)\}"([^>]*)download/.exec(prerenderSrc)?.[1] ?? ""
+    expect(tpl, "لم يُعثر على قالب رابط التحميل في scripts/prerender.mjs").toBeTruthy()
+    expect(tpl).not.toMatch(/nofollow/i)
+  })
+
+  const distReady = hasFile("dist/index.html")
+  test.skipIf(!distReady)("الصفحات المُولَّدة: لا رابط داخلي nofollow نحو /docs/", () => {
+    const pdfDir = path.join(rootDir, "dist", "pdf")
+    if (!existsSync(pdfDir)) return
+    const files = readdirSync(pdfDir).filter((f) => f.endsWith(".html"))
+    expect(files.length, "لم تُولَّد صفحات /pdf/").toBeGreaterThan(0)
+    for (const file of files) {
+      const html = readFileSync(path.join(pdfDir, file), "utf8")
+      const anchors = html.match(/<a\b[^>]*>/g) ?? []
+      for (const tag of anchors) {
+        const rel = /rel="([^"]*)"/i.exec(tag)?.[1] ?? ""
+        if (!/nofollow/i.test(rel)) continue
+        const href = /href="([^"]*)"/i.exec(tag)?.[1] ?? ""
+        const isHttp = /^https?:\/\//i.test(href)
+        let isInternal = !isHttp
+        if (isHttp) {
+          // مقارنة(hostname) الكاملة بعد التحليل — لا substring، حتى لا تُعدّ
+          // نطاقات مثل www.mizan.page.evil.com داخلية (CodeQL: incomplete URL sanitization)
+          try {
+            const parsed = new URL(href)
+            isInternal = parsed.protocol === "https:" && parsed.hostname === "www.mizan.page"
+          } catch {
+            isInternal = false
+          }
+        }
+        expect(
+          isInternal,
+          `رابط داخلي nofollow في dist/pdf/${file}: ${href}`,
+        ).toBe(false)
+      }
+    }
+  })
+})
+
+/* ────────────────────────────────────────────────────────────────────────
+   9) روابط المواقع الرسمية للكليات — بلا nofollow
+      (رصدت أداة التدقيق 20 رابطاً خارجياً nofollow نحو مواقع الكليات
+       في صفحة /schools الثابتة: روابط مرجعية موثوقة وهي نفس الروابط
+       التي تُعرض بـ follow في صفحة الكلية نفسها SchoolPage.tsx).
+──────────────────────────────────────────────────────────────────────── */
+
+describe("روابط المواقع الرسمية للكليات بدون nofollow", () => {
+  const enhanceSrc = read("scripts/enhance-schools-prerender.mjs")
+  const nearbySrc = read("src/components/careers/NearbyLawSchools.tsx")
+
+  test("قالب prerender ومكوّن NearbyLawSchools لا يُخرجان nofollow", () => {
+    // القالب في enhance-schools-prerender.mjs: <a href="..." rel="..." target="_blank">
+    const tpl = /<p><a href="\$\{esc\(official\)\}"([^>]*)target=/.exec(enhanceSrc)?.[1] ?? ""
+    expect(tpl, "لم يُعثر على قالب رابط الموقع الرسمي في enhance-schools-prerender.mjs").toBeTruthy()
+    expect(tpl).not.toMatch(/nofollow/i)
+
+    // المكوّن العميل: anchor لـ school.officialUrl بلا nofollow (تطابقاً مع SchoolPage.tsx)
+    const block = /href=\{school\.officialUrl\}([\s\S]{0,200}?)\n\s*>/.exec(nearbySrc)?.[1] ?? ""
+    expect(block, "لم يُعثر على anchor لـ school.officialUrl في NearbyLawSchools.tsx").toBeTruthy()
+    expect(block).not.toMatch(/nofollow/i)
+  })
+
+  const distReady = hasFile("dist/schools.html")
+  test.skipIf(!distReady)("dist/schools.html: كل روابط الجامعات بلا nofollow", () => {
+    const html = read("dist/schools.html")
+    const anchors = html.match(/<a\b[^>]*>/g) ?? []
+    const uniAnchors = anchors.filter((t) => /href="https?:\/\/[^"]*\.ac\.ma/i.test(t))
+    expect(uniAnchors.length, "لم تُولَّد روابط الجامعات في dist/schools.html").toBeGreaterThan(0)
+    for (const tag of uniAnchors) {
+      expect(tag, `رابط جامعة nofollow: ${tag}`).not.toMatch(/nofollow/i)
     }
   })
 })

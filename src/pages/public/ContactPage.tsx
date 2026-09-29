@@ -63,6 +63,17 @@ export function ContactPage() {
           </div>
         </div>
 
+        <section className="mt-6">
+          <h2 className="text-lg font-black text-foreground mb-3">ما الذي نستقبله؟</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            نستقبل عبر البريد: بلاغات الأخطاء العلمية (مع إرفاق المصدر الصحيح)، اقتراحات
+            مواد أو ملفات جديدة (عنوان الملف، المادة، الفصل، الجامعة)، طلبات تعاون أكاديمي
+            (ندوات، مسابقات، مشاريع بحثية)، واستفسارات عامة حول كيفية استعمال المنصة.
+            ولا نستقبل: طلبات استشارة قانونية شخصية، أو طلبات تعديل محتوى لأغراض أخرى
+            غير علمية. وسيصلكم رد عند معالجة المراسلة إن أمكن ذلك.
+          </p>
+        </section>
+
         <div className="mt-6 flex items-start gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs text-amber-800 dark:text-amber-300">
           <ShieldAlert size={18} className="shrink-0 mt-0.5" />
           <p className="leading-relaxed">

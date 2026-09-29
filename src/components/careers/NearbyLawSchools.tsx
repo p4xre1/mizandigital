@@ -215,7 +215,7 @@ export function NearbyLawSchools({
                         className="font-bold text-primary"
                         href={school.officialUrl}
                         target="_blank"
-                        rel="nofollow noopener"
+                        rel="noopener"
                       >
                         الموقع الرسمي للكلية
                       </a>
