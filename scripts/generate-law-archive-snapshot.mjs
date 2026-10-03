@@ -24,6 +24,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalPdf, docSlug, pathOfUrl } from "../shared/seo/url-policy.js";
+import { downloadLinkOf } from "../shared/archive/links.js";
 import { fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -66,6 +67,15 @@ for (const item of laws) {
     law_number: clean(item.law_number) || null,
     official_gazette_number: clean(item.official_gazette_number) || null,
     publication_date: dateOnly(item.publication_date),
+    /**
+     * رابط ملف النص (PDF) أو null.
+     *
+     * كان العمود غائباً من استعلام CMS أصلاً (pdf_url غير مذكور في
+     * TABLE_QUERIES.laws)، فكل صفحة قانون مولَّدة ثابتة تُبنى بزر تحميل
+     * فارغ. أُضيف العمود إلى الاستعلام، وأُضيف هنا حتى تعرض الصفحة
+     * الرئيسية زرّ تحميل مباشر بلا طلب شبكة إضافي.
+     */
+    pdf_url: downloadLinkOf(item) || null,
     /**
      * حالة التحقق من الإسناد الرسمي. الأرشيف الحالي (CMS) لا يخزّن تاريخ
      * تحقق موثّقاً، فالقيمة تبقى null حتى يُضاف الحقل في القاعدة — ولا نكتب

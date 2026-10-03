@@ -41,6 +41,7 @@ import {
   schoolSlug,
 } from "../shared/seo/url-policy.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
+import { archiveRank, isArchivableItem } from "../shared/archive/links.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = join(__dirname, "../public/sitemap.xml");
@@ -112,17 +113,24 @@ const staticEntries = [
 const lexiconTaken = new Set();
 
 // ملفات الأرشيف: المحلية (docs.json) ومن لوحة التحكم في قائمة واحدة وبنفس
-// ترتيب prerender ومجموعة منع التكرار نفسها — فالثبات بين الملف المولَّد
-// والرابط المنشور هو الضمان الوحيد ضد رابط 404 داخل الخريطة.
+// ترتيب prerender ومجموعة منع التكرار نفسها (docs → pdfs → laws) — فالثبات
+// بين الملف المولَّد والرابط المنشور هو الضمان الوحيد ضد رابط 404 داخل الخريطة.
+// ⚠️ هذا الترتيب يقرّر المعرّف عند التكرار، فلا يُغيَّر إلا مع prerender معاً.
 const docTaken = new Set();
-const pdfEntries = [...docs, ...cmsPdfs, ...cmsLaws].map((item) => ({
-  path: pathOfUrl(canonicalPdf(docSlug(item, docTaken))),
-  lastmod: dateOf(item, ["updatedAt", "updated_at", "createdAt", "created_at"]),
-  changefreq: "yearly",
-  priority: "0.6",
-}));
+
+/**
+ * عناصر الأرشيف قبل التصفية: النوع محفوظ لترتيب العرض (القوانين أولاً).
+ * الترتيب داخل المصفوفة لا علاقة له بترتيب الأسطر في XML — المصفوفة تحفظ
+ * تسلسل تخصيص المعرّفات، والترتيب يُطبَّق بعدها عند البناء.
+ */
+const archiveItems = [
+  ...docs.map((item) => ({ item, kind: "ملخصات" })),
+  ...cmsPdfs.map((item) => ({ item, kind: "ملخصات" })),
+  ...cmsLaws.map((item) => ({ item, kind: "نصوص قانونية" })),
+];
 
 const droppedEntries = [];
+const emptyLinkEntries = [];
 
 /** عنصر صالح للنشر: مسار «/قسم/معرّف» حقيقي، لا مسار بوابة ولا undefined. */
 function usableEntry(entry) {
@@ -130,6 +138,31 @@ function usableEntry(entry) {
   if (entry?.path) droppedEntries.push(entry.path);
   return false;
 }
+
+const pdfEntries = archiveItems
+  .map(({ item, kind }) => ({
+    item,
+    kind,
+    path: pathOfUrl(canonicalPdf(docSlug(item, docTaken))),
+    lastmod: dateOf(item, ["updatedAt", "updated_at", "createdAt", "created_at"]),
+    changefreq: "yearly",
+    // النصوص القانونية 0.7: صفحة القانون تحمل النصّ الكامل، فهي صفحة مرجعية
+    // لا بطاقة تحميل فقط.
+    priority: kind === "نصوص قانونية" ? "0.7" : "0.6",
+  }))
+  // لا رابط في الخريطة لصفحة تحميل بلا ملف: زرّها إمّا فارغ أو يفتح 404،
+  // وهو بالضبط ما يقرأه الزاحف «Soft 404».
+  .filter((entry) => {
+    if (!isArchivableItem(entry.item)) {
+      emptyLinkEntries.push(entry.path);
+      return false;
+    }
+    return usableEntry(entry);
+  })
+  // القوانين أولاً ثم الملخصات: الترتيب في الخريطة لا يؤثّر في ترتيب البحث،
+  // لكنه يطابق ترتيب واجهة الأرشيف ويجعل الملف مقروءاً عند المراجعة اليدوية.
+  .sort((a, b) => archiveRank({ type: a.kind }) - archiveRank({ type: b.kind }))
+  .map(({ item: _item, ...entry }) => entry);
 
 // صفحات دليل المسارات والمهن القانونية: تتقاسم المصدر مع prerender
 // (scripts/lib/career-pages.mjs) حتى لا ينشر sitemap رابطاً بلا ملف.
@@ -261,7 +294,14 @@ if (slashViolations.length) {
 if (droppedEntries.length) {
   console.warn(
     `⚠️  sitemap: ${droppedEntries.length} سجلّاً من لوحة التحكم بلا معرّف صالح — أمثلة: ` +
-    [...new Set(droppedEntries)].slice(0, 4).join(", ")
+      [...new Set(droppedEntries)].slice(0, 4).join(", ")
+  );
+}
+
+if (emptyLinkEntries.length) {
+  console.warn(
+    `⚠️  sitemap: ${emptyLinkEntries.length} سجلّ أرشيف بلا رابط تحميل حقيقي — أُخرج من الخريطة: ` +
+      [...new Set(emptyLinkEntries)].slice(0, 4).join(", ")
   );
 }
 
@@ -270,3 +310,20 @@ console.log(
     `(${cmsArticles.length} CMS articles + ${cmsNews.length} CMS news + ${cmsPdfs.length + cmsLaws.length} CMS pdfs/laws` +
     `${cmsOk ? "" : " — فشل جلب CMS، البيانات المحلية فقط"}).`,
 );
+
+/**
+ * --require-cms: إخفاق صريح عند تعذّر جلب محتوى لوحة التحكم.
+ *
+ * لماذا؟ لأن العطل الصامت أسوأ من العطل المعلن: حين يفشل الاتصال يولَّد
+ * ملف خريطة «صحيح الشكل» ينقصه كل محتوى CMS (عشرات النصوص القانونية
+ * والمقالات)، فإن التزمته آلية تحديث تلقائي ظنّاً منها أنه الأحدث، نُشر
+ * ملفٌ أنقص من سابقه. الخيار يجعل فشل الجلب يوقف السكربت بدل أن يكتب نسخة
+ * ناقصة فوق نسخة كاملة.
+ */
+if (!cmsOk && process.argv.includes("--require-cms")) {
+  console.error(
+    `❌ sitemap: تعذّر جلب محتوى CMS (${cmsError}) — يُوقف التوليد لأن --require-cms.` +
+      ` لن تُستبدل خريطة كاملة بأخرى ناقصة.`
+  );
+  process.exit(1);
+}

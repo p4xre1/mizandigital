@@ -22,6 +22,7 @@ import {
   schoolSlug,
   slugify,
 } from "../shared/seo/url-policy.js";
+import { downloadLinkOf } from "../shared/archive/links.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 import {
   MAX_TITLE,
@@ -72,6 +73,12 @@ const [
   readJson("docs.json"),
   readJson("quiz-questions.json"),
 ]);
+
+// لقطة أرشيف القوانين (تُولَّد في prebuild من public.laws عبر
+// scripts/generate-law-archive-snapshot.mjs). المصدر نفسه الذي تعرضه الواجهة،
+// فلا تنفصل نسخة الصفحة الثابتة عن نسخة التطبيق بعد الـ hydration.
+const lawSnapshot = await readJson("laws.client.json").catch(() => ({ laws: [] }));
+const lawArchive = Array.isArray(lawSnapshot?.laws) ? lawSnapshot.laws : [];
 
 /* -------------------------------------------------------
    Helpers
@@ -435,6 +442,74 @@ if (skippedContent.length) {
     `(لا slug ولا title ولا id) — أمثلة: ${skippedContent.slice(0, 4).join(", ")}`
   );
 }
+
+/**
+ * كتلة «نصوص قانونية من الأرشيف» في HTML الصفحة الرئيسية الثابتة.
+ *
+ * لماذا تُولَّد هنا ولا تُترك للمكوّن React وحده؟
+ *   الصفحة الرئيسية تُبنى في prerender من قالب ثابت (لا hydrate قبل
+ *   التنفيذ)، وكل ما لا يُكتب هنا لا يراه زاحف لا ينفّذ الجافاسكريبت ولا
+ *   وكيل ذكاء اصطناعي يقرأ HTML مباشرة. أرشيف القوانين أضخم محتوى في
+ *   المنصة، فإخراجه من الصفحة الثابتة يعني إخراجه من أول انطباع يقرأه
+ *   الزاحف عن الموقع.
+ *
+ * القاعدة نفسها في الواجهة: لا بطاقة بلا رابط صفحة حقيقي، ولا زرّ تحميل
+ * إلا لمن يملك ملفاً فعلياً (لا رابط فارغ ولا "#").
+ */
+function renderHomeLawArchiveHtml() {
+  const cards = lawArchive
+    .filter((law) => law && law.public_path && law.title)
+    .sort((a, b) => {
+      const left = String(a.publication_date ?? "");
+      const right = String(b.publication_date ?? "");
+      if (left !== right) return left < right ? 1 : -1;
+      return String(a.title).localeCompare(String(b.title), "ar");
+    })
+    .slice(0, 8);
+
+  if (!cards.length) return "";
+
+  const items = cards
+    .map((law) => {
+      const meta = [
+        law.law_number ? `<p><strong>رقم النص:</strong> ${escapeHtml(law.law_number)}</p>` : "",
+        law.official_gazette_number
+          ? `<p><strong>الجريدة الرسمية:</strong> ${escapeHtml(law.official_gazette_number)}</p>`
+          : "",
+        law.publication_date
+          ? `<p><strong>تاريخ النشر:</strong> <time datetime="${escapeHtml(String(law.publication_date).slice(0, 10))}">${escapeHtml(String(law.publication_date).slice(0, 10))}</time></p>`
+          : "",
+      ].join("\n              ");
+
+      const file = downloadLinkOf(law);
+
+      return `          <li>
+            <h4><a href="${escapeHtml(law.public_path)}">${escapeHtml(law.title)}</a></h4>
+              ${meta}
+              ${
+                file
+                  ? `<p><a href="${escapeHtml(file)}" rel="noopener noreferrer">تحميل ملف PDF</a></p>`
+                  : ""
+              }
+          </li>`;
+    })
+    .join("\n");
+
+  return `
+        <section class="mt-12" aria-labelledby="home-law-archive-title" data-home-law-archive="section">
+          <h3 id="home-law-archive-title">نصوص قانونية من الأرشيف</h3>
+          <p>
+            نصوص تشريعية مغربية منشورة في أرشيف ميزان، مع رقم النصّ وعدد الجريدة الرسمية
+            وتاريخ النشر. رابط النصّ يفتح صفحته في الأرشيف، وملف PDF جاهز للتحميل متى كان متاحاً.
+          </p>
+          <ul>
+${items}
+          </ul>
+          <p><a href="/archive">عرض كل النصوص في الأرشيف</a></p>
+        </section>`;
+}
+
+const homeLawArchiveHtml = renderHomeLawArchiveHtml();
 
 /* -------------------------------------------------------
    Entity identity
@@ -891,6 +966,8 @@ const pages = [
               <a href="/faq">الأسئلة الشائعة</a>
             </p>
           </section>
+
+${homeLawArchiveHtml}
 
           <footer>
             <p>
@@ -1779,8 +1856,10 @@ ${renderCrawlList(eventPages, { heading: "قائمة الندوات والفعا
   ...docPages.map((entry) => {
     const item = normalizeEntry(entry);
     const path = entry.path;
-    // pdf_url هو حقل رابط التحميل في جدول laws (pdf_summaries=file_url، المحلي=fileUrl).
-    const fileUrl = entry.item?.fileUrl || entry.item?.file_url || entry.item?.pdf_url || "";
+    // حقل الرابط يختلف بحسب المصدر: laws=pdf_url، pdf_summaries=file_url،
+    // المحلي=fileUrl. المنطق واحد في shared/archive/links.js: رابط فارغ أو
+    // "#" لا يُعدّ رابطاً، فلا يُكتب زرّ تحميل لا يفتح شيئاً في صفحة ثابتة.
+    const fileUrl = downloadLinkOf(entry.item);
 
     const isLaw = entry.kind === "law";
     // نص القانون: نص صافٍ تُفصَل فقراته بسطر فارغ — يُعرض كما هو (بلا HTML).

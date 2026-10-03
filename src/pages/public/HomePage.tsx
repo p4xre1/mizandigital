@@ -11,6 +11,7 @@ import {
   Calendar, MapPin, Languages, GitBranch, Building2
 } from "lucide-react"
 
+import { HomeLawArchive } from "../../components/home/HomeLawArchive"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
 const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
@@ -454,6 +455,9 @@ export function HomePage() {
                 </div>
               </div>
             )}
+
+            {/* نصوص قانونية من الأرشيف — تُعرض قبل القاموس لأنها المصدر الأول */}
+            <HomeLawArchive />
 
             {/* القاموس القانوني — مع شجرة */}
             {latestTerms.length > 0 && (

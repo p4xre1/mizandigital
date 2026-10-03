@@ -1,12 +1,15 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test, expect } from "vitest";
 import articles from "../src/data/articles.json";
-import documents from "../src/data/docs.json";
+import documentsRaw from "../src/data/docs.json";
 import events from "../src/data/events.json";
 import lexicon from "../src/data/lexicon.json";
 import schools from "../src/data/schools.json";
 
 const read = (file: string) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
+
+/** سجلات الأرشيف المحلي — يُصرَّح بنوعه لأن المصفوفة قد تكون فارغة. */
+const documents = documentsRaw as Array<{ id: string; title: string; semester: string; fileUrl: string }>;
 
 test("الهيكل العام للموقع يدعم اللغة العربية فقط وخالٍ من الإعلانات القديمة", () => {
   const index = read("index.html");
@@ -44,8 +47,21 @@ test("المسارات الثابتة والبيانات المحلية بالع
   });
 
   // التحقق من صحة البيانات المحلية (الفصول من S1 إلى S6)
+  //
+  // ملاحظة: الفحص القديم كان يتحقق من شكل الرابط فقط
+  // (`doc.fileUrl.startsWith("/docs/")`)، فمرّت تسعة سجلات تشير إلى ملفات
+  // PDF غير موجودة أصلاً في public/ — صفحات «تحميل» كاملة في sitemap.xml
+  // بزرّ يفتح 404. الفحص الآن يتحقق من وجود الملف نفسه، لا من شكل رابطه.
   expect(documents.every((doc) => /^S[1-6]$/.test(doc.semester))).toBe(true);
-  expect(documents.every((doc) => doc.fileUrl.startsWith("/docs/"))).toBe(true);
+  for (const doc of documents) {
+    expect(doc.fileUrl, `ملف أرشيف بلا رابط: ${doc.title}`).toMatch(/^(https?:\/\/|\/)/);
+    if (!doc.fileUrl.startsWith("/")) continue; // رابط مطلق (تخزين خارجي) — خارج هذا الفحص
+    const localPath = new URL(`../public${doc.fileUrl}`, import.meta.url);
+    expect(
+      existsSync(localPath),
+      `رابط أرشيف ميت: ${doc.title} → ${doc.fileUrl} (لا ملف يقابله في public/)`
+    ).toBe(true);
+  }
   expect(lexicon.every((term) => term.term_ar && term.definition)).toBe(true);
   expect(articles.every((article) => article.slug && article.body.length > 0)).toBe(true);
   expect(events.every((event) => event.slug && event.sourceUrl.startsWith("https://"))).toBe(true);

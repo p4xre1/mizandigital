@@ -23,19 +23,25 @@ const quiz = JSON.parse(read("src/data/quiz-questions.json"));
 const LLMS_FULL = norm(read("public/llms-full.txt"));
 const LLMS_FULL_RAW = read("public/llms-full.txt");
 
-test("llms-full: جرد كامل (562 سجلاً محلياً) والأقسام الكاملة كلها موجودة", () => {
+// الإجمالي يُحسب من البيانات لا يُكتب يدوياً: كان الاختبار يثبّت «562»، فلما
+// أُزيلت تسعة سجلات أرشيف بروابط ميتة انكسر الاختبار على رقم لا علاقة له
+// بالفحص المطلوب (أن يكون الجرد كاملاً). الحساب من المصدر هو الفحص نفسه.
+const FAQ_COUNT = (faq as Array<{ items?: unknown[] }>).reduce((total: number, group) => total + (group.items?.length ?? 0), 0);
+const TOTAL =
+  articles.length + news.length + lexicon.length + schools.length + docs.length + events.length + FAQ_COUNT + quiz.length;
+
+test("llms-full: جرد كامل (يُحسب من البيانات) والأقسام الكاملة كلها موجودة", () => {
   const raw = read("public/llms-full.txt");
-  // 8+13+250+21+9+0 laws(محلياً)+3+34+224 = 562
-  expect(raw).toContain("يضم 562 سجلاً");
+  expect(raw).toContain(`يضم ${TOTAL} سجلاً`);
   for (const section of [
-    "كل المعجم القانوني (250) — التعريفات كاملة",
-    "كل المقالات (8) — النصوص الكاملة",
-    "كل المستجدات (13) — النصوص الكاملة",
-    "كل كليات الحقوق (21) — التفاصيل",
-    "كل الفعاليات (3)",
-    "كل الأرشيف الدراسي (9) — الملفات والملخصات",
-    "كل أسئلة الاختبارات (224) — كاملة",
-    "الأسئلة الشائعة (FAQ — AEO) — كاملة (34)",
+    `كل المعجم القانوني (${lexicon.length}) — التعريفات كاملة`,
+    `كل المقالات (${articles.length}) — النصوص الكاملة`,
+    `كل المستجدات (${news.length}) — النصوص الكاملة`,
+    `كل كليات الحقوق (${schools.length}) — التفاصيل`,
+    `كل الفعاليات (${events.length})`,
+    `كل الأرشيف الدراسي (${docs.length}) — الملفات والملخصات`,
+    `كل أسئلة الاختبارات (${quiz.length}) — كاملة`,
+    `الأسئلة الشائعة (FAQ — AEO) — كاملة (${FAQ_COUNT})`,
   ]) {
     expect(raw, `القسم مفقود: ${section}`).toContain(section);
   }

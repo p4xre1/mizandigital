@@ -23,6 +23,14 @@ export interface LawArchiveRecord {
   law_number: string | null;
   official_gazette_number: string | null;
   publication_date: string | null;
+  /**
+   * رابط ملف النص (PDF) أو null.
+   *
+   * الغرض: تعرض الصفحة الرئيسية وقسم الأرشيف زرّ تحميل مباشر بلا طلب شبكة
+   * إضافي. والقاعدة نفسها في كل مكان: نصّ بلا ملف ⇒ لا زرّ تحميل (لا رابط
+   * فارغ ولا "#")، بل رابط صفحته فقط.
+   */
+  pdf_url: string | null;
   source_verified_at: string | null;
 }
 

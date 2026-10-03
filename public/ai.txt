@@ -7,7 +7,7 @@ Allow: /
 # AI-friendly content declaration
 # Language: ar-MA (Arabic, Morocco)
 # Content-Signal: search=yes, ai-input=yes, ai-train=yes
-# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 9 docs, 3 events, 39 FAQ, 224 quiz questions
+# Content: 8 articles, 13 news, 250 lexicon terms, 21 schools, 0 docs, 3 events, 39 FAQ, 224 quiz questions
 # (counts are the local baseline — published CMS content adds laws/articles/news; see /reference/index.json)
 
 # Primary sections:

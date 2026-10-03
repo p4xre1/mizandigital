@@ -21,5 +21,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # لا رابط تحميل ميت في الأرشيف: تسعة سجلات كانت تشير إلى ملفات PDF
+      # غير موجودة أصلاً، فنُشرت صفحات «تحميل» كاملة في sitemap.xml بزرّ
+      # يفتح 404. الفحص يمنع عودتها.
+      - run: node scripts/validate-archive-links.mjs --strict
       - run: pnpm typecheck
       - run: pnpm test
