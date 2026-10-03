@@ -1,0 +1,90 @@
+# ============================================================================
+# تحديث المحتوى المنشور — لماذا هذا الملف موجود؟
+# ============================================================================
+#
+# العَرَض: «كثير من المقالات وملفات الأرشيف غير موجودة في sitemap.xml».
+#
+# السبب الجذري: الموقع ثابت (Vite + prerender على Cloudflare Pages). خريطة
+# الموقع وصفحات /articles/<slug> و /pdf/<slug> تُولَّد **وقت البناء** من
+# قاعدة Supabase. أي مقال أو نصّ قانوني يُضاف من لوحة التحكم يبقى غائباً عن
+# الخريطة وعن الملفات الثابتة إلى أن يُعاد بناء الموقع — وقد ظلّ آخر بناء
+# متأخراً عن محتوى القاعدة بأسابيع، فاختفت عشرات النصوص القانونية من الخريطة.
+#
+# الحل هنا: إعادة بناء دورية. كل ست ساعات (وعند الطلب يدوياً) تُولَّد
+# الخريطة من القاعدة الحقيقية:
+#
+#   1) إن كان سرّ CLOUDFLARE_DEPLOY_HOOK_URL مضبوطاً → نداء Deploy Hook:
+#      هذا يعيد بناء الموقع كاملاً، فتُولَّد صفحات المقالات والنصوص الجديدة
+#      مع خريطتها (وهو المطلوب، لا تحديث ملف الخريطة وحده).
+#   2) وإلا → تُلتزم الخريطة المولَّدة في الفرع، فتُشغّل بناء Pages إن كان
+#      المشروع مربوطاً بالمستودع.
+#
+# ملاحظة أمنية: لا مفاتيح مكتوبة هنا. الاستعلام يقرأ الجداول العامة بمفتاح
+# anon نفسه المضمّن في واجهة الموقع، ولا يكتب شيئاً في القاعدة.
+# ============================================================================
+
+name: refresh-content
+
+on:
+  schedule:
+    # كل ست ساعات (دقيقة 23 لتفادي ازدحام الدقيقة صفر)
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-content
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    # يُعرَّف على مستوى المهمة ليكون متاحاً في عبارات if أدناه
+    # (سياق secrets نفسه لا يُقرأ مباشرة داخل if).
+    env:
+      HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # بلا تثبيت اعتماديات: مولّدات الخريطة وحدات عقدة خالصة
+      # (node:fs + shared/) فلا تحتاج node_modules.
+      - name: فحص روابط الأرشيف (لا رابط تحميل ميت)
+        run: node scripts/validate-archive-links.mjs --strict
+
+      # --require-cms: إن تعذّر الوصول إلى القاعدة يفشل السكربت، فلا تُلتزم
+      # خريطة ناقصة فوق خريطة كاملة.
+      - name: توليد خريطة الموقع من المحتوى المنشور فعلاً
+        run: node scripts/generate-sitemap.mjs --require-cms
+
+      # ── 1) Deploy Hook: إعادة بناء كاملة ────────────────────────────────
+      # أضِف السرّ في Settings → Secrets and variables → Actions:
+      #   CLOUDFLARE_DEPLOY_HOOK_URL = https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/…
+      - name: إعادة بناء الموقع (Cloudflare Pages Deploy Hook)
+        if: env.HOOK != ''
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$HOOK")
+          echo "Deploy Hook → HTTP $code"
+          test "$code" = "200" -o "$code" = "204"
+
+      # ── 2) بديل حين لا يوجد Deploy Hook ─────────────────────────────────
+      # التزام أي تغيير يُشغّل بناء Pages إن كان المشروع مربوطاً بالمستودع.
+      - name: التزام الخريطة إن تغيّرت
+        if: env.HOOK == ''
+        run: |
+          if git diff --quiet -- public/sitemap.xml; then
+            echo "لا تغيير في الخريطة — لا التزام."
+            exit 0
+          fi
+          git config user.name  "mizan-bot"
+          git config user.email "bot@mizan.page"
+          git add public/sitemap.xml
+          git commit -m "chore(sitemap): تحديث الخريطة من المحتوى المنشور"
+          git push

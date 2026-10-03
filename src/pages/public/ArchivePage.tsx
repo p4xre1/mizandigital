@@ -7,6 +7,11 @@ import { titledSlugById } from "../../lib/utils/generateSlug"
 import { ContentTags } from "../../components/content/ContentTags"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
+// مصدر واحد لمنطق «هل هذا الرابط حقيقي؟»: docs.json يستعمل fileUrl،
+// pdf_summaries يستعمل file_url، وlaws يستعمل pdf_url. كانت كل دالة تطبيع
+// تقرأ حقلاً واحداً فقط، فتظهر بطاقات برابط "#" أو undefined وزرّ تحميل
+// لا يفتح شيئاً. التفاصيل في shared/archive/links.js.
+import { archiveRank, downloadLinkOf, hasDownloadLink } from "../../../shared/archive/links.js"
 import {
   FolderDown,
   BookOpen,
@@ -75,7 +80,7 @@ function normalizeLocalDoc(raw: any, slug: string): ArchiveItem {
     fileSize: "PDF",
     fileFormat: "PDF",
     downloads: 0,
-    downloadUrl: raw.fileUrl || "#",
+    downloadUrl: downloadLinkOf(raw),
     date: raw.updatedAt || null,
   }
 }
@@ -96,7 +101,7 @@ function normalizePdfSummary(raw: any): ArchiveItem {
     fileSize: formatFileSize(raw.file_size_bytes),
     fileFormat: "PDF",
     downloads: raw.download_count || 0,
-    downloadUrl: raw.file_url,
+    downloadUrl: downloadLinkOf(raw),
     date: raw.created_at || null,
   }
 }
@@ -117,7 +122,7 @@ function normalizeLaw(raw: any): ArchiveItem {
     fileSize: "PDF",
     fileFormat: "PDF",
     downloads: 0,
-    downloadUrl: raw.pdf_url || "#",
+    downloadUrl: downloadLinkOf(raw),
     date: raw.publication_date || null,
   }
 }
@@ -176,11 +181,22 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
     fetchArchiveData()
   }, [])
 
-  // دمج جميع مصادر الأرشيف: الملفات المحلية (docs.json) + مستندات لوحة التحكم + القوانين العامة
+  // دمج جميع مصادر الأرشيف: النصوص القانونية (laws) أولاً، ثم الملخصات
+  // المرفوعة من لوحة التحكم، ثم الملفات المحلية (docs.json).
+  //
+  // لماذا القوانين أولاً؟ هي المصدر الأول الذي يقصده الطالب والباحث، وكانت
+  // تُوضع في آخر القائمة بعد عشرات الملخصات فتظهر مخفية خلفها.
+  //
+  // ولماذا التصفية هنا؟ الأرشيف مكتبة تحميل: بطاقة بلا رابط ملف حقيقي (رابط
+  // فارغ، أو "#"، أو undefined) لا تُحمّل شيئاً، وزرّها «تحميل الملف» يفتح
+  // صفحة 404. تُستبعد من العرض، ولا تُحذف من القاعدة — يكفي أن يرفع المحرر
+  // الملف لتعود البطاقة.
   const fullCatalog = useMemo<ArchiveItem[]>(() => {
     const localSlugs = titledSlugById((docsData as any[]).map((d) => ({ id: d.id, title: d.title })))
     const localDocs = (docsData as any[]).map((raw) => normalizeLocalDoc(raw, localSlugs.get(raw.id) || raw.id))
-    return [...cmsDocs, ...localDocs, ...cmsLaws]
+    return [...cmsLaws, ...cmsDocs, ...localDocs]
+      .filter((item) => hasDownloadLink(item.downloadUrl))
+      .sort((a, b) => archiveRank(a) - archiveRank(b))
   }, [cmsDocs, cmsLaws])
 
   // File Explorer view mode state ('grid' or 'list')

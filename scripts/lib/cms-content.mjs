@@ -38,7 +38,10 @@ const TABLE_QUERIES = {
   // content: نص القانون (نص صافٍ، فقرات مفصولة بسطر فارغ) — يُعرض في
   // صفحة القانون الثابتة وفي llms-full.txt. official_gazette_number و
   // publication_date يظهران كبيانات وصفية على الصفحة وفي JSON-LD.
-  laws: `select=id,title,slug,law_number,official_gazette_number,publication_date,description,content,created_at,updated_at&order=created_at.desc&limit=${LIMIT}`,
+  // pdf_url: رابط ملف النص — كان غائباً من هذا الاستعلام، فكانت كل صفحة
+  // قانون مولَّدة ثابتة تُبنى بزر تحميل فارغ (رابط "" بدل ملف النص)، بينما
+  // تعرضها الواجهة نفسها صحيحة لأنها تقرأ العمود مباشرة من القاعدة.
+  laws: `select=id,title,slug,law_number,official_gazette_number,publication_date,pdf_url,description,content,created_at,updated_at&order=created_at.desc&limit=${LIMIT}`,
 };
 
 async function fetchTable(name, queryString, { timeoutMs, signal }) {
@@ -61,10 +64,27 @@ async function fetchTable(name, queryString, { timeoutMs, signal }) {
 }
 
 /**
- * @returns {Promise<{ok: boolean, error?: string, articles: any[], news: any[], pdfs: any[], laws: any[]}>}
+ * سجلّ صالح للنشر؟
+ *
+ * كان الشرط «slug مكتوب غير فارغ» فقط. وهو شرط يخفي المحتوى لا يحميه:
+ * المحرر يكتب العنوان وينسى خانة المعرّف، فيُسقط السجلّ كله من الخريطة ومن
+ * الملفات المولَّدة بينما يظهر في الواجهة التي تقرأ القاعدة مباشرة — أي صفحة
+ * حقيقية بلا رابط في sitemap.xml. دوال المعرّفات في url-policy تبني المعرّف
+ * من slug ← title ← id، فالسجلّ صالح متى وُجد واحد من الثلاثة.
+ */
+export function hasPublishableIdentity(row) {
+  if (!row || typeof row !== "object") return false;
+  if (typeof row.slug === "string" && row.slug.trim()) return true;
+  if (typeof row.title === "string" && row.title.trim()) return true;
+  const id = row.id;
+  return id !== undefined && id !== null && String(id).trim() !== "";
+}
+
+/**
+ * @returns {Promise<{ok: boolean, error?: string, errors: string[], articles: any[], news: any[], pdfs: any[], laws: any[]}>}
  */
 export async function fetchPublishedCmsContent({ timeoutMs = 25000 } = {}) {
-  const empty = { ok: false, articles: [], news: [], pdfs: [], laws: [] };
+  const empty = { ok: false, errors: [], articles: [], news: [], pdfs: [], laws: [] };
 
   if (!SUPABASE_URL.includes("supabase.co")) {
     return { ...empty, error: "VITE_SUPABASE_URL غير مضبوط" };
@@ -75,26 +95,49 @@ export async function fetchPublishedCmsContent({ timeoutMs = 25000 } = {}) {
 
   try {
     const signal = controller.signal;
-    const [articles, news, pdfs, laws] = await Promise.all([
+
+    // allSettled لا Promise.all: الأربعة استعلامات مستقلة، وفشل واحد منها
+    // (عمود أُعيدت تسميته، جدول لم تُنشأ ترقيته بعد، انقطاع عابر) كان يُسقط
+    // الأربعة معاً باستثناء واحد — فتختفي كل مقالات CMS وكل ملفات الأرشيف من
+    // خريطة الموقع بسبب جدول واحد. الآن: الجدول الفاشل يفرغ ويُعلن، والبقية
+    // تُنشر.
+    const settled = await Promise.allSettled([
       fetchTable("articles", TABLE_QUERIES.articles, { timeoutMs, signal }),
       fetchTable("news", TABLE_QUERIES.news, { timeoutMs, signal }),
       fetchTable("pdf_summaries", TABLE_QUERIES.pdf_summaries, { timeoutMs, signal }),
       fetchTable("laws", TABLE_QUERIES.laws, { timeoutMs, signal }),
     ]);
 
-    const keep = (rows) =>
-      Array.isArray(rows) ? rows.filter((row) => row && typeof row.slug === "string" && row.slug.trim()) : [];
+    const errors = [];
+    const take = (index, label) => {
+      const result = settled[index];
+      if (result.status === "fulfilled") return Array.isArray(result.value) ? result.value : [];
+      const reason = result.reason;
+      const message =
+        reason?.name === "AbortError" ? `انتهت المهلة (${timeoutMs}ms)` : reason?.message || String(reason);
+      errors.push(`${label}: ${message}`);
+      return [];
+    };
+
+    const keep = (rows) => rows.filter(hasPublishableIdentity);
+
+    const articles = keep(take(0, "articles"));
+    const news = keep(take(1, "news"));
+    const pdfs = keep(take(2, "pdf_summaries"));
+    const laws = keep(take(3, "laws"));
 
     return {
-      ok: true,
-      articles: keep(articles),
-      news: keep(news),
-      pdfs: keep(pdfs),
-      laws: keep(laws),
+      ok: errors.length === 0,
+      error: errors.length ? `تعذر جلب بعض جداول CMS — ${errors.join(" | ")}` : undefined,
+      errors,
+      articles,
+      news,
+      pdfs,
+      laws,
     };
   } catch (error) {
     const message = error?.name === "AbortError" ? `انتهت المهلة (${timeoutMs}ms)` : error?.message;
-    return { ...empty, error: `تعذر جلب محتوى CMS — ${message}` };
+    return { ...empty, error: `تعذر جلب محتوى CMS — ${message}`, errors: [String(message)] };
   } finally {
     clearTimeout(timer);
   }

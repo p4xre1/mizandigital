@@ -23,9 +23,13 @@ test("استعلام الـ CMS يجلب content والميتاداتن القا
   const lawsQuery = src.match(/laws:\s*`select=([^&]+)&/);
   expect(lawsQuery, "لم يُعثر على استعلام laws").toBeTruthy();
   const columns = lawsQuery![1].split(",");
-  for (const col of ["content", "official_gazette_number", "publication_date"]) {
+  for (const col of ["content", "official_gazette_number", "publication_date", "pdf_url"]) {
     expect(columns, `العمود ${col} مفقود من استعلام laws`).toContain(col);
   }
+  // pdf_url تحديداً: كان غائباً من الاستعلام، فكانت كل صفحة قانون مولَّدة
+  // ثابتة تُبنى بزر تحميل فارغ (رابط "") لأن prerender لا يقرأ القاعدة
+  // مباشرة بل يقرأ ما يجلبه هذا الاستعلام.
+  expect(columns).toContain("pdf_url");
 });
 
 test("prerender: صفحة القانون الثابتة تعرض النص كاملاً + ميتاداتنه", () => {
@@ -44,8 +48,11 @@ test("prerender: صفحة القانون الثابتة تعرض النص كام
   expect(src).toContain("عدد الجريدة الرسمية");
   expect(src).toContain("تاريخ الصدور");
 
-  // رابط التحميل: pdf_url هو حقل laws في جدول laws
-  expect(src).toMatch(/fileUrl = entry\.item\?\.fileUrl \|\| entry\.item\?\.file_url \|\| entry\.item\?\.pdf_url/);
+  // رابط التحميل: الحقول تختلف بحسب المصدر (laws=pdf_url،
+  // pdf_summaries=file_url، المحلي=fileUrl)، والمنطق واحد في
+  // shared/archive/links.js — قراءة حقل واحد كانت تعطي زرّاً فارغاً.
+  expect(src).toMatch(/fileUrl = downloadLinkOf\(entry\.item\)/);
+  expect(src).toContain('from "../shared/archive/links.js"');
 
   // JSON-LD: النص الكامل متاحاً داخل المخطط أيضاً
   expect(src).toMatch(/\.\.\.\(lawText \? \{ text: lawText \} : \{\}\)/);
