@@ -292,7 +292,7 @@ VITE_SUPABASE_URL=https://YOUR-REF.supabase.co
 VITE_SUPABASE_ANON_KEY=<anon key>
 VITE_SITE_URL=https://www.mizan.page
 VITE_SITE_NAME="ميزان الرقمية"
-VITE_GA_ID=            # اختياري
+VITE_GA_ID=G-S52GPR2RWL  # معرّف قياس Google Analytics 4 (GA4)
 VITE_TURNSTILE_SITE_KEY=
 ```
 
