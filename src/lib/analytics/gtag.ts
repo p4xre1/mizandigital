@@ -74,11 +74,27 @@ export function initAnalytics(): void {
     document.head.appendChild(s)
   }
 
-  const isTagAssistant =
-    typeof window !== "undefined" &&
-    (window.location.search.includes("gtm_debug") ||
-      window.location.search.includes("tagassistant") ||
-      (typeof document !== "undefined" && document.referrer.includes("tagassistant.google.com")))
+  let isTagAssistant = false
+  if (typeof window !== "undefined") {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has("gtm_debug") || params.has("tagassistant")) {
+        isTagAssistant = true
+      }
+    } catch {
+      /* تجاهل أي خطأ في تحليل معلمات الرابط */
+    }
+    if (!isTagAssistant && typeof document !== "undefined" && document.referrer) {
+      try {
+        const refUrl = new URL(document.referrer)
+        if (refUrl.protocol === "https:" && refUrl.hostname === "tagassistant.google.com") {
+          isTagAssistant = true
+        }
+      } catch {
+        /* تجاهل الرابط المرجعي غير الصالح */
+      }
+    }
+  }
 
   if (isTagAssistant) {
     loadMizanAnalytics()
