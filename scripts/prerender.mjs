@@ -640,18 +640,10 @@ const homeHeaderHtml = `
                 `\n              <a href="${href}"${active ? ` aria-current="page"` : ""} class="${NAV_BASE} ${active ? NAV_ACTIVE : NAV_IDLE}">${label}</a>`
             ).join("")}
             </nav>
-            <!-- البحث في وسط الشريط (سطح المكتب)؛ form حقيقي method=get يعمل قبل JS -->
-            <div class="hidden md:flex min-w-0 flex-1 justify-center px-2">
-              <form action="/search" method="get" role="search" aria-label="البحث في ميزان الرقمية" class="relative flex w-full max-w-[320px] items-center">
-                <div class="flex h-9 w-full items-center gap-2 rounded-full border border-[#e2e8f0] bg-[#f8fafc] pr-1 pl-2 dark:border-[#334155] dark:bg-[#1e293b]">
-                  <div class="grid size-7 shrink-0 place-items-center rounded-full bg-[#2563eb] text-white">${svgIcon(ICON.search, "size-4", 16)}</div>
-                  <input type="search" name="q" placeholder="ابحث..." maxlength="100" autocomplete="off" spellcheck="false" aria-label="ابحث في المقالات والأخبار والقاموس والكليات" class="min-w-0 flex-1 bg-transparent text-[13px] font-bold text-[#0f172a] outline-none placeholder:font-normal placeholder:text-[#94a3b8] dark:text-white">
-                  <kbd class="grid h-6 shrink-0 place-items-center rounded-md border border-[#e2e8f0] bg-white px-1.5 font-sans text-[11px] font-black text-[#64748b] dark:border-[#334155] dark:bg-[#0f172a] dark:text-[#94a3b8]" title="اختصار البحث: K">K</kbd>
-                </div>
-              </form>
-            </div>
+            <!-- لا حقل بحث في الشريط: البحث داخل قائمة البرغر (يُبنى في React)،
+                 وأيقونة واحدة تنقل إلى /search على الشاشات الكبيرة (lg+). -->
             <div class="flex items-center gap-2 shrink-0">
-              <a href="/search" class="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="البحث">${svgIcon(ICON.search, "", 16)}</a>
+              <a href="/search" class="hidden lg:grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="البحث في ميزان الرقمية">${svgIcon(ICON.search, "", 16)}</a>
               <button type="button" class="grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="تبديل الوضع الليلي">${svgIcon(ICON.moon, "text-[#475569]", 16)}</button>
               <div class="hidden md:flex items-center gap-2">
                 <a href="/login" class="rounded-full border border-[#e2e8f0] dark:border-[#334155] px-4 py-2 text-[13px] font-bold text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#1e293b] transition-colors">دخول</a>

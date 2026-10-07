@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom"
 import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
 import { AuthControls } from "@/components/auth/AuthControls"
-import { NavbarSearch } from "@/components/nav/NavbarSearch"
+import { MenuSearch } from "@/components/nav/MenuSearch"
 import { useAuth } from "@/lib/auth/AuthProvider"
 import { RankBadge } from "@/components/quiz/RankBadge"
 import { useEffect } from "react"
@@ -170,16 +170,12 @@ export function Header({
           </nav>
 
           {/*
-            البحث في وسط الشريط (سطح المكتب فقط). الغلاف flex-1 يمتص كل
-            المساحة الحرة و justify-center يوسّط الحقل داخلها، فيبقى وسط
-            الشريط سواء ظهرت روابط التنقل (lg+) أم لم تظهر (md–lg).
+            لا حقل بحث في الشريط بعد الآن: البحث انتقل إلى داخل قائمة
+            البرغر (الموبايل واللوحي)، وبقيت أيقونة واحدة تنقل إلى /search
+            على الشاشات الكبيرة التي لا تعرض قائمة البرغر (lg+).
           */}
-          <div className="hidden md:flex min-w-0 flex-1 justify-center px-2">
-            <NavbarSearch className="w-full max-w-[320px]" onNavigate={handleNavClick} />
-          </div>
-
           <div className="flex items-center gap-2 shrink-0">
-            <Link to="/search" className="grid md:hidden size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="Search">
+            <Link to="/search" className="hidden lg:grid size-9 place-items-center rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-colors" aria-label="البحث في ميزان الرقمية">
               <Search size={16} />
             </Link>
 
@@ -202,38 +198,48 @@ export function Header({
           <div className="site-mobile-menu lg:hidden fixed inset-0 top-16 bg-black/20 backdrop-blur-[1px] z-[60]" onClick={onCloseMenu} aria-hidden="true" />
           <div className="site-mobile-menu lg:hidden fixed right-3 top-[70px] w-[300px] max-w-[calc(100vw-24px)] z-[70] animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-[#e2e8f0] dark:border-[#334155] shadow-[0_16px_40px_-12px_rgba(0,0,0,0.25)] overflow-hidden">
-              <nav className="p-2.5 space-y-1 max-h-[70vh] overflow-y-auto">
-                <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  الرئيسية
-                </NavLink>
-                <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  المقالات
-                </NavLink>
-                <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  الأخبار
-                </NavLink>
-                <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  القاموس
-                </NavLink>
-                <NavLink to="/pro-tools" onClick={handleNavClick} className="flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold text-primary">الأدوات القانونية</NavLink>
-                <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  الكليات
-                </NavLink>
-                <NavLink to="/careers" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  المسارات المهنية
-                </NavLink>
-                <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  الأرشيف
-                </NavLink>
-                <NavLink to="/events" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  الفعاليات
-                </NavLink>
-                <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
-                  الاختبارات
-                </NavLink>
+              <nav className="max-h-[70vh] overflow-y-auto">
+                {/*
+                  البحث أول عنصر في القائمة وملتصق بأعلاها (sticky) حتى يبقى
+                  في متناول الإبهام ولو طالت القائمة ونزل المستخدم إلى آخر رابط.
+                */}
+                <div className="sticky top-0 z-10 border-b border-[#f1f5f9] bg-white p-2.5 dark:border-[#334155] dark:bg-[#1e293b]">
+                  <MenuSearch onNavigate={handleNavClick} />
+                </div>
 
-                <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
-                  <MobileAccountCard onNavigate={handleNavClick} />
+                <div className="p-2.5 pt-2 space-y-1">
+                  <NavLink to="/" end onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    الرئيسية
+                  </NavLink>
+                  <NavLink to="/articles" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    المقالات
+                  </NavLink>
+                  <NavLink to="/news" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    الأخبار
+                  </NavLink>
+                  <NavLink to="/lexicon" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    القاموس
+                  </NavLink>
+                  <NavLink to="/pro-tools" onClick={handleNavClick} className="flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold text-primary">الأدوات القانونية</NavLink>
+                  <NavLink to="/schools" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    الكليات
+                  </NavLink>
+                  <NavLink to="/careers" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    المسارات المهنية
+                  </NavLink>
+                  <NavLink to="/archive" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    الأرشيف
+                  </NavLink>
+                  <NavLink to="/events" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    الفعاليات
+                  </NavLink>
+                  <NavLink to="/quiz" onClick={handleNavClick} className={({ isActive }) => `flex items-center px-3 py-2.5 rounded-xl text-[13px] font-bold transition-colors ${isActive ? "bg-[#2563eb] text-white" : "text-[#334155] dark:text-[#e2e8f0] hover:bg-[#f8fafc] dark:hover:bg-[#334155]"}`}>
+                    الاختبارات
+                  </NavLink>
+
+                  <div className="pt-2 mt-2 border-t border-[#f1f5f9] dark:border-[#334155] space-y-2">
+                    <MobileAccountCard onNavigate={handleNavClick} />
+                  </div>
                 </div>
               </nav>
             </div>
