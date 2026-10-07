@@ -38,7 +38,8 @@ declare global {
   }
 }
 
-const GA_ID: string | undefined = import.meta.env.VITE_GA_ID
+export const GA_MEASUREMENT_ID = "G-S52GPR2RWL"
+const GA_ID: string = import.meta.env.VITE_GA_ID || GA_MEASUREMENT_ID
 
 let bootstrapped = false
 
@@ -66,16 +67,62 @@ export function initAnalytics(): void {
     }
     if (!GA_ID || GA_ID.indexOf("%") === 0) return
     window.gtag?.("js", new Date())
-    window.gtag?.("config", GA_ID, { anonymize_ip: true, send_page_view: false })
+    window.gtag?.("config", GA_ID, { anonymize_ip: true, send_page_view: true })
     const s = document.createElement("script")
     s.async = true
     s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(GA_ID)
     document.head.appendChild(s)
   }
 
-  // جدولة مزدوجة: أول تفاعل، أو بعد load + خمول (سقف 10 ثوانٍ) — أيّهما أسبق.
-  // السقف الطويل مقصود: من يقرأ الصفحة بلا تفاعل لا يحتاج كود القياس على
-  // المسار الحرج، ومن يتفاعل يُقاس في الحال.
-  const schedule = firstOf(onFirstInteraction, (run) => afterWindowLoad(() => scheduleWhenIdle(run, { timeout: 10000 })))
-  schedule(loadMizanAnalytics)
+  let isTagAssistant = false
+  if (typeof window !== "undefined") {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has("gtm_debug") || params.has("tagassistant")) {
+        isTagAssistant = true
+      }
+    } catch {
+      /* تجاهل أي خطأ في تحليل معلمات الرابط */
+    }
+    if (!isTagAssistant && typeof document !== "undefined" && document.referrer) {
+      try {
+        const refUrl = new URL(document.referrer)
+        if (refUrl.protocol === "https:" && refUrl.hostname === "tagassistant.google.com") {
+          isTagAssistant = true
+        }
+      } catch {
+        /* تجاهل الرابط المرجعي غير الصالح */
+      }
+    }
+  }
+
+  if (isTagAssistant) {
+    loadMizanAnalytics()
+  } else {
+    // جدولة مزدوجة: أول تفاعل، أو بعد load + خمول (سقف 10 ثوانٍ) — أيّهما أسبق.
+    // السقف الطويل مقصود: من يقرأ الصفحة بلا تفاعل لا يحتاج كود القياس على
+    // المسار الحرج، ومن يتفاعل يُقاس في الحال.
+    const schedule = firstOf(onFirstInteraction, (run) => afterWindowLoad(() => scheduleWhenIdle(run, { timeout: 10000 })))
+    schedule(loadMizanAnalytics)
+  }
+}
+
+/**
+ * إرسال حدث مشاهدة صفحة إلى Google Analytics
+ */
+export function trackPageView(pagePath?: string, pageTitle?: string): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function" || !GA_ID) return
+  window.gtag("event", "page_view", {
+    page_path: pagePath || window.location.pathname + window.location.search,
+    page_title: pageTitle || (typeof document !== "undefined" ? document.title : undefined),
+    page_location: typeof window !== "undefined" ? window.location.href : undefined,
+  })
+}
+
+/**
+ * إرسال حدث مخصص إلى Google Analytics
+ */
+export function trackEvent(eventName: string, params?: Record<string, unknown>): void {
+  if (typeof window === "undefined" || typeof window.gtag !== "function" || !GA_ID) return
+  window.gtag("event", eventName, params)
 }
