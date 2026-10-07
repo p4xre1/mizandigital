@@ -8,6 +8,7 @@
     "preview:prod": "node scripts/preview-with-headers.mjs",
     "clean": "node scripts/clean.mjs",
     "archive:check": "node scripts/validate-archive-links.mjs --strict",
+    "links:check": "node scripts/check-links.mjs",
     "validate": "pnpm typecheck",
     "doctor": "node scripts/doctor.mjs",
     "prebuild": "node scripts/validate-archive-links.mjs --strict && node scripts/validate-reference-map.mjs && node scripts/generate-counts.mjs && node scripts/generate-career-lexicon.mjs && node scripts/generate-law-archive-snapshot.mjs && node scripts/generate-lexicon-client-data.mjs && node scripts/generate-sitemap.mjs && node scripts/generate-feed.mjs && node scripts/generate-llms.mjs && node scripts/generate-llms-enhanced.mjs && node scripts/generate-reference.mjs",

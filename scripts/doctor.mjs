@@ -1,6 +1,7 @@
 import { readdir, readFile, stat } from "node:fs/promises";
 import { resolve, join, dirname, extname } from "node:path";
 import { execSync } from "node:child_process";
+import { isValidRecord } from "./lib/data-shape.mjs";
 
 async function fileExists(filePath) {
   try {
@@ -50,9 +51,7 @@ async function runDoctor() {
       const items = Array.isArray(data) ? data : (data.items || data.data || []);
       if (Array.isArray(items)) {
         items.forEach((item, index) => {
-          const hasIdentifier = item.id || item.slug || item.key || item.code;
-          const hasLabel = item.title || item.term || item.name || item.word || item.label || item.heading || item.term_ar || item.term_fr;
-          if (!hasIdentifier || !hasLabel) {
+          if (!isValidRecord(item)) {
             console.error(`  ❌ ${file} [index ${index}]: Missing identifier or label.`);
             jsonErrors++;
           }

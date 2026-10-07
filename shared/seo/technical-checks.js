@@ -595,28 +595,36 @@ export function checkMetadataUniqueness(pages = [], options = {}) {
   if (rows.every((page) => page.title && page.description)) earned++
   else issues.push("صفحات بلا <title> أو بلا meta description — تُقرأ نسخة من غيرها.")
 
-  const longTitles = indexable.filter((page) => page.title.length > hardMaxTitle)
+  // لا نفترض وجود وصف: استخراج الرأس يعطي null لصفحة بلا meta description،
+  // و`page.description.length` عليه كان يُسقط الفحص كله (TypeError) بدل أن
+  // يُبلغ بالمشكلة. النصّ الفارغ يُحسب «خارج النطاق» ويظهر في التقرير.
+  const descriptionOf = (page) => String(page.description ?? "")
+  const titleOf = (page) => String(page.title ?? "")
+
+  const longTitles = indexable.filter((page) => titleOf(page).length > hardMaxTitle)
   if (longTitles.length === 0) earned++
   else
     issues.push(
-      `${longTitles.length} عنوان فوق ${hardMaxTitle} حرفاً يُبتر في نتيجة البحث: ${longTitles.slice(0, 2).map((p) => `${p.path} (${p.title.length})`).join(", ")}`
+      `${longTitles.length} عنوان فوق ${hardMaxTitle} حرفاً يُبتر في نتيجة البحث: ${longTitles.slice(0, 2).map((p) => `${p.path} (${titleOf(p).length})`).join(", ")}`
     )
 
-  const overTarget = indexable.filter((page) => page.title.length > maxTitle)
+  const overTarget = indexable.filter((page) => titleOf(page).length > maxTitle)
   if (overTarget.length) details.push(`${overTarget.length} عنوان فوق الهدف ${maxTitle} (تحت السقف ${hardMaxTitle})`)
 
-  const offRange = indexable.filter(
-    (page) => page.description.length < minDesc || page.description.length > maxDesc
-  )
+  const offRange = indexable.filter((page) => {
+    const length = descriptionOf(page).length
+    return length < minDesc || length > maxDesc
+  })
   if (offRange.length === 0) earned++
   else
     issues.push(
-      `${offRange.length} وصف خارج ${minDesc}-${maxDesc} حرفاً: ${offRange.slice(0, 3).map((p) => `${p.path} (${p.description.length})`).join(", ")}`
+      `${offRange.length} وصف خارج ${minDesc}-${maxDesc} حرفاً: ${offRange.slice(0, 3).map((p) => `${p.path} (${descriptionOf(p).length})`).join(", ")}`
     )
 
-  const offTarget = indexable.filter(
-    (page) => page.description.length < targetMin || page.description.length > targetMax
-  )
+  const offTarget = indexable.filter((page) => {
+    const length = descriptionOf(page).length
+    return length < targetMin || length > targetMax
+  })
   if (offTarget.length)
     details.push(`${offTarget.length} وصف خارج النطاق المستهدف ${targetMin}-${targetMax} (لا يقطع الفحص)`)
 

@@ -987,6 +987,10 @@ ${homeLawArchiveHtml}
   },
 
   {
+    // رابط «النصوص القانونية» يشير إلى /archive?semester=عام — القيمة التي
+    // يقرأها ArchiveWrapper من الـ query ويعرضها ArchivePage عبر
+    // GENERAL_LAW_SEMESTER. لا رابط عارٍ إلى /pdf: لا مسار بوابة بهذا الاسم
+    // (المسار الفعلي /pdf/<slug> لملف بعينه)، وكان /pdf يخرج 404.
     path: "/archive",
     title: "الأرشيف الدراسي | ميزان الرقمية",
     description:
@@ -1018,9 +1022,9 @@ ${homeLawArchiveHtml}
             وقارن بين ملفات المادة الواحدة من جامعات مختلفة لتثبيت
             المنهجية المتوقعة في الامتحان، ثم انتقل إلى النصوص
             التشريعية ذات الصلة (ظهير الالتزامات والعقود، مدونة
-            التجارة، مدونة الأسرة، القانون الجنائي) عبر صفحات
-            <a href="/pdf">النصوص القانونية</a> و<a href="/lexicon">القاموس
-            القانوني</a> في المنصة.
+            التجارة، مدونة الأسرة، القانون الجنائي) عبر قسم
+            <a href="/archive?semester=${encodeURIComponent("عام")}">النصوص القانونية</a>
+            في الأرشيف نفسه، و<a href="/lexicon">القاموس القانوني</a> في المنصة.
           </p>
 
           <h2>ما هي فصول الأرشيف الدراسي؟</h2>
@@ -2386,7 +2390,13 @@ pages.push(
 
           <p>
             من آخر ما نُشر في المستجدات:
-            ${guideSampleNews ? `<a href="/news/${encodeURIComponent(guideSampleNews.id)}">${escapeHtml(guideSampleNews.title)}</a>` : ""}
+            ${
+              // newsSlug نفس دالة sitemap و NewsPage: الخبر المحلي بلا slug
+              // يُبنى مساره من العنوان، وكتابة .id هنا كانت تنتج رابطاً ميتاً.
+              guideSampleNews
+                ? `<a href="/news/${encodeURIComponent(newsSlug(guideSampleNews))}">${escapeHtml(guideSampleNews.title)}</a>`
+                : ""
+            }
           </p>
 
           <h2>أسئلة شائعة</h2>

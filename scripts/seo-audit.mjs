@@ -67,7 +67,9 @@ const listHtml = async (dir) => {
       return;
     }
     for (const entry of entries) {
-      if (entry.name === "ads" || entry.name.startsWith(".")) continue;
+      // node_modules/.wrangler مستثنيان صراحةً: بلا dist/ كان البحث من جذر
+      // المستودع يلتقط HTML من الحزم (miniflare، tslib…) ويفحصه كصفحات موقع.
+      if (["ads", "node_modules", ".wrangler"].includes(entry.name) || entry.name.startsWith(".")) continue;
       const full = join(current, entry.name);
       if (entry.isDirectory()) await walk(full, depth + 1);
       else if (entry.name.endsWith(".html")) out.push(full);
@@ -139,10 +141,19 @@ results.securityHeaders = checkSecurityHeaders(await read(join(PUBLIC, "_headers
 results.urlStructure = checkUrlStructure(routes);
 
 // ── صفحات HTML ──────────────────────────────────────────────────────────────
-// نفحص dist/ إن وُجد (HTML بعد الـ prerender = ما يراه الزاحف فعلاً)،
-// وإلا index.html في الجذر.
-const htmlDir = (await listHtml(DIST)).length ? DIST : ROOT;
-const htmlFiles = await listHtml(htmlDir);
+// نفحص dist/ (HTML بعد الـ prerender = ما يراه الزاحف فعلاً).
+//
+// قبل ذلك كان السقوط إلى جذر المستودع عند غياب dist/ يفحص هيكل التطبيق
+// الفارغ (index.html بلا meta description وبلا title) كأنه صفحة الموقع
+// الوحيدة، ثم انهار الفحص عند أول وصف فارغ. الصواب: لا صفحات ⇒ رسالة
+// واضحة وفشل صريح، فلا يمرّ فحص على موقع لم يُبنَ بعد.
+const htmlFiles = await listHtml(DIST);
+if (htmlFiles.length === 0) {
+  console.log("❌ dist/ بلا صفحات HTML — شغّل `pnpm build` أولاً ثم أعد `pnpm seo:audit`.");
+  console.log("   (فحص الصفحات لا معنى له بلا مخرجات بناء: الهيكل الفارغ ليس صفحة موقع.)");
+  process.exit(1);
+}
+const htmlDir = DIST;
 
 const headScores = [];
 const canonicalScores = [];
