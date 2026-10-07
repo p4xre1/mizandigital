@@ -1,12 +1,67 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, BookOpenCheck } from 'lucide-react';
 import { useAuth } from '@/lib/auth/AuthProvider';
 import { AEOHead } from '@/components/seo/AEOHead';
 import { canonicalFor } from '@/lib/canonical';
+import { ReferenceMap } from '@/components/pro-tools/ReferenceMap';
 import { EntryView, Workspace, buttonClass, cardClass, inputClass } from '@/components/pro-tools/ToolViews';
 import { toolsService } from '@/lib/pro-tools/service';
+import { curatedReferences, mergeReferences, referenceFromEntry, referenceMeta, type Reference } from '@/lib/pro-tools/referenceMap';
 import type { Entry, Tool } from '@/lib/pro-tools/model';
+
+/**
+ * خريطة الإحالات: تقرأ المجموعة المنسّقة المحفوظة في المستودع أولاً، ثم تضيف
+ * ما ينشره المحرّر من الجدول. فشل الاتصال لا يُفرغ الصفحة: تبقى المجموعة
+ * المنسّقة ظاهرة مع تنبيه، لأن الأداة مجانية ومحتواها الأساسي نصّ رسمي عام
+ * لا يخضع لجلسة ولا لاشتراك.
+ */
+function ReferencesView({ signedIn }: { signedIn: boolean }) {
+  const [remote, setRemote] = useState<Reference[]>([]);
+  const [unavailable, setUnavailable] = useState(false);
+  useEffect(() => {
+    let active = true;
+    toolsService.entries('references')
+      .then(data => {
+        if (!active) return;
+        setRemote(data.filter(entry => entry.published).map(entry => referenceFromEntry(entry, {
+          sourceUrl: referenceMeta.sourceUrl,
+          reviewedBy: referenceMeta.reviewedBy,
+          reviewedOn: referenceMeta.reviewedOn,
+        })));
+      })
+      .catch(() => { if (active) setUnavailable(true); });
+    return () => { active = false; };
+  }, []);
+  const references = useMemo(() => mergeReferences(curatedReferences, remote), [remote]);
+  return <ReferenceMap
+    references={references}
+    remotePending={unavailable}
+    signedIn={signedIn}
+    onSave={async (reference) => {
+      await toolsService.saveNote({
+        tool_slug: 'workspace',
+        title: `${reference.fromArticle} ← ${reference.toArticle}`.slice(0, 200),
+        body: [reference.relationship, reference.excerpt ? `«${reference.excerpt}»` : ''].filter(Boolean).join('\n\n'),
+        citation: [reference.fromText, reference.sourceUrl, reference.targetVerified ? reference.targetUrl : ''].filter(Boolean).join('\n'),
+      });
+    }}
+  />;
+}
+
+/**
+ * كتالوج احتياطي لخريطة الإحالات وحدها.
+ *
+ * لماذا؟ الأداة مجانية ومحتواها الأساسي نصّ رسمي عام مودع في المستودع. تعطّل
+ * قراءة الجدول يعني تعطّل «مواد التحرير الإضافية» فقط، لا تعطّل الأداة. الأدوات
+ * الأخرى ليس لها محتوى محلي فتبقى رسالة الخطأ هي الصواب لها.
+ */
+const FALLBACK_CATALOG: Tool[] = [{
+  slug: 'references',
+  title: 'خريطة الإحالات القانونية',
+  description: 'ابحث عن الروابط بين النصوص ومصادرها.',
+  enabled: true,
+}];
 
 function Content({ tool, signedIn }: { tool: Tool; signedIn: boolean }) {
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -64,7 +119,14 @@ function ToolsSession({ signedIn }: { signedIn: boolean }) {
       try {
         const catalog = await toolsService.catalog();
         if (active) setTools(catalog);
-      } catch { if (active) setError('الأدوات غير متاحة حالياً. يرجى المحاولة لاحقاً؛ قد يكون إعداد قاعدة البيانات غير مكتمل.'); }
+      } catch {
+        // خريطة الإحالات تعمل على مجموعة منسّقة محفوظة في المستودع: تعطّل
+        // قراءة كتالوج الأدوات يمنع إضافة مواد التحرير إليها، ولا يمنع الأداة
+        // نفسها من العمل. الأدوات الأخرى بلا محتوى محلي فتبقى على رسالة الخطأ.
+        if (!active) return;
+        if (slug === 'references') setTools(FALLBACK_CATALOG);
+        else setError('الأدوات غير متاحة حالياً. يرجى المحاولة لاحقاً؛ قد يكون إعداد قاعدة البيانات غير مكتمل.');
+      }
       finally { if (active) setLoading(false); }
     }
     void load();
@@ -84,7 +146,7 @@ function ToolsSession({ signedIn }: { signedIn: boolean }) {
       {slug && <Link className="text-primary underline" to="/pro-tools">جميع الأدوات</Link>}
     </header>
     {loading ? <p role="status">جارٍ تحميل الأدوات المجانية...</p> : error ? <div role="alert" className={cardClass}><p>{error}</p><button className={buttonClass} onClick={() => setRetry(n => n + 1)}>إعادة المحاولة</button></div> : slug ? (
-      !tool ? <p>الأداة غير موجودة.</p> : !tool.enabled ? <p className={cardClass}>هذه الأداة قيد الإعداد، وستتاح مجاناً بعد تجهيز محتواها ومراجعته.</p> : <Content key={tool.slug} tool={tool} signedIn={signedIn} />
+      !tool ? <p>الأداة غير موجودة.</p> : !tool.enabled ? <p className={cardClass}>هذه الأداة قيد الإعداد، وستتاح مجاناً بعد تجهيز محتواها ومراجعته.</p> : tool.slug === 'references' ? <ReferencesView signedIn={signedIn} /> : <Content key={tool.slug} tool={tool} signedIn={signedIn} />
     ) : <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
       {tools.map((item, index) => <article key={item.slug} className={`${cardClass} flex flex-col`}>
         <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">0{index + 1}</span><span className="rounded border border-border px-2 py-1 text-xs">{item.enabled ? 'مجانية' : 'قريباً'}</span></div>
