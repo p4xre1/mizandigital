@@ -48,6 +48,26 @@ async function type(text: string) {
   });
 }
 
+/**
+ * هل هذا الرابط مسموح بعرضه؟
+ *
+ * قائمة سماح لا قائمة منع: `href.startsWith('javascript:')` يمنع مخططاً واحداً
+ * ويترك `data:` و`vbscript:` و`JaVaScRiPt:` تمرّ. المسموح هنا صنفان فقط —
+ * رابط https بلا بيانات اعتماد، ومسار داخلي نسبي — وكل ما عداه مرفوض ولو لم
+ * نكن سمعنا بمخططه.
+ */
+function isAllowedHref(href: string): boolean {
+  if (href === '' || href.startsWith('#')) return true;
+  // «/login?next=...» نعم، و«//evil.com» لا: هذا بروتوكول نسبي لا مسار نسبي.
+  if (/^\/[^/]/.test(href)) return true;
+  try {
+    const url = new URL(href);
+    return url.protocol === 'https:' && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
 /** عدد الإحالات الظاهر في عنوان القائمة، لا أي عنوان آخر في الصفحة. */
 const countOf = () => {
   const heading = Array.from(container.querySelectorAll('h2')).find(el => el.textContent?.includes('الإحالات'));
@@ -203,25 +223,34 @@ describe('واجهة خريطة الإحالات', () => {
   });
 
   it('لا تعرض روابط غير آمنة ولو وردت في البيانات', async () => {
-    service.entries.mockResolvedValue([{
-      id: 'bad-1',
+    // ثلاثة مخططات لا واحد: javascript و data و vbscript. فحص مخطط واحد يترك
+    // الباقي يمرّ، وهو بالضبط ما ترصده قاعدة CodeQL باسم
+    // incomplete-url-scheme-check.
+    const unsafe = ['javascript:alert(1)', 'data:text/html,<script>alert(1)</script>', 'vbscript:msgbox(1)'];
+    service.entries.mockResolvedValue(unsafe.map((url, index) => ({
+      id: `bad-${index}`,
       tool_slug: 'references',
       title: 'رابط خطر',
       topic: 'اختبار',
-      source_url: 'javascript:alert(1)',
+      source_url: url,
       source_reference: '',
       reviewed_by: 'محرّر',
       reviewed_on: '2026-09-01',
       published: true,
       payload: {
-        from_article: 'المادة 1', to_article: 'المادة 2', relationship: 'علاقة اختبارية للتحقق من الأمان',
-        target_url: 'javascript:alert(1)', relation_type: 'explicit', target_verified: 'true',
+        from_article: 'المادة 1', to_article: `المادة ${index + 2}`, relationship: 'علاقة اختبارية للتحقق من الأمان',
+        target_url: url, relation_type: 'explicit', target_verified: 'true',
       },
       updated_at: '2026-09-01T00:00:00Z',
-    }]);
+    })));
     await render();
-    const anchors = Array.from(container.querySelectorAll('a')).map(a => a.getAttribute('href') ?? '');
-    expect(anchors.some(href => href.startsWith('javascript:'))).toBe(false);
+    const hrefs = Array.from(container.querySelectorAll('a')).map(a => a.getAttribute('href') ?? '');
+    // قائمة المنع تنمو بالأخطاء وقائمة السماح تنقص بها: المسموح رابط https أو
+    // مسار داخلي نسبي، وما عداه مرفوض ولو لم نكن سمعنا بمخططه.
+    expect(hrefs.filter(href => !isAllowedHref(href)), 'كل رابط معروض إما https أو مسار داخلي').toEqual([]);
+    expect(hrefs.length, 'الصفحة تعرض روابط بالفعل، فالفحص ليس فارغاً').toBeGreaterThan(0);
     expect(container.textContent).toContain('علاقة اختبارية للتحقق من الأمان');
+    expect(container.innerHTML).not.toContain('javascript:');
+    expect(container.innerHTML).not.toContain('vbscript:');
   });
 });
