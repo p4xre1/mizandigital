@@ -27,17 +27,44 @@
  *   • الكاش: قاعدة / *.css في _headers (max-age=31536000, immutable) تغطي
  *     الملف — الزيارات المتكررة لا تعيد تنزيله.
  *
+ * إضافة (2026-10-07) — الكتلة الحرجة (critical CSS) ضد انزياح أول رسم:
+ *
+ *   تقرير Agentic Browsing (PageSpeed، الجوال) رصد CLS 0.186 على الرئيسية:
+ *   النمط الكامل غير حاجب للرسم، فبين أول رسم (HTML بلا أنماط) ولحظة وصول
+ *   الملف (‏186KB مضغوطاً) يُعاد تنسيق الرأس والواجهة ⇒ انزياح حقيقي. الحل:
+ *   يُضمَّن في <head> وسم <style data-mizan-critical-css> صغير يحمل الخصائص
+ *   الهندسية للهيكل الأولي فقط، مقتطعةً من ملف الأنماط المبنى نفسه
+ *   (scripts/lib/critical-css.mjs) ⇒ صفر طلبات إضافية، صفر حجب رسم، وعند وصول
+ *   النمط الكامل تُطبَّق القيم ذاتها فلا انزياح. الألوان/الظلال/الانتقالات
+ *   مستثناة (لا تُحرّك شيئاً) والحجم مُقيَّد بحُرّاس:
+ *     • MAX_CRITICAL_BYTES وحصة لا تتجاوز ثلث المستند،
+ *     • حد أدنى لنسبة النص/HTML بعد الإضافة (MIN_RATIO_AFTER) فلا تُدفع صفحة
+ *       رقيقة إلى منطقة الفشل التي عالجها القرار السابق؛ الصفحات الرقيقة
+ *       (‏أهمها أغلفة SPA ومسارات القاموس القصيرة) تُتخطّى وتُعدّ في السجل،
+ *     • الرئيسية (dist/index.html) إلزامية: غياب الكتلة فيها يُسقط البناء.
+ *   وسوم <style> مسموحة في CSP أصلاً (style-src 'self' 'unsafe-inline')،
+ *   والوسم ليس سكربتاً فلا يمسّ hashes الخاصة بـscript-src.
+ *
  * ما يفعله السكربت:
  *   1) يقرأ كل ملفات dist (تكراراً).
  *   2) يجد كل <link rel="stylesheet" href="/assets/*.css"> الذي يحقنه Vite.
  *   3) يستبدله بـ <link rel="preload" as="style" data-mizan-async-css>
  *      (+ <noscript> يحمل stylesheet عادي).
  *   4) idempotent: أي مستند يحمل data-mizan-async-css يُتخطّى.
- *   5) يتحقق في النهاية أن لا وسم stylesheet حاجب بقي خارج <noscript>.
+ *   5) يضيف الكتلة الحرجة قبل رابط النمط (idempotent كذلك).
+ *   6) يتحقق في النهاية أن لا وسم stylesheet حاجب بقي خارج <noscript>، وأن
+ *      الرئيسية حملت الكتلة الحرجة، وأن حجمها داخل الحدود.
  */
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  CRITICAL_MARKER,
+  MAX_CRITICAL_BYTES,
+  buildCriticalCss,
+  criticalStyleTag,
+  htmlTextBytes,
+} from "./lib/critical-css.mjs";
 
 const scriptsDir = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(scriptsDir);
@@ -45,6 +72,11 @@ const DIST = join(ROOT, "dist");
 
 const MARKER = "data-mizan-async-css";
 const STYLESHEET_TAG = /<link\b[^>]*\brel="stylesheet"[^>]*>/gi;
+const ASYNC_TAG = /<link rel="preload" as="style" href="([^"]+)" [^>]*data-mizan-async-css[^>]*>/;
+/** أدنى نسبة نص/HTML مقبولة بعد إضافة الكتلة الحرجة (منطقة الفشل التاريخية 0.02-0.05). */
+const MIN_RATIO_AFTER = 0.06;
+/** أقصى حصة للكتلة من بايتات المستند نفسه. */
+const MAX_RATIO_SHARE = 0.35;
 const HREF_OF = (tag) => {
   const m = /\bhref="([^"]+)"/i.exec(tag);
   return m ? m[1] : null;
@@ -83,6 +115,7 @@ async function main() {
   let withoutStylesheet = 0;
   const remaining = [];
 
+  /* ── 1) تحويل وسوم النمط إلى preload + قَلب ─────────────────────────── */
   for (const file of files) {
     const html = await readFile(file, "utf8");
     const rel = relative(DIST, file);
@@ -122,23 +155,92 @@ async function main() {
     if (next !== html) await writeFile(file, next, "utf8");
   }
 
-  // تحقّق ختامي: لا وسم stylesheet خارجي حاجب بقي خارج <noscript>.
+  /* ── 2) الكتلة الحرجة: خصائص هندسية للهيكل الأولي، من ملف الأنماط نفسه ── */
+  const cssCache = new Map();
+  const readCss = async (href) => {
+    if (!cssCache.has(href)) {
+      cssCache.set(href, await readFile(join(DIST, href.replace(/^\//, "")), "utf8"));
+    }
+    return cssCache.get(href);
+  };
+
+  let criticalAdded = 0;
+  let criticalAlready = 0;
+  let criticalSkippedThin = 0;
+  let criticalSkippedBig = 0;
+  let criticalNoShell = 0;
+  const thinSamples = [];
+
+  for (const file of files) {
+    const rel = relative(DIST, file);
+    const html = await readFile(file, "utf8");
+    if (html.includes(CRITICAL_MARKER)) {
+      criticalAlready += 1;
+      continue;
+    }
+    const asyncMatch = ASYNC_TAG.exec(html);
+    if (!asyncMatch) continue; // مستند بلا نمط خارجي (لا شيء لاقتطاعه)
+
+    const cssText = await readCss(asyncMatch[1]);
+    const built = buildCriticalCss({ html, cssText });
+    if (!built.css) {
+      criticalNoShell += 1;
+      continue;
+    }
+
+    const htmlBytes = Buffer.byteLength(html, "utf8");
+    const textBytes = htmlTextBytes(html);
+    const docFloor = Buffer.byteLength(`<style ${CRITICAL_MARKER}></style>`) + built.bytes;
+    const ratioAfter = textBytes / (htmlBytes + docFloor);
+    const tooBig = built.bytes > MAX_CRITICAL_BYTES || built.bytes > htmlBytes * MAX_RATIO_SHARE;
+
+    if (tooBig) {
+      criticalSkippedBig += 1;
+      continue;
+    }
+    if (ratioAfter < MIN_RATIO_AFTER) {
+      criticalSkippedThin += 1;
+      if (thinSamples.length < 3) thinSamples.push(`${rel} (${ratioAfter.toFixed(3)})`);
+      continue;
+    }
+
+    const tag = criticalStyleTag(built.css);
+    let next = html.replace(asyncMatch[0], () => tag + asyncMatch[0]);
+    if (next === html) next = html.replace("</head>", () => `${tag}</head>`);
+    if (next === html) continue;
+    await writeFile(file, next, "utf8");
+    criticalAdded += 1;
+  }
+
+  /* ── 3) تحقّق ختامي ─────────────────────────────────────────────────── */
+  let homeHasCritical = false;
   for (const file of files) {
     const html = await readFile(file, "utf8");
+    const rel = relative(DIST, file);
+    if (rel === "index.html") homeHasCritical = html.includes(CRITICAL_MARKER);
     const withoutNoscript = html.replace(/<noscript>[\s\S]*?<\/noscript>/gi, "");
-    const stillBlocking = (withoutNoscript.match(STYLESHEET_TAG) ?? []).filter(
-      (tag) => {
-        const href = HREF_OF(tag);
-        return href && href.endsWith(".css") && !/^https?:/i.test(href);
-      }
-    );
-    if (stillBlocking.length) remaining.push(relative(DIST, file));
+    const stillBlocking = (withoutNoscript.match(STYLESHEET_TAG) ?? []).filter((tag) => {
+      const href = HREF_OF(tag);
+      return href && href.endsWith(".css") && !/^https?:/i.test(href);
+    });
+    if (stillBlocking.length) remaining.push(rel);
   }
 
   console.log(
     `[nonblocking-css] ✓ ${converted} وسم CSS حُوِّل إلى preload+قَلب ` +
       `(${alreadyAsync} مستند سبق تحويله، ${withoutStylesheet} بلا CSS خارجي).`
   );
+  console.log(
+    `[nonblocking-css] ✓ ${criticalAdded} كتلة حرجة أُضيفت (${criticalAlready} موجودة، ` +
+      `${criticalSkippedThin} صفحة تخطّتها لنسبة نص/HTML < ${MIN_RATIO_AFTER}` +
+      `${thinSamples.length ? ` مثل: ${thinSamples.join("، ")}` : ""}، ` +
+      `${criticalSkippedBig} تجاوزت سقف الحجم، ${criticalNoShell} بلا هيكل أولي).`
+  );
+
+  if (!homeHasCritical) {
+    console.error("[nonblocking-css] ✗ الرئيسية بلا كتلة حرجة — CLS يعود. تحقق من الهيكل والحدود.");
+    process.exit(1);
+  }
 
   if (remaining.length) {
     console.warn(

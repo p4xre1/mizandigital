@@ -85,7 +85,9 @@ export default function FreeLegalResourcesPage() {
         ]}
         breadcrumbs={[
           { name: "الرئيسية", url: "/" },
-          { name: "الأدلة", url: "/guides" },
+          /* لا كسرة «الأدلة → /guides»: لا مسار /guides في التطبيق ولا ملف
+             ثابت له، وBreadcrumbList يشير إلى رابط ميت. الصفحتان تُفهرسان
+             مباشرة من الرئيسية. */
           {
             name: "الموارد المجانية",
             url: "/guides/free-legal-resources-morocco",

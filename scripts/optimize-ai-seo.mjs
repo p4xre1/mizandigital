@@ -19,6 +19,37 @@ const readJson = async (name) => {
   }
 };
 
+/**
+ * ⚠️ حاجز أمان — لا تحذفه بلا قراءة:
+ *
+ * هذا السكربت من مرحلة سابقة، قبل وجود مركز المرجع `/reference/*` الذي
+ * يولّده `scripts/generate-reference.mjs` (مربوط في prebuild). نسخته من
+ * `openapi.json` و`ai-sitemap.xml` مكتوبة يدوياً ولا تعرف مسارات
+ * `/reference/index.json` و`/reference/{dataset}.json`، فتشغيله **يحذف**
+ * إعلانها من الملفين الملتزمين في المستودع — ويتوقف بنجاح ظاهر (exit 0)
+ * ورسالة «✅ All optimizations complete».
+ *
+ * الحماية: يرفض العمل ما لم يُمرَّر --force، فمن أراده عن قصد يعرف الثمن.
+ * البديل الصحيح لتحديث ملفات الاكتشاف: `pnpm build` (يشغّل المولّدات كلها).
+ */
+const FORCE = process.argv.includes("--force");
+if (!FORCE) {
+  try {
+    const { readFileSync } = await import("node:fs");
+    const spec = readFileSync(join(PUBLIC, ".well-known/openapi.json"), "utf8");
+    if (spec.includes("/reference/")) {
+      console.error(
+        "⛔ أوقِف: openapi.json الحالي يعرّف مسارات /reference/* التي يولّدها generate-reference.mjs.\n" +
+          "   تشغيل هذا السكربت سيمسحها. استعمل `pnpm build` لتحديث ملفات الاكتشاف،\n" +
+          "   أو مرّر --force إن كنت متأكداً من قرارك.",
+      );
+      process.exit(1);
+    }
+  } catch {
+    /* لا ملف بعد — لا خطر على شيء */
+  }
+}
+
 console.log("🤖 Optimizing for AI crawl (ChatGPT, Perplexity, Claude) + SEO + AEO...");
 
 // Load data

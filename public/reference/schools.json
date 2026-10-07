@@ -1,7 +1,7 @@
 {
  "dataset": "schools",
  "title": "دليل كليات الحقوق",
- "generatedAt": "2026-10-03T15:05:42.646Z",
+ "generatedAt": "2026-10-07T14:05:57.922Z",
  "count": 21,
  "section": "https://www.mizan.page/schools",
  "urlPattern": "https://www.mizan.page/schools/{slug}",
@@ -413,7 +413,7 @@
    "university": "جامعة محمد الأول بوجدة",
    "city": "وجدة",
    "foundedYear": null,
-   "officialUrl": "http://wwwdroit.univ-oujda.ac.ma",
+   "officialUrl": "http://droit.ump.ma",
    "studyAreas": [
     "ماجستير في القانون العام",
     "ماجستير في القانون الخاص",
