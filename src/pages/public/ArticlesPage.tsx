@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
-import { generateBreadcrumbSchema, SITE_CONFIG } from "../../lib/seo/schema"
+import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { canonicalArticlesHub } from "../../lib/canonical"
+import { buildMetaDescription } from "../../lib/seo/description"
+import { ARTICLES_HUB_META, buildArticlesHubSchema } from "../../../shared/seo/articles-hub.js"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { truncateCleanText } from "../../lib/utils/sanitize"
@@ -101,27 +103,12 @@ export function ArticlesPage() {
 
   const featured = filteredItems[0]
 
-  const pageTitle = "المقالات والدراسات القانونية"
-  const pageDescription = "مقالات ودراسات تحليلية في مختلف فروع القانون المغربي."
+  const pageTitle = ARTICLES_HUB_META.title
+  const pageDescription = buildMetaDescription(ARTICLES_HUB_META.description, [
+    ARTICLES_HUB_META.metaContext,
+  ])
 
-  const listSchema = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: pageTitle,
-    description: pageDescription,
-    itemListElement: filteredItems.slice(0, 30).map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "Article",
-        headline: item.title,
-        description: truncateCleanText(item.summary || "", 160),
-        datePublished: item.date || undefined,
-        url: `${SITE_CONFIG.url}/articles/${item.slug}`,
-      },
-    })),
-  }
-
+  const hubSchemas = buildArticlesHubSchema(items)
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "الرئيسية", url: "/" },
     { name: pageTitle, url: "/articles" },
@@ -129,7 +116,13 @@ export function ArticlesPage() {
 
   return (
     <>
-      <AEOHead title={pageTitle} description={pageDescription} keywords={["مقالات قانونية", "شرح القانون المغربي"]} canonicalUrl={canonicalArticlesHub()} schema={[listSchema, breadcrumbSchema]} />
+      <AEOHead
+        title={pageTitle}
+        description={pageDescription}
+        keywords={["مقالات قانونية", "شرح القانون المغربي"]}
+        canonicalUrl={canonicalArticlesHub()}
+        schema={[...hubSchemas, breadcrumbSchema]}
+      />
 
       <main className="min-h-screen bg-white dark:bg-[#0f172a]" dir="rtl">
         {/* Article page header */}
@@ -143,7 +136,12 @@ export function ArticlesPage() {
               <h1 className="mt-3 text-[28px] md:text-[36px] font-black tracking-[-0.02em] text-[#0f172a] dark:text-white leading-[1.1]">
                 {pageTitle}
               </h1>
-              <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">{pageDescription}</p>
+              <p className="mt-3 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">{ARTICLES_HUB_META.description}</p>
+              <p className="mt-2 text-[13px] leading-7 text-[#64748b] dark:text-[#94a3b8]">{ARTICLES_HUB_META.intro}</p>
+              <h2 className="mt-4 text-[15px] font-bold text-[#0f172a] dark:text-white">كيف تصل إلى المقال المناسب؟</h2>
+              <p className="mt-1 text-[12px] leading-6 text-[#64748b] dark:text-[#94a3b8]">
+                استخدم البحث أو التصنيف في قائمة المقالات، ثم افتح العنوان لقراءة الشرح كاملاً. للمستجدات التشريعية والقضائية راجع <Link to="/news" className="font-semibold text-[#2563eb] hover:underline">قسم الأخبار</Link>، وللمحاضرات والملخصات راجع <Link to="/archive" className="font-semibold text-[#2563eb] hover:underline">الأرشيف الدراسي</Link>.
+              </p>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1 max-w-[400px]">

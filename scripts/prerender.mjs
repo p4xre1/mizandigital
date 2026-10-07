@@ -23,6 +23,7 @@ import {
   slugify,
 } from "../shared/seo/url-policy.js";
 import { downloadLinkOf } from "../shared/archive/links.js";
+import { ARTICLES_HUB_META, buildArticlesHubSchema } from "../shared/seo/articles-hub.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 import {
   MAX_TITLE,
@@ -1050,29 +1051,32 @@ ${renderCrawlList(docPages, { heading: "قائمة ملفات الملخصات �
 
   {
     path: "/articles",
-    title: "المقالات القانونية | ميزان الرقمية",
-    description:
-      "شرح القانون المغربي عبر مقالات ومنهجيات ومهارات قانونية موجهة لطلبة الحقوق والباحثين.",
+    title: ARTICLES_HUB_META.title,
+    description: ARTICLES_HUB_META.description,
+    metaContext: [ARTICLES_HUB_META.metaContext],
+    extraSchema: [
+      ...buildArticlesHubSchema(articlePages),
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: ARTICLES_HUB_META.title, path: "/articles" },
+      ]),
+    ],
     staticBody: `
       <main dir="rtl" lang="ar-MA">
         <article>
-          <h1>المقالات القانونية والمنهجية</h1>
+          <h1>${escapeHtml(ARTICLES_HUB_META.title)}</h1>
 
+          <p><strong>${escapeHtml(ARTICLES_HUB_META.description)}</strong></p>
+          <p>${escapeHtml(ARTICLES_HUB_META.intro)}</p>
+
+          <h2>كيف تصل إلى المقال المناسب؟</h2>
           <p>
-            <strong>
-              هذا القسم يجمع مقالات شرح القانون المغربي والمنهجيات التي تساعد الطالب
-              على فهم وتحليل الموضوعات القانونية.
-            </strong>
+            استخدم البحث أو التصنيف في قائمة المقالات، ثم افتح العنوان لقراءة
+            الشرح كاملاً. للمستجدات التشريعية والقضائية راجع
+            <a href="/news">قسم الأخبار</a>، وللمحاضرات والملخصات راجع
+            <a href="/archive">الأرشيف الدراسي</a>.
           </p>
-
-          <h2>ماذا ستجد في المقالات؟</h2>
-
-          <p>
-            تتناول المقالات موضوعات قانونية وأكاديمية ومنهجية،
-            ويمكن أن تساعد في إعداد البحوث والتعليقات القانونية
-            وفهم المفاهيم الأساسية.
-          </p>
-${renderCrawlList(articlePages, { heading: "قائمة المقالات المنشورة" })}
+${renderCrawlList(articlePages, { heading: "قائمة المقالات والدراسات المنشورة" })}
         </article>
       </main>
     `,
