@@ -33,7 +33,10 @@
 # ضروري: React وسكربت السمة يضبطان سمات style= مباشرة على العناصر (color-scheme
 # وغيرها) ولا يمكن استبدالها بclasses ديناميكياً. ملف CSS نفسه لم يعد
 # مضمَّناً: يُحمَّل preload غير حاجب ثم يقلبه سكربت السمة (انظر
-# scripts/nonblocking-css.mjs) — بلا <style> مضمّن في المستندات.
+# scripts/nonblocking-css.mjs). ويُضمَّن وسم <style data-mizan-critical-css>
+# صغير (≤8KB، خصائص هندسية للهيكل الأولي فقط) لمنع انزياح التخطيط (CLS) بين
+# أول رسم ووصول النمط الكامل — لا حاجة لـhash في style-src لأن 'unsafe-inline'
+# يغطيه، وهو ليس سكربتاً فلا يمسّ hashes الخاصة بـscript-src.
 /*
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
@@ -83,6 +86,10 @@
   Content-Type: text/plain; charset=utf-8
 
 /index.md
+  Cache-Control: public, max-age=3600, must-revalidate
+  Content-Type: text/markdown; charset=utf-8
+
+/.well-known/agent-skills/index.md
   Cache-Control: public, max-age=3600, must-revalidate
   Content-Type: text/markdown; charset=utf-8
 

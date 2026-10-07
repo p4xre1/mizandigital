@@ -231,10 +231,14 @@ test("MCP (وظيفي): مدخلات غير صالحة تُرفض بأخطاء J
 });
 
 test("الفهارس المعلنة تشير إلى طبقة المرجعيات (اتساق الإعلان)", () => {
-  const catalog = JSON.parse(read("public/.well-known/ai-catalog.json"));
-  expect(
-    catalog.entries.some((e: { identifier: string }) => e.identifier === "urn:air:mizan.page:reference:hub")
-  ).toBe(true);
+  // ملاحظة (2026-10-07): أُخرجت طبقة المرجعيات من ai-catalog.json لأن تدقيق
+  // Agentic Browsing يعدّ media type خارج أنواع الاكتشاف القياسية تحذيراً؛
+  // الفهرس الآن يعلن الموارد الوكيلية فقط (mcp/a2a/agent-skills). الإعلان عن
+  // طبقة المرجعيات باقٍ في المستندات الموجّهة للوكلاء والعناكب أدناه.
+  expect(read("public/ai.txt")).toContain("/reference/index.json");
+  expect(read("public/robots.txt")).toContain("/reference/index.json");
+  expect(read("public/ai-sitemap.xml")).toContain("/reference/index.json");
+  expect(read("public/llms.txt")).toContain("/reference/index.json");
 
   const openapi = JSON.parse(read("public/.well-known/openapi.json"));
   expect(openapi.paths["/reference/index.json"]).toBeTruthy();

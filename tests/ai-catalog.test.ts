@@ -116,6 +116,38 @@ for (const file of MANIFESTS) {
   })
 }
 
+/**
+ * أنواع الاكتشاف القياسية كما يفرضها مدقق Lighthouse نفسه
+ * (core/audits/agentic/ard-schema.js → third-party/ard/ard.js، متطابق حرفياً مع
+ * تقرير Agentic Browsing). أي media type خارجه = تحذير Low يخفض التدقيق إلى 0.9.
+ * ملاحظة: application/agent-skills+json معرّف في ADR-0014 لكنه غائب عن قائمة
+ * المدقق، لذا يُقدَّم فهرس المهارات كـ text/markdown; profile="urn:air:agent-skills".
+ */
+const STANDARD_DISCOVERY_TYPES = [
+  "application/ai-catalog+json",
+  "application/agent-card+json",
+  "application/a2a-agent-card+json",
+  "application/mcp-server-card+json",
+  "application/agent-skills+zip",
+  "application/agent-skills+gzip",
+  'text/markdown; profile="urn:air:agent-skills"',
+  "application/ai-registry",
+  "application/ai-registry+json",
+]
+
+for (const file of MANIFESTS) {
+  test(`${path.relative(publicDir, file)}: كل entry.type نوع اكتشاف قياسي`, () => {
+    const doc = load(file)
+    const offenders = (doc.entries as Entry[]).filter(
+      (e) => !STANDARD_DISCOVERY_TYPES.includes(e.type)
+    )
+    expect(
+      offenders.map((e) => `${e.identifier} → ${e.type}`),
+      "أنواع وسائط غير قياسية تُنتج تحذيرات في تدقيق ai-catalog"
+    ).toEqual([])
+  })
+}
+
 test("ai-catalog.json and ard.json stay in sync (same content)", () => {
   const a = load(MANIFESTS[0])
   const b = load(MANIFESTS[1])
