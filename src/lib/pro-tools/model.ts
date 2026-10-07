@@ -6,7 +6,16 @@ export interface Entry {
   published: boolean; payload: Record<string, string>; updated_at: string;
 }
 export interface Note { id: string; title: string; body: string; citation: string; tool_slug: 'workspace' | 'cases' }
-export interface Field { key: string; label: string; type?: 'date' | 'url' | 'number'; multiline?: boolean }
+export interface Field {
+  key: string;
+  label: string;
+  type?: 'date' | 'url' | 'number' | 'select';
+  multiline?: boolean;
+  /** خيارات قائمة الاختيار (type = select) — القيمة تُخزَّن نصّاً كباقي الحقول. */
+  options?: { value: string; label: string }[];
+  /** حقل اختياري: لا يمنع النشر إن تُرك فارغاً. */
+  optional?: boolean;
+}
 export const fields: Record<ToolSlug, Field[]> = {
   versions: [
     { key: 'before_date', label: 'تاريخ النسخة السابقة', type: 'date' },
@@ -21,10 +30,37 @@ export const fields: Record<ToolSlug, Field[]> = {
     { key: 'model_answer', label: 'الإجابة النموذجية المراجعة', multiline: true },
   ],
   references: [
-    { key: 'from_article', label: 'النص أو الفصل الأصلي' },
-    { key: 'to_article', label: 'النص أو الفصل المرتبط' },
-    { key: 'relationship', label: 'سبب الإحالة ونوع العلاقة', multiline: true },
-    { key: 'target_url', label: 'رابط النص المرتبط', type: 'url' },
+    { key: 'from_text', label: 'النص المُحيل (اسم المدونة أو القانون)', optional: true },
+    { key: 'from_article', label: 'الفصل أو المادة المُحيلة' },
+    { key: 'to_text', label: 'النص المُحال إليه (اسم المدونة أو القانون أو الجهة)', optional: true },
+    { key: 'to_article', label: 'الفصل أو المادة أو الموضوع المُحال إليه' },
+    {
+      key: 'relation_type',
+      label: 'نوع العلاقة',
+      type: 'select',
+      options: [
+        { value: 'explicit', label: 'إحالة صريحة (سمّى النص المُحال إليه)' },
+        { value: 'delegation', label: 'تخويل تشريعي (يحدد القانون…)' },
+        { value: 'procedural', label: 'إسناد مسطري أو قضائي' },
+        { value: 'penal', label: 'إحالة زجرية' },
+        { value: 'hierarchy', label: 'قاعدة تراتبية' },
+        { value: 'interpretive', label: 'صلة تفسيرية أو مكملة' },
+      ],
+    },
+    { key: 'relationship', label: 'شرح الإحالة: ماذا تعني هذه الصلة؟', multiline: true },
+    { key: 'excerpt', label: 'الاقتباس الحرفي من النص المُحيل (دليل الإحالة)', multiline: true, optional: true },
+    { key: 'target_url', label: 'رابط النص المُحال إليه', type: 'url' },
+    { key: 'also', label: 'أهداف أخرى في نفس الإحالة، مفصولة بـ«،» (مثل: الفصل 96، الفصل 97)', optional: true },
+    {
+      key: 'target_verified',
+      label: 'النص المُنفِّذ مثبت بمصدر رسمي',
+      type: 'select',
+      options: [
+        { value: 'false', label: 'لا — المصدر اكتفى بتخويل المشرّع' },
+        { value: 'true', label: 'نعم — الرابط يفتح النص المُنفِّذ' },
+      ],
+      optional: true,
+    },
   ],
   workspace: [],
   alerts: [
@@ -51,9 +87,15 @@ export function validateEntry(entry: Omit<Entry, 'id' | 'updated_at'>): string |
   if (!safeSource(entry.source_url) || !entry.source_reference.trim() || !entry.reviewed_by.trim() || !entry.reviewed_on || !validDate(entry.reviewed_on) || entry.reviewed_on > new Date().toISOString().slice(0, 10)) return 'النشر يتطلب مصدراً ومرجعاً واسم مراجع وتاريخ مراجعة صحيحاً.';
   for (const field of fields[entry.tool_slug]) {
     const value = entry.payload[field.key] || '';
-    if (!value.trim()) return `حقل مطلوب: ${field.label}`;
+    if (!value.trim()) {
+      // حقل اختياري (الاقتباس، اسم النص المُحيل...): فراغه مقبول، ولا يُملأ
+      // بتخمين. ما ليس اختيارياً يمنع النشر لأن الإحالة بلا نصّ لا تُقرأ.
+      if (!field.optional) return `حقل مطلوب: ${field.label}`;
+      continue;
+    }
     if (field.type === 'url' && !safeSource(value)) return `رابط غير صالح: ${field.label}`;
     if (field.type === 'date' && !validDate(value)) return `تاريخ غير صالح: ${field.label}`;
+    if (field.type === 'select' && field.options?.length && !field.options.some(option => option.value === value)) return `قيمة غير مقبولة: ${field.label}`;
   }
   if (entry.tool_slug === 'versions' && entry.payload.before_date >= entry.payload.after_date) return 'يجب أن تكون النسخة الجديدة أحدث من السابقة.';
   if (entry.tool_slug === 'deadlines') {
