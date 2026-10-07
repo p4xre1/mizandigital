@@ -14,9 +14,22 @@
  *    Tailwind/globals عند أي تعديل لاحق.
  *  • الخصائص الهندسية فقط (layout/قياسات/خطوط/تحويلات) — الألوان والظلال والانتقالات
  *    لا تُحرّك أي عنصر، فتضمينها يضخّم المستند بلا فائدة (text/HTML ratio).
- *  • تُحفظ سياق @media/@supports كما هو، وإلا صارت قواعد md:/lg: تسري على الجوال.
+ *  • تُحفظ سياق @media/@supports كما هو، وإلا صارت قواعد md:/lg- تسري على الجوال.
  *  • الترتيب الأصلي محفوظ (فما يغلبه لاحقاً داخل الملف يغلب هنا).
  *  • حجم الكتلة محدود (MAX_CRITICAL_BYTES) والتجاوز يُسقط البناء بدل أن يمرّ صامتاً.
+ *
+ * ═══ عطل الخطوط السوداء (2026-10-07): لماذا @layer لا يُنزَع ═══
+ * كانت نسخة سابقة تُسقط غلاف @layer عن كل قاعدة (تبقى غير مُطبَّقة على أي طبقة).
+ * والقاعدة: «النمط غير المُطبَّق على طبقة يغلب كل الأنماط المُطبَّقة عليها» في
+ * ترتيب السلسلة (cascade layers) — أي أن استخراج قاعدة الـpreflight
+ *   *,:after,:before{border:0 solid}
+ * بلا غلافها (@layer base) جعلها تغلب تعريف الرئيسية الكامل
+ *   *{border-color:hsl(var(--border))}
+ * فصارت border-color من جديد currentColor (لون النص) على كل عنصر حدود بلا صنف
+ * لون صريح: خطوط داكنة/سوداء في كل البطاقات والأزرار والرأس. الحل: تُنسخ كل
+ * قاعدة داخل @layer الأصلي نفسه، مع تصدير ترتيب الطبقات كاملاً أول الكتلة
+ * (@layer a, b, c;) حتى لا يُعاد ترتيبها عند دمجها مع النمط الكامل — فتبقى
+ * السلسلة متطابقة تماماً، وتظل القيم الهندسية فعّالة وحدها قبل وصول النمط.
  */
 
 /** حد أقصى مقصود لبايتات الكتلة الحرجة (المستند ≈ 41KB، والنسبة النصية تُحرس). */
@@ -384,34 +397,68 @@ export function buildCriticalCss({ html, cssText }) {
     .filter(Boolean)
     .join("");
 
-  // الإخراج: كل القواعد بترتيبها الأصلي، مع دمج ما يتشارك سياق @media نفسه
-  // لتقليل تكرار المقدّمة، وإسقاط @media print (لا رسم ولا انزياح فيه).
+  // ترتيب الطبقات كما ورد في ملف الأنماط (أول ظهور لكل @layer)، ويُصدَّر
+  // كتعليمة ترتيب أول الكتلة — فالطبقة تُرتَّب من أول ذكر لها في المستند،
+  // وبدون هذا السطر قد تُرتَّب طبقات الكتلة قبل @layer properties/theme
+  // فتنقلب الأولوية بين components و utilities عند دمجها مع النمط الكامل.
+  const layerOrder = [];
+  for (const rule of rules) {
+    for (const context of rule.contexts ?? []) {
+      const match = /^@layer\s+(.+)$/i.exec(context.trim());
+      if (!match) continue;
+      for (const name of match[1].split(",").map((n) => n.trim()).filter(Boolean)) {
+        if (!layerOrder.includes(name)) layerOrder.push(name);
+      }
+    }
+  }
+  const layerStatement = layerOrder.length ? `@layer ${layerOrder.join(", ")};` : "";
+
+  // الإخراج: كل القواعد بترتيبها الأصلي، داخل @layer الأصلي نفسه (انظر رأس
+  // الملف: نزع الطبقة يجعل القاعدة تغلب النمط الكامل كلّه)، مع دمج ما يتشارك
+  // سياق @media نفسه لتقليل تكرار المقدّمة، وإسقاط @media print.
   const ordered = [...finalKept].sort((a, b) => a.index - b.index);
   const chunks = [];
   let pending = null;
   const flush = () => {
     if (!pending) return;
-    chunks.push({ index: pending.index, text: wrap(pending.contexts, pending.rules.join("")) });
+    const inner = pending.groups.map((g) => wrap(g.contexts, g.rules.join(""))).join("");
+    chunks.push({ index: pending.index, text: wrap(pending.layer, inner) });
     pending = null;
   };
   for (const rule of ordered) {
-    const contexts = (rule.contexts ?? []).filter((c) => !/^@layer\b/i.test(c));
+    const contexts = rule.contexts ?? [];
     if (contexts.some((c) => /^@media\s+print\b/i.test(c))) continue;
+    // غلاف @layer هو الأبعد (يحدّد الطبقة والسلسلة)، وما بعده @media/@supports
+    // سياق داخلي. تُدمج القواعد المتتابعة: أولاً بحسب الطبقة (غلاف واحد بدل
+    // تكرار «@layer utilities{»)، ثم بحسب السياق الداخلي نفسه (كتلة @supports
+    // واحدة لعدة قواعد) — فيقترب الناتج من شكل ملف الأنماط نفسه.
+    let layerCount = 0;
+    while (layerCount < contexts.length && /^@layer\b/i.test(contexts[layerCount])) layerCount += 1;
+    const layer = contexts.slice(0, layerCount);
+    const inner = contexts.slice(layerCount);
     const body = `${rule.selector}{${rule.decls.map((d) => `${d.prop}:${d.value}`).join(";")}}`;
-    const sameContext =
+    const sameLayer =
       pending &&
-      pending.contexts.length === contexts.length &&
-      pending.contexts.every((c, i) => c === contexts[i]);
-    if (sameContext) pending.rules.push(body);
-    else {
+      pending.layer.length === layer.length &&
+      pending.layer.every((c, i) => c === layer[i]);
+    if (sameLayer) {
+      const last = pending.groups[pending.groups.length - 1];
+      const sameInner =
+        last.contexts.length === inner.length && last.contexts.every((c, i) => c === inner[i]);
+      if (sameInner) last.rules.push(body);
+      else pending.groups.push({ contexts: inner, rules: [body] });
+    } else {
       flush();
-      pending = { index: rule.index, contexts, rules: [body] };
+      pending = { index: rule.index, layer, groups: [{ contexts: inner, rules: [body] }] };
     }
   }
   flush();
 
   const chunksOut = [];
-  if (rootBlock) chunksOut.push({ index: -1, text: rootBlock });
+  // تعليمة ترتيب الطبقات أولاً (بلا كتلة): تُثبّت ترتيب الطبقات قبل أي قاعدة،
+  // فيبقى ترتيبها في المستند هو نفسه في ملف الأنماط الكامل.
+  if (layerStatement) chunksOut.push({ index: -3, text: layerStatement });
+  if (rootBlock) chunksOut.push({ index: -2, text: rootBlock });
   if (propertyBlocks) chunksOut.push({ index: -1, text: propertyBlocks });
   for (const c of chunks) chunksOut.push(c);
   chunksOut.sort((a, b) => a.index - b.index);

@@ -54,6 +54,48 @@ describe("بنية الكتلة الحرجة", () => {
     }
     expect((mod as { MAX_CRITICAL_BYTES: number }).MAX_CRITICAL_BYTES).toBe(MAX_CRITICAL_BYTES)
   })
+
+  /**
+   * عطل «الخطوط السوداء» (2026-10-07) — الحارس المستقل عن dist:
+   * الكتلة كانت تُخرِج القواعد بلا غلاف @layer، والنمط غير المُطبَّق على طبقة
+   * يغلب كل الأنماط المُطبَّقة عليها؛ فقاعدة الـpreflight
+   * `*,:after,:before{border:0 solid}` كانت تلغي border-color:
+   * hsl(var(--border)) في @layer base، فيرجع إلى currentColor (لون النص)
+   * على كل عنصر بلا صنف لون صريح ⇒ خطوط داكنة على البطاقات والأزرار.
+   */
+  test("buildCriticalCss يحفظ @layer وترتيبها — لا قاعدة عارية تغلب النمط الكامل", async () => {
+    const mod = await import("../scripts/lib/critical-css.mjs")
+    const html =
+      '<html class="light"><head></head><body><header class="sticky top-0"><a class="border">x</a></header>' +
+      '<main><section><h1 class="text-4xl font-black">عنوان</h1></section></main></body></html>'
+    const cssText =
+      "@layer properties, theme, base, components, utilities;" +
+      "@layer base{*,:after,:before{box-sizing:border-box;border:0 solid;margin:0;padding:0}" +
+      "*{border-color:hsl(var(--border))}}" +
+      "@layer utilities{@supports (position:sticky){.sticky{position:sticky}}}" +
+      ":root{--font-sans:Cairo}"
+
+    const built = mod.buildCriticalCss({ html, cssText })
+    expect(built.css.length).toBeGreaterThan(0)
+    // تعليمة ترتيب الطبقات تتصدّر الكتلة (بترتيب أول ظهور في ملف الأنماط)،
+    // فلا تُرتَّب طبقات الكتلة قبل طبقات النمط الكامل فينقلب ترتيب الأولوية.
+    const orderStatement = /^@layer\s+([\w-]+(?:\s*,\s*[\w-]+)*);/.exec(built.css)?.[1]
+    expect(orderStatement, "الكتلة تبدأ بتعليمة ترتيب الطبقات").toBeTruthy()
+    expect(orderStatement!.split(/\s*,\s*/).slice(0, 2)).toEqual(["base", "utilities"])
+    // الـpreflight داخل @layer base، والصنف داخل @layer utilities
+    expect(built.css).toContain("@layer base{")
+    expect(built.css).toContain("@layer utilities{")
+
+    // لا قاعدة عارية على المستوى الأعلى: تعليمة ترتيب، :root/@property، أو @layer
+    const bare = topLevelStatements(built.css).filter(
+      (statement) =>
+        !/^@layer\s+[\w-]+(\s*,\s*[\w-]+)*\s*;$/.test(statement) &&
+        !/^:root\s*\{/.test(statement) &&
+        !/^@property\s/.test(statement) &&
+        !/^@layer\s+[\w-]+\s*\{/.test(statement)
+    )
+    expect(bare, "قواعد خارج @layer تغلب النمط الكامل في السلسلة").toEqual([])
+  })
 })
 
 describe.skipIf(!distReady)("الكتلة الحرجة في dist", () => {
@@ -114,4 +156,65 @@ describe.skipIf(!distReady)("الكتلة الحرجة في dist", () => {
     const styleCloses = (html.match(/<\/style>/g) ?? []).length
     expect(styleCloses).toBe(styleOpens)
   })
+
+  /**
+   * عطل «الخطوط السوداء» (2026-10-07): الكتلة كانت تُخرِج القواعد بلا غلاف
+   * @layer. والنمط غير المُطبَّق على طبقة يغلب كل الأنماط المُطبَّقة عليها،
+   * فقاعدة الـpreflight المستخرجة `*,:after,:before{border:0 solid}` كانت
+   * تغلب `@layer base *{border-color:hsl(var(--border))}` في ملف الأنماط،
+   * فيرجع border-color إلى currentColor (لون النص) على كل عنصر بلا صنف لون
+   * صريح ⇒ خطوط داكنة على البطاقات والأزرار والرأس.
+   *
+   * الحارس: كل ما في الكتلة إما تعليمة ترتيب الطبقات، أو كتلة :root/@property،
+   * أو قاعدة داخل @layer — ولا قاعدة عارية على المستوى الأعلى أبداً.
+   */
+  test("كل قاعدة داخل طبقتها الأصلية (@layer) — لا قاعدة عارية تغلب النمط الكامل", () => {
+    const topLevel = topLevelStatements(block)
+    const bare = topLevel.filter(
+      (statement) =>
+        !/^@layer\s+[\w-]+(\s*,\s*[\w-]+)*\s*;$/.test(statement) && // تعليمة ترتيب الطبقات
+        !/^:root\s*\{/.test(statement) && // متغيّرات :root اللازمة
+        !/^@property\s/.test(statement) && // تسجيلات @property
+        !/^@layer\s+[\w-]+\s*\{/.test(statement) // قاعدة داخل طبقتها
+    )
+    expect(bare.slice(0, 3), "قواعد خارج @layer تغلب النمط الكامل في السلسلة").toEqual([])
+
+    // الـpreflight بالتحديد يجب أن يبقى في @layer base
+    expect(block).toContain("@layer base{")
+    expect(block).toContain("@layer utilities{")
+    // وتعليمة الترتيب تصدَّر الكتلة، فلا تُرتَّب طبقاتها قبل properties/theme
+    expect(block).toMatch(/^@layer properties, theme, base/)
+  })
 })
+
+/** تقطيع المستوى الأعلى: تعليمات (@layer …;) وكتل (@layer …{…}) دون الدخول في الأقواس. */
+function topLevelStatements(css: string): string[] {
+  const out: string[] = []
+  let depth = 0
+  let start = 0
+  for (let i = 0; i < css.length; i += 1) {
+    const ch = css[i]
+    if (ch === '"' || ch === "'") {
+      const quote = ch
+      i += 1
+      while (i < css.length && css[i] !== quote) {
+        if (css[i] === "\\") i += 1
+        i += 1
+      }
+      continue
+    }
+    if (ch === "{") depth += 1
+    else if (ch === "}") {
+      depth -= 1
+      if (depth === 0) {
+        out.push(css.slice(start, i + 1))
+        start = i + 1
+      }
+    } else if (ch === ";" && depth === 0) {
+      out.push(css.slice(start, i + 1))
+      start = i + 1
+    }
+  }
+  if (start < css.length) out.push(css.slice(start))
+  return out.map((s) => s.trim()).filter(Boolean)
+}
