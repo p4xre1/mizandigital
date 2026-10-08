@@ -65,7 +65,7 @@ export function CareersPage() {
         <span className="text-foreground">المسارات المهنية</span>
       </nav>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/10 via-card to-amber-500/10 p-6 md:p-8">
+      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/15 via-card to-primary/5 p-6 md:p-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
