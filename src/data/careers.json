@@ -278,9 +278,8 @@
     "work_model": "liberal_regulated",
     "work_model_ar": "مهنة حرة منظمة",
     "employment_modes": [
-      "مكتب توثيقي",
-      "شركة مهنية",
-      "تعاون بين المكاتب التوثيقية"
+      "مكتب توثيق",
+      "مشاركة تعاقدية بين موثقين أو أكثر في الدائرة الترابية لمحكمة الاستئناف نفسها، في الوسائل اللازمة للمهنة وتسيير المكتب، وفق المواد 59 إلى 62 (لا تأخذ المشاركة شكل شركة تجارية)"
     ],
     "can_freelance": true,
     "can_work_government": false,
@@ -295,44 +294,51 @@
       "الوصايا"
     ],
     "typical_degree": {
-      "level": "master_or_equivalent",
-      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي لمهنة التوثيق",
-      "status": "verify_official_source",
-      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+      "level": "bachelor_or_equivalent",
+      "label_ar": "في الحقوق من إحدى كليات الحقوق المغربية، أو شهادة معادلة (المادة 3، البند 3 من القانون 32.09).",
+      "status": "verified",
+      "note_ar": "المادة 3، البند 3 من القانون رقم 32.09."
     },
     "age_requirement": {
       "has_requirement": true,
-      "minimum": null,
-      "maximum": null,
+      "minimum": 23,
+      "maximum": 45,
       "basis": "legal_or_competition",
-      "status": "verify_official_source",
-      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+      "status": "verified",
+      "note_ar": "23 سنة ميلادية كاملة على الأقل، وألا يتجاوز 45 سنة (المادة 3، البند 2). الفئات المعفاة من المباراة بموجب المادة 8: ألا يتجاوز سنها 55 سنة عند تقديم الطلب."
     },
     "entry_path": [
       {
         "step": 1,
-        "title_ar": "التكوين القانوني",
-        "description_ar": "إتمام المسار الجامعي أو التكوين الذي يحدده النص التنظيمي لمهنة التوثيق."
+        "title_ar": "الإجازة في الحقوق",
+        "description_ar": "الحصول على الإجازة في الحقوق من إحدى كليات الحقوق المغربية أو شهادة معادلة وفق المادة 3."
       },
       {
         "step": 2,
-        "title_ar": "التحقق من شروط الولوج",
-        "description_ar": "راجع شروط الشهادة والسن والجنسية والمسطرة في النص التنظيمي والإعلان الجاري به العمل."
+        "title_ar": "استيفاء شروط الولوج",
+        "description_ar": "الجنسية، والسن، والأهلية المدنية والجنائية والمهنية، والقدرة الصحية، وغيرها من شروط المادة 3."
       },
       {
         "step": 3,
-        "title_ar": "المسطرة التنافسية أو التدريب",
-        "description_ar": "قد تكون مباراة أو مسطرة انتقاء أو تدريباً مهنياً بحسب ما يحدده النص."
+        "title_ar": "اجتياز المباراة",
+        "description_ar": "يعلن عن تاريخ المباراة ومكانها والمناصب المتبارى بشأنها بقرار من وزير العدل وفق المادة 1 من المرسوم 2.12.725، وتشمل اختبارات كتابية وشفوية وفق المادة 2 من المرسوم."
       },
       {
         "step": 4,
-        "title_ar": "التسجيل المهني",
-        "description_ar": "إتمام إجراءات التسجيل لدى الهيئة المهنية والجهات المختصة قبل الممارسة."
+        "title_ar": "التكوين والتمرين",
+        "description_ar": "أربع سنوات: سنة بمعهد التكوين المهني للتوثيق، وثلاث سنوات بمكتب موثق، مع الاختبارات والامتحان المهني."
+      },
+      {
+        "step": 5,
+        "title_ar": "التعيين وأداء اليمين",
+        "description_ar": "استكمال إجراءات التعيين وأداء اليمين وفق المادتين 10 و13، قبل الشروع في ممارسة المهنة."
       }
     ],
+    "entry_method_ar": "مباراة الانخراط في مهنة التوثيق، ما لم تنطبق إحدى حالات الإعفاء القانونية",
+    "status_note_ar": "حالة التحقق: تم التحقق من القانون رقم 32.09 والمرسوم رقم 2.12.725، ومن صفحة الموثقين الرسمية بوزارة العدل. مدد التكوين ومسطرة الولوج مستمدة من هذه المصادر؛ تحقق من إعلان المباراة الجاري به العمل قبل الترشح.",
     "training_after_admission": {
-      "label_ar": "تدريب مهني وتسجيل لدى الهيئة المهنية وفق الإطار التنظيمي الجاري به العمل",
-      "status": "verify_official_source"
+      "label_ar": "أربع سنوات: سنة بمعهد التكوين المهني للتوثيق، وثلاث سنوات بمكتب موثق (المادة 6 من القانون 32.09؛ المادة 9 من المرسوم 2.12.725).",
+      "status": "verified"
     },
     "skills": [
       "الصياغة القانونية الدقيقة",
@@ -362,23 +368,25 @@
     ],
     "requirements": [
       {
-        "id": "entry_conditions",
-        "label_ar": "شروط الولوج",
-        "value_ar": "تحدد بالنص التنظيمي لتنظيم مهنة التوثيق وبالإعلانات الرسمية الجاري بها العمل.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "id": "nationality_conditions",
+        "label_ar": "الجنسية والأهلية",
+        "value_ar": "الجنسية المغربية، والحقوق الوطنية والمدنية، وحسن السلوك، والقدرة الصحية، وباقي الشروط الجنائية والتأديبية والتجارية والمهنية المحددة قانوناً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3، البنود 1 و4 إلى 9 من القانون 32.09",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
         "id": "degree_requirement",
-        "label_ar": "الشهادة أو التكوين",
-        "value_ar": "يحددهما النص التنظيمي ومسار التكوين المهني المعتمد.",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "الإجازة في الحقوق من إحدى كليات الحقوق المغربية أو ما يعادلها. وليس الماستر شرطاً عاماً للولوج.",
         "requirement_type": "legal_text",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3، البند 3 من القانون 32.09",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -386,21 +394,47 @@
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "قد يحدد النص أو الإعلان حداً أدنى أو أقصى؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "23 سنة ميلادية كاملة على الأقل، وألا يتجاوز السن 45 سنة، مع الاستثناءات المنصوص عليها في المادة 8.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3، البند 2 من القانون 32.09؛ المادة 8 من القانون 32.09 للاستثناءات",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "competition",
+        "label_ar": "طريقة الولوج: المباراة",
+        "value_ar": "اجتياز مباراة الانخراط في مهنة التوثيق، ما لم تنطبق إحدى حالات الإعفاء القانونية. تنظمها وزارة العدل بقرار يحدد تاريخها ومكانها والمناصب المتبارى بشأنها، وتشمل اختبارات كتابية وشفوية. ويُعفى من المباراة فئات محددة في المادة 8، منها بعض المحافظين العقاريين ومفتشي الضرائب المكلفين بالتسجيل والقضاة السابقين والمحامين المقبولين للترافع أمام محكمة النقض وأساتذة التعليم العالي المستوفين للشروط، بشرط ألا يتجاوز سن المترشح 55 سنة عند تقديم الطلب، مع اختبار وقضاء سنة من التمرين التطبيقي بمكتب توثيق. وهذا إعفاء من المباراة وليس إعفاءً عاماً من جميع الشروط.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 3، البند 10، والمادة 8 من القانون 32.09؛ المادتان 1 و2 من المرسوم 2.12.725",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "check_current_notice"
       },
       {
-        "id": "registration",
-        "label_ar": "التسجيل المهني",
-        "value_ar": "يتم لدى الهيئة المهنية المختصة وفق المسطرة التنظيمية.",
-        "requirement_type": "professional_registration",
-        "status": "verify_official_source",
+        "id": "training",
+        "label_ar": "التكوين والتمرين",
+        "value_ar": "أربع سنوات: سنة أولى بمعهد التكوين المهني للتوثيق، وثلاث سنوات بمكتب موثق، مع الاختبارات والامتحان المهني وفق النظام التنظيمي.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 6 من القانون 32.09؛ المادة 9 من المرسوم 2.12.725",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "appointment_oath",
+        "label_ar": "التعيين وأداء اليمين",
+        "value_ar": "التعيين بقرار من رئيس الحكومة باقتراح من وزير العدل، بعد إبداء اللجنة المختصة رأيها. ويؤدى اليمين أمام محكمة الاستئناف المعين الموثق بدائرتها، بعد التعيين وقبل بدء المهام.",
+        "requirement_type": "professional_registration",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 10 و13 من القانون 32.09",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -408,43 +442,61 @@
     ],
     "sources": [
       {
-        "title_ar": "الإطار التنظيمي لمهنة التوثيق (النص التنظيمي الجاري به العمل)",
+        "title_ar": "القانون رقم 32.09 المتعلق بتنظيم مهنة التوثيق، الصادر بتنفيذه الظهير الشريف رقم 1.11.179 بتاريخ 22 نوفمبر 2011",
         "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "متحقق من النص القانوني الأساسي."
       },
       {
-        "title_ar": "الهيئة المهنية للتوثيق",
+        "title_ar": "المرسوم رقم 2.12.725 الصادر في 8 مارس 2013 بتطبيق القانون 32.09",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "مرسوم التطبيق المتحقق منه؛ ينظم المباراة والتكوين والتمرين والاختبارات والامتحان المهني."
+      },
+      {
+        "title_ar": "صفحة الموثقين الرسمية بوزارة العدل",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "مصدر الشروط والتكوين؛ تؤكد مدد التكوين ومسطرة الولوج كما وردت في القانون والمرسوم."
+      },
+      {
+        "title_ar": "المجلس الوطني لهيئة الموثقين بالمغرب",
         "source_type": "professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "مرجع مؤسساتي للمعلومات المتعلقة بالمهنة؛ لا يحل محل النصوص التشريعية عند تحديد شروط الولوج."
       }
     ],
     "law_slugs": [],
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "القانون المنظم لمهنة التوثيق",
+        "label_ar": "القانون رقم 32.09 المتعلق بتنظيم مهنة التوثيق",
         "relationship_type": "governing_framework",
-        "relationship_ar": "القانون المنظم للمهنة",
+        "relationship_ar": "القانون المنظم للمهنة، الصادر بتنفيذه الظهير الشريف رقم 1.11.179 بتاريخ 22 نوفمبر 2011، ويحدد شروط الولوج والتمرين والتعيين والاختصاصات والواجبات المهنية.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "شروط الولوج إلى مهنة التوثيق",
+        "label_ar": "المرسوم رقم 2.12.725 بتطبيق القانون 32.09",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين",
+        "relationship_ar": "مرسوم التطبيق؛ ينظم مباراة الانخراط، والتكوين والتمرين، والاختبارات والامتحان المهني. صادر في 8 مارس 2013.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "واجبات الموثق وأخلاقيات المهنة",
+        "label_ar": "واجبات الموثق وأخلاقيات المهنة (مواد من القانون 32.09)",
         "relationship_type": "professional_ethics",
-        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "relationship_ar": "المادة 2: الأمانة والنزاهة والتجرد والشرف وأخلاقيات المهنة. المادتان 4 و5: حالات التنافي. المادتان 24 و25: السر المهني وتسليم المستندات. المادة 26: المسؤولية المدنية عن الأخطاء المهنية والتأمين الإجباري. المادة 35: اختصاص تلقي العقود التي تفرض إضفاء الصبغة الرسمية عليها. المادة 37: التحقق من هوية الأطراف وأهليتهم ومطابقة الوثائق للقانون وواجب النصح. المادة 59: عقد المشاركة بين الموثقين وحدوده. هذه المواد جزء من نص القانون 32.09 نفسه ولا تُعد قانوناً مستقلاً.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
@@ -454,7 +506,7 @@
       "has_knowledge_quiz": true,
       "has_discovery_quiz": true,
       "competition_path": "regulated_profession",
-      "competition_note_ar": "مسطرة الولوج للمهنة منظمة بنص ومؤسسة مهنية؛ تحقق من مصادرها الرسمية ولا تعتمد هذه الصفحة كإعلان.",
+      "competition_note_ar": "مباراة الانخراط تعلن عنها وزارة العدل بقرار يحدد تاريخها ومكانها والمناصب المتبارى بشأنها (المادة 1 من المرسوم 2.12.725). هذه الصفحة ليست إعلاناً؛ تحقق من الإعلان الرسمي للدورة قبل الترشح.",
       "related_quiz_topics": [
         "العقد",
         "البيع",
@@ -462,8 +514,8 @@
         "الشهر العقاري"
       ]
     },
-    "last_reviewed": "2026-09-23",
-    "review_status": "internal_review",
+    "last_reviewed": "2026-10-08",
+    "review_status": "official_text_verified",
     "canonical_url": "https://www.mizan.page/careers/notaire"
   },
   {
