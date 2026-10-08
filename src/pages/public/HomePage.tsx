@@ -6,7 +6,7 @@ import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { afterWindowLoad, scheduleWhenIdle } from "../../lib/utils/deferWork"
-import { Scale, Star, Users, Library, Clock, Video, FileText, ArrowRight, Calendar, MapPin, Building2 } from "lucide-react"
+import { Scale, Library, Clock, Video, FileText, ArrowRight, Calendar, MapPin, Building2 } from "lucide-react"
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
 import { HomeLexiconShowcase } from "../../components/home/HomeLexiconShowcase"
@@ -299,24 +299,9 @@ export function HomePage() {
                 </Link>
               </div>
 
-              <div className="mt-7 lg:mt-10 flex items-center justify-center lg:justify-start gap-4 lg:gap-5">
-              <div className="flex -space-x-2 rtl:space-x-reverse">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="size-8 lg:size-11 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] lg:text-[13px] font-bold text-[#475569] dark:text-white">
-                    {String.fromCharCode(64 + i)}
-                  </div>
-                ))}
-              </div>
-              <div className="text-right">
-                <div className="font-black text-[12px] lg:text-[16px] flex items-center gap-1 text-[#0f172a] dark:text-white">
-                  <Users className="size-4 lg:size-5 text-[#2563eb]" />
-                  500+ طالب يثقون بنا
-                </div>
-                <div className="text-[11px] lg:text-[14px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
-                  <Star className="size-3 lg:size-4 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 - محتوى أساسي مجاني
-                </div>
-              </div>
-              </div>
+              <p className="mt-7 lg:mt-10 text-center lg:text-start text-[13px] lg:text-[15px] font-semibold text-[#475569] dark:text-[#cbd5e1]">
+                انزل إلى الأسفل، ستجد رابط مجتمع ميزان على واتساب.
+              </p>
             </div>
 
             <div className="hidden lg:block">
