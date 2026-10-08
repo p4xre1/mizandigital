@@ -207,8 +207,9 @@ export function NearbyLawSchools({
                       <MapPin className="size-3.5" aria-hidden="true" />
                       {school.city || school.location?.city_ar || "المغرب"}
                     </span>
-                    <span aria-label={`المسافة التقريبية ${formatDistanceKm(distanceKm)}`}>
-                      {formatDistanceKm(distanceKm)}
+                    {/* المسافة بين مدينتين (لا بين الأحياء): أقل من كم تعني نفس المدينة. */}
+                    <span aria-label={distanceKm < 1 ? "في مدينتك" : `المسافة التقريبية ${formatDistanceKm(distanceKm)}`}>
+                      {distanceKm < 1 ? "في مدينتك" : formatDistanceKm(distanceKm)}
                     </span>
                     {school.officialUrl ? (
                       <a

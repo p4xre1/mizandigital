@@ -1,24 +1,19 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, BadgeCheck, Building2, GraduationCap, ShieldAlert } from "lucide-react";
-import {
-  CAREERS_VERIFY_BADGE,
-  COMPETITION_PATH_LABELS,
-  LEGAL_EDUCATION_LABELS,
-  WORK_MODEL_LABELS,
-} from "../../../shared/careers/copy.js";
+import { ArrowUpRight, GraduationCap } from "lucide-react";
+import { LEGAL_EDUCATION_LABELS, WORK_MODEL_LABELS } from "../../../shared/careers/copy.js";
 import type { CareerRecord } from "@/lib/careers/types";
 
 /**
- * بطاقة مسار في صفحة الدليل.
+ * بطاقة مسار في صفحة الدليل — مختصرة عمداً.
  *
- * ما تعرضه: العنوان العربي والفرنسي، شارة طبيعة العمل، الشهادة المعتادة،
- * طريقة الولوج، وضع العمل الحر، وحالة التحقق. الأزرار: عرض المسار، اختبر
- * معلوماتك، والمصدر الرسمي فقط إن وُجد رابط رسمي متحقق منه فعلاً.
+ * ما تعرضه: العنوان، شارة طبيعة العمل، سطر وصف واحد، الشهادة المعتادة، وأزرار
+ * الفعل. ما لا تكرره: طريقة الولوج والعمل الحر وشارة التحقق تتكرر في كل بطاقة
+ * بالنص نفسه، فتُعرض في صفحة المسار نفسها، والتحذير الكامل مرة واحدة أسفل الصفحة.
  */
 export function CareerCard({ career, className = "" }: { career: CareerRecord; className?: string }) {
   const officialSource = career.sources.find((source) => Boolean(source.url));
   const workLabel = WORK_MODEL_LABELS[career.work_model] ?? career.work_model_ar;
-  const entryLabel = COMPETITION_PATH_LABELS[career.quiz_config.competition_path] ?? "مسار تحقق رسمي";
+  const legalLabel = LEGAL_EDUCATION_LABELS[career.requires_legal_education] ?? "";
 
   return (
     <article
@@ -26,8 +21,8 @@ export function CareerCard({ career, className = "" }: { career: CareerRecord; c
       data-career-card={career.slug}
     >
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-[16px] font-black text-foreground">
+        <div className="min-w-0">
+          <h3 className="text-[17px] font-black leading-snug text-foreground">
             <Link to={`/careers/${career.slug}`} className="hover:text-primary">
               {career.title_ar}
             </Link>
@@ -41,46 +36,19 @@ export function CareerCard({ career, className = "" }: { career: CareerRecord; c
         </span>
       </div>
 
-      <p className="mt-3 text-[13px] leading-7 text-muted-foreground">{career.short_description}</p>
+      <p className="mt-3 line-clamp-2 text-[14px] leading-7 text-foreground/80">{career.short_description}</p>
 
-      <ul className="mt-3 space-y-1.5 text-[12.5px] text-muted-foreground">
-        <li className="flex items-start gap-2">
-          <GraduationCap className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-          <span>
-            <span className="font-bold text-foreground">الشهادة المعتادة: </span>
-            {career.typical_degree.label_ar}
-          </span>
-        </li>
-        <li className="flex items-start gap-2">
-          <Building2 className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-          <span>
-            <span className="font-bold text-foreground">طريقة الولوج: </span>
-            {entryLabel}
-          </span>
-        </li>
-        <li className="flex items-start gap-2">
-          <BadgeCheck className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden="true" />
-          <span>
-            <span className="font-bold text-foreground">العمل الحر: </span>
-            {career.can_freelance
-              ? "ممكن داخل إطار تنظيمي بعد استيفاء الشروط"
-              : "غير مطروح في هذا المسار"}
-          </span>
-        </li>
-        <li className="flex items-start gap-2">
-          <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-amber-600" aria-hidden="true" />
-          <span>
-            <span className="font-bold text-foreground">التحقق: </span>
-            {CAREERS_VERIFY_BADGE}
-          </span>
-        </li>
-      </ul>
-
-      <p className="mt-3 text-[11.5px] font-bold text-muted-foreground">
-        {LEGAL_EDUCATION_LABELS[career.requires_legal_education] ?? ""}
+      <p className="mt-3 flex items-start gap-2 text-[13px] text-foreground/80">
+        <GraduationCap className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+        <span>
+          <span className="font-bold text-foreground">الشهادة المعتادة: </span>
+          {career.typical_degree.label_ar}
+        </span>
       </p>
 
-      <div className="mt-auto flex flex-wrap gap-2 pt-4">
+      {legalLabel ? <p className="mt-2 text-[12.5px] font-bold text-muted-foreground">{legalLabel}</p> : null}
+
+      <div className="mt-auto flex flex-wrap gap-2 pt-5">
         <Link
           to={`/careers/${career.slug}`}
           className="inline-flex min-h-10 items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-[13px] font-extrabold text-primary-foreground transition hover:opacity-90"
