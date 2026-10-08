@@ -739,7 +739,14 @@
     ],
     "sources": [
       {
-        "title_ar": "الإطار التنظيمي لمهنة المفوضين القضائيين (النص التنظيمي الجاري به العمل)",
+        "title_ar": "القانون رقم 46.21 المتعلق بتنظيم مهنة المفوضين القضائيين، الظهير الشريف رقم 1.25.49 (نص منشور، يحتاج تحققاً من الجريدة الرسمية)",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification"
+      },
+      {
+        "title_ar": "بلاغ وزارة العدل حول مشروع القانون رقم 46.21 أمام مجلس المستشارين",
         "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
@@ -757,25 +764,33 @@
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "القانون المنظم لمهنة المفوضين القضائيين",
+        "label_ar": "القانون رقم 46.21 المتعلق بتنظيم مهنة المفوضين القضائيين",
         "relationship_type": "governing_framework",
-        "relationship_ar": "القانون المنظم للمهنة",
+        "relationship_ar": "القانون المنظم للمهنة، بتنفيذه الظهير الشريف رقم 1.25.49، الجريدة الرسمية عدد 7412 (12 يونيو 2025)",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "شروط الولوج إلى المهنة والتدريب",
+        "label_ar": "شروط الولوج والتدريب: المواد 3 إلى 7 من القانون 46.21، والمرسوم رقم 2.25.885 بتطبيقه",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين",
+        "relationship_ar": "شروط الولوج والتكوين، ويفصّل المرسوم تنظيم المباراة وامتحان نهاية التمرين",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "واجبات المهنة في التبليغ والتنفيذ",
+        "label_ar": "واجبات المهنة والأخلاقيات: المواد 28 إلى 42 من القانون 46.21",
         "relationship_type": "professional_ethics",
         "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "التبليغ والتنفيذ: المادة 43 من القانون 46.21، مع النصوص المسطرية المنظمة للتبليغ والتنفيذ",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "مهام التبليغ والتنفيذ وإجراءاتهما",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
