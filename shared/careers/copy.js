@@ -57,7 +57,8 @@ export const CAREERS_NO_VERIFIED_COMPETITION =
 /** حالات الإسناد القانوني في أرشيف ميزان. */
 export const LAW_VERIFICATION_LABELS = {
   verified: "مُسند إلى نص في أرشيف ميزان",
-  needs_archive_entry: "لا يوجد نص مستقل منشور في أرشيف ميزان",
+  // فارغ عمداً: المرجع بلا سجل مستقل لا تُعرض له حالة (لا تكرار للعبارة في البطاقة)
+  needs_archive_entry: "",
   needs_official_verification: "يحتاج إلى التحقق من المصدر الرسمي",
 };
 export const WORK_MODEL_LABELS = {

@@ -107,17 +107,19 @@ export function CareerLaws({ career, className = "" }: CareerLawsProps) {
               <h3 className="mt-4 text-[17px] font-extrabold leading-7 text-foreground">{entry.label_ar}</h3>
               <p className="mt-2 text-[15px] leading-7 text-muted-foreground">{entry.relationship_ar}</p>
 
-              <p className="mt-4">
-                {entry.archive ? (
-                  <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
-                    {LAW_VERIFICATION_LABELS[entry.verification_status] ?? entry.verification_status}
+              {LAW_VERIFICATION_LABELS[entry.verification_status] ? (
+                <p className="mt-4">
+                  <span
+                    className={`inline-block rounded-full px-3 py-1 text-[13px] font-extrabold ${
+                      entry.archive
+                        ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
+                        : "bg-amber-500/15 text-amber-800 dark:text-amber-200"
+                    }`}
+                  >
+                    {LAW_VERIFICATION_LABELS[entry.verification_status]}
                   </span>
-                ) : (
-                  <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-extrabold text-amber-800 dark:text-amber-200">
-                    {LAW_VERIFICATION_LABELS[entry.verification_status] ?? entry.verification_status}
-                  </span>
-                )}
-              </p>
+                </p>
+              ) : null}
 
               {entry.archive ? (
                 <div className="mt-4 border-t border-border pt-4">

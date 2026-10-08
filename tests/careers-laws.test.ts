@@ -94,7 +94,8 @@ describe("حلّ الإطار القانوني في الواجهة", () => {
         expect(entry.href, career.slug).toBeNull();
       }
     }
-    expect(LAW_VERIFICATION_LABELS.needs_archive_entry.length).toBeGreaterThan(5);
+    // لا تكرار للعبارة في البطاقة: المرجع بلا سجل لا يحمل نص حالة
+    expect(LAW_VERIFICATION_LABELS.needs_archive_entry).toBe("");
   });
 
   it("معرّف غير موجود في الأرشيف لا يُنتج رابطاً ولو مرّرته الواجهة", () => {

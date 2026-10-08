@@ -388,9 +388,10 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
           <ul>
             ${legalFramework
               .map((entry) => {
-                const meta = `<strong>${escapeHtml(entry.label_ar)}</strong> — ${escapeHtml(
-                  entry.relationship_ar
-                )} — ${escapeHtml(LAW_VERIFICATION_LABELS[entry.verification_status] ?? entry.verification_status)}`;
+                const statusLabel = LAW_VERIFICATION_LABELS[entry.verification_status] ?? "";
+                const meta = `<strong>${escapeHtml(entry.label_ar)}</strong> — ${escapeHtml(entry.relationship_ar)}${
+                  statusLabel ? ` — ${escapeHtml(statusLabel)}` : ""
+                }`;
                 if (!entry.archive) {
                   return `<li>${meta}</li>`;
                 }
