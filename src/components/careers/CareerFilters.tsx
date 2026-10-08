@@ -156,11 +156,9 @@ export function CareerFilters() {
       </div>
 
       <p className="mt-4 text-[15px] leading-8 text-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
-      <ul className="mt-4 space-y-2 text-[15px] font-bold leading-7 text-amber-700 dark:text-amber-500">
-        {FILTER_ADVISORY.map((line) => (
-          <li key={line}>{line}</li>
-        ))}
-      </ul>
+      <p className="mt-4 text-[15px] font-bold leading-8 text-amber-700 dark:text-amber-500">
+        {FILTER_ADVISORY.join("، ")}
+      </p>
 
       <div className="rounded-2xl border border-border bg-card p-4">
         <FilterGroup
