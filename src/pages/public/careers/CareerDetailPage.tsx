@@ -313,7 +313,7 @@ export function CareerDetailPage() {
                     ) : requirement.source_ref_ar ? (
                       <span className="font-bold leading-7 text-foreground">{requirement.source_ref_ar}</span>
                     ) : (
-                      <span className="text-amber-700 dark:text-amber-500">{CAREERS_NO_SOURCE_NOTE}</span>
+                      <span className="font-bold leading-7 text-emerald-800 dark:text-emerald-200">{CAREERS_NO_SOURCE_NOTE}</span>
                     )}
                     {requirement.last_verified ? (
                       <span className="mt-1 block text-[11.5px] text-muted-foreground">
@@ -362,7 +362,7 @@ export function CareerDetailPage() {
                             مؤكد رسمياً
                           </span>
                         ) : (
-                          <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-extrabold text-amber-800 dark:text-amber-200">
+                          <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
                             {source.verification_note_ar ?? CAREERS_NO_SOURCE_NOTE}
                           </span>
                         )}

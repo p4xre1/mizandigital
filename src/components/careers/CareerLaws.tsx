@@ -110,9 +110,7 @@ export function CareerLaws({ career, className = "" }: CareerLawsProps) {
                 <p className="mt-4">
                   <span
                     className={`inline-block rounded-full px-3 py-1 text-[13px] font-extrabold ${
-                      entry.archive
-                        ? "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
-                        : "bg-amber-500/15 text-amber-800 dark:text-amber-200"
+                      "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
                     }`}
                   >
                     {LAW_VERIFICATION_LABELS[entry.verification_status]}
