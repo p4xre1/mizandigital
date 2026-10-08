@@ -198,7 +198,7 @@ export function CareerFilters() {
         ) : null}
       </div>
 
-      <p className="mt-3 text-[12.5px] font-bold text-muted-foreground" role="status">
+      <p className="mt-3 text-[16px] font-extrabold leading-8 text-foreground" role="status">
         {hasFilter ? `${filtered.length} مساراً تطابق اختياراتك — قد يناسب اهتمامك.` : `${CAREERS.length} مساراً في الدليل.`}
       </p>
 
