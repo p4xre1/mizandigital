@@ -44,11 +44,14 @@ describe("ميزات الصفحة الرئيسية: صادقة عن ميزان",
     expect(featuresFor({ ...sample, laws: 0 })[0].tag).toBeNull()
   })
 
-  test("العنوان بالنص المطلوب مع «طالب القانون» بالأزرق", () => {
+  test("العنوان يصف الأربع بطاقات بالترتيب، دون «لماذا نحن» ودون تمييز أزرق ثانٍ", () => {
     const html = renderIn(<HomeFeatures counts={sample} />)
-    expect(html).toContain('text-[#2563eb] dark:text-[#93c5fd]">طالب القانون</span>')
-    expect(html).toContain("كل ما يحتاجه")
-    expect(html).toContain("لماذا نحن")
+    expect(html).toContain("من النص القانوني إلى الاختبار، في مكان واحد")
+    expect(html).toContain("اقرأ النص، افهم المصطلح، راجع الملخص، ثم اختبر نفسك.")
+    expect(html).toContain("ما ستجده في ميزان")
+    expect(html).not.toContain("لماذا نحن")
+    expect(html).not.toContain("كل ما يحتاجه")
+    expect(html).not.toContain("#dbeafe")
   })
 
   test("كل بطاقة رابط كامل وفيها وصف ورابط CTA", () => {

@@ -155,11 +155,14 @@ export function HomeFeatures({ counts }: { counts: FeatureCounts }) {
       aria-labelledby="home-features-title"
     >
       <div className="container mx-auto max-w-[1100px] px-6">
-        <div className="text-center max-w-[640px] mx-auto mb-12">
-          <p className="text-[18px] font-black text-[#2563eb] dark:text-[#93c5fd]">لماذا نحن</p>
+        <div className="text-center max-w-[680px] mx-auto mb-12">
+          <p className="text-[15px] font-bold text-[#475569] dark:text-[#cbd5e1]">ما ستجده في ميزان</p>
           <h2 id="home-features-title" className="mt-3 text-[28px] md:text-[36px] font-black leading-[1.25] text-[#0f172a] dark:text-white">
-            كل ما يحتاجه <span className="text-[#2563eb] dark:text-[#93c5fd]">طالب القانون</span> المغربي
+            من النص القانوني إلى الاختبار، في مكان واحد
           </h2>
+          <p className="mt-4 text-[16px] leading-7 text-[#334155] dark:text-[#cbd5e1]">
+            اقرأ النص، افهم المصطلح، راجع الملخص، ثم اختبر نفسك.
+          </p>
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
