@@ -196,7 +196,7 @@ export function CareerDetailPage() {
         </ul>
       </section>
 
-      <section className="mt-10" aria-labelledby="career-fit-title">
+      <section className="mt-10 rounded-3xl border border-primary/20 bg-primary/5 p-6 md:p-8" aria-labelledby="career-fit-title">
         <h2 id="career-fit-title" className="inline-flex items-center gap-2 text-[22px] font-black text-foreground">
           <HelpCircle className="size-5 text-primary" aria-hidden="true" />
           {SECTION_TITLES.fit}
