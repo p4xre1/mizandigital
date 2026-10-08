@@ -209,7 +209,7 @@ export function CareerDetailPage() {
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-[15px] font-bold leading-7 text-amber-700 dark:text-amber-500">
+        <p className="mt-5 text-[15px] font-bold leading-7 text-emerald-800 dark:text-emerald-200">
           هذا وصف تعليمي لطبيعة المسار، وليس تقييماً لأهليتك أو ترجيحاً لقبولك.
         </p>
       </section>
