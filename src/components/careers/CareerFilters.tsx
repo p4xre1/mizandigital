@@ -156,7 +156,7 @@ export function CareerFilters() {
       </div>
 
       <p className="mt-4 text-[15px] leading-8 text-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
-      <p className="mt-4 mb-6 text-[15px] font-bold leading-8 text-amber-700 dark:text-amber-500">
+      <p className="mt-4 mb-6 text-[15px] font-bold leading-8 text-emerald-700 dark:text-emerald-300">
         {FILTER_ADVISORY.join("، ")}
       </p>
 
