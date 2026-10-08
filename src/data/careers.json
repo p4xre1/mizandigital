@@ -517,19 +517,18 @@
     "title_fr": "Adoul",
     "category_id": "legal-documentary",
     "category_ar": "المهن القانونية والتوثيقية",
-    "short_description": "مهنة منظمة موكلة إلى العدول، تُثبت الأعمال والتصرفات التي يوجب القانون إثباتها على وجه خاص، لا سيما في مجال الأحوال الشخصية والعقار.",
+    "short_description": "مهنة حرة منظمة (خطة العدالة)، يعتبر العدول فيها من مساعدي القضاء، ويتولون تلقي الشهادات وتحرير العقود العدلية في الحدود والاختصاصات التي يحددها القانون، وفق المادة 1 من القانون رقم 16.03 المتعلق بخطة العدالة.",
     "work_model": "liberal_regulated",
     "work_model_ar": "مهنة حرة منظمة",
     "employment_modes": [
-      "مكتب عدلي",
-      "شركة عدول",
-      "تعاون بين المكاتب العدلية"
+      "مكتب عدلي داخل نطاق الاختصاص الترابي المحدد قانوناً",
+      "المشاركة بين العدول في الوسائل اللازمة للمهنة وتسيير المكتب الموحد، وفق المادة 94 من القانون 51.26، ولا تسري إلا بعد دخوله حيز التنفيذ، وبحد أقصى أربعة عدول"
     ],
     "can_freelance": true,
     "can_work_government": false,
     "can_work_private_sector": true,
     "requires_legal_education": "required",
-    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة الشريعة أو الحقوق أو ما يعادلهما. اختر مدينتك لعرض أقرب كليات الحقوق.",
     "main_areas": [
       "الأحوال الشخصية",
       "إثبات الوقائع",
@@ -538,44 +537,51 @@
       "البيوع بشروط"
     ],
     "typical_degree": {
-      "level": "master_or_equivalent",
-      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي وخطة العدالة",
-      "status": "verify_official_source",
-      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+      "level": "bachelor_or_equivalent",
+      "label_ar": "الإجازة المحصل عليها بالمغرب من إحدى كليات الشريعة أو اللغة العربية أو أصول الدين أو الآداب، فرع الدراسات الإسلامية، أو الحقوق، فرع القانون الخاص أو العام، أو ما يعادلها (النظام الحالي).",
+      "status": "verified",
+      "note_ar": "المادة 6 من القانون رقم 16.03 المتعلق بخطة العدالة."
     },
     "age_requirement": {
       "has_requirement": true,
-      "minimum": null,
-      "maximum": null,
+      "minimum": 25,
+      "maximum": 45,
       "basis": "legal_or_competition",
-      "status": "verify_official_source",
-      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+      "status": "verified",
+      "note_ar": "25 سنة كاملة على الأقل، وألا يتجاوز 45 سنة بالنسبة لغير المعفيين من المباراة والتمرين (المادة 3، البند 2 من القانون 16.03)."
     },
     "entry_path": [
       {
         "step": 1,
-        "title_ar": "التكوين القانوني",
-        "description_ar": "المسار الجامعي أو التكوين المتخصص الذي يحدده النص التنظيمي والجهة المختصة."
+        "title_ar": "الحصول على الإجازة المطلوبة",
+        "description_ar": "الإجازة المطلوبة وفق المادة 6 من القانون 16.03."
       },
       {
         "step": 2,
         "title_ar": "التحقق من شروط الولوج",
-        "description_ar": "شروط الشهادة والسن والجنسية تحددها النصوص والإعلانات الجاري بها العمل."
+        "description_ar": "الجنسية والسن والأهلية والشروط الأخرى المنصوص عليها في المادة 3 من القانون 16.03."
       },
       {
         "step": 3,
-        "title_ar": "المسطرة التنافسية والتدريب",
-        "description_ar": "قد تكون مباراة أو مسطرة انتقاء ثم تدريب مهني وفق ما يقره النص."
+        "title_ar": "اجتياز مباراة الولوج",
+        "description_ar": "مباراة الولوج وفق القانون والمرسوم رقم 2.08.378، ما لم ينطبق إعفاء قانوني."
       },
       {
         "step": 4,
-        "title_ar": "التعيين والتسجيل المهني",
-        "description_ar": "تتم إجراءات التعيين والتسجيل لدى الجهة المختصة قبل مباشرة المهام."
+        "title_ar": "إتمام سنة التمرين",
+        "description_ar": "ستة أشهر بالمعهد العالي للقضاء، وشهران بقسم قضاء الأسرة، وأربعة أشهر بمكتب عدلي."
+      },
+      {
+        "step": 5,
+        "title_ar": "الامتحان المهني والتعيين",
+        "description_ar": "اجتياز الامتحان المهني، ثم استكمال إجراءات التعيين وأداء اليمين وفق المقتضيات القانونية."
       }
     ],
+    "entry_method_ar": "مباراة الولوج، ما لم ينطبق إعفاء قانوني، ثم تمرين لمدة سنة وامتحان مهني",
+    "status_note_ar": "تستند الشروط المعروضة هنا إلى القانون الجاري تطبيقه في التاريخ المرجعي، مع الإشارة إلى القانون رقم 51.26 المنشور بالجريدة الرسمية، الذي يدخل حيز التنفيذ بعد مرور 90 يوماً من نشره، أي في 9 نوفمبر 2026 وفق التاريخ المنشور. يجب التحقق من إعلان المباراة أو الإجراء الرسمي المعني قبل الترشح.",
     "training_after_admission": {
-      "label_ar": "تدريب وتعيين وتسجيل وفق الإطار التنظيمي وخطة العدالة الجاري بهما العمل",
-      "status": "verify_official_source"
+      "label_ar": "سنة تمرين واحدة في النظام الحالي: ستة أشهر بالمعهد العالي للقضاء، وشهران بقسم قضاء الأسرة، وأربعة أشهر بمكتب عدلي (المادة 7 من القانون 16.03؛ المادة 9 من المرسوم 2.08.378)، يعقبها امتحان مهني (المادة 12 من المرسوم).",
+      "status": "verified"
     },
     "skills": [
       "الاستماع والحوار",
@@ -605,23 +611,25 @@
     ],
     "requirements": [
       {
-        "id": "entry_conditions",
-        "label_ar": "شروط الولوج",
-        "value_ar": "تحدد بمقتضى النصوص التنظيمية المتعلقة بخطة العدالة وبإعلانات التعيين.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "id": "nationality_conditions",
+        "label_ar": "الجنسية",
+        "value_ar": "أن يكون المترشح مغربياً مسلماً، مع مراعاة قيود الأهلية في قانون الجنسية.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3، البند 1 من القانون 16.03",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
         "id": "degree_requirement",
-        "label_ar": "الشهادة أو التكوين",
-        "value_ar": "يحددها النص التنظيمي والجهة المكلفة بالتكوين.",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "الإجازة المحصل عليها بالمغرب من إحدى كليات الشريعة أو اللغة العربية أو أصول الدين أو الآداب، فرع الدراسات الإسلامية، أو الحقوق، فرع القانون الخاص أو العام، أو ما يعادلها.",
         "requirement_type": "legal_text",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 6 من القانون 16.03",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -629,21 +637,95 @@
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "قد يحدد النص أو إعلان التعيين حدوداً للسن؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "25 سنة كاملة على الأقل، وألا يتجاوز 45 سنة بالنسبة لغير المعفيين من المباراة والتمرين.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3، البند 2 من القانون 16.03",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
-        "id": "registration",
-        "label_ar": "التعيين والتسجيل",
-        "value_ar": "يتم وفق المسطرة التنظيمية وبعدد المناصب المعروض في الإعلان الرسمي.",
-        "requirement_type": "professional_registration",
-        "status": "verify_official_source",
+        "id": "conduct_conditions",
+        "label_ar": "الأهلية والسلوك",
+        "value_ar": "التمتع بالحقوق الوطنية، والمروءة وحسن السلوك، والقدرة البدنية المطلوبة، وعدم صدور الأحكام الجنائية والتأديبية والتجارية المانعة المحددة قانوناً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3، البنود 3 إلى 8 من القانون 16.03",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "competition",
+        "label_ar": "المباراة",
+        "value_ar": "اجتياز مباراة الولوج، ما لم ينطبق إعفاء قانوني، وتشمل اختباراً كتابياً وآخر شفوياً. وتنظم المادة 9 من القانون إعفاءات لفئات محددة، منها بعض القضاة السابقين والعدول السابقين وحملة شهادات علمية معينة والمنتدبين القضائيين السابقين، مع اختلاف الإعفاء من المباراة أو التمرين أو الامتحان بحسب الفئة والشروط المحددة قانوناً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المواد 3 إلى 5 و9 من القانون 16.03؛ المادتان 5 و6 من المرسوم 2.08.378",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "training",
+        "label_ar": "التكوين والتمرين",
+        "value_ar": "سنة واحدة بصفة عدل متمرن، وفق البرنامج التنظيمي: ستة أشهر بالمعهد العالي للقضاء للدراسات والأشغال التطبيقية، وشهران بقسم قضاء الأسرة، وأربعة أشهر بمكتب عدلي.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 7 من القانون 16.03؛ المادة 9 من المرسوم 2.08.378",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "professional_exam",
+        "label_ar": "الامتحان المهني",
+        "value_ar": "يجتاز المتمرن امتحاناً مهنياً في نهاية التمرين.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 7 و8 من القانون 16.03؛ المادة 12 من المرسوم 2.08.378",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "oath",
+        "label_ar": "اليمين",
+        "value_ar": "يؤدي العدل اليمين بعد ترسيمه وقبل الشروع في مهامه.",
+        "requirement_type": "professional_registration",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 10 من القانون 16.03",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "place_of_practice",
+        "label_ar": "مقر الممارسة",
+        "value_ar": "يتخذ العدل مقر مكتبه حيث عُيّن، ويتكون المكتب من عدلين على الأقل، وتراعى دائرة الاختصاص الترابي المنصوص عليها قانوناً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 14 من القانون 16.03",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "new_regime_51_26",
+        "label_ar": "النظام الجديد (القانون 51.26)",
+        "value_ar": "لا تُطبَّق الشروط التالية قبل دخول القانون 51.26 حيز التنفيذ، أي 9 نوفمبر 2026 وفق التاريخ الذي أوردته المصادر المنشورة. السن: 21 سنة كاملة على الأقل، وألا يتجاوز المترشح 45 سنة عند إجراء المباراة، مع استثناءات محددة قانوناً. الشهادة: الإجازة في تخصصات محددة تشمل الشريعة وأصول الدين والدراسات الإسلامية والعلوم القانونية، أو شهادة معادلة وفق النص. يفتح النظام الجديد المجال أمام النساء للولوج إلى المهنة. التمرين: 24 شهراً، ستة أشهر من التكوين الأساسي و18 شهراً بمكتب عدلي، يعقبها امتحان نهاية التمرين. وتفرض مقتضيات جديدة بشأن التقييد في جدول المجلس الجهوي، واليمين، وواجب الانخراط، والتأمين، والتسجيل المهني والضريبي.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "القانون 51.26 المنشور بالجريدة الرسمية عدد 7533؛ المادة 94 للمشاركة",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -651,43 +733,61 @@
     ],
     "sources": [
       {
-        "title_ar": "الإطار التنظيمي لمهنة العدول (النص التنظيمي الجاري به العمل)",
+        "title_ar": "القانون رقم 16.03 المتعلق بخطة العدالة",
         "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "الصادر بتنفيذه الظهير الشريف رقم 1.06.56 بتاريخ 14 فبراير 2006؛ النص الكامل على بوابة عدالة."
       },
       {
-        "title_ar": "الجهة الحكومية المكلفة بالعدل",
+        "title_ar": "المرسوم رقم 2.08.378 الصادر في 28 أكتوبر 2008 بتطبيق القانون 16.03",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "ينظم المباراة والتكوين والتمرين والامتحان المهني؛ النص الكامل على بوابة عدالة."
+      },
+      {
+        "title_ar": "القانون رقم 51.26 المتعلق بتنظيم مهنة العدول",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "الظهير الشريف رقم 1.26.58 بتاريخ 28 يوليوز 2026، منشور في الجريدة الرسمية عدد 7533 بتاريخ 10 غشت 2026؛ يدخل حيز التنفيذ بعد 90 يوماً من النشر، أي 9 نوفمبر 2026 وفق التاريخ المنشور."
+      },
+      {
+        "title_ar": "وزارة العدل — العدول",
         "source_type": "public_authority",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "مصدر إداري. تذكر صفحته شرط الوضعية تجاه قوانين التجنيد العسكري، وفق ملاحظة في النص المنشور للقانون 16.03 فإن هذا الشرط حُذف بالقانون رقم 48.06؛ لم يُنقل هذا الشرط إلى الصفحة لحين مراجعة النص المعدل."
       }
     ],
     "law_slugs": [],
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "النصوص المنظمة لمهنة العدول",
+        "label_ar": "القانون رقم 16.03 المتعلق بخطة العدالة",
         "relationship_type": "governing_framework",
-        "relationship_ar": "القانون المنظم للمهنة",
+        "relationship_ar": "الصادر بتنفيذه الظهير الشريف رقم 1.06.56 بتاريخ 14 فبراير 2006. هو المرجع الذي يُطبق على شروط الولوج في التاريخ المرجعي 8 أكتوبر 2026، إلى حين دخول القانون الجديد حيز التنفيذ.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "شروط الولوج إلى خطة العدالة",
+        "label_ar": "المرسوم رقم 2.08.378 بتطبيق القانون 16.03",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين",
+        "relationship_ar": "صادر في 28 أكتوبر 2008، وينظم المباراة والتكوين والتمرين والامتحان المهني.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "واجبات العدل والأمانة في الإشهاد",
-        "relationship_type": "professional_ethics",
-        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "label_ar": "القانون رقم 51.26 المتعلق بتنظيم مهنة العدول",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "الصادر بتنفيذه الظهير الشريف رقم 1.26.58 بتاريخ 28 يوليوز 2026، ونُشر في الجريدة الرسمية عدد 7533 بتاريخ 10 غشت 2026. ينظم النظام الجديد للمهنة، ويدخل حيز التنفيذ بعد 90 يوماً من النشر، أي في 9 نوفمبر 2026 وفق التاريخ المنشور.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
@@ -705,8 +805,8 @@
         "الإراثة"
       ]
     },
-    "last_reviewed": "2026-09-23",
-    "review_status": "internal_review",
+    "last_reviewed": "2026-10-08",
+    "review_status": "official_text_verified",
     "canonical_url": "https://www.mizan.page/careers/adoul"
   },
   {

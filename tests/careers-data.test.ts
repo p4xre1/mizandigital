@@ -20,7 +20,7 @@ const CAREERS = careersData as unknown as CareerRecord[];
 
 // استثناء موثّق لمسار المفوض القضائي: أرقام النص ومراجعه وحالة التحقق من القانون 46.21
 // والمرسوم 2.25.885 (تحقق يدوي بتاريخ 2026-10-08). لا يمتد إلى غيره.
-const VERIFIED_TEXT_SLUGS = new Set(["commissaire-judiciaire", "avocat", "notaire"]);
+const VERIFIED_TEXT_SLUGS = new Set(["commissaire-judiciaire", "avocat", "notaire", "adoul"]);
 const CATEGORIES = categoriesData as unknown as Array<{ id: string; order: number; slug: string }>;
 const CITIES = citiesData as unknown as MoroccoCity[];
 const COMPETITIONS = competitionsData as unknown as CareerCompetition[];

@@ -53,7 +53,7 @@ describe("بيانات الربط في careers.json", () => {
     // أرقام القوانين تُقرأ من الأرشيف فقط: لا رقم نصّ في أي تسمية تحريرية.
     // استثناء موثّق: مسار المفوض القضائي يذكر أرقام النصوص والمواد صراحةً
     // بعد التحقق من نص القانون 46.21 (انظر المصادر في careers.json).
-    const NUMBERED_REFERENCE_SLUGS = new Set(["commissaire-judiciaire", "avocat", "notaire"]);
+    const NUMBERED_REFERENCE_SLUGS = new Set(["commissaire-judiciaire", "avocat", "notaire", "adoul"]);
     for (const career of CAREERS.filter((c) => !NUMBERED_REFERENCE_SLUGS.has(c.slug))) {
       for (const entry of career.legal_framework) {
         expect(/\d/.test(entry.label_ar), `${career.slug}:${entry.label_ar}`).toBe(false);
