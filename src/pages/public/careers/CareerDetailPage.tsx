@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { BadgeCheck, BookOpen, Briefcase, Compass, HelpCircle, ShieldCheck } from "lucide-react";
+import { BadgeCheck, BookOpen, Briefcase, Building2, Compass, HelpCircle, Landmark, ShieldCheck } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { canonicalFor } from "@/lib/canonical";
 import { CareerDisclaimer } from "@/components/careers/CareerDisclaimer";
@@ -328,28 +328,44 @@ export function CareerDetailPage() {
           </table>
         </div>
 
-        <h3 className="mt-5 text-[15px] font-extrabold text-foreground">المصادر والإطارات المرجعية</h3>
-        <ul className="mt-2 space-y-2">
-          {career.sources.map((source) => (
-            <li key={source.title_ar} className="rounded-2xl border border-border bg-card p-3 text-[12.5px]">
-              <p className="font-bold text-foreground">{source.title_ar}</p>
-              <p className="mt-1 text-muted-foreground">
-                {source.url ? (
-                  <a className="font-bold text-primary" href={source.url} target="_blank" rel="nofollow noopener">
-                    {source.url}
-                  </a>
-                ) : (
-                  CAREERS_NO_SOURCE_NOTE
-                )}
-                {source.last_verified ? ` — آخر تحقق: ${source.last_verified}` : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-[12.5px] leading-6 text-muted-foreground">
-          الشرط الرقمي (سن أو شهادة أو عدد مناصب) لا يُعرض هنا ما لم يكن منشوراً في مصدر رسمي متحقق منه؛ لذلك تبقى
-          القيم الرقمية فارغة عن قصد.
-        </p>
+        <div className="mt-8 rounded-3xl border border-border bg-muted/30 p-6 md:p-8">
+          <h3 className="inline-flex items-center gap-2 text-[20px] font-black text-foreground">
+            <Landmark className="size-5 text-primary" aria-hidden="true" />
+            المصادر والإطارات المرجعية
+          </h3>
+          <ul className="mt-5 grid gap-4 md:grid-cols-2">
+            {career.sources.map((source) => {
+              const SourceIcon = source.source_type === "professional_body" ? Building2 : Landmark;
+              return (
+                <li
+                  key={source.title_ar}
+                  className="flex flex-col rounded-2xl border border-border bg-card p-5 md:p-6"
+                >
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <SourceIcon className="size-5" aria-hidden="true" />
+                  </span>
+                  <p className="mt-4 text-[16px] font-extrabold leading-7 text-foreground">{source.title_ar}</p>
+                  <p className="mt-3 text-[15px] leading-7 text-muted-foreground">
+                    {source.url ? (
+                      <a className="font-bold text-primary" href={source.url} target="_blank" rel="nofollow noopener">
+                        {source.url}
+                      </a>
+                    ) : (
+                      <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-bold text-amber-800 dark:text-amber-200">
+                        {CAREERS_NO_SOURCE_NOTE}
+                      </span>
+                    )}
+                    {source.last_verified ? ` — آخر تحقق: ${source.last_verified}` : ""}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-6 rounded-2xl bg-card p-5 text-[15px] leading-8 text-foreground">
+            الشرط الرقمي (سن أو شهادة أو عدد مناصب) لا يُعرض هنا ما لم يكن منشوراً في مصدر رسمي متحقق منه؛ لذلك تبقى
+            القيم الرقمية فارغة عن قصد.
+          </p>
+        </div>
       </section>
 
       <CareerTrainingPlan career={career} className="mt-10" />
