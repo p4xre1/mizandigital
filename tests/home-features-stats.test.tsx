@@ -44,9 +44,10 @@ describe("ميزات الصفحة الرئيسية: صادقة عن ميزان",
     expect(featuresFor({ ...sample, laws: 0 })[0].tag).toBeNull()
   })
 
-  test("العنوان بالنص المطلوب مع «طالب القانون» بالأزرق", () => {
+  test("العنوان بالنص المطلوب مع «طالب القانون» مميّزة بالأزرق", () => {
     const html = renderIn(<HomeFeatures counts={sample} />)
-    expect(html).toContain('<span class="text-[#2563eb]">طالب القانون</span>')
+    expect(html).toContain('text-[#1d4ed8] dark:text-[#93c5fd]">')
+    expect(html).toContain('طالب القانون</span>')
     expect(html).toContain("كل ما يحتاجه")
     expect(html).toContain("لماذا نحن")
   })

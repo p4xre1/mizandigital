@@ -155,12 +155,19 @@ export function HomeFeatures({ counts }: { counts: FeatureCounts }) {
       aria-labelledby="home-features-title"
     >
       <div className="container mx-auto max-w-[1100px] px-6">
-        <div className="text-center max-w-[640px] mx-auto mb-12">
-          <p className="text-[22px] md:text-[26px] font-black leading-none text-[#2563eb] dark:text-[#93c5fd]">
+        <div className="text-center max-w-[720px] mx-auto mb-14">
+          <p className="inline-flex items-center gap-3 text-[18px] md:text-[20px] font-black leading-none text-[#2563eb] dark:text-[#93c5fd]">
+            <span aria-hidden="true" className="h-[3px] w-8 rounded-full bg-[#2563eb] dark:bg-[#93c5fd]" />
             لماذا نحن
+            <span aria-hidden="true" className="h-[3px] w-8 rounded-full bg-[#2563eb] dark:bg-[#93c5fd]" />
           </p>
-          <h2 id="home-features-title" className="mt-3 text-[26px] md:text-[32px] font-black leading-[1.2] text-[#0f172a] dark:text-white">
-            كل ما يحتاجه <span className="text-[#2563eb]">طالب القانون</span> المغربي
+          <h2 id="home-features-title" className="mt-5 text-[30px] md:text-[42px] font-black leading-[1.25] text-[#0f172a] dark:text-white">
+            كل ما يحتاجه{" "}
+            <span className="relative isolate inline-block whitespace-nowrap text-[#1d4ed8] dark:text-[#93c5fd]">
+              <span aria-hidden="true" className="absolute inset-x-[-0.15em] bottom-[0.08em] -z-10 h-[0.36em] rounded-md bg-[#dbeafe] dark:bg-[#1e3a8a]" />
+              طالب القانون
+            </span>{" "}
+            المغربي
           </h2>
         </div>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
