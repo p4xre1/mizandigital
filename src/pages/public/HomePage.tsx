@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
+import { HeroPreview } from "../../components/home/HeroPreview"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
 const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
@@ -302,16 +303,16 @@ export function HomePage() {
           <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] lg:size-[640px] lg:-top-40 rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px] lg:blur-[90px]" />
           <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] lg:size-[360px] lg:-bottom-40 lg:-right-32 rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px] lg:blur-[70px]" />
 
-          <div className="container relative mx-auto max-w-[800px] lg:max-w-[1280px] px-6 py-14 lg:py-28 grid gap-10 lg:gap-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+          <div className="container relative mx-auto max-w-[800px] lg:max-w-[1440px] xl:max-w-[1600px] px-6 py-14 lg:px-12 lg:py-24 grid gap-12 lg:gap-16 xl:gap-24 lg:grid-cols-2 lg:items-center">
 
             <div className="flex flex-col items-center text-center lg:items-start lg:text-right">
-              <h1 className="mt-6 lg:mt-0 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] lg:text-[72px] xl:text-[84px] font-black leading-[1.2] lg:leading-[1.15] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+              <h1 className="mt-6 lg:mt-0 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] lg:text-[64px] xl:text-[76px] font-black leading-[1.2] lg:leading-[1.15] tracking-[-0.03em] text-[#0f172a] dark:text-white">
                 <span>افتح إمكانياتك مع</span>
                 <span className="text-[#2563eb]">التعلم القانوني</span>
                 <span className="text-[20px] md:text-[24px] lg:text-[32px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
               </h1>
 
-              <p className="mt-5 lg:mt-8 max-w-[560px] lg:max-w-[620px] text-[14px] md:text-[15px] lg:text-[19px] leading-7 lg:leading-9 text-[#475569] dark:text-[#94a3b8]">
+              <p className="mt-5 lg:mt-8 max-w-[560px] lg:max-w-[600px] text-[15px] md:text-[16px] lg:text-[20px] leading-7 lg:leading-9 text-[#334155] dark:text-[#cbd5e1]">
                 انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
               </p>
 
@@ -346,27 +347,8 @@ export function HomePage() {
               </div>
             </div>
 
-            <div className="w-full max-w-[560px] lg:max-w-none mx-auto grid grid-cols-2 gap-3 lg:gap-5">
-              {[
-                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
-                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
-                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
-                { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
-              ].map((card, i) => (
-                <div key={i} className="text-right rounded-2xl lg:rounded-3xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 lg:p-8 shadow-sm lg:shadow-[0_12px_32px_rgba(15,23,42,0.06)] lg:hover:-translate-y-1 transition-transform">
-                  <div className="flex items-center justify-between">
-                    <div className={`grid size-9 lg:size-14 place-items-center rounded-xl lg:rounded-2xl ${card.color} text-white shadow-sm`}>
-                      <card.icon className="size-4 lg:size-7" />
-                    </div>
-                    <span className="text-[10px] lg:text-[13px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1 lg:px-3 lg:py-1.5">{card.count}</span>
-                  </div>
-                  {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
-                      سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
-                      متسلسلاً مع بقية أقسام الصفحة. */}
-                  <h2 className="mt-3 lg:mt-6 font-black text-[12px] lg:text-[20px] text-[#0f172a] dark:text-white">{card.title}</h2>
-                  <p className="mt-1 lg:mt-2 text-[11px] lg:text-[15px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                </div>
-              ))}
+            <div className="hidden lg:block">
+              <HeroPreview />
             </div>
           </div>
         </section>
