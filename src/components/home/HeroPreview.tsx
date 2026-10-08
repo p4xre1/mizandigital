@@ -42,7 +42,7 @@ export function HeroPreview() {
             <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-[#10b981] text-[13px] font-black text-white">ق</div>
             <div>
               <p className="text-[14px] font-bold text-[#0f172a] dark:text-white">قانون الالتزامات والعقود</p>
-              <p className="text-[13px] text-[#475569] dark:text-[#cbd5e1]">ق.ل.ع · الفصول 11-12</p>
+              <p className="text-[13px] text-[#475569] dark:text-[#cbd5e1]">ق.ل.ع – الفصول 11-12</p>
             </div>
           </div>
         </div>

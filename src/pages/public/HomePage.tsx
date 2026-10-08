@@ -13,6 +13,7 @@ import {
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
 import { HeroPreview } from "../../components/home/HeroPreview"
+import { HomeFreeResources } from "../../components/home/HomeFreeResources"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
 const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
@@ -506,38 +507,7 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:380px]">
-          <div className="container relative mx-auto max-w-[1000px] px-6">
-            <div className="mx-auto max-w-3xl rounded-3xl border border-emerald-500/20 bg-emerald-500/[0.04] p-7 text-center sm:p-10">
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-black text-emerald-700 dark:text-emerald-300">
-                <ShieldCheck className="size-4" /> مجانية بالكامل
-              </span>
-              <h2 className="mt-4 text-[26px] font-black leading-tight text-[#0f172a] dark:text-white md:text-[32px]">
-                المعرفة القانونية للجميع
-              </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-[13px] leading-7 text-[#64748b] dark:text-[#94a3b8]">
-                كل موارد ميزان وأدواتها مجانية، بلا إعلانات تجارية. كل ما تحتاجه للدراسة في مكان واحد.
-              </p>
-              <div className="mt-7 grid gap-3 text-right sm:grid-cols-2">
-                {[
-                  "أرشيف الفصول S1 إلى S6",
-                  "قاموس قانوني يضم 250 مصطلحاً",
-                  "جميع المقالات والأخبار القانونية",
-                  "اختبارات ومسارات تدريبية متنوعة",
-                  "دليل 21 كلية حقوق",
-                  "أدوات البحث والتدريب القانوني",
-                ].map((feature) => (
-                  <div key={feature} className="flex items-center gap-2 rounded-xl bg-white/80 p-3 text-[12px] font-bold text-[#334155] dark:bg-[#1e293b] dark:text-[#cbd5e1]">
-                    <ShieldCheck className="size-4 shrink-0 text-emerald-600" /> {feature}
-                  </div>
-                ))}
-              </div>
-              <Link to="/articles" className="mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#2563eb] px-7 py-3 text-[13px] font-bold text-white transition hover:opacity-90">
-                استكشف الموارد المجانية <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HomeFreeResources />
 
         <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
           <div className="container mx-auto max-w-[1280px] px-6">
