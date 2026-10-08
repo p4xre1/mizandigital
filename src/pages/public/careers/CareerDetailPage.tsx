@@ -19,6 +19,7 @@ import {
   REVIEW_STATUS_LABELS,
   SECTION_TITLES,
   buildCareerAnswerFirst,
+  buildCareerOccupationSchema,
   buildCareerPageDescription,
   buildCareerPageTitle,
 } from "../../../../shared/careers/copy.js";
@@ -102,7 +103,7 @@ export function CareerDetailPage() {
             inLanguage: "ar-MA",
             dateModified: career.last_reviewed,
             isAccessibleForFree: true,
-            about: { "@type": "Occupation", name: career.title_ar, alternateName: career.title_fr },
+            about: buildCareerOccupationSchema(career),
           },
         ]}
         breadcrumbs={[

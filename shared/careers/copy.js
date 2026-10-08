@@ -316,8 +316,34 @@ export function buildCareerAnswerFirst(career) {
 }
 
 /** وصف ميتا فريد لكل مسار (لا يتكرر بين مسارين). */
+// وصف الصفحة للبحث والذكاء الاصطناعي: جملة واحدة مقطوعة عند حدّ كلمة (≤ 155 حرفاً).
+export function clipMetaText(text, max = 155) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const at = cut.lastIndexOf(" ");
+  return `${cut.slice(0, at > 0 ? at : max).replace(/[،,:؛\s]+$/, "")}…`;
+}
+
 export function buildCareerPageDescription(career) {
-  return `مسار مهنة ${career.title_ar} في المغرب: ${career.short_description} تعرف على الشروط وطريقة الولوج ومصادر التحقق في دليل المسارات والمهن القانونية بميزان الرقمية.`;
+  return clipMetaText(`مسار ${career.title_ar} في المغرب: ${career.short_description}`);
+}
+
+// Occupation schema.org لصفحة المسار. لا يُنشر حقل qualifications إلا إذا كانت الشهادة متحققة من النص الرسمي.
+export function buildCareerOccupationSchema(career) {
+  const occupation = {
+    "@type": "Occupation",
+    name: career.title_ar,
+    alternateName: career.title_fr,
+    description: career.short_description,
+    occupationLocation: { "@type": "Country", name: "Morocco" },
+  };
+  if (career.typical_degree?.status === "verified" && career.typical_degree.label_ar) {
+    occupation.qualifications = career.typical_degree.label_ar;
+  }
+  if (Array.isArray(career.skills) && career.skills.length > 0) {
+    occupation.skills = career.skills.join("، ");
+  }
+  return occupation;
 }
 
 export function buildCareerQuizTitle(role) {
@@ -325,7 +351,7 @@ export function buildCareerQuizTitle(role) {
 }
 
 export function buildCareerQuizDescription(role) {
-  return `أسئلة تعليمية مع شرح حول مهنة ${role} في المغرب: مفاهيم ومصطلحات ومهارات مساعدة على الفهم. ليست اختباراً رسمياً ولا تضمن القبول في أي مباراة أو مسار.`;
+  return `أسئلة تعليمية مع شرح حول مهنة ${role} في المغرب. ليست اختباراً رسمياً ولا تضمن القبول في أي مباراة أو مسار.`;
 }
 
 export function buildCompetitionPageTitle(careerTitle) {

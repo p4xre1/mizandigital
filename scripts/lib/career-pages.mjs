@@ -39,6 +39,7 @@ import {
   TRAINING_PLAN_WEEKS,
   buildCareerAnswerFirst,
   buildCareerH1,
+  buildCareerOccupationSchema,
   buildCareerPageDescription,
   buildCareerPageTitle,
   buildCareerQuizDescription,
@@ -295,7 +296,7 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
       inLanguage: "ar-MA",
       dateModified: career.last_reviewed,
       isAccessibleForFree: true,
-      about: { "@type": "Occupation", name: career.title_ar, alternateName: career.title_fr },
+      about: buildCareerOccupationSchema(career),
     },
     extraSchema: [
       {

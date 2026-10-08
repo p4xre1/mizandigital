@@ -11,6 +11,7 @@
 - دليل كليات الحقوق والعلوم القانونية والاقتصادية والاجتماعية بالمغرب.
 - أرشيف وملفات PDF تعليمية متاحة وفق شروط النشر.
 - ندوات وفعاليات وموارد أكاديمية.
+- دليل تعليمي لـ 14 مهنة قانونية في المغرب: الشروط وطريقة الولوج ومصادر التحقق.
 
 ## التحقق من المصادر القانونية
 
@@ -28,6 +29,7 @@
 - https://www.mizan.page/articles
 - https://www.mizan.page/news
 - https://www.mizan.page/lexicon
+- https://www.mizan.page/careers
 - https://www.mizan.page/schools
 - https://www.mizan.page/archive
 - https://www.mizan.page/events

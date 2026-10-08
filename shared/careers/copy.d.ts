@@ -90,10 +90,18 @@ export declare function buildCareerAnswerFirst(career: {
   short_description: string;
   work_model_ar: string;
 }): string;
+export declare function clipMetaText(text: string, max?: number): string;
 export declare function buildCareerPageDescription(career: {
   title_ar: string;
   short_description: string;
 }): string;
+export declare function buildCareerOccupationSchema(career: {
+  title_ar: string;
+  title_fr: string;
+  short_description: string;
+  skills?: string[];
+  typical_degree?: { status?: string; label_ar?: string };
+}): Record<string, unknown>;
 export declare function buildCareerQuizTitle(role: string): string;
 export declare function buildCareerQuizDescription(role: string): string;
 export declare function buildCompetitionPageTitle(careerTitle: string): string;
