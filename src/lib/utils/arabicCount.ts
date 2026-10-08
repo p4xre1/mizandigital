@@ -49,3 +49,24 @@ export const TERM_FORMS: ArabicForms = {
   few: "مصطلحات",
   many: "مصطلحاً",
 }
+
+export const LAW_TEXT_FORMS: ArabicForms = {
+  one: "نص قانوني واحد",
+  two: "نصان قانونيان",
+  few: "نصوص قانونية",
+  many: "نصاً قانونياً",
+}
+
+export const QUESTION_FORMS: ArabicForms = {
+  one: "سؤال واحد",
+  two: "سؤالان",
+  few: "أسئلة",
+  many: "سؤالاً",
+}
+
+export const SCHOOL_FORMS: ArabicForms = {
+  one: "كلية واحدة",
+  two: "كليتان",
+  few: "كليات",
+  many: "كلية",
+}

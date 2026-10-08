@@ -6,13 +6,12 @@ import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { afterWindowLoad, scheduleWhenIdle } from "../../lib/utils/deferWork"
-import {
-  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2, Layers, Newspaper
-} from "lucide-react"
+import { Scale, Star, Users, Library, Clock, Video, FileText, ArrowRight, Calendar, MapPin, Building2 } from "lucide-react"
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
 import { HomeLexiconShowcase } from "../../components/home/HomeLexiconShowcase"
+import { HomeFeatures } from "../../components/home/HomeFeatures"
+import { HomeStatsBand } from "../../components/home/HomeStatsBand"
 import { pickTreeTerms, type TreeTerm } from "../../lib/lexicon/treeTerms"
 import { HeroPreview } from "../../components/home/HeroPreview"
 import { HomeFreeResources } from "../../components/home/HomeFreeResources"
@@ -423,58 +422,16 @@ export function HomePage() {
 
         <HomeFreeResources />
 
-        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
-          <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="max-w-[900px] mx-auto">
-              <div className="text-center max-w-[640px] mx-auto mb-10">
-                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">لماذا نحن</span>
-                <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
-                  اكتشف المزايا المميزة
-                  <br />
-                  لمنصتنا التعليمية
-                  <span className="text-[#2563eb]"> القانونية</span>
-                </h2>
-              </div>
+        <HomeFeatures counts={counts} />
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                {[
-                  { title: "قاموس عربي-فرنسي", desc: "مصطلحات قانونية بالعربية والفرنسية، وكل مصطلح مرتبط بالنصوص والفصول التي يستند إليها.", icon: Languages, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "منظّم حسب السداسيات", desc: "الملخصات مرتبة من S1 إلى S6، تجد ما تدرسه في سداسيك مباشرة.", icon: Layers, color: "bg-[#ecfdf5] text-[#059669]" },
-                  { title: "أخبار قانونية محدّثة", desc: "مستجدات التشريع المغربي وأخباره القانونية، تُضاف باستمرار.", icon: Newspaper, color: "bg-[#fffbeb] text-[#b45309]" },
-                  { title: "مجاني بلا إعلانات", desc: "كل الموارد والأدوات متاحة مجاناً، ولا توجد إعلانات تجارية في المنصة.", icon: ShieldCheck, color: "bg-[#f0fdfa] text-[#0f766e]" },
-                ].map((feature, i) => (
-                  <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
-                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
-                      <feature.icon className="size-5" />
-                    </div>
-                    <h3 className="mt-3 font-black text-[13px]">{feature.title}</h3>
-                    <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
-          <div className="container mx-auto max-w-[1280px] px-6 relative">
-            <div className="grid grid-cols-2 gap-6 text-center">
-              {[
-                { value: `${counts.lexiconTree}`, label: "مصطلحاً مرتبطاً بنصوصه وفصوله" },
-                { value: `${counts.schools}`, label: "كلية في الدليل" },
-              ].map((stat, i) => (
-                <div key={i}>
-                  <div className="text-[24px] font-black">{stat.value}</div>
-                  {/* بلا opacity-80: أبيض بشفافية 80% فوق #2563eb يعطي
-                      تبايناً 3.86:1 وهو أقل من 4.5:1 المطلوب لنص 11px،
-                      فرصده Lighthouse في تدقيق color-contrast (96/100).
-                      الأبيض الكامل يعطي 5.12:1 ⇒ AAA للنص الصغير. */}
-                  <div className="text-[11px] font-bold mt-1 text-white">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomeStatsBand
+          items={[
+            { value: counts.laws, label: "النصوص القانونية" },
+            { value: counts.lexicon, label: "المصطلحات القانونية" },
+            { value: counts.schools, label: "الكليات في الدليل" },
+            { value: counts.quizQuestions, label: "أسئلة التدريب" },
+          ]}
+        />
 
         <Suspense fallback={null}>
           <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={counts.articles} schoolsCount={counts.schools} />

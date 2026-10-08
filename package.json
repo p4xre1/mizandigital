@@ -11,7 +11,7 @@
     "links:check": "node scripts/check-links.mjs",
     "validate": "pnpm typecheck",
     "doctor": "node scripts/doctor.mjs",
-    "prebuild": "node scripts/validate-archive-links.mjs --strict && node scripts/validate-reference-map.mjs && node scripts/generate-counts.mjs && node scripts/generate-career-lexicon.mjs && node scripts/generate-law-archive-snapshot.mjs && node scripts/generate-lexicon-client-data.mjs && node scripts/generate-sitemap.mjs && node scripts/generate-feed.mjs && node scripts/generate-llms.mjs && node scripts/generate-llms-enhanced.mjs && node scripts/generate-reference.mjs",
+    "prebuild": "node scripts/validate-archive-links.mjs --strict && node scripts/validate-reference-map.mjs && node scripts/generate-career-lexicon.mjs && node scripts/generate-law-archive-snapshot.mjs && node scripts/generate-counts.mjs && node scripts/generate-lexicon-client-data.mjs && node scripts/generate-sitemap.mjs && node scripts/generate-feed.mjs && node scripts/generate-llms.mjs && node scripts/generate-llms-enhanced.mjs && node scripts/generate-reference.mjs",
     "references:check": "node scripts/validate-reference-map.mjs",
     "build": "node scripts/clean.mjs && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs && node scripts/nonblocking-css.mjs && node scripts/csp-hashes.mjs",
     "typecheck": "tsc --noEmit",
