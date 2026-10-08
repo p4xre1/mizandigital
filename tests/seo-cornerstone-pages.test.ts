@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 import {
@@ -109,10 +110,16 @@ describe("الصفحات الركنية — الربط والتوليد", () => 
       expect(component).toContain("<AEOHead");
     });
 
-    test(`${page.path}: موصولة من الفوتر حتى لا تُولَد يتيمة`, () => {
-      expect(read("src/layouts/PublicNavigation.tsx"), page.path).toContain(
-        `to="${page.path}"`,
+    test(`${page.path}: لها رابط داخلي من صفحة أخرى حتى لا تُولَد يتيمة`, () => {
+      // لم يعد التذييل يحمل كل الصفحات الركنية (أُعيدت هيكلته بحسب الأعمدة الثلاثة)،
+      // لذا نتحقق من وجود رابط داخلي من أي ملف واجهة آخر لا من ملف التذييل تحديداً.
+      const files = ["src/pages", "src/layouts", "src/components"].flatMap((dir) =>
+        (readdirSync(dir, { recursive: true }) as string[])
+          .filter((f) => f.endsWith(".tsx"))
+          .map((f) => join(dir, f)),
       );
+      const linkers = files.filter((f) => readFileSync(f, "utf8").includes(`to="${page.path}"`));
+      expect(linkers, page.path).not.toHaveLength(0);
     });
 
     test(`${page.path}: صفحة ثابتة مُولَّدة في prerender وفي sitemap`, () => {
