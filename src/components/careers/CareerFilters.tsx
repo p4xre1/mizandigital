@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { Info, SlidersHorizontal } from "lucide-react";
 import {
   CAREERS_HUB_COPY,
   FILTER_ADVISORY,
@@ -156,8 +156,9 @@ export function CareerFilters() {
       </div>
 
       <p className="mt-4 text-[15px] leading-8 text-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
-      <p className="mt-4 mb-6 text-[15px] font-bold leading-8 text-emerald-700 dark:text-emerald-300">
-        {FILTER_ADVISORY.join("، ")}
+      <p className="mb-6 mt-4 flex items-start gap-3 rounded-xl border border-emerald-600/25 bg-emerald-50 px-4 py-3 text-[15px] font-bold leading-8 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <Info className="mt-1.5 size-5 shrink-0" aria-hidden="true" />
+        <span>{FILTER_ADVISORY.join("، ")}</span>
       </p>
 
       <div className="rounded-2xl border border-border bg-card p-4">
