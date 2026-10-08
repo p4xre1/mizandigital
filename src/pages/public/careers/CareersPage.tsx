@@ -115,7 +115,7 @@ export function CareersPage() {
         <CareerFilters />
       </section>
 
-      <section className="mt-10" aria-labelledby="careers-comparison-title">
+      <section className="mt-10 rounded-3xl bg-slate-100 p-6 md:p-8 dark:bg-slate-900/60" aria-labelledby="careers-comparison-title">
         <h2 id="careers-comparison-title" className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200">
           {CAREERS_HUB_COPY.comparisonTitle}
         </h2>
