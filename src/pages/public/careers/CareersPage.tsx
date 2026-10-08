@@ -130,7 +130,7 @@ export function CareersPage() {
           <ArrowLeftRight className="size-5 text-primary" aria-hidden="true" />
           {CAREERS_HUB_COPY.degreeVsCompetitionTitle}
         </h2>
-        <ul className="mt-5 space-y-4">
+        <ul className="mt-5 space-y-4 rounded-xl border border-border p-5">
           {CAREERS_HUB_COPY.degreeVsCompetition.map((line) => (
             <li key={line} className="flex gap-3 text-[16px] font-semibold leading-8 text-black dark:text-white">
               <ListChecks className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
