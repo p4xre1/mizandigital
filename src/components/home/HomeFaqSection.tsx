@@ -66,7 +66,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
       <script {...jsonLdProps(faqSchema)} />
       <div className="container mx-auto max-w-3xl px-4">
         <div className="mb-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary border border-primary/20 mb-3">
+          <div className="inline-flex items-center gap-2 text-sm font-semibold text-primary mb-3">
             <HelpCircle size={14} />
             <span>الأسئلة الشائعة</span>
           </div>
