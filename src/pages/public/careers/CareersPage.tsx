@@ -158,11 +158,11 @@ export function CareersPage() {
           <GitBranch className="size-5 text-primary" aria-hidden="true" />
           {CAREERS_HUB_COPY.decisionTreeTitle}
         </h2>
-        <ul className="mt-4 space-y-3">
+        <ul className="mt-5 space-y-5">
           {CAREERS_HUB_COPY.decisionTree.map((node) => (
-            <li key={node.question} className="rounded-2xl border border-border bg-card p-4 text-[13.5px] font-bold">
-              <p className="text-foreground">{node.question}</p>
-              <p className="mt-1 text-primary">{node.answer}</p>
+            <li key={node.question} className="rounded-2xl border border-border bg-card p-6">
+              <p className="text-[17px] font-black leading-8 text-black dark:text-white">{node.question}</p>
+              <p className="mt-3 text-[16px] font-bold leading-8 text-primary">{node.answer}</p>
             </li>
           ))}
         </ul>
