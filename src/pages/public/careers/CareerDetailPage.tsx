@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { BadgeCheck, BookOpen, Briefcase, Building2, Compass, HelpCircle, Landmark, ShieldCheck } from "lucide-react";
+import { BadgeCheck, BookOpen, Briefcase, Building2, Compass, ExternalLink, HelpCircle, Landmark, ShieldCheck } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { canonicalFor } from "@/lib/canonical";
 import { CareerDisclaimer } from "@/components/careers/CareerDisclaimer";
@@ -347,8 +347,15 @@ export function CareerDetailPage() {
                   <p className="mt-4 text-[16px] font-extrabold leading-7 text-foreground">{source.title_ar}</p>
                   <p className="mt-3 text-[15px] leading-7 text-muted-foreground">
                     {source.url ? (
-                      <a className="font-bold text-primary" href={source.url} target="_blank" rel="nofollow noopener">
-                        {source.url}
+                      <a
+                        className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[15px] font-extrabold text-primary-foreground hover:opacity-90"
+                        href={source.url}
+                        target="_blank"
+                        rel="nofollow noopener"
+                      >
+                        فتح المصدر الرسمي
+                        <ExternalLink className="size-4" aria-hidden="true" />
+                        <span className="sr-only">: {source.title_ar}</span>
                       </a>
                     ) : (
                       <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-bold text-amber-800 dark:text-amber-200">
