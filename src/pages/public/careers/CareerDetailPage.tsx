@@ -333,37 +333,68 @@ export function CareerDetailPage() {
             <Landmark className="size-5 text-primary" aria-hidden="true" />
             المصادر والإطارات المرجعية
           </h3>
-          <ul className="mt-5 grid gap-4 md:grid-cols-2">
+          <ul className="mt-6 grid gap-6 md:grid-cols-2">
             {career.sources.map((source) => {
               const SourceIcon = source.source_type === "professional_body" ? Building2 : Landmark;
+              const kindLabel = source.source_type === "professional_body" ? "هيئة مهنية" : "نص رسمي";
+              const verified = source.status === "verified";
               return (
                 <li
                   key={source.title_ar}
-                  className="flex flex-col rounded-2xl border border-border bg-card p-5 md:p-6"
+                  className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6"
                 >
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <SourceIcon className="size-5" aria-hidden="true" />
-                  </span>
-                  <p className="mt-4 text-[16px] font-extrabold leading-7 text-foreground">{source.title_ar}</p>
-                  <p className="mt-3 text-[15px] leading-7 text-muted-foreground">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <SourceIcon className="size-5" aria-hidden="true" />
+                    </span>
+                    <span className="rounded-full bg-muted px-3 py-1 text-[13px] font-bold text-foreground">
+                      {kindLabel}
+                    </span>
+                  </div>
+
+                  <h4 className="text-[17px] font-extrabold leading-8 text-foreground">{source.title_ar}</h4>
+
+                  <dl className="grid gap-4 border-t border-border pt-5 text-[15px]">
+                    <div className="flex flex-col gap-1.5">
+                      <dt className="text-[13px] font-bold text-muted-foreground">الحالة</dt>
+                      <dd>
+                        {verified ? (
+                          <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
+                            مؤكد رسمياً
+                          </span>
+                        ) : (
+                          <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-extrabold text-amber-800 dark:text-amber-200">
+                            {CAREERS_NO_SOURCE_NOTE}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+
+                    {source.last_verified ? (
+                      <div className="flex flex-col gap-1.5">
+                        <dt className="text-[13px] font-bold text-muted-foreground">آخر تحقق</dt>
+                        <dd className="font-bold text-foreground">{source.last_verified}</dd>
+                      </div>
+                    ) : null}
+
                     {source.url ? (
-                      <a
-                        className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[15px] font-extrabold text-primary-foreground hover:opacity-90"
-                        href={source.url}
-                        target="_blank"
-                        rel="nofollow noopener"
-                      >
-                        فتح المصدر الرسمي
-                        <ExternalLink className="size-4" aria-hidden="true" />
-                        <span className="sr-only">: {source.title_ar}</span>
-                      </a>
-                    ) : (
-                      <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-bold text-amber-800 dark:text-amber-200">
-                        {CAREERS_NO_SOURCE_NOTE}
-                      </span>
-                    )}
-                    {source.last_verified ? ` — آخر تحقق: ${source.last_verified}` : ""}
-                  </p>
+                      <div className="flex flex-col gap-2">
+                        <dt className="sr-only">الرابط</dt>
+                        <dd>
+                          <a
+                            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[15px] font-extrabold text-primary-foreground hover:opacity-90"
+                            href={source.url}
+                            target="_blank"
+                            rel="nofollow noopener"
+                          >
+                            فتح المصدر الرسمي
+                            <ExternalLink className="size-4" aria-hidden="true" />
+                            <span className="sr-only">: {source.title_ar}</span>
+                          </a>
+                        </dd>
+                      </div>
+                    ) : null}
+                  </dl>
                 </li>
               );
             })}
