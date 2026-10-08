@@ -197,19 +197,19 @@ export function CareerDetailPage() {
       </section>
 
       <section className="mt-10" aria-labelledby="career-fit-title">
-        <h2 id="career-fit-title" className="inline-flex items-center gap-2 text-[18px] font-black text-foreground">
-          <HelpCircle className="size-4 text-primary" aria-hidden="true" />
+        <h2 id="career-fit-title" className="inline-flex items-center gap-2 text-[22px] font-black text-foreground">
+          <HelpCircle className="size-5 text-primary" aria-hidden="true" />
           {SECTION_TITLES.fit}
         </h2>
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-4 space-y-4">
           {career.best_for.map((line) => (
-            <li key={line} className="flex gap-2 text-[13.5px] leading-7 text-muted-foreground">
-              <BadgeCheck className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
+            <li key={line} className="flex gap-3 text-[17px] leading-8 text-foreground">
+              <BadgeCheck className="mt-1.5 size-5 shrink-0 text-primary" aria-hidden="true" />
               <span>{line}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[12.5px] font-bold text-amber-700 dark:text-amber-500">
+        <p className="mt-5 text-[15px] font-bold leading-7 text-amber-700 dark:text-amber-500">
           هذا وصف تعليمي لطبيعة المسار، وليس تقييماً لأهليتك أو ترجيحاً لقبولك.
         </p>
       </section>
