@@ -85,6 +85,7 @@ export const DEGREE_LEVEL_LABELS = {
   bachelor_or_equivalent: "الإجازة أو ما يعادلها",
   master_or_equivalent: "الماستر أو ما يعادله",
   doctorate: "الدكتوراه",
+  translation_diploma_or_master: "دبلوم في الترجمة أو ماستر متخصص أو ما يعادلهما",
   depends: "يختلف حسب الاختصاص والإعلان",
 };
 
