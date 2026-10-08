@@ -49,8 +49,11 @@ export function initAnalytics(): void {
 
   window.dataLayer = window.dataLayer || []
   if (typeof window.gtag !== "function") {
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer?.push(args)
+    // مهم: يجب دفع كائن `arguments` الحقيقي (كما في مقتطف Google الرسمي)، لا مصفوفة.
+    // gtag.js لا ينفّذ الأوامر (js / consent / config / event) إلا إذا كانت من نوع
+    // Arguments؛ دفع مصفوفة يجعل كل القياس يُتجاهل بصمت فلا يُرسل GA أي بيانات.
+    window.gtag = function gtag() {
+      window.dataLayer?.push(arguments)
     }
   }
   window.gtag("consent", "default", { analytics_storage: "denied", wait_for_update: 500 })
