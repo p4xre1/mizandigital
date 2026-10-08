@@ -169,7 +169,7 @@ export function CareersPage() {
       </section>
 
       <section className="mt-10" aria-labelledby="careers-nearby-title">
-        <h2 id="careers-nearby-title" className="text-[20px] font-black text-foreground">
+        <h2 id="careers-nearby-title" className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200">
           {CAREERS_HUB_COPY.nearbySectionTitle}
         </h2>
         <NearbyLawSchools className="mt-4" legalEducation="depends" />
