@@ -31,7 +31,6 @@ import {
   CAREERS_QUIZ_DISCLAIMER,
   CAREERS_QUIZ_HUB_COPY,
   CAREERS_QUIZ_PATH,
-  CAREERS_VERIFY_BADGE,
   COMPETITION_PATH_LABELS,
   DEGREE_LEVEL_LABELS,
   REQUIREMENT_TYPE_LABELS,
@@ -109,7 +108,7 @@ export function isCompetitionVerified(record) {
 }
 
 const requirementBadges = (requirement) => {
-  const badges = [CAREERS_VERIFY_BADGE];
+  const badges = [];
   if (requirement.requirement_type === "annual_notice" || requirement.requirement_type === "legal_or_annual_notice") {
     badges.push(CAREERS_ANNUAL_NOTICE_BADGE);
   }

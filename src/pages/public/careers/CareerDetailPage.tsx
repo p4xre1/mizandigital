@@ -13,7 +13,6 @@ import {
   CAREERS_ANNUAL_NOTICE_BADGE,
   CAREERS_HUB_PATH,
   CAREERS_NO_SOURCE_NOTE,
-  CAREERS_VERIFY_BADGE,
   COMPETITION_PATH_LABELS,
   DEGREE_LEVEL_LABELS,
   REQUIREMENT_TYPE_LABELS,
@@ -138,9 +137,6 @@ export function CareerDetailPage() {
         <p className="mt-3 max-w-3xl text-[14px] leading-8 text-foreground">{buildCareerAnswerFirst(career)}</p>
         <p className="mt-3 flex flex-wrap gap-2 text-[12px] font-bold">
           <span className="rounded-full bg-primary/10 px-3 py-1 text-primary">{career.work_model_ar}</span>
-          <span className="rounded-full bg-amber-500/10 px-3 py-1 text-amber-700 dark:text-amber-500">
-            {CAREERS_VERIFY_BADGE}
-          </span>
           {career.requirements.some((requirement) => requirement.requirement_type === "annual_notice") ? (
             <span className="rounded-full bg-amber-500/10 px-3 py-1 text-amber-700 dark:text-amber-500">
               {CAREERS_ANNUAL_NOTICE_BADGE}

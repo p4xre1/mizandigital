@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { BookOpen, Building2, CalendarDays, GraduationCap, Scale, ShieldCheck } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import {
-  CAREERS_VERIFY_BADGE,
   LAW_VERIFICATION_LABELS,
   SECTION_TITLES,
 } from "../../../shared/careers/copy.js";
@@ -131,14 +130,11 @@ export function CareerLaws({ career, className = "" }: CareerLawsProps) {
                     ) : null}
                     {entry.archive.publication_date ? <span> — النشر: {entry.archive.publication_date}</span> : null}
                   </p>
-                  <p className="mt-1 text-[14px] text-muted-foreground">
-                    تاريخ التحقق من الإسناد:{" "}
-                    {entry.archive.source_verified_at ? (
-                      entry.archive.source_verified_at
-                    ) : (
-                      <span className="font-bold text-amber-700 dark:text-amber-300">{CAREERS_VERIFY_BADGE}</span>
-                    )}
-                  </p>
+                  {entry.archive.source_verified_at ? (
+                    <p className="mt-1 text-[14px] text-muted-foreground">
+                      تاريخ التحقق من الإسناد: {entry.archive.source_verified_at}
+                    </p>
+                  ) : null}
                   {entry.href ? (
                     <Link className="mt-3 inline-block text-[15px] font-extrabold text-primary" to={entry.href}>
                       عرض النص في أرشيف ميزان
