@@ -12,10 +12,11 @@ import {
 } from "lucide-react"
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
+import { HomeLexiconShowcase } from "../../components/home/HomeLexiconShowcase"
+import { pickTreeTerms, type TreeTerm } from "../../lib/lexicon/treeTerms"
 import { HeroPreview } from "../../components/home/HeroPreview"
 import { HomeFreeResources } from "../../components/home/HomeFreeResources"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
-const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
 interface FeedCard {
   id: string
@@ -50,7 +51,7 @@ interface LexiconCard {
 export function HomePage() {
   const [latestArticles, setLatestArticles] = useState<FeedCard[]>([])
   const [latestEvents, setLatestEvents] = useState<EventCard[]>([])
-  const [latestTerms, setLatestTerms] = useState<LexiconCard[]>([])
+  const [treeTerms, setTreeTerms] = useState<TreeTerm[]>([])
   const [schoolsCount] = useState<number>(counts.schools)
   const [articlesCount] = useState<number>(counts.articles)
 
@@ -98,16 +99,7 @@ export function HomePage() {
         if (cancelled) return
         setLatestEvents(localEvents.slice(0, 4))
 
-        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 6).map((t) => ({
-          id: t.id,
-          term_ar: t.term_ar,
-          term_fr: t.term_fr,
-          definition: t.definition,
-          category: t.category,
-          legal_sources: t.legal_sources || [],
-        }))
-        if (cancelled) return
-        setLatestTerms(localTerms)
+        setTreeTerms(pickTreeTerms(lexiconData as any[], 7))
       } catch {
         /* لا بيانات محلية: الأقسام تبقى فارغة كما كانت قبل الإصلاح */
       }
@@ -160,10 +152,9 @@ export function HomePage() {
           import("../../data/lexicon.client.json"),
         ])
 
-        const [articlesRes, seminarsRes, termsRes] = await Promise.all([
+        const [articlesRes, seminarsRes] = await Promise.all([
           supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(30),
           (supabase as any).from("seminars").select("*").eq("status", "published").order("event_date", { ascending: false }).limit(20),
-          supabase.from("lexicon_terms").select("id, term_ar, term_fr, definition, category").order("created_at", { ascending: false }).limit(20),
         ])
 
         const remoteArticles: FeedCard[] = (articlesRes.data || [])
@@ -223,27 +214,8 @@ export function HomePage() {
         const combinedEvents = Array.from(new Map([...remoteSeminars, ...localEvents].map((e) => [e.id, e])).values())
         setLatestEvents(combinedEvents.slice(0, 4))
 
-        // Lexicon terms
-        const remoteTerms: LexiconCard[] = (termsRes.data || []).map((t: any) => ({
-          id: t.id,
-          term_ar: t.term_ar,
-          term_fr: t.term_fr,
-          definition: t.definition,
-          category: t.category,
-          legal_sources: [],
-        }))
-
-        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 12).map((t) => ({
-          id: t.id,
-          term_ar: t.term_ar,
-          term_fr: t.term_fr,
-          definition: t.definition,
-          category: t.category,
-          legal_sources: t.legal_sources || [],
-        }))
-
-        const combinedTerms = Array.from(new Map([...remoteTerms, ...localTerms].map((t) => [t.id, t])).values())
-        setLatestTerms(combinedTerms.slice(0, 6))
+        // القاموس: المصطلحات التي لها شجرة فقط، من البيانات المحلية (الشجرة لا تُخزَّن في القاعدة).
+        setTreeTerms(pickTreeTerms(lexiconData as any[], 7))
       } catch {}
     }
 
@@ -444,66 +416,8 @@ export function HomePage() {
             {/* نصوص قانونية من الأرشيف — تُعرض قبل القاموس لأنها المصدر الأول */}
             <HomeLawArchive />
 
-            {/* القاموس القانوني — مع شجرة */}
-            {latestTerms.length > 0 && (
-              <div className="mt-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
-                    <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
-                    القاموس القانوني — مع الشجرة القانونية
-                  </h3>
-                  <Link to="/lexicon" aria-label="عرض الكل: القاموس القانوني" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
-                </div>
-
-                {/* Featured term with tree */}
-                {latestTerms[0]?.legal_sources && latestTerms[0].legal_sources.length > 0 && (
-                  <div className="mb-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-5 overflow-hidden">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="grid size-8 place-items-center rounded-xl bg-[#2563eb] text-white"><Scale className="size-4" /></span>
-                          <h4 className="font-black text-[16px] text-[#0f172a] dark:text-white">{latestTerms[0].term_ar}</h4>
-                          {latestTerms[0].term_fr && <span className="text-[11px] text-muted-foreground font-mono">({latestTerms[0].term_fr})</span>}
-                        </div>
-                        <p className="mt-2 text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8] max-w-2xl">{latestTerms[0].definition}</p>
-                        <div className="mt-2 flex items-center gap-2 text-[10px]">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر - {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
-                          <span className="rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
-                        </div>
-                      </div>
-                      <Link to={`/lexicon/${generateSlug(latestTerms[0].term_ar)}`} className="shrink-0 rounded-full bg-[#2563eb] text-white px-4 py-2 text-[11px] font-bold hover:bg-[#1d4ed8]">التفاصيل →</Link>
-                    </div>
-                    <Suspense fallback={<div className="h-20 grid place-items-center text-[12px] text-muted-foreground">جارٍ تحميل الشجرة...</div>}>
-                      <LegalTermTree termAr={latestTerms[0].term_ar} termFr={latestTerms[0].term_fr} legalSources={latestTerms[0].legal_sources} />
-                    </Suspense>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {latestTerms.slice(1, 7).map((term) => (
-                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all flex flex-col">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="grid size-8 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white transition-colors"><GitBranch className="size-4" /></span>
-                          <div>
-                            <h4 className="font-bold text-[13px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{term.term_ar}</h4>
-                            {term.term_fr && <p className="text-[10px] text-muted-foreground font-mono">{term.term_fr}</p>}
-                          </div>
-                        </div>
-                        <span className="text-[9px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1 shrink-0">{term.category}</span>
-                      </div>
-                      <p className="mt-3 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-3 flex-1">{term.definition}</p>
-                      {term.legal_sources && term.legal_sources.length > 0 && (
-                        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#2563eb] font-bold border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
-                          <GitBranch className="size-3" />
-                          <span>{term.legal_sources.length} مصادر قانونية - {term.legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول مرتبطة</span>
-                        </div>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* القاموس القانوني — مصطلحات لها شجرة قانونية فقط */}
+            <HomeLexiconShowcase terms={treeTerms} total={counts.lexicon} />
           </div>
         </section>
 
