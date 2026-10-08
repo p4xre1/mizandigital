@@ -8,7 +8,7 @@ import { generateSlug } from "../../lib/utils/generateSlug"
 import { afterWindowLoad, scheduleWhenIdle } from "../../lib/utils/deferWork"
 import {
   BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2
+  Calendar, MapPin, Languages, GitBranch, Building2, Layers, Newspaper
 } from "lucide-react"
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
@@ -438,10 +438,10 @@ export function HomePage() {
 
               <div className="grid sm:grid-cols-2 gap-4">
                 {[
-                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
-                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
-                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة غنية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
+                  { title: "قاموس عربي-فرنسي", desc: "مصطلحات قانونية بالعربية والفرنسية، وكل مصطلح مرتبط بالنصوص والفصول التي يستند إليها.", icon: Languages, color: "bg-[#eff6ff] text-[#2563eb]" },
+                  { title: "منظّم حسب السداسيات", desc: "الملخصات مرتبة من S1 إلى S6، تجد ما تدرسه في سداسيك مباشرة.", icon: Layers, color: "bg-[#ecfdf5] text-[#059669]" },
+                  { title: "أخبار قانونية محدّثة", desc: "مستجدات التشريع المغربي وأخباره القانونية، تُضاف باستمرار.", icon: Newspaper, color: "bg-[#fffbeb] text-[#b45309]" },
+                  { title: "مجاني بلا إعلانات", desc: "كل الموارد والأدوات متاحة مجاناً، ولا توجد إعلانات تجارية في المنصة.", icon: ShieldCheck, color: "bg-[#f0fdfa] text-[#0f766e]" },
                 ].map((feature, i) => (
                   <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
                     <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
@@ -458,13 +458,11 @@ export function HomePage() {
 
         <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
           <div className="container mx-auto max-w-[1280px] px-6 relative">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
+            <div className="grid grid-cols-3 gap-6 text-center">
               {[
                 { value: "500+", label: "طالب مستفيد" },
-                { value: "250+", label: "مصطلح قانوني" },
-                { value: `${counts.articles}+`, label: "مقال قانوني" },
-                { value: `${counts.schools}+`, label: "كلية جامعية" },
-                { value: "100%", label: "مجاني" },
+                { value: `${counts.lexiconTree}`, label: "مصطلحاً مرتبطاً بنصوصه وفصوله" },
+                { value: `${counts.schools}`, label: "كلية في الدليل" },
               ].map((stat, i) => (
                 <div key={i}>
                   <div className="text-[24px] font-black">{stat.value}</div>

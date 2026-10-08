@@ -18,8 +18,15 @@ function countOf(fileName) {
   return JSON.parse(raw).length
 }
 
+// المصطلحات التي لها شجرة قانونية (legal_sources غير فارغ) — تعرضها الصفحة الرئيسية.
+function lexiconTreeCount() {
+  const raw = readFileSync(path.join(dataDir, "lexicon.json"), "utf-8")
+  return JSON.parse(raw).filter((t) => Array.isArray(t.legal_sources) && t.legal_sources.length > 0).length
+}
+
 const counts = {
   lexicon: countOf("lexicon.json"),
+  lexiconTree: lexiconTreeCount(),
   articles: countOf("articles.json"),
   schools: countOf("schools.json"),
   news: countOf("news.json"),
