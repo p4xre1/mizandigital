@@ -47,7 +47,7 @@ function requirementBadges(requirement: CareerRequirement): string[] {
   if (type === "professional_registration") badges.push("تسجيل مهني");
   if (type === "institution_practice") badges.push("مسطرة مؤسسية");
   if (type === "private_employer") badges.push("شروط مشغل خاص");
-  badges.push("يحتاج إلى تحقق");
+  if (requirement.status !== "verified") badges.push("يحتاج إلى تحقق");
   return [...new Set(badges)];
 }
 
@@ -313,6 +313,8 @@ export function CareerDetailPage() {
                       <a className="font-bold text-primary" href={requirement.source_url} target="_blank" rel="nofollow noopener">
                         المصدر الرسمي
                       </a>
+                    ) : requirement.source_ref_ar ? (
+                      <span className="font-bold leading-7 text-foreground">{requirement.source_ref_ar}</span>
                     ) : (
                       <span className="text-amber-700 dark:text-amber-500">{CAREERS_NO_SOURCE_NOTE}</span>
                     )}

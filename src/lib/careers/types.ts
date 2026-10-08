@@ -105,6 +105,8 @@ export interface CareerRequirement {
   requirement_type: RequirementType;
   status: VerificationStatus;
   source_url: string | null;
+  /** مرجع المادة في النص الرسمي (مثل «المادة 3 من القانون 46.21») — يُعرض بدل الرابط عند غيابه. */
+  source_ref_ar?: string;
   last_verified: string | null;
   /** يُملأ فقط عند شرط مرتبط بإعلان سنوي متحقق منه. */
   notice_year?: number | null;

@@ -627,17 +627,17 @@
     ],
     "typical_degree": {
       "level": "bachelor_or_equivalent",
-      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي للمهنة",
-      "status": "verify_official_source",
-      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+      "label_ar": "شهادة الإجازة في العلوم القانونية أو في الشريعة، أو ما يعادلها",
+      "status": "verified",
+      "note_ar": "المصدر: المادة 3 من القانون 46.21."
     },
     "age_requirement": {
       "has_requirement": true,
-      "minimum": null,
-      "maximum": null,
+      "minimum": 21,
+      "maximum": 45,
       "basis": "legal_or_competition",
-      "status": "verify_official_source",
-      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+      "status": "verified",
+      "note_ar": "21 سنة كاملة على الأقل و45 سنة كحد أقصى في تاريخ إجراء المباراة، مع مراعاة المادتين 5 و6 من القانون 46.21."
     },
     "entry_path": [
       {
@@ -662,8 +662,8 @@
       }
     ],
     "training_after_admission": {
-      "label_ar": "تدريب وتسجيل مهني وفق الإطار التنظيمي الجاري به العمل",
-      "status": "verify_official_source"
+      "label_ar": "تكوين أساسي 6 أشهر بمؤسسة التكوين، ثم تدريب 6 أشهر بمكتب مفوض قضائي، ثم امتحان نهاية التمرين (المادة 7 من القانون 46.21 والمرسوم 2.25.885)",
+      "status": "verified"
     },
     "skills": [
       "دقة في المساطر",
@@ -695,10 +695,23 @@
       {
         "id": "entry_conditions",
         "label_ar": "شروط الولوج",
-        "value_ar": "تحدد بالنص التنظيمي وبإعلانات التعيين الرسمية الجاري بها العمل.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "الجنسية المغربية، السن، الشهادة، الحقوق المدنية والسلوك الحسن، القدرة الصحية، وبعض الشروط الجنائية والتجارية.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3 من القانون 46.21",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "competition",
+        "label_ar": "المباراة",
+        "value_ar": "تنظيم مباراة الولوج من اختصاص السلطة الحكومية المكلفة بالعدل، وتحدد كيفياتها بنص تنظيمي، ثم يحدد قرار الوزير سنوياً تاريخها ومكانها وعدد المكاتب.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 4 من القانون 46.21 + المواد 1–4 من المرسوم 2.25.885 + قرار وزير العدل السنوي",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "check_current_notice"
@@ -706,10 +719,11 @@
       {
         "id": "degree_requirement",
         "label_ar": "الشهادة المطلوبة",
-        "value_ar": "يحددها النص التنظيمي للمهنة.",
+        "value_ar": "شهادة الإجازة في العلوم القانونية أو في الشريعة، أو ما يعادلها.",
         "requirement_type": "legal_text",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3 من القانون 46.21",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -717,21 +731,35 @@
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "قد يحدد النص أو إعلان التعيين حداً أدنى أو أقصى؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "21 سنة كاملة على الأقل و45 سنة كحد أقصى في تاريخ إجراء المباراة، مع مراعاة المادتين 5 و6.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 3 من القانون 46.21",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
         "id": "registration",
         "label_ar": "التسجيل المهني",
-        "value_ar": "يتم وفق مسطرة الهيئة المهنية المختصة.",
+        "value_ar": "لا يجوز بدء الممارسة إلا بعد التسجيل في جدول المجلس الجهوي للمفوضين القضائيين المختص واستيفاء الشروط المحددة قانوناً.",
         "requirement_type": "professional_registration",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 14 من القانون 46.21: أداء اليمين، فتح المكتب، واجب الانخراط، التأمين، السجل، والتسجيل في الرسم المهني والرقم التعريفي الضريبي.",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "training",
+        "label_ar": "التكوين والتمرين",
+        "value_ar": "تكوين أساسي 6 أشهر بمؤسسة التكوين، وتدريب 6 أشهر بمكتب مفوض قضائي، ثم امتحان نهاية التمرين.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 7 من القانون 46.21 + المرسوم 2.25.885",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -774,7 +802,7 @@
         "law_slug": null,
         "label_ar": "شروط الولوج والتدريب: المواد 3 إلى 7 من القانون 46.21، والمرسوم رقم 2.25.885 بتطبيقه",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين، ويفصّل المرسوم تنظيم المباراة وامتحان نهاية التمرين",
+        "relationship_ar": "شروط الولوج والتكوين، نشر المرسوم بالجريدة الرسمية عدد 7506، ويفصّل تنظيم المباراة وامتحان نهاية التمرين",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
