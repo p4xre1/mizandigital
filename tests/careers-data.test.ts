@@ -150,7 +150,9 @@ describe("الشروط والمصادر — لا معلومة غير متحقق 
         expect(source.status, career.slug).toBe("needs_official_verification");
         expect(source.last_verified, career.slug).toBeNull();
       }
-      expect(career.review_status, career.slug).toBe("internal_review");
+      expect(career.review_status, career.slug).toBe(
+        VERIFIED_TEXT_SLUGS.has(career.slug) ? "official_text_verified" : "internal_review"
+      );
       expect(career.last_reviewed, career.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
   });

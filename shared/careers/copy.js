@@ -133,6 +133,7 @@ export const REQUIREMENT_TYPE_LABELS = {
 
 export const REVIEW_STATUS_LABELS = {
   internal_review: "مراجعة داخلية من فريق ميزان",
+  official_text_verified: "متحقق من النصوص الرسمية",
   verified: "مصدر رسمي متحقق منه",
   needs_official_verification: "يحتاج إلى التحقق من المصدر الرسمي",
 };
