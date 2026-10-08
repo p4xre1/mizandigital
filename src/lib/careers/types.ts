@@ -156,6 +156,8 @@ export interface CareerRecord {
   entry_path: CareerEntryStep[];
   /** وصف قصير لطريقة الولوج يعرض في بطاقة الصفحة بدل الوصف العام للمسار. */
   entry_method_ar?: string;
+  /** ملاحظة حالة التحقق الخاصة بالمسار؛ تحل محل الملاحظة العامة عند وجودها. */
+  status_note_ar?: string;
   training_after_admission: { label_ar: string; status: VerificationStatus };
   skills: string[];
   best_for: string[];
