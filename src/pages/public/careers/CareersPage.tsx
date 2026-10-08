@@ -176,19 +176,19 @@ export function CareersPage() {
       </section>
 
       <section className="mt-10" aria-labelledby="careers-faq-title">
-        <h2 id="careers-faq-title" className="text-[20px] font-black text-foreground">
+        <h2 id="careers-faq-title" className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200">
           {CAREERS_HUB_COPY.faqTitle}
         </h2>
-        <div className="mt-4 divide-y divide-border rounded-2xl border border-border bg-card">
+        <div className="mt-5 space-y-4">
           {CAREERS_HUB_COPY.faq.map((item) => (
-            <details key={item.question} className="group p-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[14px] font-extrabold text-foreground">
+            <details key={item.question} className="group rounded-2xl border border-blue-600/20 bg-card p-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[17px] font-extrabold leading-7 text-black dark:text-white">
                 {item.question}
                 <span aria-hidden="true" className="text-[20px] leading-none text-primary transition group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-[14px] leading-7 text-foreground">{item.answer}</p>
+              <p className="mt-4 text-[16px] leading-8 text-black dark:text-white">{item.answer}</p>
             </details>
           ))}
         </div>
