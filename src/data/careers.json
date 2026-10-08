@@ -2980,19 +2980,20 @@
     "title_fr": "Enseignant-chercheur en droit",
     "category_id": "private-academic",
     "category_ar": "القطاع الخاص والبحث",
-    "short_description": "مسار أكاديمي وبحثي ينتقل فيه الباحث من الماستر إلى الدكتوراه ثم إلى مهام التدريس والبحث، وفق مساطر التأهيل العلمي الجامعي.",
+    "short_description": "إطار أكاديمي يجمع بين التدريس الجامعي والبحث العلمي وتأطير الطلبة وأطروحات الدكتوراه، وفق المهام المحددة في النظام الأساسي للأساتذة الباحثين بالتعليم العالي.",
     "work_model": "academic",
-    "work_model_ar": "تعليم وبحث",
+    "work_model_ar": "تدريس جامعي وبحث علمي وتأطير أكاديمي",
     "employment_modes": [
-      "كلية أو مؤسسة جامعية",
-      "مختبر بحث",
-      "مركز دراسات"
+      "كليات الحقوق والمؤسسات الجامعية العمومية، في إطار هيئة الأساتذة الباحثين",
+      "مختبرات البحث ومراكز الدراسات",
+      "مؤسسات التعليم العالي الخاصة، وفق أنظمتها وشروط توظيفها",
+      "مسارات تعاقدية منفصلة (أساتذة غير دائمين وخبراء وباحثون ما بعد الدكتوراه) وفق المادة 86 من القانون 59.24"
     ],
-    "can_freelance": true,
+    "can_freelance": false,
     "can_work_government": true,
     "can_work_private_sector": true,
     "requires_legal_education": "required",
-    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "school_recommendation_message": "هذا المسار يرتبط بدراسة القانون حتى الدكتوراه، في التخصص الذي يحدده إعلان المباراة. اختر مدينتك لعرض أقرب كليات الحقوق.",
     "main_areas": [
       "التدريس",
       "البحث القانوني",
@@ -3002,43 +3003,58 @@
     ],
     "typical_degree": {
       "level": "doctorate",
-      "label_ar": "مسار جامعي حتى الدكتوراه ثم مساطر التأهيل العلمي",
-      "status": "verify_official_source",
-      "note_ar": "الترقي العلمي والولوج إلى مهام التدريس يخضعان لمساطر وطنية منشورة؛ تحقق منها."
+      "label_ar": "الإجازة، ثم الماستر، ثم الدكتوراه أو شهادة معترف بمعادلتها، مع مراعاة التخصص المحدد في إعلان المباراة.",
+      "status": "verified",
+      "note_ar": "المادة 19 من المرسوم 2.23.545 بصيغته المعدلة بالمرسوم 2.24.1056."
     },
     "age_requirement": {
-      "has_requirement": false,
+      "has_requirement": true,
       "minimum": null,
-      "maximum": null,
-      "basis": "institution_practice",
-      "status": "verify_official_source",
-      "note_ar": "لا توجد قاعدة عامة للسن في المسار الأكاديمي؛ تحقق من مساطر المؤسسة والقطاع."
+      "maximum": 45,
+      "basis": "legal_or_competition",
+      "status": "verified",
+      "note_ar": "ألا يتجاوز المترشح 45 سنة في فاتح يناير من سنة إجراء مباراة توظيف أستاذ محاضر، مع مراعاة الاستثناءات القانونية المنطبقة (المادة 7 من المرسوم 2.23.545)."
     },
     "entry_path": [
       {
         "step": 1,
-        "title_ar": "الإجازة ثم الماستر",
-        "description_ar": "بناء المسار القانوني ثم التخصص في البحث خلال الماستر."
+        "title_ar": "الإجازة والماستر",
+        "description_ar": "بناء التكوين القانوني واختيار تخصص مناسب لمشروع البحث."
       },
       {
         "step": 2,
         "title_ar": "الدكتوراه",
-        "description_ar": "إنجاز أطروحة في القانون ونشر أعمال بحثية محكمة."
+        "description_ar": "التسجيل في تكوين الدكتوراه وإنجاز الأطروحة ومناقشتها وفق النصوص المنظمة."
       },
       {
         "step": 3,
-        "title_ar": "مساطر التأهيل العلمي",
-        "description_ar": "الترشح للخطة الجامعية وفق المساطر الوطنية المنشورة والمعلنة."
+        "title_ar": "الملف العلمي",
+        "description_ar": "بناء إنتاج علمي وبحثي جاد، مع مراعاة معايير اللائحة الوطنية والتخصص المطلوب في إعلان المباراة. لا يفرض النص عدداً موحداً من المنشورات لجميع التخصصات."
       },
       {
         "step": 4,
-        "title_ar": "التدريس والبحث",
-        "description_ar": "ممارسة التدريس وتطوير مشروع البحث والتأطير والنشر."
+        "title_ar": "اللائحة الوطنية",
+        "description_ar": "استيفاء شروط التسجيل في اللائحة الوطنية المؤهلة لاجتياز مباريات توظيف الأساتذة المحاضرين."
+      },
+      {
+        "step": 5,
+        "title_ar": "مباراة التوظيف",
+        "description_ar": "الترشح للتخصص المعلن عنه واستيفاء شروط الشهادة والسن وباقي متطلبات الإعلان."
+      },
+      {
+        "step": 6,
+        "title_ar": "التمرين والترسيم",
+        "description_ar": "بعد النجاح، قضاء تمرين مدته سنتان، مع إمكانية التمديد سنة إضافية، ثم استكمال إجراءات الترسيم."
+      },
+      {
+        "step": 7,
+        "title_ar": "التدرج العلمي والمهني",
+        "description_ar": "يمكن لاحقاً الترشح للتأهيل الجامعي والترقي إلى إطار أستاذ محاضر مؤهل، ثم إلى إطار أستاذ التعليم العالي، وفق الشروط والأقدمية والمساطر المحددة قانوناً."
       }
     ],
     "training_after_admission": {
-      "label_ar": "مسار تكويني أكاديمي وخبرة ميدانية في الأقسام والمختبرات",
-      "status": "verify_official_source"
+      "label_ar": "تمرين مدته سنتان بعد النجاح في المباراة، يعين الناجحون في الرتبة الأولى من الدرجة «أ» من إطار أستاذ محاضر، مع إمكانية التمديد سنة إضافية (المادة 20 من المرسوم 2.23.545).",
+      "status": "verified"
     },
     "skills": [
       "البحث النظري",
@@ -3068,23 +3084,25 @@
     ],
     "requirements": [
       {
-        "id": "entry_conditions",
-        "label_ar": "شروط الترشح للخطة",
-        "value_ar": "تحددها المساطر الوطنية المنشورة للترقية والتأهيل العلمي.",
-        "requirement_type": "annual_notice",
-        "status": "verify_official_source",
+        "id": "degree_requirement",
+        "label_ar": "شهادة الدكتوراه",
+        "value_ar": "شهادة الدكتوراه أو شهادة معترف بمعادلتها، مع مراعاة التخصص المحدد في إعلان المباراة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 19 من المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
-        "id": "degree_requirement",
-        "label_ar": "الشهادة العلمية",
-        "value_ar": "الدكتوراه أو ما يعادلها وفق المساطر ودفاتر التحملات.",
+        "id": "national_list",
+        "label_ar": "اللائحة الوطنية",
+        "value_ar": "التسجيل في اللائحة الوطنية المؤهلة لاجتياز مباريات توظيف الأساتذة المحاضرين، وهو شرط مطبق ابتداءً من 1 يناير 2025.",
         "requirement_type": "legal_text",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 19 من المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -3092,21 +3110,131 @@
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "تحقق من المساطر المنشورة؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "institution_practice",
-        "status": "verify_official_source",
+        "value_ar": "ألا يتجاوز المترشح 45 سنة في فاتح يناير من سنة إجراء المباراة، مع مراعاة الاستثناءات القانونية المنطبقة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 7 من المرسوم 2.23.545",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
       },
       {
-        "id": "registration",
-        "label_ar": "الترقية العلمية",
-        "value_ar": "تتم وفق مساطر وطنية ومحلية بإعلانات ومقاعد محددة.",
-        "requirement_type": "institution_practice",
-        "status": "verify_official_source",
+        "id": "competition_access",
+        "label_ar": "طريقة الولوج",
+        "value_ar": "النجاح في مباراة توظيف يفتحها قرار من السلطة الحكومية المكلفة بالتعليم العالي.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 19 من المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "training",
+        "label_ar": "التعيين والتمرين",
+        "value_ar": "يعين الناجحون في الرتبة الأولى من الدرجة «أ» من إطار أستاذ محاضر، ويقضون تمريناً مدته سنتان. ويمكن تمديده سنة إضافية وفق الشروط القانونية.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 20 من المرسوم 2.23.545",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "scientific_file",
+        "label_ar": "الملف العلمي",
+        "value_ar": "لا يفرض النص عدداً موحداً من المقالات العلمية المنشورة لجميع التخصصات، وقد تتضمن قواعد اللائحة الوطنية أو إعلان المباراة شروطاً أو معايير لتقييم الملف العلمي.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 19 من المرسوم 2.23.545؛ قواعد اللائحة الوطنية وإعلان المباراة",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "habilitation_promotion",
+        "label_ar": "الترقي إلى أستاذ محاضر مؤهل",
+        "value_ar": "يخضع للتأهيل الجامعي ضمن مسار تأهيلي خاص، ولا يمثل شرطاً عاماً بديلاً عن الدكتوراه والمباراة عند الولوج الأولي. ويشترط أحد شرطي الأقدمية: أربع سنوات على الأقل بصفة أستاذ محاضر، أو بلوغ الرتبة الثالثة على الأقل من الدرجة «أ»، بحسب الحالة المنصوص عليها قانوناً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 17 من المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "professor_appointment",
+        "label_ar": "الترقي إلى أستاذ التعليم العالي",
+        "value_ar": "يمكن تعيين الأساتذة المحاضرين المؤهلين بعد قضاء ست سنوات على الأقل من الخدمة الفعلية بهذه الصفة، عقب إيداع ملف علمي وبيداغوجي ومناقشته أمام لجنة علمية متخصصة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 14 من المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "direct_recruitment",
+        "label_ar": "التوظيف المباشر في إطار أستاذ التعليم العالي",
+        "value_ar": "إمكانية استثنائية في حدود 5% من المناصب المالية المخصصة لتوظيف الأساتذة المحاضرين، مع الدكتوراه أو ما يعادلها، وتجربة مهنية لا تقل عن 10 سنوات، والتسجيل في اللائحة الوطنية، وسقف سن 55 سنة. وهو مسار استثنائي منفصل، وليس مرحلة تلقائية يصل إليها كل حاصل على الدكتوراه.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 7 و15 من المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "scope",
+        "label_ar": "نطاق التطبيق",
+        "value_ar": "يسري المرسوم 2.23.545 على الأساتذة الباحثين بالتعليم العالي التابعين للقطاع الحكومي المكلف بالتعليم العالي، ولا يسري على أساتذة الطب والصيدلة وطب الأسنان، فلهم نظام أساسي خاص. والوظائف في المؤسسات الخاصة قد تخضع لشروط تعاقد وتوظيف مختلفة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المرسوم 2.23.545 المعدل بالمرسوم 2.24.1056",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "contract_paths",
+        "label_ar": "المسارات التعاقدية",
+        "value_ar": "تجيز مؤسسات التعليم العالي والبحث العلمي التعاقد مع أساتذة غير دائمين وخبراء وباحثين ما بعد الدكتوراه عند الحاجة، وهي مسارات تعاقدية منفصلة عن التوظيف النظامي.",
+        "requirement_type": "institution_practice",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 86 من القانون 59.24",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "regular_status",
+        "label_ar": "الوضعية النظامية",
+        "value_ar": "تُحدد وفق النصوص التشريعية والتنظيمية الجاري بها العمل.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 84 من القانون 59.24",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "transitional_rules",
+        "label_ar": "النصوص الانتقالية",
+        "value_ar": "تنهي المادتان 111 و112 من القانون 59.24 العمل بالقانون 01.00، مع استمرار النصوص التطبيقية السابقة لمدة لا تتجاوز ثلاث سنوات إلى حين تعويضها.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 111 و112 من القانون 59.24",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -3114,36 +3242,61 @@
     ],
     "sources": [
       {
-        "title_ar": "المساطر الوطنية للترقية العلمي وتحضير الدكتوراه",
+        "title_ar": "القانون رقم 59.24 المتعلق بالتعليم العالي والبحث العلمي",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "الصادر بتنفيذه الظهير الشريف رقم 1.26.04 بتاريخ 11 فبراير 2026، ونُشر في الجريدة الرسمية عدد 7485 بتاريخ 23 فبراير 2026."
+      },
+      {
+        "title_ar": "المرسوم رقم 2.23.545 بشأن النظام الأساسي الخاص بهيئة الأساتذة الباحثين بالتعليم العالي",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "صدر في 2 أغسطس 2023 ونُشر في الجريدة الرسمية عدد 7220 بتاريخ 10 أغسطس 2023؛ النص المحين إلى 30 ديسمبر 2024 متاح على بوابة عدالة."
+      },
+      {
+        "title_ar": "المرسوم رقم 2.24.1056 الصادر في 26 ديسمبر 2024",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "عدّل النظام الأساسي للأساتذة الباحثين، خصوصاً المواد 9 و15 و19 من المرسوم 2.23.545؛ نُشر في الجريدة الرسمية عدد 7365 بتاريخ 30 ديسمبر 2024."
+      },
+      {
+        "title_ar": "بوابة التشغيل العمومي",
         "source_type": "public_authority",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "مرجع لنشر إعلانات المباريات. يُتحقق من الإعلان بحسب الجامعة والتخصص وتاريخ النشر وآخر أجل للترشيح، ولا يُفترض أن إعلاناً ما زال مفتوحاً دون ذلك."
       }
     ],
     "law_slugs": [],
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "النظام الأساسي للتعليم العالي والبحث العلمي",
+        "label_ar": "القانون رقم 59.24 المتعلق بالتعليم العالي والبحث العلمي",
+        "relationship_type": "governing_framework",
+        "relationship_ar": "صدر بتنفيذه الظهير الشريف رقم 1.26.04 بتاريخ 11 فبراير 2026، ونُشر في الجريدة الرسمية عدد 7485 بتاريخ 23 فبراير 2026. يحيل الوضعية النظامية للأساتذة الباحثين إلى النصوص المطبقة (المادة 84)، ويجيز التعاقد مع أساتذة غير دائمين وخبراء وباحثين ما بعد الدكتوراه (المادة 86)، وتنهي المادتان 111 و112 العمل بالقانون 01.00 مع استمرار النصوص التطبيقية السابقة لمدة لا تتجاوز ثلاث سنوات.",
+        "verification_status": "needs_archive_entry",
+        "last_verified": null
+      },
+      {
+        "law_slug": null,
+        "label_ar": "المرسوم رقم 2.23.545 بشأن النظام الأساسي لهيئة الأساتذة الباحثين، كما عدله المرسوم 2.24.1056",
         "relationship_type": "public_employment",
-        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "relationship_ar": "النظام الأساسي الخاص بهيئة الأساتذة الباحثين بالتعليم العالي، صادر في 2 أغسطس 2023 ونُشر في الجريدة الرسمية عدد 7220 بتاريخ 10 أغسطس 2023. وهو المرجع الأساسي للتوظيف والترقي في الجامعات العمومية، ويحدد الأطر والمهام وشروط التوظيف. عدّله المرسوم 2.24.1056 الصادر في 26 ديسمبر 2024، خصوصاً المواد 9 و15 و19. لا يسري على أساتذة الطب والصيدلة وطب الأسنان.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "النصوص المنظمة للدرجات العلمية والتأهيل",
-        "relationship_type": "training",
-        "relationship_ar": "التكوين والتأهيل",
-        "verification_status": "needs_archive_entry",
-        "last_verified": null
-      },
-      {
-        "law_slug": null,
-        "label_ar": "الإعلانات السنوية لولوج أسلاك التعليم العالي",
+        "label_ar": "إعلان المباراة وقرارات اللائحة الوطنية",
         "relationship_type": "annual_notice_reference",
-        "relationship_ar": "مرجع الإعلان السنوي",
+        "relationship_ar": "مرجع متغير بحسب دورة التوظيف: يحدد التخصص وعدد المناصب والوثائق والأجل وشروط المشاركة في كل دورة. يُربط بالإعلان الرسمي المحدد عندما يكون متاحاً، ولا يُعتبر إعلاناً مفتوحاً بذاته.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
@@ -3153,15 +3306,17 @@
       "has_knowledge_quiz": true,
       "has_discovery_quiz": true,
       "competition_path": "academic_competition",
-      "competition_note_ar": "الولوج يمر عبر مساطر التأهيل العلمي المنشورة؛ تحقق من الإعلان الجامعي الجاري به العمل.",
+      "competition_note_ar": "الولوج النظامي يمر عبر مباراة توظيف أستاذ محاضر مع شرط التسجيل في اللائحة الوطنية؛ تحقق من الإعلان الجامعي الجاري به العمل قبل الترشح.",
       "related_quiz_topics": [
         "منهجية البحث",
         "نظرية الالتزام",
         "الحقوق والحريات"
       ]
     },
-    "last_reviewed": "2026-09-23",
-    "review_status": "internal_review",
-    "canonical_url": "https://www.mizan.page/careers/enseignant-chercheur-droit"
+    "last_reviewed": "2026-10-08",
+    "review_status": "official_text_verified",
+    "canonical_url": "https://www.mizan.page/careers/enseignant-chercheur-droit",
+    "entry_method_ar": "مباراة توظيف أستاذ محاضر، مع استيفاء شرط التسجيل في اللائحة الوطنية المؤهلة",
+    "status_note_ar": "حالة التحقق: تم التحقق من الإطار القانوني العام ومن النظام الأساسي المعدل. يجب مراجعة الإعلان المحدد للمباراة قبل الترشح."
   }
 ]

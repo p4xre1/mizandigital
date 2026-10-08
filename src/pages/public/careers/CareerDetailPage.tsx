@@ -13,6 +13,7 @@ import {
   CAREERS_ANNUAL_NOTICE_BADGE,
   CAREERS_HUB_PATH,
   CAREERS_NO_SOURCE_NOTE,
+  CAREERS_NO_VERIFIED_COMPETITION,
   COMPETITION_PATH_LABELS,
   DEGREE_LEVEL_LABELS,
   REQUIREMENT_TYPE_LABELS,
@@ -243,7 +244,7 @@ export function CareerDetailPage() {
         <p className="mt-3 text-[12.5px] text-muted-foreground">
           {verifiedCompetition
             ? "توجد مباراة موثقة بمصدر رسمي في قاعدة ميزان لهذا المسار؛ يمكنك فتح صفحة التمارين المرتبطة بها."
-            : "لا توجد مباراة رسمية مؤكدة حالياً في قاعدة بيانات ميزان. يمكنك التدريب على المفاهيم والمهارات المرتبطة بهذا المسار."}
+            : CAREERS_NO_VERIFIED_COMPETITION}
         </p>
         {verifiedCompetition ? (
           <Link className="mt-2 inline-block text-[13px] font-extrabold text-primary" to={`/quiz/careers/${career.slug}/practice/${verifiedCompetition.id}`}>
