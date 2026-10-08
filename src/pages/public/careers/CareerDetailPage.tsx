@@ -125,7 +125,7 @@ export function CareerDetailPage() {
         <span className="text-foreground">{career.title_ar}</span>
       </nav>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/10 via-card to-amber-500/10 p-6">
+      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/15 via-card to-primary/5 p-6">
         <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
           <Compass className="size-5" strokeWidth={2.2} aria-hidden="true" />
         </span>
