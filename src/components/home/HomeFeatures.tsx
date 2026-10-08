@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { ArrowRight, Bookmark, ClipboardCheck, FileText, GraduationCap, Languages, Layers, type LucideIcon } from "lucide-react"
+import { ArrowRight, Bookmark, ClipboardCheck, Compass, FileText, GraduationCap, Languages, Layers, type LucideIcon } from "lucide-react"
 import { LAW_TEXT_FORMS, QUESTION_FORMS, SCHOOL_FORMS, TERM_FORMS, arabicCount } from "@/lib/utils/arabicCount"
 
 export interface FeatureCounts {
@@ -16,31 +16,37 @@ export interface FeatureCounts {
 const ACCENTS = {
   blue: {
     solid: "bg-[#1d4ed8]",
+    ink: "text-[#1d4ed8] dark:text-[#93c5fd]",
     soft: "bg-[#eff6ff] text-[#1d4ed8] dark:bg-[#1e3a8a]/40 dark:text-[#bfdbfe]",
     hover: "group-hover:border-[#1d4ed8]",
   },
   teal: {
     solid: "bg-[#0f766e]",
+    ink: "text-[#0f766e] dark:text-[#5eead4]",
     soft: "bg-[#f0fdfa] text-[#0f766e] dark:bg-[#134e4a]/40 dark:text-[#99f6e4]",
     hover: "group-hover:border-[#0f766e]",
   },
   amber: {
     solid: "bg-[#b45309]",
+    ink: "text-[#b45309] dark:text-[#fcd34d]",
     soft: "bg-[#fffbeb] text-[#b45309] dark:bg-[#78350f]/40 dark:text-[#fcd34d]",
     hover: "group-hover:border-[#b45309]",
   },
   rose: {
     solid: "bg-[#be123c]",
+    ink: "text-[#be123c] dark:text-[#fda4af]",
     soft: "bg-[#fff1f2] text-[#be123c] dark:bg-[#881337]/40 dark:text-[#fda4af]",
     hover: "group-hover:border-[#be123c]",
   },
   emerald: {
     solid: "bg-[#047857]",
+    ink: "text-[#047857] dark:text-[#6ee7b7]",
     soft: "bg-[#ecfdf5] text-[#047857] dark:bg-[#064e3b]/40 dark:text-[#6ee7b7]",
     hover: "group-hover:border-[#047857]",
   },
   indigo: {
     solid: "bg-[#4338ca]",
+    ink: "text-[#4338ca] dark:text-[#c7d2fe]",
     soft: "bg-[#eef2ff] text-[#4338ca] dark:bg-[#312e81]/40 dark:text-[#c7d2fe]",
     hover: "group-hover:border-[#4338ca]",
   },
@@ -124,24 +130,26 @@ function FeatureCard({ feature }: { feature: HomeFeature }) {
   return (
     <Link
       to={feature.to}
-      className={`group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-6 pt-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)] dark:border-[#334155] dark:bg-[#1e293b] ${accent.hover}`}
+      className={`group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-[#e2e8f0] bg-white p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(15,23,42,0.10)] dark:border-[#334155] dark:bg-[#1e293b] ${accent.hover}`}
     >
-      <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1 ${accent.solid}`} />
-      <div className="flex items-start justify-between gap-3">
-        <span className={`grid size-12 shrink-0 place-items-center rounded-xl ${accent.soft}`}>
-          <Icon className="size-6" aria-hidden="true" />
+      <span aria-hidden="true" className={`absolute inset-x-0 top-0 h-1.5 ${accent.solid}`} />
+      <div className="flex items-center justify-between gap-3">
+        <span className={`grid size-14 shrink-0 place-items-center rounded-2xl text-white shadow-sm ${accent.solid}`}>
+          <Icon className="size-7" aria-hidden="true" />
         </span>
         {feature.tag && (
-          <span className={`rounded-full px-3 py-1 text-[13px] font-black ${accent.soft}`} dir="auto">
+          <span className={`rounded-full px-3.5 py-1.5 text-[13px] font-black ${accent.soft}`} dir="auto">
             {feature.tag}
           </span>
         )}
       </div>
-      <h3 className="text-[18px] font-black leading-snug text-[#0f172a] dark:text-white">{feature.title}</h3>
-      <p className="text-[15px] leading-7 text-[#334155] dark:text-[#cbd5e1]">{feature.body}</p>
-      <span className="mt-auto inline-flex items-center gap-1.5 border-t border-dashed border-[#cbd5e1] pt-4 text-[14px] font-bold text-[#0f172a] group-hover:underline dark:border-[#475569] dark:text-white">
+      <div className="flex flex-col gap-2">
+        <h3 className="text-[20px] font-black leading-snug text-[#0f172a] dark:text-white">{feature.title}</h3>
+        <p className="text-[16px] leading-7 text-[#334155] dark:text-[#cbd5e1]">{feature.body}</p>
+      </div>
+      <span className={`mt-auto inline-flex items-center gap-2 border-t border-dashed border-[#cbd5e1] pt-5 text-[15px] font-black dark:border-[#475569] ${accent.ink}`}>
         {feature.cta}
-        <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+        <ArrowRight className="size-4 transition-transform group-hover:-translate-x-1 rtl:rotate-180 rtl:group-hover:translate-x-1" aria-hidden="true" />
       </span>
     </Link>
   )
@@ -155,15 +163,21 @@ export function HomeFeatures({ counts }: { counts: FeatureCounts }) {
       aria-labelledby="home-features-title"
     >
       <div className="container mx-auto max-w-[1100px] px-6">
-        <div className="text-center max-w-[680px] mx-auto mb-12">
-          <p className="text-[15px] font-bold text-[#475569] dark:text-[#cbd5e1]">ما ستجده في ميزان</p>
-          <h2 id="home-features-title" className="mt-3 text-[28px] md:text-[36px] font-black leading-[1.25] text-[#0f172a] dark:text-white">
+        <header className="mx-auto mb-10 max-w-[760px] text-center">
+          <p className="inline-flex items-center gap-2 text-[16px] font-black text-[#2563eb] dark:text-[#93c5fd]">
+            <Compass className="size-5" aria-hidden="true" />
+            ما ستجده في ميزان
+          </p>
+          <h2
+            id="home-features-title"
+            className="mt-3 text-[30px] md:text-[38px] font-black leading-[1.3] text-[#0f172a] dark:text-white [text-wrap:balance]"
+          >
             من النص القانوني إلى الاختبار، في مكان واحد
           </h2>
-          <p className="mt-4 text-[16px] leading-7 text-[#334155] dark:text-[#cbd5e1]">
+          <p className="mx-auto mt-5 max-w-[560px] text-[17px] leading-8 text-[#334155] dark:text-[#cbd5e1] [text-wrap:balance]">
             اقرأ النص، افهم المصطلح، راجع الملخص، ثم اختبر نفسك.
           </p>
-        </div>
+        </header>
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature) => (
             <FeatureCard key={feature.to} feature={feature} />
