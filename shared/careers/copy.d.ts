@@ -14,7 +14,6 @@ export declare const CAREERS_VERIFY_BADGE: string;
 export declare const CAREERS_ANNUAL_NOTICE_BADGE: string;
 export declare const CAREERS_NO_SOURCE_NOTE: string;
 export declare const CAREERS_NO_VERIFIED_COMPETITION: string;
-export declare const CAREERS_LAW_NOT_ARCHIVED: string;
 export declare const LAW_VERIFICATION_LABELS: Record<string, string>;
 
 export declare const WORK_MODEL_LABELS: Record<string, string>;

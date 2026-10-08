@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import careersData from "../src/data/careers.json";
 import lawSnapshot from "../src/data/laws.client.json";
-import { CAREERS_LAW_NOT_ARCHIVED, LAW_VERIFICATION_LABELS, SECTION_TITLES } from "../shared/careers/copy.js";
+import { LAW_VERIFICATION_LABELS, SECTION_TITLES } from "../shared/careers/copy.js";
 import { getLawBySlug, lawHref, resolveCareerLaws } from "../src/lib/careers/laws";
 import { buildCareerPages } from "../scripts/lib/career-pages.mjs";
 import type { CareerRecord } from "../src/lib/careers/types";
@@ -93,7 +93,6 @@ describe("حلّ الإطار القانوني في الواجهة", () => {
         expect(entry.href, career.slug).toBeNull();
       }
     }
-    expect(CAREERS_LAW_NOT_ARCHIVED).toBe("⚠️ النص القانوني لم يضف بعد إلى أرشيف ميزان.");
     expect(LAW_VERIFICATION_LABELS.needs_archive_entry.length).toBeGreaterThan(5);
   });
 
@@ -136,7 +135,7 @@ describe("قسم القوانين في الصفحات المولَّدة", () =>
 
     for (const page of details) {
       expect(page.staticBody, page.path).toContain(`<h2>${SECTION_TITLES.laws}</h2>`);
-      expect(page.staticBody, page.path).toContain(CAREERS_LAW_NOT_ARCHIVED);
+      expect(page.staticBody, page.path).not.toContain("لم يضف بعد إلى أرشيف ميزان");
       // لا رابط إلى مسار قوانين لا وجود له في الموقع
       expect(page.staticBody.includes('href="/laws/'), page.path).toBe(false);
       // ولا رابط إلى نص غير موجود في الأرشيف

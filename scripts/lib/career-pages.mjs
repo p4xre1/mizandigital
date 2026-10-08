@@ -23,7 +23,6 @@ import { fileURLToPath } from "node:url";
 import { SITE_ORIGIN, canonicalUrl } from "../../shared/seo/url-policy.js";
 import {
   CAREERS_ANNUAL_NOTICE_BADGE,
-  CAREERS_LAW_NOT_ARCHIVED,
   LAW_VERIFICATION_LABELS,
   CAREERS_DISCLAIMER,
   CAREERS_HUB_COPY,
@@ -393,7 +392,7 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
                   entry.relationship_ar
                 )} — ${escapeHtml(LAW_VERIFICATION_LABELS[entry.verification_status] ?? entry.verification_status)}`;
                 if (!entry.archive) {
-                  return `<li>${meta} — ${escapeHtml(CAREERS_LAW_NOT_ARCHIVED)}</li>`;
+                  return `<li>${meta}</li>`;
                 }
                 const link = entry.archive.public_path
                   ? ` <a href="${entry.archive.public_path}">عرض النص في أرشيف ميزان</a>`

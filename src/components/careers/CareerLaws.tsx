@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Scale } from "lucide-react";
 import {
-  CAREERS_LAW_NOT_ARCHIVED,
   CAREERS_VERIFY_BADGE,
   LAW_VERIFICATION_LABELS,
   SECTION_TITLES,
@@ -15,8 +14,7 @@ import { resolveCareerLaws } from "@/lib/careers/laws";
  * قواعد صارمة مطبَّقة في هذا المكوّن:
  *   1) لا رابط داخلي إلا لسجل موجود فعلاً في الأرشيف (والرابط يأتي من اللقطة
  *      المولَّدة وقت البناء، لا يُبنى هنا) — فلا رابط مكسور ولا رابط مُفترض.
- *   2) عند غياب السجل يُعرض النصّ الحرفي:
- *      «⚠️ النص القانوني لم يضف بعد إلى أرشيف ميزان.»
+ *   2) عند غياب السجل لا يُعرض أي تنبيه داخل البطاقة (تُعرض المرجعية فقط).
  *   3) العنوان البشري («القانون المنظم لمهنة المحاماة» مثلاً) يبقى معروضاً حتى
  *      بلا سجل أرشيف: الطالب يعرف ما يبحث عنه، والقيمة القانونية لا تُختلق.
  *   4) لا رابط خارجي إلا إذا كان موثّقاً في الأرشيف نفسه (source_verified_at)،
@@ -86,11 +84,7 @@ export function CareerLaws({ career, className = "" }: CareerLawsProps) {
                   </Link>
                 ) : null}
               </>
-            ) : (
-              <p className="mt-2 text-[12.5px] font-bold text-amber-700 dark:text-amber-500">
-                {CAREERS_LAW_NOT_ARCHIVED}
-              </p>
-            )}
+            ) : null}
           </li>
         ))}
       </ul>
