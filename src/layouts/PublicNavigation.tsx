@@ -286,7 +286,7 @@ export function Footer() {
         </div>
       </section>
 
-      <div className="container mx-auto grid max-w-[1280px] gap-10 px-6 pb-10 pt-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <div className="container mx-auto grid max-w-[1280px] gap-10 px-6 pb-10 pt-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr]">
         <div className="sm:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-3">
             <img src="/Logo.svg" alt="ميزان الرقمية" className="size-11 rounded-xl object-cover shadow-sm" width={44} height={44} loading="lazy" />
@@ -303,12 +303,14 @@ export function Footer() {
         <nav aria-label="المحتوى">
           <p className="mb-5 text-[15px] font-black">المحتوى</p>
           <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
+            <li><Link to="/" className="transition-colors hover:text-white">الرئيسية</Link></li>
             <li><Link to="/lexicon" className="transition-colors hover:text-white">القاموس القانوني</Link></li>
             <li><Link to="/articles" className="transition-colors hover:text-white">المقالات</Link></li>
             <li><Link to="/news" className="transition-colors hover:text-white">الأخبار القانونية</Link></li>
             <li><Link to="/archive" className="transition-colors hover:text-white">المكتبة والملخصات</Link></li>
             <li><Link to="/schools" className="transition-colors hover:text-white">دليل الكليات</Link></li>
             <li><Link to="/careers" className="transition-colors hover:text-white">المسارات المهنية</Link></li>
+            <li><Link to="/events" className="transition-colors hover:text-white">الفعاليات</Link></li>
           </ul>
         </nav>
 
@@ -321,6 +323,17 @@ export function Footer() {
             <li><Link to="/quiz/concours" className="transition-colors hover:text-white">مباريات التوظيف</Link></li>
             <li><Link to="/quiz/interview" className="transition-colors hover:text-white">المقابلات الشفوية</Link></li>
             <li><Link to="/quiz/placement" className="transition-colors hover:text-white">تحديد المستوى</Link></li>
+            <li><Link to="/search" className="transition-colors hover:text-white">البحث</Link></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="أدلة الطالب">
+          <p className="mb-5 text-[15px] font-black">أدلة الطالب</p>
+          <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
+            <li><Link to="/guides/new-law-student-morocco" className="transition-colors hover:text-white">دليل الطالب الجديد</Link></li>
+            <li><Link to="/guides/free-legal-resources-morocco" className="transition-colors hover:text-white">الموارد القانونية المجانية</Link></li>
+            <li><Link to="/platform" className="transition-colors hover:text-white">عن المنصة</Link></li>
+            <li><Link to="/pro-tools" className="transition-colors hover:text-white">الأدوات القانونية المجانية</Link></li>
           </ul>
         </nav>
 
@@ -328,10 +341,10 @@ export function Footer() {
           <p className="mb-5 text-[15px] font-black">المنصة</p>
           <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
             <li><Link to="/about" className="transition-colors hover:text-white">من نحن</Link></li>
-            <li><Link to="/guides/new-law-student-morocco" className="transition-colors hover:text-white">دليل الطالب الجديد</Link></li>
             <li><Link to="/faq" className="transition-colors hover:text-white">الأسئلة الشائعة</Link></li>
-            <li><Link to="/pro-tools" className="transition-colors hover:text-white">الأدوات المجانية</Link></li>
             <li><Link to="/contact" className="transition-colors hover:text-white">اتصل بنا</Link></li>
+            <li><Link to="/saved" className="transition-colors hover:text-white">المحفوظات</Link></li>
+            <li><Link to="/profile" className="transition-colors hover:text-white">حسابي</Link></li>
           </ul>
         </nav>
       </div>
