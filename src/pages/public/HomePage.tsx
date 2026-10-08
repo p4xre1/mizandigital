@@ -299,70 +299,72 @@ export function HomePage() {
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]" />
-          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
+          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] lg:size-[640px] lg:-top-40 rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px] lg:blur-[90px]" />
+          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] lg:size-[360px] lg:-bottom-40 lg:-right-32 rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px] lg:blur-[70px]" />
 
-          <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
+          <div className="container relative mx-auto max-w-[800px] lg:max-w-[1280px] px-6 py-14 lg:py-28 grid gap-10 lg:gap-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
 
-            <h1 className="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white">
-              <span>افتح إمكانياتك مع</span>
-              <span className="text-[#2563eb]">التعلم القانوني</span>
-              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
-            </h1>
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-right">
+              <h1 className="mt-6 lg:mt-0 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] lg:text-[72px] xl:text-[84px] font-black leading-[1.2] lg:leading-[1.15] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+                <span>افتح إمكانياتك مع</span>
+                <span className="text-[#2563eb]">التعلم القانوني</span>
+                <span className="text-[20px] md:text-[24px] lg:text-[32px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
+              </h1>
 
-            <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-              انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
-            </p>
+              <p className="mt-5 lg:mt-8 max-w-[560px] lg:max-w-[620px] text-[14px] md:text-[15px] lg:text-[19px] leading-7 lg:leading-9 text-[#475569] dark:text-[#94a3b8]">
+                انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+              </p>
 
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">
-                ابدأ الآن
-                <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
-              </Link>
-              <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
-                اختبر معرفتك القانونية
-                <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
-              </Link>
-            </div>
+              <div className="mt-7 lg:mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4">
+                <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 lg:px-10 lg:py-4 text-[14px] lg:text-[17px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] lg:shadow-[0_8px_24px_rgba(37,99,235,0.25)] transition-colors">
+                  ابدأ الآن
+                  <span className="size-5 lg:size-7 grid place-items-center rounded-full bg-white/20 text-[12px] lg:text-[15px]">←</span>
+                </Link>
+                <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 lg:px-10 lg:py-4 text-[14px] lg:text-[17px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                  اختبر معرفتك القانونية
+                  <span className="size-5 lg:size-7 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px] lg:text-[15px]">←</span>
+                </Link>
+              </div>
 
-            <div className="mt-7 flex items-center justify-center gap-4">
+              <div className="mt-7 lg:mt-10 flex items-center justify-center lg:justify-start gap-4 lg:gap-5">
               <div className="flex -space-x-2 rtl:space-x-reverse">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">
+                  <div key={i} className="size-8 lg:size-11 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] lg:text-[13px] font-bold text-[#475569] dark:text-white">
                     {String.fromCharCode(64 + i)}
                   </div>
                 ))}
               </div>
               <div className="text-right">
-                <div className="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">
-                  <Users className="size-4 text-[#2563eb]" />
+                <div className="font-black text-[12px] lg:text-[16px] flex items-center gap-1 text-[#0f172a] dark:text-white">
+                  <Users className="size-4 lg:size-5 text-[#2563eb]" />
                   500+ طالب يثقون بنا
                 </div>
-                <div className="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
-                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 - محتوى أساسي مجاني
+                <div className="text-[11px] lg:text-[14px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
+                  <Star className="size-3 lg:size-4 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 - محتوى أساسي مجاني
                 </div>
+              </div>
               </div>
             </div>
 
-            <div className="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">
+            <div className="w-full max-w-[560px] lg:max-w-none mx-auto grid grid-cols-2 gap-3 lg:gap-5">
               {[
                 { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
                 { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
                 { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
                 { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
               ].map((card, i) => (
-                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
+                <div key={i} className="text-right rounded-2xl lg:rounded-3xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 lg:p-8 shadow-sm lg:shadow-[0_12px_32px_rgba(15,23,42,0.06)] lg:hover:-translate-y-1 transition-transform">
                   <div className="flex items-center justify-between">
-                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
-                      <card.icon className="size-4" />
+                    <div className={`grid size-9 lg:size-14 place-items-center rounded-xl lg:rounded-2xl ${card.color} text-white shadow-sm`}>
+                      <card.icon className="size-4 lg:size-7" />
                     </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
+                    <span className="text-[10px] lg:text-[13px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1 lg:px-3 lg:py-1.5">{card.count}</span>
                   </div>
                   {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
                       سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
                       متسلسلاً مع بقية أقسام الصفحة. */}
-                  <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h2>
-                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
+                  <h2 className="mt-3 lg:mt-6 font-black text-[12px] lg:text-[20px] text-[#0f172a] dark:text-white">{card.title}</h2>
+                  <p className="mt-1 lg:mt-2 text-[11px] lg:text-[15px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
                 </div>
               ))}
             </div>
