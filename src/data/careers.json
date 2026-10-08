@@ -791,18 +791,18 @@
     "law_slugs": [],
     "legal_framework": [
       {
-        "law_slug": null,
+        "law_slug": "alqanun-raqama-4621-almutaealiqa-bitanzim-mahinatu-almufawadina-alqadayiyiyn",
         "label_ar": "القانون رقم 46.21 المتعلق بتنظيم مهنة المفوضين القضائيين",
         "relationship_type": "governing_framework",
         "relationship_ar": "القانون المنظم للمهنة، بتنفيذه الظهير الشريف رقم 1.25.49، الجريدة الرسمية عدد 7412 (12 يونيو 2025)",
-        "verification_status": "needs_archive_entry",
+        "verification_status": "verified",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "شروط الولوج والتدريب: المواد 3 إلى 7 من القانون 46.21، والمرسوم رقم 2.25.885 بتطبيقه",
+        "label_ar": "المرسوم رقم 2.25.885 بتطبيق القانون 46.21",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين، نشر المرسوم بالجريدة الرسمية عدد 7506، ويفصّل تنظيم المباراة وامتحان نهاية التمرين",
+        "relationship_ar": "شروط الولوج والتدريب (المواد 3 إلى 7 من القانون 46.21)، صادر في 16 أبريل 2026، ونُشر في الجريدة الرسمية عدد 7506",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
@@ -810,15 +810,15 @@
         "law_slug": null,
         "label_ar": "واجبات المهنة والأخلاقيات: المواد 28 إلى 42 من القانون 46.21",
         "relationship_type": "professional_ethics",
-        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "relationship_ar": "مغطاة داخل نص القانون 46.21 المنشور، وليست نصاً مستقلاً",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "التبليغ والتنفيذ: المادة 43 من القانون 46.21، مع النصوص المسطرية المنظمة للتبليغ والتنفيذ",
+        "label_ar": "مهام التبليغ والتنفيذ: المادة 43 والمادة 44 من القانون 46.21",
         "relationship_type": "governing_framework",
-        "relationship_ar": "مهام التبليغ والتنفيذ وإجراءاتهما",
+        "relationship_ar": "المادة 43 لاختصاصات المفوض القضائي، والمادة 44 لإجراءات التنفيذ الخاصة (الإفراغات والبيوع العقارية)؛ مغطاة داخل نص القانون المنشور",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }

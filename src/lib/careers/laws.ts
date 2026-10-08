@@ -103,6 +103,8 @@ export function resolveCareerLaws(career: CareerLawInput): ResolvedLegalFramewor
       const archive = getLawBySlug(entry.law_slug) ?? null;
       return {
         ...entry,
+        // لا تُعرض «مُسند إلى نص» إلا إذا وُجد السجل فعلاً في اللقطة المولَّدة
+        verification_status: archive ? entry.verification_status : "needs_archive_entry",
         archive,
         href: lawHref(archive),
       };
