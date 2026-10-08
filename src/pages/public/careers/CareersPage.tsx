@@ -153,7 +153,7 @@ export function CareersPage() {
       <section className="mt-10" aria-labelledby="careers-decision-tree-title">
         <h2
           id="careers-decision-tree-title"
-          className="inline-flex items-center gap-2 text-[20px] font-black text-foreground"
+          className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200"
         >
           <GitBranch className="size-5 text-primary" aria-hidden="true" />
           {CAREERS_HUB_COPY.decisionTreeTitle}
