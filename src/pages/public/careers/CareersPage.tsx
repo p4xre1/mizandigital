@@ -8,6 +8,13 @@ import { NearbyLawSchools } from "@/components/careers/NearbyLawSchools";
 import { CAREERS, CAREER_CATEGORIES, CAREER_COMPETITIONS } from "@/lib/careers/data";
 import { CAREERS_HUB_COPY, CAREERS_HUB_PATH } from "../../../../shared/careers/copy.js";
 
+/** خلفية لكل بطاقة مقارنة (أزرق، أخضر، كهرماني) مع حدّ رفيع. */
+const COMPARISON_TONES = [
+  "border-blue-600/25 bg-blue-50 dark:border-blue-400/30 dark:bg-blue-950/40",
+  "border-emerald-600/25 bg-emerald-50 dark:border-emerald-400/30 dark:bg-emerald-950/40",
+  "border-amber-600/25 bg-amber-50 dark:border-amber-400/30 dark:bg-amber-950/40",
+];
+
 /**
  * /careers — دليل المسارات والمهن القانونية في المغرب.
  *
@@ -113,10 +120,13 @@ export function CareersPage() {
           {CAREERS_HUB_COPY.comparisonTitle}
         </h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {CAREERS_HUB_COPY.comparison.map((block) => (
-            <article key={block.heading} className="rounded-3xl border border-border bg-card p-5">
-              <h3 className="text-[16px] font-black text-foreground">{block.heading}</h3>
-              <p className="mt-2 text-[13.5px] leading-7 text-muted-foreground">{block.body}</p>
+          {CAREERS_HUB_COPY.comparison.map((block, index) => (
+            <article
+              key={block.heading}
+              className={`rounded-3xl border p-6 ${COMPARISON_TONES[index % COMPARISON_TONES.length]}`}
+            >
+              <h3 className="text-[18px] font-black leading-snug text-black dark:text-white">{block.heading}</h3>
+              <p className="mt-3 text-[16px] leading-8 text-black dark:text-white">{block.body}</p>
             </article>
           ))}
         </div>
