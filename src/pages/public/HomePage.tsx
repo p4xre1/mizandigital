@@ -458,9 +458,8 @@ export function HomePage() {
 
         <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
           <div className="container mx-auto max-w-[1280px] px-6 relative">
-            <div className="grid grid-cols-3 gap-6 text-center">
+            <div className="grid grid-cols-2 gap-6 text-center">
               {[
-                { value: "500+", label: "طالب مستفيد" },
                 { value: `${counts.lexiconTree}`, label: "مصطلحاً مرتبطاً بنصوصه وفصوله" },
                 { value: `${counts.schools}`, label: "كلية في الدليل" },
               ].map((stat, i) => (

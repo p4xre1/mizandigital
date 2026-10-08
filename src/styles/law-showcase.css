@@ -156,18 +156,6 @@
   color: hsl(var(--primary-foreground));
 }
 
-/* قانون-إطار: لون ثانٍ من السمة نفسها، يظهر فقط حين يوجد هذا النوع. */
-.law-card--frame .law-card__num {
-  background: hsl(var(--edu-sky) / 0.12);
-  color: hsl(var(--edu-sky));
-}
-
-.law-card--frame:hover .law-card__num,
-.law-card--frame:focus-within .law-card__num {
-  background: hsl(var(--edu-sky));
-  color: hsl(var(--primary-foreground));
-}
-
 .law-card__type {
   border-radius: 999px;
   background: hsl(var(--card));

@@ -89,7 +89,6 @@ export function LawShowcaseCard({ law, index = 0 }: { law: ShowcaseLaw; index?: 
 
   const numberLabel = law.number ?? "—"
   const dateLabel = formatMoroccanDate(law.published)
-  const isFrame = law.type === "قانون-إطار"
 
   // زرّ القراءة يذهب إلى صفحة النص، وإن لم تكن منشورة بعد فإلى ملف PDF.
   const primaryHref = law.pagePath ?? law.pdfUrl
@@ -101,7 +100,6 @@ export function LawShowcaseCard({ law, index = 0 }: { law: ShowcaseLaw; index?: 
 
   const classes = [
     "law-card",
-    isFrame && "law-card--frame",
     phase === "pending" && "law-card--pending",
     phase === "in" && "law-card--in",
   ]

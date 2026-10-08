@@ -69,10 +69,10 @@ describe("بطاقة النص القانوني", () => {
     expect(html).toContain('target="_blank"')
   })
 
-  test("قانون-إطار يضيف صنف النوع، وقانون عادي لا يضيفه", () => {
+  test("قانون-إطار يُعرض بصنف النوع نفسه دون لون مختلف (لون واحد لكل البطاقات)", () => {
     const frame = render({ ...base, type: "قانون-إطار" })
-    expect(frame).toContain("law-card--frame")
     expect(frame).toContain("قانون-إطار")
+    expect(frame).not.toContain("law-card--frame")
     expect(render(base)).not.toContain("law-card--frame")
   })
 

@@ -25,6 +25,7 @@ describe("home stats band: أرقام غير مكررة", () => {
     expect(HOME).not.toContain("مقال قانوني")
     expect(HOME).not.toContain('"250+"')
     expect(HOME).not.toContain('value: "100%"')
+    expect(HOME).not.toContain('"500+"')
   })
 
   test("الرقم الجديد من البيانات: المصطلحات ذات الشجرة", () => {
