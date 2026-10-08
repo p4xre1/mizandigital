@@ -122,10 +122,17 @@ describe("الشروط والمصادر — لا معلومة غير متحقق 
     }
   });
 
-  it("المصادر كلها معلَّمة بأنها تحتاج تحققاً رسمياً (بلا رابط مطبوع)", () => {
+  it("المصادر غير المتحقَّق منها بلا رابط مطبوع؛ والمتحقَّق منها لها رابط https", () => {
+    // استثناء موثّق: مسار المفوض القضائي تحقّق منه المسؤول يدوياً (2026-10-08)
+    const VERIFIED_SOURCE_SLUGS = new Set(["commissaire-judiciaire"]);
     for (const career of CAREERS) {
       expect(career.sources.length, career.slug).toBeGreaterThanOrEqual(1);
       for (const source of career.sources) {
+        if (VERIFIED_SOURCE_SLUGS.has(career.slug)) {
+          expect(source.status, career.slug).toBe("verified");
+          expect(source.url, career.slug).toMatch(/^https:\/\//);
+          continue;
+        }
         expect(source.url, career.slug).toBe("");
         expect(source.status, career.slug).toBe("needs_official_verification");
         expect(source.last_verified, career.slug).toBeNull();

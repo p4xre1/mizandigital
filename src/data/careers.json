@@ -739,25 +739,25 @@
     ],
     "sources": [
       {
-        "title_ar": "القانون رقم 46.21 المتعلق بتنظيم مهنة المفوضين القضائيين، الظهير الشريف رقم 1.25.49 (نص منشور، يحتاج تحققاً من الجريدة الرسمية)",
+        "title_ar": "القانون رقم 46.21 المتعلق بتنظيم مهنة المفوضين القضائيين، صادر بتنفيذه الظهير الشريف رقم 1.25.49 بتاريخ 6 يونيو 2025، ومنشور بالجريدة الرسمية عدد 7412 بتاريخ 12 يونيو 2025 (ص. 4322)",
         "source_type": "official_law_or_professional_body",
-        "url": "",
-        "last_verified": null,
-        "status": "needs_official_verification"
+        "url": "https://www.onhj.ma/noussouss",
+        "last_verified": "2026-10-08",
+        "status": "verified"
       },
       {
-        "title_ar": "بلاغ وزارة العدل حول مشروع القانون رقم 46.21 أمام مجلس المستشارين",
+        "title_ar": "وزارة العدل: مناقشة مشروع القانون رقم 46.21 أمام لجنة العدل والتشريع وحقوق الإنسان بمجلس المستشارين (18 مارس 2025)",
         "source_type": "official_law_or_professional_body",
-        "url": "",
-        "last_verified": null,
-        "status": "needs_official_verification"
+        "url": "https://justice.gov.ma/2025/03/18/%D9%88%D8%B2%D9%8A%D8%B1-%D8%A7%D9%84%D8%B9%D8%AF%D9%84-%D9%8A%D9%86%D8%A7%D9%82%D8%B4-%D8%A8%D9%85%D8%AC%D9%84%D8%B3-%D8%A7%D9%84%D9%85%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D9%8A%D9%86-%D9%85%D8%B4%D8%B1/",
+        "last_verified": "2026-10-08",
+        "status": "verified"
       },
       {
-        "title_ar": "الهيئة الوطنية للمفوضين القضائيين",
+        "title_ar": "الهيئة الوطنية للمفوضين القضائيين (موقع ONHJ، ويتضمن النصوص المنظمة للمهنة ومنها القانون 46.21 والمرسوم 2.25.885)",
         "source_type": "professional_body",
-        "url": "",
-        "last_verified": null,
-        "status": "needs_official_verification"
+        "url": "https://www.onhj.ma/",
+        "last_verified": "2026-10-08",
+        "status": "verified"
       }
     ],
     "law_slugs": [],
