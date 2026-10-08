@@ -123,6 +123,8 @@ export interface CareerSource {
   url: string;
   last_verified: string | null;
   status: VerificationStatus | "needs_official_verification";
+  /** ملاحظة حالة خاصة بهذا المصدر؛ تحل محل الملاحظة العامة عند غياب حالة "مؤكد". */
+  verification_note_ar?: string;
 }
 
 export interface CareerQuizConfig {

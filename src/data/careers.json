@@ -203,21 +203,24 @@
         "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "متحقق من النص المنشور في الجريدة الرسمية عدد 7536."
       },
       {
         "title_ar": "القانون رقم 28.08 المتعلق بتنظيم مهنة المحاماة، الصادر بتنفيذه الظهير الشريف رقم 1.08.101 بتاريخ 20 شوال 1429 (20 أكتوبر 2008)",
         "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "نص مرجعي للأحكام الانتقالية فقط (المادة 146 من القانون 66.23)؛ يُراجع نصه الرسمي قبل الاستشهاد به."
       },
       {
         "title_ar": "الهيئة المهنية المختصة وهيئة المحامين",
         "source_type": "professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "مرجع مهني مساعد؛ لا تُستمد منه الشروط المعروضة في هذه الصفحة."
       }
     ],
     "law_slugs": [],

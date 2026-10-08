@@ -363,7 +363,7 @@ export function CareerDetailPage() {
                           </span>
                         ) : (
                           <span className="inline-block rounded-full bg-amber-500/15 px-3 py-1 text-[13px] font-extrabold text-amber-800 dark:text-amber-200">
-                            {CAREERS_NO_SOURCE_NOTE}
+                            {source.verification_note_ar ?? CAREERS_NO_SOURCE_NOTE}
                           </span>
                         )}
                       </dd>
