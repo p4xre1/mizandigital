@@ -50,7 +50,7 @@ describe("بطاقة النص القانوني", () => {
 
   test("زرّ القراءة وزرّ PDF لهما aria-label يحمل رقم القانون", () => {
     const html = render(base)
-    expect(html).toContain('aria-label="اقرأ نص القانون 46.21 كاملاً"')
+    expect(html).toContain('aria-label="اقرأ القانون 46.21"')
     expect(html).toContain('aria-label="تحميل ملف PDF للقانون 46.21"')
     expect(html).toContain('href="/pdf/mofawidin"')
     expect(html).toContain('href="https://files.example.com/46-21.pdf"')
@@ -59,7 +59,7 @@ describe("بطاقة النص القانوني", () => {
   test("زرّ PDF يظهر فقط حين يوجد ملف", () => {
     const html = render({ ...base, pdfUrl: null })
     expect(html).not.toContain("law-card__btn--ghost")
-    expect(html).toContain("اقرأ النص كاملاً")
+    expect(html).toContain("اقرأ القانون")
   })
 
   test("بلا صفحة منشورة يصبح زرّ القراءة ملف PDF خارجياً ولا يتكرر زرّ PDF", () => {

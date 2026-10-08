@@ -94,7 +94,7 @@ export function LawShowcaseCard({ law, index = 0 }: { law: ShowcaseLaw; index?: 
   // زرّ القراءة يذهب إلى صفحة النص، وإن لم تكن منشورة بعد فإلى ملف PDF.
   const primaryHref = law.pagePath ?? law.pdfUrl
   const primaryExternal = !law.pagePath
-  const primaryLabel = law.number ? `اقرأ نص القانون ${law.number} كاملاً` : `اقرأ النص كاملاً: ${law.title}`
+  const primaryLabel = law.number ? `اقرأ القانون ${law.number}` : `اقرأ القانون: ${law.title}`
   // زرّ PDF الثانوي يظهر فقط إن وُجد ملف، وإن كان زرّ القراءة نفسه هو الملف فلا يتكرر.
   const showPdf = Boolean(law.pdfUrl && law.pagePath)
   const pdfLabel = law.number ? `تحميل ملف PDF للقانون ${law.number}` : `تحميل ملف PDF: ${law.title}`
@@ -142,11 +142,11 @@ export function LawShowcaseCard({ law, index = 0 }: { law: ShowcaseLaw; index?: 
                 aria-label={primaryLabel}
                 className="law-card__btn law-card__btn--primary"
               >
-                اقرأ النص كاملاً
+                اقرأ القانون
               </a>
             ) : (
               <Link to={primaryHref} aria-label={primaryLabel} className="law-card__btn law-card__btn--primary">
-                اقرأ النص كاملاً
+                اقرأ القانون
               </Link>
             ))}
 
