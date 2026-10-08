@@ -156,10 +156,10 @@ export function HomeFeatures({ counts }: { counts: FeatureCounts }) {
     >
       <div className="container mx-auto max-w-[1100px] px-6">
         <div className="text-center max-w-[640px] mx-auto mb-12">
-          <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">
+          <p className="text-[22px] md:text-[26px] font-black leading-none text-[#2563eb] dark:text-[#93c5fd]">
             لماذا نحن
-          </span>
-          <h2 id="home-features-title" className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.2] text-[#0f172a] dark:text-white">
+          </p>
+          <h2 id="home-features-title" className="mt-3 text-[26px] md:text-[32px] font-black leading-[1.2] text-[#0f172a] dark:text-white">
             كل ما يحتاجه <span className="text-[#2563eb]">طالب القانون</span> المغربي
           </h2>
         </div>
