@@ -77,7 +77,7 @@ export function CareerDetailPage() {
     ["الشهادة المعتادة", `${DEGREE_LEVEL_LABELS[career.typical_degree.level] ?? career.typical_degree.level} — ${career.typical_degree.label_ar}`],
     [
       "طريقة الولوج",
-      COMPETITION_PATH_LABELS[career.quiz_config.competition_path] ?? "تحقق من الجهة المختصة",
+      career.entry_method_ar ?? COMPETITION_PATH_LABELS[career.quiz_config.competition_path] ?? "تحقق من الجهة المختصة",
     ],
     ["شرط السن", career.age_requirement.note_ar],
     ["آخر مراجعة", career.last_reviewed],

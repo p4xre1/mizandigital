@@ -6,14 +6,15 @@
     "title_fr": "Avocat",
     "category_id": "legal-documentary",
     "category_ar": "المهن القانونية والتوثيقية",
-    "short_description": "مهنة حرة منظمة تتعلق بالدفاع والتمثيل والاستشارة في الحدود التي يحددها القانون.",
+    "short_description": "مهنة حرة ومستقلة تتعلق بالدفاع والتمثيل والاستشارة، ينظمها القانون رقم 66.23 المتعلق بتنظيم مهنة المحاماة.",
     "work_model": "liberal_regulated",
-    "work_model_ar": "مهنة حرة منظمة",
+    "work_model_ar": "مهنة حرة ومستقلة",
     "employment_modes": [
-      "مكتب محاماة",
-      "شراكة مهنية",
-      "مكتب مهني مستقل",
-      "تعاون مع مكاتب أخرى"
+      "ممارسة فردية",
+      "مساكنة أو مساعدة (محامٍ مساعد)",
+      "مشاركة مع محامٍ أو أكثر مسجلين بالهيئة نفسها",
+      "شراكة بين مكتبين لمحاميين مسجلين بهيئتين مختلفتين، بحد أقصى محاميين",
+      "شركة مدنية مهنية للمحاماة"
     ],
     "can_freelance": true,
     "can_work_government": false,
@@ -29,43 +30,44 @@
     ],
     "typical_degree": {
       "level": "master_or_equivalent",
-      "label_ar": "تكوين قانوني أو شهادة يحددها النص أو الإعلان الرسمي",
-      "status": "verify_official_source",
-      "note_ar": "الشهادة أو التكوين المطلوب يحدد بالنص التنظيمي والإعلان الرسمي؛ تحقق من المصدر قبل الترشح."
+      "label_ar": "ماستر متخصص أو دبلوم الدراسات العليا المعمقة أو المتخصصة في العلوم القانونية أو الشريعة، أو شهادة معترف بمعادلتها",
+      "status": "verified",
+      "note_ar": "المادة 5، البند 3 من القانون رقم 66.23: الشهادة من إحدى كليات العلوم القانونية أو الشريعة بالمغرب، أو معادلة معترف بها."
     },
     "age_requirement": {
       "has_requirement": true,
-      "minimum": null,
-      "maximum": null,
+      "minimum": 21,
+      "maximum": 45,
       "basis": "legal_or_competition",
-      "status": "verify_official_source",
-      "note_ar": "قد تختلف شروط السن حسب النص أو مباراة الولوج أو الإعلان الجاري به العمل؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+      "status": "verified",
+      "note_ar": "21 سنة على الأقل و45 سنة على الأكثر في تاريخ إجراء مباراة ولوج معهد تكوين المحامين (المادة 5، البند 2)."
     },
     "entry_path": [
       {
         "step": 1,
-        "title_ar": "بناء التكوين القانوني",
-        "description_ar": "إتمام المسار الجامعي في القانون أو الشهادة التي يحددها النص التنظيمي للمهنة."
+        "title_ar": "الماستر في العلوم القانونية أو الشريعة",
+        "description_ar": "شهادة الماستر أو ما يعادلها من كلية مغربية، مع شروط الجنسية والسن والأهلية (المادة 5)."
       },
       {
         "step": 2,
-        "title_ar": "التحقق من الشروط الرسمية",
-        "description_ar": "راجع شروط السن والشهادة والجنسية وباقي الشروط في النص التنظيمي أو الإعلان الرسمي الجاري به العمل."
+        "title_ar": "مباراة ولوج معهد تكوين المحامين",
+        "description_ar": "اجتياز المباراة بنجاح؛ تنظمها السلطة الحكومية المكلفة بالعدل وفق قرار يحدد نظامها وكيفية إجرائها (المادتان 5 و11)."
       },
       {
         "step": 3,
-        "title_ar": "اجتياز مسطرة الولوج",
-        "description_ar": "قد تكون مباراة أو مسطرة انتقاء يحددها النص أو الجهة المهنية المختصة."
+        "title_ar": "سنة تكوين أساسي بالمعهد",
+        "description_ar": "تكوين نظري لمدة سنة يتوج بشهادة الكفاءة لممارسة مهنة المحاماة (المادة 6)."
       },
       {
         "step": 4,
-        "title_ar": "التدريب والتسجيل المهني",
-        "description_ar": "استكمال فترة التدريب المهني وإجراءات التسجيل لدى الهيئة المهنية قبل الممارسة."
+        "title_ar": "التقييد في لائحة المتمرنين والتمرين",
+        "description_ar": "طلب التقييد خلال سنة من تسلم شهادة الكفاءة، وأداء الانخراط واليمين (المادتان 6 و8)، ثم تمرين مدته 24 شهراً (المادة 7)."
       }
     ],
+    "entry_method_ar": "مباراة ولوج معهد تكوين المحامين",
     "training_after_admission": {
-      "label_ar": "تدريب مهني ثم تسجيل لدى الهيئة المهنية وفق الإطار التنظيمي الجاري به العمل",
-      "status": "verify_official_source"
+      "label_ar": "سنة تكوين أساسي بالمعهد، ثم تمرين مدته 24 شهراً: 20 شهراً بمكتب محامٍ و4 أشهر في إدارة أو مؤسسة عمومية أو ما يماثلها (المادتان 6 و7)",
+      "status": "verified"
     },
     "skills": [
       "البحث القانوني",
@@ -96,23 +98,13 @@
     ],
     "requirements": [
       {
-        "id": "entry_conditions",
-        "label_ar": "شروط الولوج",
-        "value_ar": "تحدد بالنص التنظيمي أو الإعلان الرسمي الجاري به العمل.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
-        "source_url": null,
-        "last_verified": null,
-        "notice_year": null,
-        "notice_status": "check_current_notice"
-      },
-      {
-        "id": "degree_requirement",
-        "label_ar": "الشهادة المطلوبة",
-        "value_ar": "تحددها النصوص التنظيمية للمهنة وتعليمات الهيئة المهنية.",
+        "id": "nationality",
+        "label_ar": "الجنسية",
+        "value_ar": "مغربية، أو جنسية دولة تربطها بالمغرب اتفاقية تسمح لمواطنيها بممارسة المهنة، مع مبدأ المعاملة بالمثل.",
         "requirement_type": "legal_text",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 5، البند 1 من القانون رقم 66.23",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -120,21 +112,83 @@
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "قد يحدد النص أو الإعلان حداً أدنى أو أقصى للسن؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "بين 21 و45 سنة في تاريخ إجراء مباراة ولوج المعهد.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 5، البند 2 من القانون رقم 66.23",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "ماستر أو ماستر متخصص أو دبلوم الدراسات العليا المعمقة أو المتخصصة في العلوم القانونية أو الشريعة، أو شهادة معادلة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 5، البند 3 من القانون رقم 66.23",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "moral_health",
+        "label_ar": "الأهلية الأخلاقية والصحية",
+        "value_ar": "التمتع بالحقوق الوطنية، وعدم الإدانة بأفعال منافية للشرف، وعدم وجود قرار تأديبي نهائي بالتشطيب أو العزل، والقدرة الصحية اللازمة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 5، البنود 4 إلى 9 من القانون رقم 66.23",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "competition",
+        "label_ar": "مباراة ولوج المعهد",
+        "value_ar": "اجتياز مباراة ولوج معهد تكوين المحامين بنجاح؛ تنظمها السلطة الحكومية المكلفة بالعدل، ويحدد نظامها وكيفية إجرائها بقرار.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 5، البند 10، والمادة 11 من القانون رقم 66.23",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "check_current_notice"
       },
       {
-        "id": "registration",
-        "label_ar": "التدريب والتسجيل المهني",
-        "value_ar": "يتم وفق مسطرة الهيئة المهنية المختصة وبعد إتمام التدريب.",
-        "requirement_type": "professional_registration",
-        "status": "verify_official_source",
+        "id": "training",
+        "label_ar": "التكوين بالمعهد",
+        "value_ar": "سنة تكوين أساسي بالمعهد، يتوج بشهادة الكفاءة لممارسة مهنة المحاماة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 6 من القانون رقم 66.23",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "internship",
+        "label_ar": "التمرين",
+        "value_ar": "مدته 24 شهراً: 20 شهراً بمكتب محامٍ يعينه النقيب، و4 أشهر في مجال ذي صلة بإدارة أو مؤسسة عمومية.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 7 من القانون رقم 66.23",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "registration",
+        "label_ar": "الانخراط واليمين والتقييد",
+        "value_ar": "أداء واجب الانخراط واليمين أمام محكمة الاستئناف قبل التقييد في لائحة التمرين، وطلب التقييد خلال سنة من تسلم شهادة الكفاءة.",
+        "requirement_type": "professional_registration",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 6 و8 من القانون رقم 66.23",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -142,7 +196,7 @@
     ],
     "sources": [
       {
-        "title_ar": "الإطار التنظيمي لمهنة المحاماة (النص التنظيمي الجاري به العمل)",
+        "title_ar": "القانون رقم 66.23 المتعلق بتنظيم مهنة المحاماة، الظهير الشريف رقم 1.26.75 الصادر في 18 غشت 2026، الجريدة الرسمية عدد 7536 بتاريخ 20 غشت 2026",
         "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
@@ -160,25 +214,25 @@
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "القانون المنظم لمهنة المحاماة",
+        "label_ar": "القانون رقم 66.23 المتعلق بتنظيم مهنة المحاماة",
         "relationship_type": "governing_framework",
-        "relationship_ar": "القانون المنظم للمهنة",
+        "relationship_ar": "القانون المنظم للمهنة، النافذ منذ نشره في الجريدة الرسمية عدد 7536 بتاريخ 20 غشت 2026، بتنفيذ الظهير الشريف رقم 1.26.75. يتضمن شروط الولوج والتمرين وأشكال الممارسة (المواد 2 و5 و26) والتكوين المستمر (المادة 41).",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "شروط الولوج إلى مهنة المحاماة والتدريب المهني",
+        "label_ar": "قرار تنظيم مباراة ولوج المعهد وكيفية قضاء فترة التكوين",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين",
+        "relationship_ar": "يصدر بقرار من السلطة الحكومية المكلفة بالعدل (المادة 11). المادة 12 (الإعفاءات) والمادة 39 لا تدخلان حيز التنفيذ قبل نشر نصوصهما التنظيمية (المادة 146).",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "قواعد أخلاقيات مهنة المحاماة والواجبات المهنية",
-        "relationship_type": "professional_ethics",
-        "relationship_ar": "أخلاقيات المهنة والواجبات",
+        "label_ar": "القانون رقم 28.08 السابق، في أحكامه الانتقالية",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "نُسخ بالقانون 66.23 من تاريخ دخوله حيز التنفيذ، مع استمرار العمل به في شروط الترشح وشهادة الأهلية إلى حين شروع المعهد في مهامه فعلياً، وفي تمرين المترشحين الحاصلين على شهادة الأهلية قبل النشر (المادة 146).",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
@@ -188,7 +242,7 @@
       "has_knowledge_quiz": true,
       "has_discovery_quiz": true,
       "competition_path": "regulated_profession",
-      "competition_note_ar": "تحقق من الإعلان أو المؤسسة المهنية المختصة لمعرفة حالة مسطرة الولوج؛ لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار.",
+      "competition_note_ar": "مباراة ولوج معهد تكوين المحامين تنظمها السلطة الحكومية المكلفة بالعدل؛ تحقق من الإعلان الجاري به العمل قبل الترشح.",
       "related_quiz_topics": [
         "المرافعة",
         "الوكالة",
@@ -196,8 +250,8 @@
         "طرق الطعن"
       ]
     },
-    "last_reviewed": "2026-09-23",
-    "review_status": "internal_review",
+    "last_reviewed": "2026-10-08",
+    "review_status": "official_text_verified",
     "canonical_url": "https://www.mizan.page/careers/avocat"
   },
   {

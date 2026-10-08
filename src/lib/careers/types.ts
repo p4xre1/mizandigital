@@ -154,6 +154,8 @@ export interface CareerRecord {
   typical_degree: CareerDegree;
   age_requirement: CareerAgeRequirement;
   entry_path: CareerEntryStep[];
+  /** وصف قصير لطريقة الولوج يعرض في بطاقة الصفحة بدل الوصف العام للمسار. */
+  entry_method_ar?: string;
   training_after_admission: { label_ar: string; status: VerificationStatus };
   skills: string[];
   best_for: string[];

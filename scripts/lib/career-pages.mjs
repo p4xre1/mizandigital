@@ -375,11 +375,13 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
                 (requirement) =>
                   `<li><strong>${escapeHtml(requirement.label_ar)}</strong> — ${escapeHtml(
                     requirement.value_ar
-                  )} — ${escapeHtml(REQUIREMENT_TYPE_LABELS[requirement.requirement_type] ?? "")} — ${escapeHtml(requirementBadges(requirement))}</li>`
+                  )} — ${escapeHtml(REQUIREMENT_TYPE_LABELS[requirement.requirement_type] ?? "")} — ${escapeHtml(requirementBadges(requirement))}${requirement.source_url ? ` — <a href="${escapeHtml(requirement.source_url)}" rel="nofollow noopener">المصدر الرسمي</a>` : ` — ${escapeHtml(requirement.source_ref_ar ?? CAREERS_NO_SOURCE_NOTE)}`}</li>`
               )
               .join("\n            ")}
           </ul>
-          <p>${escapeHtml(CAREERS_NO_SOURCE_NOTE)}</p>
+          ${career.requirements.some((r) => !r.source_url && !r.source_ref_ar)
+            ? `<p>${escapeHtml(CAREERS_NO_SOURCE_NOTE)}</p>`
+            : ""}
           <p>
             ${escapeHtml(career.quiz_config.competition_note_ar)}
           </p>

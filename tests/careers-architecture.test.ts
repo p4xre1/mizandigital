@@ -18,7 +18,7 @@ const CAREERS = careersData as unknown as CareerRecord[];
 
 // استثناء موثّق لمسار المفوض القضائي: أرقام النص ومراجعه وحالة التحقق من القانون 46.21
 // والمرسوم 2.25.885 (تحقق يدوي بتاريخ 2026-10-08). لا يمتد إلى غيره.
-const VERIFIED_TEXT_SLUGS = new Set(["commissaire-judiciaire"]);
+const VERIFIED_TEXT_SLUGS = new Set(["commissaire-judiciaire", "avocat"]);
 const COMPETITIONS = competitionsData as unknown as Array<{
   id: string;
   status: string;
