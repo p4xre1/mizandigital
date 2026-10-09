@@ -2299,19 +2299,18 @@
     "title_fr": "Magistrat",
     "category_id": "magistrature",
     "category_ar": "القضاء والنيابة العامة",
-    "short_description": "وظيفة قضائية مؤسسية يتولاها من يوفّر شروط الولوج والتكوين القضائي، ويمارسها داخل المحاكم والنيابة العامة وفق الضمانات التي يحددها القانون.",
+    "short_description": "عضو في السلك القضائي يمارس مهامه بالمحاكم وفق الدستور والقانون التنظيمي رقم 106.13 المتعلق بالنظام الأساسي للقضاة، ويكون المسار العادي للولوج عبر مباراة الملحقين القضائيين.",
     "work_model": "public_sector",
-    "work_model_ar": "وظيفة عمومية",
+    "work_model_ar": "سلك قضائي مستقل ذو نظام أساسي خاص",
     "employment_modes": [
-      "المحاكم",
-      "النيابة العامة",
-      "المعهد المختص بتكوين القضاة"
+      "المحاكم بمختلف درجاتها",
+      "قضاء الحكم والنيابة العامة وفق التعيين والاختصاص"
     ],
     "can_freelance": false,
     "can_work_government": true,
     "can_work_private_sector": false,
     "requires_legal_education": "required",
-    "school_recommendation_message": "هذا المسار يرتبط عادة بدراسة القانون أو شهادة قانونية. اختر مدينتك لعرض أقرب كليات الحقوق.",
+    "school_recommendation_message": "هذا المسار يرتبط عادة بشهادة عليا في القانون أو الشريعة. اختر مدينتك لعرض أقرب كليات الحقوق.",
     "main_areas": [
       "القضاء",
       "النيابة العامة",
@@ -2321,43 +2320,48 @@
     ],
     "typical_degree": {
       "level": "master_or_equivalent",
-      "label_ar": "تكوين قانوني أو شهادة يحددها النص التنظيمي ومعايير الولوج",
-      "status": "verify_official_source",
-      "note_ar": "معايير الولوج تحدد بالنصوص والإعلانات الرسمية؛ تحقق من المصدر قبل أي استعداد."
+      "label_ar": "ماستر أو ماستر متخصص أو دبلوم الدراسات العليا المعمقة أو المتخصصة في العلوم القانونية، أو ما يعادلها مشفوعاً بالإجازة في القانون الخاص؛ أو شهادة عليا في الشريعة من كلية الشريعة أو ما يعادلها مشفوعة بالإجازة في الشريعة أو القانون الخاص (المادة 28 من القانون 37.22).",
+      "status": "verified",
+      "note_ar": "المادة 28 من القانون رقم 37.22 المتعلق بالمعهد العالي للقضاء. ويجوز فتح المباراة لحاملي الإجازة في القانون الخاص أو الشريعة عند وجود خصاص في حاملي الشهادات العليا."
     },
     "age_requirement": {
       "has_requirement": true,
       "minimum": null,
-      "maximum": null,
+      "maximum": 45,
       "basis": "legal_or_competition",
-      "status": "verify_official_source",
-      "note_ar": "قد يحدد النص أو الإعلان شرطاً للسن؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+      "status": "verified",
+      "note_ar": "ألا يتجاوز المترشح 45 سنة في فاتح يناير من سنة إجراء المباراة (المادة 8 من القانون التنظيمي 106.13). لا يُعتمد نطاق عام من 21 إلى 45 سنة."
     },
     "entry_path": [
       {
         "step": 1,
-        "title_ar": "التكوين القانوني",
-        "description_ar": "إتمام الإجازة أو الماستر في القانون أو الشهادة التي تحددها المعايير الرسمية."
+        "title_ar": "استيفاء الشروط العامة",
+        "description_ar": "الجنسية المغربية، والحقوق المدنية، وحسن السلوك والمروءة، والقدرة الصحية، وفق المادة 7 من القانون التنظيمي 106.13."
       },
       {
         "step": 2,
-        "title_ar": "مسار الولوج والتكوين القضائي",
-        "description_ar": "يتم الولوج وفق مسطرة تنظيمية قد تشمل اختبارات وتكويناً بالمعهد المختص."
+        "title_ar": "الحصول على الشهادة المطلوبة",
+        "description_ar": "الماستر أو ما يعادله في العلوم القانونية أو الشريعة وفق المادة 28 من القانون 37.22، مع مراعاة الاستثناء المتعلق بالإجازة عند الخصاص."
       },
       {
         "step": 3,
-        "title_ar": "التكوين بالمعهد القضائي",
-        "description_ar": "تكوين نظري وعملي في القضاء والمساطر وأخلاقيات المهنة."
+        "title_ar": "اجتياز مباراة الملحقين القضائيين",
+        "description_ar": "اجتياز مراحل الانتقاء والاختبارات الكتابية والشفوية حسب القرار المنظم للمباراة، الذي يحدد الشروط والتاريخ والمكان وعدد المناصب."
       },
       {
         "step": 4,
-        "title_ar": "التعيين وممارسة القضاء",
-        "description_ar": "يتم التعيين في الوظائف القضائية وفق النصوص الجاري بها العمل."
+        "title_ar": "التكوين وامتحان نهاية التكوين",
+        "description_ar": "قضاء سنتين من التكوين الأساسي، يشمل الدراسة بالمعهد والتدريب التطبيقي، وإعداد رسالة نهاية التكوين أو بحث ميداني، ثم اجتياز امتحان نهاية التكوين."
+      },
+      {
+        "step": 5,
+        "title_ar": "التعيين في السلك القضائي",
+        "description_ar": "بعد النجاح، يُعيَّن الناجحون قضاة وفق القانون التنظيمي والنصوص ذات الصلة. ولا يصبح المترشح قاضياً بمجرد النجاح في مباراة الولوج."
       }
     ],
     "training_after_admission": {
-      "label_ar": "تكوين قضائي تخصصي ثم تعيين في وظيفة قضائية وفق النصوص الجاري بها العمل",
-      "status": "verify_official_source"
+      "label_ar": "سنتان من التكوين الأساسي، تشمل الدراسة بالمعهد والتدريب التطبيقي بالمحاكم وبالإدارات والمؤسسات والهيئات والمقاولات العمومية حسب البرنامج المحدد تنظيمياً (المادة 34 من القانون 37.22)، يعقبهما امتحان نهاية التكوين (المادة 35).",
+      "status": "verified"
     },
     "skills": [
       "التحليل القانوني العميق",
@@ -2387,23 +2391,25 @@
     ],
     "requirements": [
       {
-        "id": "entry_conditions",
-        "label_ar": "شروط الولوج",
-        "value_ar": "تحدد بالنصوص التنظيمية ومعايير المعهد المختص والإعلانات الرسمية.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "id": "nationality",
+        "label_ar": "الجنسية",
+        "value_ar": "أن يكون المترشح مغربياً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 7 من القانون التنظيمي 106.13",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
-        "id": "degree_requirement",
-        "label_ar": "الشهادة المطلوبة",
-        "value_ar": "يحددها النص والمعايير المنشورة؛ تحقق من المصدر الرسمي.",
+        "id": "conduct_health",
+        "label_ar": "الأهلية والسلوك",
+        "value_ar": "التمتع بالحقوق المدنية، والتحلي بالمروءة وحسن السلوك، وعدم الإدانة قضائياً أو تأديبياً بسبب أفعال منافية للشرف والمروءة أو حسن السلوك، ولو تم رد الاعتبار، وتوفر القدرة الصحية اللازمة.",
         "requirement_type": "legal_text",
-        "status": "verify_official_source",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 7 من القانون التنظيمي 106.13",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -2411,21 +2417,107 @@
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "قد توجد حدود للسن تحددها المعايير الرسمية؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "legal_or_annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "ألا يتجاوز المترشح 45 سنة في فاتح يناير من سنة إجراء المباراة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 8 من القانون التنظيمي 106.13",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "degree_requirement",
+        "label_ar": "الشهادة المطلوبة",
+        "value_ar": "ماستر أو ماستر متخصص أو دبلوم الدراسات العليا المعمقة أو المتخصصة في العلوم القانونية، أو ما يعادلها مشفوعاً بالإجازة في القانون الخاص؛ أو شهادة عليا في الشريعة من كلية الشريعة أو ما يعادلها مشفوعة بالإجازة في الشريعة أو القانون الخاص.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 28 من القانون 37.22",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "degree_exception",
+        "label_ar": "استثناء متعلق بالشهادة",
+        "value_ar": "يمكن فتح المباراة لحاملي الإجازة في القانون الخاص أو الإجازة في الشريعة أو ما يعادلهما، عند وجود خصاص في عدد حاملي الشهادات العليا المطلوبة.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 28 من القانون 37.22",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "competition",
+        "label_ar": "مباراة الولوج",
+        "value_ar": "تُعلن بقرار من الرئيس المنتدب للمجلس الأعلى للسلطة القضائية، ويحدد القرار شروط المشاركة والتاريخ والمكان وعدد المناصب.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 30 من القانون 37.22",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "check_current_notice"
       },
       {
-        "id": "registration",
-        "label_ar": "مسار الانتقاء والتكوين",
-        "value_ar": "يشمل مراحل انتقاء وتكويناً مؤسسياً قبل التعيين.",
-        "requirement_type": "institution_practice",
-        "status": "verify_official_source",
+        "id": "training",
+        "label_ar": "التكوين الأساسي",
+        "value_ar": "يخضع الملحق القضائي لتكوين مدته سنتان، يشمل الدراسة بالمعهد والتدريب التطبيقي بالمحاكم وبالإدارات والمؤسسات والهيئات والمقاولات العمومية حسب البرنامج المحدد تنظيمياً.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادتان 32 و34 من القانون 37.22",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "final_exam",
+        "label_ar": "امتحان نهاية التكوين",
+        "value_ar": "يجتاز الملحق القضائي امتحان نهاية التكوين بعد إتمام المدة القانونية، بعد إعداد رسالة نهاية التكوين أو بحث ميداني وفق القواعد المعمول بها.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 35 و57 من القانون 37.22",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "appointment",
+        "label_ar": "التعيين",
+        "value_ar": "يُعيَّن الملحق القضائي الناجح في امتحان نهاية التكوين قاضياً وفق النصوص الجاري بها العمل.",
+        "requirement_type": "professional_registration",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 37 من القانون 37.22",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "professional_route",
+        "label_ar": "المسار الخاص للمهنيين والموظفين",
+        "value_ar": "تسمح المادة 9 من القانون التنظيمي 106.13 بفتح مباراة لفئات مهنية ووظيفية محددة، بشرط ألا يتجاوز سن المترشح 55 سنة عند تقديم الطلب، وأن يكون قد مارس مهنته أو مهامه فعلياً مدة لا تقل عن عشر سنوات. وتحدد المادة 51 من القانون 37.22 الفئات والشهادات المعنية.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 9 من القانون التنظيمي 106.13؛ المادة 51 من القانون 37.22",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "doctorate_exemption",
+        "label_ar": "الإعفاء من المباراة لبعض الفئات",
+        "value_ar": "تنظم المادة 10 من القانون التنظيمي 106.13 حالات خاصة تتعلق بحاملي الدكتوراه في القانون أو الشريعة أو ما يعادلها، مع شروط السن والخبرة والانتماء إلى الفئات القانونية المحددة. ويخضع المعنيون للتكوين المقرر، ومنه تكوين مدته ستة أشهر وفق المادة 52 من القانون 37.22. وهذه المسارات ليست إعفاءً عاماً لكل حامل للدكتوراه.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 10 من القانون التنظيمي 106.13؛ المادة 52 من القانون 37.22",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -2433,43 +2525,53 @@
     ],
     "sources": [
       {
-        "title_ar": "الهيئة الدستورية المكلفة بالمجلس الأعلى للسلطة القضائية",
-        "source_type": "public_authority",
+        "title_ar": "القانون التنظيمي رقم 106.13 المتعلق بالنظام الأساسي للقضاة",
+        "source_type": "official_law_or_professional_body",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "الصادر بتنفيذه الظهير الشريف رقم 1.16.41 بتاريخ 24 مارس 2016، كما تم تغييره وتتميمه؛ النص المحين على موقع الأمانة العامة للحكومة."
       },
       {
-        "title_ar": "المعهد المختص بتكوين القضاة",
+        "title_ar": "القانون رقم 37.22 المتعلق بالمعهد العالي للقضاء",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "الصادر بتنفيذه الظهير الشريف رقم 1.23.60 بتاريخ 10 غشت 2023، ونُشر بالجريدة الرسمية عدد 7228 بتاريخ 7 شتنبر 2023؛ النص الكامل على بوابة عدالة."
+      },
+      {
+        "title_ar": "المعهد العالي للقضاء — شروط الولوج",
         "source_type": "public_authority",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "صفحة رسمية تشرح الشروط الأساسية للمباراة. تُربط بالصفحة بعد مطابقتها بالنصوص التشريعية."
+      },
+      {
+        "title_ar": "قرار المباراة الصادر عن الرئيس المنتدب للمجلس الأعلى للسلطة القضائية",
+        "source_type": "public_authority",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "يتغير بحسب الدورة، ولا يُعامل كنص قانوني ثابت. آخر إعلان تم التحقق منه: فوج 50، مباراة 27 إلى 29 مارس 2026، وانتهت."
       }
     ],
     "law_slugs": [],
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "النظام الأساسي للقضاة",
+        "label_ar": "القانون التنظيمي رقم 106.13 المتعلق بالنظام الأساسي للقضاة",
         "relationship_type": "governing_framework",
-        "relationship_ar": "القانون المنظم للمهنة",
+        "relationship_ar": "صدر بتنفيذه الظهير الشريف رقم 1.16.41 بتاريخ 24 مارس 2016، كما تم تغييره وتتميمه، خصوصاً بالقانون التنظيمي 14.22 والقانون التنظيمي 09.25 المنشور بالجريدة الرسمية عدد 7438 بتاريخ 11 شتنبر 2025. يحدد الشروط العامة والسن والمسارات الخاصة للمهنيين والموظفين والحاصلين على الدكتوراه (المواد 7 و8 و9 و10 و12 و13).",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "شروط الولوج إلى سلك القضاء",
+        "label_ar": "القانون رقم 37.22 المتعلق بالمعهد العالي للقضاء",
         "relationship_type": "access_conditions",
-        "relationship_ar": "شروط الولوج والتكوين",
-        "verification_status": "needs_archive_entry",
-        "last_verified": null
-      },
-      {
-        "law_slug": null,
-        "label_ar": "النصوص المنظمة للتكوين بالمعهد القضائي",
-        "relationship_type": "training",
-        "relationship_ar": "التكوين والتأهيل",
+        "relationship_ar": "صدر بتنفيذه الظهير الشريف رقم 1.23.60 بتاريخ 10 غشت 2023، ونُشر بالجريدة الرسمية عدد 7228 بتاريخ 7 شتنبر 2023. ينظم المباراة، والتكوين الأساسي، وامتحان نهاية التكوين، والمسارات الخاصة بفئات من المهنيين والموظفين (المواد 28 إلى 37، والمواد 51 و52 و57).",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
@@ -2479,16 +2581,18 @@
       "has_knowledge_quiz": true,
       "has_discovery_quiz": true,
       "competition_path": "annual_public_competition",
-      "competition_note_ar": "المسار مؤسسي وينضبط لإعلانات ومعايير رسمية؛ تحقق منها مباشرة ولا تعتمد هذه الصفحة.",
+      "competition_note_ar": "آخر مباراة تم التحقق منها في المصادر الرسمية (فوج 50 للملحقين القضائيين، أيام 27 و28 و29 مارس 2026) انتهت، ونُشر إعلان الناجحين نهائياً في 7 يونيو 2026. لا تُعرض كمفتوحة، ويجب إعادة التحقق من صفحة المعهد قبل نشر حالة المباريات.",
       "related_quiz_topics": [
         "التنظيم القضائي",
         "المسطرة الجنائية",
         "أخلاقيات القضاء"
       ]
     },
-    "last_reviewed": "2026-09-23",
-    "review_status": "internal_review",
-    "canonical_url": "https://www.mizan.page/careers/magistrat"
+    "last_reviewed": "2026-10-08",
+    "review_status": "official_text_verified",
+    "canonical_url": "https://www.mizan.page/careers/magistrat",
+    "entry_method_ar": "مباراة الملحقين القضائيين، مع حالات خاصة لبعض المهنيين والموظفين والحاصلين على الدكتوراه وفق النصوص المحددة",
+    "status_note_ar": "حالة التحقق: تم التحقق من القانون التنظيمي 106.13 والقانون 37.22. ويجب مراجعة إعلان المباراة المعني قبل الترشح."
   },
   {
     "id": "juriste-administration-publique",
