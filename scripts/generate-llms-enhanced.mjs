@@ -292,7 +292,7 @@ lines.push("## مصادر رسمية للتحقق (مهم للـ AI)");
 lines.push("");
 lines.push("- [بوابة عدالة](https://adala.justice.gov.ma/): النصوص القانونية المغربية النافذة — المصدر الرسمي");
 lines.push("- [الأمانة العامة للحكومة](https://www.sgg.gov.ma/): الجريدة الرسمية والمشاريع");
-lines.push("- [الجريدة الرسمية](https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx): النصوص المنشورة");
+lines.push("- [الجريدة الرسمية](https://www.sgg.gov.ma/BulletinOfficiel.aspx): النصوص المنشورة");
 lines.push("- [وزارة التعليم العالي](https://www.enssup.gov.ma/): التعليم العالي والبحث العلمي");
 lines.push("- [المحكمة الدستورية](https://www.cour-constitutionnelle.ma/): قرارات الدستورية");
 lines.push("");

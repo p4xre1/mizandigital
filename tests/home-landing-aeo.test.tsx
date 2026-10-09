@@ -105,13 +105,13 @@ describe("الإجابة المباشرة في الافتتاحية", () => {
 describe("الاستشهاد: روابط مسمّاة واقتباس منسوب", () => {
   test("قسم المصادر يحتوي روابط رسمية مسمّاة ومقتبساً منسوباً إلى جهة", () => {
     const html = renderIn(<HomeFaqSection lexiconCount={250} articlesCount={10} schoolsCount={21} />)
-    expect(html).toContain('href="https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx"')
+    expect(html).toContain('href="https://www.sgg.gov.ma/BulletinOfficiel.aspx"')
     expect(html).toContain('href="https://adala.justice.gov.ma/"')
     expect(html).toContain("«نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.»")
 
     // نحلّل نسخة Markdown مكافئة بالمعايير نفسها التي يطبّقها المدقّق.
     const markdown = [
-      "[الجريدة الرسمية](https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx)",
+      "[الجريدة الرسمية](https://www.sgg.gov.ma/BulletinOfficiel.aspx)",
       "[بوابة عدالة](https://adala.justice.gov.ma/)",
       "> «نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.»",
       "> — [الدستور المغربي (2011)، الفصل 1](https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx)",
@@ -123,7 +123,7 @@ describe("الاستشهاد: روابط مسمّاة واقتباس منسوب"
   })
 
   test("الصفحة الثابتة تربط المصادر الرسمية وتنسب الاقتباس", () => {
-    expect(PRERENDER).toContain('<a href="https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx"')
+    expect(PRERENDER).toContain('<a href="https://www.sgg.gov.ma/BulletinOfficiel.aspx"')
     expect(PRERENDER).toContain("<blockquote")
     expect(PRERENDER).toContain("الدستور المغربي (2011)، الفصل 1")
   })

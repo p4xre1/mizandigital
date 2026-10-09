@@ -107,7 +107,7 @@ ${mdLink("الدليل الكامل للكليات", `${DOMAIN}/schools`, "بط�
 
 ${mdLink("بوابة عدالة", "https://adala.justice.gov.ma/", "النصوص القانونية المغربية النافذة")}
 ${mdLink("الأمانة العامة للحكومة", "https://www.sgg.gov.ma/", "الجريدة الرسمية ومشاريع القوانين")}
-${mdLink("الجريدة الرسمية", "https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx", "النصوص المنشورة")}
+${mdLink("الجريدة الرسمية", "https://www.sgg.gov.ma/BulletinOfficiel.aspx", "النصوص المنشورة")}
 ${mdLink("وزارة التعليم العالي", "https://www.enssup.gov.ma/", "التعليم العالي والبحث العلمي")}
 
 ## الخرائط والتغذيات

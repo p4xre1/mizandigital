@@ -115,7 +115,7 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
           <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
             النص الرسمي للقانون يُنشر في{" "}
             <a
-              href="https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx"
+              href="https://www.sgg.gov.ma/BulletinOfficiel.aspx"
               target="_blank"
               rel="noopener noreferrer"
               className="font-bold text-primary underline underline-offset-2"

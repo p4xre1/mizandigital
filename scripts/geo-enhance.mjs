@@ -9,7 +9,7 @@ const MARKER = "<!-- MIZAN-GEO-HOMEPAGE-V2 -->";
 const sources = [
   { name: "بوابة عدالة — وزارة العدل المغربية", url: "https://adala.justice.gov.ma/", note: "مرجع رسمي للبحث في التشريع والمعلومة القانونية المغربية." },
   { name: "الأمانة العامة للحكومة المغربية", url: "https://www.sgg.gov.ma/", note: "المصدر الرسمي المرتبط بالنصوص القانونية والجريدة الرسمية." },
-  { name: "الجريدة الرسمية المغربية", url: "https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx", note: "للتحقق من النشر الرسمي للنصوص القانونية عند توفرها." },
+  { name: "الجريدة الرسمية المغربية", url: "https://www.sgg.gov.ma/BulletinOfficiel.aspx", note: "للتحقق من النشر الرسمي للنصوص القانونية عند توفرها." },
   { name: "وزارة التعليم العالي والبحث العلمي والابتكار", url: "https://www.enssup.gov.ma/", note: "مرجع مؤسساتي للمعلومات المرتبطة بالتعليم العالي في المغرب." },
 ];
 

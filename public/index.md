@@ -21,7 +21,7 @@
 
 - بوابة عدالة: https://adala.justice.gov.ma/
 - الأمانة العامة للحكومة: https://www.sgg.gov.ma/
-- الجريدة الرسمية: https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx
+- الجريدة الرسمية: https://www.sgg.gov.ma/BulletinOfficiel.aspx
 - وزارة التعليم العالي والبحث العلمي والابتكار: https://www.enssup.gov.ma/
 
 ## أهم الأقسام
