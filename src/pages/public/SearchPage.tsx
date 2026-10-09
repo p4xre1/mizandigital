@@ -5,6 +5,7 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { supabase } from "../../lib/supabase/client"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { validateSearch, checkRateLimit, RATE_LIMITS, INPUT_LIMITS } from "../../lib/security/inputGuard"
+import { rankDocuments, sanitizeQueryTokens } from "../../../shared/search/bm25.js"
 
 interface Result { id: string; title: string; description?: string | null; type: string; typeLabel: string; href: string }
 
@@ -22,18 +23,22 @@ export function SearchPage() {
   useEffect(() => {
     const q = normalize(initialQuery)
     if (!q) { setResults([]); setLoading(false); return }
+    // كلمات البحث بعد التنظيف (حتى 5 كلمات، بلا رموز تكسر فلتر PostgREST)
+    const tokens = sanitizeQueryTokens(initialQuery)
+    if (tokens.length === 0) { setResults([]); setLoading(false); return }
     let active = true
     const run = async () => {
       setLoading(true)
-      const pattern = `%${q.replace(/[%_]/g, "\\$&" )}%`
+      // مطابقة OR: أي كلمة تكفي، والترتيب يتولاه BM25 بعد الجلب
+      const orFor = (fields: string[]) => tokens.flatMap((t) => fields.map((f) => `${f}.ilike.%${t}%`)).join(",")
       const [articles, news, schools, terms, pdfs, events, laws] = await Promise.all([
-        supabase.from("articles").select("id,title,slug,excerpt").eq("status", "published").or(`title.ilike.${pattern},excerpt.ilike.${pattern},content.ilike.${pattern}`).limit(30),
-        supabase.from("news").select("id,title,slug,summary").eq("is_published", true).or(`title.ilike.${pattern},summary.ilike.${pattern},content.ilike.${pattern}`).limit(30),
-        supabase.from("schools").select("id,name,slug,university,city,synopsis").or(`name.ilike.${pattern},university.ilike.${pattern},city.ilike.${pattern},synopsis.ilike.${pattern}`).limit(30),
-        supabase.from("lexicon_terms").select("id,term_ar,term_fr,definition,category").or(`term_ar.ilike.${pattern},term_fr.ilike.${pattern},definition.ilike.${pattern},category.ilike.${pattern}`).limit(30),
-        supabase.from("pdf_summaries").select("id,title,slug,description,semester").or(`title.ilike.${pattern},description.ilike.${pattern},professor.ilike.${pattern},semester.ilike.${pattern}`).limit(30),
-        supabase.from("seminars").select("id,title,speaker,speaker_title,agenda").eq("status", "published").or(`title.ilike.${pattern},speaker.ilike.${pattern},speaker_title.ilike.${pattern},agenda.ilike.${pattern}`).limit(30),
-        supabase.from("laws").select("id,title,slug,law_number,description").or(`title.ilike.${pattern},law_number.ilike.${pattern},description.ilike.${pattern}`).limit(30),
+        supabase.from("articles").select("id,title,slug,excerpt").eq("status", "published").or(orFor(["title", "excerpt", "content"])).limit(30),
+        supabase.from("news").select("id,title,slug,summary").eq("is_published", true).or(orFor(["title", "summary", "content"])).limit(30),
+        supabase.from("schools").select("id,name,slug,university,city,synopsis").or(orFor(["name", "university", "city", "synopsis"])).limit(30),
+        supabase.from("lexicon_terms").select("id,term_ar,term_fr,definition,category").or(orFor(["term_ar", "term_fr", "definition", "category"])).limit(30),
+        supabase.from("pdf_summaries").select("id,title,slug,description,semester").or(orFor(["title", "description", "professor", "semester"])).limit(30),
+        supabase.from("seminars").select("id,title,speaker,speaker_title,agenda").eq("status", "published").or(orFor(["title", "speaker", "speaker_title", "agenda"])).limit(30),
+        supabase.from("laws").select("id,title,slug,law_number,description").or(orFor(["title", "law_number", "description"])).limit(30),
       ])
       if (!active) return
       const next: Result[] = []
@@ -45,7 +50,16 @@ export function SearchPage() {
       ;(events.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: [x.speaker, x.speaker_title, x.agenda].filter(Boolean).join(" — "), type: "event", typeLabel: "ندوة", href: `/events/seminar-${x.id}` }))
       ;(laws.data || []).forEach((x: any) => next.push({ id: x.id, title: x.title, description: [x.law_number, x.description].filter(Boolean).join(" — "), type: "law", typeLabel: "قانون", href: `/archive?law=${encodeURIComponent(x.slug)}` }))
       const unique = Array.from(new Map(next.map((x) => [`${x.type}:${x.id}`, x])).values())
-      setResults(unique)
+
+      // ترتيب BM25 داخل كل نوع: IDF يُحسب على جدول واحد، والعنوان يُضاعَف وزنه
+      const byType = new Map<string, Result[]>()
+      for (const item of unique) byType.set(item.type, [...(byType.get(item.type) ?? []), item])
+      const ranked: Result[] = []
+      for (const items of byType.values()) {
+        const order = rankDocuments(items.map((i) => ({ title: i.title, body: i.description ?? "" })), initialQuery)
+        for (const r of order) ranked.push(items[r.index])
+      }
+      setResults(ranked)
       setLoading(false)
     }
     run()

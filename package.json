@@ -16,6 +16,7 @@
     "build": "node scripts/clean.mjs && vite build --config vite.config.ts && node scripts/prerender.mjs && node scripts/enhance-schools-prerender.mjs && node scripts/enhance-lexicon-prerender.mjs && node scripts/nonblocking-css.mjs && node scripts/csp-hashes.mjs",
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
+    "check:citations": "node scripts/check-law-citations.mjs",
     "test": "vitest run --configLoader runner",
     "tree": "node scripts/print-tree.mjs",
     "audit": "node scripts/audit-project.mjs",

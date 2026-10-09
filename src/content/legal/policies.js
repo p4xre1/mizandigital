@@ -152,6 +152,14 @@ export const COOKIE_TABLE = [
     type: "وظيفي",
   },
   {
+    name: "mizan:review:v1",
+    provider: "الميزان الرقمية (محلي)",
+    purpose:
+      "جدولة مراجعة الأسئلة التي أجبتم عنها (التكرار المتباعد): موعد المراجعة التالي لكل سؤال. تبقى على جهازكم ولا تُرسل إلى الخادم.",
+    duration: "دائم (حتى المسح اليدوي)",
+    type: "وظيفي",
+  },
+  {
     name: "mizan:gmail:token , mizan:gmail:status",
     provider: "الميزان الرقمية (محلي)",
     purpose:

@@ -24,6 +24,14 @@ import { useQuizProgress } from "@/hooks/useQuizProgress"
 import { getRankForXp } from "@/lib/quiz/ranks"
 import { QuizResultPanel } from "./QuizResultPanel"
 import { submitAttemptSecure } from "@/lib/quiz/attemptService"
+import { recordReview } from "@/lib/learning/reviewStore"
+import {
+  ADAPTIVE_MAX_ITEMS,
+  estimateAbility,
+  itemDifficulty,
+  nextAdaptiveQuestion,
+  rankForAbility,
+} from "../../../shared/quiz/adaptive.js"
 
 /**
  * محرّك تشغيل الاختبار (Quiz Runner).
@@ -51,6 +59,12 @@ export interface QuizRunnerProps {
   secondsPerQuestion?: number
   /** وضع اختبار التحديد: يمنح رتبة ابتدائية بدل النقاط الاعتيادية فقط. */
   placement?: boolean
+  /**
+   * اختبار متكيّف (Rasch IRT): يختار كل سؤال تالٍ حسب الإجابات السابقة،
+   * وينتهي عندما تصبح تقدير المستوى دقيقاً بما يكفي (انظر shared/quiz/adaptive.js).
+   * يتجاهل questionCount و excludeIds.
+   */
+  adaptive?: boolean
   onExit: () => void
   /** يُستدعى مرة واحدة عند اكتمال الجلسة (لمزامنة سحابية أو تحليلات). */
   onComplete?: (attempt: QuizAttempt) => void
@@ -65,14 +79,25 @@ export function QuizRunner({
   excludeIds = [],
   secondsPerQuestion,
   placement = false,
+  adaptive = false,
   onExit,
   onComplete,
 }: QuizRunnerProps) {
   const { progress, submitAttempt, finishPlacement, rankProgress, profile } = useQuizProgress()
 
-  const [session, setSession] = useState<QuizQuestion[]>(() =>
-    pickQuestions(questions, { count: questionCount, excludeIds })
-  )
+  /** بناء الجلسة الأولى: اختبار ثابت، أو أول سؤال متكيّف (المستوى المتوسط حين لا إجابات بعد). */
+  const buildInitialSession = useCallback((): QuizQuestion[] => {
+    if (!adaptive) return pickQuestions(questions, { count: questionCount, excludeIds })
+    const first = nextAdaptiveQuestion({ pool: questions, answered: [] }).question
+    return first ? [first] : []
+  }, [adaptive, excludeIds, questionCount, questions])
+
+  const [session, setSession] = useState<QuizQuestion[]>(buildInitialSession)
+  /**
+   * في الوضع المتكيّف: السؤال التالي المحسوب بعد كل إجابة (null = انتهى الاختبار).
+   * يُحسب مسبقاً حتى يعرف الواجهة هل السؤال الحالي هو الأخير.
+   */
+  const [adaptiveNext, setAdaptiveNext] = useState<QuizQuestion | null | undefined>(undefined)
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<GradedAnswer[]>([])
   const [selected, setSelected] = useState<number | null>(null)
@@ -108,12 +133,13 @@ export function QuizRunner({
    */
   useEffect(() => {
     if (session.length > 0 || answers.length > 0 || questions.length === 0) return
-    setSession(pickQuestions(questions, { count: questionCount, excludeIds }))
-  }, [answers.length, excludeIds, questionCount, questions, session.length])
+    setSession(buildInitialSession())
+  }, [answers.length, buildInitialSession, questions.length, session.length])
 
   /** يعيد بناء جلسة جديدة بأسئلة مغايرة (بلا إعادة تحميل للصفحة). */
   const restart = useCallback(() => {
-    setSession(pickQuestions(questions, { count: questionCount, excludeIds }))
+    setSession(buildInitialSession())
+    setAdaptiveNext(undefined)
     setIndex(0)
     setAnswers([])
     setSelected(null)
@@ -125,7 +151,7 @@ export function QuizRunner({
     setFinished(false)
     setResult(null)
     completedRef.current = false
-  }, [excludeIds, questionCount, questions, secondsPerQuestion])
+  }, [buildInitialSession, secondsPerQuestion])
 
   // العدّاد التنازلي الخاص بكل سؤال (أسلوب المباريات): عند انتهاء الوقت
   // يُعتبر السؤال مُجاباً عنه خطأ (chosen = null) ويظهر الشرح مباشرة.
@@ -149,12 +175,31 @@ export function QuizRunner({
       setRevealed(true)
       setStreak(graded.streak)
       setAnswers((previous) => [...previous, graded])
+
+      // كل إجابة تدخل جدول المراجعة المتباعدة (shared/learning/spaced-repetition.js)
+      recordReview(current.id, { correct: graded.correct, elapsedMs })
+
+      if (adaptive) {
+        const step = nextAdaptiveQuestion({
+          pool: questions,
+          answered: [...answers, graded].map((a) => ({ question: a.question, correct: a.correct })),
+        })
+        setAdaptiveNext(step.question)
+      }
     },
-    [current, questionStartedAt, revealed, streak]
+    [adaptive, answers, current, questionStartedAt, questions, revealed, streak]
   )
 
   const goNext = useCallback(() => {
-    if (index + 1 >= session.length) {
+    if (adaptive) {
+      // الوضع المتكيّف: السؤال التالي محسوب مسبقاً بعد الإجابة
+      if (!adaptiveNext) {
+        setFinished(true)
+        return
+      }
+      setSession((previous) => [...previous, adaptiveNext])
+      setAdaptiveNext(undefined)
+    } else if (index + 1 >= session.length) {
       setFinished(true)
       return
     }
@@ -163,7 +208,7 @@ export function QuizRunner({
     setRevealed(false)
     setQuestionStartedAt(Date.now())
     setTimeLeft(secondsPerQuestion ?? null)
-  }, [index, secondsPerQuestion, session.length])
+  }, [adaptive, adaptiveNext, index, secondsPerQuestion, session.length])
 
   // اختصارات لوحة المفاتيح: 1–4 للإجابة، Enter للسؤال الموالي
   useEffect(() => {
@@ -196,7 +241,12 @@ export function QuizRunner({
     const rankBeforeId = getRankForXp(progress.xp).id
 
     if (placement) {
-      const rank = placementRankForScore(summary.score)
+      // في الوضع المتكيّف الرتبة من تقدير المستوى θ، لا من نسبة الإجابات الصحيحة
+      const rank = adaptive
+        ? (rankForAbility(
+            estimateAbility(answers.map((a) => ({ b: itemDifficulty(a.question), correct: a.correct }))).theta
+          ) as "A" | "B" | "C" | "D")
+        : placementRankForScore(summary.score)
       const finish = finishPlacement(attempt, rank, 60)
       setResult({
         attempt,
@@ -264,9 +314,12 @@ export function QuizRunner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished])
 
+  // في الوضع المتكيّف عدد الأسئلة غير معروف مسبقاً: المقام هو الحد الأقصى
+  const totalItems = adaptive ? ADAPTIVE_MAX_ITEMS : session.length
+
   const progressPercent = useMemo(
-    () => (session.length === 0 ? 0 : Math.round(((index + (revealed ? 1 : 0)) / session.length) * 100)),
-    [index, revealed, session.length]
+    () => (totalItems === 0 ? 0 : Math.round(((index + (revealed ? 1 : 0)) / totalItems) * 100)),
+    [index, revealed, totalItems]
   )
 
   if (session.length === 0 && questions.length === 0) {
@@ -328,7 +381,9 @@ export function QuizRunner({
     )
   }
 
-  const isLastQuestion = index + 1 >= session.length
+  const isLastQuestion = adaptive
+    ? revealed && adaptiveNext === null
+    : index + 1 >= session.length
 
   return (
     <div className="mx-auto w-full max-w-3xl" dir="rtl">
@@ -363,7 +418,7 @@ export function QuizRunner({
               </span>
             )}
             <span className="text-[12px] font-extrabold text-muted-foreground" dir="ltr">
-              {index + 1} / {session.length}
+              {index + 1} / {totalItems}
             </span>
           </div>
         </div>
