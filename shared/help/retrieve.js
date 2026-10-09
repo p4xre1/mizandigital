@@ -6,9 +6,20 @@
 const DIACRITICS_RE = /[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g
 const PUNCT_RE = /[^\p{L}\p{N}\s]/gu
 
+const INVISIBLE_RE = /[\u00AD\u180E\u200B-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g
+
+/**
+ * توحيد النص قبل أي فحص أمني: NFKC يحوّل الأشكال العرضية (مثل ＜ و ｓ) إلى صورتها
+ * القياسية، ويُزال كل حرف غير مرئي يُستعمل لإخفاء كلمة عن الفلاتر.
+ * كل فحص في المساعد يمر عبر هذه الدالة.
+ */
+export function canonicalize(text) {
+  return String(text || "").normalize("NFKC").replace(INVISIBLE_RE, "")
+}
+
 /** تطبيع النص العربي والفرنسي/الإنجليزي للمقارنة. */
 export function normalize(text) {
-  return String(text || "")
+  return canonicalize(text)
     .replace(DIACRITICS_RE, "")
     .replace(/[إأآٱ]/g, "ا")
     .replace(/ى/g, "ي")

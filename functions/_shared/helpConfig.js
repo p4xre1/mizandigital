@@ -1,44 +1,55 @@
 // functions/_shared/helpConfig.js
 //
-// يحمّل إعدادات مساعد الموقع وأسئلته من Supabase (جدولا help_settings و help_qa)
-// بالمفتاح العام، وهي قراءة مسموحة للجميع عبر RLS للصفوف المنشورة فقط.
+// يحمّل إعدادات مساعد الموقع وأسئلته من Supabase (help_settings و help_qa).
 //
-// - تُخزَّن النتيجة في الذاكرة لدقيقة لتخفيف الحمل.
-// - إذا لم تُطبَّق الهجرة بعد أو تعذّرت القراءة، يعمل المساعد بالإعدادات
-//   الافتراضية والمحتوى المدمج، ولا يتوقف. الفشل يُخزَّن 15 ثانية فقط.
+// • قراءة help_settings تتم بمفتاح service_role على الخادم فقط، لأن قائمة العبارات
+//   المحظورة لا يجب أن تُكشف للزوار. مفتاح service_role يُضبط كسرّ في Cloudflare،
+//   ولا يصل إلى المتصفح أبداً.
+// • الفشل يُغلق الخدمة (fail closed): لا قيم افتراضية صامتة، لأن غياب قاعدة
+//   المشرف يعني أن الحماية المختارة لم تعد مطبّقة. الخطأ يُرمى ويعالجه الـendpoint بـ503.
+// • أي صف في help_qa لا يجتاز التحقق يُحذف ويُسجَّل، حتى لو كُتب مباشرة في قاعدة البيانات.
+// • النجاح يُخزَّن دقيقة. الفشل لا يُخزَّن أبداً.
 
-import { DEFAULT_SETTINGS, qaRowToEntry, settingsFromRow } from "../../shared/help/cms.js"
+import { DEFAULT_SETTINGS, qaRowToEntry, settingsFromRow, validateQaDraft } from "../../shared/help/cms.js"
+import { logSecurityEvent } from "./helpSecurity.js"
 
 const OK_TTL_MS = 60_000
-const FAIL_TTL_MS = 15_000
 
 let cached = null
+
+export class GuardConfigError extends Error {
+  /** @param {string} code */
+  constructor(code, message) {
+    super(message)
+    this.name = "GuardConfigError"
+    this.code = code
+  }
+}
 
 /** للاختبارات: يمسح الذاكرة المؤقتة حتى تُقرأ القيم الجديدة. */
 export function resetHelpConfigCache() {
   cached = null
 }
 
-function defaults() {
-  return { settings: { ...DEFAULT_SETTINGS, messages: { ...DEFAULT_SETTINGS.messages } }, customEntries: [] }
-}
-
 /**
  * @param {Record<string, any>} env
  * @returns {Promise<{ settings: typeof DEFAULT_SETTINGS, customEntries: any[] }>}
+ * @throws {GuardConfigError}
  */
 export async function loadHelpConfig(env) {
   if (cached && Date.now() < cached.expires) return cached.value
 
   const supabaseUrl = env?.SUPABASE_URL || env?.VITE_SUPABASE_URL
-  const anonKey = env?.SUPABASE_ANON_KEY || env?.VITE_SUPABASE_ANON_KEY
-  if (!supabaseUrl || !anonKey) {
-    cached = { value: defaults(), expires: Date.now() + FAIL_TTL_MS }
-    return cached.value
+  const serviceKey = env?.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !serviceKey) {
+    throw new GuardConfigError("missing_service_key", "SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY مطلوبان لقراءة قواعد المساعد")
   }
 
-  const headers = { apikey: anonKey, Authorization: `Bearer ${anonKey}` }
+  const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }
   const base = supabaseUrl.replace(/\/$/, "")
+
+  let settingsRows
+  let qaRows
   try {
     const [settingsRes, qaRes] = await Promise.all([
       fetch(`${base}/rest/v1/help_settings?id=eq.1&select=*`, { headers, signal: AbortSignal.timeout(2000) }),
@@ -47,21 +58,36 @@ export async function loadHelpConfig(env) {
         { headers, signal: AbortSignal.timeout(2000) },
       ),
     ])
-    if (!settingsRes.ok || !qaRes.ok) throw new Error(`help config HTTP ${settingsRes.status}/${qaRes.status}`)
-
-    const settingsRows = await settingsRes.json()
-    const qaRows = await qaRes.json()
-    const value = {
-      settings: settingsFromRow(Array.isArray(settingsRows) ? settingsRows[0] ?? null : null),
-      customEntries: (Array.isArray(qaRows) ? qaRows : [])
-        .map(qaRowToEntry)
-        .filter((entry) => entry.title && entry.body),
-    }
-    cached = { value, expires: Date.now() + OK_TTL_MS }
-    return value
+    if (!settingsRes.ok) throw new GuardConfigError("settings_http", `help_settings HTTP ${settingsRes.status}`)
+    if (!qaRes.ok) throw new GuardConfigError("qa_http", `help_qa HTTP ${qaRes.status}`)
+    settingsRows = await settingsRes.json()
+    qaRows = await qaRes.json()
   } catch (error) {
-    console.warn("[help] تعذّر تحميل إعدادات المساعد، تُستعمل الافتراضية:", error?.message || error)
-    cached = { value: defaults(), expires: Date.now() + FAIL_TTL_MS }
-    return cached.value
+    if (error instanceof GuardConfigError) throw error
+    throw new GuardConfigError("fetch_failed", error?.message || "fetch failed")
   }
+
+  if (!Array.isArray(settingsRows) || settingsRows.length === 0) {
+    throw new GuardConfigError("settings_row_missing", "صف help_settings غير موجود: طبّق الهجرة")
+  }
+
+  const customEntries = []
+  for (const row of Array.isArray(qaRows) ? qaRows : []) {
+    const entry = qaRowToEntry(row)
+    const problem = validateQaDraft({
+      question: entry.title,
+      answer: entry.body,
+      keywords: entry.keywords,
+      sourceUrl: entry.url ?? "",
+    })
+    if (problem || !entry.title || !entry.body) {
+      logSecurityEvent("invalid_qa_row_skipped", { rowId: String(row?.id ?? "unknown") })
+      continue
+    }
+    customEntries.push(entry)
+  }
+
+  const value = { settings: settingsFromRow(settingsRows[0]), customEntries }
+  cached = { value, expires: Date.now() + OK_TTL_MS }
+  return value
 }

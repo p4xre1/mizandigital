@@ -19,6 +19,8 @@ const STARTERS = [
 const GENERIC_ERROR = "تعذّر الرد الآن. حاول مرة أخرى بعد قليل."
 const SESSION_EXPIRED = "انتهت جلستك. سجّل الدخول من جديد لمتابعة السؤال."
 const DAILY_LIMIT_REACHED = "استنفدت حصة اليوم من الأسئلة. حاول مرة أخرى غداً."
+const ACCOUNT_RESTRICTED = "حسابك غير مفعّل لاستعمال المساعد. راجع إدارة الموقع إن كان هذا خطأ."
+const TOO_FAST = "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم حاول مجدداً."
 
 /** الروابط الداخلية تمر عبر الراوتر، وروابط الملفات العامة (مثل RSS) تُفتح كرابط عادي. */
 function SourceLink({ source }: { source: Source }) {
@@ -71,6 +73,10 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
 
       if (res.status === 401) {
         setNotice(SESSION_EXPIRED)
+      } else if (res.status === 403 && data?.error === "account_restricted") {
+        setNotice(ACCOUNT_RESTRICTED)
+      } else if (res.status === 429 && data?.error === "too_fast") {
+        setNotice(TOO_FAST)
       } else if (res.status === 429 && data?.error === "daily_limit_reached") {
         setQuota({ limit: data.quota?.limit ?? quota?.limit ?? 0, remaining: 0 })
         setNotice(DAILY_LIMIT_REACHED)

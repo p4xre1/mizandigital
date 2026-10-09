@@ -9,7 +9,7 @@
 // الهدف ليس منع كل ذكر للقانون، بل منع "حالتي/قضيتي/هل يحق لي" وما شابهها.
 // أمثلة مقبولة: "كيف أبحث في الأرشيف؟"، "ما معنى الالتزام؟" (تعريف من المعجم).
 
-import { normalize } from "./retrieve.js"
+import { canonicalize, normalize } from "./retrieve.js"
 
 /**
  * أنماط الحالة الشخصية بالعربية. تُكتب بالصيغة بعد التطبيع لأن normalize()
@@ -90,10 +90,36 @@ const SCRIPT_PATTERNS = [
  * @returns {{ block: boolean, reason: "script" | "prompt_injection" | null }}
  */
 export function checkInjection(text) {
-  const raw = String(text || "")
+  const raw = canonicalize(text)
   if (SCRIPT_PATTERNS.some((re) => re.test(raw))) return { block: true, reason: "script" }
   const norm = normalize(raw)
   if (INJECTION_PATTERNS.some((re) => re.test(norm))) return { block: true, reason: "prompt_injection" }
+  return { block: false, reason: null }
+}
+
+/**
+ * حمولات مشفّرة أو مموّهة: كتل base64/hex طويلة، نسب ترميز URL، وتكرار حرف واحد
+ * عشرين مرة أو أكثر. السؤال الحقيقي عن الموقع لا يحتاج أياً منها.
+ * @returns {{ block: boolean, reason: "obfuscated_payload" | null }}
+ */
+export function checkObfuscation(text) {
+  const raw = canonicalize(text)
+  const blob = /[A-Za-z0-9+/=_-]{80,}/.test(raw)
+  const hexEscapes = /(\\x[0-9a-f]{2}){6,}|(%[0-9a-f]{2}){10,}|(&#x?[0-9a-f]+;){6,}/i.test(raw)
+  const flood = /(.)\1{19,}/u.test(raw)
+  return blob || hexEscapes || flood ? { block: true, reason: "obfuscated_payload" } : { block: false, reason: null }
+}
+
+/**
+ * الفحص الأمني الأول للرسالة: حقن الشيفرة والتعليمات والحمولات المموّهة.
+ * يعمل قبل بوابة اللغة، فالشيفرة المكتوبة بحروف لاتينية لا تُعامل كسؤال غير عربي.
+ * @returns {{ block: boolean, reason: string | null }}
+ */
+export function screenMessage(text) {
+  const injection = checkInjection(text)
+  if (injection.block) return { block: true, reason: injection.reason }
+  const obfuscated = checkObfuscation(text)
+  if (obfuscated.block) return { block: true, reason: obfuscated.reason }
   return { block: false, reason: null }
 }
 

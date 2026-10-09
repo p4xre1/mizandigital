@@ -3,7 +3,8 @@ import { onRequestPost } from "../functions/api/help/chat.js"
 import { resetHelpConfigCache } from "../functions/_shared/helpConfig.js"
 
 const SUPABASE = "https://example.supabase.co"
-const ENV = { SUPABASE_URL: SUPABASE, SUPABASE_ANON_KEY: "anon-test" }
+const SERVICE_KEY = "service-test"
+const ANON_KEY = "anon-test"
 
 let ipCounter = 0
 /** IP جديد لكل طلب حتى لا يصطدم حد الـIP بالاختبارات. */
@@ -12,28 +13,61 @@ const freshIp = () => `203.0.113.${(ipCounter += 1) % 250}-${Math.random().toStr
 let userCounter = 0
 const freshUser = () => `user-${(userCounter += 1)}-${Math.random().toString(36).slice(2)}`
 
-/** صفوف جدولي المساعد في Supabase، تُضبط في كل اختبار حسب الحاجة. */
-let cmsState: { settings: any[]; qa: any[]; settingsStatus: number } = { settings: [], qa: [], settingsStatus: 200 }
+/** صفوف جدولي المساعد وحالة الحساب، تُضبط في كل اختبار حسب الحاجة. */
+let cmsState: { settings: any[]; qa: any[]; settingsStatus: number; accountStatus: string | null; profileStatus: number } = {
+  settings: [],
+  qa: [],
+  settingsStatus: 200,
+  accountStatus: "active",
+  profileStatus: 200,
+}
+
+let env: Record<string, any>
+
+/** مخزن KV بسيط يطابق واجهة Cloudflare KV (get/put). */
+function makeKv() {
+  const store = new Map<string, string>()
+  return {
+    async get(key: string) {
+      return store.has(key) ? store.get(key)! : null
+    },
+    async put(key: string, value: string) {
+      store.set(key, value)
+    },
+  }
+}
 
 /**
- * يحاكي Supabase: الرمز "tok-<id>" يمثل مستخدماً مسجلاً، وأي رمز آخر مرفوض.
- * جدولا help_settings و help_qa يُقرآن من cmsState. أي عنوان آخر يُعد خطأ.
+ * الساعة: كل طلب يتقدم دقيقة وأكثر، فلا يصطدم حد الاندفاع (6/دقيقة) بالاختبارات
+ * التي تحتاج عشرات الأسئلة. الاختبارات التي تفحص حدود الدقيقة تستعمل hold.
  */
+let clockMs = Date.UTC(2026, 9, 9, 12, 0, 0)
+
 beforeEach(() => {
-  cmsState = { settings: [], qa: [], settingsStatus: 200 }
+  cmsState = { settings: [{ enabled: true }], qa: [], settingsStatus: 200, accountStatus: "active", profileStatus: 200 }
+  env = { SUPABASE_URL: SUPABASE, SUPABASE_ANON_KEY: ANON_KEY, SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY, RATE_LIMIT_KV: makeKv() }
   resetHelpConfigCache()
+  vi.useFakeTimers({ toFake: ["Date"] })
+  vi.setSystemTime(clockMs)
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: any, init?: any) => {
       const url = String(input)
-      if (url.startsWith(`${SUPABASE}/rest/v1/help_settings`)) {
-        return new Response(JSON.stringify(cmsState.settings), { status: cmsState.settingsStatus })
-      }
-      if (url.startsWith(`${SUPABASE}/rest/v1/help_qa`)) {
+      const headers = init?.headers || {}
+      if (url.startsWith(`${SUPABASE}/rest/v1/help_settings`) || url.startsWith(`${SUPABASE}/rest/v1/help_qa`)) {
+        if (headers.apikey !== SERVICE_KEY) return new Response("forbidden", { status: 401 })
+        if (url.startsWith(`${SUPABASE}/rest/v1/help_settings`)) {
+          return new Response(JSON.stringify(cmsState.settings), { status: cmsState.settingsStatus })
+        }
         return new Response(JSON.stringify(cmsState.qa), { status: 200 })
       }
+      if (url.startsWith(`${SUPABASE}/rest/v1/profiles`)) {
+        if (cmsState.profileStatus !== 200) return new Response("error", { status: cmsState.profileStatus })
+        const rows = cmsState.accountStatus === null ? [] : [{ account_status: cmsState.accountStatus }]
+        return new Response(JSON.stringify(rows), { status: 200 })
+      }
       if (!url.startsWith(`${SUPABASE}/auth/v1/user`)) throw new Error(`unexpected fetch ${url}`)
-      const auth: string = init?.headers?.Authorization || ""
+      const auth: string = headers.Authorization || ""
       const token = auth.replace(/^Bearer\s+/i, "")
       if (!token.startsWith("tok-")) return new Response("unauthorized", { status: 401 })
       const id = token.slice(4)
@@ -44,6 +78,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals()
+  vi.useRealTimers()
 })
 
 type CallOpts = {
@@ -53,10 +88,20 @@ type CallOpts = {
   /** الافتراضي: رمز مستخدم جديد. اجعله "" لإرسال طلب بلا رمز. */
   token?: string
   user?: string
+  /** لا تتقدم الساعة: لاختبار حدود الدقيقة (الاندفاع و IP). */
+  hold?: boolean
 }
 
 function call(body: unknown, opts: CallOpts = {}) {
-  const headers: Record<string, string> = { "Content-Type": "application/json", "CF-Connecting-IP": opts.ip ?? freshIp(), ...(opts.headers ?? {}) }
+  if (!opts.hold) {
+    clockMs += 61_000
+    vi.setSystemTime(clockMs)
+  }
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "CF-Connecting-IP": opts.ip ?? freshIp(),
+    ...(opts.headers ?? {}),
+  }
   const token = opts.token ?? `tok-${opts.user ?? freshUser()}`
   if (token) headers.Authorization = `Bearer ${token}`
   const request = new Request("https://mizan.page/api/help/chat", {
@@ -64,10 +109,10 @@ function call(body: unknown, opts: CallOpts = {}) {
     headers,
     body: opts.rawBody ?? JSON.stringify(body),
   })
-  return onRequestPost({ request, env: ENV } as any)
+  return onRequestPost({ request, env } as any)
 }
 
-describe("POST /api/help/chat: تسجيل الدخول", () => {
+describe("POST /api/help/chat: تسجيل الدخول وحالة الحساب", () => {
   test("بلا رمز دخول: 401 ولا جواب", async () => {
     const res = await call({ message: "كيف أبحث في الأرشيف؟" }, { token: "" })
     expect(res.status).toBe(401)
@@ -79,14 +124,33 @@ describe("POST /api/help/chat: تسجيل الدخول", () => {
     expect(res.status).toBe(401)
   })
 
-  test("مستخدم مسجّل: جواب مع الحصة المتبقية وترويسة no-store", async () => {
+  test("مستخدم مسجّل: جواب مع الحصة المتبقية وترويسات أمنية", async () => {
     const res = await call({ message: "كيف أبحث في الأرشيف؟" })
     expect(res.status).toBe(200)
     expect(res.headers.get("Cache-Control")).toBe("no-store")
+    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff")
+    expect(res.headers.get("X-Request-Id")).toBeTruthy()
     const data = await res.json()
     expect(data.mode).toBe("answer")
     expect(data.sources.map((s: { url: string }) => s.url)).toContain("/archive")
     expect(data.quota).toEqual({ limit: 20, remaining: 19 })
+  })
+
+  test("حساب موقوف أو قيد الحذف: 403 ولا جواب", async () => {
+    cmsState.accountStatus = "suspended"
+    const res = await call({ message: "كيف أبحث في الأرشيف؟" })
+    expect(res.status).toBe(403)
+    expect((await res.json()).error).toBe("account_restricted")
+  })
+
+  test("صف الحساب غير موجود: يُرفض (fail closed)", async () => {
+    cmsState.accountStatus = null
+    expect((await call({ message: "كيف أبحث في الأرشيف؟" })).status).toBe(403)
+  })
+
+  test("تعذّر قراءة حالة الحساب: 503", async () => {
+    cmsState.profileStatus = 500
+    expect((await call({ message: "كيف أبحث في الأرشيف؟" })).status).toBe(503)
   })
 })
 
@@ -171,27 +235,53 @@ describe("POST /api/help/chat: التحقق من المدخلات", () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.mode).toBe("blocked")
-    expect(JSON.stringify(data)).not.toMatch(/injection|pattern|regex/i)
+    expect(JSON.stringify(data)).not.toMatch(/injection|pattern|regex|reason|obfusc/i)
   })
 
-  test("جسم أكبر من 4 كيلوبايت: 413", async () => {
+  test("جسم أكبر من 4 كيلوبايت (مع Content-Length كاذب): 413", async () => {
     const res = await call(null, { rawBody: "{}", headers: { "Content-Length": "5000" } })
     expect(res.status).toBe(413)
   })
 
-  test("JSON غير صالح: خطأ من 400 إلى 499 بلا انهيار", async () => {
+  test("جسم أكبر من الحد بلا Content-Length (تدفق): 413", async () => {
+    const big = `{"message":"${"ب".repeat(3000)}"}`
+    const stream = new ReadableStream({
+      start(controller) {
+        const bytes = new TextEncoder().encode(big)
+        controller.enqueue(bytes.slice(0, 2000))
+        controller.enqueue(bytes.slice(2000))
+        controller.close()
+      },
+    })
+    clockMs += 61_000
+    vi.setSystemTime(clockMs)
+    const request = new Request("https://mizan.page/api/help/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "CF-Connecting-IP": freshIp(), Authorization: `Bearer tok-${freshUser()}` },
+      body: stream,
+      duplex: "half",
+    } as any)
+    const res = await onRequestPost({ request, env } as any)
+    expect(res.status).toBe(413)
+  })
+
+  test("نوع محتوى غير JSON: 415", async () => {
+    const res = await call(null, { rawBody: "message=hi", headers: { "Content-Type": "text/plain" } })
+    expect(res.status).toBe(415)
+  })
+
+  test("JSON غير صالح: 400 بلا انهيار", async () => {
     const res = await call(null, { rawBody: "{not json" })
-    expect(res.status).toBeGreaterThanOrEqual(400)
-    expect(res.status).toBeLessThan(500)
+    expect(res.status).toBe(400)
   })
 
   test("بعد 20 طلباً من IP واحد يأتي الرد 429 من حد الـIP", async () => {
     const ip = freshIp()
     for (let i = 0; i < 20; i += 1) {
-      const ok = await call({ message: "كيف أبحث في الأرشيف؟" }, { ip })
+      const ok = await call({ message: "كيف أبحث في الأرشيف؟" }, { ip, hold: true })
       expect(ok.status).toBe(200)
     }
-    const limited = await call({ message: "كيف أبحث في الأرشيف؟" }, { ip })
+    const limited = await call({ message: "كيف أبحث في الأرشيف؟" }, { ip, hold: true })
     expect(limited.status).toBe(429)
   })
 })
@@ -245,10 +335,10 @@ describe("POST /api/help/chat: إعدادات المشرف وأسئلته", () =
     expect(resumed.quota.remaining).toBe(19)
   })
 
-  test("تعذّر قراءة الإعدادات: يعمل المساعد بالافتراضي ولا يتوقف", async () => {
+  test("تعذّر قراءة الإعدادات: 503 ولا جواب (fail closed)", async () => {
     cmsState.settingsStatus = 500
     const res = await call({ message: "كيف أبحث في الأرشيف؟" })
-    expect(res.status).toBe(200)
-    expect((await res.json()).mode).toBe("answer")
+    expect(res.status).toBe(503)
+    expect((await res.json()).error).toBe("guard_config_unavailable")
   })
 })
