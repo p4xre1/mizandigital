@@ -3,6 +3,7 @@ import {
   Search, Globe, FileText, Brain, CheckCircle2, AlertTriangle, ExternalLink,
   Sparkles, BarChart3, Layers, GraduationCap, Scale, BookOpen, Tag, ShieldCheck
 } from "lucide-react"
+import { SEO_TOOL_GROUPS } from "./seoToolsLinks"
 
 interface SeoFile {
   name: string
@@ -86,6 +87,32 @@ export default function SeoManagementPage() {
               <a href={f.path} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline">
                 <ExternalLink className="size-3" /> فتح
               </a>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="mb-3 flex items-center gap-2 text-[14px] font-extrabold text-foreground"><BarChart3 className="size-4 text-blue-600" /> أدوات تحليل SEMrush</h2>
+        <p className="mb-3 text-[11px] text-muted-foreground">روابط مباشرة لحساب SEMrush الخاص بالموقع (mizan.page). تُفتح في تبويب جديد.</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {SEO_TOOL_GROUPS.map((group) => (
+            <div key={group.title} className="rounded-2xl border border-border bg-card p-4">
+              <p className="text-[12px] font-extrabold text-foreground">{group.title}</p>
+              <ul className="mt-2 space-y-1.5">
+                {group.links.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline"
+                    >
+                      <ExternalLink className="size-3" /> {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
