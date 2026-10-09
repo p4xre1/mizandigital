@@ -281,3 +281,41 @@ export const AWESOME_AEO_TOOL_GROUPS: SeoToolGroup[] = [
     ],
   },
 ]
+
+const ELMO_REPO = "https://github.com/elmohq/elmo"
+/**
+ * Elmo: منصة مفتوحة المصدر (MIT) لتتبع ظهور العلامة في إجابات ChatGPT وClaude وPerplexity وغيرها.
+ * الروابط فقط. المنصة تُشغَّل ذاتياً عبر Docker Compose، ولا تُدمج في هذه الـCMS.
+ */
+export const ELMO_TOOL_GROUPS: SeoToolGroup[] = [
+  {
+    title: "المنصة والتجربة",
+    links: [
+      { label: "المستودع (MIT)", href: ELMO_REPO },
+      { label: "الموقع الرسمي", href: "https://www.elmohq.com" },
+      { label: "العرض التجريبي", href: "https://demo.elmohq.com" },
+      { label: "التوثيق", href: "https://www.elmohq.com/docs" },
+    ],
+  },
+  {
+    title: "التشغيل الذاتي",
+    links: [
+      { label: "دليل البدء (Docker Compose)", href: "https://www.elmohq.com/docs/getting-started" },
+      { label: "CLI: @elmohq/cli على npm", href: "https://www.npmjs.com/package/@elmohq/cli" },
+      { label: "CLI: مصدر الأداة", href: `${ELMO_REPO}/tree/main/apps/cli` },
+      { label: "Dockerfile", href: `${ELMO_REPO}/blob/main/docker/Dockerfile` },
+    ],
+  },
+  {
+    title: "الربط والتكامل",
+    links: [
+      { label: "MCP وواجهة البرمجة", href: "https://www.elmohq.com/docs/api/mcp" },
+      { label: "مواصفة API (OpenAPI)", href: `${ELMO_REPO}/tree/main/packages/api-spec` },
+      { label: "إضافة Cursor", href: `${ELMO_REPO}/tree/main/plugins/elmo` },
+    ],
+  },
+  {
+    title: "الخدمة المُدارة",
+    links: [{ label: "Elmo Cloud (مدفوعة، من 29$ شهرياً)", href: "https://www.elmohq.com/pricing" }],
+  },
+]
