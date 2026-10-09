@@ -55,41 +55,7 @@ export function checkOrigin(request, env = {}) {
  * (قد يكذب العميل أو يغيب مع النقل المجزأ).
  * @returns {Promise<{ok: true, text: string} | {ok: false, status: number, error: string}>}
  */
-export async function readBoundedText(request, maxBytes) {
-  const declared = Number(request.headers.get("Content-Length") || 0)
-  if (declared > maxBytes) return { ok: false, status: 413, error: "payload_too_large" }
-  if (!request.body) return { ok: true, text: "" }
-
-  const reader = request.body.getReader()
-  const chunks = []
-  let total = 0
-  try {
-    for (;;) {
-      const { done, value } = await reader.read()
-      if (done) break
-      total += value.byteLength
-      if (total > maxBytes) {
-        await reader.cancel().catch(() => {})
-        return { ok: false, status: 413, error: "payload_too_large" }
-      }
-      chunks.push(value)
-    }
-  } catch {
-    return { ok: false, status: 400, error: "unreadable_body" }
-  }
-
-  const bytes = new Uint8Array(total)
-  let offset = 0
-  for (const chunk of chunks) {
-    bytes.set(chunk, offset)
-    offset += chunk.byteLength
-  }
-  try {
-    return { ok: true, text: new TextDecoder("utf-8", { fatal: true }).decode(bytes) }
-  } catch {
-    return { ok: false, status: 400, error: "invalid_encoding" }
-  }
-}
+export { readBoundedText } from "./bodyLimit.js"
 
 /** أنماط ممنوعة في أي جواب يصل إلى الزائر، حتى لو كان من المحتوى المعتمد. */
 // فحص الخرج معرّف في shared/help/pipeline.js ليشترك فيه الخادم ولوحة الاختبار.

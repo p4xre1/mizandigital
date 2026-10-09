@@ -140,7 +140,10 @@ describe("DELETE /api/account/delete — حذف ناعم", () => {
     const res: Response = await onRequestDelete(ctx())
     expect(res.status).toBe(503)
     const body = await res.json()
-    expect(body.detail).toContain("20260926000000")
+    // لا يكشف الرد الداخلي (اسم الترحيل) للعميل؛ التفصيل يذهب للسجل فقط.
+    expect(body.detail).toBeUndefined()
+    expect(JSON.stringify(body)).not.toContain("20260926000000")
+    expect(typeof body.error).toBe("string")
   })
 
   it("يميّز الطلب المكرر — المهلة لا تُصفَّر", async () => {

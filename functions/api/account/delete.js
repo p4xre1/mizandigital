@@ -31,6 +31,7 @@
 
 import { requireUser, jsonResponse } from "../../_shared/auth.js";
 import { checkRateLimit } from "../../_shared/guard.js";
+import { logServerError } from "../../_shared/errors.js";
 
 /** مهلة التراجع بالأيام — يجب أن تطابق ما تعرضه الواجهة وما في الترحيل. */
 export const GRACE_PERIOD_DAYS = 30;
@@ -86,22 +87,15 @@ export async function onRequestDelete(context) {
   // 404 من PostgREST = الدالة غير موجودة = الترحيل 13 غير مطبَّق على القاعدة.
   // رسالة صريحة أفضل من «خطأ في الخادم»: هذا بالضبط ما حدث في القاعدة الحية.
   if (res.status === 404) {
-    return jsonResponse(
-      {
-        error: "طلب الحذف غير متاح بعد",
-        detail:
-          "الدالة request_account_deletion غير موجودة في قاعدة البيانات. طبّق الترحيل 20260926000000_admin_actions_soft_delete_and_audit.sql",
-      },
-      503
-    );
+    // التفصيل (اسم الدالة والترحيل) للسجل فقط، لا للعميل.
+    logServerError("account.delete", "request_account_deletion missing (404): migration 20260926000000 not applied");
+    return jsonResponse({ error: "طلب الحذف غير متاح بعد" }, 503);
   }
 
   if (!res.ok) {
-    const detail = await res.text();
-    return jsonResponse(
-      { error: "تعذّر تسجيل طلب الحذف", detail: detail.slice(0, 300) },
-      500
-    );
+    const upstream = await res.text().catch(() => "");
+    logServerError("account.delete", `http=${res.status} ${upstream}`);
+    return jsonResponse({ error: "تعذّر تسجيل طلب الحذف" }, 500);
   }
 
   const data = await res.json().catch(() => ({}));

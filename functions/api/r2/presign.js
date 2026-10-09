@@ -22,6 +22,8 @@
 import { presignR2PutUrl } from "../../_shared/r2sign.js"
 import { requireAdmin, jsonResponse } from "../../_shared/auth.js"
 import { checkRateLimit, tooManyRequests } from "../../_shared/guard.js"
+import { logServerError } from "../../_shared/errors.js"
+import { readBoundedJson } from "../../_shared/bodyLimit.js"
 
 const MAX_FILENAME_LENGTH = 200
 const ALLOWED_FOLDERS = ["images", "documents", "pdf", "misc"]
@@ -115,7 +117,8 @@ export async function onRequestPost(context) {
   try {
     admin = await requireAdmin(request, env)
   } catch (err) {
-    return jsonResponse({ error: "Server misconfiguration", detail: String(err?.message || err) }, 500)
+    logServerError("r2.presign", err)
+    return jsonResponse({ error: "Server misconfiguration" }, 500)
   }
   if (!admin) {
     return jsonResponse({ error: "Unauthorized" }, 401)
@@ -137,12 +140,12 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: "R2 is not configured on the server" }, 500)
   }
 
-  let body
-  try {
-    body = await request.json()
-  } catch {
-    return jsonResponse({ error: "Invalid JSON body" }, 400)
+  // طلب الرفع لا يحمل إلا اسم الملف والمجلد والنوع: 8 كيلوبايت أكثر من كافية.
+  const parsed = await readBoundedJson(request, 8 * 1024)
+  if (!parsed.ok) {
+    return jsonResponse({ error: "Invalid JSON body" }, parsed.status === 413 ? 413 : 400)
   }
+  const body = parsed.data || {}
 
   const fileName = sanitizeFileName(body.fileName)
   const folder = sanitizeFolder(body.folder)
@@ -172,7 +175,8 @@ export async function onRequestPost(context) {
 
     return jsonResponse({ uploadUrl, fileUrl, fileKey })
   } catch (err) {
-    return jsonResponse({ error: "Failed to generate presigned URL", detail: String(err?.message || err) }, 500)
+    logServerError("r2.presign", err)
+    return jsonResponse({ error: "Failed to generate presigned URL" }, 500)
   }
 }
 

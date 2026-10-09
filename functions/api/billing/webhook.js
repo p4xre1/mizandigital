@@ -37,6 +37,7 @@ import {
   verifyStripeSignature,
   ACTIVE_SUBSCRIPTION_STATUSES,
 } from "../../../shared/billing/stripe.js";
+import { logServerError } from "../../_shared/errors.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -147,7 +148,9 @@ export async function onRequestPost(context) {
     }
   } catch (e) {
     // 500 ⇒ Stripe تعيد التسليم. أفضل من ابتلاع فشل منحٍ مشروع.
-    return json({ error: "processing_failed", detail: e?.message || "unknown" }, 500);
+    // الرسالة للسجل المُنقّى فقط. Stripe يُعيد التسليم بناءً على الـ500 وحدها.
+    logServerError("billing.webhook", e);
+    return json({ error: "processing_failed" }, 500);
   }
 }
 
