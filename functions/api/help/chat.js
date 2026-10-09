@@ -26,9 +26,12 @@ import { requireUser } from "../../_shared/auth.js"
 import { GuardConfigError, loadHelpConfig } from "../../_shared/helpConfig.js"
 import {
   SECURITY_HEADERS,
+  STRIKE_LIMIT,
   checkOrigin,
+  isLockedOut,
   logSecurityEvent,
   readBoundedText,
+  recordStrike,
   sanitizeAnswerResult,
   shortHash,
 } from "../../_shared/helpSecurity.js"
@@ -100,6 +103,12 @@ export async function onRequestPost({ request, env }) {
     return reply({ error: account.error }, account.status)
   }
 
+  // 5b) قفل مؤقت بعد محاولات الهندسة الاجتماعية المتكررة. لا يُقرأ الجسم ولا تُستهلك حصة.
+  if (await isLockedOut(kv, user.id)) {
+    logSecurityEvent("locked_refused", { requestId, userHash })
+    return reply({ mode: "blocked", answer: DEFAULT_MESSAGES.blocked, sources: [] })
+  }
+
   // 6) الجسم
   const body = await readBoundedText(request, MAX_BODY_BYTES)
   if (!body.ok) return reply({ error: body.error }, body.status)
@@ -157,7 +166,17 @@ export async function onRequestPost({ request, env }) {
   // 10a) فحص الحقن والحمولات المموّهة قبل بوابة اللغة. الرفض هنا لا يستهلك الحصة (كالتحقق الأولي).
   const screen = screenMessage(checked.value)
   if (screen.block) {
-    logSecurityEvent("blocked", { requestId, userHash, reason: screen.reason ?? "unknown" })
+    logSecurityEvent("blocked", {
+      requestId,
+      userHash,
+      reason: screen.reason ?? "unknown",
+      category: screen.category ?? null,
+    })
+    if (screen.reason === "social_engineering") {
+      // المحاولة تُسجَّل وتُحسب نحو القفل المؤقت، ثم يُرفض ما بعدها دون رد على المحتوى.
+      const strikes = await recordStrike(kv, user.id)
+      if (strikes >= STRIKE_LIMIT) logSecurityEvent("lockout_started", { requestId, userHash })
+    }
     return reply({ mode: "blocked", answer: config.settings.messages.blocked, sources: [] })
   }
 

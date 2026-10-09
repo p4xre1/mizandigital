@@ -5,7 +5,7 @@
 //
 // الترتيب مهم:
 //   1) المساعد متوقف من الإعدادات؟
-//   2) حقن شيفرة أو تعليمات، أو حمولة مموّهة (ثابت في الكود)
+//   2) حقن شيفرة أو تعليمات، أو حمولة مموّهة، أو هندسة اجتماعية (ثابت في الكود)
 //   3) عبارات محظورة يضعها المشرف
 //   4) استشارة قانونية في حالة فردية
 //   5) كلمات خارج الموضوع يضعها المشرف
@@ -15,7 +15,7 @@
 
 import { allEntries } from "./knowledge.js"
 import { rankEntries } from "./retrieve.js"
-import { checkBlockedPhrases, checkInjection, checkObfuscation, checkOffTopic, checkScope, REFUSAL_LEGAL_ADVICE } from "./guardrails.js"
+import { checkBlockedPhrases, checkInjection, checkObfuscation, checkOffTopic, checkScope, checkSocialEngineering, REFUSAL_LEGAL_ADVICE } from "./guardrails.js"
 import { DEFAULT_MESSAGES, DEFAULT_SETTINGS } from "./cms.js"
 
 /** يبقى مُصدَّراً للتوافق مع الاختبارات والاستعمالات القديمة. */
@@ -51,6 +51,9 @@ export function answerQuestion(question, options = {}) {
   }
   if (checkObfuscation(question).block) {
     return { mode: "blocked", answer: messages.blocked, sources: [], reason: "obfuscated_payload" }
+  }
+  if (checkSocialEngineering(question).block) {
+    return { mode: "blocked", answer: messages.blocked, sources: [], reason: "social_engineering" }
   }
   if (checkBlockedPhrases(question, settings.blockedPhrases).block) {
     return { mode: "blocked", answer: messages.blocked, sources: [], reason: "blocked_phrase" }

@@ -111,15 +111,100 @@ export function checkObfuscation(text) {
 }
 
 /**
- * الفحص الأمني الأول للرسالة: حقن الشيفرة والتعليمات والحمولات المموّهة.
+ * محاولات الهندسة الاجتماعية: انتحال صفة، وادعاء سلطة، وطلب بيانات مستخدمين آخرين،
+ * وطلب الإعدادات الداخلية، وألعاب الأدوار لتجاوز القواعد، وطلب الاختراق.
+ * كل نمط مُقيَّد بصيغة واضحة حتى لا يُسقط أسئلة مشروعة مثل:
+ *   "كيف أغيّر كلمة المرور لحسابي؟" و"ما عقوبة الاختراق المعلوماتي؟" و"ما هي تعليمات التسجيل؟".
+ * تُكتب الأنماط بعد normalize() (ة→ه، أ→ا، ى→ي).
+ */
+const SOCIAL_ENGINEERING = [
+  {
+    category: "impersonation",
+    patterns: [
+      /(^|\s)(انا|انتحل|اني) (المدير|المطور|الادمن|المالك|صاحب الموقع|مدير الموقع|مطور الموقع|مالك الموقع|مسوول النظام|مسوول الموقع|فريق التطوير|فريق الدعم|من فريق)/,
+      /\bi am (the |a |an )?(admin|administrator|developer|owner|founder|site owner|engineer)\b/,
+      /\bi'?m (the |a |an )?(admin|administrator|developer|owner|founder)\b/,
+      /\bthis is (the |your )?(admin|developer|owner)\b/,
+    ],
+  },
+  {
+    category: "fake_authority",
+    patterns: [
+      /(بصفتي|بوصفي|بصفه) (المدير|المطور|الادمن|المسوول|مدير|مطور)/,
+      /(بامر|باذن|بتفويض|بتصريح) (من )?(المدير|المطور|الادمن|الاداره|ادارة الموقع|الشركه)/,
+      /(وضع الصيانه|وضع الطوارئ|وضع المطور|وضع التصحيح|وضع الاختبار الداخلي)/,
+      /(صلاحيات (المدير|الادمن|المطور)|تجاوز الصلاحيات|صلاحيه (كامله|مطلقه))/,
+      /\b(admin|maintenance|debug|root|sudo) (override|mode|access)\b/,
+      /\bsudo\b/,
+    ],
+  },
+  {
+    category: "other_users_data",
+    patterns: [
+      /(بيانات|ايميلات|ايميل|بريد|ارقام|رقم|هاتف|قائمه|اسماء|كلمات|كلمه) (ال)?(مستخدمين|مستخدم|اعضاء|عضو|مشتركين|مشترك|زوار|ادمن|مدير|مشرفين|مطور)(\s|$)/,
+      /(كلمه|كلمات) (ال)?(مرور|سر) (ال)?(مستخدم|مشرف|ادمن|مدير|مطور)(\s|$)/,
+      /\b(user|admin|member|subscriber)s? (emails?|passwords?|phone numbers?|data|list|details)\b/,
+      /\b(list|dump|export) of (users|members|subscribers|emails)\b/,
+    ],
+  },
+  {
+    category: "internals",
+    patterns: [
+      /(موجه النظام|رساله النظام|التعليمات السريه|تعليماتك)/,
+      /(مفتاح|مفاتيح|متغيرات|اسرار) (الخدمه|الخدمة|الـapi|api|البيئه|البيئة|قاعده البيانات|supabase|سوبابيس|الخادم)/,
+      /(اعرض|اظهر|اكشف|اطبع|انسخ|اعطني|اعطيني|ارني|اخبرني|ارسل|صدّر|صدر|حمل|حمّل) .{0,30}(تعليماتك|موجه|مفتاح|مفاتيح|متغيرات|كود المصدر|الشيفره المصدريه|السورس|الكلمات المحظوره|العبارات المحظوره|قائمه الكلمات|قائمه العبارات|الاعدادات الداخليه|الاعدادات السريه|المستخدمين|الاعضاء|الايميلات|جدول المستخدمين|جدول الادمن)/,
+      /(تجاوز|تخطي|اتجاوز|اكسر|اسقط) .{0,15}(الحد|الحصه|الحماية|الحمايه|الفلتر|الحظر|حماية المساعد|حمايه المساعد)/,
+      /(كيف (تعمل|يعمل) (حمايتك|حماية المساعد|الفلتر|حد الطلبات|حدود الطلبات|الحصه))/,
+      /\b(system prompt|hidden prompt|internal instructions|api key|service role|secret key|source code|environment variables?)\b/,
+      /\b(bypass|disable|turn off|circumvent|get around) (the |your )?(rate|quota|limit|filter|guard|safety|moderation|restriction)s?\b/,
+    ],
+  },
+  {
+    category: "roleplay_override",
+    patterns: [
+      /(تخيل|تخيّل|تظاهر|العب دور|مثل لعبه|تصرف (كانك|كأنك|كما لو)|ابدا لعبه)/,
+      /(بدون|بلا) (اي )?(قيود|حدود|ضوابط|فلتر|رقابه) (في|عليك|لك|انت|اجب)/,
+      /(^|\s)(انت|انتَ) (غير مقيد|بلا قيود|حر من|ليس لديك (قواعد|قيود))/,
+      /(لا (ترفض|تعتذر|تقل انك)|لا تقل (لا|انك لا))/,
+      /\b(pretend|roleplay|role-play|act as|do anything now|for testing purposes)\b/,
+      /\bwithout (any )?(restrictions|limits|rules|filters)\b/,
+    ],
+  },
+  {
+    category: "attack_intent",
+    patterns: [
+      /(كيف (اخترق|اخترقه|اخترقها|اتجسس|اتصيد|اقرصن|اسرق)|اخترق (حساب|موقع|الموقع|الادمن|المدير))/,
+      /\b(hack into|how (do|can|to) i hack|sql injection|brute ?force|ddos|phishing (the|for)|steal (the )?(password|session|cookie))\b/,
+    ],
+  },
+]
+
+/**
+ * @param {string} text
+ * @returns {{ block: boolean, reason: "social_engineering" | null, category: string | null }}
+ */
+export function checkSocialEngineering(text) {
+  const norm = normalize(canonicalize(text))
+  for (const group of SOCIAL_ENGINEERING) {
+    if (group.patterns.some((re) => re.test(norm))) {
+      return { block: true, reason: "social_engineering", category: group.category }
+    }
+  }
+  return { block: false, reason: null, category: null }
+}
+
+/**
+ * الفحص الأمني الأول للرسالة: حقن الشيفرة والتعليمات والحمولات المموّهة والهندسة الاجتماعية.
  * يعمل قبل بوابة اللغة، فالشيفرة المكتوبة بحروف لاتينية لا تُعامل كسؤال غير عربي.
- * @returns {{ block: boolean, reason: string | null }}
+ * @returns {{ block: boolean, reason: string | null, category?: string | null }}
  */
 export function screenMessage(text) {
   const injection = checkInjection(text)
   if (injection.block) return { block: true, reason: injection.reason }
   const obfuscated = checkObfuscation(text)
   if (obfuscated.block) return { block: true, reason: obfuscated.reason }
+  const social = checkSocialEngineering(text)
+  if (social.block) return { block: true, reason: social.reason, category: social.category }
   return { block: false, reason: null }
 }
 

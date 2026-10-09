@@ -120,3 +120,37 @@ export function logSecurityEvent(event, fields = {}) {
   }
   console.warn(JSON.stringify({ scope: "help-chat", level: "security", event, ts: new Date().toISOString(), ...safe }))
 }
+
+/**
+ * قفل مؤقت بعد محاولات الهندسة الاجتماعية المتكررة.
+ * 3 محاولات مرفوضة خلال ساعة ← قفل ساعة من آخر محاولة. أثناء القفل لا تُحتسب محاولات جديدة.
+ * بلا KV لا يوجد قفل (الرفض لكل رسالة يبقى قائماً).
+ */
+export const STRIKE_LIMIT = 3
+export const STRIKE_WINDOW_SECONDS = 3600
+
+const strikeKey = (userId) => `help:strikes:${userId}`
+
+/** @returns {Promise<boolean>} */
+export async function isLockedOut(kv, userId) {
+  if (!kv) return false
+  try {
+    const raw = await kv.get(strikeKey(userId))
+    return (parseInt(raw, 10) || 0) >= STRIKE_LIMIT
+  } catch {
+    return false
+  }
+}
+
+/** يسجّل محاولة مرفوضة ويعيد عددها الحالي. */
+export async function recordStrike(kv, userId) {
+  if (!kv) return 0
+  try {
+    const raw = await kv.get(strikeKey(userId))
+    const count = (parseInt(raw, 10) || 0) + 1
+    await kv.put(strikeKey(userId), String(count), { expirationTtl: STRIKE_WINDOW_SECONDS })
+    return count
+  } catch {
+    return 0
+  }
+}
