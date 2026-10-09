@@ -3,7 +3,7 @@ import {
   Search, Globe, FileText, Brain, CheckCircle2, AlertTriangle, ExternalLink,
   Sparkles, BarChart3, TrendingUp, Layers, GraduationCap, Scale, BookOpen, Tag, ShieldCheck, FileCode2
 } from "lucide-react"
-import { SEO_TOOL_GROUPS, TRAFFIC_TOOL_GROUPS, AI_VISIBILITY_TOOL_GROUPS, type SeoToolGroup } from "./seoToolsLinks"
+import { SEO_TOOL_GROUPS, TRAFFIC_TOOL_GROUPS, AI_VISIBILITY_TOOL_GROUPS, AKII_PLUGIN_GROUPS, type SeoToolGroup } from "./seoToolsLinks"
 import { SeoToolsPanel } from "../../components/admin/SeoToolsPanel"
 
 interface SeoFile {
@@ -112,6 +112,13 @@ export default function SeoManagementPage() {
         title="ظهور الموقع في إجابات الذكاء الاصطناعي (GetCito)"
         description="أداة مفتوحة المصدر لتتبع ظهور العلامة في ChatGPT وGemini وPerplexity وGoogle AI. تعمل كخدمة مستقلة على خادم خاص، وهذه الروابط للوصول إليها."
         groups={AI_VISIBILITY_TOOL_GROUPS}
+      />
+
+      <SemrushSection
+        icon={<FileCode2 className="size-4 text-amber-600" />}
+        title="مهارات Akii للـSEO وAEO وGEO (Claude Code)"
+        description="إضافة مفتوحة المصدر تعمل داخل Claude Code، وليست جزءاً من هذه الـCMS. الروابط تفتح مجلد كل مهارة في المستودع. مهارة ai-visibility ترسل نطاق الموقع إلى خادم Akii الخلفي."
+        groups={AKII_PLUGIN_GROUPS}
       />
       <div>
         <h2 className="mb-3 flex items-center gap-2 text-[14px] font-extrabold text-foreground"><FileCode2 className="size-4 text-violet-600" /> أدوات تقنية للـSEO</h2>

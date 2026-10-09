@@ -157,3 +157,42 @@ export const AI_VISIBILITY_TOOL_GROUPS: SeoToolGroup[] = [
     ],
   },
 ]
+
+const AKII_REPO = "https://github.com/akii-technologies-ltd/akii-seo-ai-search-optimizer"
+const akiiSkill = (name: string): SeoToolLink => ({
+  label: name,
+  href: `${AKII_REPO}/tree/main/skills/${name}`,
+})
+
+/**
+ * Akii: إضافة Claude Code مفتوحة المصدر (MIT) للـSEO وAEO وGEO.
+ * تعمل داخل Claude Code لا داخل هذه الـCMS، فنربط بمهاراتها فقط ولا ننسخ شيئاً.
+ * ملاحظة الخصوصية: مهارة ai-visibility تُرسل النطاق/العلامة إلى الخادم الخلفي لـAkii.
+ */
+export const AKII_PLUGIN_GROUPS: SeoToolGroup[] = [
+  {
+    title: "التثبيت والمستودع",
+    links: [
+      { label: "المستودع (MIT)", href: AKII_REPO },
+      { label: "الموقع الرسمي", href: "https://akii.com" },
+    ],
+  },
+  {
+    title: "التدقيق والتحليل",
+    links: [akiiSkill("seo-audit"), akiiSkill("broken-links"), akiiSkill("ai-visibility"), akiiSkill("competitor-intel")],
+  },
+  {
+    title: "المحتوى والصفحات",
+    links: [
+      akiiSkill("content-strategy"),
+      akiiSkill("content-brief"),
+      akiiSkill("optimize-page"),
+      akiiSkill("keyword-clustering"),
+      akiiSkill("content-translation"),
+    ],
+  },
+  {
+    title: "البنية والبيانات المنظمة",
+    links: [akiiSkill("schema-markup"), akiiSkill("internal-linking"), akiiSkill("llms-txt")],
+  },
+]
