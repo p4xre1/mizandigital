@@ -64,3 +64,69 @@ export const SEO_TOOL_GROUPS: SeoToolGroup[] = [
     ],
   },
 ]
+
+const TRAFFIC_QUERY = "?fid=13520703"
+const trafficLink = (label: string, path: string): SeoToolLink => ({
+  label,
+  href: `https://www.semrush.com/analytics/traffic/${path}/${TRAFFIC_QUERY}`,
+})
+
+/** قائمة «Traffic & Market» من SEMrush (روابط مرتبطة بحساب الموقع نفسه). */
+export const TRAFFIC_TOOL_GROUPS: SeoToolGroup[] = [
+  {
+    title: "الحركة والسوق",
+    links: [
+      { label: "Get Started", href: `https://www.semrush.com/analytics/traffic/${TRAFFIC_QUERY}` },
+      trafficLink("Traffic Analytics", "traffic-overview"),
+      trafficLink("Market Overview", "market-overview"),
+      trafficLink("Top Pages", "top-pages"),
+      trafficLink("Competitor Monitoring", "competitor-monitoring"),
+    ],
+  },
+  {
+    title: "توزيع الحركة",
+    links: [
+      trafficLink("AI Traffic", "ai-traffic"),
+      trafficLink("Referral", "referral"),
+      trafficLink("Organic Search", "organic-search"),
+      trafficLink("Paid Search", "paid-search"),
+      trafficLink("Organic Social", "organic-social"),
+      trafficLink("Paid Social", "paid-social"),
+      trafficLink("Email", "email"),
+      trafficLink("Display Ads", "display-ads"),
+      trafficLink("Sources & Destinations", "sources-destinations"),
+    ],
+  },
+  {
+    title: "الصفحات والفئات",
+    links: [
+      trafficLink("Subfolders & Subdomains", "subfolders-subdomains"),
+      trafficLink("Page Groups (beta)", "page-groups"),
+    ],
+  },
+  {
+    title: "الاتجاهات الإقليمية",
+    links: [
+      trafficLink("USA", "usa"),
+      trafficLink("Countries", "countries"),
+      trafficLink("Business Regions", "business-regions"),
+      trafficLink("Geographical Regions", "geographical-regions"),
+    ],
+  },
+  {
+    title: "ملف الجمهور",
+    links: [
+      trafficLink("Demographics", "demographics"),
+      trafficLink("Audience Overlap", "audience-overlap"),
+      trafficLink("Socioeconomics", "socioeconomics"),
+      trafficLink("Behavior", "behavior"),
+    ],
+  },
+  {
+    title: "متقدم",
+    links: [
+      trafficLink("Daily Trends", "daily-trends"),
+      trafficLink("Industry & Bulk Analysis", "industry-and-bulk-analysis"),
+    ],
+  },
+]

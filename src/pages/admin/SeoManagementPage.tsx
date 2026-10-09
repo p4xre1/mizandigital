@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import {
   Search, Globe, FileText, Brain, CheckCircle2, AlertTriangle, ExternalLink,
-  Sparkles, BarChart3, Layers, GraduationCap, Scale, BookOpen, Tag, ShieldCheck
+  Sparkles, BarChart3, TrendingUp, Layers, GraduationCap, Scale, BookOpen, Tag, ShieldCheck
 } from "lucide-react"
-import { SEO_TOOL_GROUPS } from "./seoToolsLinks"
+import { SEO_TOOL_GROUPS, TRAFFIC_TOOL_GROUPS, type SeoToolGroup } from "./seoToolsLinks"
 
 interface SeoFile {
   name: string
@@ -92,32 +92,19 @@ export default function SeoManagementPage() {
         </div>
       </div>
 
-      <div>
-        <h2 className="mb-3 flex items-center gap-2 text-[14px] font-extrabold text-foreground"><BarChart3 className="size-4 text-blue-600" /> أدوات تحليل SEMrush</h2>
-        <p className="mb-3 text-[11px] text-muted-foreground">روابط مباشرة لحساب SEMrush الخاص بالموقع (mizan.page). تُفتح في تبويب جديد.</p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {SEO_TOOL_GROUPS.map((group) => (
-            <div key={group.title} className="rounded-2xl border border-border bg-card p-4">
-              <p className="text-[12px] font-extrabold text-foreground">{group.title}</p>
-              <ul className="mt-2 space-y-1.5">
-                {group.links.map((link) => (
-                  <li key={link.label}>
-                    <a
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline"
-                    >
-                      <ExternalLink className="size-3" /> {link.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </div>
+      <SemrushSection
+        icon={<BarChart3 className="size-4 text-blue-600" />}
+        title="أدوات تحليل SEMrush"
+        description="روابط مباشرة لحساب SEMrush الخاص بالموقع (mizan.page). تُفتح في تبويب جديد."
+        groups={SEO_TOOL_GROUPS}
+      />
 
+      <SemrushSection
+        icon={<TrendingUp className="size-4 text-emerald-600" />}
+        title="الحركة والسوق (Traffic & Market)"
+        description="تحليل حركة الزيارات والمنافسين والجمهور لنطاق mizan.page في SEMrush."
+        groups={TRAFFIC_TOOL_GROUPS}
+      />
       <div>
         <h2 className="mb-3 flex items-center gap-2 text-[14px] font-extrabold text-foreground"><Globe className="size-4 text-primary" /> صفحات بـ AEOHead</h2>
         <div className="overflow-x-auto rounded-2xl border border-border bg-card">
@@ -166,6 +153,46 @@ export default function SeoManagementPage() {
             <p className="text-[11px] text-muted-foreground">يولد: llms.txt (39KB), llms-full.txt (87KB), ai.txt, ai-sitemap.xml, sitemap.xml (320 routes)</p>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function SemrushSection({
+  icon,
+  title,
+  description,
+  groups,
+}: {
+  icon: ReactNode
+  title: string
+  description: string
+  groups: SeoToolGroup[]
+}) {
+  return (
+    <div>
+      <h2 className="mb-3 flex items-center gap-2 text-[14px] font-extrabold text-foreground">{icon} {title}</h2>
+      <p className="mb-3 text-[11px] text-muted-foreground">{description}</p>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {groups.map((group) => (
+          <div key={group.title} className="rounded-2xl border border-border bg-card p-4">
+            <p className="text-[12px] font-extrabold text-foreground">{group.title}</p>
+            <ul className="mt-2 space-y-1.5">
+              {group.links.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[12px] font-semibold text-primary hover:underline"
+                  >
+                    <ExternalLink className="size-3" /> {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </div>
   )
