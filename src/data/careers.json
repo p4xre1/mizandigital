@@ -1605,19 +1605,18 @@
     "title_fr": "Délégué judiciaire",
     "category_id": "court-administration",
     "category_ar": "إدارة العدالة والمحاكم",
-    "short_description": "موظف عمومي يمارس مهام إدارية ومسطرية داخل المحاكم وقطاع العدل وفق النظام الأساسي والإعلانات الرسمية للتوظيف.",
+    "short_description": "موظف عمومي ينتمي إلى هيئة كتابة الضبط بوزارة العدل، ويساعد القضاء على أداء مهامه في إطار الاختصاصات المحددة قانوناً وتنظيمياً.",
     "work_model": "public_sector",
-    "work_model_ar": "وظيفة عمومية",
+    "work_model_ar": "وظيفة عمومية ضمن هيئة كتابة الضبط",
     "employment_modes": [
-      "محكمة",
-      "قطاع العدل",
-      "مؤسسة عمومية قضائية"
+      "محاكم المملكة",
+      "المصالح المركزية واللاممركزة لوزارة العدل"
     ],
     "can_freelance": false,
     "can_work_government": true,
     "can_work_private_sector": false,
     "requires_legal_education": "recommended",
-    "school_recommendation_message": "دراسة القانون مفيدة لهذا المسار، لكن المتطلبات قد تختلف حسب المشغل أو الإعلان.",
+    "school_recommendation_message": "هذا المسار يرتبط بشهادات في القانون أو الشريعة أو العلوم الاقتصادية والاجتماعية أو الماستر، حسب الدرجة والتخصص المطلوب في قرار المباراة. اختر مدينتك لعرض أقرب كليات الحقوق.",
     "main_areas": [
       "مسطرة المحاكم",
       "تدبير الملفات القضائية",
@@ -1626,44 +1625,54 @@
       "الإدارة القضائية"
     ],
     "typical_degree": {
-      "level": "bachelor_or_equivalent",
-      "label_ar": "شهادة أو تكوين يحددهما إعلان التوظيف الرسمي",
-      "status": "verify_official_source",
-      "note_ar": "الشهادة المطلوبة تحدد في كل إعلان توظيف؛ تحقق من الإعلان الجاري به العمل."
+      "level": "depends",
+      "label_ar": "الدرجة الثالثة: الإجازة أو الإجازة في الدراسات الأساسية أو الإجازة المهنية في العلوم القانونية أو الاقتصادية أو الاجتماعية أو التدبيرية أو في الشريعة، أو شهادة مسير في الشؤون الاجتماعية من المعهد الوطني للعمل الاجتماعي، أو شهادة أخرى يقبلها النص التنظيمي. الدرجة الثانية: دبلوم الدراسات العليا المعمقة أو المتخصصة، أو الماستر أو الماستر المتخصص، أو شهادة أخرى يقبلها النص التنظيمي.",
+      "status": "verified",
+      "note_ar": "المادتان 23 و24 من المرسوم 2.11.473، بصيغتهما المعدلة بالمرسوم 2.24.955."
     },
     "age_requirement": {
       "has_requirement": true,
       "minimum": null,
       "maximum": null,
-      "basis": "annual_notice",
-      "status": "verify_official_source",
-      "note_ar": "السن محدد في كل إعلان توظيف؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة."
+      "basis": "legal_or_competition",
+      "status": "verified",
+      "note_ar": "يرجع إلى قرار المباراة والنصوص العامة والخاصة المطبقة. لا يُعتمد في هذه الصفحة رقم سن ثابت، ولا يُعمم شرط سن ورد في قرار مباراة سابق على كل إعلان."
     },
     "entry_path": [
       {
         "step": 1,
-        "title_ar": "التكوين المناسب",
-        "description_ar": "تكوين جامعي أو مهني في القانون أو المجال الإداري المرتبط بالمهام."
+        "title_ar": "اختيار الدرجة والتخصص",
+        "description_ar": "الاطلاع على متطلبات الدرجة الثالثة أو الثانية، حسب الشهادة والتخصص المحصل عليهما."
       },
       {
         "step": 2,
-        "title_ar": "متابعة الإعلانات الرسمية",
-        "description_ar": "تُنشر مباريات التوظيف في إعلانات رسمية تحدد الشهادات والسن وعدد المناصب."
+        "title_ar": "التحقق من شروط الترشح",
+        "description_ar": "مطابقة الشهادة والتخصص والسن وباقي شروط الوظيفة العمومية لقرار المباراة."
       },
       {
         "step": 3,
-        "title_ar": "اجتياز مباراة التوظيف",
-        "description_ar": "تتضمن عادة اختبارات كتابية وشفهية تحددها الجهة المنظمة."
+        "title_ar": "إيداع الترشيح",
+        "description_ar": "عبر المنصة المحددة في الإعلان، داخل الأجل المحدد، مع إرفاق الوثائق المطلوبة."
       },
       {
         "step": 4,
-        "title_ar": "الترسيم والتكوين الإداري",
-        "description_ar": "بعد النجاح تأتي مرحلة التكوين والترسيم وفق النظام الأساسي الجاري به العمل."
+        "title_ar": "اجتياز الاختبارات",
+        "description_ar": "وفق نوع الاختبارات ومعاملاتها وشروط النجاح الواردة في قرار المباراة."
+      },
+      {
+        "step": 5,
+        "title_ar": "استكمال التوظيف",
+        "description_ar": "بعد النجاح النهائي واستيفاء الوثائق والفحص الطبي عند الاقتضاء، وفق تعليمات وزارة العدل."
+      },
+      {
+        "step": 6,
+        "title_ar": "التكوين وأداء اليمين",
+        "description_ar": "الاستفادة من التكوين الذي تحدده الإدارة، وأداء اليمين أمام المحكمة المعين بها الموظف قبل الشروع في ممارسة مهامه، وفق المادة 4 من المرسوم 2.11.473."
       }
     ],
     "training_after_admission": {
-      "label_ar": "تكوين إداري وترسيم وفق النظام الأساسي والإعلان الرسمي",
-      "status": "verify_official_source"
+      "label_ar": "التكوين وفق ما تحدده الإدارة بعد النجاح، ثم أداء اليمين أمام المحكمة المعين بها قبل مباشرة المهام (المادة 4 من المرسوم 2.11.473). مدة التكوين لا تُعتمد من هذه الصفحة؛ تحقق من قرار المباراة.",
+      "status": "verified"
     },
     "skills": [
       "المساطر القضائية",
@@ -1692,45 +1701,109 @@
     ],
     "requirements": [
       {
-        "id": "entry_conditions",
-        "label_ar": "شروط الترشح",
-        "value_ar": "تحدد في كل إعلان توظيف رسمي ولا تنتقل تلقائياً من إعلان إلى آخر.",
-        "requirement_type": "annual_notice",
-        "status": "verify_official_source",
+        "id": "grade3_degree",
+        "label_ar": "الدرجة الثالثة: الشهادة",
+        "value_ar": "الإجازة أو الإجازة في الدراسات الأساسية أو الإجازة المهنية في العلوم القانونية أو الاقتصادية أو الاجتماعية أو التدبيرية أو في الشريعة، أو شهادة مسير في الشؤون الاجتماعية من المعهد الوطني للعمل الاجتماعي، أو شهادة أخرى يقبلها النص التنظيمي.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 23 من المرسوم 2.11.473 المعدل بالمرسوم 2.24.955",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
       },
       {
-        "id": "degree_requirement",
-        "label_ar": "الشهادة المطلوبة",
-        "value_ar": "تحدد في الإعلان الرسمي الجاري به العمل.",
-        "requirement_type": "annual_notice",
-        "status": "verify_official_source",
+        "id": "grade2_degree",
+        "label_ar": "الدرجة الثانية: الشهادة",
+        "value_ar": "دبلوم الدراسات العليا المعمقة أو المتخصصة، أو الماستر أو الماستر المتخصص، أو شهادة أخرى يقبلها النص التنظيمي.",
+        "requirement_type": "legal_text",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 24 من المرسوم 2.11.473 المعدل بالمرسوم 2.24.955",
         "last_verified": null,
         "notice_year": null,
-        "notice_status": "check_current_notice"
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "specialization",
+        "label_ar": "التخصص",
+        "value_ar": "في الدرجة الثالثة يجب مطابقة الشهادة والتخصص للشروط المذكورة في قرار المباراة. وفي الدرجة الثانية يحدده قرار المباراة، ولا تكفي شهادة الماستر وحدها إذا كان التخصص غير مطلوب.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 23 و24 من المرسوم 2.11.473؛ المادة 4 من المرسوم 2.11.621",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "access_route",
+        "label_ar": "طريقة الولوج",
+        "value_ar": "مباراة توظيف، مع الحالات الأخرى المنصوص عليها في المادة 23 للدرجة الثالثة، والمادة 24 للدرجة الثانية.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 23 و24 من المرسوم 2.11.473؛ المرسوم 2.11.621",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
       },
       {
         "id": "age_condition",
         "label_ar": "شرط السن",
-        "value_ar": "يحدد في الإعلان الرسمي؛ لا تُعتمد أي قيمة رقمية من هذه الصفحة.",
-        "requirement_type": "annual_notice",
-        "status": "verify_official_source",
+        "value_ar": "يرجع إلى قرار المباراة والنصوص العامة والخاصة المطبقة. لا يُعتمد رقم سن ثابت من هذه الصفحة.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "قرار المباراة المعني؛ النصوص العامة والخاصة المطبقة",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "check_current_notice"
       },
       {
-        "id": "registration",
-        "label_ar": "اجتياز المباراة",
-        "value_ar": "تنظمها الجهة المشغلة بإعلان رسمي يشمل الاختبارات والمعايير.",
-        "requirement_type": "institution_practice",
-        "status": "verify_official_source",
+        "id": "competition_decision",
+        "label_ar": "قرار المباراة",
+        "value_ar": "يحدد الدرجة والتخصص والاختبارات وشروط النجاح والآجال، وتتضمن بياناته الأساسية الشهادات والتخصصات والاختبارات والآجال وفق المادة 4 من المرسوم 2.11.621.",
+        "requirement_type": "legal_or_annual_notice",
+        "status": "verified",
         "source_url": null,
+        "source_ref_ar": "المادة 4 من المرسوم 2.11.621",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "check_current_notice"
+      },
+      {
+        "id": "accepted_certificates",
+        "label_ar": "الشهادات المقبولة",
+        "value_ar": "تحيل المادتان 23 و24 من المرسوم 2.11.473 إلى المرسوم 2.12.90 عند تحديد الشهادات أو الدبلومات المقبولة لولوج الدرجات.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادتان 23 و24 من المرسوم 2.11.473؛ المرسوم 2.12.90",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "grades_structure",
+        "label_ar": "درجات الإطار",
+        "value_ar": "منتدب قضائي من الدرجة الثالثة والثانية والأولى والممتازة، بالإضافة إلى المنصب السامي لمنتدب قضائي عام وفق المادة 25.",
+        "requirement_type": "legal_text",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المواد 1 إلى 6 و25 من المرسوم 2.11.473",
+        "last_verified": null,
+        "notice_year": null,
+        "notice_status": "not_applicable"
+      },
+      {
+        "id": "oath",
+        "label_ar": "أداء اليمين",
+        "value_ar": "يؤدي الموظف اليمين أمام المحكمة المعين بها قبل الشروع في ممارسة مهامه.",
+        "requirement_type": "professional_registration",
+        "status": "verified",
+        "source_url": null,
+        "source_ref_ar": "المادة 4 من المرسوم 2.11.473",
         "last_verified": null,
         "notice_year": null,
         "notice_status": "not_applicable"
@@ -1738,43 +1811,69 @@
     ],
     "sources": [
       {
-        "title_ar": "الإعلانات الرسمية لمباريات التوظيف في قطاع العدل",
+        "title_ar": "المرسوم رقم 2.11.473 بشأن النظام الأساسي الخاص بهيئة كتابة الضبط",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "النص المحين في بنك المعطيات القانونية للإدارة العمومية. المواد 1 إلى 6 و23 إلى 25 و30 و31 تهم الصفحة."
+      },
+      {
+        "title_ar": "المرسوم رقم 2.24.955 المعدل للنظام الأساسي",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "نُشر في الجريدة الرسمية عدد 7348 بتاريخ 31 أكتوبر 2024، ويعمل بمقتضياته المعدلة ابتداءً من 1 يناير 2025؛ عدّل المادتين 23 و24."
+      },
+      {
+        "title_ar": "المرسوم رقم 2.12.90 المتعلق بالشهادات أو الدبلومات المطلوبة لولوج الدرجات",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "تحيل عليه المادتان 23 و24 من المرسوم 2.11.473 عند تحديد الشهادات المقبولة."
+      },
+      {
+        "title_ar": "المرسوم رقم 2.11.621 المنظم لمباريات التوظيف في المناصب العمومية",
+        "source_type": "official_law_or_professional_body",
+        "url": "",
+        "last_verified": null,
+        "status": "needs_official_verification",
+        "verification_note_ar": "تحدد المادة 4 منه البيانات الأساسية لقرار المباراة، بما فيها الشهادات والتخصصات والاختبارات والآجال."
+      },
+      {
+        "title_ar": "مديرية الموارد البشرية بوزارة العدل — إعلانات المباريات",
         "source_type": "public_authority",
         "url": "",
         "last_verified": null,
-        "status": "needs_official_verification"
-      },
-      {
-        "title_ar": "النظام الأساسي للوظيفة العمومية",
-        "source_type": "legal_text",
-        "url": "",
-        "last_verified": null,
-        "status": "needs_official_verification"
+        "status": "needs_official_verification",
+        "verification_note_ar": "المرجع للتحقق من أي إعلان جديد بتاريخ النشر. لا يُعتبر الإعلان مفتوحاً إلا بعد التحقق من آجله."
       }
     ],
     "law_slugs": [],
     "legal_framework": [
       {
         "law_slug": null,
-        "label_ar": "النظام الأساسي للوظيفة العمومية",
+        "label_ar": "المرسوم رقم 2.11.473 بشأن النظام الأساسي الخاص بهيئة كتابة الضبط، كما تم تغييره وتتميمه بالمرسوم 2.24.955",
         "relationship_type": "public_employment",
-        "relationship_ar": "الوظيفة العمومية والنظام الأساسي",
+        "relationship_ar": "ينظم إطار المنتدبين القضائيين ودرجاته وشروط التوظيف والترقية. تهم الصفحة المواد 1 إلى 6 و23 إلى 25 و30 و31. عدّله المرسوم 2.24.955 المنشور في الجريدة الرسمية عدد 7348 بتاريخ 31 أكتوبر 2024، ويعمل بمقتضياته المعدلة ابتداءً من 1 يناير 2025، وهو يعدّل المادتين 23 و24 المتعلقتين بشروط التوظيف.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "النصوص المنظمة لأسلاك العدل والمهام الكتابية",
-        "relationship_type": "governing_framework",
-        "relationship_ar": "القانون المنظم للمهنة",
+        "label_ar": "المرسوم رقم 2.12.90 المتعلق بالشهادات أو الدبلومات المطلوبة لولوج الدرجات والأطر",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "تحيل عليه المادتان 23 و24 من المرسوم 2.11.473 عند تحديد الشهادات أو الدبلومات المقبولة لولوج مختلف درجات وأطر الإدارات العمومية.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       },
       {
         "law_slug": null,
-        "label_ar": "الإعلانات السنوية للتوظيف في قطاع العدل",
-        "relationship_type": "annual_notice_reference",
-        "relationship_ar": "مرجع الإعلان السنوي",
+        "label_ar": "المرسوم رقم 2.11.621 المنظم لمباريات التوظيف في المناصب العمومية",
+        "relationship_type": "access_conditions",
+        "relationship_ar": "ينظم الشروط والإجراءات العامة لمباريات التوظيف في المناصب العمومية. وتحدد المادة 4 منه البيانات الأساسية لقرار المباراة، بما فيها الشهادات والتخصصات والاختبارات والآجال.",
         "verification_status": "needs_archive_entry",
         "last_verified": null
       }
@@ -1784,16 +1883,18 @@
       "has_knowledge_quiz": true,
       "has_discovery_quiz": true,
       "competition_path": "annual_public_competition",
-      "competition_note_ar": "لا يوجد في قاعدة ميزان إعلان رسمي مؤكد لهذا المسار؛ راجع الإعلانات الرسمية الجاري بها العمل قبل أي ترشح.",
+      "competition_note_ar": "المباريات المنشورة التي تم التحقق منها للدرجة الثانية (29 مارس 2026 و24 ماي 2026) انتهت آجال ترشيحها، ولا تُعرض كمفتوحة. راجع إعلانات مديرية الموارد البشرية بوزارة العدل قبل أي ترشح.",
       "related_quiz_topics": [
         "التنظيم القضائي",
         "المسطرة المدنية",
         "الوظيفة العمومية"
       ]
     },
-    "last_reviewed": "2026-09-23",
-    "review_status": "internal_review",
-    "canonical_url": "https://www.mizan.page/careers/delegue-judiciaire"
+    "last_reviewed": "2026-10-08",
+    "review_status": "official_text_verified",
+    "canonical_url": "https://www.mizan.page/careers/delegue-judiciaire",
+    "entry_method_ar": "مباراة توظيف وفق قرار خاص بالدرجة والتخصص",
+    "status_note_ar": "حالة التحقق: تم التحقق من النظام الأساسي الخاص بهيئة كتابة الضبط والنصوص العامة المنظمة لمباريات التوظيف. ويجب الرجوع إلى قرار المباراة المعني لتأكيد الشروط الرقمية والتخصصات والآجال."
   },
   {
     "id": "redacteur-judiciaire",
