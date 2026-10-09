@@ -196,3 +196,88 @@ export const AKII_PLUGIN_GROUPS: SeoToolGroup[] = [
     links: [akiiSkill("schema-markup"), akiiSkill("internal-linking"), akiiSkill("llms-txt")],
   },
 ]
+
+/**
+ * قائمة "awesome-aeo-seo-tools" (discoveredlabs): أدوات مفتوحة المصدر وخدمات مجانية.
+ * الروابط فقط، بلا نسخ كود. استُبعدت المقالات والمواصفات والأدلة، وأداة getcito لأنها
+ * موجودة في لوحة GetCito. عند الاستبعاد الاسم الظاهر هو اسم المشروع كما في القائمة.
+ */
+const DL = "https://discoveredlabs.com"
+export const AWESOME_AEO_TOOL_GROUPS: SeoToolGroup[] = [
+  {
+    title: "تدقيق GEO/AEO الشامل",
+    links: [
+      { label: "geo-optimizer-skill", href: "https://github.com/Auriti-Labs/geo-optimizer-skill" },
+      { label: "AutoGEO", href: "https://github.com/cxcscmu/AutoGEO" },
+      { label: "GEO (KDD 2024)", href: "https://github.com/GEO-optim/GEO" },
+      { label: "agentic-seo", href: "https://github.com/addyosmani/agentic-seo" },
+      { label: "eGEOagents", href: "https://github.com/mverab/eGEOagents" },
+      { label: "aeo-audit", href: "https://github.com/Canonry/aeo-audit" },
+      { label: "agentimization", href: "https://github.com/antlio/agentimization" },
+    ],
+  },
+  {
+    title: "مراقبة ظهور الذكاء الاصطناعي",
+    links: [
+      { label: "elmo", href: "https://github.com/elmohq/elmo" },
+      { label: "canonry", href: "https://github.com/Canonry/canonry" },
+      { label: "ai-brand-monitor-mcp", href: "https://github.com/khadinakbarlabs/ai-brand-monitor-mcp" },
+      { label: "ansvisor", href: "https://github.com/ansvisor/ansvisor" },
+      { label: "ai-cmo", href: "https://github.com/AICMO/ai-cmo" },
+      { label: "gego", href: "https://github.com/AI2HU/gego" },
+      { label: "aeo-mentions-crawler", href: "https://github.com/federicodeponte/aeo-mentions-crawler" },
+      { label: "Discovered Labs: Reddit Threads Finder", href: `${DL}/tools/reddit-threads-finder` },
+      { label: "Discovered Labs: AI Visibility Tracker (خدمة مُدارة)", href: `${DL}/technology/ai-visibility-tracker` },
+    ],
+  },
+  {
+    title: "البنية التقنية لـAEO",
+    links: [
+      { label: "llms-txt-hub", href: "https://github.com/thedaviddias/llms-txt-hub" },
+      { label: "dualmark", href: "https://github.com/dodopayments/dualmark" },
+      { label: "aeo.js", href: "https://github.com/rubenmarcus/aeo.js" },
+      { label: "agent-seo", href: "https://github.com/pontiggia/agent-seo" },
+      { label: "ai-seo-tools", href: "https://github.com/RivalSee/ai-seo-tools" },
+      { label: "Discovered Labs: Agentic Browsing Checker", href: `${DL}/tools/agentic-browsing-checker` },
+      { label: "Discovered Labs: AI Assist Widget", href: `${DL}/tools/ai-assist-widget` },
+    ],
+  },
+  {
+    title: "تحسين المحتوى",
+    links: [
+      { label: "Discovered Labs: AEO Content Evaluator", href: `${DL}/tools/aeo-content-evaluator` },
+      { label: "Discovered Labs: Heading Optimizer", href: `${DL}/tools/heading-optimizer` },
+      { label: "seobuild-onpage", href: "https://github.com/gbessoni/seobuild-onpage" },
+      { label: "google-ai-search-optimization", href: "https://github.com/deepakness/google-ai-search-optimization" },
+    ],
+  },
+  {
+    title: "بيانات البحث وزحف المواقع",
+    links: [
+      { label: "open-seo", href: "https://github.com/every-app/open-seo" },
+      { label: "firecrawl", href: "https://github.com/firecrawl/firecrawl" },
+      { label: "gpt-researcher", href: "https://github.com/assafelovic/gpt-researcher" },
+      { label: "seonaut", href: "https://github.com/StJudeWasHere/seonaut" },
+      { label: "python-for-seo", href: "https://github.com/HasData/python-for-seo" },
+      { label: "seo-audits-toolkit", href: "https://github.com/StanGirard/seo-audits-toolkit" },
+    ],
+  },
+  {
+    title: "حزم مهارات الوكلاء",
+    links: [
+      { label: "claude-seo", href: "https://github.com/AgriciDaniel/claude-seo" },
+      { label: "seo-geo-claude-skills", href: "https://github.com/aaron-he-zhu/seo-geo-claude-skills" },
+      { label: "NotFair", href: "https://github.com/nowork-studio/notfair-plugin" },
+      { label: "codex-seo", href: "https://github.com/AgriciDaniel/codex-seo" },
+      { label: "recomby-geo", href: "https://github.com/ViryaZheng/recomby-geo" },
+      { label: "Agentic-SEO-Skill", href: "https://github.com/Bhanunamikaze/Agentic-SEO-Skill" },
+    ],
+  },
+  {
+    title: "القياس والتقييم",
+    links: [
+      { label: "stanford-crfm/helm", href: "https://github.com/stanford-crfm/helm" },
+      { label: "Discovered Labs: LLM Eval Calculator", href: `${DL}/tools/llm-eval-calculator` },
+    ],
+  },
+]
