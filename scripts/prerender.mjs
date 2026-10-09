@@ -3824,6 +3824,83 @@ const appShellHtml = template
 await writeFile(join(DIST, "app.html"), appShellHtml, "utf8");
 console.log("✓ dist/app.html — هيكل التطبيق للمسارات الديناميكية (noindex، بلا canonical).");
 
+/* -------------------------------------------------------
+   تحويل المعرّفات القديمة إلى الرابط المعتمد
+-------------------------------------------------------
+
+  الواجهة تعرض الخبر أو الفعالية عند /events/<id> أو /news/<id> بالبحث
+  عن المعرّف في البيانات، لكن حالة الاستجابة تبقى 404 (dist/404.html هيكل
+  التطبيق نفسه). لا ملف ثابت لهذه الروابط، فتُكتب قواعد 301 إلى الرابط
+  المعتمد (slug ← عنوان) في dist/_redirects. القواعد مُولَّدة من البيانات
+  نفسها التي تُبنى منها الصفحات، فلا جدول يدوي يتقادم.
+------------------------------------------------------- */
+
+const LEGACY_REDIRECT_MARKER = "# 5) معرّفات داخلية قديمة";
+const LEGACY_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const PAGES_MAX_STATIC_REDIRECTS = 2000;
+
+function legacyIdRedirectRules() {
+  const sections = [
+    ["articles", articlePages],
+    ["news", newsPages],
+    ["events", eventPages],
+  ];
+  const canonicalPaths = new Set(
+    sections.flatMap(([, list]) => list.map((entry) => entry.path))
+  );
+  const rules = new Map();
+  for (const [section, list] of sections) {
+    for (const entry of list) {
+      const id = entry.item && entry.item.id;
+      if (id == null || !LEGACY_ID_PATTERN.test(String(id))) continue;
+      const from = `/${section}/${id}`;
+      // لا تحويل إلى الذات، ولا فوق صفحة معتمدة أخرى، ولا قاعدة مكررة.
+      if (from === entry.path || canonicalPaths.has(from) || rules.has(from)) {
+        continue;
+      }
+      rules.set(from, entry.path);
+    }
+  }
+  return rules;
+}
+
+async function appendLegacyIdRedirects() {
+  const rules = legacyIdRedirectRules();
+  const target = join(DIST, "_redirects");
+  let base = "";
+  try {
+    base = await readFile(target, "utf8");
+  } catch {
+    base = "";
+  }
+  // إعادة البناء دون مسح dist لا تُكرّر الكتلة: نقطع ما وُلّد سابقاً.
+  base = base.split(LEGACY_REDIRECT_MARKER)[0].replace(/\s*$/, "\n");
+
+  const lines = [...rules].map(
+    ([from, to]) => `${from}  ${encodeURI(to)}  301`
+  );
+  const staticRules = base
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#")).length;
+  const total = staticRules + lines.length;
+  if (total > PAGES_MAX_STATIC_REDIRECTS) {
+    console.warn(
+      `⚠ ${total} قاعدة إعادة توجيه تتجاوز حدّ Pages (${PAGES_MAX_STATIC_REDIRECTS}).`
+    );
+  }
+
+  const block = [
+    LEGACY_REDIRECT_MARKER + " — مُولَّدة من البيانات وقت البناء.",
+    ...lines,
+    "",
+  ].join("\n");
+  await writeFile(target, `${base}\n${block}`, "utf8");
+  console.log(`✓ dist/_redirects — ${lines.length} تحويل لمعرّفات الفعاليات والأخبار والمقالات.`);
+}
+
+await appendLegacyIdRedirects();
+
 if (shellCount) {
   console.log(
     `✓ ${shellCount} shell للمسارات التطبيقية غير المفهرسَة (200 + noindex بدل وراثة canonical الرئيسية).`
