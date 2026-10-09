@@ -167,7 +167,7 @@ export default function RichTextEditor({
     { icon: Heading3, title: "عنوان جزئي (H3)", action: () => insertFormatting("\n### ", "", "عنوان جزئي") },
     { icon: List, title: "قائمة نقطية", action: () => insertFormatting("\n* ", "", "عنصر القائمة") },
     { icon: ListOrdered, title: "قائمة رقمية", action: () => insertFormatting("\n1. ", "", "عنصر رقمي") },
-    { icon: Quote, title: "اقتباس قانوني", action: () => insertFormatting("\n> ", "", "نص الاقتباس...") },
+    { icon: Quote, title: "اقتباس قانوني مع إسناد", action: () => insertFormatting("\n> ", "\n> — اسم الجهة أو المؤلف، رابط المصدر", "نص الاقتباس الموثق...") },
     { icon: Code, title: "كود برمجي", action: () => insertFormatting("`", "`", "code") },
     { icon: LinkIcon, title: "إدراج رابط (Ctrl+K)", action: handleInsertLink },
     { icon: ImageIcon, title: "إدراج صورة", action: handleInsertImage },

@@ -631,6 +631,77 @@ export function checkMetadataUniqueness(pages = [], options = {}) {
   return result(issues.length === 0, Math.round((earned / total) * 100), issues, details)
 }
 
+/**
+ * Extract the raw contents of a balanced element, allowing nested elements of
+ * the same tag. This is intentionally dependency-free for the build audit.
+ */
+function elementInnerHtmlById(html, tagName, id) {
+  const openingTag = findTags(html, tagName).find((tag) => attr(tag, "id") === id)
+  if (!openingTag) return null
+
+  const start = html.indexOf(openingTag)
+  const contentStart = start + openingTag.length
+  const tagPattern = new RegExp(`<\\/?${tagName}\\b[^>]*>`, "gi")
+  tagPattern.lastIndex = contentStart
+
+  let depth = 1
+  let match
+  while ((match = tagPattern.exec(html))) {
+    if (match[0].startsWith("</")) depth -= 1
+    else if (!match[0].endsWith("/>")) depth += 1
+
+    if (depth === 0) return html.slice(contentStart, match.index)
+  }
+
+  return html.slice(contentStart)
+}
+
+function decodeHtmlEntities(value) {
+  const named = { nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'" }
+  return value.replace(/&(#x[0-9a-f]+|#[0-9]+|nbsp|amp|lt|gt|quot|apos|#39);/gi, (entity, token) => {
+    const key = String(token).toLowerCase()
+    if (key.startsWith("#x")) {
+      try { return String.fromCodePoint(parseInt(key.slice(2), 16)) } catch { return " " }
+    }
+    if (key.startsWith("#")) {
+      try { return String.fromCodePoint(Number(key.slice(1))) } catch { return " " }
+    }
+    return named[key] ?? " "
+  })
+}
+
+/**
+ * Check the text available in the prerendered #root without executing client
+ * JavaScript. Indexable pages must ship a real heading and a minimum amount of
+ * crawlable prose instead of an empty SPA shell.
+ *
+ * @param {string} html — raw/generated HTML as served before client scripts run
+ * @param {{ rootId?: string, minWords?: number }} options
+ */
+export function checkServerRenderedContent(html, { rootId = "root", minWords = 25 } = {}) {
+  const source = String(html || "")
+    .replace(/<!--.*?-->/gs, " ")
+    .replace(/<(script|style|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, " ")
+  const rootHtml = elementInnerHtmlById(source, "div", rootId)
+  if (rootHtml === null) {
+    return result(false, 0, [`لا يوجد عنصر #${rootId} يحوي محتوى ثابتاً قبل JavaScript.`], ["0 كلمة قابلة للزحف في جذر الصفحة"])
+  }
+
+  const text = decodeHtmlEntities(rootHtml.replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim()
+  const wordCount = (text.match(/[\p{L}\p{N}]+/gu) || []).length
+  const hasH1 = /<h1\b/i.test(rootHtml)
+  const issues = []
+
+  if (!hasH1) issues.push("لا يوجد عنوان <h1> داخل HTML الثابت للصفحة.")
+  if (wordCount < minWords) issues.push(`المحتوى الثابت داخل #${rootId} يضم ${wordCount} كلمة فقط؛ الحد الأدنى ${minWords}.`)
+
+  const score = (hasH1 ? 50 : 0) + (wordCount >= minWords ? 50 : Math.round((wordCount / Math.max(1, minWords)) * 50))
+  return result(issues.length === 0, score, issues, [
+    `${wordCount} كلمة نصية داخل #${rootId} قبل JavaScript (الحد ${minWords})`,
+    hasH1 ? "عنوان H1 موجود في HTML الثابت" : "عنوان H1 غير موجود في HTML الثابت",
+  ])
+}
+
 export function checkHtmlHead(html, { url = "" } = {}) {
   const text = html || ""
   const issues = []

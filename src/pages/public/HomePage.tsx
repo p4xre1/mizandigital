@@ -47,6 +47,14 @@ interface LexiconCard {
   legal_sources?: any[]
 }
 
+/** Mirrors shared contentSlug(): explicit slug, title-derived slug, then id. */
+function feedSlug(item: { slug?: unknown; title?: unknown; id?: unknown }) {
+  const explicit = String(item?.slug ?? "").trim().replace(/\/+$/, "")
+  if (explicit) return explicit
+  const fromTitle = generateSlug(String(item?.title ?? ""))
+  return fromTitle || String(item?.id ?? "").trim()
+}
+
 export function HomePage() {
   const [latestArticles, setLatestArticles] = useState<FeedCard[]>([])
   const [latestEvents, setLatestEvents] = useState<EventCard[]>([])
@@ -72,21 +80,20 @@ export function HomePage() {
         const localArticles: FeedCard[] = (articlesData as any[])
           .map((item) => ({
             id: item.id,
-            slug: item.slug,
+            slug: feedSlug(item),
             title: item.title,
             summary: item.excerpt,
             category: item.category,
             date: item.publishedAt,
             image: item.coverImage || item.image,
           }))
-          .filter((a) => !!a.image && a.image.trim() !== "")
         if (cancelled) return
         setLatestArticles(diversifyByCategory(localArticles, 8))
 
         const localEvents: EventCard[] = (eventsData as any[])
           .map((e) => ({
             id: e.id,
-            slug: e.slug || e.id,
+            slug: feedSlug(e),
             title: e.title,
             excerpt: e.excerpt,
             city: e.city,
@@ -94,7 +101,6 @@ export function HomePage() {
             image: e.image,
             organizer: e.organizer,
           }))
-          .filter((e) => !!e.image && String(e.image).trim() !== "")
         if (cancelled) return
         setLatestEvents(localEvents.slice(0, 4))
 
@@ -159,31 +165,29 @@ export function HomePage() {
         const remoteArticles: FeedCard[] = (articlesRes.data || [])
           .map((item: any) => ({
             id: item.id,
-            slug: item.slug,
+            slug: feedSlug(item),
             title: item.title,
             summary: item.excerpt,
             category: Array.isArray(item.category) ? item.category[0]?.name : item.category?.name,
             date: item.published_at || item.created_at,
             image: item.cover_image,
           }))
-          .filter((a) => !!a.image && String(a.image).trim() !== "")
 
         const localArticles: FeedCard[] = (articlesData as any[])
           .map((item) => ({
             id: item.id,
-            slug: item.slug,
+            slug: feedSlug(item),
             title: item.title,
             summary: item.excerpt,
             category: item.category,
             date: item.publishedAt,
             image: item.coverImage || item.image,
           }))
-          .filter((a) => !!a.image && String(a.image).trim() !== "")
 
         const combinedArticles = Array.from(new Map([...remoteArticles, ...localArticles].map((a) => [a.slug, a])).values())
-        setLatestArticles(diversifyByCategory(combinedArticles.filter((a) => !!a.image), 8))
+        setLatestArticles(diversifyByCategory(combinedArticles, 8))
 
-        // Events: merge local + remote seminars, only with picture
+        // Events: merge local and remote seminars; keep text available when an image is absent.
         const remoteSeminars: EventCard[] = (seminarsRes.data || [])
           .map((raw: any) => ({
             id: `seminar-${raw.id}`,
@@ -195,12 +199,11 @@ export function HomePage() {
             image: raw.image_url,
             organizer: raw.speaker_title || raw.speaker,
           }))
-          .filter((e: EventCard) => !!e.image)
 
         const localEvents: EventCard[] = (eventsData as any[])
           .map((e) => ({
             id: e.id,
-            slug: e.slug || e.id,
+            slug: feedSlug(e),
             title: e.title,
             excerpt: e.excerpt,
             city: e.city,
@@ -208,7 +211,6 @@ export function HomePage() {
             image: e.image,
             organizer: e.organizer,
           }))
-          .filter((e) => !!e.image)
 
         const combinedEvents = Array.from(new Map([...remoteSeminars, ...localEvents].map((e) => [e.id, e])).values())
         setLatestEvents(combinedEvents.slice(0, 4))
@@ -338,21 +340,24 @@ export function HomePage() {
               ))}
             </div>
 
-            {/* أحدث المقالات — only with pictures */}
+            {/* أحدث المقالات — النص متاح حتى عندما لا تتوفر صورة للبطاقة */}
             <div className="mt-12">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white">أحدث المقالات</h3>
                 <Link to="/articles" aria-label="عرض الكل: أحدث المقالات" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                {latestArticles.filter((a) => !!a.image).slice(0, 4).map((item) => (
+                {latestArticles.slice(0, 4).map((item) => (
                   <Link key={item.id} to={`/articles/${item.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-0.5 transition-all flex flex-col">
-                    <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
-                      <img src={item.image!} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={120} />
-                      <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
-                    </div>
+                    {item.image ? (
+                      <div className="h-[110px] sm:h-[120px] bg-[#f1f5f9] dark:bg-[#334155] overflow-hidden relative shrink-0">
+                        <img src={item.image} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={120} />
+                        <span className="absolute top-2 right-2 bg-white/90 dark:bg-black/60 backdrop-blur text-[9px] font-bold px-2 py-1 rounded-full border border-black/5 shadow-sm">{item.category || "قانون"}</span>
+                      </div>
+                    ) : null}
                     <div className="p-4 flex flex-col flex-1">
-                      <h4 className="font-bold text-[14px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
+                      {!item.image && item.category ? <span className="self-start rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2 py-1 text-[10px] font-bold">{item.category}</span> : null}
+                      <h4 className="font-bold text-[14px] leading-snug text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{item.title}</h4>
                       <p className="mt-2 text-[12px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{item.summary}</p>
                       <div className="mt-3 flex items-center gap-2 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
                         <span className="flex items-center gap-1"><Clock className="size-3" /> 5 دقائق</span>
@@ -365,7 +370,7 @@ export function HomePage() {
               </div>
             </div>
 
-            {/* الفعاليات — only with pictures */}
+            {/* الفعاليات — نعرض معلوماتها النصية ولو لم تتوفر صورة */}
             {latestEvents.length > 0 && (
               <div className="mt-12">
                 <div className="flex items-center justify-between mb-6">
@@ -376,19 +381,23 @@ export function HomePage() {
                   <Link to="/events" aria-label="عرض الكل: الفعاليات والندوات" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {latestEvents.filter((e) => !!e.image).slice(0, 4).map((ev) => (
+                  {latestEvents.slice(0, 4).map((ev) => (
                     <Link key={ev.id} to={`/events/${ev.slug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl overflow-hidden hover:border-[#f59e0b]/30 hover:shadow-[0_8px_24px_rgba(245,158,11,0.10)] hover:-translate-y-0.5 transition-all flex flex-col">
-                      <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
-                        <img src={ev.image!} alt={ev.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
-                        <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
-                        {ev.date && <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
-                      </div>
+                      {ev.image ? (
+                        <div className="h-[130px] bg-[#fef3c7] dark:bg-[#78350f]/20 overflow-hidden relative shrink-0">
+                          <img src={ev.image} alt={ev.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500" width={320} height={130} />
+                          <span className="absolute top-2 right-2 bg-[#f59e0b] text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-sm">ندوة</span>
+                          {ev.date && <span className="absolute bottom-2 left-2 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</span>}
+                        </div>
+                      ) : null}
                       <div className="p-4 flex flex-col flex-1">
-                        <h4 className="font-bold text-[13.5px] leading-snug line-clamp-2 text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
+                        {!ev.image && <span className="self-start rounded-full bg-[#fffbeb] dark:bg-[#78350f]/20 px-2 py-1 text-[10px] font-bold text-[#b45309]">ندوة</span>}
+                        <h4 className="font-bold text-[13.5px] leading-snug text-[#0f172a] dark:text-white group-hover:text-[#f59e0b] transition-colors">{ev.title}</h4>
                         <p className="mt-2 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-2 flex-1">{ev.excerpt}</p>
                         <div className="mt-3 flex items-center gap-3 text-[10px] text-[#64748b] dark:text-[#94a3b8] border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
+                          {!ev.image && ev.date && <time dateTime={ev.date} className="flex items-center gap-1"><Calendar className="size-3" />{new Date(ev.date).toLocaleDateString("ar-MA")}</time>}
                           {ev.city && <span className="flex items-center gap-1"><MapPin className="size-3" />{ev.city}</span>}
-                          {ev.organizer && <span className="flex items-center gap-1 truncate"><Building2 className="size-3" />{ev.organizer.slice(0, 20)}</span>}
+                          {ev.organizer && <span className="flex items-center gap-1 truncate"><Building2 className="size-3" />{ev.organizer}</span>}
                         </div>
                       </div>
                     </Link>

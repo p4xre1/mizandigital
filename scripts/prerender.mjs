@@ -26,6 +26,7 @@ import { downloadLinkOf } from "../shared/archive/links.js";
 import { ARTICLES_HUB_META, buildArticlesHubSchema } from "../shared/seo/articles-hub.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 import {
+  BRAND,
   MAX_TITLE,
   UTILITY_ROUTES,
   abbreviateFaculty,
@@ -33,6 +34,7 @@ import {
   fitTitle,
 } from "./lib/meta-description.mjs";
 import { buildCareerPages } from "./lib/career-pages.mjs";
+import { renderHomeServerRenderedContent } from "./lib/home-static-content.mjs";
 import { policyToHtml } from "../src/content/legal/markup.js";
 import {
   PRIVACY_POLICY,
@@ -512,6 +514,31 @@ ${items}
 
 const homeLawArchiveHtml = renderHomeLawArchiveHtml();
 
+// Homepage feeds are populated from local/CMS snapshots and otherwise appear
+// only after client JavaScript fetches them. Emit the same article/event/term
+// text here so a raw request already contains the content before #root runs.
+const homeServerRenderedContentHtml = renderHomeServerRenderedContent({
+  articles: articlePages.map(({ name, path, summary, item }) => ({
+    title: name,
+    path,
+    summary,
+    category:
+      typeof item.category === "string"
+        ? item.category
+        : item.category?.name || "",
+    date: item.publishedAt || item.published_at || item.created_at || item.updatedAt,
+  })),
+  events: eventPages.map(({ name, path, summary, item }) => ({
+    title: name,
+    path,
+    summary,
+    city: item.city,
+    date: item.eventDate || item.event_date || item.date,
+    organizer: item.organizer,
+  })),
+  terms: lexiconWithSlugs,
+});
+
 /* -------------------------------------------------------
    Entity identity
 ------------------------------------------------------- */
@@ -519,7 +546,7 @@ const homeLawArchiveHtml = renderHomeLawArchiveHtml();
 const publisherSchema = {
   "@type": "Organization",
   "@id": `${DOMAIN}/#organization`,
-  name: "ميزان الرقمية",
+  name: BRAND,
   alternateName: ["Mizan Digital", "Mizan.page", "منصة الميزان الرقمية"],
   url: DOMAIN,
   logo: {
@@ -529,7 +556,7 @@ const publisherSchema = {
     contentUrl: `${DOMAIN}/logo-512.png`,
     width: 512,
     height: 512,
-    caption: "ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء",
+    caption: `${BRAND} - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء`,
   },
   image: {
     "@type": "ImageObject",
@@ -551,14 +578,14 @@ const publisherSchema = {
 const authorSchema = {
   "@type": "Organization",
   "@id": `${DOMAIN}/#author`,
-  name: "فريق ميزان الرقمية",
+  name: `فريق ${BRAND}`,
   url: `${DOMAIN}/about`,
 };
 
 const websiteSchema = {
   "@type": "WebSite",
   "@id": `${DOMAIN}/#website`,
-  name: "ميزان الرقمية",
+  name: BRAND,
   url: DOMAIN,
   inLanguage: "ar-MA",
   publisher: {
@@ -653,13 +680,6 @@ const homeHeaderHtml = `
           </div>
         </header>`;
 
-const homeStatCards = [
-  ["القاموس", "250 مصطلح", ICON.scale, "bg-[#2563eb]", String(statistics.lexicon)],
-  ["الأرشيف", "S1-S6", ICON.library, "bg-[#f59e0b]", "S1-S6"],
-  ["المقالات", `${statistics.articles} مقال`, ICON.bookOpen, "bg-[#10b981]", String(statistics.articles)],
-  ["الأخبار", "مباشر", ICON.cap, "bg-[#ec4899]", "مباشر"],
-];
-
 const homeHeroHtml = `
           <section class="relative bg-white dark:bg-[#0f172a] overflow-hidden">
             <div class="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]"></div>
@@ -671,33 +691,9 @@ const homeHeroHtml = `
                 <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
                 <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
               </div>
-              <div class="mt-7 flex items-center justify-center gap-4">
-                <div class="flex -space-x-2 rtl:space-x-reverse">${[1, 2, 3, 4]
-                  .map(
-                    (i) =>
-                      `\n                  <div class="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">${String.fromCharCode(64 + i)}</div>`
-                  )
-                  .join("")}
-                </div>
-                <div class="text-right">
-                  <div class="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">${svgIcon(ICON.users, "size-4 text-[#2563eb]", 16)}500+ طالب يثقون بنا</div>
-                  <div class="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">${svgIcon(ICON.star, "size-3 fill-[#f59e0b] text-[#f59e0b]", 12)}4.9 - محتوى أساسي مجاني</div>
-                </div>
-              </div>
-              <div class="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">${homeStatCards
-                .map(
-                  ([title, desc, icon, color, badge]) => `
-                <div class="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
-                  <div class="flex items-center justify-between">
-                    <div class="grid size-9 place-items-center rounded-xl ${color} text-white shadow-sm">${svgIcon(icon, "size-4", 16)}</div>
-                    <span class="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">${badge}</span>
-                  </div>
-                  <h2 class="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">${title}</h2>
-                  <p class="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">${desc}</p>
-                </div>`
-                )
-                .join("")}
-              </div>
+              <p class="mt-7 lg:mt-10 text-center lg:text-start text-[13px] lg:text-[15px] font-semibold text-[#475569] dark:text-[#cbd5e1]">
+                انزل إلى الأسفل، ستجد رابط مجتمع ميزان على واتساب.
+              </p>
             </div>
           </section>`;
 
@@ -784,6 +780,8 @@ const pages = [
       <div class="min-h-screen bg-background text-foreground">${homeHeaderHtml}
         <main class="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl" lang="ar-MA">${homeHeroHtml}
 
+${homeServerRenderedContentHtml}
+
         <section class="bg-white dark:bg-[#0f172a] py-14 border-t border-[#f1f5f9] dark:border-[#1e293b]">
         <article class="container mx-auto max-w-[800px] px-6 text-[14px] leading-7 text-[#475569] dark:text-[#94a3b8]">
 
@@ -822,6 +820,12 @@ const pages = [
             <p>
               تمثل هذه البيانات أساس المحتوى الأكاديمي المنشور على المنصة،
               ويتم تحديثها مع إضافة مواد جديدة.
+            </p>
+
+            <p>
+              وتضم الاختبارات التدريبية حالياً
+              <strong>${statistics.quiz} سؤالاً قانونياً</strong>
+              للمراجعة والتدرب على أسئلة الاختيار من متعدد.
             </p>
           </section>
 

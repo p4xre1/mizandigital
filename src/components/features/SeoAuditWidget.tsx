@@ -15,6 +15,16 @@ import {
   Link as LinkIcon,
   HelpCircle,
 } from "lucide-react"
+import { analyzeBodyStructure } from "@/lib/seo/analyzers/text"
+import { analyzeBrandConsistency } from "@/lib/seo/analyzers/brandConsistency"
+import { analyzeCitationPresentation } from "@/lib/seo/analyzers/sourceQuality"
+import { analyzeAnswerFirstStructure } from "@/lib/seo/scoring/aiScores"
+import { BRAND, fitTitle } from "@/lib/seo/description"
+import { SITE_CONFIG } from "@/lib/seo/schema"
+import {
+  generateOrganizationSchema as generateComponentOrganizationSchema,
+  generateWebsiteSchema as generateComponentWebsiteSchema,
+} from "@/components/seo/SchemaOrg"
 
 interface SeoAuditWidgetProps {
   title: string
@@ -23,6 +33,8 @@ interface SeoAuditWidgetProps {
   slug?: string
   focusKeyword?: string
   baseUrl?: string
+  source?: string
+  sourceUrl?: string
 }
 
 interface AuditRule {
@@ -51,6 +63,8 @@ export default function SeoAuditWidget({
   slug = "",
   focusKeyword = "",
   baseUrl = "https://www.mizan.page",
+  source = "",
+  sourceUrl = "",
 }: SeoAuditWidgetProps) {
   const [deviceView, setDeviceView] = useState<"desktop" | "mobile">("desktop")
   const [filterStatus, setFilterStatus] = useState<"all" | "issues" | "pass">("all")
@@ -62,6 +76,24 @@ export default function SeoAuditWidget({
     const cleanContent = content.trim()
     const words = cleanContent ? cleanContent.split(/\s+/).filter(Boolean) : []
     const wordCount = words.length
+    const structure = analyzeBodyStructure(cleanContent)
+    const answerFirst = analyzeAnswerFirstStructure(cleanContent)
+    const citationPresentation = analyzeCitationPresentation(cleanContent, {
+      explicitSource: source,
+      explicitSourceUrl: sourceUrl,
+    })
+    const componentOrganizationSchema = generateComponentOrganizationSchema()
+    const componentWebsiteSchema = generateComponentWebsiteSchema()
+    const brandConsistency = analyzeBrandConsistency({
+      title: fitTitle(title),
+      openGraphSiteName: BRAND,
+      schemaNames: [
+        SITE_CONFIG.name,
+        componentOrganizationSchema.name,
+        componentWebsiteSchema.name,
+        componentWebsiteSchema.publisher.name,
+      ],
+    })
 
     // 1. طول العنوان
     const titleLen = title.trim().length
@@ -106,7 +138,22 @@ export default function SeoAuditWidget({
       })
     }
 
-    // 2. وصف الميتا (Meta Description)
+    // 2. اتساق اسم العلامة بين العنوان وOpen Graph وSchema
+    rules.push({
+      id: "brand-consistency",
+      category: "meta",
+      label: "اتساق اسم العلامة التجارية (Brand Consistency)",
+      status: brandConsistency.consistent ? "pass" : "warn",
+      score: brandConsistency.consistent ? 100 : 40,
+      message: brandConsistency.consistent
+        ? brandConsistency.evidence.join("؛ ")
+        : brandConsistency.issues.join(" "),
+      tip: brandConsistency.consistent
+        ? undefined
+        : `اعتمد الصيغة نفسها «${BRAND}» في العنوان عند ذكر العلامة، وog:site_name، وحقول name في Organization وWebSite وPublisher.`,
+    })
+
+    // 3. وصف الميتا (Meta Description)
     const descLen = description.trim().length
     if (descLen >= 120 && descLen <= 160) {
       rules.push({
@@ -139,7 +186,7 @@ export default function SeoAuditWidget({
       })
     }
 
-    // 3. طول النص والمحتوى
+    // 4. طول النص والمحتوى
     if (wordCount >= 300) {
       rules.push({
         id: "content-len",
@@ -171,7 +218,7 @@ export default function SeoAuditWidget({
       })
     }
 
-    // 4. فحوصات الكلمة المفتاحية
+    // 5. فحوصات الكلمة المفتاحية
     if (kw) {
       const inTitle = title.toLowerCase().includes(kw)
       const inDesc = description.toLowerCase().includes(kw)
@@ -258,8 +305,8 @@ export default function SeoAuditWidget({
       }
     }
 
-    // 5. العناوين الفرعية الهيكلية (H2 / H3)
-    const hasHeadings = /^#{2,3}\s+/m.test(cleanContent)
+    // 6. العناوين الفرعية الهيكلية (H2 / H3)
+    const hasHeadings = structure.headings.some((heading) => heading.level >= 2)
     if (hasHeadings) {
       rules.push({
         id: "headings",
@@ -281,7 +328,93 @@ export default function SeoAuditWidget({
       })
     }
 
-    // 6. الوسائط والروابط
+    // 7. بنية المحتوى القابلة للاستخراج لمحركات الإجابة
+    const hierarchyJumps = structure.headingJumps
+    const hierarchyMessage = hierarchyJumps.length
+      ? hierarchyJumps.map((jump) => `H${jump.fromLevel} → H${jump.toLevel}`).join("، ")
+      : "لا توجد قفزات في مستويات العناوين."
+    rules.push({
+      id: "heading-hierarchy",
+      category: "structure",
+      label: "تسلسل مستويات العناوين",
+      status: hierarchyJumps.length ? "warn" : "pass",
+      score: hierarchyJumps.length ? Math.max(35, 100 - hierarchyJumps.length * 35) : 100,
+      message: hierarchyJumps.length
+        ? `${hierarchyJumps.length} قفزة في التسلسل: ${hierarchyMessage}`
+        : hierarchyMessage,
+      tip: hierarchyJumps.length
+        ? "لا تنتقل من H2 إلى H4 مباشرة؛ أضف H3 أو أعد مستوى العنوان ليبقى كل عنوان فرعياً متتالياً."
+        : undefined,
+    })
+
+    const questionHeadingCount = structure.questionHeadings.length
+    rules.push({
+      id: "question-headings",
+      category: "content",
+      label: "عناوين بصيغة أسئلة القارئ",
+      status: questionHeadingCount >= 2 ? "pass" : "warn",
+      score: questionHeadingCount >= 2 ? 100 : questionHeadingCount === 1 ? 65 : 35,
+      message: `${questionHeadingCount} عنواناً فرعياً بصيغة سؤال.`,
+      tip: questionHeadingCount < 2
+        ? "أضف عناوين H2/H3 تصوغ أسئلة حقيقية يبحث عنها القارئ، وأجب عنها مباشرة تحت كل عنوان."
+        : undefined,
+    })
+
+    const unansweredQuestionSections = answerFirst.questionSections.filter((section) => !section.hasDirectAnswer)
+    const answerFirstComplete = answerFirst.hasDirectAnswer && unansweredQuestionSections.length === 0
+    rules.push({
+      id: "answer-first",
+      category: "content",
+      label: "الإجابة المباشرة في المقدمة والأقسام",
+      status: answerFirstComplete ? "pass" : "warn",
+      score: answerFirstComplete ? 100 : answerFirst.hasDirectAnswer ? 65 : 35,
+      message: answerFirst.hasDirectAnswer
+        ? unansweredQuestionSections.length
+          ? `المقدمة مباشرة، لكن ${unansweredQuestionSections.length} عنوان سؤالي لا يتبعه جواب واضح.`
+          : `تبدأ المقدمة بإجابة موجزة (${answerFirst.openingWords} كلمة في الجملة الأولى)، وأُجيب عن العناوين السؤالية مباشرة.`
+        : answerFirst.openingWords
+          ? `لم تُكتشف إجابة مباشرة في البداية (${answerFirst.openingWords} كلمة في أول جملة).`
+          : "لا توجد جملة افتتاحية يمكن اقتباسها كجواب مباشر.",
+      tip: answerFirstComplete
+        ? undefined
+        : "ابدأ بتعريف أو جواب واضح في أول فقرة، ثم افتح كل عنوان سؤالي بجواب مباشر؛ انقل التمهيد والسياق إلى ما بعد الإجابة.",
+    })
+
+    const hasNamedLinkedSource = citationPresentation.namedLinkedSources.length > 0
+    rules.push({
+      id: "named-citations",
+      category: "structure",
+      label: "مصادر مسمّاة بروابط خارجية",
+      status: hasNamedLinkedSource ? "pass" : "warn",
+      score: hasNamedLinkedSource ? 100 : citationPresentation.outboundLinks.length ? 55 : 20,
+      message: hasNamedLinkedSource
+        ? `${citationPresentation.namedLinkedSources.length} مصدر مسمّى مرتبط برابط خارجي.`
+        : citationPresentation.outboundLinks.length
+          ? "توجد روابط خارجية لكن لا يظهر معها اسم مصدر واضح."
+          : "لا يوجد رابط خارجي لمصدر مسمّى.",
+      tip: hasNamedLinkedSource
+        ? undefined
+        : "اذكر الجهة أو النص المرجعي بالاسم واربطه بمصدره الرسمي/الأكاديمي؛ لا تكتفِ برابط عام أو «اضغط هنا».",
+    })
+
+    const quotationCount = citationPresentation.quotations.length
+    const attributedQuoteCount = citationPresentation.attributedQuoteCount
+    const allQuotesAttributed = quotationCount > 0 && attributedQuoteCount === quotationCount
+    rules.push({
+      id: "attributed-quotes",
+      category: "content",
+      label: "اقتباسات السلطات مع الإسناد",
+      status: allQuotesAttributed ? "pass" : "warn",
+      score: allQuotesAttributed ? 100 : quotationCount ? Math.round((attributedQuoteCount / quotationCount) * 65) : 30,
+      message: quotationCount
+        ? `اقتباسات منسوبة: ${attributedQuoteCount}/${quotationCount}.`
+        : "لا يتضمن النص اقتباساً مباشراً موثقاً.",
+      tip: allQuotesAttributed
+        ? undefined
+        : "أضف اقتباساً حقيقياً من جهة أو مؤلف مسمّى، وانسبه بوضوح واربط المصدر. تحقّق من اللفظ قبل وضعه بين علامتي اقتباس؛ لا تنشئ اقتباساً من عندك.",
+    })
+
+    // 8. الوسائط والروابط
     const hasImages = /!\[.*?\]\(.*?\)/.test(cleanContent)
     const hasLinks = /\[.*?\]\(.*?\)/.test(cleanContent)
 
@@ -307,7 +440,7 @@ export default function SeoAuditWidget({
       })
     }
 
-    // 7. سلامة الرابط (Slug Check)
+    // 9. سلامة الرابط (Slug Check)
     if (slug) {
       const isCleanSlug = /^[a-z0-9-]+$/.test(slug) || /^[\u0600-\u06FF0-9-]+$/.test(slug)
       if (isCleanSlug) {
@@ -338,7 +471,7 @@ export default function SeoAuditWidget({
     )
 
     return { rules, score: totalScore }
-  }, [title, description, content, slug, focusKeyword])
+  }, [title, description, content, slug, focusKeyword, source, sourceUrl])
 
   // التصفية
   const filteredRules = useMemo(() => {

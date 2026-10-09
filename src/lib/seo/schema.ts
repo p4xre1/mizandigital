@@ -1,6 +1,7 @@
 // /workspaces/mizandigital/src/lib/seo/schema.ts
 import { jsonLdProps } from "./jsonLd"
 import { BASE_URL, canonicalUrl } from "../canonical"
+import { BRAND } from "./description"
 
 /**
  * إعدادات الموقع. النطاق لم يُترك سلسلة مكتوبة باليد: جاء من سياسة الروابط
@@ -9,7 +10,7 @@ import { BASE_URL, canonicalUrl } from "../canonical"
  * نهاية زائدة.
  */
 export const SITE_CONFIG = {
-  name: "منصة الميزان الرقمية",
+  name: BRAND,
   altName: "الميزان الرقمي - Mizan Digital",
   url: BASE_URL,
   /*

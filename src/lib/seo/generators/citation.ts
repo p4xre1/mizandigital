@@ -9,6 +9,7 @@
  */
 
 import { tokenize } from "../analyzers/text"
+import { BRAND } from "../description"
 
 export interface CitationData {
   title: string
@@ -24,8 +25,8 @@ export interface CitationData {
  * تُستخدم كي يستطيع الآخرون (والنماذج اللغوية) إسناد المعلومة بدقة.
  */
 export function generateCitations(data: CitationData): Record<string, string> {
-  const site = data.siteName || "ميزان الرقمية"
-  const author = data.author?.trim() || "فريق ميزان الرقمية"
+  const site = data.siteName || BRAND
+  const author = data.author?.trim() || `فريق ${BRAND}`
   const published = data.publishedAt || ""
   const accessed = data.accessedAt || new Date().toISOString().slice(0, 10)
   const title = (data.title || "").trim()

@@ -173,14 +173,40 @@ export function parseBodyBlocks(body: string): MarkdownBlock[] {
   return chunks.map((chunk) => {
     const heading = /^(#{1,6})\s+(.*)$/.exec(chunk)
     if (heading) {
-      return { kind: "heading" as const, level: heading[1].length, text: heading[2].trim() }
+      // يُعرض H1 داخل المتن كـ H2 لأن عنوان الصفحة الرئيسي منفصل في القالب.
+      return { kind: "heading" as const, level: Math.max(2, heading[1].length), text: heading[2].trim() }
     }
     return { kind: "paragraph" as const, level: 0, text: chunk }
   })
 }
 
+export interface HeadingLevelJump {
+  fromLevel: number
+  toLevel: number
+  fromHeading: string
+  toHeading: string
+}
+
+/** اعتبر العنوان سؤالياً إذا صيغ كسؤال أو بدأ بأداة استفهام واضحة. */
+export function isQuestionHeading(text: string): boolean {
+  const cleaned = (text || "")
+    .replace(/^\s*#{1,6}\s*/, "")
+    .replace(/^\s*[\d٠-٩۰-۹]+[.)、:：-]?\s*/, "")
+    .trim()
+  if (!cleaned) return false
+  if (/[؟?]/.test(cleaned)) return true
+
+  const normalized = normalizeArabic(cleaned)
+  const arabicQuestionStart = /^(?:هل|ما|ماذا|من|متى|اين|لماذا|كيف|كم|اي|اية|ايهما|ايتهما|ايهم)(?:\s|$)/u
+  const englishQuestionStart = /^(?:what|why|how|when|where|who|which|can|does|do|is|are)(?:\s|$)/i
+  return arabicQuestionStart.test(normalized) || englishQuestionStart.test(cleaned)
+}
+
 export interface BodyStructure {
   headings: { level: number; text: string }[]
+  /** الانتقالات التي تتجاوز مستوىً فرعياً واحداً (مثلاً H2 → H4). */
+  headingJumps: HeadingLevelJump[]
+  questionHeadings: { level: number; text: string }[]
   h2Count: number
   h3Count: number
   paragraphCount: number
@@ -199,6 +225,19 @@ export function analyzeBodyStructure(body: string): BodyStructure {
   const headings = blocks
     .filter((b) => b.kind === "heading")
     .map((b) => ({ level: b.level, text: b.text }))
+  const headingJumps: HeadingLevelJump[] = []
+  for (let index = 1; index < headings.length; index++) {
+    const previous = headings[index - 1]
+    const current = headings[index]
+    if (current.level > previous.level + 1) {
+      headingJumps.push({
+        fromLevel: previous.level,
+        toLevel: current.level,
+        fromHeading: previous.text,
+        toHeading: current.text,
+      })
+    }
+  }
 
   const paragraphs = blocks.filter((b) => b.kind === "paragraph")
   const proseText = paragraphs.map((p) => p.text).join("\n")
@@ -207,6 +246,8 @@ export function analyzeBodyStructure(body: string): BodyStructure {
 
   return {
     headings,
+    headingJumps,
+    questionHeadings: headings.filter((heading) => isQuestionHeading(heading.text)),
     h2Count: headings.filter((h) => h.level === 2).length,
     h3Count: headings.filter((h) => h.level === 3).length,
     paragraphCount: paragraphs.length,

@@ -27,6 +27,7 @@ import {
   extractHeadMeta,
   checkHreflang,
   checkImages,
+  checkServerRenderedContent,
   checkRobots,
   checkRobotsAiAccess,
   checkSecurityHeaders,
@@ -156,6 +157,7 @@ if (htmlFiles.length === 0) {
 const htmlDir = DIST;
 
 const headScores = [];
+const serverRenderedScores = [];
 const canonicalScores = [];
 const imageScores = [];
 const a11yScores = [];
@@ -174,6 +176,12 @@ for (const file of sampledFiles) {
   const url = route === "/" ? SITE_URL : `${SITE_URL}${route}`;
 
   headScores.push(checkHtmlHead(html, { url }));
+
+  // افحص نص #root كما هو في الملف الخام، لا DOM بعد تنفيذ React. تُستثنى
+  // صفحات الحساب والتطبيق التي لا تُفهرس؛ لا نطلب محتوى عامّاً منها.
+  if (isIndexablePath(route)) {
+    serverRenderedScores.push({ path: route, ...checkServerRenderedContent(html) });
+  }
 
   const headMeta = extractHeadMeta(html);
   metaPages.push({ path: route, ...headMeta });
@@ -238,6 +246,17 @@ results.head = {
   score: average(headScores),
   issues: collectIssues(headScores),
   details: [`${headScores.length} صفحة فُحصت`],
+};
+results.serverRenderedContent = {
+  pass: serverRenderedScores.length > 0 && serverRenderedScores.every((s) => s.pass),
+  score: average(serverRenderedScores),
+  issues: serverRenderedScores.flatMap((page) =>
+    page.issues.map((issue) => `${page.path}: ${issue}`),
+  ),
+  details: [
+    `${serverRenderedScores.length} صفحة قابلة للفهرسة فُحصت في HTML الخام قبل JavaScript`,
+    `${serverRenderedScores.filter((page) => page.pass).length}/${serverRenderedScores.length} تحتوي H1 و25 كلمة على الأقل داخل #root`,
+  ],
 };
 results.images = {
   pass: imageScores.every((s) => s.pass),
@@ -361,7 +380,7 @@ results.orphanPages = findOrphanPages(routes, [...linkedPaths]);
 // ── النتيجة المجمّعة ────────────────────────────────────────────────────────
 const overall = aggregateTechnical(results);
 
-const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "metaCopy", "hreflang", "structuredData", "images", "siteIcons", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
+const order = ["robots", "sitemap", "canonical", "sitemapCoverage", "head", "serverRenderedContent", "metaCopy", "hreflang", "structuredData", "images", "siteIcons", "accessibility", "securityHeaders", "urlStructure", "orphanPages", "aiDiscovery"];
 for (const key of order) {
   const value = results[key];
   if (!value) continue;
