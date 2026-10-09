@@ -319,3 +319,38 @@ export const ELMO_TOOL_GROUPS: SeoToolGroup[] = [
     links: [{ label: "Elmo Cloud (مدفوعة، من 29$ شهرياً)", href: "https://www.elmohq.com/pricing" }],
   },
 ]
+
+const DIAGRAM_REPO = "https://github.com/cathrynlavery/diagram-design"
+/**
+ * Diagram Design: مهارة وكلاء (MIT) لإنشاء مخططات HTML وSVG بأسلوب تحريري.
+ * تعمل داخل Claude Code وCodex وFactory Droid وPi، لا داخل هذه الـCMS. الروابط فقط.
+ */
+export const DIAGRAM_DESIGN_TOOL_GROUPS: SeoToolGroup[] = [
+  {
+    title: "المشروع",
+    links: [
+      { label: "المستودع (MIT)", href: DIAGRAM_REPO },
+      { label: "الموقع الرسمي", href: "https://diagramdesign.dev" },
+    ],
+  },
+  {
+    title: "المهارات والأوامر",
+    links: [
+      { label: "skills/", href: `${DIAGRAM_REPO}/tree/main/skills` },
+      { label: "commands/", href: `${DIAGRAM_REPO}/tree/main/commands` },
+      { label: "prompts/", href: `${DIAGRAM_REPO}/tree/main/prompts` },
+    ],
+  },
+  {
+    title: "الإضافات لكل منصة",
+    links: [
+      { label: "Claude Code (.claude-plugin)", href: `${DIAGRAM_REPO}/tree/main/.claude-plugin` },
+      { label: "Codex (.codex-plugin)", href: `${DIAGRAM_REPO}/tree/main/.codex-plugin` },
+      { label: "Factory Droid (.factory-plugin)", href: `${DIAGRAM_REPO}/tree/main/.factory-plugin` },
+    ],
+  },
+  {
+    title: "التوثيق",
+    links: [{ label: "docs/", href: `${DIAGRAM_REPO}/tree/main/docs` }],
+  },
+]

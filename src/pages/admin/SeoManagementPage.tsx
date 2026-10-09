@@ -3,7 +3,7 @@ import {
   Search, Globe, FileText, Brain, CheckCircle2, AlertTriangle, ExternalLink,
   Sparkles, BarChart3, TrendingUp, Layers, GraduationCap, Scale, BookOpen, Tag, ShieldCheck, FileCode2
 } from "lucide-react"
-import { SEO_TOOL_GROUPS, TRAFFIC_TOOL_GROUPS, AI_VISIBILITY_TOOL_GROUPS, AKII_PLUGIN_GROUPS, AWESOME_AEO_TOOL_GROUPS, ELMO_TOOL_GROUPS, type SeoToolGroup } from "./seoToolsLinks"
+import { SEO_TOOL_GROUPS, TRAFFIC_TOOL_GROUPS, AI_VISIBILITY_TOOL_GROUPS, AKII_PLUGIN_GROUPS, AWESOME_AEO_TOOL_GROUPS, ELMO_TOOL_GROUPS, DIAGRAM_DESIGN_TOOL_GROUPS, type SeoToolGroup } from "./seoToolsLinks"
 import { SeoToolsPanel } from "../../components/admin/SeoToolsPanel"
 import { UI_LIBRARY_GROUPS } from "./uiLibraryLinks"
 
@@ -141,6 +141,13 @@ export default function SeoManagementPage() {
         title="مكتبات واجهات المستخدم ومصادر التصميم (awesome-ui-libraries)"
         description="قائمة مختارة من مكتبات واجهات وقوالب ومصادر إلهام، مرتبة حسب أقسام المستودع الأصلي. العلامة (PRO) تعني أن المكتبة تحتوي على خيارات مدفوعة. الروابط لا تعني أن هذه المكتبات مُدمجة في الـCMS."
         groups={UI_LIBRARY_GROUPS}
+      />
+
+      <SemrushSection
+        icon={<Layers className="size-4 text-indigo-600" />}
+        title="مهارة إنشاء المخططات (Diagram Design)"
+        description="مهارة مفتوحة المصدر (MIT) تنشئ مخططات HTML وSVG بأسلوب تحريري داخل Claude Code وCodex وغيرها. تعمل خارج هذه الـCMS، والروابط تفتح مجلداتها في المستودع."
+        groups={DIAGRAM_DESIGN_TOOL_GROUPS}
       />
       <div>
         <h2 className="mb-3 flex items-center gap-2 text-[14px] font-extrabold text-foreground"><FileCode2 className="size-4 text-violet-600" /> أدوات تقنية للـSEO</h2>
