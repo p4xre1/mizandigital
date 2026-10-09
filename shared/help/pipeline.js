@@ -15,6 +15,7 @@ import { DEFAULT_MESSAGES } from "./cms.js"
 import { screenMessage } from "./guardrails.js"
 import { analyzeLanguage, toArabicRetrievalText, UNSUPPORTED_LANGUAGE_ANSWER } from "./language.js"
 import { answerQuestion } from "./answer.js"
+import { answerLegalQuestion } from "../qa/engine.js"
 import { classifySocialIntent, detectEmotion, stripEmotionCues, wantsDetail, wantsNeutralTone } from "./conversation.js"
 import { enforceLengthLimit } from "./output.js"
 import { applyLegalNotes, verifyLegalCitations } from "./legal-sources.js"
@@ -111,6 +112,19 @@ export function runPipeline(text, config = {}) {
   // نص الاسترجاع بلا عبارات الإحباط أو الارتباك، فلا تجذب مدخلات عامة. الفحوص الأمنية أعلاه تعمل على النص الأصلي.
   const retrievalText = stripEmotionCues(toArabicRetrievalText(text))
   const base = answerQuestion(text, { ...config, retrievalText })
+
+  // محرك الأسئلة القانونية: يتقدم على المحتوى العام فقط حين يجد أدلة قانونية في المصادر المعتمدة.
+  // لا يتجاوز: الأسئلة المخصصة من المشرف (custom_qa)، والرفض، والحظر، والتعطيل.
+  const engineEligible = base.reason !== "custom_qa" && !["refused", "blocked", "disabled", "unsupported_language"].includes(base.mode)
+  if (engineEligible) {
+    const legal = answerLegalQuestion(text, { retrievalText })
+    if (legal.handled) {
+      const found = legal.mode === "answer"
+      const lead = leadFor(emotion, { found, professional })
+      const answer = lead ? `${lead}\n\n${legal.answer}` : legal.answer
+      return sanitizeAnswerResult({ mode: legal.mode, answer, sources: legal.sources, reason: legal.reason }, messages.blocked)
+    }
+  }
 
   if (base.mode === "not_found") {
     const lead = leadFor(emotion, { found: false, professional })

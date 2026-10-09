@@ -34,6 +34,8 @@ const MODE_LABELS: Record<string, string> = {
   refused: "رفض (استشارة فردية)",
   blocked: "محظور (حقن، هندسة اجتماعية، أو عبارة محظورة)",
   out_of_topic: "خارج الموضوع",
+  clarify: "توضيح مطلوب من السائل",
+  insufficient: "لم يُتحقق من المصدر",
   disabled: "المساعد متوقف",
   unsupported_language: "لغة غير عربية",
 }
