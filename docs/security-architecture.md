@@ -67,3 +67,23 @@ The live response headers have **not** been verified (see `docs/security-testing
 - `translate.js` still caps request bodies at 256 KB although its text limits allow more. Behavior is unchanged in this pass (see controls matrix, API-03).
 - Some endpoints rely on RLS and the Supabase JWT, not on a server-side check. Each new endpoint needs a review against `docs/security-threat-model.md`.
 - The admin UI relies on server checks and RLS; a UI-only check is not a control.
+
+## 7. Client bundle boundary
+
+What may be in `dist/` (the browser-visible build), by class (see `docs/security-algorithm-protection.md`):
+
+- **Class 1 (public):** UI code, public educational content, and shared constants with no rule logic
+  (`shared/help/cms-constants.js`).
+- **Class 2 (operational rules):** must run on the server (`functions/`). The help-assistant
+  guardrails and pipeline are server-only. Admin pages call server endpoints, such as
+  `/api/admin/help/validate` and `/api/admin/help/preview`, instead of importing rule modules.
+- **Class 3 (secrets and personal data):** never in the bundle. Service-role keys, webhook secrets,
+  and salts are read from server environment variables.
+
+Known exception, open: `shared/billing/risk.js` is imported by the admin `FraudPreventionPage`, so its
+rule names are in a public chunk. A server-side move is planned as a separate change.
+
+Storage: the `cv-files` bucket is public today. Migration `20261011000000_cv_files_private_bucket.sql`
+makes it private, but it is not applied to any environment yet.
+
+Verification: `tests/admin-chunk-no-rules.test.ts` checks the admin chunk after `npm run build`.
