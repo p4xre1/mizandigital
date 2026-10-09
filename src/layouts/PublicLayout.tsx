@@ -1,6 +1,8 @@
+import { lazy, Suspense } from "react"
 import { Outlet } from "react-router-dom"
 import { Header, Footer } from "./PublicNavigation"
-import HelpAssistant from "@/components/help/HelpAssistant"
+// مساعد الموقع في جزء منفصل: لا يزيد حزمة الدخول على الصفحات كافة.
+const HelpAssistant = lazy(() => import("@/components/help/HelpAssistant"))
 
 export default function PublicLayout({
   theme,
@@ -29,7 +31,9 @@ export default function PublicLayout({
 
       <Footer />
 
-      <HelpAssistant />
+      <Suspense fallback={null}>
+        <HelpAssistant />
+      </Suspense>
     </div>
   )
 }

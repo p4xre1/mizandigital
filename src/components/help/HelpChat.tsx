@@ -1,8 +1,10 @@
 import { useRef, useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Loader2, Send } from "lucide-react"
+import { useAuth } from "../../lib/auth/AuthProvider"
 
 type Source = { title: string; url: string }
+type Quota = { limit: number; remaining: number }
 type Message =
   | { role: "user"; text: string }
   | { role: "assistant"; text: string; sources: Source[]; mode: string }
@@ -15,6 +17,8 @@ const STARTERS = [
 ]
 
 const GENERIC_ERROR = "تعذّر الرد الآن. حاول مرة أخرى بعد قليل."
+const SESSION_EXPIRED = "انتهت جلستك. سجّل الدخول من جديد لمتابعة السؤال."
+const DAILY_LIMIT_REACHED = "استنفدت حصة اليوم من الأسئلة. حاول مرة أخرى غداً."
 
 /** الروابط الداخلية تمر عبر الراوتر، وروابط الملفات العامة (مثل RSS) تُفتح كرابط عادي. */
 function SourceLink({ source }: { source: Source }) {
@@ -33,33 +37,51 @@ function SourceLink({ source }: { source: Source }) {
 
 /**
  * واجهة المحادثة. تُستعمل في الزر العائم وفي صفحة /help.
+ * المساعد للمستخدمين المسجّلين فقط: الزائر يرى دعوة لتسجيل الدخول.
  * الطلب يذهب إلى /api/help/chat على نفس النطاق، فلا تُضاف أي نطاقات إلى CSP.
  */
 export default function HelpChat({ compact = false }: { compact?: boolean }) {
+  const { session, initialized } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
+  const [quota, setQuota] = useState<Quota | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const token = session?.access_token
 
   async function send(text: string) {
     const question = text.trim()
-    if (question.length < 2 || loading) return
+    if (question.length < 2 || loading || !token) return
     setMessages((prev) => [...prev, { role: "user", text: question }])
     setInput("")
+    setNotice(null)
     setLoading(true)
     try {
       const res = await fetch("/api/help/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ message: question }),
       })
-      const data = res.ok ? await res.json() : null
-      setMessages((prev) => [
-        ...prev,
-        data && typeof data.answer === "string"
-          ? { role: "assistant", text: data.answer, sources: data.sources ?? [], mode: data.mode }
-          : { role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" },
-      ])
+      const data = await res.json().catch(() => null)
+
+      if (data && typeof data.quota?.remaining === "number" && typeof data.quota?.limit === "number") {
+        setQuota({ limit: data.quota.limit, remaining: data.quota.remaining })
+      }
+
+      if (res.status === 401) {
+        setNotice(SESSION_EXPIRED)
+      } else if (res.status === 429 && data?.error === "daily_limit_reached") {
+        setQuota({ limit: data.quota?.limit ?? quota?.limit ?? 0, remaining: 0 })
+        setNotice(DAILY_LIMIT_REACHED)
+      } else if (res.ok && data && typeof data.answer === "string") {
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", text: data.answer, sources: data.sources ?? [], mode: data.mode },
+        ])
+      } else {
+        setMessages((prev) => [...prev, { role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" }])
+      }
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" }])
     } finally {
@@ -73,11 +95,57 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
     void send(input)
   }
 
+  const header = (
+    <p className="text-xs leading-6 text-muted-foreground">
+      مساعد يشرح كيف تستعمل ميزان الرقمية وأين تجد المحتوى. لا يقدم استشارات قانونية في حالات فردية.
+    </p>
+  )
+
+  if (!initialized) {
+    return (
+      <div dir="rtl" className="flex flex-col gap-3">
+        {header}
+        <p className="text-sm text-muted-foreground" role="status">
+          جارٍ التحقق من الجلسة…
+        </p>
+      </div>
+    )
+  }
+
+  if (!session) {
+    return (
+      <div dir="rtl" className="flex flex-col gap-3">
+        {header}
+        <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm leading-7">
+          <p className="mb-3">مساعد ميزان متاح للمسجّلين فقط. سجّل الدخول لتسأل عن الموقع.</p>
+          <Link
+            to="/login?next=/help"
+            className="inline-flex items-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            تسجيل الدخول
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  const exhausted = quota !== null && quota.remaining <= 0
+
   return (
     <div dir="rtl" className="flex h-full flex-col gap-3">
-      <p className="text-xs leading-6 text-muted-foreground">
-        مساعد يشرح كيف تستعمل ميزان الرقمية وأين تجد المحتوى. لا يقدم استشارات قانونية في حالات فردية.
-      </p>
+      {header}
+
+      {quota && (
+        <p className="text-xs font-semibold text-muted-foreground" aria-live="polite">
+          المتبقي اليوم: {quota.remaining} من {quota.limit} سؤالاً
+        </p>
+      )}
+
+      {notice && (
+        <p role="alert" className="rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs leading-6">
+          {notice}
+        </p>
+      )}
 
       <div ref={listRef} className={`flex-1 space-y-3 overflow-y-auto ${compact ? "max-h-72" : "min-h-72"}`}>
         {messages.length === 0 && (
@@ -86,8 +154,9 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
               <button
                 key={starter}
                 type="button"
+                disabled={exhausted}
                 onClick={() => void send(starter)}
-                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+                className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
               >
                 {starter}
               </button>
@@ -133,12 +202,13 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           maxLength={500}
-          placeholder="اكتب سؤالك عن استعمال الموقع…"
-          className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+          disabled={exhausted}
+          placeholder={exhausted ? "انتهت حصة اليوم" : "اكتب سؤالك عن استعمال الموقع…"}
+          className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
         />
         <button
           type="submit"
-          disabled={loading || input.trim().length < 2}
+          disabled={loading || exhausted || input.trim().length < 2}
           className="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground disabled:opacity-50"
           aria-label="إرسال"
         >
