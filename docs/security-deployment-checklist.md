@@ -50,7 +50,7 @@ SELECT table_name, privilege_type FROM information_schema.role_table_grants
 -- expect 0 rows
 ```
 
-Rollback (only with a written decision; each re-opens a risk): see the comments at the bottom of `20261010000000_security_hardening_db.sql`. Do not roll back by deleting data.
+Rollback (only with a written decision; each re-opens a risk): see the comments at the bottom of `20261010000000_security_hardening_db.sql`. Do not roll back by deleting data. The CV-01 migration `20261011000000_cv_files_private_bucket.sql` has **no rollback**: it is forward-fix only (owner decision).
 
 ## C. Live checks after deploy (NOT RUN until someone runs them)
 
@@ -101,5 +101,5 @@ Checks:
 ## G. Rollback plan
 
 - Code: redeploy the previous Pages build.
-- Migrations: use the commented rollback steps. Each is a deliberate re-opening of a risk; document the decision.
+- Migrations: use the commented rollback steps. Each is a deliberate re-opening of a risk; document the decision. Exception: CV-01 (`20261011000000`) has no rollback; fix forward.
 - Headers: revert `public/_headers` to the previous commit and redeploy. Do not remove HSTS or `frame-ancestors` without a written reason.

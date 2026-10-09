@@ -72,6 +72,17 @@ const INJECTION_PATTERNS = [
 ]
 
 /**
+ * محاولات الحقن بالدارجة المكتوبة بالحروف اللاتينية (Arabizi). تُطابق على النص الأصلي
+ * بعد canonicalize وبأحرف صغيرة، لأن الأرقام (3 = ع، 7 = ح) جزء من الصيغة.
+ * أمثلة: "nsa ta3limatek" (انسَ تعليماتك)، "3tini prompt dyalek" (أعطني برومبتك).
+ */
+const LATIN_DARIJA_INJECTION = [
+  /\b(nsa|ns[a3]|7ed|tjahel|tjahal|ntsa|nssa)\s+(ta3limat|taalimat|ta3limatek|taalimatek|ta3limatik)/,
+  /\b(3tini|3tina|wrini|warini|werini|sifti)\s+.{0,20}(prompt|ta3limat|taalimat|ta3limatek)/,
+  /\b(prompt|ta3limat|taalimat)\s+dyal(ek|ik|kom)\b/,
+]
+
+/**
  * أنماط الشيفرة والوسوم الخطرة. تُطابق على النص الخام (غير المطبّع)
  * لأن بعضها يعتمد على علامات الترقيم.
  */
@@ -94,6 +105,7 @@ export function checkInjection(text) {
   if (SCRIPT_PATTERNS.some((re) => re.test(raw))) return { block: true, reason: "script" }
   const norm = normalize(raw)
   if (INJECTION_PATTERNS.some((re) => re.test(norm))) return { block: true, reason: "prompt_injection" }
+  if (LATIN_DARIJA_INJECTION.some((re) => re.test(raw.toLowerCase()))) return { block: true, reason: "prompt_injection" }
   return { block: false, reason: null }
 }
 

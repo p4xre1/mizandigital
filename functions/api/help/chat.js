@@ -32,12 +32,11 @@ import {
   logSecurityEvent,
   readBoundedText,
   recordStrike,
-  sanitizeAnswerResult,
   shortHash,
 } from "../../_shared/helpSecurity.js"
-import { answerQuestion } from "../../../shared/help/answer.js"
 import { screenMessage } from "../../../shared/help/guardrails.js"
-import { detectLanguage, UNSUPPORTED_LANGUAGE_ANSWER } from "../../../shared/help/language.js"
+import { runPipeline } from "../../../shared/help/pipeline.js"
+import { classifySocialIntent } from "../../../shared/help/conversation.js"
 import { DEFAULT_MESSAGES } from "../../../shared/help/cms.js"
 
 /** حد الـIP ضد الإغراق (يحمي من تعدد الحسابات من عنوان واحد). */
@@ -180,6 +179,14 @@ export async function onRequestPost({ request, env }) {
     return reply({ mode: "blocked", answer: config.settings.messages.blocked, sources: [] })
   }
 
+  // 10a-2) الرد الاجتماعي (تحية، شكر، وداع، تعريف بالمساعد) جاهز في الكود: لا يستهلك حصة
+  // ولا يحتاج قراءة من قاعدة البيانات. الرسالة التي فيها كلمة أجنبية لا تُعد اجتماعية.
+  if (classifySocialIntent(checked.value)) {
+    const social = runPipeline(checked.value, config)
+    const { reason: _socialReason, ...publicSocial } = social
+    return reply(publicSocial)
+  }
+
   // 10b) الحصة اليومية. تُحتسب كل رسالة صالحة، حتى المرفوضة.
   const quotaRate = await checkRateLimit({ kv, bucket: "help-chat-daily", key: user.id, limit: DAILY_LIMIT, windowSeconds: DAY_SECONDS })
   const quota = { limit: DAILY_LIMIT, remaining: quotaRate.remaining }
@@ -187,21 +194,19 @@ export async function onRequestPost({ request, env }) {
     return reply({ error: "daily_limit_reached", quota: { limit: DAILY_LIMIT, remaining: 0 } }, 429)
   }
 
-  // 11) العربية فقط
-  if (detectLanguage(checked.value) === "other") {
-    return reply({ mode: "unsupported_language", answer: UNSUPPORTED_LANGUAGE_ANSWER, sources: [], quota })
+  // 11-12) بوابة اللغة، والجواب، والتحقق من الاستشهادات، وحد الطول، وفحص الخرج.
+  // كل ذلك في خط معالجة واحد مشترك مع لوحة المعاينة في الإدارة.
+  const result = runPipeline(checked.value, config)
+  if (result.mode === "unsupported_language") {
+    return reply({ mode: result.mode, answer: result.answer, sources: [], quota })
   }
-
-  // 12) الجواب والفحص الأخير للخرج
-  const result = answerQuestion(checked.value, { customEntries: config.customEntries, settings: config.settings })
   if (result.mode === "blocked" || result.mode === "refused" || result.mode === "out_of_topic") {
     logSecurityEvent("answer_refused", { requestId, userHash, mode: result.mode, reason: result.reason ?? "unknown" })
   }
-  const safe = sanitizeAnswerResult(result, DEFAULT_MESSAGES.blocked)
-  if (safe.reason === "unsafe_output") {
+  if (result.reason === "unsafe_output") {
     logSecurityEvent("unsafe_output_blocked", { requestId, userHash })
   }
-  const { reason: _internal, ...publicResult } = safe
+  const { reason: _internal, ...publicResult } = result
   return reply({ ...publicResult, quota })
 }
 

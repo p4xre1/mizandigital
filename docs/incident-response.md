@@ -36,7 +36,7 @@ This is a working runbook. It assumes a small team. Names, phone numbers, and co
 | AI assistant abuse or social engineering at scale | Remove or change `HELP_ALLOWED_ORIGINS`; disable help via CMS settings; confirm `HELP_ALLOW_MEMORY_LIMITER` is not set | Reversible |
 | Abusive comments | Use the comments moderation tools; tighten the anti-abuse trigger if needed | Reversible |
 | Translate cost abuse | Lower the rate-limit constants in `functions/api/translate.js` and redeploy; or disable the route | Reversible |
-| Database exposure through a view or policy | Apply a narrowing migration (never a data-deleting one). Rollback steps are at the bottom of each migration | Forward-only fix is preferred |
+| Database exposure through a view or policy | Apply a narrowing migration (never a data-deleting one). Rollback steps are at the bottom of the earlier security migrations; the CV-01 migration (`20261011000000`) has none, so fix forward | Forward-only fix is preferred |
 | Compromised admin account | Disable the user in Supabase Auth; revoke sessions; review `audit_logs` | Reversible |
 | Compromised CI or GitHub token | Revoke the token in GitHub; review recent workflow runs; check branch protections | Reversible |
 
@@ -70,7 +70,7 @@ This is a working runbook. It assumes a small team. Names, phone numbers, and co
 
 ## 8. Useful locations
 
-- Migrations: `supabase/migrations/` (rollback steps at the bottom of each security migration).
+- Migrations: `supabase/migrations/` (rollback steps at the bottom of the earlier security migrations; CV-01 `20261011000000` is forward-fix only).
 - Headers: `public/_headers`.
 - Error helper: `functions/_shared/errors.js`.
 - Body limits: `functions/_shared/bodyLimit.js`.

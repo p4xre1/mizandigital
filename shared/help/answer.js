@@ -31,7 +31,8 @@ const FALLBACK_SOURCES = [
  * @param {{
  *   entries?: any[],            // محتوى الموقع المدمج (الافتراضي: allEntries())
  *   customEntries?: any[],      // أسئلة المشرف المنشورة (من qaRowToEntry)
- *   settings?: typeof DEFAULT_SETTINGS
+ *   settings?: typeof DEFAULT_SETTINGS,
+ *   retrievalText?: string      // نص عربي مساعد (دارجة محوّلة) للاسترجاع فقط، لا للفحوص الأمنية
  * }} [options]
  * @returns {{ mode: "disabled" | "blocked" | "refused" | "out_of_topic" | "answer" | "not_found", answer: string, sources: Array<{title: string, url: string}>, reason?: string }}
  */
@@ -40,6 +41,9 @@ export function answerQuestion(question, options = {}) {
   const messages = settings.messages ?? DEFAULT_MESSAGES
   const staticEntries = options.entries ?? allEntries()
   const customEntries = options.customEntries ?? []
+  // الفحوص الأمنية (حقن، تمويه، هندسة اجتماعية) تعمل على السؤال الأصلي وحده.
+  // الاسترجاع والعبارات المحظورة وخارج الموضوع تعمل على السؤال مع النص المحوّل.
+  const analysed = options.retrievalText ? `${question} ${options.retrievalText}` : question
 
   if (settings.enabled === false) {
     return { mode: "disabled", answer: messages.disabled, sources: [], reason: "disabled" }
@@ -55,11 +59,11 @@ export function answerQuestion(question, options = {}) {
   if (checkSocialEngineering(question).block) {
     return { mode: "blocked", answer: messages.blocked, sources: [], reason: "social_engineering" }
   }
-  if (checkBlockedPhrases(question, settings.blockedPhrases).block) {
+  if (checkBlockedPhrases(analysed, settings.blockedPhrases).block) {
     return { mode: "blocked", answer: messages.blocked, sources: [], reason: "blocked_phrase" }
   }
 
-  if (checkScope(question).refuse) {
+  if (checkScope(analysed).refuse) {
     return {
       mode: "refused",
       answer: REFUSAL_LEGAL_ADVICE,
@@ -68,13 +72,15 @@ export function answerQuestion(question, options = {}) {
     }
   }
 
-  if (checkOffTopic(question, settings.offTopicTerms).offTopic) {
+  if (checkOffTopic(analysed, settings.offTopicTerms).offTopic) {
     return { mode: "out_of_topic", answer: messages.offTopic, sources: FALLBACK_SOURCES, reason: "off_topic" }
   }
 
   // أسئلة المشرف أولاً: إن طابقت فهي الجواب المعتمد، وإلا نرجع إلى محتوى الموقع.
-  const customHits = rankEntries(question, customEntries, { limit: 3 })
-  const hits = customHits.length > 0 ? customHits : rankEntries(question, staticEntries, { limit: 3 })
+  // الاسترجاع يعمل على نص البحث فقط (بلا عبارات الإحباط)، أما الفحوص أعلاه فتبقى على النص الكامل.
+  const searchText = options.retrievalText ?? question
+  const customHits = rankEntries(searchText, customEntries, { limit: 3 })
+  const hits = customHits.length > 0 ? customHits : rankEntries(searchText, staticEntries, { limit: 3 })
   if (hits.length === 0) {
     return { mode: "not_found", answer: messages.notFound, sources: FALLBACK_SOURCES, reason: "no_match" }
   }
