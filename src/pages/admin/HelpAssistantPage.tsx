@@ -1,8 +1,15 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import { Bot, Check, Edit, Loader2, Plus, Save, Search, Shield, Trash2, X } from "lucide-react"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
-import { helpCms, type HelpQaRow, type HelpSettingsRow } from "../../lib/help/cmsService"
-import { runPipeline } from "../../../shared/help/pipeline.js"
+import {
+  helpCms,
+  previewHelpAnswerOnServer,
+  validateHelpDraftOnServer,
+  type HelpPreviewResult,
+  type HelpQaRow,
+  type HelpSettingsRow,
+} from "../../lib/help/cmsService"
+// ثوابت وتحويلات فقط: التحقق والمعاينة يتمان على الخادم (انظر cmsService.ts)
 import {
   DEFAULT_MESSAGES,
   MAX_ANSWER_CHARS,
@@ -10,11 +17,7 @@ import {
   MAX_MESSAGE_CHARS,
   MAX_QUESTION_CHARS,
   parseList,
-  qaRowToEntry,
-  settingsFromRow,
-  validateQaDraft,
-  validateSettingsDraft,
-} from "../../../shared/help/cms.js"
+} from "../../../shared/help/cms-constants.js"
 
 type Tab = "qa" | "settings" | "preview" | "defenses"
 
@@ -103,7 +106,8 @@ export default function HelpAssistantPage() {
 
   // اختبار
   const [testQuestion, setTestQuestion] = useState("")
-  const [testResult, setTestResult] = useState<ReturnType<typeof runPipeline> | null>(null)
+  const [testResult, setTestResult] = useState<HelpPreviewResult | null>(null)
+  const [testError, setTestError] = useState<string | null>(null)
 
   useEffect(() => {
     void load()
@@ -168,14 +172,19 @@ export default function HelpAssistantPage() {
     event.preventDefault()
     if (!draft) return
     const keywords = parseList(draft.keywords)
-    const error = validateQaDraft({ question: draft.question, answer: draft.answer, keywords, sourceUrl: draft.sourceUrl })
-    if (error) {
-      setDraftError(error)
-      return
-    }
     setSaving(true)
     setDraftError(null)
     try {
+      const error = await validateHelpDraftOnServer("qa", {
+        question: draft.question,
+        answer: draft.answer,
+        keywords,
+        sourceUrl: draft.sourceUrl,
+      })
+      if (error) {
+        setDraftError(error)
+        return
+      }
       await helpCms.saveQa({
         id: draft.id,
         question: draft.question.trim(),
@@ -240,17 +249,17 @@ export default function HelpAssistantPage() {
       blocked_phrases: parseList(blockedText),
       off_topic_terms: parseList(offTopicText),
     }
-    const error = validateSettingsDraft({
-      messages: { blocked: payload.blocked_message ?? "", offTopic: payload.off_topic_message ?? "", notFound: payload.not_found_message ?? "", disabled: payload.disabled_message ?? "" },
-      blockedPhrases: payload.blocked_phrases,
-      offTopicTerms: payload.off_topic_terms,
-    })
-    if (error) {
-      setStatus({ kind: "error", text: error })
-      return
-    }
     setSavingSettings(true)
     try {
+      const error = await validateHelpDraftOnServer("settings", {
+        messages: { blocked: payload.blocked_message ?? "", offTopic: payload.off_topic_message ?? "", notFound: payload.not_found_message ?? "", disabled: payload.disabled_message ?? "" },
+        blockedPhrases: payload.blocked_phrases,
+        offTopicTerms: payload.off_topic_terms,
+      })
+      if (error) {
+        setStatus({ kind: "error", text: error })
+        return
+      }
       await helpCms.saveSettings(payload)
       setStatus({ kind: "ok", text: "تم حفظ إعدادات المساعد. تظهر التغييرات للزوار خلال دقيقة." })
       await load()
@@ -263,13 +272,18 @@ export default function HelpAssistantPage() {
 
   // ---------- الاختبار ----------
 
-  function runTest(event: FormEvent) {
+  async function runTest(event: FormEvent) {
     event.preventDefault()
     const question = testQuestion.trim()
     if (question.length < 2) return
-    const customEntries = rows.filter((row) => row.published).map(qaRowToEntry)
-    // نفس خط المعالجة الذي يراه الزائر (بدون حصة ولا سجل أمني).
-    setTestResult(runPipeline(question, { customEntries, settings: settingsFromRow(settingsRow) }))
+    // نفس خط المعالجة الذي يراه الزائر، لكن محسوباً على الخادم (القواعد لا تُشحن للمتصفح).
+    setTestError(null)
+    try {
+      setTestResult(await previewHelpAnswerOnServer(question))
+    } catch (err) {
+      setTestResult(null)
+      setTestError(err instanceof Error ? err.message : "تعذّرت المعاينة")
+    }
   }
 
   const draftQuestionLength = draft?.question.length ?? 0
@@ -539,6 +553,7 @@ export default function HelpAssistantPage() {
               اختبار
             </button>
           </form>
+          {testError && <p className="text-sm text-destructive">{testError}</p>}
           {testResult && (
             <div className="space-y-2 rounded-2xl border border-border bg-card p-4">
               <p className="text-xs font-bold text-muted-foreground">النوع: {MODE_LABELS[testResult.mode] ?? testResult.mode}</p>

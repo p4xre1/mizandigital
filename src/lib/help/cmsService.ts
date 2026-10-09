@@ -74,3 +74,49 @@ export const helpCms = {
         .single(),
     ),
 }
+
+// ---------- نقاط الإدارة على الخادم ----------
+// [AI-SEC] قواعد الفحص ومحرك المعاينة لا تُشحن للمتصفح؛ تُنفَّذ على الخادم
+// بهوية المشرف (انظر functions/api/admin/help/*.js).
+
+export type HelpPreviewResult = {
+  mode: string
+  answer: string
+  sources: { title: string; url: string | null }[]
+  reason?: string
+}
+
+async function adminToken(): Promise<string> {
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  if (!token) throw new Error("انتهت الجلسة، سجّل الدخول من جديد.")
+  return token
+}
+
+/** يُعيد رسالة الخطأ الخاصة بالمدخل أو null إذا كان صالحاً. */
+export async function validateHelpDraftOnServer(
+  kind: "qa" | "settings",
+  draft: Record<string, unknown>,
+): Promise<string | null> {
+  const token = await adminToken()
+  const res = await fetch("/api/admin/help/validate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ kind, draft }),
+  })
+  if (!res.ok) throw new Error(`تعذّر التحقق من المحتوى على الخادم (${res.status})`)
+  const body = (await res.json()) as { error: string | null }
+  return body.error ?? null
+}
+
+/** معاينة الرد كما يراه الزائر، محسوبة على الخادم من الإعدادات والأسئلة المنشورة. */
+export async function previewHelpAnswerOnServer(question: string): Promise<HelpPreviewResult> {
+  const token = await adminToken()
+  const res = await fetch("/api/admin/help/preview", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ question }),
+  })
+  if (!res.ok) throw new Error(`تعذّرت المعاينة (${res.status})`)
+  return (await res.json()) as HelpPreviewResult
+}

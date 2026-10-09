@@ -13,7 +13,7 @@ import {
 import { AEOHead } from "../../components/seo/AEOHead"
 import { canonicalFor } from "@/lib/canonical"
 import { supabase } from "@/lib/supabase/client"
-import { fetchPublicResume } from "@/lib/resumes/service"
+import { cvSignedUrl, fetchPublicResume } from "@/lib/resumes/service"
 import { SITE_CONFIG } from "../../lib/seo/schema"
 import type { ResumeEducation, ResumeExperience } from "@/types/resume"
 
@@ -48,6 +48,8 @@ export function ResumePage() {
   const [data, setData] = useState<PublicResumeData | null>(null)
   const [facultyName, setFacultyName] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  // رابط موقّت لملف السيرة (الوعاء خاص — CV-01)
+  const [cvUrl, setCvUrl] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -70,6 +72,19 @@ export function ResumePage() {
       mounted = false
     }
   }, [username])
+
+  const cvPath = data?.resume?.cv_file_path ?? null
+  useEffect(() => {
+    let mounted = true
+    setCvUrl(null)
+    if (!cvPath) return
+    void cvSignedUrl(cvPath).then((url) => {
+      if (mounted) setCvUrl(url)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [cvPath])
 
   const canonical = useMemo(() => canonicalFor(`/resume/${username}`), [username])
 
@@ -124,9 +139,6 @@ export function ResumePage() {
   }
 
   const { profile: p, resume: r } = data
-  const cvUrl = r.cv_file_path
-    ? `${(import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, "") ?? ""}/storage/v1/object/public/cv-files/${r.cv_file_path}`
-    : null
 
   return (
     <>
