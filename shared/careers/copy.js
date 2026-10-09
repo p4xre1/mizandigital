@@ -51,20 +51,14 @@ export const CAREERS_NO_SOURCE_NOTE =
 
 /** الرسالة المعروضة عندما لا توجد مباراة رسمية مؤكدة في قاعدة ميزان. */
 export const CAREERS_NO_VERIFIED_COMPETITION =
-  "لا توجد مباراة رسمية مؤكدة حالياً في قاعدة بيانات ميزان. يمكنك التدريب على المفاهيم والمهارات المرتبطة بهذا المسار.";
+  "المباريات الرسمية: يتم التحقق من الإعلانات بحسب التخصص والجامعة وتاريخ النشر وآخر أجل للترشيح. لا تعتبر قاعدة بيانات ميزان مصدراً حصرياً لجميع المباريات؛ يرجى مراجعة بوابة التشغيل العمومي وبوابة مباريات التعليم العالي للتحقق من الإعلانات الحالية. يمكنك التدريب على المفاهيم والمهارات المرتبطة بهذا المسار.";
 
-
-/**
- * نصّ غياب النص القانوني من أرشيف ميزان — يُعرض حرفياً في الواجهة وفي HTML
- * المولَّد معاً (نفس الصيغة التي تفرضها المواصفة).
- */
-export const CAREERS_LAW_NOT_ARCHIVED =
-  "⚠️ النص القانوني لم يضف بعد إلى أرشيف ميزان.";
 
 /** حالات الإسناد القانوني في أرشيف ميزان. */
 export const LAW_VERIFICATION_LABELS = {
   verified: "مُسند إلى نص في أرشيف ميزان",
-  needs_archive_entry: "بانتظار إضافة النص إلى أرشيف ميزان",
+  // فارغ عمداً: المرجع بلا سجل مستقل لا تُعرض له حالة (لا تكرار للعبارة في البطاقة)
+  needs_archive_entry: "",
   needs_official_verification: "يحتاج إلى التحقق من المصدر الرسمي",
 };
 export const WORK_MODEL_LABELS = {
@@ -91,6 +85,7 @@ export const DEGREE_LEVEL_LABELS = {
   bachelor_or_equivalent: "الإجازة أو ما يعادلها",
   master_or_equivalent: "الماستر أو ما يعادله",
   doctorate: "الدكتوراه",
+  translation_diploma_or_master: "دبلوم في الترجمة أو ماستر متخصص أو ما يعادلهما",
   depends: "يختلف حسب الاختصاص والإعلان",
 };
 
@@ -139,6 +134,7 @@ export const REQUIREMENT_TYPE_LABELS = {
 
 export const REVIEW_STATUS_LABELS = {
   internal_review: "مراجعة داخلية من فريق ميزان",
+  official_text_verified: "متحقق من النصوص الرسمية",
   verified: "مصدر رسمي متحقق منه",
   needs_official_verification: "يحتاج إلى التحقق من المصدر الرسمي",
 };
@@ -185,9 +181,9 @@ export const CAREERS_HUB_COPY = {
     "اكتشف المهن القانونية في المغرب: الشهادات، شروط السن، مباريات الولوج، التكوين، والفرق بين الوظيفة العمومية والممارسة الحرة.",
   h1: "ما هي المهنة القانونية المناسبة لك في المغرب؟",
   directAnswer:
-    "يساعدك هذا الدليل على مقارنة المهن القانونية في المغرب حسب الشهادة المطلوبة، السن، طريقة الولوج، وطبيعة العمل: وظيفة عمومية أو مهنة حرة أو قطاع خاص. تحقق دائماً من المصدر الرسمي قبل الترشح.",
+    "دليل يقارن المهن القانونية في المغرب حسب الشهادة المعتادة، وطريقة الولوج، وطبيعة العمل.",
   hubLead:
-    "قارن بين المهن القانونية في المغرب حسب الشهادة المعتادة وطريقة الولوج وطبيعة العمل. المعلومات هنا تعليمية وتوجيهية، وكل شرط رسمي (السن، الشهادة، المناصب) يجب التحقق منه في النص أو الإعلان الرسمي الجاري به العمل.",
+    "كل شرط رسمي، كالسن والشهادة والمناصب، تحقق منه في الإعلان أو النص الرسمي الجاري به العمل.",
   statsLabels: {
     careers: "مسار مهني مشمول بالدليل",
     categories: "مجالات مهنية",
@@ -321,8 +317,34 @@ export function buildCareerAnswerFirst(career) {
 }
 
 /** وصف ميتا فريد لكل مسار (لا يتكرر بين مسارين). */
+// وصف الصفحة للبحث والذكاء الاصطناعي: جملة واحدة مقطوعة عند حدّ كلمة (≤ 155 حرفاً).
+export function clipMetaText(text, max = 155) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const at = cut.lastIndexOf(" ");
+  return `${cut.slice(0, at > 0 ? at : max).replace(/[،,:؛\s]+$/, "")}…`;
+}
+
 export function buildCareerPageDescription(career) {
-  return `مسار مهنة ${career.title_ar} في المغرب: ${career.short_description} تعرف على الشروط وطريقة الولوج ومصادر التحقق في دليل المسارات والمهن القانونية بميزان الرقمية.`;
+  return clipMetaText(`مسار ${career.title_ar} في المغرب: ${career.short_description}`);
+}
+
+// Occupation schema.org لصفحة المسار. لا يُنشر حقل qualifications إلا إذا كانت الشهادة متحققة من النص الرسمي.
+export function buildCareerOccupationSchema(career) {
+  const occupation = {
+    "@type": "Occupation",
+    name: career.title_ar,
+    alternateName: career.title_fr,
+    description: career.short_description,
+    occupationLocation: { "@type": "Country", name: "Morocco" },
+  };
+  if (career.typical_degree?.status === "verified" && career.typical_degree.label_ar) {
+    occupation.qualifications = career.typical_degree.label_ar;
+  }
+  if (Array.isArray(career.skills) && career.skills.length > 0) {
+    occupation.skills = career.skills.join("، ");
+  }
+  return occupation;
 }
 
 export function buildCareerQuizTitle(role) {
@@ -330,7 +352,7 @@ export function buildCareerQuizTitle(role) {
 }
 
 export function buildCareerQuizDescription(role) {
-  return `أسئلة تعليمية مع شرح حول مهنة ${role} في المغرب: مفاهيم ومصطلحات ومهارات مساعدة على الفهم. ليست اختباراً رسمياً ولا تضمن القبول في أي مباراة أو مسار.`;
+  return `أسئلة تعليمية مع شرح حول مهنة ${role} في المغرب. ليست اختباراً رسمياً ولا تضمن القبول في أي مباراة أو مسار.`;
 }
 
 export function buildCompetitionPageTitle(careerTitle) {

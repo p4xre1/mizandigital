@@ -22,7 +22,9 @@ export function CareerDisclaimer({
       role="note"
       aria-label={isQuiz ? "تنبيه حول التمارين التعليمية" : "إخلاء مسؤولية"}
       data-careers-disclaimer={variant}
-      className={`rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-[12.5px] leading-7 text-foreground ${className}`}
+      className={`rounded-2xl border p-4 text-[12.5px] leading-7 text-foreground ${
+        isQuiz ? "border-amber-500/30 bg-amber-500/[0.06]" : "border-emerald-600/30 bg-emerald-500/[0.08]"
+      } ${className}`}
     >
       <p className="font-extrabold">
         {isQuiz ? "تنبيه: تمارين تعليمية غير رسمية" : "تنبيه: معلومات توجيهية فقط"}

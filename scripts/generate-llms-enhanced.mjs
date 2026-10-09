@@ -192,6 +192,13 @@ lines.push("");
 
 // الفهرس الأوسط: كل المقالات/المستجدات (local + CMS) بمقتطف قصير —
 // والنصوص الكاملة نفسها في قسم «المحتوى الكامل» أدناه.
+const careersForLlms = JSON.parse(await readFile(join(__dirname, "../src/data/careers.json"), "utf8"));
+lines.push("## المسارات المهنية");
+lines.push("");
+for (const career of careersForLlms) {
+  lines.push(link(career.title_ar, `/careers/${career.slug}`, career.short_description));
+}
+lines.push("");
 lines.push(`## المقالات (AEO: إجابات مفصلة) — ${allArticles.length}`);
 lines.push("");
 for (const article of allArticles) {

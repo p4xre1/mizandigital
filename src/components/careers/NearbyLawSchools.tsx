@@ -28,6 +28,14 @@ import type {
  *   • الترتيب مسافة خط مستقيم تقريبية، وليس «أفضل كلية» ولا مشورة قبول.
  */
 
+/** شريحة مدينة: مستطيلة مدوّرة، تتلوّن بالأزرق حين تُختار. */
+const cityChip = (active: boolean) =>
+  `min-h-11 rounded-full border px-4 py-2 text-[15px] font-extrabold transition ${
+    active
+      ? "border-blue-700 bg-blue-700 text-white"
+      : "border-blue-600/30 bg-white text-blue-800 hover:bg-blue-50 dark:bg-transparent dark:text-blue-200 dark:hover:bg-blue-950/40"
+  }`;
+
 const searchKey = (value: string) =>
   value
     .trim()
@@ -113,34 +121,34 @@ export function NearbyLawSchools({
   return (
     <section
       aria-labelledby="career-nearby-schools-title"
-      className={`rounded-3xl border border-border bg-card p-5 ${className}`}
+      className={`rounded-3xl border border-blue-600/20 bg-card p-6 ${className}`}
       data-career-nearby="section"
     >
-      <h2 id="career-nearby-schools-title" className="text-[18px] font-black text-foreground">
+      <h2 id="career-nearby-schools-title" className="text-[22px] font-black text-blue-800 dark:text-blue-200">
         {SECTION_TITLES.schools}
       </h2>
-      <p className="mt-2 max-w-3xl text-[13.5px] leading-7 text-muted-foreground">{message}</p>
+      <p className="mt-3 max-w-3xl text-[16px] leading-8 text-foreground">{message}</p>
 
-      <div className="mt-4 max-w-md">
-        <label htmlFor={`${listId}-city`} className="block text-[13px] font-extrabold text-foreground">
+      <div className="mt-6">
+        <label htmlFor={`${listId}-city`} className="block text-[16px] font-extrabold text-foreground">
           اختر مدينتك — اختياري
         </label>
-        <div className="mt-1.5 flex items-center gap-2 rounded-xl border border-border bg-background px-3">
-          <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+        <div className="mt-3 flex items-center gap-2 rounded-xl border-2 border-blue-600/30 bg-blue-50 px-4 dark:bg-blue-950/40">
+          <Search className="size-5 text-blue-700 dark:text-blue-300" aria-hidden="true" />
           <input
             id={`${listId}-city`}
             type="search"
             name="career-city"
             autoComplete="off"
             spellCheck={false}
-            placeholder="مثال: طنجة، الدار البيضاء…"
+            placeholder="ابحث عن مدينة…"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             aria-controls={listId}
-            className="min-h-11 w-full bg-transparent py-2 text-[13.5px] font-bold text-foreground outline-none"
+            className="min-h-12 w-full bg-transparent py-2 text-[16px] font-bold text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
-        <ul id={listId} className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-border">
+        <ul id={listId} className="mt-4 flex flex-wrap gap-2.5" aria-label="المدن">
           <li>
             <button
               type="button"
@@ -148,7 +156,8 @@ export function NearbyLawSchools({
                 setCityId(null);
                 setQuery("");
               }}
-              className="w-full px-3 py-2 text-right text-[12.5px] font-bold text-muted-foreground hover:bg-muted/40"
+              aria-pressed={cityId === null}
+              className={cityChip(cityId === null)}
             >
               بلا تحديد مدينة
             </button>
@@ -159,17 +168,15 @@ export function NearbyLawSchools({
                 type="button"
                 onClick={() => handleSelect(city.id)}
                 aria-pressed={cityId === city.id}
-                className={`w-full px-3 py-2 text-right text-[13px] font-bold transition ${
-                  cityId === city.id ? "bg-primary/10 text-primary" : "hover:bg-muted/40"
-                }`}
+                title={city.region_ar}
+                className={cityChip(cityId === city.id)}
               >
                 {city.name_ar}
-                <span className="ms-2 text-[11.5px] font-semibold text-muted-foreground">{city.region_ar}</span>
               </button>
             </li>
           ))}
           {options.length === 0 ? (
-            <li className="px-3 py-2 text-[12.5px] text-muted-foreground">
+            <li className="w-full rounded-xl bg-muted/40 px-4 py-3 text-[15px] text-foreground">
               لا مدينة مطابقة. يمكنك المتابعة من <Link className="font-bold text-primary" to="/schools">دليل الكليات</Link>.
             </li>
           ) : null}
@@ -177,11 +184,11 @@ export function NearbyLawSchools({
       </div>
 
       {!selectedCity ? (
-        <p className="mt-4 rounded-2xl border border-dashed border-border bg-background p-4 text-[13px] leading-7 text-muted-foreground">
+        <p className="mt-6 rounded-2xl border border-emerald-600/25 bg-emerald-50 p-5 text-[16px] leading-8 text-emerald-900 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-100">
           اختر مدينتك (اختياري) لعرض أقرب ثلاث كليات للحقوق بمسافة تقريبية بخط مستقيم. لا نطلب أي عنوان دقيق ولا
           بيانات موقع، واختيارك يبقى في متصفحك ما لم تضغط زر الحفظ صراحةً.
           {savedCity ? (
-            <span className="mt-1 block font-bold text-foreground">
+            <span className="mt-2 block font-extrabold">
               مدينتك المحفوظة في ملفك: {savedCity} — لن نستبدلها إلا إذا ضغطت زر الحفظ.
             </span>
           ) : null}
@@ -194,21 +201,22 @@ export function NearbyLawSchools({
               <Link className="text-primary" to="/schools">صفحة الكليات</Link>.
             </p>
           ) : (
-            <ul className="mt-4 space-y-3" data-career-nearby="results">
+            <ul className="mt-6 grid gap-4 md:grid-cols-3" data-career-nearby="results">
               {ranked.map(({ school, distanceKm }) => (
-                <li key={school.slug || school.id} className="rounded-2xl border border-border bg-background p-4">
-                  <p className="text-[14px] font-extrabold text-foreground">
+                <li key={school.slug || school.id} className="rounded-2xl border border-blue-600/20 bg-blue-50 p-5 dark:bg-blue-950/40">
+                  <p className="text-[17px] font-extrabold leading-7 text-foreground">
                     <Link className="hover:text-primary" to={`/schools/${school.slug || school.id}`}>
                       {school.short_name || school.name}
                     </Link>
                   </p>
-                  <p className="mt-1 flex flex-wrap items-center gap-3 text-[12.5px] text-muted-foreground">
+                  <p className="mt-2 flex flex-wrap items-center gap-3 text-[15px] text-foreground">
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="size-3.5" aria-hidden="true" />
                       {school.city || school.location?.city_ar || "المغرب"}
                     </span>
-                    <span aria-label={`المسافة التقريبية ${formatDistanceKm(distanceKm)}`}>
-                      {formatDistanceKm(distanceKm)}
+                    {/* المسافة بين مدينتين (لا بين الأحياء): أقل من كم تعني نفس المدينة. */}
+                    <span aria-label={distanceKm < 1 ? "في مدينتك" : `المسافة التقريبية ${formatDistanceKm(distanceKm)}`}>
+                      {distanceKm < 1 ? "في مدينتك" : formatDistanceKm(distanceKm)}
                     </span>
                     {school.officialUrl ? (
                       <a

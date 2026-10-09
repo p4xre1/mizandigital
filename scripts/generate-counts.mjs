@@ -18,8 +18,24 @@ function countOf(fileName) {
   return JSON.parse(raw).length
 }
 
+// المصطلحات التي لها شجرة قانونية (legal_sources غير فارغ) — تعرضها الصفحة الرئيسية.
+function lexiconTreeCount() {
+  const raw = readFileSync(path.join(dataDir, "lexicon.json"), "utf-8")
+  return JSON.parse(raw).filter((t) => Array.isArray(t.legal_sources) && t.legal_sources.length > 0).length
+}
+
+// عدد النصوص القانونية المنشورة من لقطة CMS (scripts/generate-law-archive-snapshot.mjs).
+// يجب أن يُنفَّذ هذا السكربت بعد تلك اللقطة في prebuild. بلا CMS تكون اللقطة فارغة و0.
+function lawsCount() {
+  const raw = readFileSync(path.join(dataDir, "laws.client.json"), "utf-8")
+  return JSON.parse(raw).laws?.length ?? 0
+}
+
 const counts = {
   lexicon: countOf("lexicon.json"),
+  lexiconTree: lexiconTreeCount(),
+  laws: lawsCount(),
+  quizQuestions: countOf("quiz-questions.json"),
   articles: countOf("articles.json"),
   schools: countOf("schools.json"),
   news: countOf("news.json"),

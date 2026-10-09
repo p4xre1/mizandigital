@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { BadgeCheck, BookOpen, Briefcase, Compass, HelpCircle, ShieldCheck } from "lucide-react";
+import { BadgeCheck, BookOpen, Briefcase, Building2, Compass, ExternalLink, HelpCircle, Landmark, ShieldCheck } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { canonicalFor } from "@/lib/canonical";
 import { CareerDisclaimer } from "@/components/careers/CareerDisclaimer";
@@ -13,13 +13,14 @@ import {
   CAREERS_ANNUAL_NOTICE_BADGE,
   CAREERS_HUB_PATH,
   CAREERS_NO_SOURCE_NOTE,
-  CAREERS_VERIFY_BADGE,
+  CAREERS_NO_VERIFIED_COMPETITION,
   COMPETITION_PATH_LABELS,
   DEGREE_LEVEL_LABELS,
   REQUIREMENT_TYPE_LABELS,
   REVIEW_STATUS_LABELS,
   SECTION_TITLES,
   buildCareerAnswerFirst,
+  buildCareerOccupationSchema,
   buildCareerPageDescription,
   buildCareerPageTitle,
 } from "../../../../shared/careers/copy.js";
@@ -47,7 +48,7 @@ function requirementBadges(requirement: CareerRequirement): string[] {
   if (type === "professional_registration") badges.push("تسجيل مهني");
   if (type === "institution_practice") badges.push("مسطرة مؤسسية");
   if (type === "private_employer") badges.push("شروط مشغل خاص");
-  badges.push("يحتاج إلى تحقق");
+  if (requirement.status !== "verified") badges.push("يحتاج إلى تحقق");
   return [...new Set(badges)];
 }
 
@@ -77,7 +78,7 @@ export function CareerDetailPage() {
     ["الشهادة المعتادة", `${DEGREE_LEVEL_LABELS[career.typical_degree.level] ?? career.typical_degree.level} — ${career.typical_degree.label_ar}`],
     [
       "طريقة الولوج",
-      COMPETITION_PATH_LABELS[career.quiz_config.competition_path] ?? "تحقق من الجهة المختصة",
+      career.entry_method_ar ?? COMPETITION_PATH_LABELS[career.quiz_config.competition_path] ?? "تحقق من الجهة المختصة",
     ],
     ["شرط السن", career.age_requirement.note_ar],
     ["آخر مراجعة", career.last_reviewed],
@@ -103,7 +104,7 @@ export function CareerDetailPage() {
             inLanguage: "ar-MA",
             dateModified: career.last_reviewed,
             isAccessibleForFree: true,
-            about: { "@type": "Occupation", name: career.title_ar, alternateName: career.title_fr },
+            about: buildCareerOccupationSchema(career),
           },
         ]}
         breadcrumbs={[
@@ -125,7 +126,7 @@ export function CareerDetailPage() {
         <span className="text-foreground">{career.title_ar}</span>
       </nav>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/10 via-card to-amber-500/10 p-6">
+      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/15 via-card to-primary/5 p-6">
         <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
           <Compass className="size-5" strokeWidth={2.2} aria-hidden="true" />
         </span>
@@ -138,9 +139,6 @@ export function CareerDetailPage() {
         <p className="mt-3 max-w-3xl text-[14px] leading-8 text-foreground">{buildCareerAnswerFirst(career)}</p>
         <p className="mt-3 flex flex-wrap gap-2 text-[12px] font-bold">
           <span className="rounded-full bg-primary/10 px-3 py-1 text-primary">{career.work_model_ar}</span>
-          <span className="rounded-full bg-amber-500/10 px-3 py-1 text-amber-700 dark:text-amber-500">
-            {CAREERS_VERIFY_BADGE}
-          </span>
           {career.requirements.some((requirement) => requirement.requirement_type === "annual_notice") ? (
             <span className="rounded-full bg-amber-500/10 px-3 py-1 text-amber-700 dark:text-amber-500">
               {CAREERS_ANNUAL_NOTICE_BADGE}
@@ -196,20 +194,20 @@ export function CareerDetailPage() {
         </ul>
       </section>
 
-      <section className="mt-10" aria-labelledby="career-fit-title">
-        <h2 id="career-fit-title" className="inline-flex items-center gap-2 text-[18px] font-black text-foreground">
-          <HelpCircle className="size-4 text-primary" aria-hidden="true" />
+      <section className="mt-10 rounded-3xl border border-primary/20 bg-primary/5 p-6 md:p-8" aria-labelledby="career-fit-title">
+        <h2 id="career-fit-title" className="inline-flex items-center gap-2 text-[22px] font-black text-foreground">
+          <HelpCircle className="size-5 text-primary" aria-hidden="true" />
           {SECTION_TITLES.fit}
         </h2>
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-4 space-y-4">
           {career.best_for.map((line) => (
-            <li key={line} className="flex gap-2 text-[13.5px] leading-7 text-muted-foreground">
-              <BadgeCheck className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
+            <li key={line} className="flex gap-3 text-[17px] leading-8 text-foreground">
+              <BadgeCheck className="mt-1.5 size-5 shrink-0 text-primary" aria-hidden="true" />
               <span>{line}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-[12.5px] font-bold text-amber-700 dark:text-amber-500">
+        <p className="mt-5 text-[15px] font-bold leading-7 text-emerald-800 dark:text-emerald-200">
           هذا وصف تعليمي لطبيعة المسار، وليس تقييماً لأهليتك أو ترجيحاً لقبولك.
         </p>
       </section>
@@ -246,7 +244,7 @@ export function CareerDetailPage() {
         <p className="mt-3 text-[12.5px] text-muted-foreground">
           {verifiedCompetition
             ? "توجد مباراة موثقة بمصدر رسمي في قاعدة ميزان لهذا المسار؛ يمكنك فتح صفحة التمارين المرتبطة بها."
-            : "لا توجد مباراة رسمية مؤكدة حالياً في قاعدة بيانات ميزان. يمكنك التدريب على المفاهيم والمهارات المرتبطة بهذا المسار."}
+            : CAREERS_NO_VERIFIED_COMPETITION}
         </p>
         {verifiedCompetition ? (
           <Link className="mt-2 inline-block text-[13px] font-extrabold text-primary" to={`/quiz/careers/${career.slug}/practice/${verifiedCompetition.id}`}>
@@ -313,8 +311,10 @@ export function CareerDetailPage() {
                       <a className="font-bold text-primary" href={requirement.source_url} target="_blank" rel="nofollow noopener">
                         المصدر الرسمي
                       </a>
+                    ) : requirement.source_ref_ar ? (
+                      <span className="font-bold leading-7 text-foreground">{requirement.source_ref_ar}</span>
                     ) : (
-                      <span className="text-amber-700 dark:text-amber-500">{CAREERS_NO_SOURCE_NOTE}</span>
+                      <span className="font-bold leading-7 text-emerald-800 dark:text-emerald-200">{CAREERS_NO_SOURCE_NOTE}</span>
                     )}
                     {requirement.last_verified ? (
                       <span className="mt-1 block text-[11.5px] text-muted-foreground">
@@ -328,28 +328,82 @@ export function CareerDetailPage() {
           </table>
         </div>
 
-        <h3 className="mt-5 text-[15px] font-extrabold text-foreground">المصادر والإطارات المرجعية</h3>
-        <ul className="mt-2 space-y-2">
-          {career.sources.map((source) => (
-            <li key={source.title_ar} className="rounded-2xl border border-border bg-card p-3 text-[12.5px]">
-              <p className="font-bold text-foreground">{source.title_ar}</p>
-              <p className="mt-1 text-muted-foreground">
-                {source.url ? (
-                  <a className="font-bold text-primary" href={source.url} target="_blank" rel="nofollow noopener">
-                    {source.url}
-                  </a>
-                ) : (
-                  CAREERS_NO_SOURCE_NOTE
-                )}
-                {source.last_verified ? ` — آخر تحقق: ${source.last_verified}` : ""}
-              </p>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-[12.5px] leading-6 text-muted-foreground">
-          الشرط الرقمي (سن أو شهادة أو عدد مناصب) لا يُعرض هنا ما لم يكن منشوراً في مصدر رسمي متحقق منه؛ لذلك تبقى
-          القيم الرقمية فارغة عن قصد.
-        </p>
+        <div className="mt-8 rounded-3xl border border-border bg-muted/30 p-6 md:p-8">
+          <h3 className="inline-flex items-center gap-2 text-[20px] font-black text-foreground">
+            <Landmark className="size-5 text-primary" aria-hidden="true" />
+            المصادر والإطارات المرجعية
+          </h3>
+          <ul className="mt-6 grid gap-6 md:grid-cols-2">
+            {career.sources.map((source) => {
+              const SourceIcon = source.source_type === "professional_body" ? Building2 : Landmark;
+              const kindLabel = source.source_type === "professional_body" ? "هيئة مهنية" : "نص رسمي";
+              const verified = source.status === "verified";
+              return (
+                <li
+                  key={source.title_ar}
+                  className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <SourceIcon className="size-5" aria-hidden="true" />
+                    </span>
+                    <span className="rounded-full bg-muted px-3 py-1 text-[13px] font-bold text-foreground">
+                      {kindLabel}
+                    </span>
+                  </div>
+
+                  <h4 className="text-[17px] font-extrabold leading-8 text-foreground">{source.title_ar}</h4>
+
+                  <dl className="grid gap-4 border-t border-border pt-5 text-[15px]">
+                    <div className="flex flex-col gap-1.5">
+                      <dt className="text-[13px] font-bold text-muted-foreground">الحالة</dt>
+                      <dd>
+                        {verified ? (
+                          <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
+                            مؤكد رسمياً
+                          </span>
+                        ) : (
+                          <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
+                            {source.verification_note_ar ?? CAREERS_NO_SOURCE_NOTE}
+                          </span>
+                        )}
+                      </dd>
+                    </div>
+
+                    {source.last_verified ? (
+                      <div className="flex flex-col gap-1.5">
+                        <dt className="text-[13px] font-bold text-muted-foreground">آخر تحقق</dt>
+                        <dd className="font-bold text-foreground">{source.last_verified}</dd>
+                      </div>
+                    ) : null}
+
+                    {source.url ? (
+                      <div className="flex flex-col gap-2">
+                        <dt className="sr-only">الرابط</dt>
+                        <dd>
+                          <a
+                            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[15px] font-extrabold text-primary-foreground hover:opacity-90"
+                            href={source.url}
+                            target="_blank"
+                            rel="nofollow noopener"
+                          >
+                            فتح المصدر الرسمي
+                            <ExternalLink className="size-4" aria-hidden="true" />
+                            <span className="sr-only">: {source.title_ar}</span>
+                          </a>
+                        </dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-6 rounded-2xl bg-card p-5 text-[15px] leading-8 text-foreground">
+            {career.status_note_ar ??
+              "الشرط الرقمي (سن أو شهادة أو عدد مناصب) لا يُعرض هنا ما لم يكن منشوراً في مصدر رسمي متحقق منه؛ لذلك تبقى القيم الرقمية فارغة عن قصد."}
+          </p>
+        </div>
       </section>
 
       <CareerTrainingPlan career={career} className="mt-10" />

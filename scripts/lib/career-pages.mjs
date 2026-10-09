@@ -23,7 +23,6 @@ import { fileURLToPath } from "node:url";
 import { SITE_ORIGIN, canonicalUrl } from "../../shared/seo/url-policy.js";
 import {
   CAREERS_ANNUAL_NOTICE_BADGE,
-  CAREERS_LAW_NOT_ARCHIVED,
   LAW_VERIFICATION_LABELS,
   CAREERS_DISCLAIMER,
   CAREERS_HUB_COPY,
@@ -32,7 +31,6 @@ import {
   CAREERS_QUIZ_DISCLAIMER,
   CAREERS_QUIZ_HUB_COPY,
   CAREERS_QUIZ_PATH,
-  CAREERS_VERIFY_BADGE,
   COMPETITION_PATH_LABELS,
   DEGREE_LEVEL_LABELS,
   REQUIREMENT_TYPE_LABELS,
@@ -41,6 +39,7 @@ import {
   TRAINING_PLAN_WEEKS,
   buildCareerAnswerFirst,
   buildCareerH1,
+  buildCareerOccupationSchema,
   buildCareerPageDescription,
   buildCareerPageTitle,
   buildCareerQuizDescription,
@@ -110,7 +109,7 @@ export function isCompetitionVerified(record) {
 }
 
 const requirementBadges = (requirement) => {
-  const badges = [CAREERS_VERIFY_BADGE];
+  const badges = [];
   if (requirement.requirement_type === "annual_notice" || requirement.requirement_type === "legal_or_annual_notice") {
     badges.push(CAREERS_ANNUAL_NOTICE_BADGE);
   }
@@ -297,7 +296,7 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
       inLanguage: "ar-MA",
       dateModified: career.last_reviewed,
       isAccessibleForFree: true,
-      about: { "@type": "Occupation", name: career.title_ar, alternateName: career.title_fr },
+      about: buildCareerOccupationSchema(career),
     },
     extraSchema: [
       {
@@ -376,11 +375,13 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
                 (requirement) =>
                   `<li><strong>${escapeHtml(requirement.label_ar)}</strong> — ${escapeHtml(
                     requirement.value_ar
-                  )} — ${escapeHtml(REQUIREMENT_TYPE_LABELS[requirement.requirement_type] ?? "")} — ${escapeHtml(requirementBadges(requirement))}</li>`
+                  )} — ${escapeHtml(REQUIREMENT_TYPE_LABELS[requirement.requirement_type] ?? "")} — ${escapeHtml(requirementBadges(requirement))}${requirement.source_url ? ` — <a href="${escapeHtml(requirement.source_url)}" rel="nofollow noopener">المصدر الرسمي</a>` : ` — ${escapeHtml(requirement.source_ref_ar ?? CAREERS_NO_SOURCE_NOTE)}`}</li>`
               )
               .join("\n            ")}
           </ul>
-          <p>${escapeHtml(CAREERS_NO_SOURCE_NOTE)}</p>
+          ${career.requirements.some((r) => !r.source_url && !r.source_ref_ar)
+            ? `<p>${escapeHtml(CAREERS_NO_SOURCE_NOTE)}</p>`
+            : ""}
           <p>
             ${escapeHtml(career.quiz_config.competition_note_ar)}
           </p>
@@ -389,11 +390,12 @@ function careerDetailPage(career, { lexiconTerms, quizQuestions, careers, lawArc
           <ul>
             ${legalFramework
               .map((entry) => {
-                const meta = `<strong>${escapeHtml(entry.label_ar)}</strong> — ${escapeHtml(
-                  entry.relationship_ar
-                )} — ${escapeHtml(LAW_VERIFICATION_LABELS[entry.verification_status] ?? entry.verification_status)}`;
+                const statusLabel = LAW_VERIFICATION_LABELS[entry.verification_status] ?? "";
+                const meta = `<strong>${escapeHtml(entry.label_ar)}</strong> — ${escapeHtml(entry.relationship_ar)}${
+                  statusLabel ? ` — ${escapeHtml(statusLabel)}` : ""
+                }`;
                 if (!entry.archive) {
-                  return `<li>${meta} — ${escapeHtml(CAREERS_LAW_NOT_ARCHIVED)}</li>`;
+                  return `<li>${meta}</li>`;
                 }
                 const link = entry.archive.public_path
                   ? ` <a href="${entry.archive.public_path}">عرض النص في أرشيف ميزان</a>`

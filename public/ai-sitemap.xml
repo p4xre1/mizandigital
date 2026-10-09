@@ -8,4 +8,19 @@
   <url><loc>https://www.mizan.page/.well-known/openapi.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.mizan.page/.well-known/agent-card.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.mizan.page/.well-known/ai-catalog.json</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/avocat</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/notaire</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/adoul</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/commissaire-judiciaire</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/expert-judiciaire</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/traducteur-assermente</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/delegue-judiciaire</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/redacteur-judiciaire</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/greffe</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/magistrat</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/juriste-administration-publique</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/juriste-entreprise</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/responsable-conformite</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mizan.page/careers/enseignant-chercheur-droit</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>

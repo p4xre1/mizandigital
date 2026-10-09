@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
+import { Info, SlidersHorizontal } from "lucide-react";
 import {
   CAREERS_HUB_COPY,
   FILTER_ADVISORY,
@@ -135,7 +135,7 @@ export function CareerFilters() {
   return (
     <section aria-labelledby="career-filters-title" data-career-filters="section">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="career-filters-title" className="inline-flex items-center gap-2 text-[18px] font-black text-foreground">
+        <h2 id="career-filters-title" className="inline-flex items-center gap-2 text-[22px] font-black leading-snug text-foreground md:text-[24px]">
           <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
           {CAREERS_HUB_COPY.filtersTitle}
         </h2>
@@ -155,9 +155,10 @@ export function CareerFilters() {
         ) : null}
       </div>
 
-      <p className="mt-1 text-[12.5px] leading-6 text-muted-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
-      <p className="mt-1 text-[12px] font-bold text-amber-700 dark:text-amber-500">
-        {FILTER_ADVISORY.join("، ")}
+      <p className="mt-4 text-[15px] leading-8 text-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
+      <p className="mb-6 mt-4 flex items-start gap-3 rounded-xl border border-emerald-600/25 bg-emerald-50 px-4 py-3 text-[15px] font-bold leading-8 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <Info className="mt-1.5 size-5 shrink-0" aria-hidden="true" />
+        <span>{FILTER_ADVISORY.join("، ")}</span>
       </p>
 
       <div className="rounded-2xl border border-border bg-card p-4">
@@ -198,7 +199,7 @@ export function CareerFilters() {
         ) : null}
       </div>
 
-      <p className="mt-3 text-[12.5px] font-bold text-muted-foreground" role="status">
+      <p className="mt-3 text-[16px] font-extrabold leading-8 text-foreground" role="status">
         {hasFilter ? `${filtered.length} مساراً تطابق اختياراتك — قد يناسب اهتمامك.` : `${CAREERS.length} مساراً في الدليل.`}
       </p>
 

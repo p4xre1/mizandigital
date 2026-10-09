@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, useSearchParams, Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { canonicalFor } from "@/lib/canonical"
 import docsData from "../../data/docs.json"
@@ -140,12 +140,18 @@ const SEMESTERS = [
 
 const RESOURCE_TYPES = ["الكل", "ملخصات", "محاضرات", "امتحانات", "بحوث", "نصوص قانونية"]
 
+/** قيم ?type= المقبولة من الروابط الخارجية (مثل زر «تصفح كل النصوص» في الرئيسية). */
+const TYPE_BY_QUERY: Record<string, string> = { "legal-texts": "نصوص قانونية" }
+
 export function ArchivePage({ initialSemester }: ArchivePageProps) {
   const params = useParams<{ semester?: string }>()
   const activeSemesterParam = initialSemester || params.semester || "all"
 
   const [selectedSemester, setSelectedSemester] = useState<string>(activeSemesterParam)
-  const [selectedType, setSelectedType] = useState<string>("الكل")
+  const [searchParams] = useSearchParams()
+  const [selectedType, setSelectedType] = useState<string>(
+    () => TYPE_BY_QUERY[searchParams.get("type") ?? ""] ?? "الكل",
+  )
   const [searchQuery, setSearchQuery] = useState<string>("")
   const [cmsDocs, setCmsDocs] = useState<ArchiveItem[]>([])
   const [cmsLaws, setCmsLaws] = useState<ArchiveItem[]>([])

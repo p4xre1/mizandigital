@@ -105,6 +105,8 @@ export interface CareerRequirement {
   requirement_type: RequirementType;
   status: VerificationStatus;
   source_url: string | null;
+  /** مرجع المادة في النص الرسمي (مثل «المادة 3 من القانون 46.21») — يُعرض بدل الرابط عند غيابه. */
+  source_ref_ar?: string;
   last_verified: string | null;
   /** يُملأ فقط عند شرط مرتبط بإعلان سنوي متحقق منه. */
   notice_year?: number | null;
@@ -121,6 +123,8 @@ export interface CareerSource {
   url: string;
   last_verified: string | null;
   status: VerificationStatus | "needs_official_verification";
+  /** ملاحظة حالة خاصة بهذا المصدر؛ تحل محل الملاحظة العامة عند غياب حالة "مؤكد". */
+  verification_note_ar?: string;
 }
 
 export interface CareerQuizConfig {
@@ -152,6 +156,10 @@ export interface CareerRecord {
   typical_degree: CareerDegree;
   age_requirement: CareerAgeRequirement;
   entry_path: CareerEntryStep[];
+  /** وصف قصير لطريقة الولوج يعرض في بطاقة الصفحة بدل الوصف العام للمسار. */
+  entry_method_ar?: string;
+  /** ملاحظة حالة التحقق الخاصة بالمسار؛ تحل محل الملاحظة العامة عند وجودها. */
+  status_note_ar?: string;
   training_after_admission: { label_ar: string; status: VerificationStatus };
   skills: string[];
   best_for: string[];

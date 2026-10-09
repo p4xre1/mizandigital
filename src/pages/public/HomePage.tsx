@@ -6,14 +6,16 @@ import counts from "../../data/counts.json"
 import { diversifyByCategory } from "../../lib/utils/diversify"
 import { generateSlug } from "../../lib/utils/generateSlug"
 import { afterWindowLoad, scheduleWhenIdle } from "../../lib/utils/deferWork"
-import {
-  BookOpen, Scale, GraduationCap, Star, Users, Award, Library, ShieldCheck, Clock, Video, FileText, ArrowRight,
-  Calendar, MapPin, Languages, GitBranch, Building2
-} from "lucide-react"
+import { Scale, Library, Clock, Video, FileText, ArrowRight, Calendar, MapPin, Building2 } from "lucide-react"
 
 import { HomeLawArchive } from "../../components/home/HomeLawArchive"
+import { HomeLexiconShowcase } from "../../components/home/HomeLexiconShowcase"
+import { HomeFeatures } from "../../components/home/HomeFeatures"
+import { HomeStatsBand } from "../../components/home/HomeStatsBand"
+import { pickTreeTerms, type TreeTerm } from "../../lib/lexicon/treeTerms"
+import { HeroPreview } from "../../components/home/HeroPreview"
+import { HomeFreeResources } from "../../components/home/HomeFreeResources"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
-const LegalTermTree = lazy(() => import("../../components/lexicon/LegalTermTree").then((m) => ({ default: m.LegalTermTree })))
 
 interface FeedCard {
   id: string
@@ -48,7 +50,7 @@ interface LexiconCard {
 export function HomePage() {
   const [latestArticles, setLatestArticles] = useState<FeedCard[]>([])
   const [latestEvents, setLatestEvents] = useState<EventCard[]>([])
-  const [latestTerms, setLatestTerms] = useState<LexiconCard[]>([])
+  const [treeTerms, setTreeTerms] = useState<TreeTerm[]>([])
   const [schoolsCount] = useState<number>(counts.schools)
   const [articlesCount] = useState<number>(counts.articles)
 
@@ -96,16 +98,7 @@ export function HomePage() {
         if (cancelled) return
         setLatestEvents(localEvents.slice(0, 4))
 
-        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 6).map((t) => ({
-          id: t.id,
-          term_ar: t.term_ar,
-          term_fr: t.term_fr,
-          definition: t.definition,
-          category: t.category,
-          legal_sources: t.legal_sources || [],
-        }))
-        if (cancelled) return
-        setLatestTerms(localTerms)
+        setTreeTerms(pickTreeTerms(lexiconData as any[], 7))
       } catch {
         /* لا بيانات محلية: الأقسام تبقى فارغة كما كانت قبل الإصلاح */
       }
@@ -158,10 +151,9 @@ export function HomePage() {
           import("../../data/lexicon.client.json"),
         ])
 
-        const [articlesRes, seminarsRes, termsRes] = await Promise.all([
+        const [articlesRes, seminarsRes] = await Promise.all([
           supabase.from("articles").select("id, title, slug, excerpt, published_at, created_at, cover_image, category:categories(name)").eq("status", "published").order("published_at", { ascending: false }).limit(30),
           (supabase as any).from("seminars").select("*").eq("status", "published").order("event_date", { ascending: false }).limit(20),
-          supabase.from("lexicon_terms").select("id, term_ar, term_fr, definition, category").order("created_at", { ascending: false }).limit(20),
         ])
 
         const remoteArticles: FeedCard[] = (articlesRes.data || [])
@@ -221,27 +213,8 @@ export function HomePage() {
         const combinedEvents = Array.from(new Map([...remoteSeminars, ...localEvents].map((e) => [e.id, e])).values())
         setLatestEvents(combinedEvents.slice(0, 4))
 
-        // Lexicon terms
-        const remoteTerms: LexiconCard[] = (termsRes.data || []).map((t: any) => ({
-          id: t.id,
-          term_ar: t.term_ar,
-          term_fr: t.term_fr,
-          definition: t.definition,
-          category: t.category,
-          legal_sources: [],
-        }))
-
-        const localTerms: LexiconCard[] = (lexiconData as any[]).slice(0, 12).map((t) => ({
-          id: t.id,
-          term_ar: t.term_ar,
-          term_fr: t.term_fr,
-          definition: t.definition,
-          category: t.category,
-          legal_sources: t.legal_sources || [],
-        }))
-
-        const combinedTerms = Array.from(new Map([...remoteTerms, ...localTerms].map((t) => [t.id, t])).values())
-        setLatestTerms(combinedTerms.slice(0, 6))
+        // القاموس: المصطلحات التي لها شجرة فقط، من البيانات المحلية (الشجرة لا تُخزَّن في القاعدة).
+        setTreeTerms(pickTreeTerms(lexiconData as any[], 7))
       } catch {}
     }
 
@@ -299,72 +272,40 @@ export function HomePage() {
       />
       <main className="min-h-screen bg-white dark:bg-[#0f172a] text-foreground" dir="rtl">
         <section className="relative bg-white dark:bg-[#0f172a] overflow-hidden">
-          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px]" />
-          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]" />
+          <div className="pointer-events-none hidden md:block absolute -top-24 left-1/2 -translate-x-1/2 size-[400px] lg:size-[640px] lg:-top-40 rounded-full bg-[#dbeafe] dark:bg-[#1e3a5f]/10 blur-[50px] lg:blur-[90px]" />
+          <div className="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] lg:size-[360px] lg:-bottom-40 lg:-right-32 rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px] lg:blur-[70px]" />
 
-          <div className="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
+          <div className="container relative mx-auto max-w-[800px] lg:max-w-[1440px] xl:max-w-[1600px] px-6 py-14 lg:px-12 lg:py-24 grid gap-12 lg:gap-16 xl:gap-24 lg:grid-cols-2 lg:items-center">
 
-            <h1 className="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white">
-              <span>افتح إمكانياتك مع</span>
-              <span className="text-[#2563eb]">التعلم القانوني</span>
-              <span className="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
-            </h1>
+            <div className="flex flex-col items-center text-center lg:items-start lg:text-right">
+              <h1 className="mt-6 lg:mt-0 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] lg:text-[64px] xl:text-[76px] font-black leading-[1.2] lg:leading-[1.15] tracking-[-0.03em] text-[#0f172a] dark:text-white">
+                <span>افتح إمكانياتك مع</span>
+                <span className="text-[#2563eb]">التعلم القانوني</span>
+                <span className="text-[20px] md:text-[24px] lg:text-[32px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span>
+              </h1>
 
-            <p className="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">
-              انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
-            </p>
+              <p className="mt-5 lg:mt-8 max-w-[560px] lg:max-w-[600px] text-[15px] md:text-[16px] lg:text-[20px] leading-7 lg:leading-9 text-[#334155] dark:text-[#cbd5e1]">
+                انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+              </p>
 
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">
-                ابدأ الآن
-                <span className="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span>
-              </Link>
-              <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
-                اختبر معرفتك القانونية
-                <span className="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span>
-              </Link>
+              <div className="mt-7 lg:mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4">
+                <Link to="/articles" className="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 lg:px-10 lg:py-4 text-[14px] lg:text-[17px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] lg:shadow-[0_8px_24px_rgba(37,99,235,0.25)] transition-colors">
+                  ابدأ الآن
+                  <span className="size-5 lg:size-7 grid place-items-center rounded-full bg-white/20 text-[12px] lg:text-[15px]">←</span>
+                </Link>
+                <Link to="/quiz" className="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 lg:px-10 lg:py-4 text-[14px] lg:text-[17px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">
+                  اختبر معرفتك القانونية
+                  <span className="size-5 lg:size-7 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px] lg:text-[15px]">←</span>
+                </Link>
+              </div>
+
+              <p className="mt-7 lg:mt-10 text-center lg:text-start text-[13px] lg:text-[15px] font-semibold text-[#475569] dark:text-[#cbd5e1]">
+                انزل إلى الأسفل، ستجد رابط مجتمع ميزان على واتساب.
+              </p>
             </div>
 
-            <div className="mt-7 flex items-center justify-center gap-4">
-              <div className="flex -space-x-2 rtl:space-x-reverse">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="size-8 rounded-full border-2 border-white dark:border-[#0f172a] bg-[#e2e8f0] dark:bg-[#334155] grid place-items-center text-[10px] font-bold text-[#475569] dark:text-white">
-                    {String.fromCharCode(64 + i)}
-                  </div>
-                ))}
-              </div>
-              <div className="text-right">
-                <div className="font-black text-[12px] flex items-center gap-1 text-[#0f172a] dark:text-white">
-                  <Users className="size-4 text-[#2563eb]" />
-                  500+ طالب يثقون بنا
-                </div>
-                <div className="text-[11px] text-[#64748b] dark:text-[#94a3b8] flex items-center gap-1 justify-end">
-                  <Star className="size-3 fill-[#f59e0b] text-[#f59e0b]" /> 4.9 - محتوى أساسي مجاني
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-10 w-full max-w-[560px] grid grid-cols-2 gap-3">
-              {[
-                { title: "القاموس", desc: "250 مصطلح", icon: Scale, color: "bg-[#2563eb]", count: `${counts.lexicon}` },
-                { title: "الأرشيف", desc: "S1-S6", icon: Library, color: "bg-[#f59e0b]", count: "S1-S6" },
-                { title: "المقالات", desc: `${articlesCount} مقال`, icon: BookOpen, color: "bg-[#10b981]", count: `${articlesCount}` },
-                { title: "الأخبار", desc: "مباشر", icon: GraduationCap, color: "bg-[#ec4899]", count: "مباشر" },
-              ].map((card, i) => (
-                <div key={i} className="text-right rounded-2xl bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] p-4 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div className={`grid size-9 place-items-center rounded-xl ${card.color} text-white shadow-sm`}>
-                      <card.icon className="size-4" />
-                    </div>
-                    <span className="text-[10px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border border-[#e2e8f0] dark:border-[#475569] rounded-full px-2 py-1">{card.count}</span>
-                  </div>
-                  {/* h2 وليس h3: تسلسل العناوين كان h1 ← h3 (قفز مستوى) وهو
-                      سبب فشل تدقيق heading-order. h2 يبقي الترتيب تنازلياً
-                      متسلسلاً مع بقية أقسام الصفحة. */}
-                  <h2 className="mt-3 font-black text-[12px] text-[#0f172a] dark:text-white">{card.title}</h2>
-                  <p className="mt-1 text-[11px] text-[#64748b] dark:text-[#94a3b8]">{card.desc}</p>
-                </div>
-              ))}
+            <div className="hidden lg:block">
+              <HeroPreview />
             </div>
           </div>
         </section>
@@ -459,157 +400,23 @@ export function HomePage() {
             {/* نصوص قانونية من الأرشيف — تُعرض قبل القاموس لأنها المصدر الأول */}
             <HomeLawArchive />
 
-            {/* القاموس القانوني — مع شجرة */}
-            {latestTerms.length > 0 && (
-              <div className="mt-12">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-black text-[16px] text-[#0f172a] dark:text-white flex items-center gap-2">
-                    <span className="grid size-7 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]"><Languages className="size-4" /></span>
-                    القاموس القانوني — مع الشجرة القانونية
-                  </h3>
-                  <Link to="/lexicon" aria-label="عرض الكل: القاموس القانوني" className="text-[12px] font-bold text-[#2563eb] hover:underline flex items-center gap-1">عرض الكل <ArrowRight className="size-3 rtl:rotate-180" aria-hidden="true" /></Link>
-                </div>
-
-                {/* Featured term with tree */}
-                {latestTerms[0]?.legal_sources && latestTerms[0].legal_sources.length > 0 && (
-                  <div className="mb-6 rounded-2xl border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] p-5 overflow-hidden">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="grid size-8 place-items-center rounded-xl bg-[#2563eb] text-white"><Scale className="size-4" /></span>
-                          <h4 className="font-black text-[16px] text-[#0f172a] dark:text-white">{latestTerms[0].term_ar}</h4>
-                          {latestTerms[0].term_fr && <span className="text-[11px] text-muted-foreground font-mono">({latestTerms[0].term_fr})</span>}
-                        </div>
-                        <p className="mt-2 text-[12.5px] leading-6 text-[#475569] dark:text-[#94a3b8] max-w-2xl">{latestTerms[0].definition}</p>
-                        <div className="mt-2 flex items-center gap-2 text-[10px]">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#2563eb]/10 border border-[#2563eb]/20 px-2.5 py-1 font-bold text-[#2563eb]"><GitBranch className="size-3" /> شجرة قانونية: {latestTerms[0].legal_sources.length} مصادر - {latestTerms[0].legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول</span>
-                          <span className="rounded-full bg-[#f1f5f9] dark:bg-[#334155] px-2.5 py-1 font-bold text-[10px]">{latestTerms[0].category}</span>
-                        </div>
-                      </div>
-                      <Link to={`/lexicon/${generateSlug(latestTerms[0].term_ar)}`} className="shrink-0 rounded-full bg-[#2563eb] text-white px-4 py-2 text-[11px] font-bold hover:bg-[#1d4ed8]">التفاصيل →</Link>
-                    </div>
-                    <Suspense fallback={<div className="h-20 grid place-items-center text-[12px] text-muted-foreground">جارٍ تحميل الشجرة...</div>}>
-                      <LegalTermTree termAr={latestTerms[0].term_ar} termFr={latestTerms[0].term_fr} legalSources={latestTerms[0].legal_sources} />
-                    </Suspense>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {latestTerms.slice(1, 7).map((term) => (
-                    <Link key={term.id} to={`/lexicon/${generateSlug(term.term_ar)}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-4 hover:border-[#2563eb]/20 hover:shadow-[0_8px_20px_rgba(37,99,235,0.06)] transition-all flex flex-col">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="grid size-8 place-items-center rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f] text-[#2563eb] group-hover:bg-[#2563eb] group-hover:text-white transition-colors"><GitBranch className="size-4" /></span>
-                          <div>
-                            <h4 className="font-bold text-[13px] text-[#0f172a] dark:text-white group-hover:text-[#2563eb] transition-colors">{term.term_ar}</h4>
-                            {term.term_fr && <p className="text-[10px] text-muted-foreground font-mono">{term.term_fr}</p>}
-                          </div>
-                        </div>
-                        <span className="text-[9px] font-bold bg-[#f1f5f9] dark:bg-[#334155] border rounded-full px-2 py-1 shrink-0">{term.category}</span>
-                      </div>
-                      <p className="mt-3 text-[11.5px] leading-5 text-[#64748b] dark:text-[#94a3b8] line-clamp-3 flex-1">{term.definition}</p>
-                      {term.legal_sources && term.legal_sources.length > 0 && (
-                        <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#2563eb] font-bold border-t border-[#f1f5f9] dark:border-[#334155] pt-3">
-                          <GitBranch className="size-3" />
-                          <span>{term.legal_sources.length} مصادر قانونية - {term.legal_sources.reduce((acc: number, s: any) => acc + (s.articles?.length || 0), 0)} فصول مرتبطة</span>
-                        </div>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* القاموس القانوني — مصطلحات لها شجرة قانونية فقط */}
+            <HomeLexiconShowcase terms={treeTerms} total={counts.lexicon} />
           </div>
         </section>
 
-        <section className="py-14 bg-white dark:bg-[#0f172a] border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:380px]">
-          <div className="container relative mx-auto max-w-[1000px] px-6">
-            <div className="mx-auto max-w-3xl rounded-3xl border border-emerald-500/20 bg-emerald-500/[0.04] p-7 text-center sm:p-10">
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-black text-emerald-700 dark:text-emerald-300">
-                <ShieldCheck className="size-4" /> مجانية بالكامل
-              </span>
-              <h2 className="mt-4 text-[26px] font-black leading-tight text-[#0f172a] dark:text-white md:text-[32px]">
-                المعرفة القانونية للجميع
-              </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-[13px] leading-7 text-[#64748b] dark:text-[#94a3b8]">
-                كل موارد ميزان وأدواتها مجانية، بلا إعلانات تجارية. كل ما تحتاجه للدراسة في مكان واحد.
-              </p>
-              <div className="mt-7 grid gap-3 text-right sm:grid-cols-2">
-                {[
-                  "أرشيف الفصول S1 إلى S6",
-                  "قاموس قانوني يضم 250 مصطلحاً",
-                  "جميع المقالات والأخبار القانونية",
-                  "اختبارات ومسارات تدريبية متنوعة",
-                  "دليل 21 كلية حقوق",
-                  "أدوات البحث والتدريب القانوني",
-                ].map((feature) => (
-                  <div key={feature} className="flex items-center gap-2 rounded-xl bg-white/80 p-3 text-[12px] font-bold text-[#334155] dark:bg-[#1e293b] dark:text-[#cbd5e1]">
-                    <ShieldCheck className="size-4 shrink-0 text-emerald-600" /> {feature}
-                  </div>
-                ))}
-              </div>
-              <Link to="/articles" className="mt-7 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#2563eb] px-7 py-3 text-[13px] font-bold text-white transition hover:opacity-90">
-                استكشف الموارد المجانية <ArrowRight className="size-4" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        <HomeFreeResources />
 
-        <section className="py-14 bg-[#f8fafc] dark:bg-[#0f172a]/50 border-y border-[#f1f5f9] dark:border-[#1e293b] [content-visibility:auto] [contain-intrinsic-size:500px]">
-          <div className="container mx-auto max-w-[1280px] px-6">
-            <div className="max-w-[900px] mx-auto">
-              <div className="text-center max-w-[640px] mx-auto mb-10">
-                <span className="inline-block text-[11px] font-black tracking-[0.15em] text-[#2563eb] uppercase bg-[#eff6ff] dark:bg-[#1e293b] border rounded-full px-3 py-1">لماذا نحن</span>
-                <h2 className="mt-4 text-[26px] md:text-[32px] font-black leading-[1.15] text-[#0f172a] dark:text-white">
-                  اكتشف المزايا المميزة
-                  <br />
-                  لمنصتنا التعليمية
-                  <span className="text-[#2563eb]"> القانونية</span>
-                </h2>
-              </div>
+        <HomeFeatures counts={counts} />
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                {[
-                  { title: "مسارات متنوعة", desc: "استكشف مجموعة متنوعة من المسارات التعليمية المصممة لتناسب اهتماماتك.", icon: Library, color: "bg-[#eff6ff] text-[#2563eb]" },
-                  { title: "أساتذة خبراء", desc: "تعلم من خبراء وأساتذة متخصصين ملتزمين بنجاحك التعليمي.", icon: Users, color: "bg-[#fef3c7] text-[#f59e0b]" },
-                  { title: "جدول مرن", desc: "استمتع بمرونة التعلم عبر الإنترنت مع خيارات جدولة مرنة.", icon: Clock, color: "bg-[#dcfce7] text-[#16a34a]" },
-                  { title: "دعم مستمر", desc: "احصل على دعم مستمر ووصول إلى موارد إضافية لرحلة غنية.", icon: ShieldCheck, color: "bg-[#fce7f3] text-[#ec4899]" },
-                ].map((feature, i) => (
-                  <div key={i} className="rounded-2xl border bg-white dark:bg-[#1e293b] p-5">
-                    <div className={`size-10 grid place-items-center rounded-xl ${feature.color}`}>
-                      <feature.icon className="size-5" />
-                    </div>
-                    <h3 className="mt-3 font-black text-[13px]">{feature.title}</h3>
-                    <p className="mt-1 text-[11px] leading-5 text-[#64748b] dark:text-[#94a3b8]">{feature.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="py-10 bg-[#2563eb] dark:bg-[#1e40af] text-white relative">
-          <div className="container mx-auto max-w-[1280px] px-6 relative">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-              {[
-                { value: "500+", label: "طالب مستفيد" },
-                { value: "250+", label: "مصطلح قانوني" },
-                { value: `${counts.articles}+`, label: "مقال قانوني" },
-                { value: `${counts.schools}+`, label: "كلية جامعية" },
-                { value: "100%", label: "مجاني" },
-              ].map((stat, i) => (
-                <div key={i}>
-                  <div className="text-[24px] font-black">{stat.value}</div>
-                  {/* بلا opacity-80: أبيض بشفافية 80% فوق #2563eb يعطي
-                      تبايناً 3.86:1 وهو أقل من 4.5:1 المطلوب لنص 11px،
-                      فرصده Lighthouse في تدقيق color-contrast (96/100).
-                      الأبيض الكامل يعطي 5.12:1 ⇒ AAA للنص الصغير. */}
-                  <div className="text-[11px] font-bold mt-1 text-white">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <HomeStatsBand
+          items={[
+            { value: counts.laws, label: "النصوص القانونية" },
+            { value: counts.lexicon, label: "المصطلحات القانونية" },
+            { value: counts.schools, label: "الكليات في الدليل" },
+            { value: counts.quizQuestions, label: "أسئلة التدريب" },
+          ]}
+        />
 
         <Suspense fallback={null}>
           <HomeFaqSection lexiconCount={counts.lexicon} articlesCount={counts.articles} schoolsCount={counts.schools} />

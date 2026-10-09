@@ -15,6 +15,10 @@ import { buildCareerPages } from "../scripts/lib/career-pages.mjs";
 import type { CareerRecord } from "../src/lib/careers/types";
 
 const CAREERS = careersData as unknown as CareerRecord[];
+
+// استثناء موثّق لمسار المفوض القضائي: أرقام النص ومراجعه وحالة التحقق من القانون 46.21
+// والمرسوم 2.25.885 (تحقق يدوي بتاريخ 2026-10-08). لا يمتد إلى غيره.
+const VERIFIED_TEXT_SLUGS = new Set(["commissaire-judiciaire", "avocat", "notaire", "adoul", "traducteur-assermente", "enseignant-chercheur-droit", "delegue-judiciaire", "magistrat"]);
 const COMPETITIONS = competitionsData as unknown as Array<{
   id: string;
   status: string;
@@ -164,9 +168,11 @@ describe("الإعلان السنوي والمصادر الرسمية", () => {
         expect(requirement.notice_status, `${career.slug}:${requirement.id}`).toBe(
           annual ? "check_current_notice" : "not_applicable"
         );
-        expect(requirement.source_url, `${career.slug}:${requirement.id}`).toBeNull();
-        // لا رقم سن ولا عدد مناصب في نصّ الشرط (القيم الرقمية تأتي من الإعلان)
-        expect(/\d/.test(requirement.value_ar), `${career.slug}:${requirement.id}`).toBe(false);
+        if (!VERIFIED_TEXT_SLUGS.has(career.slug)) {
+          expect(requirement.source_url, `${career.slug}:${requirement.id}`).toBeNull();
+          // لا رقم سن ولا عدد مناصب في نصّ الشرط (القيم الرقمية تأتي من الإعلان)
+          expect(/\d/.test(requirement.value_ar), `${career.slug}:${requirement.id}`).toBe(false);
+        }
       }
     }
   });

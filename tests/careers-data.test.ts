@@ -17,6 +17,10 @@ import schoolsData from "../src/data/schools.json";
 import type { CareerCompetition, CareerRecord, MoroccoCity } from "../src/lib/careers/types";
 
 const CAREERS = careersData as unknown as CareerRecord[];
+
+// استثناء موثّق لمسار المفوض القضائي: أرقام النص ومراجعه وحالة التحقق من القانون 46.21
+// والمرسوم 2.25.885 (تحقق يدوي بتاريخ 2026-10-08). لا يمتد إلى غيره.
+const VERIFIED_TEXT_SLUGS = new Set(["commissaire-judiciaire", "avocat", "notaire", "adoul", "traducteur-assermente", "enseignant-chercheur-droit", "delegue-judiciaire", "magistrat"]);
 const CATEGORIES = categoriesData as unknown as Array<{ id: string; order: number; slug: string }>;
 const CITIES = citiesData as unknown as MoroccoCity[];
 const COMPETITIONS = competitionsData as unknown as CareerCompetition[];
@@ -99,6 +103,10 @@ describe("بنية بيانات المسارات", () => {
 describe("الشروط والمصادر — لا معلومة غير متحقق منها", () => {
   it("شرط السن بلا أرقام مُفبركة ويحمل حالة تحقق", () => {
     for (const career of CAREERS) {
+      if (VERIFIED_TEXT_SLUGS.has(career.slug)) {
+        expect(career.age_requirement.status, career.slug).toBe("verified");
+        continue;
+      }
       expect(career.age_requirement.minimum, career.slug).toBeNull();
       expect(career.age_requirement.maximum, career.slug).toBeNull();
       expect(career.age_requirement.status, career.slug).toBe("verify_official_source");
@@ -114,6 +122,11 @@ describe("الشروط والمصادر — لا معلومة غير متحقق 
         expect(requirement.label_ar.length, career.slug).toBeGreaterThan(2);
         expect(requirement.value_ar.length, career.slug).toBeGreaterThan(10);
         expect(requirement.requirement_type, career.slug).toBeTruthy();
+        if (VERIFIED_TEXT_SLUGS.has(career.slug)) {
+          expect(requirement.status, career.slug).toBe("verified");
+          expect(requirement.source_ref_ar, career.slug).toBeTruthy();
+          continue;
+        }
         // في هذه النسخة لا يوجد مصدر رسمي متحقق بعد لأي شرط رقمي.
         expect(requirement.source_url, career.slug).toBeNull();
         expect(requirement.last_verified, career.slug).toBeNull();
@@ -122,15 +135,24 @@ describe("الشروط والمصادر — لا معلومة غير متحقق 
     }
   });
 
-  it("المصادر كلها معلَّمة بأنها تحتاج تحققاً رسمياً (بلا رابط مطبوع)", () => {
+  it("المصادر غير المتحقَّق منها بلا رابط مطبوع؛ والمتحقَّق منها لها رابط https", () => {
+    // استثناء موثّق: مسار المفوض القضائي تحقّق منه المسؤول يدوياً (2026-10-08)
+    const VERIFIED_SOURCE_SLUGS = new Set(["commissaire-judiciaire"]);
     for (const career of CAREERS) {
       expect(career.sources.length, career.slug).toBeGreaterThanOrEqual(1);
       for (const source of career.sources) {
+        if (VERIFIED_SOURCE_SLUGS.has(career.slug)) {
+          expect(source.status, career.slug).toBe("verified");
+          expect(source.url, career.slug).toMatch(/^https:\/\//);
+          continue;
+        }
         expect(source.url, career.slug).toBe("");
         expect(source.status, career.slug).toBe("needs_official_verification");
         expect(source.last_verified, career.slug).toBeNull();
       }
-      expect(career.review_status, career.slug).toBe("internal_review");
+      expect(career.review_status, career.slug).toBe(
+        VERIFIED_TEXT_SLUGS.has(career.slug) ? "official_text_verified" : "internal_review"
+      );
       expect(career.last_reviewed, career.slug).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
   });
@@ -171,9 +193,14 @@ describe("الشروط والمصادر — لا معلومة غير متحقق 
 
   it("الشهادة المعتادة والمسار المعلن يحملان حالة تحقق لا ادعاء نهائياً", () => {
     for (const career of CAREERS) {
-      expect(career.typical_degree.status, career.slug).toBe("verify_official_source");
+      if (VERIFIED_TEXT_SLUGS.has(career.slug)) {
+        expect(career.typical_degree.status, career.slug).toBe("verified");
+        expect(career.training_after_admission.status, career.slug).toBe("verified");
+      } else {
+        expect(career.typical_degree.status, career.slug).toBe("verify_official_source");
+        expect(career.training_after_admission.status, career.slug).toBe("verify_official_source");
+      }
       expect(career.typical_degree.label_ar.length, career.slug).toBeGreaterThan(3);
-      expect(career.training_after_admission.status, career.slug).toBe("verify_official_source");
       expect(career.quiz_config.competition_note_ar.length, career.slug).toBeGreaterThan(30);
     }
   });

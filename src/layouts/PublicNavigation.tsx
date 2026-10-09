@@ -1,5 +1,5 @@
 import { Link, NavLink } from "react-router-dom"
-import { Sun, Moon, X, Menu, Search, Instagram, Facebook } from "lucide-react"
+import { Sun, Moon, X, Menu, Search, Instagram, Facebook, ArrowRight } from "lucide-react"
 import { AuthControls } from "@/components/auth/AuthControls"
 import { MenuSearch } from "@/components/nav/MenuSearch"
 import { useAuth } from "@/lib/auth/AuthProvider"
@@ -250,127 +250,142 @@ export function Header({
   )
 }
 
+/**
+ * التذييل — إعادة هيكلة:
+ *   1) شريط مجتمع واتساب: الدعوة الرئيسية، له شريط خاص به فوق التذييل.
+ *   2) الشعار + 3 أعمدة روابط (5–6 روابط لكل عمود)، بلا تكرار مع القائمة العلوية:
+ *      الرئيسية والبحث وحسابي والمحفوظات تعيش في القائمة وقائمة المستخدم.
+ *   3) فاصل.
+ *   4) الشريط السفلي: أيقونات التواصل، ثم الحقوق والروابط القانونية وخريطة الموقع وRSS.
+ *
+ * الروابط مكتوبة كعناصر JSX صريحة (لا مصفوفات)، وهذا ما تفحصه الاختبارات.
+ */
 export function Footer() {
   return (
     <footer className="site-footer mt-20 bg-[#0f172a] text-white">
-      <div className="container mx-auto max-w-[1280px] px-6 py-12 grid gap-8 md:grid-cols-[1.3fr_0.9fr_0.9fr_0.9fr_0.9fr]">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <img src="/Logo.svg" alt="ميزان الرقمية" className="size-9 rounded-xl shadow-sm object-cover" width={36} height={36} loading="lazy" />
-            <span>
-              <span className="block text-[15px] font-black">ميزان الرقمية</span>
-              <span className="block text-[11px] text-[#94a3b8] font-bold">المعرفة القانونية للطلبة</span>
+      {/* شريط مجتمع واتساب */}
+      <section aria-labelledby="footer-community" className="bg-gradient-to-l from-[#065f46] to-[#047857]">
+        <div className="container mx-auto flex max-w-[1280px] flex-col gap-5 px-6 py-8 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/15">
+              <WhatsAppIcon size={24} />
             </span>
+            <div>
+              <p id="footer-community" className="text-[18px] font-black md:text-[20px]">انضمّ إلى مجتمع الطلبة على واتساب</p>
+              <p className="mt-1 text-[13px] text-[#d1fae5]">تابع آخر المستجدات والإعلانات من ميزان الرقمية مباشرة على هاتفك — مجاناً.</p>
+            </div>
           </div>
-          <p className="mt-4 max-w-md text-[13px] leading-6 text-[#94a3b8]">
-            منصة تعليمية مغربية مجانية بالكامل — تعلّم القانون بطريقة مرنة وجذابة مع موارد وأدوات واختبارات بلا إعلانات تجارية.
-          </p>
-          <div className="mt-4 flex items-center gap-2">
-            <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إنستغرام" title="إنستغرام" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
-              <Instagram size={16} aria-hidden="true" />
-            </a>
-            <a href="https://www.facebook.com/profile.php?id=61593607157317" target="_blank" rel="noopener noreferrer" aria-label="صفحة ميزان الرقمية على فيسبوك" title="فيسبوك" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
-              <Facebook size={16} aria-hidden="true" />
-            </a>
-            <a href="https://www.tiktok.com/@mizan_page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على تيك توك" title="تيك توك" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
-              <TikTokIcon size={16} />
-            </a>
-            <a href="https://www.pinterest.com/mohamedredayassinn/" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على بنترست" title="بنترست" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
-              <PinterestIcon size={16} />
-            </a>
-            <a href="https://x.com/MIZANPAGE" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إكس" title="إكس" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
-              <XIcon size={16} />
-            </a>
-            <a href="https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m" target="_blank" rel="noopener noreferrer" aria-label="قناة ميزان الرقمية على واتساب" title="واتساب" className="grid size-8 place-items-center rounded-full bg-white/10 text-white hover:bg-white/15 transition-colors">
-              <WhatsAppIcon size={16} />
-            </a>
-          </div>
-
-          {/*
-            قناة واتساب ليست منصة نشر كباقي الأيقونات بل مجتمع يلتقي فيه
-            الطلبة، فتستحق دعوة واضحة بذاتها لا أيقونة بين أخريات.
-          */}
           <a
             href="https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-[12.5px] font-bold text-white transition-colors hover:bg-white/20"
+            className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-white px-7 py-3 text-[14px] font-black text-emerald-900 transition-colors hover:bg-[#ecfdf5]"
           >
-            <WhatsAppIcon size={15} />
-            انضمّ إلى مجتمع الطلبة على واتساب
+            انضم الآن <ArrowRight className="size-4 rtl:rotate-180" aria-hidden="true" />
           </a>
         </div>
-        <div>
-          <p className="mb-3 text-[13px] font-black">استكشف المحتوى</p>
-          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
-            <Link to="/" className="hover:text-white transition-colors">الرئيسية</Link>
-            <Link to="/platform" className="hover:text-white transition-colors">المنصة</Link>
-            <Link to="/archive" className="hover:text-white transition-colors">المكتبة والملخصات</Link>
-            <Link to="/articles" className="hover:text-white transition-colors">المقالات</Link>
-            <Link to="/news" className="hover:text-white transition-colors">الأخبار القانونية</Link>
-            <Link to="/lexicon" className="hover:text-white transition-colors">القاموس القانوني</Link>
-            <Link to="/schools" className="hover:text-white transition-colors">دليل الكليات</Link>
-            <Link to="/careers" className="hover:text-white transition-colors">المسارات المهنية</Link>
-            <Link to="/events" className="hover:text-white transition-colors">الفعاليات</Link>
+      </section>
+
+      <div className="container mx-auto grid max-w-[1280px] gap-10 px-6 pb-10 pt-14 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr]">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center gap-3">
+            <img src="/Logo.svg" alt="ميزان الرقمية" className="size-11 rounded-xl object-cover shadow-sm" width={44} height={44} loading="lazy" />
+            <span>
+              <span className="block text-[17px] font-black">ميزان الرقمية</span>
+              <span className="block text-[12px] font-bold text-[#94a3b8]">المعرفة القانونية للطلبة</span>
+            </span>
           </div>
+          <p className="mt-5 max-w-sm text-[14px] leading-7 text-[#94a3b8]">
+            منصة تعليمية مغربية مجانية بالكامل — تعلّم القانون بطريقة مرنة وجذابة مع موارد وأدوات واختبارات بلا إعلانات تجارية.
+          </p>
         </div>
-        <div>
-          <p className="mb-3 text-[13px] font-black">التعلم</p>
-          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
-            <Link to="/quiz" className="hover:text-white transition-colors">مركز الاختبارات</Link>
-            <Link to="/quiz/university" className="hover:text-white transition-colors">اختبارات S1-S6</Link>
-            <Link to="/quiz/general" className="hover:text-white transition-colors">الثقافة العامة</Link>
-            <Link to="/quiz/concours" className="hover:text-white transition-colors">مباريات التوظيف</Link>
-            <Link to="/quiz/interview" className="hover:text-white transition-colors">المقابلات الشفوية</Link>
-            <Link to="/quiz/placement" className="hover:text-white transition-colors">تحديد المستوى</Link>
-            <Link to="/search" className="hover:text-white transition-colors">البحث</Link>
-          </div>
-        </div>
-        <div>
-          {/* عمود الأدلة الركنية: الصفحات الثلاث المرتبطة بخطة السيو، موصولة من
-              الفوتر حتى لا تُولَّد يتيمة في فاحص orphanPages. */}
-          <p className="mb-3 text-[13px] font-black">أدلة الطالب</p>
-          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
-            <Link to="/guides/new-law-student-morocco" className="hover:text-white transition-colors">دليل الطالب الجديد</Link>
-            <Link to="/guides/free-legal-resources-morocco" className="hover:text-white transition-colors">الموارد القانونية المجانية</Link>
-            <Link to="/platform" className="hover:text-white transition-colors">عن المنصة</Link>
-          </div>
-        </div>
-        <div>
-          <p className="mb-3 text-[13px] font-black">المنصة</p>
-          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
-            <Link to="/about" className="hover:text-white transition-colors">من نحن</Link>
-            <Link to="/contact" className="hover:text-white transition-colors">اتصل بنا</Link>
-            <Link to="/faq" className="hover:text-white transition-colors">الأسئلة الشائعة</Link>
-            <Link to="/pro-tools" className="hover:text-white transition-colors">الأدوات القانونية المجانية</Link>
-            <Link to="/saved" className="hover:text-white transition-colors">المحفوظات</Link>
-            <Link to="/profile" className="hover:text-white transition-colors">حسابي</Link>
-          </div>
-        </div>
-        <div>
-          <p className="mb-3 text-[13px] font-black">قانوني</p>
-          <div className="flex flex-col gap-2 text-[13px] text-[#94a3b8]">
-            <Link to="/terms" className="hover:text-white transition-colors">الشروط والأحكام</Link>
-            <Link to="/privacy" className="hover:text-white transition-colors">سياسة الخصوصية</Link>
-            <Link to="/cookies" className="hover:text-white transition-colors">سياسة الكوكيز</Link>
-            <Link to="/guidelines" className="hover:text-white transition-colors">إرشادات المجتمع</Link>
-            <a href="/sitemap.xml" className="hover:text-white transition-colors">خريطة الموقع</a>
-            <a href="/feed.xml" className="hover:text-white transition-colors">RSS</a>
-          </div>
-        </div>
+
+        <nav aria-label="المحتوى">
+          <p className="mb-5 text-[15px] font-black">المحتوى</p>
+          <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
+            <li><Link to="/" className="transition-colors hover:text-white">الرئيسية</Link></li>
+            <li><Link to="/lexicon" className="transition-colors hover:text-white">القاموس القانوني</Link></li>
+            <li><Link to="/articles" className="transition-colors hover:text-white">المقالات</Link></li>
+            <li><Link to="/news" className="transition-colors hover:text-white">الأخبار القانونية</Link></li>
+            <li><Link to="/archive" className="transition-colors hover:text-white">المكتبة والملخصات</Link></li>
+            <li><Link to="/schools" className="transition-colors hover:text-white">دليل الكليات</Link></li>
+            <li><Link to="/careers" className="transition-colors hover:text-white">المسارات المهنية</Link></li>
+            <li><Link to="/events" className="transition-colors hover:text-white">الفعاليات</Link></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="التعلم والتدريب">
+          <p className="mb-5 text-[15px] font-black">التعلم والتدريب</p>
+          <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
+            <li><Link to="/quiz" className="transition-colors hover:text-white">مركز الاختبارات</Link></li>
+            <li><Link to="/quiz/university" className="transition-colors hover:text-white">اختبارات S1-S6</Link></li>
+            <li><Link to="/quiz/general" className="transition-colors hover:text-white">الثقافة العامة</Link></li>
+            <li><Link to="/quiz/concours" className="transition-colors hover:text-white">مباريات التوظيف</Link></li>
+            <li><Link to="/quiz/interview" className="transition-colors hover:text-white">المقابلات الشفوية</Link></li>
+            <li><Link to="/quiz/placement" className="transition-colors hover:text-white">تحديد المستوى</Link></li>
+            <li><Link to="/search" className="transition-colors hover:text-white">البحث</Link></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="أدلة الطالب">
+          <p className="mb-5 text-[15px] font-black">أدلة الطالب</p>
+          <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
+            <li><Link to="/guides/new-law-student-morocco" className="transition-colors hover:text-white">دليل الطالب الجديد</Link></li>
+            <li><Link to="/guides/free-legal-resources-morocco" className="transition-colors hover:text-white">الموارد القانونية المجانية</Link></li>
+            <li><Link to="/platform" className="transition-colors hover:text-white">عن المنصة</Link></li>
+            <li><Link to="/pro-tools" className="transition-colors hover:text-white">الأدوات القانونية المجانية</Link></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="المنصة">
+          <p className="mb-5 text-[15px] font-black">المنصة</p>
+          <ul className="flex flex-col gap-3 text-[14px] text-[#94a3b8]">
+            <li><Link to="/about" className="transition-colors hover:text-white">من نحن</Link></li>
+            <li><Link to="/faq" className="transition-colors hover:text-white">الأسئلة الشائعة</Link></li>
+            <li><Link to="/contact" className="transition-colors hover:text-white">اتصل بنا</Link></li>
+            <li><Link to="/saved" className="transition-colors hover:text-white">المحفوظات</Link></li>
+            <li><Link to="/profile" className="transition-colors hover:text-white">حسابي</Link></li>
+          </ul>
+        </nav>
       </div>
+
       <div className="border-t border-white/10">
         {/*
-          التباين: كان اللون #64748b على الخلفية #0f172a يعطي نسبة 3.75:1 فقط
-          (الحد الأدنى WCAG AA للنص العادي هو 4.5:1) — وهذا سبب فشل تدقيق
-          color-contrast في Lighthouse. #94a3b8 على نفس الخلفية = 6.96:1.
+          التباين: كل نص هنا #94a3b8 على #0f172a = 6.96:1 (حد AA للنص العادي 4.5:1).
         */}
-        <div className="container mx-auto max-w-[1280px] px-6 py-4 flex flex-col sm:flex-row justify-between gap-2 text-[11px] text-[#94a3b8]">
-          <span>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة - منصة تعليمية مجانية بالكامل، بلا إعلانات</span>
-          <span className="flex items-center gap-2">
-            <span className="size-1.5 rounded-full bg-[#22c55e] animate-pulse" aria-hidden="true" />
-            تصميم عصري - خطوط مجانية
-          </span>
+        <div className="container mx-auto flex max-w-[1280px] flex-col gap-6 px-6 py-6 text-[12px] text-[#94a3b8] lg:flex-row lg:items-center lg:justify-between">
+          <nav className="flex flex-wrap items-center gap-2" aria-label="حسابات ميزان الرقمية على مواقع التواصل">
+            <a href="https://www.instagram.com/mizan.page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إنستغرام" title="إنستغرام" className="grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <Instagram size={16} aria-hidden="true" />
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61593607157317" target="_blank" rel="noopener noreferrer" aria-label="صفحة ميزان الرقمية على فيسبوك" title="فيسبوك" className="grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <Facebook size={16} aria-hidden="true" />
+            </a>
+            <a href="https://www.tiktok.com/@mizan_page" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على تيك توك" title="تيك توك" className="grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <TikTokIcon size={16} />
+            </a>
+            <a href="https://www.pinterest.com/mohamedredayassinn/" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على بنترست" title="بنترست" className="grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <PinterestIcon size={16} />
+            </a>
+            <a href="https://x.com/MIZANPAGE" target="_blank" rel="noopener noreferrer" aria-label="حساب ميزان الرقمية على إكس" title="إكس" className="grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <XIcon size={16} />
+            </a>
+            <a href="https://whatsapp.com/channel/0029Vb97ZZE23n3WE7R6Tf1m" target="_blank" rel="noopener noreferrer" aria-label="قناة ميزان الرقمية على واتساب" title="واتساب" className="grid size-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20">
+              <WhatsAppIcon size={16} />
+            </a>
+          </nav>
+
+          <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-6 lg:gap-y-2">
+            <p>© {new Date().getFullYear()} ميزان الرقمية — جميع الحقوق محفوظة</p>
+            <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <li><Link to="/terms" className="transition-colors hover:text-white">الشروط</Link></li>
+              <li><Link to="/privacy" className="transition-colors hover:text-white">الخصوصية</Link></li>
+              <li><Link to="/cookies" className="transition-colors hover:text-white">الكوكيز</Link></li>
+              <li><Link to="/guidelines" className="transition-colors hover:text-white">إرشادات المجتمع</Link></li>
+              <li><a href="/sitemap.xml" className="transition-colors hover:text-white">خريطة الموقع</a></li>
+              <li><a href="/feed.xml" className="transition-colors hover:text-white">RSS</a></li>
+            </ul>
+          </div>
         </div>
       </div>
     </footer>
