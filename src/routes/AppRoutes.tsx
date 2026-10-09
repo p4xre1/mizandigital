@@ -71,6 +71,7 @@ const TermPage = lazy(() => import("@/pages/public/TermPage").then((m) => ({ def
 const AboutPage = lazy(() => import("@/pages/public/AboutPage").then((m) => ({ default: m.AboutPage })))
 const ContactPage = lazy(() => import("@/pages/public/ContactPage").then((m) => ({ default: m.ContactPage })))
 const FAQPage = lazy(() => import("@/pages/public/FAQPage").then((m) => ({ default: m.FAQPage })))
+const HelpPage = lazy(() => import("@/pages/public/HelpPage"))
 const PrivacyPolicyPage = lazy(() =>
   import("@/pages/public/PrivacyPolicyPage").then((m) => ({ default: m.PrivacyPolicyPage }))
 )
@@ -166,7 +167,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="/careers" element={<CareersPage />} /><Route path="/careers/:slug" element={<CareerDetailWrapper />} />
           <Route path="/quiz/careers" element={<CareerQuizHubPage />} /><Route path="/quiz/careers/:careerSlug" element={<CareerQuizWrapper />} /><Route path="/quiz/careers/:careerSlug/practice/:competitionId" element={<CareerPracticeWrapper />} />
           <Route path="/lexicon" element={<LexiconPage />} /><Route path="/lexicon/:slug" element={<TermWrapper />} /><Route path="/platform" element={<PlatformPage />} /><Route path="/guides/free-legal-resources-morocco" element={<FreeLegalResourcesPage />} /><Route path="/guides/new-law-student-morocco" element={<NewLawStudentGuidePage />} />
-          <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<Navigate to="/pricing" replace />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
+          <Route path="/about" element={<AboutPage />} /><Route path="/contact" element={<ContactPage />} /><Route path="/faq" element={<FAQPage />} /><Route path="/help" element={<HelpPage />} /><Route path="/privacy" element={<PrivacyPolicyPage />} /><Route path="/cookies" element={<CookiePolicyPage />} /><Route path="/terms" element={<TermsPage />} /><Route path="/payments" element={<Navigate to="/pricing" replace />} /><Route path="/pricing" element={<PricingPage />} /><Route path="/saved" element={<SavedContentPage />} /><Route path="/guidelines" element={<GuidelinesPage />} /><Route path="*" element={<NotFound />} />
         </Route>
         {/* صفحة المصادقة الموحّدة (Supabase Auth) تتكفّل بتحويل المستخدم
             المسجّل إلى وجهته: /admin/dashboard للإدارة و/profile للبقية. */}

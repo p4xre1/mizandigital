@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom"
 import { Header, Footer } from "./PublicNavigation"
+import HelpAssistant from "@/components/help/HelpAssistant"
 
 export default function PublicLayout({
   theme,
@@ -27,6 +28,8 @@ export default function PublicLayout({
       <Outlet />
 
       <Footer />
+
+      <HelpAssistant />
     </div>
   )
 }
