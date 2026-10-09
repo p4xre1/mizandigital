@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { safeRedirectPath, safeRedirectUrl } from "@/lib/auth/safeRedirect"
 import { describeAuthError } from "@/lib/auth/AuthProvider"
@@ -19,6 +19,7 @@ import { AEOHead } from "@/components/seo/AEOHead"
 import { canonicalFor } from "@/lib/canonical"
 import { RANKS } from "@/lib/quiz/ranks"
 import { INPUT_LIMITS, validateDisplayName, validateUsername } from "@/lib/security/inputGuard"
+import { checkSignupRisk } from "@/lib/security/signupRisk"
 import {
   POLICY_VERSION,
   captureConsent,
@@ -88,6 +89,10 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
   const [username, setUsername] = useState("")
+  // Honeypot: hidden from humans, so any value here means a bot filled the form.
+  const [website, setWebsite] = useState("")
+  // When the form was first shown. The sign-up risk check uses it to catch instant submits.
+  const formStartedAt = useRef<number>(Date.now())
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -206,6 +211,21 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
       if (nameCheck && !nameCheck.ok) {
         setLoading(false)
         setError("الاسم الكامل غير صالح (2-50 حرفاً، بلا رموز).")
+        return
+      }
+
+      // Algorithm 1 (account-creation risk): the server decides; see
+      // shared/security/signup-risk.js. A failed check is treated as "allow".
+      const risk = await checkSignupRisk({
+        email,
+        username: chosenUsername || undefined,
+        fullName: nameCheck?.value ?? fullName.trim(),
+        formStartedAt: formStartedAt.current,
+        website,
+      })
+      if (risk.action === "block") {
+        setLoading(false)
+        setError(risk.message ?? "تعذّر إنشاء الحساب الآن. حاول لاحقاً.")
         return
       }
 
@@ -408,6 +428,20 @@ export default function LoginPage({ onNavigate }: LoginPageProps) {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {mode === "signup" && !isRecovery && (
               <>
+                {/* Honeypot (Algorithm 1): hidden from people and screen readers. */}
+                <div aria-hidden="true" className="sr-only">
+                  <label htmlFor="website">لا تملأ هذا الحقل</label>
+                  <input
+                    id="website"
+                    name="website"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={website}
+                    onChange={(event) => setWebsite(event.target.value)}
+                  />
+                </div>
+
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground" htmlFor="fullName">
                     الاسم الكامل

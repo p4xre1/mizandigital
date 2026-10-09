@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import {
   Scale,
   Plus,
@@ -23,6 +23,9 @@ import EmptyState from "../../components/ui/EmptyState"
 import { PdfDropzone } from "../../components/features/PdfDropzone"
 import { supabase } from "../../lib/supabase/client"
 import { generateSlug } from "../../lib/utils/generateSlug"
+import { extractFirstPagesText } from "../../lib/pdf/firstPageText"
+// Algorithm 2 (law drop → landing page). See shared/laws/drop-publish.js.
+import { planLawDrop, type LawDropPlan } from "../../../shared/laws/drop-publish.js"
 import type { Category } from "../../types/cms"
 
 export interface Law {
@@ -98,6 +101,11 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
   // مصدر ملف الـ PDF: رفع ملف مباشرة إلى المستودع، أو لصق رابط خارجي جاهز
   const [pdfSource, setPdfSource] = useState<"upload" | "link">("link")
   const [pdfFile, setPdfFile] = useState<File | null>(null)
+  // نتيجة خوارزمية الإيداع: تُحسب فور إفلات الملف، وتملأ الحقول الفارغة فقط.
+  const [dropPlan, setDropPlan] = useState<LawDropPlan | null>(null)
+  const [dropScanning, setDropScanning] = useState<boolean>(false)
+  // يمنع نتيجة ملف قديم من الكتابة فوق ملف أُفلت بعده.
+  const dropTokenRef = useRef<number>(0)
   const [uploadingFile, setUploadingFile] = useState<boolean>(false)
 
   useEffect(() => {
@@ -141,6 +149,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     setCategoryId("")
     setPdfSource("link")
     setPdfFile(null)
+    setDropPlan(null)
     setFormModalOpen(true)
   }
 
@@ -158,7 +167,51 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     setCategoryId(law.category_id || "")
     setPdfSource("link")
     setPdfFile(null)
+    setDropPlan(null)
     setFormModalOpen(true)
+  }
+
+  /**
+   * Algorithm 2 trigger: a PDF was dropped in the archive form.
+   * 1) Read the first pages (fails quietly: the file name alone still works).
+   * 2) Plan the record. 3) Fill only the EMPTY fields, never overwrite typed values.
+   */
+  const handlePdfFileSelect = async (file: File | null) => {
+    const token = ++dropTokenRef.current
+    setPdfFile(file)
+    setDropPlan(null)
+    if (!file) {
+      setDropScanning(false)
+      return
+    }
+
+    setDropScanning(true)
+    const isPdf = file.name.toLowerCase().endsWith(".pdf")
+    let text = ""
+    if (isPdf) {
+      try {
+        text = await extractFirstPagesText(file)
+      } catch (err) {
+        console.warn("تعذّر قراءة نص الملف؛ سيُعتمد اسم الملف فقط:", err)
+      }
+    }
+    if (token !== dropTokenRef.current) return
+
+    const plan = planLawDrop({
+      fileName: file.name,
+      text,
+      existing: laws.filter((law) => law.id !== editingLaw?.id),
+      today: new Date().toISOString().slice(0, 10),
+    })
+    setDropPlan(plan)
+    setDropScanning(false)
+
+    if (!title.trim() && plan.fields.title) setTitle(plan.fields.title)
+    if (!lawNumber.trim() && plan.fields.law_number) setLawNumber(plan.fields.law_number)
+    if (!officialGazetteNumber.trim() && plan.fields.official_gazette_number) {
+      setOfficialGazetteNumber(plan.fields.official_gazette_number)
+    }
+    if (!publicationDate && plan.fields.publication_date) setPublicationDate(plan.fields.publication_date)
   }
 
   const handleSaveLaw = async (e: React.FormEvent) => {
@@ -169,6 +222,11 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
     }
     if (pdfSource === "upload" && !pdfFile && !editingLaw?.pdf_url) {
       setFormError("يرجى اختيار ملف PDF لرفعه.")
+      return
+    }
+    // Algorithm 2: a duplicate is never saved as a new row. Edit the existing one.
+    if (dropPlan?.status === "duplicate") {
+      setFormError(dropPlan.message)
       return
     }
 
@@ -644,7 +702,7 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                     />
                   ) : (
                     <div className="space-y-1.5">
-                      <PdfDropzone file={pdfFile} onFileSelect={(file) => setPdfFile(file)} />
+                      <PdfDropzone file={pdfFile} onFileSelect={handlePdfFileSelect} />
                       {editingLaw?.pdf_url && !pdfFile && (
                         <p className="text-[11px] text-muted-foreground">
                           يوجد ملف مرفوع حالياً؛ اختر ملفاً جديداً هنا لاستبداله، أو اترك الحقل فارغاً للإبقاء عليه.
@@ -652,6 +710,40 @@ export function LawsPage({ onNavigate, currentPath = "/admin/laws" }: LawsPagePr
                       )}
                       {uploadingFile && (
                         <p className="text-[11px] font-semibold text-primary">جاري رفع الملف...</p>
+                      )}
+                      {dropScanning && (
+                        <p className="text-[11px] font-semibold text-primary">جاري قراءة الملف لاستخراج البيانات...</p>
+                      )}
+                      {dropPlan && (
+                        <div
+                          role="status"
+                          aria-live="polite"
+                          className={`rounded-xl border p-3 text-[11px] leading-5 ${
+                            dropPlan.status === "ready"
+                              ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-200"
+                              : dropPlan.status === "duplicate"
+                                ? "border-rose-300 bg-rose-50 text-rose-900 dark:bg-rose-950/20 dark:text-rose-200"
+                                : "border-amber-300 bg-amber-50 text-amber-900 dark:bg-amber-950/20 dark:text-amber-200"
+                          }`}
+                        >
+                          <p className="font-bold">
+                            {dropPlan.status === "ready"
+                              ? "جاهز للنشر"
+                              : dropPlan.status === "duplicate"
+                                ? "نص مكرر"
+                                : "يحتاج مراجعة"}
+                          </p>
+                          <p>{dropPlan.message}</p>
+                          {dropPlan.status !== "duplicate" && dropPlan.checks.some((c) => !c.ok && c.message) && (
+                            <ul className="mt-1 list-disc pr-4">
+                              {dropPlan.checks
+                                .filter((c) => !c.ok && c.message)
+                                .map((c) => (
+                                  <li key={c.code}>{c.message}</li>
+                                ))}
+                            </ul>
+                          )}
+                        </div>
                       )}
                     </div>
                   )}
