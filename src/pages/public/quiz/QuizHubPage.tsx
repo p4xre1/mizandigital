@@ -1,6 +1,8 @@
 import { useMemo } from "react"
+import { getDueCount } from "../../../lib/learning/reviewStore"
 import { Link } from "react-router-dom"
 import {
+  BookMarked,
   GraduationCap,
   Shuffle,
   ShieldCheck,
@@ -29,6 +31,8 @@ import { BADGE_BY_ID } from "../../../lib/quiz/ranks"
 export function QuizHubPage() {
   const { questions, loading } = useQuizQuestions()
   const { rank, rankProgress, stats, xp, credits, badges, streakDays, placementCompleted } = useQuizProgress()
+  // عدد الأسئلة المستحقة للمراجعة (من التخزين المحلي، يُحسب عند فتح الصفحة)
+  const dueCount = useMemo(() => getDueCount(), [])
 
   const counts = useMemo(() => {
     const result = { university: 0, general: 0, concours: 0, interview: 0 }
@@ -64,6 +68,22 @@ export function QuizHubPage() {
         keywords={["اختبارات قانونية", "مباريات الأمن الوطني", "اختبارات القانون المغربي", "concours Maroc", "تدريب محاماة"]}
         schema={schema}
       />
+
+      {/* مراجعة اليوم: أسئلة حان موعد مراجعتها (التكرار المتباعد) */}
+      {dueCount > 0 && (
+        <Link
+          to="/quiz/review"
+          className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-primary/40 bg-primary/5 p-4 transition hover:border-primary"
+        >
+          <span className="flex items-center gap-3">
+            <BookMarked className="size-5 text-primary" aria-hidden="true" />
+            <span className="text-[13.5px] font-extrabold text-foreground">
+              لديك {dueCount} سؤالاً مستحقاً للمراجعة اليوم
+            </span>
+          </span>
+          <ArrowLeft className="size-4 text-primary" aria-hidden="true" />
+        </Link>
+      )}
 
       {/* الترويسة */}
       <section className="rounded-3xl border border-border bg-gradient-to-l from-primary/10 via-card to-accent-gold/10 p-6 sm:p-8">

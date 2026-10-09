@@ -8,16 +8,19 @@ import { QuizRunner } from "../../../components/quiz/QuizRunner"
 import { RankBadge } from "../../../components/quiz/RankBadge"
 import { useQuizQuestions } from "../../../hooks/useQuizQuestions"
 import { useQuizProgress } from "../../../hooks/useQuizProgress"
-import { buildPlacementPool } from "../../../lib/quiz/engine"
 import { saveAttempt } from "../../../lib/quiz/repository"
 import { getRankDefinition } from "../../../lib/quiz/ranks"
 
 /** الرتبة الابتدائية عند اختيار تخطي الاختبار. */
 const SKIP_RANK = "A"
 
+/** أسئلة التدريب على المقابلات لا تقيس المستوى القانوني، فتُستبعد من التحديد. */
+const PLACEMENT_TIERS = new Set(["general", "university", "concours"])
+
 /**
- * اختبار تحديد المستوى (/quiz/placement) على طريقة تطبيقات تعلّم اللغات:
- * 15 سؤالاً ممزوجة تتدرج من الأسهل إلى الأصعب، وتُتوج برتبة ابتدائية.
+ * اختبار تحديد المستوى (/quiz/placement) متكيّف: يبدأ بسؤال متوسط، ثم يختار
+ * كل سؤال تالٍ حسب إجاباتك السابقة (نموذج Rasch). ينتهي بعد 8 إلى 15 سؤالاً
+ * حين يصبح تقدير مستواك دقيقاً بما يكفي، وتُتوج النتيجة برتبة ابتدائية.
  * يمكن لأي زائر تخطيه مجاناً إذا لم يرغب في إجرائه.
  */
 export function PlacementQuizPage() {
@@ -27,7 +30,8 @@ export function PlacementQuizPage() {
   const [started, setStarted] = useState(false)
   const [skipDone, setSkipDone] = useState(false)
 
-  const pool = useMemo(() => buildPlacementPool(questions), [questions])
+  // بنك التحديد الكامل (لا مجموعة ثابتة): المحرك يختار منه تكيّفياً
+  const pool = useMemo(() => questions.filter((q) => PLACEMENT_TIERS.has(q.tier)), [questions])
 
   const handleSkip = () => {
     skipToPlacement(SKIP_RANK, getRankDefinition(SKIP_RANK).minXp)
@@ -37,14 +41,14 @@ export function PlacementQuizPage() {
   if (started) {
     return (
       <main className="container-wide py-10" dir="rtl">
-        <SEOHead title="اختبار تحديد المستوى" description="15 سؤالاً تحدد رتبتك الابتدائية في ميزان." />
+        <SEOHead title="اختبار تحديد المستوى" description="اختبار متكيّف يحدد رتبتك الابتدائية في ميزان." />
         <QuizRunner
           questions={pool}
           mode="placement"
           label="اختبار تحديد المستوى"
           tier="mixed"
-          questionCount={Math.min(15, pool.length)}
           placement
+          adaptive
           onExit={() => setStarted(false)}
           onComplete={(attempt) => void saveAttempt(attempt, profile?.username ?? null)}
         />
@@ -56,7 +60,7 @@ export function PlacementQuizPage() {
     <main className="container-wide py-10" dir="rtl">
       <SEOHead
         title="اختبار تحديد المستوى — حدد رتبتك في 5 دقائق"
-        description="15 سؤالاً متدرجة تحدد مستواك الابتدائي في القانون المغربي وتمنحك الرتبة التي تناسبك، مع خيار مجاني لتخطي الاختبار."
+        description="اختبار متكيّف من 8 إلى 15 سؤالاً يحدد مستواك الابتدائي في القانون المغربي ويمنحك الرتبة التي تناسبك، مع خيار مجاني لتخطي الاختبار."
         canonicalUrl={canonicalFor("/quiz/placement")}
         keywords={["تحديد المستوى القانوني", "placement test law", "رتبة ميزان"]}
         schema={[
@@ -82,14 +86,14 @@ export function PlacementQuizPage() {
         </span>
         <h1 className="text-2xl font-black text-foreground">اختبار تحديد المستوى</h1>
         <p className="mt-2 max-w-2xl text-[14px] leading-7 text-muted-foreground">
-          خمسة عشر سؤالاً فقط تكفي ليرسم النظام صورة دقيقة عن مستواك: نبدأ بأسئلة سهلة في الثقافة
-          القانونية، ثم نصعد تدريجياً حتى نصل إلى مستوى مباريات القضاء. في النهاية تمنحك المنصة
-          الرتبة الابتدائية المناسبة وتبني عليها.
+          بين ثمانية وخمسة عشر سؤالاً تكفي ليرسم النظام صورة دقيقة عن مستواك: يبدأ الاختبار بسؤال متوسط،
+          ثم يختار لك كل سؤال تالٍ حسب إجاباتك، فتنتقل إلى أسئلة أصعب أو أسهل بحسب أدائك، حتى يستقر التقدير.
+          في النهاية تمنحك المنصة الرتبة الابتدائية المناسبة وتبني عليها.
         </p>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
-            { icon: Clock, title: "5 دقائق", text: "15 سؤالاً متدرجة بلا عدّاد زمني — خذ وقتك في التفكير." },
+            { icon: Clock, title: "5 دقائق", text: "من 8 إلى 15 سؤالاً بلا عدّاد زمني — خذ وقتك في التفكير." },
             { icon: Sparkles, title: "رتبة ابتدائية فورية", text: "من D إلى A بحسب نتيجتك، وتُبنى عليها كل الاختبارات اللاحقة." },
             { icon: Sparkles, title: "خيار التجاوز", text: "يمكنك تخطي الاختبار مجاناً والبدء مباشرة." },
           ].map((item) => (
