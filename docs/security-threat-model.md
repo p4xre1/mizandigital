@@ -77,7 +77,7 @@ Each row links to the status table in `docs/security-controls-matrix.md`.
 | T17 | Help-assistant rules readable from the public admin JS chunk | Admin page calls `POST /api/admin/help/validate` and `/preview`; rule modules are no longer imported by the client | `tests/admin-chunk-no-rules.test.ts` (static and built chunk). Local build only; NOT run in production |
 | T18 | Anyone lists or downloads résumé files from the public `cv-files` bucket (names, phones, emails, including unpublished) | Migration `20261011000000_cv_files_private_bucket.sql`: private bucket, owner-folder read, published-only read via `cv_object_is_published`. UI uses 1-hour signed URLs (`cvSignedUrl`) | PGlite suite `tests/security-storage-cv.test.ts` (9/9). **Migration NOT applied to any environment. No live test. Needs explicit approval. HIGH** |
 | T19 | Payment-risk rules (`shared/billing/risk.js`) readable in the public admin chunk | None yet. Planned: server-side admin endpoint | **Open.** See `docs/security-algorithm-protection.md` |
-| T20 | Quiz XP and credits set from the browser | None. Not server-authoritative | **Open.** Needs a product decision |
+| T20 | Quiz XP, credits, badges, and streak written directly from the browser to `mizan_profiles` | None yet. Decided: move awards to server RPCs and revoke client column writes (plan in `docs/security-algorithm-protection.md` §4) | **Open.** Not started |
 | T21 | Permissions the site does not use (payment, USB, serial, Bluetooth, interest-cohort) granted to embedded or injected content | `public/_headers` Permissions-Policy denies them | Static test in `tests/csp.test.ts`; live headers NOT checked |
 
 ## 6. Out of scope or not yet assessed
@@ -107,7 +107,7 @@ These were **not** fully reviewed in this pass. Do not assume they are safe.
 - The translation endpoint can still generate provider cost within its per-IP limit.
 - Users behind shared IPs can share rate-limit budgets.
 - A single compromised admin account can change CMS content for all visitors.
-- CV-01 is **not yet live**. Until its migration is applied, anyone can still list the `cv-files` bucket. Rolling the migration back re-opens that leak. A rollback needs an explicit written decision.
+- CV-01 is **not yet live**. Until its migration is applied, anyone can still list the `cv-files` bucket. The migration has no rollback to the public bucket (owner decision); any fix is a forward migration.
 
 ## 9. Review triggers
 

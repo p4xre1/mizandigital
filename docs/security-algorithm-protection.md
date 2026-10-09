@@ -54,7 +54,20 @@ Acceptance check for Class 2 and 3 is a literal search over `dist/` (section 5).
   remove the `shared/billing/risk.js` import from `FraudPreventionPage.tsx`. Needs test coverage
   and a decision on the response shape. **Not implemented in this pass.**
 - **`drop-publish.js`** is accepted as Class 1 for now. Re-classify if it starts gating publication.
-- **XP and credits** (quiz and learning progress) are not server-authoritative. Needs a user decision.
+- **XP, credits, badges, streak (decided: make server-authoritative, separate change, not started).**
+  Today `src/lib/profiles/service.ts` writes `xp`, `credits`, `badges`, `streak_days`, and
+  `placement_completed` straight to `mizan_profiles` (upsert and update). The "never lower XP"
+  rule is a client-side `Math.max`, which is not authorization. A quiz attempt already goes
+  through the RPC `submit_quiz_attempt`, and a trigger derives rank from XP.
+  Plan:
+  1. Audit `submit_quiz_attempt` and every path that credits XP, credits, or badges.
+  2. Add a server function or RPC for each award. It validates the award against the stored attempt.
+  3. Revoke direct client `UPDATE` on those columns (column-level grant or a trigger that rejects
+     changes not made by the RPC). Keep owner read.
+  4. Keep the client sync as a read-and-display path, and remove the client-side write.
+  5. Tests: PGlite checks that a direct update of `xp` fails for `authenticated`, plus a test that
+     the RPC rejects an inflated award.
+  Rollout needs staging first, then an explicit production decision.
 - **Signup-risk Supabase hook** is not configured. Needs dashboard access and a decision.
 - The bundle checks below run only on a local build. They have **not** been run against production.
 
