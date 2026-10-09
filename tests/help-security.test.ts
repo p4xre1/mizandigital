@@ -149,3 +149,22 @@ describe("التجزئة والترويسات", () => {
     expect(SECURITY_HEADERS["Cache-Control"]).toBe("no-store")
   })
 })
+
+describe("خط المعالجة المشترك (الخادم ولوحة الاختبار)", () => {
+  test("الحقن يُحظر قبل بوابة اللغة حتى لو كان بحروف لاتينية", async () => {
+    const { runPipeline } = await import("../shared/help/pipeline.js")
+    expect(runPipeline("<script>alert(1)</script> كيف أبحث").mode).toBe("blocked")
+    expect(runPipeline("＜ｓｃｒｉｐｔ＞alert(1)＜/ｓｃｒｉｐｔ＞").mode).toBe("blocked")
+  })
+
+  test("الفرنسية تتوقف برسالة اللغة، والعربية تُجاب", async () => {
+    const { runPipeline } = await import("../shared/help/pipeline.js")
+    expect(runPipeline("comment puis-je m'inscrire ?").mode).toBe("unsupported_language")
+    expect(runPipeline("كيف أبحث في الأرشيف؟").mode).toBe("answer")
+  })
+
+  test("إعدادات المشرف المعطّلة تُعيد رسالة التوقف", async () => {
+    const { runPipeline } = await import("../shared/help/pipeline.js")
+    expect(runPipeline("كيف أبحث في الأرشيف؟", { settings: { enabled: false, messages: { disabled: "متوقف" } } })).toMatchObject({ mode: "disabled", answer: "متوقف" })
+  })
+})

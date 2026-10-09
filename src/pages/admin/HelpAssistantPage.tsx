@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react"
 import { Bot, Check, Edit, Loader2, Plus, Save, Search, Shield, Trash2, X } from "lucide-react"
 import ConfirmDeleteModal from "../../components/ui/ConfirmDeleteModal"
 import { helpCms, type HelpQaRow, type HelpSettingsRow } from "../../lib/help/cmsService"
-import { answerQuestion } from "../../../shared/help/answer.js"
+import { runPipeline } from "../../../shared/help/pipeline.js"
 import {
   DEFAULT_MESSAGES,
   MAX_ANSWER_CHARS,
@@ -99,7 +99,7 @@ export default function HelpAssistantPage() {
 
   // اختبار
   const [testQuestion, setTestQuestion] = useState("")
-  const [testResult, setTestResult] = useState<ReturnType<typeof answerQuestion> | null>(null)
+  const [testResult, setTestResult] = useState<ReturnType<typeof runPipeline> | null>(null)
 
   useEffect(() => {
     void load()
@@ -264,7 +264,8 @@ export default function HelpAssistantPage() {
     const question = testQuestion.trim()
     if (question.length < 2) return
     const customEntries = rows.filter((row) => row.published).map(qaRowToEntry)
-    setTestResult(answerQuestion(question, { customEntries, settings: settingsFromRow(settingsRow) }))
+    // نفس خط المعالجة الذي يراه الزائر (بدون حصة ولا سجل أمني).
+    setTestResult(runPipeline(question, { customEntries, settings: settingsFromRow(settingsRow) }))
   }
 
   const draftQuestionLength = draft?.question.length ?? 0

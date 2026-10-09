@@ -7,7 +7,6 @@
 //   • سجل أمني منظّم بلا نص السؤال (لا تُخزَّن أسئلة الزوار في السجلات).
 //   • تجزئة معرّفات المستخدم في السجل بدل كشفها.
 
-import { isSafeInternalPath } from "../../shared/help/cms.js"
 
 /** ترويسات تُضاف إلى كل رد من المساعد، ناجحاً كان أو خاطئاً. */
 export const SECURITY_HEADERS = {
@@ -93,24 +92,8 @@ export async function readBoundedText(request, maxBytes) {
 }
 
 /** أنماط ممنوعة في أي جواب يصل إلى الزائر، حتى لو كان من المحتوى المعتمد. */
-const UNSAFE_OUTPUT_PATTERNS = [/[<>]/, /javascript\s*:/i, /data\s*:\s*text\/html/i, /\bon[a-z]{3,}\s*=/i]
-
-/**
- * فحص الخرج قبل الإرسال. إن وُجد ما يُخالف السياسة يُستبدل الجواب بنص الحظر،
- * وتُحذف أي مصادر ليست مساراً داخلياً آمناً.
- * @param {{ mode: string, answer: string, sources: Array<{title: string, url: string}>, reason?: string }} result
- * @param {string} blockedText
- */
-export function sanitizeAnswerResult(result, blockedText) {
-  const sources = (result.sources || []).filter(
-    (source) => source && typeof source.title === "string" && isSafeInternalPath(source.url),
-  )
-  const unsafe = UNSAFE_OUTPUT_PATTERNS.some((re) => re.test(String(result.answer || "")))
-  if (unsafe) {
-    return { mode: "blocked", answer: blockedText, sources: [], reason: "unsafe_output" }
-  }
-  return { ...result, sources }
-}
+// فحص الخرج معرّف في shared/help/pipeline.js ليشترك فيه الخادم ولوحة الاختبار.
+export { sanitizeAnswerResult } from "../../shared/help/pipeline.js"
 
 /** تجزئة قصيرة وغير قابلة للعكس لمعرّف في السجل (SHA-256 مقتطع). */
 export async function shortHash(value) {
