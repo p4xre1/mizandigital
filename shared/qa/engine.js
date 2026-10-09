@@ -120,7 +120,11 @@ export function createEngine({ data, config } = {}) {
 let defaultEngine = null
 
 /** المحرك الافتراضي ببيانات المستودع. يُبنى عند أول استعمال فقط. */
-export function answerLegalQuestion(raw, options = {}) {
+export function getDefaultEngine() {
   defaultEngine ??= createEngine()
-  return defaultEngine.answer(raw, options)
+  return defaultEngine
+}
+
+export function answerLegalQuestion(raw, options = {}) {
+  return getDefaultEngine().answer(raw, options)
 }

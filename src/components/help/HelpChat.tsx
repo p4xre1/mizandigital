@@ -2,12 +2,23 @@ import { useRef, useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Loader2, Send } from "lucide-react"
 import { useAuth } from "../../lib/auth/AuthProvider"
+import { interpretPendingReply } from "../../../shared/help/clarify-state.js"
 
 type Source = { title: string; url: string }
 type Quota = { limit: number; remaining: number }
+/** اختيار يعرضه التوضيح. المعرّف فقط يُرسل إلى الخادم، والنص للعرض. */
+type Choice = { id: string; label: string }
+type Clarification = { kind: string; explanation: string; suggestion: string | null; choices: Choice[] }
 type Message =
-  | { role: "user"; text: string }
-  | { role: "assistant"; text: string; sources: Source[]; mode: string }
+  | { id: number; role: "user"; text: string }
+  | { id: number; role: "assistant"; text: string; sources: Source[]; mode: string; clarification?: Clarification }
+/**
+ * توضيح معلّق، منفصل عن الرسائل: السؤال الأصلي، والسؤال السابق (للسياق)، والرسالة التي تعرض الأزرار.
+ * يُمسح عند أي سؤال جديد، وعند تحديث الصفحة (لا يُحفظ).
+ */
+type Pending = { original: string; previousQuestion: string | null; messageId: number; clarification: Clarification }
+/** Omit موزَّع على اتحاد الرسائل، حتى يبقى كل فرع بحقوله. */
+type NewMessage = Message extends infer M ? (M extends unknown ? Omit<M, "id"> : never) : never
 
 const STARTERS = [
   "كيف أبحث في الأرشيف؟",
@@ -21,6 +32,18 @@ const SESSION_EXPIRED = "انتهت جلستك. سجّل الدخول من جد�
 const DAILY_LIMIT_REACHED = "استنفدت حصة اليوم من الأسئلة. حاول مرة أخرى غداً."
 const ACCOUNT_RESTRICTED = "حسابك غير مفعّل لاستعمال المساعد. راجع إدارة الموقع إن كان هذا خطأ."
 const TOO_FAST = "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم حاول مجدداً."
+const SELECTION_REQUIRED = "اختر أحد الخيارات المعروضة أعلاه، أو اكتب سؤالك من جديد."
+
+/** تحقق من شكل بيانات التوضيح قبل عرضها. أي شكل غير متوقع يُهمل. */
+function asClarification(value: unknown): Clarification | undefined {
+  if (!value || typeof value !== "object") return undefined
+  const v = value as Partial<Clarification>
+  if (typeof v.kind !== "string" || typeof v.explanation !== "string" || !Array.isArray(v.choices)) return undefined
+  const choices = v.choices.filter(
+    (c): c is Choice => !!c && typeof c.id === "string" && typeof c.label === "string",
+  )
+  return { kind: v.kind, explanation: v.explanation, suggestion: typeof v.suggestion === "string" ? v.suggestion : null, choices }
+}
 
 /** الروابط الداخلية تمر عبر الراوتر، وروابط الملفات العامة (مثل RSS) تُفتح كرابط عادي. */
 function SourceLink({ source }: { source: Source }) {
@@ -38,6 +61,52 @@ function SourceLink({ source }: { source: Source }) {
 }
 
 /**
+ * رسالة توضيح: شرح قصير، والصياغة المقترحة مع السؤال الإلزامي، وأزرار الاختيار.
+ * الأزرار تظهر للرسالة المعلّقة فقط، فإذا اختير شيء أو سُئل سؤال جديد تختفي.
+ */
+function ClarificationBubble({
+  clarification,
+  text,
+  active,
+  disabled,
+  onChoose,
+}: {
+  clarification: Clarification
+  text: string
+  active: boolean
+  disabled: boolean
+  onChoose: (choice: { choice: string; label: string }) => void
+}) {
+  const suggested = clarification.choices.find((c) => c.id === "suggested")
+  const others = clarification.choices.filter((c) => c.id !== "suggested")
+  return (
+    <div className="max-w-[90%] space-y-2 rounded-2xl border border-border bg-card px-3 py-2 text-sm leading-7" aria-label="توضيح مطلوب">
+      <p>{clarification.explanation}</p>
+      {clarification.suggestion && (
+        <p className="rounded-xl bg-muted/40 px-3 py-2 font-semibold">«{clarification.suggestion}»</p>
+      )}
+      {clarification.suggestion && <p>هل هذا ما تقصد السؤال عنه؟</p>}
+      {active && clarification.choices.length > 0 && (
+        <div role="group" aria-label="اختر المقصود" className="flex flex-wrap gap-2">
+          {[suggested, ...others].filter((c): c is Choice => Boolean(c)).map((choice) => (
+            <button
+              key={choice.id}
+              type="button"
+              disabled={disabled}
+              onClick={() => onChoose({ choice: choice.id, label: choice.label })}
+              className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted disabled:opacity-50"
+            >
+              {choice.label}
+            </button>
+          ))}
+        </div>
+      )}
+      {!active && <p className="sr-only">{text}</p>}
+    </div>
+  )
+}
+
+/**
  * واجهة المحادثة. تُستعمل في الزر العائم وفي صفحة /help.
  * المساعد للمستخدمين المسجّلين فقط: الزائر يرى دعوة لتسجيل الدخول.
  * الطلب يذهب إلى /api/help/chat على نفس النطاق، فلا تُضاف أي نطاقات إلى CSP.
@@ -49,21 +118,42 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
   const [loading, setLoading] = useState(false)
   const [quota, setQuota] = useState<Quota | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [pending, setPending] = useState<Pending | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const nextId = useRef(0)
+  /** آخر سؤال أُجيب عنه: يُرسل سياقاً عند السؤال التالي (مثل: "ما نص هذا الفصل؟"). */
+  const lastAnswered = useRef<string | null>(null)
   const token = session?.access_token
 
-  async function send(text: string) {
-    const question = text.trim()
+  function addMessage(message: NewMessage): number {
+    nextId.current += 1
+    const id = nextId.current
+    setMessages((prev) => [...prev, { ...message, id } as Message])
+    return id
+  }
+
+  /**
+   * إرسال سؤال جديد، أو اختيار من توضيح معلّق (pick). الاختيار يرسل المعرّف فقط،
+   * والسؤال الأصلي من الحالة المعلّقة، فلا يُقبل نص من المتصفح كأنه تأكيد.
+   */
+  async function send(text: string, pick?: { choice: string; label: string }) {
+    const question = (pick && pending ? pending.original : text).trim()
     if (question.length < 2 || loading || !token) return
-    setMessages((prev) => [...prev, { role: "user", text: question }])
+    if (pick && !pending) return
+    const previousQuestion = pick && pending ? pending.previousQuestion : lastAnswered.current
+    addMessage({ role: "user", text: pick ? pick.label : question })
+    setPending(null)
     setInput("")
     setNotice(null)
     setLoading(true)
     try {
+      const body: Record<string, unknown> = { message: question }
+      if (pick) body.clarification = { choice: pick.choice }
+      if (previousQuestion) body.context = { previousQuestion }
       const res = await fetch("/api/help/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ message: question }),
+        body: JSON.stringify(body),
       })
       const data = await res.json().catch(() => null)
 
@@ -80,16 +170,23 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
       } else if (res.status === 429 && data?.error === "daily_limit_reached") {
         setQuota({ limit: data.quota?.limit ?? quota?.limit ?? 0, remaining: 0 })
         setNotice(DAILY_LIMIT_REACHED)
+      } else if (res.ok && data && typeof data.answer === "string" && data.mode === "clarify") {
+        const clarification = asClarification(data.clarification)
+        const id = addMessage({ role: "assistant", text: data.answer, sources: [], mode: "clarify", clarification })
+        // الأزرار المعلّقة تحتاج صياغة مقترحة أو خيارات. بدونها يكفي الشرح، وسؤال المستخدم التالي سؤال جديد.
+        if (clarification && clarification.choices.length > 0) {
+          setPending({ original: question, previousQuestion, messageId: id, clarification })
+        }
       } else if (res.ok && data && typeof data.answer === "string") {
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", text: data.answer, sources: data.sources ?? [], mode: data.mode },
-        ])
+        addMessage({ role: "assistant", text: data.answer, sources: data.sources ?? [], mode: data.mode })
+        if (data.mode === "answer" || data.mode === "not_found" || data.mode === "insufficient") {
+          lastAnswered.current = typeof data.questionUsed === "string" ? data.questionUsed : question
+        }
       } else {
-        setMessages((prev) => [...prev, { role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" }])
+        addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
       }
     } catch {
-      setMessages((prev) => [...prev, { role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" }])
+      addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
     } finally {
       setLoading(false)
       requestAnimationFrame(() => listRef.current?.scrollTo({ top: listRef.current.scrollHeight }))
@@ -98,7 +195,20 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
 
   function onSubmit(event: FormEvent) {
     event.preventDefault()
-    void send(input)
+    const typed = input.trim()
+    if (!pending) {
+      void send(typed)
+      return
+    }
+    // توضيح معلّق: الرد الصريح يُفسَّر تأكيداً أو رفضاً. أي شيء آخر سؤال جديد، والصمت لا يُعد تأكيداً.
+    const reply = interpretPendingReply(pending, typed)
+    if (reply.type === "choice") {
+      void send(typed, { choice: reply.choice, label: typed })
+    } else if (reply.type === "invalid") {
+      setNotice(SELECTION_REQUIRED)
+    } else {
+      void send(typed)
+    }
   }
 
   const header = (
@@ -170,13 +280,22 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
           </div>
         )}
 
-        {messages.map((message, index) =>
+        {messages.map((message) =>
           message.role === "user" ? (
-            <div key={index} className="ms-auto max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground">
+            <div key={message.id} className="ms-auto max-w-[85%] rounded-2xl bg-primary px-3 py-2 text-sm text-primary-foreground">
               {message.text}
             </div>
+          ) : message.clarification ? (
+            <ClarificationBubble
+              key={message.id}
+              clarification={message.clarification}
+              text={message.text}
+              active={pending?.messageId === message.id}
+              disabled={loading}
+              onChoose={(choice) => void send(pending?.original ?? "", choice)}
+            />
           ) : (
-            <div key={index} className="max-w-[90%] space-y-2 rounded-2xl border border-border bg-card px-3 py-2 text-sm leading-7">
+            <div key={message.id} className="max-w-[90%] space-y-2 rounded-2xl border border-border bg-card px-3 py-2 text-sm leading-7">
               <p>{message.text}</p>
               {message.sources.length > 0 && (
                 <ul className="space-y-1">
@@ -209,7 +328,7 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
           onChange={(event) => setInput(event.target.value)}
           maxLength={500}
           disabled={exhausted}
-          placeholder={exhausted ? "انتهت حصة اليوم" : "اكتب سؤالك عن استعمال الموقع…"}
+          placeholder={exhausted ? "انتهت حصة اليوم" : pending ? "أجب بنعم أو لا، أو اكتب سؤالاً جديداً…" : "اكتب سؤالك عن استعمال الموقع…"}
           className="flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-60"
         />
         <button

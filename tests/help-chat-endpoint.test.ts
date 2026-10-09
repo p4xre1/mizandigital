@@ -390,3 +390,84 @@ describe("POST /api/help/chat: الهندسة الاجتماعية والقفل 
     expect(text).not.toContain("category")
   })
 })
+
+describe("POST /api/help/chat: طبقة التوضيح", () => {
+  // خطأ إملائي واضح: يُقترح تصحيحه للتأكيد، ولا يُستبدل صامتاً (انظر clarify.test.ts).
+  const AMBIGUOUS = "ما هو التقاد؟"
+
+  test("توضيح غير صالح (اختيار غير معروف): 400 invalid_clarification", async () => {
+    const res = await call({ message: AMBIGUOUS, clarification: { choice: "option-9" } })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe("invalid_clarification")
+  })
+
+  test("توضيح بمفاتيح زائدة أو بشكل غير كائن: 400", async () => {
+    expect((await call({ message: AMBIGUOUS, clarification: { choice: "suggested", text: "x" } })).status).toBe(400)
+    expect((await call({ message: AMBIGUOUS, clarification: "suggested" })).status).toBe(400)
+    expect((await call({ message: AMBIGUOUS, clarification: { choice: ["suggested"] } })).status).toBe(400)
+  })
+
+  test("سياق بمفاتيح زائدة: 400", async () => {
+    const res = await call({ message: AMBIGUOUS, context: { previousQuestion: "x", extra: 1 } })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe("invalid_clarification")
+  })
+
+  test("السؤال السابق أطول من 500 حرف: 400", async () => {
+    const res = await call({ message: AMBIGUOUS, context: { previousQuestion: "ب".repeat(501) } })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe("invalid_clarification")
+  })
+
+  test("السؤال السابق بأحرف تحكم: 400", async () => {
+    const res = await call({ message: AMBIGUOUS, context: { previousQuestion: "ما حكم\u0007الرهن" } })
+    expect(res.status).toBe(400)
+  })
+
+  test("الطلب الذي يفشل في التحقق من التوضيح لا يستهلك الحصة", async () => {
+    const user = freshUser()
+    expect((await call({ message: AMBIGUOUS, clarification: { choice: "bogus" } }, { user })).status).toBe(400)
+    const res = await call({ message: "كيف أبحث في الأرشيف؟" }, { user })
+    expect((await res.json()).quota.remaining).toBe(19)
+  })
+
+  test("السؤال الغامض يعيد توضيحاً: بلا حقل question، ويستهلك وحدة واحدة من الحصة", async () => {
+    const user = freshUser()
+    const res = await call({ message: AMBIGUOUS }, { user })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.mode).toBe("clarify")
+    expect(data).not.toHaveProperty("question")
+    expect(data.clarification.suggestion).toBe("ما هو التقادم؟")
+    expect(data.clarification.choices.map((c: { id: string }) => c.id)).toContain("explain")
+    expect(data.sources).toEqual([])
+    expect(data.quota).toEqual({ limit: 20, remaining: 19 })
+  })
+
+  test("الاختيار suggested مع السياق يجيب عن الصياغة المقترحة، ويظهر السؤال المستعمل", async () => {
+    const user = freshUser()
+    const first = await (await call({ message: AMBIGUOUS }, { user })).json()
+    const suggested = first.clarification.suggestion
+    const res = await call({ message: AMBIGUOUS, clarification: { choice: "suggested" }, context: { previousQuestion: suggested } }, { user })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.mode).not.toBe("clarify")
+    expect(data.questionUsed).toBe(suggested)
+    expect(data.quota.remaining).toBe(18)
+  })
+
+  test("اختيار متأخر بلا توضيح معلّق (الصفحة حُدّثت): لا يُعامَل كتأكيد، ويعاد توضيح منتهٍ", async () => {
+    const res = await call({ message: "كيف أبحث في الأرشيف؟", clarification: { choice: "suggested" } })
+    expect(res.status).toBe(200)
+    const data = await res.json()
+    expect(data.mode).toBe("clarify")
+    expect(data.clarification.kind).toBe("expired")
+    expect(data.sources).toEqual([])
+  })
+
+  test("طلب توضيح بلا رمز دخول: 401 ولا جواب", async () => {
+    const res = await call({ message: AMBIGUOUS, clarification: { choice: "suggested" } }, { token: "" })
+    expect(res.status).toBe(401)
+    expect((await res.json()).error).toBe("auth_required")
+  })
+})

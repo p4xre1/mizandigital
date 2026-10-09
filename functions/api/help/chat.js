@@ -37,6 +37,7 @@ import {
 import { screenMessage } from "../../../shared/help/guardrails.js"
 import { runPipeline } from "../../../shared/help/pipeline.js"
 import { classifySocialIntent } from "../../../shared/help/conversation.js"
+import { parseClarificationRequest } from "../../../shared/help/clarify-state.js"
 import { DEFAULT_MESSAGES } from "../../../shared/help/cms.js"
 
 /** حد الـIP ضد الإغراق (يحمي من تعدد الحسابات من عنوان واحد). */
@@ -126,6 +127,9 @@ export async function onRequestPost({ request, env }) {
     logSecurityEvent("control_characters", { requestId, userHash })
     return reply({ error: "invalid_characters" }, 400)
   }
+  // حقلان اختياريان للتوضيح: اختيار (معرّف فقط) وسياق (السؤال السابق). أي شكل آخر يُرفض قبل الحصة.
+  const clarification = parseClarificationRequest(parsed)
+  if (!clarification.ok) return reply({ error: "invalid_clarification" }, 400)
 
   // 8) التطبيع والفحص الأولي
   const checked = inspectUserText(raw, { field: "message", maxLength: MAX_MESSAGE_CHARS, minLength: 2 })
@@ -196,7 +200,7 @@ export async function onRequestPost({ request, env }) {
 
   // 11-12) بوابة اللغة، والجواب، والتحقق من الاستشهادات، وحد الطول، وفحص الخرج.
   // كل ذلك في خط معالجة واحد مشترك مع لوحة المعاينة في الإدارة.
-  const result = runPipeline(checked.value, config)
+  const result = runPipeline(checked.value, config, clarification.value)
   if (result.mode === "unsupported_language") {
     return reply({ mode: result.mode, answer: result.answer, sources: [], quota })
   }

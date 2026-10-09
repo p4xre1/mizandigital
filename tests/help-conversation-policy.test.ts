@@ -283,7 +283,9 @@ describe("12: الترميز المعطوب والكتابات المختلطة"
 
   test("علامات التشكيل وحدها لا تُعامل كرسالة عربية صالحة للجواب", () => {
     const r = runPipeline("\u064B\u064B\u064B", config)
-    expect(["not_found", "unsupported_language", "answer"]).toContain(r.mode)
+    // سؤال ناقص: يُطلب توضيحه (بلا خيارات إجابة)، ولا يُجاب عنه.
+    expect(["not_found", "unsupported_language", "answer", "clarify"]).toContain(r.mode)
+    if (r.mode === "clarify") expect((r as { clarification?: { choices: unknown[] } }).clarification?.choices).toEqual([])
   })
 
   test("رسالة طويلة جداً تُعالج بسرعة ولا تنهار", () => {
