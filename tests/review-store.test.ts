@@ -6,6 +6,7 @@ import {
   recordReview,
   todayInMorocco,
 } from "../src/lib/learning/reviewStore"
+import { addDays } from "../shared/learning/spaced-repetition.js"
 
 /** Minimal in-memory localStorage so the store can run under the node test environment. */
 function fakeWindow() {
@@ -27,10 +28,26 @@ describe("review store (browser)", () => {
     vi.unstubAllGlobals()
   })
 
-  test("today is the calendar day in Morocco, not UTC", () => {
-    // 23:30 UTC on 9 October is already 00:30 on 10 October in Morocco (UTC+1 outside Ramadan)
-    expect(todayInMorocco(new Date("2026-10-09T23:30:00Z"))).toBe("2026-10-10")
-    expect(todayInMorocco(new Date("2026-10-09T08:00:00Z"))).toBe("2026-10-09")
+  test("today is the calendar day in Morocco, not the UTC or machine day", () => {
+    // Do not hard-code Morocco's offset: it depends on the runtime's tz data
+    // (CI and local Node can disagree). Compare with Intl for the same zone instead.
+    const casablancaDay = (instant: Date) => {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Africa/Casablanca",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).formatToParts(instant)
+      const get = (type: string) => parts.find((p) => p.type === type)?.value
+      return `${get("year")}-${get("month")}-${get("day")}`
+    }
+    for (const iso of ["2026-10-09T23:30:00Z", "2026-10-09T08:00:00Z", "2026-03-01T23:45:00Z"]) {
+      const instant = new Date(iso)
+      expect(todayInMorocco(instant)).toBe(casablancaDay(instant))
+      // Casablanca is UTC+0 or UTC+1, so its day is the UTC day or the next one.
+      const utcDay = iso.slice(0, 10)
+      expect([utcDay, addDays(utcDay, 1)]).toContain(todayInMorocco(instant))
+    }
   })
 
   test("a question answered correctly is not due on the same day, and is due later", () => {
