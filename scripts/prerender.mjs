@@ -23,6 +23,8 @@ import {
   slugify,
 } from "../shared/seo/url-policy.js";
 import { downloadLinkOf } from "../shared/archive/links.js";
+import { EDITORIAL, SOURCES } from "../shared/seo/editorial.js";
+import { ARCHIVE_GUIDE } from "../shared/seo/archive-guide.js";
 import { ARTICLES_HUB_META, buildArticlesHubSchema } from "../shared/seo/articles-hub.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 import {
@@ -1012,51 +1014,60 @@ ${homeLawArchiveHtml}
     title: "الأرشيف الدراسي | ميزان الرقمية",
     description:
       "أرشيف دراسي لطلبة الحقوق بالمغرب مصنف حسب الفصول S1 إلى S6.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "الأرشيف الدراسي لطلبة الحقوق",
+      description:
+        "أرشيف دراسي لطلبة الحقوق بالمغرب مصنف حسب الفصول S1 إلى S6.",
+      url: absoluteUrl("/archive"),
+      inLanguage: "ar-MA",
+      about: "القانون المغربي",
+      // المؤلف والتاريخ يطابقان البيانات الظاهرة في الصفحة (byline).
+      author: authorSchema,
+      publisher: { "@id": `${DOMAIN}/#organization` },
+      dateModified: `${EDITORIAL.reviewedIso}T00:00:00+01:00`,
+    },
+    extraSchema: [
+      {
+        "@type": "FAQPage",
+        mainEntity: ARCHIVE_GUIDE.faq.items.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: { "@type": "Answer", text: item.answer },
+        })),
+      },
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "الأرشيف الدراسي", path: "/archive" },
+      ]),
+    ],
     staticBody: `
       <main dir="rtl" lang="ar-MA">
         <article>
           <h1>الأرشيف الدراسي لطلبة الحقوق</h1>
+          <p class="byline">${escapeHtml(ARCHIVE_GUIDE.byline)}</p>
 
           <p>
-            <strong>
-              الأرشيف الدراسي هو القسم المخصص لدروس القانون للطلبة، ويتيح الوصول إلى المواد التعليمية
-              حسب الفصول الجامعية من S1 إلى S6.
-            </strong>
+            <strong>${escapeHtml(ARCHIVE_GUIDE.lead)}</strong>
           </p>
 
           <p>
             يجمع الأرشيف الدراسي ملخصات المواد الأساسية لطلبة شعبة القانون
             (الخاص والعمومي) في كليات العلوم القانونية والاقتصادية
-            والاجتماعية بالمغرب: ملخصات المحاضرات، أسئلة الامتحانات مع
-            الأجوبة، ونماذج امتحانات من جامعات مختلفة. كل ملف موضح بطاقته
-            الفصل الدراسي (S1 إلى S6) والمادة والجامعة أو الكلية
-            المنطلقة منها، مع الإشارة إلى النظام (قديم أو جديد) الذي
-            ينتمي إليه.
+            والاجتماعية بالمغرب. كل ملف موضح بطاقته الفصل الدراسي والمادة
+            والجامعة أو الكلية المنطلقة منها.
           </p>
 
           <p>
-            الطريقة المثلى للاستفادة: ابدأ من فصلك الدراسي الحالي،
-            وقارن بين ملفات المادة الواحدة من جامعات مختلفة لتثبيت
-            المنهجية المتوقعة في الامتحان، ثم انتقل إلى النصوص
-            التشريعية ذات الصلة (ظهير الالتزامات والعقود، مدونة
-            التجارة، مدونة الأسرة، القانون الجنائي) عبر قسم
+            الطريقة المثلى للاستفادة: ابدأ من فصلك الدراسي الحالي، وقارن بين
+            ملفات المادة الواحدة من جامعات مختلفة لتثبيت المنهجية المتوقعة في
+            الامتحان، ثم انتقل إلى
             <a href="/archive?semester=${encodeURIComponent("عام")}">النصوص القانونية</a>
             في الأرشيف نفسه، و<a href="/lexicon">القاموس القانوني</a> في المنصة.
           </p>
 
-          <h2>ما هي فصول الأرشيف الدراسي؟</h2>
-
-          <ul>
-            <li><a href="/s1">S1 — الفصل الأول</a></li>
-            <li><a href="/s2">S2 — الفصل الثاني</a></li>
-            <li><a href="/s3">S3 — الفصل الثالث</a></li>
-            <li><a href="/s4">S4 — الفصل الرابع</a></li>
-            <li><a href="/s5">S5 — الفصل الخامس</a></li>
-            <li><a href="/s6">S6 — الفصل السادس</a></li>
-          </ul>
-          <h2>ما الملفات المتاحة في الأرشيف؟</h2>
-
-${renderCrawlList(docPages, { heading: "قائمة ملفات الملخصات والامتحانات" })}
+${renderArchiveGuide()}
         </article>
       </main>
     `,
@@ -2714,8 +2725,8 @@ const countBy = (items, key) => {
 
 // تاريخ آخر مراجعة لمحتوى /quiz (يُعرض في الصفحة وفي المخطط). يُحدَّث يدوياً
 // عند تغيير النص، لا عند كل بناء، حتى لا يصير «آخر تحديث» تاريخ النشر فقط.
-const QUIZ_LAST_REVIEWED = "2026-10-09";
-const QUIZ_LAST_REVIEWED_LABEL = "9 أكتوبر 2026";
+const QUIZ_LAST_REVIEWED = EDITORIAL.reviewedIso;
+const QUIZ_LAST_REVIEWED_LABEL = EDITORIAL.reviewedLabel;
 
 const QUIZ_TIERS = [
   {
@@ -3440,7 +3451,46 @@ function renderNewsStaticHtml(item) {
    الواجهة تظل تعرض بطاقاتها المعتادة بعد hydration.
 ------------------------------------------------------- */
 
-function renderCrawlList(items, { heading, emptyText = "لا توجد عناصر منشورة حالياً." } = {}) {
+/* دليل الأرشيف: الأقسام الخمسة بعناوين أسئلة، ثم الأسئلة الشائعة.
+   النص من shared/seo/archive-guide.js، وهو نفسه ما تعرضه ArchivePage. */
+function renderArchiveGuide() {
+  const g = ARCHIVE_GUIDE;
+  const link = (key) =>
+    `<a href="${SOURCES[key].href}" target="_blank" rel="noopener noreferrer">${escapeHtml(SOURCES[key].name)}</a>`;
+  const legalText = g.legal.parts
+    .map((part) => (typeof part === "string" ? escapeHtml(part) : link(part.source)))
+    .join("");
+
+  return `          <h2>${escapeHtml(g.semesters.title)}</h2>
+          <p>${escapeHtml(g.semesters.intro)}</p>
+          <ul>
+${g.semesters.items
+  .map((s) => `            <li><a href="/archive?semester=${s.code}">${s.code} — ${escapeHtml(s.label)}</a></li>`)
+  .join("\n")}
+          </ul>
+
+          <h2>${escapeHtml(g.files.title)}</h2>
+          <p>${escapeHtml(g.files.text)}</p>
+${renderCrawlList(docPages, { heading: "قائمة ملفات الملخصات والامتحانات", level: 3 })}
+
+          <h2>${escapeHtml(g.search.title)}</h2>
+          <p>${escapeHtml(g.search.text)}</p>
+
+          <h2>${escapeHtml(g.legal.title)}</h2>
+          <p>${legalText}</p>
+          <blockquote>
+            <p>«${escapeHtml(g.legal.quote.text)}»</p>
+            <footer>— <a href="${SOURCES[g.legal.quote.source].href}" target="_blank" rel="noopener noreferrer">${escapeHtml(g.legal.quote.attribution)}</a></footer>
+          </blockquote>
+
+          <h2>${escapeHtml(g.faq.title)}</h2>
+${g.faq.items
+  .map((q) => `          <h3>${escapeHtml(q.question)}</h3>\n          <p>${escapeHtml(q.answer)}</p>`)
+  .join("\n")}
+`;
+}
+
+function renderCrawlList(items, { heading, level = 2, emptyText = "لا توجد عناصر منشورة حالياً." } = {}) {
   const rows = (items || [])
     .filter((item) => item && item.path && item.name)
     .map(
@@ -3454,7 +3504,7 @@ function renderCrawlList(items, { heading, emptyText = "لا توجد عناصر
     .join("\n");
 
   return `
-          <h2>${escapeHtml(heading)}</h2>
+          <h${level}>${escapeHtml(heading)}</h${level}>
 
           <p>
             القائمة الكاملة للعناصر المنشورة، للوصول المباشر من هذه الصفحة:

@@ -7,6 +7,12 @@ import { titledSlugById } from "../../lib/utils/generateSlug"
 import { ContentTags } from "../../components/content/ContentTags"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
+// دليل الأرشيف ومصادره: النص نفسه يُولَّد في HTML الزاحف (scripts/prerender.mjs).
+import { ARCHIVE_GUIDE } from "../../../shared/seo/archive-guide.js"
+import { SOURCES } from "../../../shared/seo/editorial.js"
+
+// فهرس المصادر بمفتاح نصّي: الأجزاء تُحدَّد بمفتاحها من دليل الأرشيف.
+const SOURCE_LINKS: Record<string, { name: string; href: string }> = SOURCES
 // مصدر واحد لمنطق «هل هذا الرابط حقيقي؟»: docs.json يستعمل fileUrl،
 // pdf_summaries يستعمل file_url، وlaws يستعمل pdf_url. كانت كل دالة تطبيع
 // تقرأ حقلاً واحداً فقط، فتظهر بطاقات برابط "#" أو undefined وزرّ تحميل
@@ -411,6 +417,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
           </div>
 
           {/* Catalog Container (Adapts dynamically to Grid or List view) */}
+          <h2 className="sr-only">قائمة الملفات والنصوص</h2>
           {loading ? (
             <div className="flex h-40 items-center justify-center">
               <Loader2 className="size-8 animate-spin text-primary" />
@@ -543,6 +550,71 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
               </button>
             </div>
           )}
+
+          {/* دليل الأرشيف: الأقسام بعناوين أسئلة، ونفس النص في HTML المُولَّد */}
+          <section className="mt-12 space-y-6 border-t border-border pt-8 text-sm leading-relaxed text-foreground">
+            <p className="text-xs text-muted-foreground">{ARCHIVE_GUIDE.byline}</p>
+            <p className="text-base font-semibold">{ARCHIVE_GUIDE.lead}</p>
+
+            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.semesters.title}</h2>
+            <p>{ARCHIVE_GUIDE.semesters.intro}</p>
+            <ul className="list-disc space-y-1 pr-5">
+              {ARCHIVE_GUIDE.semesters.items.map((semester) => (
+                <li key={semester.code}>
+                  <Link to={`/archive?semester=${semester.code}`} className="font-bold text-primary underline underline-offset-2">
+                    {semester.code} — {semester.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.files.title}</h2>
+            <p>{ARCHIVE_GUIDE.files.text}</p>
+
+            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.search.title}</h2>
+            <p>{ARCHIVE_GUIDE.search.text}</p>
+
+            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.legal.title}</h2>
+            <p>
+              {ARCHIVE_GUIDE.legal.parts.map((part, index) =>
+                typeof part === "string" ? (
+                  <span key={index}>{part}</span>
+                ) : (
+                  <a
+                    key={index}
+                    href={SOURCE_LINKS[part.source].href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-bold text-primary underline underline-offset-2"
+                  >
+                    {SOURCE_LINKS[part.source].name}
+                  </a>
+                ),
+              )}
+            </p>
+            <blockquote className="border-r-2 border-primary/40 pr-4">
+              <p>«{ARCHIVE_GUIDE.legal.quote.text}»</p>
+              <footer className="mt-2 text-xs text-muted-foreground">
+                —{" "}
+                <a
+                  href={SOURCE_LINKS[ARCHIVE_GUIDE.legal.quote.source].href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-primary underline underline-offset-2"
+                >
+                  {ARCHIVE_GUIDE.legal.quote.attribution}
+                </a>
+              </footer>
+            </blockquote>
+
+            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.faq.title}</h2>
+            {ARCHIVE_GUIDE.faq.items.map((item) => (
+              <div key={item.question} className="space-y-1">
+                <h3 className="font-bold">{item.question}</h3>
+                <p>{item.answer}</p>
+              </div>
+            ))}
+          </section>
         </div>
       </main>
     </>
