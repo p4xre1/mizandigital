@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest"
-import { SEO_TOOL_GROUPS, TRAFFIC_TOOL_GROUPS } from "../src/pages/admin/seoToolsLinks"
+import {
+  AI_VISIBILITY_TOOL_GROUPS,
+  SEO_TOOL_GROUPS,
+  TRAFFIC_TOOL_GROUPS,
+} from "../src/pages/admin/seoToolsLinks"
 
 describe("أدوات SEMrush في لوحة SEO", () => {
   test("المجموعات الست كلها موجودة، وكل مجموعة فيها رابط واحد على الأقل", () => {
@@ -44,8 +48,7 @@ describe("أدوات Traffic & Market في لوحة SEO", () => {
       "ملف الجمهور",
       "متقدم",
     ])
-    const links = TRAFFIC_TOOL_GROUPS.flatMap((g) => g.links)
-    expect(links.length).toBe(26)
+    expect(TRAFFIC_TOOL_GROUPS.flatMap((g) => g.links).length).toBe(26)
   })
 
   test("كل رابط https على semrush.com/analytics/traffic مع fid الحساب", () => {
@@ -66,5 +69,31 @@ describe("أدوات Traffic & Market في لوحة SEO", () => {
     expect(labels).toContain("Sources & Destinations")
     expect(labels).toContain("Industry & Bulk Analysis")
     expect(new Set(labels).size).toBe(labels.length)
+  })
+})
+
+describe("أداة GetCito للظهور في إجابات الذكاء الاصطناعي", () => {
+  test("روابط المشروع والتجربة فقط، كلها https على النطاقات المعروفة", () => {
+    const links = AI_VISIBILITY_TOOL_GROUPS.flatMap((g) => g.links)
+    expect(links.map((l) => l.label)).toEqual([
+      "المستودع (MIT)",
+      "الموقع الرسمي",
+      "العرض التجريبي",
+      "دليل التشغيل الذاتي (Docker)",
+    ])
+    const allowed = new Set(["github.com", "www.getcito.com", "demo.getcito.com"])
+    for (const link of links) {
+      const url = new URL(link.href)
+      expect(url.protocol).toBe("https:")
+      expect(allowed.has(url.hostname)).toBe(true)
+      expect(url.username + url.password).toBe("")
+    }
+  })
+
+  test("المستودع المرتبط هو مستودع GetCito الصحيح، ولا توجد بيانات دخول في الروابط", () => {
+    expect(AI_VISIBILITY_TOOL_GROUPS[0].links[0].href).toBe(
+      "https://github.com/ai-search-guru/getcito-worlds-first-open-source-aio-aeo-or-geo-tool",
+    )
+    expect(JSON.stringify(AI_VISIBILITY_TOOL_GROUPS)).not.toContain("getcito123")
   })
 })

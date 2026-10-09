@@ -130,3 +130,30 @@ export const TRAFFIC_TOOL_GROUPS: SeoToolGroup[] = [
     ],
   },
 ]
+
+const GETCITO_REPO = "https://github.com/ai-search-guru/getcito-worlds-first-open-source-aio-aeo-or-geo-tool"
+
+/**
+ * GetCito: أداة مفتوحة المصدر (MIT) لتتبع ظهور العلامة في إجابات محركات الذكاء الاصطناعي.
+ * الأداة تعمل كخدمة مستقلة (Docker + قاعدة بيانات + عامل خلفي)، لذلك نربط بها فقط،
+ * ولا ننسخ شيفرتها. الحقوق: Blue Whale Software, LLC و GetCito، رخصة MIT.
+ */
+export const AI_VISIBILITY_TOOL_GROUPS: SeoToolGroup[] = [
+  {
+    title: "المشروع",
+    links: [
+      { label: "المستودع (MIT)", href: GETCITO_REPO },
+      { label: "الموقع الرسمي", href: "https://www.getcito.com/" },
+    ],
+  },
+  {
+    title: "التجربة والتشغيل",
+    links: [
+      { label: "العرض التجريبي", href: "https://demo.getcito.com" },
+      {
+        label: "دليل التشغيل الذاتي (Docker)",
+        href: `${GETCITO_REPO}#option-a--docker-compose-recommended`,
+      },
+    ],
+  },
+]
