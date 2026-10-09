@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { onRequestPost } from "../functions/api/help/chat.js"
+import { resetHelpConfigCache } from "../functions/_shared/helpConfig.js"
 
 const SUPABASE = "https://example.supabase.co"
 const ENV = { SUPABASE_URL: SUPABASE, SUPABASE_ANON_KEY: "anon-test" }
@@ -11,15 +12,26 @@ const freshIp = () => `203.0.113.${(ipCounter += 1) % 250}-${Math.random().toStr
 let userCounter = 0
 const freshUser = () => `user-${(userCounter += 1)}-${Math.random().toString(36).slice(2)}`
 
+/** صفوف جدولي المساعد في Supabase، تُضبط في كل اختبار حسب الحاجة. */
+let cmsState: { settings: any[]; qa: any[]; settingsStatus: number } = { settings: [], qa: [], settingsStatus: 200 }
+
 /**
- * يحاكي Supabase Auth: الرمز "tok-<id>" يمثل مستخدماً مسجلاً، وأي رمز آخر مرفوض.
- * كل ما عدا /auth/v1/user يُعد خطأ في الاختبار.
+ * يحاكي Supabase: الرمز "tok-<id>" يمثل مستخدماً مسجلاً، وأي رمز آخر مرفوض.
+ * جدولا help_settings و help_qa يُقرآن من cmsState. أي عنوان آخر يُعد خطأ.
  */
 beforeEach(() => {
+  cmsState = { settings: [], qa: [], settingsStatus: 200 }
+  resetHelpConfigCache()
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: any, init?: any) => {
       const url = String(input)
+      if (url.startsWith(`${SUPABASE}/rest/v1/help_settings`)) {
+        return new Response(JSON.stringify(cmsState.settings), { status: cmsState.settingsStatus })
+      }
+      if (url.startsWith(`${SUPABASE}/rest/v1/help_qa`)) {
+        return new Response(JSON.stringify(cmsState.qa), { status: 200 })
+      }
       if (!url.startsWith(`${SUPABASE}/auth/v1/user`)) throw new Error(`unexpected fetch ${url}`)
       const auth: string = init?.headers?.Authorization || ""
       const token = auth.replace(/^Bearer\s+/i, "")
@@ -154,11 +166,11 @@ describe("POST /api/help/chat: التحقق من المدخلات", () => {
     expect((await call({ message: 42 })).status).toBe(400)
   })
 
-  test("محاولة حقن HTML تُرفض برد عام بلا كشف سبب الاكتشاف", async () => {
+  test("محاولة حقن HTML تُرفض برد محظور دون كشف سبب الاكتشاف", async () => {
     const res = await call({ message: "<script>alert(1)</script> كيف أبحث" })
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.mode).toBe("refused")
+    expect(data.mode).toBe("blocked")
     expect(JSON.stringify(data)).not.toMatch(/injection|pattern|regex/i)
   })
 
@@ -181,5 +193,62 @@ describe("POST /api/help/chat: التحقق من المدخلات", () => {
     }
     const limited = await call({ message: "كيف أبحث في الأرشيف؟" }, { ip })
     expect(limited.status).toBe(429)
+  })
+})
+
+describe("POST /api/help/chat: إعدادات المشرف وأسئلته", () => {
+  test("سؤال منشور من المشرف يُجاب بجوابه المعتمد ومصدره", async () => {
+    cmsState.qa = [
+      {
+        id: "a1",
+        question: "كيف أسجل في الدورات؟",
+        answer: "التسجيل مجاني عبر صفحة الدورات، ويكفي حساب واحد.",
+        keywords: ["تسجيل", "دورات"],
+        source_url: "/seminars",
+        source_title: "الندوات والفعاليات",
+        published: true,
+      },
+    ]
+    const data = await (await call({ message: "كيف أسجل في الدورات؟" })).json()
+    expect(data.mode).toBe("answer")
+    expect(data.answer).toBe("التسجيل مجاني عبر صفحة الدورات، ويكفي حساب واحد.")
+    expect(data.sources).toEqual([{ title: "الندوات والفعاليات", url: "/seminars" }])
+  })
+
+  test("عبارة محظورة من المشرف تُغلق السؤال برسالته الخاصة", async () => {
+    cmsState.settings = [
+      { enabled: true, blocked_message: "رسالة حظر مخصصة", blocked_phrases: ["مخدرات"], off_topic_terms: [] },
+    ]
+    const data = await (await call({ message: "ما عقوبة المخدرات في المغرب؟" })).json()
+    expect(data.mode).toBe("blocked")
+    expect(data.answer).toBe("رسالة حظر مخصصة")
+  })
+
+  test("كلمة خارج الموضوع من المشرف تعطي رد خارج الموضوع", async () => {
+    cmsState.settings = [{ enabled: true, off_topic_message: "هذا خارج نطاق الموقع.", off_topic_terms: ["كرة القدم"] }]
+    const data = await (await call({ message: "من فاز بمباراة كرة القدم أمس؟" })).json()
+    expect(data.mode).toBe("out_of_topic")
+    expect(data.answer).toBe("هذا خارج نطاق الموقع.")
+  })
+
+  test("المساعد المتوقف يردّ برسالة التوقف ولا يستهلك الحصة", async () => {
+    cmsState.settings = [{ enabled: false, disabled_message: "متوقف الآن" }]
+    const user = freshUser()
+    const stopped = await (await call({ message: "كيف أبحث في الأرشيف؟" }, { user })).json()
+    expect(stopped.mode).toBe("disabled")
+    expect(stopped.answer).toBe("متوقف الآن")
+    expect(stopped.quota).toBeUndefined()
+
+    cmsState.settings = [{ enabled: true }]
+    resetHelpConfigCache()
+    const resumed = await (await call({ message: "كيف أبحث في الأرشيف؟" }, { user })).json()
+    expect(resumed.quota.remaining).toBe(19)
+  })
+
+  test("تعذّر قراءة الإعدادات: يعمل المساعد بالافتراضي ولا يتوقف", async () => {
+    cmsState.settingsStatus = 500
+    const res = await call({ message: "كيف أبحث في الأرشيف؟" })
+    expect(res.status).toBe(200)
+    expect((await res.json()).mode).toBe("answer")
   })
 })

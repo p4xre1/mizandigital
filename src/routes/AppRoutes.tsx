@@ -34,6 +34,7 @@ const SiteControlPage = lazy(() => import("@/pages/admin/SiteControlPage"))
 const PagesManagementPage = lazy(() => import("@/pages/admin/PagesManagementPage"))
 const HomeManagementPage = lazy(() => import("@/pages/admin/HomeManagementPage"))
 const SeoManagementPage = lazy(() => import("@/pages/admin/SeoManagementPage"))
+const HelpAssistantPage = lazy(() => import("@/pages/admin/HelpAssistantPage"))
 const TrendingTopicsPage = lazy(() => import("@/pages/admin/TrendingTopicsPage"))
 const ContentAnalyticsPage = lazy(() => import("@/pages/admin/ContentAnalyticsPage"))
 const ContentOptimizationPage = lazy(() => import("@/pages/admin/ContentOptimizationPage"))
@@ -182,6 +183,7 @@ export default function AppRoutes({ session, theme, menuOpen, onToggleTheme, onT
           <Route path="home" element={<HomeManagementPage />} />
           <Route path="pages" element={<PagesManagementPage />} />
           <Route path="seo" element={<SeoManagementPage />} />
+          <Route path="help-assistant" element={<HelpAssistantPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="articles" element={<AdminArticlesPage />} /><Route path="articles/new" element={<ArticleEditorWrapper />} /><Route path="articles/edit/:id" element={<ArticleEditorWrapper />} />
           <Route path="news" element={<NewsManagementPage />} />

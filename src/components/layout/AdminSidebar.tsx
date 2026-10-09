@@ -34,6 +34,7 @@ import {
   Mail,
   Shield,
   Inbox,
+  Bot,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 
@@ -100,6 +101,7 @@ const navGroups = [
       { label: "إدارة الرئيسية", path: "/admin/home", icon: Globe },
       { label: "الصفحات الثابتة", path: "/admin/pages", icon: FileText },
       { label: "SEO & AI", path: "/admin/seo", icon: Search },
+      { label: "مساعد الموقع (AI)", path: "/admin/help-assistant", icon: Bot },
       { label: "الإعدادات", path: "/admin/settings", icon: Settings },
     ],
   },

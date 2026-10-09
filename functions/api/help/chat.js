@@ -4,18 +4,21 @@
 // - للمستخدمين المسجّلين فقط (رمز Supabase في Authorization).
 // - حصة يومية لكل مستخدم (DAILY_LIMIT)، وحد إضافي لكل IP ضد الإغراق.
 // - العربية فقط: أي سؤال غير عربي يتوقف برسالة واضحة دون إجابة.
-// - لا يقدم استشارة قانونية في حالات فردية (shared/help/guardrails.js).
+// - الإعدادات وأسئلة المشرف تُحمَّل من لوحة /admin/help-assistant (functions/_shared/helpConfig.js).
+// - حماية الحقن والعبارات المحظورة والرفض القانوني وكلمات خارج الموضوع في shared/help/answer.js.
 // - الرد حالياً من الاسترجاع فقط بلا نموذج لغوي، فلا يحتاج أي مفتاح API.
 //
 // Body:  { "message": "..." }   Header: Authorization: Bearer <access_token>
-// Reply: { "mode": "answer" | "refused" | "not_found" | "unsupported_language",
+// Reply: { "mode": "answer" | "not_found" | "refused" | "blocked" | "out_of_topic" | "disabled" | "unsupported_language",
 //          "answer": "...", "sources": [{title, url}], "quota": {limit, remaining} }
 
 import { checkRateLimit, getClientIp, jsonResponse, readJsonBody, tooManyRequests } from "../../_shared/guard.js"
 import { inspectUserText } from "../../_shared/payloadGuard.js"
 import { requireUser } from "../../_shared/auth.js"
+import { loadHelpConfig } from "../../_shared/helpConfig.js"
 import { answerQuestion } from "../../../shared/help/answer.js"
 import { detectLanguage, UNSUPPORTED_LANGUAGE_ANSWER } from "../../../shared/help/language.js"
+import { DEFAULT_MESSAGES } from "../../../shared/help/cms.js"
 
 /** حد الـIP ضد الإغراق (يحمي من تعدد الحسابات من عنوان واحد). */
 const IP_LIMIT = 20
@@ -67,15 +70,17 @@ export async function onRequestPost({ request, env }) {
   const checked = inspectUserText(raw, { field: "message", maxLength: MAX_MESSAGE_CHARS, minLength: 2 })
   if (!checked.ok) {
     if (checked.code.endsWith("too_short")) return json({ error: checked.code }, 400)
-    // حقن أو سبام: رفض عام بلا كشف سبب الاكتشاف، ولا يُستهلك منه شيء من الحصة.
-    return json({
-      mode: "refused",
-      answer: "لا أستطيع معالجة هذا الطلب. اكتب سؤالك عن استعمال الموقع أو محتواه.",
-      sources: [],
-    })
+    // حقن أو سبام: رد محظور دون كشف سبب الاكتشاف، ولا يُستهلك منه شيء من الحصة.
+    return json({ mode: "blocked", answer: DEFAULT_MESSAGES.blocked, sources: [] })
   }
 
-  // 4) الحصة اليومية للمستخدم. تُحتسب كل رسالة صالحة، حتى المرفوضة لغوياً،
+  // 4) إعدادات المشرف. إذا كان المساعد متوقفاً فلا يُحتسب السؤال من الحصة.
+  const config = await loadHelpConfig(env)
+  if (!config.settings.enabled) {
+    return json({ mode: "disabled", answer: config.settings.messages.disabled, sources: [] })
+  }
+
+  // 5) الحصة اليومية للمستخدم. تُحتسب كل رسالة صالحة، حتى المرفوضة،
   // كي لا يصبح الرفض وسيلة لتجربة لا نهائية.
   const quotaRate = await checkRateLimit({
     kv: env?.RATE_LIMIT_KV,
@@ -89,11 +94,14 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "daily_limit_reached", quota: { limit: DAILY_LIMIT, remaining: 0 } }, 429)
   }
 
-  // 5) العربية فقط.
+  // 6) العربية فقط.
   if (detectLanguage(checked.value) === "other") {
     return json({ mode: "unsupported_language", answer: UNSUPPORTED_LANGUAGE_ANSWER, sources: [], quota })
   }
 
-  // 6) الجواب من محتوى الموقع.
-  return json({ ...answerQuestion(checked.value), quota })
+  // 7) الجواب من إعدادات المشرف ومحتوى الموقع.
+  return json({
+    ...answerQuestion(checked.value, { customEntries: config.customEntries, settings: config.settings }),
+    quota,
+  })
 }
