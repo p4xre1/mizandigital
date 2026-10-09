@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
 import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl, isIndexablePath } from "../../lib/canonical"
-import { fitTitle } from "../../lib/seo/description"
+import { BRAND, fitTitle } from "../../lib/seo/description"
 import { SchemaOrg, generateOrganizationSchema, generateWebsiteSchema } from "./SchemaOrg"
 
 /**
@@ -117,7 +117,7 @@ export function SEOHead({
     }
 
     // OpenGraph — Enhanced for AI + Social
-    setMeta("og:site_name", "ميزان الرقمية", "property")
+    setMeta("og:site_name", BRAND, "property")
     setMeta("og:title", fullTitle, "property")
     setMeta("og:description", description, "property")
     setMeta("og:type", ogType, "property")
@@ -130,7 +130,7 @@ export function SEOHead({
     // Published/modified time for articles
     if (publishedTime && ogType === "article") {
       setMeta("article:published_time", publishedTime, "property")
-      setMeta("article:author", "ميزان الرقمية", "property")
+      setMeta("article:author", BRAND, "property")
       setMeta("article:section", "القانون المغربي", "property")
     }
     if (modifiedTime && ogType === "article") {
@@ -147,7 +147,7 @@ export function SEOHead({
     setMeta("twitter:image:alt", title)
 
     // Additional SEO
-    setMeta("author", "ميزان الرقمية")
+    setMeta("author", BRAND)
     setMeta("language", "ar")
     setMeta("geo.region", "MA")
     setMeta("geo.placename", "المغرب")
@@ -191,7 +191,7 @@ export function SEOHead({
   const publisherSchema = {
     "@type": "Organization",
     "@id": `${domain}/#organization`,
-    name: "ميزان الرقمية",
+    name: BRAND,
     url: domain,
     logo: {
       "@type": "ImageObject",
@@ -200,7 +200,7 @@ export function SEOHead({
       contentUrl: `${domain}/logo-512.png`,
       width: 512,
       height: 512,
-      caption: "ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء",
+      caption: `${BRAND} - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء`,
     },
     image: {
       "@type": "ImageObject",
@@ -220,7 +220,7 @@ export function SEOHead({
 
   const authorSchema = {
     "@type": "Organization",
-    name: "فريق ميزان الرقمية",
+    name: `فريق ${BRAND}`,
     url: domain,
   }
 

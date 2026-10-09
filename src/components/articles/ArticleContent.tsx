@@ -1,6 +1,6 @@
 import { Fragment } from "react"
 import type { ReactNode } from "react"
-import type { ArticleBlock } from "../../lib/content/parseArticleMarkdown"
+import type { ArticleBlock, ArticleHeadingLevel } from "../../lib/content/parseArticleMarkdown"
 // InContentAd removed — ads deleted per file map
 import { renderTextWithInternalLinks, renderTextWithEnhancedLinks } from "../../lib/utils/autoLinker"
 
@@ -9,6 +9,22 @@ const AD_PARAGRAPH_INTERVAL = 4
 
 // تنسيقات داخل السطر: **عريض** *مائل* `كود` [نص](رابط)
 const INLINE_RE = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g
+
+const HEADING_TAGS: Record<ArticleHeadingLevel, "h2" | "h3" | "h4" | "h5" | "h6"> = {
+  2: "h2",
+  3: "h3",
+  4: "h4",
+  5: "h5",
+  6: "h6",
+}
+
+const HEADING_CLASSES: Record<ArticleHeadingLevel, string> = {
+  2: "group/heading scroll-mt-32 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0",
+  3: "scroll-mt-32 mt-8 mb-4 text-[1.1rem] md:text-[1.25rem] font-bold text-foreground/90 flex items-center gap-2.5",
+  4: "scroll-mt-32 mt-7 mb-3 text-base md:text-[1.1rem] font-semibold text-foreground/90",
+  5: "scroll-mt-32 mt-6 mb-2 text-[0.95rem] md:text-base font-semibold text-foreground/85",
+  6: "scroll-mt-32 mt-5 mb-2 text-sm md:text-[0.95rem] font-semibold text-foreground/80",
+}
 
 export interface LinkableLexiconTerm {
   id: string
@@ -120,19 +136,12 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
 
         switch (block.type) {
           case "heading": {
-            const Tag = block.level === 2 ? "h2" : "h3"
+            const Tag = HEADING_TAGS[block.level]
             blockNode = (
               <Tag
                 id={block.id}
                 data-reader-anchor=""
-                className={
-                  /* scroll-mt-32 (128px): هيدر الموقع اللاصق (64px) + شريط
-                     أدوات القراءة اللاصق (~58px) — بدونه يسقط العنوان المقفوز
-                     إليه تحت الشريطَين فيبدو الفهرس وكأنه يخطئ الوجهة */
-                  block.level === 2
-                    ? "group/heading scroll-mt-32 relative mt-12 mb-6 text-[1.35rem] md:text-[1.6rem] font-black leading-tight text-foreground first:mt-0"
-                    : "scroll-mt-32 mt-8 mb-4 text-[1.1rem] md:text-[1.25rem] font-bold text-foreground/90 flex items-center gap-2.5"
-                }
+                className={HEADING_CLASSES[block.level]}
               >
                 <span className="relative">
                   {block.text}
@@ -181,9 +190,18 @@ export function ArticleContent({ blocks, lexiconTerms }: ArticleContentProps) {
                 <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-primary to-violet-600" />
                 <div className="flex gap-4">
                   <div className="hidden md:grid size-8 place-items-center rounded-full bg-primary/10 text-primary shrink-0 mt-1">“</div>
-                  <p className="flex-1 font-medium italic text-foreground/80">
-                    {renderInline(block.text, lexiconTerms, linkedTermIds)}
-                  </p>
+                  <div className="flex-1">
+                    <p className="font-medium italic text-foreground/80">
+                      {renderInline(block.text, lexiconTerms, linkedTermIds)}
+                    </p>
+                    {block.attribution && (
+                      <footer className="mt-3 border-t border-primary/10 pt-2 text-[11px] font-bold not-italic text-muted-foreground">
+                        <cite className="not-italic">
+                          {renderInline(block.attribution, lexiconTerms, linkedTermIds)}
+                        </cite>
+                      </footer>
+                    )}
+                  </div>
                 </div>
               </blockquote>
             )

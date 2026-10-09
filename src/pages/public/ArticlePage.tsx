@@ -359,7 +359,7 @@ export function ArticlePage({ slug: propSlug }: ArticlePageProps) {
       <a href="#top" className={`flex items-center gap-2.5 rounded-xl py-2 px-3 font-bold transition-all ${activeSection === "top" ? "bg-gradient-to-r from-primary/10 to-violet-500/10 text-primary border border-primary/20 shadow-sm" : "text-foreground hover:bg-muted"}`}><span className={`size-2 rounded-full ${activeSection === "top" ? "bg-primary animate-pulse" : "bg-border"}`} />بداية المقال</a>
       {sectionsList.map((section, idx) => {
         const isActive = activeSection === section.id
-        return <a key={idx} href={`#${section.id}`} className={`flex items-center gap-2.5 rounded-xl py-2 px-3 transition-all ${section.level === 3 ? "mr-4 text-[12px]" : ""} ${isActive ? "bg-gradient-to-r from-primary/10 to-violet-500/10 text-primary font-bold border border-primary/20 shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}><span className={`size-1.5 rounded-full ${isActive ? "bg-primary animate-pulse" : "bg-border"}`} /><span className="truncate">{section.title}</span></a>
+        return <a key={idx} href={`#${section.id}`} style={{ marginInlineStart: `${(section.level - 2) * 12}px` }} className={`flex items-center gap-2.5 rounded-xl py-2 px-3 transition-all ${section.level > 2 ? "text-[12px]" : ""} ${isActive ? "bg-gradient-to-r from-primary/10 to-violet-500/10 text-primary font-bold border border-primary/20 shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted"}`}><span className={`size-1.5 rounded-full ${isActive ? "bg-primary animate-pulse" : "bg-border"}`} /><span className="truncate">{section.title}</span></a>
       })}
     </nav>
   )

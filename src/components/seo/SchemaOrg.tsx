@@ -1,4 +1,5 @@
 import { jsonLdProps } from "@/lib/seo/jsonLd"
+import { BRAND } from "@/lib/seo/description"
 
 export interface SchemaOrgProps {
   schema: Record<string, any> | Record<string, any>[]
@@ -42,7 +43,7 @@ export function generateArticleSchema({
   image,
   publishedTime,
   modifiedTime,
-  author = "فريق ميزان الرقمية",
+  author = `فريق ${BRAND}`,
 }: {
   title: string
   description: string
@@ -66,7 +67,7 @@ export function generateArticleSchema({
     },
     publisher: {
       "@type": "Organization",
-      name: "ميزان الرقمية",
+      name: BRAND,
       url: "https://www.mizan.page",
       logo: {
         "@type": "ImageObject",
@@ -100,7 +101,7 @@ export function generateOrganizationSchema() {
     "@context": "https://schema.org",
     "@type": "EducationalOrganization",
     "@id": "https://www.mizan.page/#organization",
-    name: "ميزان الرقمية",
+    name: BRAND,
     alternateName: ["Mizan Digital", "Mizan.page", "منصة الميزان الرقمية"],
     url: "https://www.mizan.page",
     logo: {
@@ -110,7 +111,7 @@ export function generateOrganizationSchema() {
       contentUrl: "https://www.mizan.page/logo-512.png",
       width: 512,
       height: 512,
-      caption: "ميزان الرقمية - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء",
+      caption: `${BRAND} - شعار المنصة على بلاطة معتمة تظهر فوق الخلفية البيضاء`,
     },
     image: {
       "@type": "ImageObject",
@@ -145,7 +146,7 @@ export function generateWebsiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "ميزان الرقمية",
+    name: BRAND,
     alternateName: "Mizan Digital",
     url: "https://www.mizan.page",
     description:

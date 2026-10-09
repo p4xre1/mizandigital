@@ -660,6 +660,8 @@ export function NewsManagementPage({ onNavigate, currentPath = "/admin/news" }: 
                   content={content || summary}
                   slug={slug}
                   focusKeyword={focusKeyword}
+                  source={source}
+                  sourceUrl={sourceUrl}
                 />
 
                 <div className="space-y-1">
