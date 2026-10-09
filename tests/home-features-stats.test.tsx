@@ -46,7 +46,7 @@ describe("ميزات الصفحة الرئيسية: صادقة عن ميزان",
 
   test("العنوان يصف الأربع بطاقات بالترتيب، دون «لماذا نحن» ودون تمييز أزرق ثانٍ", () => {
     const html = renderIn(<HomeFeatures counts={sample} />)
-    expect(html).toContain("من النص القانوني إلى الاختبار، في مكان واحد")
+    expect(html).toContain("كيف تنتقل من النص القانوني إلى الاختبار؟")
     expect(html).toContain("اقرأ النص، افهم المصطلح، راجع الملخص، ثم اختبر نفسك.")
     expect(html).toContain("ما ستجده في ميزان")
     expect(html).not.toContain("لماذا نحن")

@@ -58,9 +58,9 @@ function LexiconCard({ term }: { term: TreeTerm }) {
     >
       <span className={`self-start rounded-full px-3 py-1 text-[12px] font-bold ${PILL[tone]}`}>{term.category}</span>
 
-      <h4 className="mt-4 text-[24px] font-black leading-tight text-[#0f172a] transition-colors group-hover:text-[#2563eb] dark:text-white dark:group-hover:text-[#93c5fd]">
+      <h3 className="mt-4 text-[24px] font-black leading-tight text-[#0f172a] transition-colors group-hover:text-[#2563eb] dark:text-white dark:group-hover:text-[#93c5fd]">
         {term.term_ar}
-      </h4>
+      </h3>
       {term.term_fr && (
         <p className="mt-1.5 text-[15px] font-medium text-[#475569] dark:text-[#cbd5e1]">{term.term_fr}</p>
       )}
@@ -83,7 +83,7 @@ function FeaturedTerm({ term }: { term: TreeTerm }) {
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
           <span className={`inline-block rounded-full px-3 py-1 text-[12px] font-bold ${PILL[tone]}`}>{term.category}</span>
-          <h4 className="mt-3 text-[28px] font-black leading-tight text-[#0f172a] dark:text-white">{term.term_ar}</h4>
+          <h3 className="mt-3 text-[28px] font-black leading-tight text-[#0f172a] dark:text-white">{term.term_ar}</h3>
           {term.term_fr && <p className="mt-1 text-[16px] font-medium text-[#475569] dark:text-[#cbd5e1]">{term.term_fr}</p>}
           <p className="mt-3 max-w-2xl text-[14px] leading-7 text-[#475569] dark:text-[#cbd5e1]">{term.definition}</p>
           <div className="mt-4">
@@ -122,10 +122,10 @@ export function HomeLexiconShowcase({ terms, total }: { terms: TreeTerm[]; total
           <span className="grid size-8 place-items-center rounded-full bg-[#2563eb]/10 text-[#2563eb]" aria-hidden="true">
             <Languages className="size-4" />
           </span>
-          القاموس القانوني
+          كيف يساعدك القاموس القانوني؟
         </h2>
         <p className="mt-2 max-w-2xl text-[14px] leading-7 text-[#475569] dark:text-[#cbd5e1]">
-          مصطلحات بالعربية والفرنسية، كل مصطلح مرتبط بالنصوص والفصول التي يستند إليها.
+          يعرض القاموس كل مصطلح بالعربية والفرنسية، ويربطه بالنصوص والفصول التي يستند إليها.
         </p>
       </header>
 

@@ -71,9 +71,9 @@ export function HomeFreeResources() {
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[12px] font-black text-[#6ee7b7] ring-1 ring-white/15">
                 <ShieldCheck className="size-4" aria-hidden="true" /> مجانية بالكامل
               </span>
-              <h2 className="mt-5 text-[32px] font-black leading-tight md:text-[44px]">المعرفة القانونية للجميع</h2>
+              <h2 className="mt-5 text-[32px] font-black leading-tight md:text-[44px]">هل موارد ميزان مجانية فعلاً؟</h2>
               <p className="mt-4 text-[16px] leading-8 text-[#cbd5e1] md:text-[18px]">
-                كل موارد ميزان وأدواتها مجانية، بلا إعلانات تجارية. كل ما تحتاجه للدراسة في مكان واحد.
+                نعم، كل موارد ميزان وأدواتها مجانية، بلا إعلانات تجارية، وكل ما تحتاجه للدراسة متاح في مكان واحد.
               </p>
             </div>
             <Link

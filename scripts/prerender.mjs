@@ -686,7 +686,7 @@ const homeHeroHtml = `
             <div class="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]"></div>
             <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
               <h1 class="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white"><span>افتح إمكانياتك مع</span><span class="text-[#2563eb]">التعلم القانوني</span><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span></h1>
-              <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
+              <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">ميزان الرقمية هي منصة مغربية مجانية لطلبة كليات الحقوق، تجمع ملخصات S1-S6 والقاموس القانوني والمقالات والاختبارات في مكان واحد، بلا إعلانات تجارية.</p>
               <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
                 <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
@@ -924,9 +924,22 @@ ${homeServerRenderedContentHtml}
             <p>
               يجب التعامل مع ميزان الرقمية باعتبارها منصة تعليمية وبحثية،
               وليس بديلاً عن النص القانوني الرسمي.
-              عند دراسة قاعدة قانونية، يُنصح بالرجوع إلى الجريدة الرسمية
-              والنص التشريعي الرسمي والمصادر الجامعية أو المؤسساتية ذات الصلة.
+              عند دراسة قاعدة قانونية، يُنصح بالرجوع إلى
+              <a href="https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx" target="_blank" rel="noopener noreferrer">الجريدة الرسمية</a>
+              والنص التشريعي الرسمي في
+              <a href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx" target="_blank" rel="noopener noreferrer">بنك المعطيات القانونية</a>،
+              وإلى
+              <a href="https://adala.justice.gov.ma/" target="_blank" rel="noopener noreferrer">بوابة عدالة</a>
+              للإجراءات القضائية، ثم إلى المصادر الجامعية أو المؤسساتية ذات الصلة.
             </p>
+
+            <blockquote class="mt-4 border-r-2 border-[#2563eb]/40 pr-4">
+              <p>«نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.»</p>
+              <footer>
+                —
+                <a href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx" target="_blank" rel="noopener noreferrer">الدستور المغربي (2011)، الفصل 1</a>
+              </footer>
+            </blockquote>
 
             <p>
               تقدم المنصة روابط وإحالات عندما تكون متاحة في بيانات المحتوى،
