@@ -86,6 +86,9 @@ Checks:
 - [ ] No `VITE_` variable holds a secret. The anon key is the only Supabase key that may be public.
 - [ ] `HELP_ALLOW_MEMORY_LIMITER` is unset in the production environment.
 
+For `503 guard_config_unavailable`, follow [Help chat troubleshooting](help-chat-troubleshooting.md)
+to correlate the browser request ID with server-only configuration diagnostics.
+
 ## E. CI
 
 - [ ] `.github/workflows/*.yml` each declare `permissions:`. Verified in branch by test; confirm the merged workflows are the same.

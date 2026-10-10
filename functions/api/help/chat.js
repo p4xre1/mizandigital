@@ -158,7 +158,9 @@ export async function onRequestPost({ request, env }) {
     config = await loadHelpConfig(env)
   } catch (error) {
     const code = error instanceof GuardConfigError ? error.code : "unknown"
-    logSecurityEvent("guard_config_unavailable", { requestId, code })
+    // Log only structured diagnostics, never upstream bodies, credentials or questions.
+    const upstreamStatus = error instanceof GuardConfigError ? error.upstreamStatus : null
+    logSecurityEvent("guard_config_unavailable", { requestId, code, upstreamStatus })
     return reply({ error: "guard_config_unavailable" }, 503)
   }
 
