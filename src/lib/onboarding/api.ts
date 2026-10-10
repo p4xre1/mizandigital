@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client"
+import { freshAccessToken } from "@/lib/auth/sessionToken"
 
 export type OnboardingUserType =
   | "student"
@@ -25,12 +26,9 @@ export interface OnboardingPayload {
  */
 
 async function getAccessToken(): Promise<string | null> {
-  try {
-    const { data } = await supabase.auth.getSession()
-    return data.session?.access_token ?? null
-  } catch {
-    return null
-  }
+  // رمز صالح لحظة النداء: يقرأ الجلسة المخزنة ويجدّدها استباقياً إن قاربت
+  // على الانتهاء بدل إرسال رمز منتهٍ ترفضه الدالة بـ401.
+  return freshAccessToken()
 }
 
 async function callOnboardingFunction(init: { method: "GET" | "POST"; body?: OnboardingPayload }) {

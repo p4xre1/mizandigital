@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase/client"
+import { freshAccessToken } from "@/lib/auth/sessionToken"
 
 // جداول help_qa و help_settings: الكتابة للمشرفين فقط عبر RLS (public.is_admin()).
 // الجداول غير مولّدة في أنواع Supabase بعد، لذلك نستعمل الوصول المرن كما في pro-tools.
@@ -87,8 +88,9 @@ export type HelpPreviewResult = {
 }
 
 async function adminToken(): Promise<string> {
-  const { data } = await supabase.auth.getSession()
-  const token = data.session?.access_token
+  // اقرأ الجلسة المخزنة وجدّدها استباقياً إن قاربت على الانتهاء، حتى لا
+  // يصل رمز منتهٍ للخادم فيرفض نداء التحقق ويظهر «انتهت الجلسة» زيفاً.
+  const token = await freshAccessToken()
   if (!token) throw new Error("انتهت الجلسة، سجّل الدخول من جديد.")
   return token
 }

@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Loader2, Send } from "lucide-react"
 import { useAuth } from "../../lib/auth/AuthProvider"
+import { withAuthRetry } from "../../lib/auth/sessionToken"
 import { interpretPendingReply } from "../../../shared/help/clarify-state.js"
 
 type Source = { title: string; url: string }
@@ -135,6 +136,17 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
     return id
   }
 
+  /** إرسال السؤال إلى نقطة النهاية برمزي المعرَّف. */
+  async function postChat(body: Record<string, unknown>, accessToken: string) {
+    const res = await fetch("/api/help/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(body),
+    })
+    const data = await res.json().catch(() => null)
+    return { res, data }
+  }
+
   /**
    * إرسال سؤال جديد، أو اختيار من توضيح معلّق (pick). الاختيار يرسل المعرّف فقط،
    * والسؤال الأصلي من الحالة المعلّقة، فلا يُقبل نص من المتصفح كأنه تأكيد.
@@ -153,12 +165,10 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
       const body: Record<string, unknown> = { message: question }
       if (pick) body.clarification = { choice: pick.choice }
       if (previousQuestion) body.context = { previousQuestion }
-      const res = await fetch("/api/help/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      })
-      const data = await res.json().catch(() => null)
+      // رمز صالح لحظة الإرسال، مع إعادة محاولة واحدة بعد 401: الرمز المعروض
+      // وقت التصيير قد يكون انتهى أثناء خمول الصفحة، فيُجدَّد هنا بدل أن يرى
+      // المستخدم «انتهت جلستك» رغم أن الجلسة قابلة للتجديد.
+      const { res, data } = await withAuthRetry((accessToken) => postChat(body, accessToken), token)
 
       if (data && typeof data.quota?.remaining === "number" && typeof data.quota?.limit === "number") {
         setQuota({ limit: data.quota.limit, remaining: data.quota.remaining })

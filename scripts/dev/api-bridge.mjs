@@ -135,6 +135,11 @@ function handleMockSupabase(req, res, url) {
     const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "").trim()
     const payload = decodeJwtPayload(token)
     if (!payload || typeof payload.sub !== "string") return send(401, { msg: "invalid token" })
+    // مضاهاة GoTrue الحقيقية: الرمز المنتهي يُرفض بـ401 (يُجدَّد من المتصفح)،
+    // حتى تُعيد المعاينة المحلية إنتاج سيناريو «انتهت جلستك» كما في الإنتاج.
+    if (typeof payload.exp === "number" && payload.exp * 1000 <= Date.now()) {
+      return send(401, { msg: "token is expired" })
+    }
     return send(200, { id: payload.sub, email: typeof payload.email === "string" ? payload.email : "dev@localhost" })
   }
   if (url.pathname === `${MOCK_BASE}/rest/v1/profiles`) {
