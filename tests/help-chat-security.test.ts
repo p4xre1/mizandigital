@@ -53,6 +53,10 @@ beforeEach(() => {
         if (headers.apikey !== SERVICE_KEY) return new Response("forbidden", { status: 401 })
         return new Response(JSON.stringify(qaRows), { status: 200 })
       }
+      if (url.startsWith(`${SUPABASE}/rest/v1/legal_consents`)) {
+        // موافقة مسجّلة على النسخة الحالية (بوابة المساعد). الاختبارات التي تفحص غيابها تستعمل ملفاً خاصاً.
+        return new Response(JSON.stringify([{ id: "consent-test" }]), { status: 200 })
+      }
       if (url.startsWith(`${SUPABASE}/rest/v1/profiles`)) {
         const rows = accountStatus === null ? [] : [{ account_status: accountStatus }]
         return new Response(JSON.stringify(rows), { status: 200 })

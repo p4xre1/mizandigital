@@ -8,6 +8,7 @@
 //   3) تخزين الحدود المشترك (RATE_LIMIT_KV) متوفر، وإلا 503 (fail closed)
 //   4) حد IP ضد الإغراق
 //   5) رمز Supabase صالح، والحساب "active" (غير موقوف أو قيد الحذف)
+//   5a) موافقة على الشروط (بما فيها قسم المساعد) للنسخة الحالية، وإلا 403 consent_required
 //   6) جسم الطلب بحد صارم للبايتات، كتدفق، ثم UTF-8 صالح
 //   7) طول النص، ثم رفض أحرف التحكم
 //   8) تطبيع Unicode ثم فحص الحقن والحمولات المموّهة والشيفرة (inspectUserText)
@@ -39,6 +40,7 @@ import { runPipeline } from "../../../shared/help/pipeline.js"
 import { classifySocialIntent } from "../../../shared/help/conversation.js"
 import { parseClarificationRequest } from "../../../shared/help/clarify-state.js"
 import { DEFAULT_MESSAGES } from "../../../shared/help/cms.js"
+import { checkTermsConsent } from "../../_shared/helpConsent.js"
 
 /** حد الـIP ضد الإغراق (يحمي من تعدد الحسابات من عنوان واحد). */
 const IP_LIMIT = 20
@@ -101,6 +103,13 @@ export async function onRequestPost({ request, env }) {
   if (!account.ok) {
     logSecurityEvent(account.event, { requestId, userHash })
     return reply({ error: account.error }, account.status)
+  }
+
+  // 5a) الموافقة على الشروط (بما فيها قواعد المساعد) للنسخة الحالية. بدونها لا يُجيب، ولا تُقرأ الرسالة.
+  const consent = await checkTermsConsent(user, env)
+  if (!consent.ok) {
+    logSecurityEvent(consent.status === 403 ? "consent_required" : "consent_lookup_failed", { requestId, userHash })
+    return reply({ error: consent.error }, consent.status)
   }
 
   // 5b) قفل مؤقت بعد محاولات الهندسة الاجتماعية المتكررة. لا يُقرأ الجسم ولا تُستهلك حصة.

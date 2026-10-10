@@ -61,6 +61,10 @@ beforeEach(() => {
         }
         return new Response(JSON.stringify(cmsState.qa), { status: 200 })
       }
+      if (url.startsWith(`${SUPABASE}/rest/v1/legal_consents`)) {
+        // موافقة مسجّلة على النسخة الحالية (بوابة المساعد). الاختبارات التي تفحص غيابها تستعمل ملفاً خاصاً.
+        return new Response(JSON.stringify([{ id: "consent-test" }]), { status: 200 })
+      }
       if (url.startsWith(`${SUPABASE}/rest/v1/profiles`)) {
         if (cmsState.profileStatus !== 200) return new Response("error", { status: cmsState.profileStatus })
         const rows = cmsState.accountStatus === null ? [] : [{ account_status: cmsState.accountStatus }]

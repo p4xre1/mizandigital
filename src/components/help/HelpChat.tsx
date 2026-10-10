@@ -1,7 +1,14 @@
-import { useRef, useState, type FormEvent } from "react"
+import { useEffect, useRef, useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Loader2, Send } from "lucide-react"
 import { useAuth } from "../../lib/auth/AuthProvider"
+import {
+  captureConsent,
+  hasCurrentConsent,
+  readStoredConsent,
+  syncPendingConsent,
+  type ConsentMethod,
+} from "../../lib/legal/consent"
 import { interpretPendingReply } from "../../../shared/help/clarify-state.js"
 
 type Source = { title: string; url: string }
@@ -33,6 +40,12 @@ const DAILY_LIMIT_REACHED = "استنفدت حصة اليوم من الأسئل�
 const ACCOUNT_RESTRICTED = "حسابك غير مفعّل لاستعمال المساعد. راجع إدارة الموقع إن كان هذا خطأ."
 const TOO_FAST = "أرسلت أسئلة كثيرة في وقت قصير. انتظر دقيقة ثم حاول مجدداً."
 const SELECTION_REQUIRED = "اختر أحد الخيارات المعروضة أعلاه، أو اكتب سؤالك من جديد."
+const CONSENT_SYNC_FAILED = "تعذّر تسجيل موافقتك الآن. تحقق من اتصالك وحاول مجدداً."
+
+/** موافقة مسجّلة على النسخة الحالية ووصلت إلى القاعدة. الموافقة المحلية وحدها لا تكفي. */
+function hasSyncedConsent(): boolean {
+  return hasCurrentConsent() && readStoredConsent()?.synced === true
+}
 
 /** تحقق من شكل بيانات التوضيح قبل عرضها. أي شكل غير متوقع يُهمل. */
 function asClarification(value: unknown): Clarification | undefined {
@@ -111,8 +124,82 @@ function ClarificationBubble({
  * المساعد للمستخدمين المسجّلين فقط: الزائر يرى دعوة لتسجيل الدخول.
  * الطلب يذهب إلى /api/help/chat على نفس النطاق، فلا تُضاف أي نطاقات إلى CSP.
  */
+/**
+ * بوابة الموافقة قبل أول سؤال: الشروط وسياسة الخصوصية للنسخة الحالية، وفيها قواعد المساعد.
+ * تُلتقط الموافقة وتُزامن مع القاعدة، ولا تُكمَل المحادثة إلا بعد نجاح المزامنة.
+ */
+function AssistantConsent({ method, onAccepted }: { method: ConsentMethod; onAccepted: () => void }) {
+  const [agreed, setAgreed] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  async function accept() {
+    if (!agreed || saving) return
+    setSaving(true)
+    setError(null)
+    captureConsent(method)
+    const result = await syncPendingConsent()
+    setSaving(false)
+    if (result.synced) onAccepted()
+    else setError(CONSENT_SYNC_FAILED)
+  }
+
+  return (
+    <div dir="rtl" className="flex flex-col gap-3 text-sm leading-7">
+      <p className="font-bold">قبل استعمال المساعد</p>
+      <p className="text-xs leading-6 text-muted-foreground">
+        المساعد يجيب من محتوى الموقع فقط. قبل أول سؤال، يجب أن توافق على{" "}
+        <Link to="/terms" target="_blank" rel="noreferrer" className="font-semibold text-primary underline">
+          الشروط والأحكام
+        </Link>{" "}
+        (ومنها قسم المساعد الذكي: ما يجب فعله وما يُمنع، والمتابعة القانونية لأي محاولة اختراق) وعلى{" "}
+        <Link to="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-primary underline">
+          سياسة الخصوصية
+        </Link>
+        .
+      </p>
+      <div className="rounded-xl border border-border bg-muted/40 p-3">
+        <label htmlFor="assistant-consent" className="flex cursor-pointer items-start gap-2.5">
+          <input
+            id="assistant-consent"
+            type="checkbox"
+            checked={agreed}
+            onChange={(event) => {
+              setAgreed(event.target.checked)
+              if (event.target.checked) setError(null)
+            }}
+            className="mt-1 size-4 shrink-0 cursor-pointer accent-primary"
+          />
+          <span className="text-xs leading-6 text-muted-foreground">
+            قرأت الشروط وسياسة الخصوصية، وأوافق عليهما، وألتزم بقواعد استعمال المساعد.
+          </span>
+        </label>
+      </div>
+      {error && (
+        <p role="alert" className="rounded-xl border border-border bg-muted/40 px-3 py-2 text-xs leading-6">
+          {error}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={() => void accept()}
+        disabled={!agreed || saving}
+        className="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
+      >
+        {saving ? "جارٍ تسجيل الموافقة…" : "موافقة ومتابعة"}
+      </button>
+    </div>
+  )
+}
+
 export default function HelpChat({ compact = false }: { compact?: boolean }) {
   const { session, initialized } = useAuth()
+  const [consentNeeded, setConsentNeeded] = useState<boolean>(() => !hasSyncedConsent())
+  const userId = session?.user?.id ?? null
+  // عند تسجيل الدخول أو تغيّر الحساب نعيد قراءة الموافقة المحفوظة (قد تكون سُجّلت في تبويب آخر).
+  useEffect(() => {
+    if (userId) setConsentNeeded(!hasSyncedConsent())
+  }, [userId])
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
@@ -163,6 +250,9 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
 
       if (res.status === 401) {
         setNotice(SESSION_EXPIRED)
+      } else if (res.status === 403 && data?.error === "consent_required") {
+        // الخادم لا يجد موافقة على النسخة الحالية: نُعيد عرض البوابة، ولا تُرسل الرسالة.
+        setConsentNeeded(true)
       } else if (res.status === 403 && data?.error === "account_restricted") {
         setNotice(ACCOUNT_RESTRICTED)
       } else if (res.status === 429 && data?.error === "too_fast") {
@@ -241,6 +331,18 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
             تسجيل الدخول
           </Link>
         </div>
+      </div>
+    )
+  }
+
+  if (consentNeeded) {
+    return (
+      <div dir="rtl" className="flex flex-col gap-3">
+        {header}
+        <AssistantConsent
+          method={session.user.app_metadata?.provider === "google" ? "google" : "email"}
+          onAccepted={() => setConsentNeeded(false)}
+        />
       </div>
     )
   }
