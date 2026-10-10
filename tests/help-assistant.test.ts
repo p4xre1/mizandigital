@@ -140,8 +140,9 @@ describe("قاعدة المعرفة", () => {
   test("كل رابط داخلي يطابق مساراً موجوداً في AppRoutes أو ملفاً عاماً", () => {
     const routesSource = readFileSync(join(ROOT, "src/routes/AppRoutes.tsx"), "utf8")
     const routePatterns = [...routesSource.matchAll(/path="([^"]+)"/g)].map((m) => m[1])
+    const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
     const toRegex = (pattern: string) =>
-      new RegExp("^" + pattern.replace(/:[A-Za-z]+/g, "[^/]+").replace(/\//g, "\\/") + "$")
+      new RegExp("^" + pattern.split(/:[A-Za-z]+/).map(escapeRegExp).join("[^/]+") + "$")
 
     const unknown: string[] = []
     for (const entry of allEntries()) {
