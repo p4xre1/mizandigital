@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from "react"
 import { Link } from "react-router-dom"
 import { Loader2, Send } from "lucide-react"
 import { useAuth } from "../../lib/auth/AuthProvider"
+import { withAuthRetry } from "../../lib/auth/sessionToken"
 import { interpretPendingReply } from "../../../shared/help/clarify-state.js"
 
 type Source = { title: string; url: string }
@@ -28,6 +29,9 @@ const STARTERS = [
 ]
 
 const GENERIC_ERROR = "تعذّر الرد الآن. حاول مرة أخرى بعد قليل."
+// خطأ خادم (5xx): المشكلة في إعدادات الخادم لا في السؤال. السبب الدقيق
+// (مثل service_misconfigured) يُطبع في وحدة تحكم المتصفح ليطّلع عليه المشرف.
+const SERVER_TROUBLE = "المساعد متوقف مؤقتاً بسبب مشكلة في الخادم. حاول لاحقاً، وإن استمرت المشكلة أخبر إدارة الموقع."
 const SESSION_EXPIRED = "انتهت جلستك. سجّل الدخول من جديد لمتابعة السؤال."
 const DAILY_LIMIT_REACHED = "استنفدت حصة اليوم من الأسئلة. حاول مرة أخرى غداً."
 const ACCOUNT_RESTRICTED = "حسابك غير مفعّل لاستعمال المساعد. راجع إدارة الموقع إن كان هذا خطأ."
@@ -132,6 +136,17 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
     return id
   }
 
+  /** إرسال السؤال إلى نقطة النهاية برمزي المعرَّف. */
+  async function postChat(body: Record<string, unknown>, accessToken: string) {
+    const res = await fetch("/api/help/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify(body),
+    })
+    const data = await res.json().catch(() => null)
+    return { res, data }
+  }
+
   /**
    * إرسال سؤال جديد، أو اختيار من توضيح معلّق (pick). الاختيار يرسل المعرّف فقط،
    * والسؤال الأصلي من الحالة المعلّقة، فلا يُقبل نص من المتصفح كأنه تأكيد.
@@ -150,12 +165,10 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
       const body: Record<string, unknown> = { message: question }
       if (pick) body.clarification = { choice: pick.choice }
       if (previousQuestion) body.context = { previousQuestion }
-      const res = await fetch("/api/help/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(body),
-      })
-      const data = await res.json().catch(() => null)
+      // رمز صالح لحظة الإرسال، مع إعادة محاولة واحدة بعد 401: الرمز المعروض
+      // وقت التصيير قد يكون انتهى أثناء خمول الصفحة، فيُجدَّد هنا بدل أن يرى
+      // المستخدم «انتهت جلستك» رغم أن الجلسة قابلة للتجديد.
+      const { res, data } = await withAuthRetry((accessToken) => postChat(body, accessToken), token)
 
       if (data && typeof data.quota?.remaining === "number" && typeof data.quota?.limit === "number") {
         setQuota({ limit: data.quota.limit, remaining: data.quota.remaining })
@@ -182,10 +195,17 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
         if (data.mode === "answer" || data.mode === "not_found" || data.mode === "insufficient") {
           lastAnswered.current = typeof data.questionUsed === "string" ? data.questionUsed : question
         }
+      } else if (res.status >= 500) {
+        // خطأ خادم: السبب الدقيق (مثل service_misconfigured أو
+        // guard_config_unavailable) يظهر هنا في وحدة التحكم لتشخيص إعدادات النشر.
+        console.error(`[help-chat] server error ${res.status}:`, data?.error ?? "(no JSON body)")
+        addMessage({ role: "assistant", text: SERVER_TROUBLE, sources: [], mode: "error" })
       } else {
+        console.error(`[help-chat] unexpected response ${res.status}:`, data?.error ?? "(no JSON body)")
         addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
       }
-    } catch {
+    } catch (error) {
+      console.error("[help-chat] network failure:", error)
       addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
     } finally {
       setLoading(false)

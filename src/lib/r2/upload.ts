@@ -8,11 +8,11 @@
 //
 // راجع: functions/api/r2/presign.js و functions/_shared/r2sign.js
 
-import { supabase } from "../supabase/client"
+import { freshAccessToken } from "../auth/sessionToken"
 
 async function getAuthHeader(): Promise<Record<string, string>> {
-  const { data } = await supabase.auth.getSession()
-  const token = data.session?.access_token
+  // رمز صالح لحظة النداء (تجديد استباقي قرب الانتهاء) — لا رمز منتهٍ للخادم.
+  const token = await freshAccessToken()
   if (!token) {
     throw new Error("يجب تسجيل الدخول كمسؤول لرفع الملفات")
   }

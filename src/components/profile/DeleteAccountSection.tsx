@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase/client"
+import { freshAccessToken } from "@/lib/auth/sessionToken"
 
 /**
  * منطقة الخطر: حذف الحساب (حذف ناعم بمهلة 30 يوماً).
@@ -84,8 +85,8 @@ export function DeleteAccountSection({ username, onDeleted }: Props) {
     setError(null)
     setNotice(null)
     try {
-      const { data } = await supabase.auth.getSession()
-      const token = data.session?.access_token
+      // رمز صالح لحظة النداء: تجديد استباقي قرب الانتهاء بدل إرسال رمز منتهٍ.
+      const token = await freshAccessToken()
       if (!token) {
         setError("انتهت الجلسة — سجّل الدخول من جديد ثم أعد المحاولة.")
         return
@@ -126,8 +127,8 @@ export function DeleteAccountSection({ username, onDeleted }: Props) {
     setError(null)
     setNotice(null)
     try {
-      const { data } = await supabase.auth.getSession()
-      const token = data.session?.access_token
+      // رمز صالح لحظة النداء: تجديد استباقي قرب الانتهاء بدل إرسال رمز منتهٍ.
+      const token = await freshAccessToken()
       if (!token) {
         setError("انتهت الجلسة — سجّل الدخول من جديد ثم أعد المحاولة.")
         return
