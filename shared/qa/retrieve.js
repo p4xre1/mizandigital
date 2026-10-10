@@ -158,9 +158,13 @@ export function retrieve(question, index, config = QA_CONFIG) {
   const contentCount = question.content.length
   const phraseList = question.phrases
 
-  // المطابقة على مستوى الكلمة مع صيغها (تتعامل مع الواو والباء واللام الملتصقة)، وتُضاف التصحيحات الإملائية.
+  // ذكر المصطلح الكامل يعتمد على الكلمات الأصلية وصيغها الصرفية.
+  // التصحيح التقريبي لا يفتح النطاق من كلمة عابرة في سؤال طويل («بصداع» ≠ «الصداق»).
+  // يبقى التصحيح إشارة أضعف فقط إذا غطى اسم المصطلح كل كلمات محتوى السؤال.
+  const queryForms = question.tokens.map((t) => formsOf(t))
   const fuzzyMap = new Map(resolved.filter((r) => r.fuzzy).map((r) => [r.token, r.resolved]))
-  const queryForms = [question.tokens, question.tokens.map((t) => fuzzyMap.get(t) ?? t)].map((seq) => seq.map((t) => formsOf(t)))
+  const correctedForms = question.tokens.map((t) => formsOf(fuzzyMap.get(t) ?? t))
+  const correctedContent = resolved.map((r) => formsOf(r.resolved))
   const contentForms = question.content.map((t) => formsOf(t))
 
   const candidates = []
@@ -179,8 +183,14 @@ export function retrieve(question, index, config = QA_CONFIG) {
     for (const label of p.labelNorms) {
       if (!label) continue
       const labelTokens = label.split(" ")
-      if (queryForms.some((forms) => sequenceIn(forms, labelTokens))) mention = 1
-      else if (contentCount > 0 && labelTokens.length > contentCount && contentForms.every((vs) => labelTokens.some((lt) => vs.has(lt)))) {
+      if (sequenceIn(queryForms, labelTokens)) mention = 1
+      else if (
+        fuzzyMap.size > 0 && contentCount > 0 &&
+        sequenceIn(correctedForms, labelTokens) &&
+        correctedContent.every((forms) => labelTokens.some((token) => forms.has(token)))
+      ) {
+        mention = Math.max(mention, 0.5)
+      } else if (contentCount > 0 && labelTokens.length > contentCount && contentForms.every((vs) => labelTokens.some((lt) => vs.has(lt)))) {
         partial = true
       }
     }
