@@ -306,7 +306,7 @@
 
 - [بوابة عدالة](https://adala.justice.gov.ma/): النصوص القانونية المغربية النافذة — المصدر الرسمي
 - [الأمانة العامة للحكومة](https://www.sgg.gov.ma/): الجريدة الرسمية والمشاريع
-- [الجريدة الرسمية](https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx): النصوص المنشورة
+- [الجريدة الرسمية](https://www.sgg.gov.ma/BulletinOfficiel.aspx): النصوص المنشورة
 - [وزارة التعليم العالي](https://www.enssup.gov.ma/): التعليم العالي والبحث العلمي
 - [المحكمة الدستورية](https://www.cour-constitutionnelle.ma/): قرارات الدستورية
 

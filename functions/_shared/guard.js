@@ -1,3 +1,4 @@
+import { readBoundedText } from "./bodyLimit.js"
 // functions/_shared/guard.js
 //
 // ─────────────────────────────────────────────────────────────────────────────
@@ -126,19 +127,16 @@ export async function checkRateLimit({ kv, bucket, key, limit, windowSeconds = 6
  * @returns {Promise<{ok:true, body:any}|{ok:false, status:number, error:string}>}
  */
 export async function readJsonBody(request, maxBytes = 16_384) {
-  const declared = Number(request.headers.get("Content-Length") || 0)
-  if (declared > maxBytes) return { ok: false, status: 413, error: "Payload too large" }
-
-  let text
-  try {
-    text = await request.text()
-  } catch {
-    return { ok: false, status: 400, error: "Unreadable body" }
+  // قراءة متدفقة بحد بايتات صارم (bodyLimit.js): لا يُخصَّص للجسم أكثر من الحد،
+  // حتى لو غاب Content-Length (طلبات chunked). الشكل المُرجَع ثابت للمستدعين.
+  const res = await readBoundedText(request, maxBytes)
+  if (!res.ok) {
+    if (res.status === 413) return { ok: false, status: 413, error: "Payload too large" }
+    if (res.error === "unreadable_body") return { ok: false, status: 400, error: "Unreadable body" }
+    return { ok: false, status: 400, error: "Invalid JSON body" }
   }
-  if (text.length > maxBytes) return { ok: false, status: 413, error: "Payload too large" }
-
   try {
-    return { ok: true, body: JSON.parse(text) }
+    return { ok: true, body: JSON.parse(res.text) }
   } catch {
     return { ok: false, status: 400, error: "Invalid JSON body" }
   }

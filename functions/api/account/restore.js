@@ -22,6 +22,7 @@
  */
 
 import { requireUser, jsonResponse } from "../../_shared/auth.js";
+import { logServerError } from "../../_shared/errors.js";
 
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -48,19 +49,14 @@ export async function onRequestPost(context) {
   });
 
   if (res.status === 404) {
-    return jsonResponse(
-      {
-        error: "الاستعادة غير متاحة بعد",
-        detail:
-          "الدالة cancel_account_deletion غير موجودة في قاعدة البيانات. طبّق الترحيل 20260926000000_admin_actions_soft_delete_and_audit.sql",
-      },
-      503
-    );
+    logServerError("account.restore", "cancel_account_deletion missing (404)");
+    return jsonResponse({ error: "الاستعادة غير متاحة بعد" }, 503);
   }
 
   if (!res.ok) {
-    const detail = await res.text();
-    return jsonResponse({ error: "تعذّرت الاستعادة", detail: detail.slice(0, 300) }, 500);
+    const upstream = await res.text().catch(() => "");
+    logServerError("account.restore", `http=${res.status} ${upstream}`);
+    return jsonResponse({ error: "تعذّرت الاستعادة" }, 500);
   }
 
   const data = await res.json().catch(() => ({}));

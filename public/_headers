@@ -41,7 +41,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   Cross-Origin-Opener-Policy: same-origin-allow-popups
   Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; upgrade-insecure-requests; script-src 'self' 'sha256-__MIZAN_INLINE_HASH__' https://www.googletagmanager.com https://*.google-analytics.com https://challenges.cloudflare.com https://www.gstatic.com; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com https://*.google-analytics.com https://*.analytics.google.com https://stats.g.doubleclick.net https://rfhjmtdblmarhlfftlmg.supabase.co wss://rfhjmtdblmarhlfftlmg.supabase.co https://*.r2.dev https://ee904e2761241bc2da27615d3c818b4f.r2.cloudflarestorage.com https://challenges.cloudflare.com https://translate.googleapis.com https://api.mymemory.translated.net https://lingva.ml https://lingva.thedaviddelta.com https://translate.plausibility.cloud; frame-src 'self' https://challenges.cloudflare.com; worker-src 'self' blob:; manifest-src 'self'

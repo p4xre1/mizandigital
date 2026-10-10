@@ -305,3 +305,14 @@ describe("CSP — مطابقة البناء الفعلي (dist/ إن وُجد)",
     expect(browserAllows(builtScriptSrc, inline[0])).toBe(true)
   })
 })
+
+describe("Permissions-Policy — public/_headers", () => {
+  test("تعطّل الميزات غير المستعملة (الدفع والـUSB والـserial والـBluetooth وتتبّع الاهتمامات)", () => {
+    const headers = read("public/_headers")
+    const line = headers.split("\n").find((l) => /^\s*Permissions-Policy:/.test(l))
+    expect(line, "يجب أن توجد ترويسة Permissions-Policy").toBeTruthy()
+    for (const feature of ["camera=()", "microphone=()", "geolocation=()", "payment=()", "usb=()", "serial=()", "bluetooth=()", "interest-cohort=()"]) {
+      expect(line).toContain(feature)
+    }
+  })
+})

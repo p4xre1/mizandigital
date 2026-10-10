@@ -12,8 +12,8 @@ import {
   Upload,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth/AuthProvider"
-import { supabase } from "@/lib/supabase/client"
 import {
+  cvSignedUrl,
   deleteCvFile,
   fetchMyResume,
   saveMyResume,
@@ -66,8 +66,9 @@ export function ResumeEditor() {
       setExperience((resume.experience ?? []) as ResumeExperience[])
       setIsPublic(resume.is_public ?? false)
       if (resume.cv_file_path) {
-        const { data } = supabase.storage.from("cv-files").getPublicUrl(resume.cv_file_path)
-        setCv({ path: resume.cv_file_path, url: data.publicUrl })
+        // الوعاء خاص (CV-01): رابط موقّت لصاحب الملف بدل الرابط العام
+        const url = await cvSignedUrl(resume.cv_file_path)
+        if (url) setCv({ path: resume.cv_file_path, url })
       }
     }
     setLoading(false)

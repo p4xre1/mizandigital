@@ -1,0 +1,465 @@
+{
+  "version": 1,
+  "note": "Authored from repository data (src/data/lexicon.client.json, reference-map.json). Not checked against the official gazette.",
+  "items": [
+    {
+      "id": "q01",
+      "question": "ما هو الالتزام؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "obligation"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q02",
+      "question": "ما معنى البطلان؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "nullite"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q03",
+      "question": "ما هو الطلاق؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "divorce"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|78"
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "ما هي الحضانة؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "garde"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|163-171"
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "ما هي النفقة؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "pension-alimentaire"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|189"
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "ما هو التقادم؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "prescription"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|371"
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "ما هي الوصية؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "testament"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|277"
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "ما هو الزواج؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "mariage"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|4"
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "ما هي الجناية؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "crime"
+      ],
+      "expectedArticles": [
+        "ق.ج|111"
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "ما هو الحجز العقاري؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "saisie"
+      ],
+      "expectedArticles": [
+        "ظ.ت.ع|87"
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "ما هي شروط صحة الالتزام؟",
+      "expectedIntent": "conditions",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "obligation"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|2"
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "ما هي أركان العقد؟",
+      "expectedIntent": "conditions",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "contrat"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|2"
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "ما هي شروط الطلاق؟",
+      "expectedIntent": "conditions",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "divorce"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|78"
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "ما هي شروط النفقة على الزوجة؟",
+      "expectedIntent": "conditions",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "pension-alimentaire"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|194"
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "ما نص الفصل 2 من قانون الالتزامات والعقود؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "obligation",
+        "contrat"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|2"
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "ما هو الفصل 306 من ق.ل.ع؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "nullite"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|306"
+      ]
+    },
+    {
+      "id": "q17",
+      "question": "ما هي المادة 166 من مدونة الأسرة؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "garde"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|166"
+      ]
+    },
+    {
+      "id": "q18",
+      "question": "ما هو الفصل 134 من الدستور؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "answer",
+      "expectedTerms": [],
+      "expectedArticles": [
+        "دستور 2011|134"
+      ]
+    },
+    {
+      "id": "q19",
+      "question": "ما هو الفصل 9999 من قانون الالتزامات والعقود؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "insufficient",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q20",
+      "question": "ما نص الفصل 11 من الدستور؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "answer",
+      "expectedTerms": [],
+      "expectedArticles": [
+        "دستور 2011|11"
+      ]
+    },
+    {
+      "id": "q21",
+      "question": "ما هو الفصل 4 من القانون الجنائي؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "insufficient",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q22",
+      "question": "ما الفرق بين الجناية والجنحة؟",
+      "expectedIntent": "comparison",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "crime",
+        "delit"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q23",
+      "question": "الفرق بين البطلان والفسخ",
+      "expectedIntent": "comparison",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "nullite",
+        "resolution-contrat"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q24",
+      "question": "الفرق بين الجريمة والمخالفة",
+      "expectedIntent": "comparison",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "contravention"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q25",
+      "question": "كيف أرفع دعوى الطلاق؟",
+      "expectedIntent": "procedure",
+      "expectedMode": "insufficient",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q26",
+      "question": "ما هي خطوات تسجيل عقد الزواج؟",
+      "expectedIntent": "procedure",
+      "expectedMode": "insufficient",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q27",
+      "question": "كيف يتم الحجز العقاري؟",
+      "expectedIntent": "procedure",
+      "expectedMode": "insufficient",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q28",
+      "question": "ما هو الالتزام الباطل؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "nullite"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|306"
+      ]
+    },
+    {
+      "id": "q29",
+      "question": "هل يجوز الرجوع في الإيجاب؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "contrat"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|26"
+      ]
+    },
+    {
+      "id": "q30",
+      "question": "هل للتقادم استثناءات؟",
+      "expectedIntent": "conditions",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "prescription"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|387"
+      ]
+    },
+    {
+      "id": "q31",
+      "question": "شنو هو الالتزام؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "obligation"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q32",
+      "question": "chno howa lbotlan?",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "nullite"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q33",
+      "question": "shno hiya nafaqa dyal lmra?",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "pension-alimentaire"
+      ],
+      "expectedArticles": [
+        "قانون 70.03|189"
+      ]
+    },
+    {
+      "id": "q34",
+      "question": "شنو هي شروط صحة الالتزام؟",
+      "expectedIntent": "conditions",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "obligation"
+      ],
+      "expectedArticles": [
+        "ق.ل.ع|2"
+      ]
+    },
+    {
+      "id": "q35",
+      "question": "ما هو الإلتزام؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "obligation"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q36",
+      "question": "ما هو التقادن؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "prescription"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q37",
+      "question": "ما هو الطلاك؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "divorce"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q38",
+      "question": "ما هو الحكم؟",
+      "expectedIntent": "definition",
+      "expectedMode": "answer",
+      "expectedTerms": [
+        "jugement"
+      ],
+      "expectedArticles": []
+    },
+    {
+      "id": "q39",
+      "question": "ما هو الرهن؟",
+      "expectedIntent": "definition",
+      "expectedMode": "clarify",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q40",
+      "question": "ما هو قانون الشغل رقم 65.99؟",
+      "expectedIntent": "legislation_lookup",
+      "expectedMode": "insufficient",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q41",
+      "question": "ما هي وصفة الكسكس بالخضر؟",
+      "expectedIntent": "unsupported",
+      "expectedMode": "unsupported",
+      "expectedTerms": [],
+      "expectedArticles": []
+    },
+    {
+      "id": "q42",
+      "question": "هل يحق لي رفع دعوى ضد جاري؟",
+      "expectedIntent": "personal",
+      "expectedMode": "refused",
+      "expectedTerms": [],
+      "expectedArticles": []
+    }
+  ],
+  "revisions": [
+    {
+      "id": "q38",
+      "from": "clarify",
+      "to": "answer",
+      "reason": "المعجم يحتوي مصطلح \"الحكم\" واحداً فقط (jugement). لا غموض في المصادر. (كانت هذه المراجعة مدونة في الذاكرة ولم تُطبَّق على الملف.)"
+    },
+    {
+      "id": "q20",
+      "from": "insufficient",
+      "to": "answer",
+      "reason": "فحص البيانات بعد التشغيل: الفصل 11 من دستور 2011 موجود في المعجم (ntq91j). التوقع الأول كان خاطئاً."
+    }
+  ]
+}

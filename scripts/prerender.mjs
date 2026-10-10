@@ -23,6 +23,8 @@ import {
   slugify,
 } from "../shared/seo/url-policy.js";
 import { downloadLinkOf } from "../shared/archive/links.js";
+import { EDITORIAL, SOURCES } from "../shared/seo/editorial.js";
+import { ARCHIVE_GUIDE } from "../shared/seo/archive-guide.js";
 import { ARTICLES_HUB_META, buildArticlesHubSchema } from "../shared/seo/articles-hub.js";
 import { dateOf, fetchPublishedCmsContent } from "./lib/cms-content.mjs";
 import {
@@ -686,7 +688,7 @@ const homeHeroHtml = `
             <div class="pointer-events-none hidden md:block absolute -bottom-24 -right-24 size-[200px] rounded-full bg-[#fef3c7] dark:bg-[#78350f]/5 blur-[40px]"></div>
             <div class="container relative mx-auto max-w-[800px] px-6 py-14 lg:py-20 flex flex-col items-center text-center">
               <h1 class="mt-6 flex flex-col gap-3 md:gap-4 text-[34px] md:text-[48px] font-black leading-[1.2] tracking-[-0.03em] text-[#0f172a] dark:text-white"><span>افتح إمكانياتك مع</span><span class="text-[#2563eb]">التعلم القانوني</span><span class="text-[20px] md:text-[24px] font-bold tracking-tight text-[#475569] dark:text-[#94a3b8] block">Online Learning</span></h1>
-              <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!</p>
+              <p class="mt-5 max-w-[560px] text-[14px] md:text-[15px] leading-7 text-[#475569] dark:text-[#94a3b8]">ميزان الرقمية هي منصة مغربية مجانية لطلبة كليات الحقوق، تجمع ملخصات S1-S6 والقاموس القانوني والمقالات والاختبارات في مكان واحد، بلا إعلانات تجارية.</p>
               <div class="mt-7 flex flex-wrap items-center justify-center gap-3">
                 <a href="/articles" class="inline-flex items-center gap-2 rounded-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-7 py-3 text-[14px] font-bold shadow-[0_4px_12px_rgba(37,99,235,0.2)] transition-colors">ابدأ الآن<span class="size-5 grid place-items-center rounded-full bg-white/20 text-[12px]">←</span></a>
                 <a href="/quiz" class="inline-flex items-center gap-2 rounded-full border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] px-7 py-3 text-[14px] font-bold text-[#0f172a] dark:text-white hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-colors">اختبر معرفتك القانونية<span class="size-5 grid place-items-center rounded-full bg-[#f1f5f9] dark:bg-[#334155] text-[12px]">←</span></a>
@@ -924,9 +926,22 @@ ${homeServerRenderedContentHtml}
             <p>
               يجب التعامل مع ميزان الرقمية باعتبارها منصة تعليمية وبحثية،
               وليس بديلاً عن النص القانوني الرسمي.
-              عند دراسة قاعدة قانونية، يُنصح بالرجوع إلى الجريدة الرسمية
-              والنص التشريعي الرسمي والمصادر الجامعية أو المؤسساتية ذات الصلة.
+              عند دراسة قاعدة قانونية، يُنصح بالرجوع إلى
+              <a href="https://www.sgg.gov.ma/BulletinOfficiel.aspx" target="_blank" rel="noopener noreferrer">الجريدة الرسمية</a>
+              والنص التشريعي الرسمي في
+              <a href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx" target="_blank" rel="noopener noreferrer">بنك المعطيات القانونية</a>،
+              وإلى
+              <a href="https://adala.justice.gov.ma/" target="_blank" rel="noopener noreferrer">بوابة عدالة</a>
+              للإجراءات القضائية، ثم إلى المصادر الجامعية أو المؤسساتية ذات الصلة.
             </p>
+
+            <blockquote class="mt-4 border-r-2 border-[#2563eb]/40 pr-4">
+              <p>«نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.»</p>
+              <footer>
+                —
+                <a href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx" target="_blank" rel="noopener noreferrer">الدستور المغربي (2011)، الفصل 1</a>
+              </footer>
+            </blockquote>
 
             <p>
               تقدم المنصة روابط وإحالات عندما تكون متاحة في بيانات المحتوى،
@@ -999,51 +1014,60 @@ ${homeLawArchiveHtml}
     title: "الأرشيف الدراسي | ميزان الرقمية",
     description:
       "أرشيف دراسي لطلبة الحقوق بالمغرب مصنف حسب الفصول S1 إلى S6.",
+    schema: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "الأرشيف الدراسي لطلبة الحقوق",
+      description:
+        "أرشيف دراسي لطلبة الحقوق بالمغرب مصنف حسب الفصول S1 إلى S6.",
+      url: absoluteUrl("/archive"),
+      inLanguage: "ar-MA",
+      about: "القانون المغربي",
+      // المؤلف والتاريخ يطابقان البيانات الظاهرة في الصفحة (byline).
+      author: authorSchema,
+      publisher: { "@id": `${DOMAIN}/#organization` },
+      dateModified: `${EDITORIAL.reviewedIso}T00:00:00+01:00`,
+    },
+    extraSchema: [
+      {
+        "@type": "FAQPage",
+        mainEntity: ARCHIVE_GUIDE.faq.items.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: { "@type": "Answer", text: item.answer },
+        })),
+      },
+      buildBreadcrumbSchema([
+        { name: "الرئيسية", path: "/" },
+        { name: "الأرشيف الدراسي", path: "/archive" },
+      ]),
+    ],
     staticBody: `
       <main dir="rtl" lang="ar-MA">
         <article>
           <h1>الأرشيف الدراسي لطلبة الحقوق</h1>
+          <p class="byline">${escapeHtml(ARCHIVE_GUIDE.byline)}</p>
 
           <p>
-            <strong>
-              الأرشيف الدراسي هو القسم المخصص لدروس القانون للطلبة، ويتيح الوصول إلى المواد التعليمية
-              حسب الفصول الجامعية من S1 إلى S6.
-            </strong>
+            <strong>${escapeHtml(ARCHIVE_GUIDE.lead)}</strong>
           </p>
 
           <p>
             يجمع الأرشيف الدراسي ملخصات المواد الأساسية لطلبة شعبة القانون
             (الخاص والعمومي) في كليات العلوم القانونية والاقتصادية
-            والاجتماعية بالمغرب: ملخصات المحاضرات، أسئلة الامتحانات مع
-            الأجوبة، ونماذج امتحانات من جامعات مختلفة. كل ملف موضح بطاقته
-            الفصل الدراسي (S1 إلى S6) والمادة والجامعة أو الكلية
-            المنطلقة منها، مع الإشارة إلى النظام (قديم أو جديد) الذي
-            ينتمي إليه.
+            والاجتماعية بالمغرب. كل ملف موضح بطاقته الفصل الدراسي والمادة
+            والجامعة أو الكلية المنطلقة منها.
           </p>
 
           <p>
-            الطريقة المثلى للاستفادة: ابدأ من فصلك الدراسي الحالي،
-            وقارن بين ملفات المادة الواحدة من جامعات مختلفة لتثبيت
-            المنهجية المتوقعة في الامتحان، ثم انتقل إلى النصوص
-            التشريعية ذات الصلة (ظهير الالتزامات والعقود، مدونة
-            التجارة، مدونة الأسرة، القانون الجنائي) عبر قسم
+            الطريقة المثلى للاستفادة: ابدأ من فصلك الدراسي الحالي، وقارن بين
+            ملفات المادة الواحدة من جامعات مختلفة لتثبيت المنهجية المتوقعة في
+            الامتحان، ثم انتقل إلى
             <a href="/archive?semester=${encodeURIComponent("عام")}">النصوص القانونية</a>
             في الأرشيف نفسه، و<a href="/lexicon">القاموس القانوني</a> في المنصة.
           </p>
 
-          <h2>ما هي فصول الأرشيف الدراسي؟</h2>
-
-          <ul>
-            <li><a href="/s1">S1 — الفصل الأول</a></li>
-            <li><a href="/s2">S2 — الفصل الثاني</a></li>
-            <li><a href="/s3">S3 — الفصل الثالث</a></li>
-            <li><a href="/s4">S4 — الفصل الرابع</a></li>
-            <li><a href="/s5">S5 — الفصل الخامس</a></li>
-            <li><a href="/s6">S6 — الفصل السادس</a></li>
-          </ul>
-          <h2>ما الملفات المتاحة في الأرشيف؟</h2>
-
-${renderCrawlList(docPages, { heading: "قائمة ملفات الملخصات والامتحانات" })}
+${renderArchiveGuide()}
         </article>
       </main>
     `,
@@ -2699,6 +2723,11 @@ const countBy = (items, key) => {
   return Array.from(map.entries());
 };
 
+// تاريخ آخر مراجعة لمحتوى /quiz (يُعرض في الصفحة وفي المخطط). يُحدَّث يدوياً
+// عند تغيير النص، لا عند كل بناء، حتى لا يصير «آخر تحديث» تاريخ النشر فقط.
+const QUIZ_LAST_REVIEWED = EDITORIAL.reviewedIso;
+const QUIZ_LAST_REVIEWED_LABEL = EDITORIAL.reviewedLabel;
+
 const QUIZ_TIERS = [
   {
     path: "/quiz/university",
@@ -2814,13 +2843,20 @@ const QUIZ_TIERS = [
 pages.push(
   {
     path: "/quiz",
-    title: "اختبارات القانون المغربي — الكلية، المباريات، المقابلات | ميزان",
+    title: "اختبارات القانون المغربي للكلية والمباريات | ميزان الرقمية",
     description:
       "اختبر نفسك في القانون المغربي عبر أربعة مسارات: اختبارات طلبة الكلية من S1 إلى S6، اختبار عشوائي للثقافة القانونية، مباريات الأمن الوطني والقضاء والوظيفة العمومية، وتدريبات المقابلات المهنية.",
     schema: {
       "@context": "https://schema.org",
       "@type": "ItemList",
-      name: "مسارات الاختبارات القانونية في ميزان",
+      name: `مسارات الاختبارات القانونية في ${BRAND}`,
+      url: absoluteUrl("/quiz"),
+      inLanguage: "ar-MA",
+      // المؤلف والتواريخ: الصفحة تحمل byline ظاهراً، فيجب أن يطابقه المخطط.
+      // المؤلف مُضمَّن كاملاً لأن عقدة #author لا تُصدَر في الهيكل المشترك.
+      author: authorSchema,
+      publisher: { "@id": `${DOMAIN}/#organization` },
+      dateModified: `${QUIZ_LAST_REVIEWED}T00:00:00+01:00`,
       itemListElement: QUIZ_TIERS.map((item, index) => ({
         "@type": "ListItem",
         position: index + 1,
@@ -2838,49 +2874,55 @@ pages.push(
       <main dir="rtl" lang="ar-MA">
         <article>
           <h1>الاختبارات القانونية</h1>
+          <p class="byline">إعداد فريق ميزان الرقمية · آخر مراجعة: ${QUIZ_LAST_REVIEWED_LABEL}</p>
           <p>
-            أربعة مسارات لاختبار نفسك في القانون المغربي: تحضير امتحانات الكلية،
-            ثقافة قانونية عامة، التدريب على صيغة المباريات المهنية، والتأهيل العملي
-            لمقابلات التدريب والعمل. كل إجابة صحيحة تمنحك نقاط خبرة وترقّيك من الرتبة D حتى SSS.
+            <strong>الاختبارات القانونية في ميزان الرقمية بنك من ${quizQuestions.length} سؤالاً في القانون المغربي، موزّعة على أربعة مسارات: تحضير امتحانات الكلية من S1 إلى S6، والثقافة القانونية العامة، ومباريات الأمن الوطني والقضاء والوظيفة العمومية والجمارك، والتأهيل لمقابلات التدريب والعمل.</strong>
+            كل إجابة صحيحة تمنحك نقاط خبرة (XP) ترفع رتبتك من D إلى SSS.
           </p>
+          <h2>ما المسارات الأربعة للاختبار؟</h2>
+          <p>اختر المسار الذي يطابق هدفك الحالي:</p>
           <ul>
             ${QUIZ_TIERS.map(
               (item) => `<li><a href="${item.path}">${escapeHtml(item.heading)}</a> — ${escapeHtml(item.description)}</li>`
             ).join("\n            ")}
             <li><a href="/quiz/placement">اختبار تحديد المستوى</a> — 15 سؤالاً تحدد رتبتك الابتدائية.</li>
           </ul>
-          <h2>كيف يعمل نظام النقاط والرتب؟</h2>
+          <h2>كيف يحسب النظام النقاط والرتب؟</h2>
           <p>
-            تعمل المسارات الأربعة بنظام نقاط الخبرة (XP): كل إجابة صحيحة
-            تضيف نقاطاً إلى رصيدك، وكلما ارتفع الرصيد ارتفعت رتبتك من D
-            وصولاً إلى SSS. وعند الخطأ يعرض لك النظام الإجابة الصحيحة مع
-            شرح مبسط، فتتحول كل جلسة إلى فرصة تعلم لا مجرد تعداد للنقاط.
-            اختر المسار المطابق لهدفك الحالي — مراجعة فصلية، مباراة
-            مهنية، أو تأهيل لمقابلة — والتزم بجلسات قصيرة منتظمة (10 إلى
-            15 سؤالاً يومياً) بدل الجلسات الطويلة المتقطعة؛ فالانتظام هو
-            ما يرسّخ المعلومة في الذاكرة طويلة الأمد.
+            كل إجابة صحيحة تضيف نقاط خبرة (XP) إلى رصيدك، وترتفع رتبتك كلما زاد الرصيد من D وصولاً إلى SSS.
+            عند الخطأ يعرض النظام الإجابة الصحيحة مع شرح مبسط، فتتحول كل جلسة إلى فرصة تعلّم لا مجرد تعداد للنقاط.
           </p>
           <p>
-            الاختبارات متاحة لجميع الزوار دون تسجيل لبدء الجلسات، وعند
-            التسجيل تتابع تقدمك (النقاط، الرتبة، المحاور التي أخطأت فيها)
-            من لوحة حسابك — فيتحول الاختبار من تمرين عشوائي إلى خطة
-            مراجعة موجهة.
+            الاختبارات متاحة لجميع الزوار دون تسجيل لبدء الجلسات، وعند التسجيل تتابع تقدمك
+            (النقاط والرتبة والمحاور التي أخطأت فيها) من لوحة حسابك.
           </p>
-          <h2>خطة أسبوعية تقترحها المسارات</h2>
+          <h2>ما الخطة الأسبوعية المقترحة للمراجعة؟</h2>
           <p>
-            نموذج عملي لأسبوع مراجعة متوازن: يومان على مسار الكلية
-            (المادة التي تدرسها الآن، 10 أسئلة لكل جلسة)، يوم على
-            الاختبار العام (خمس دقائق بعد كل حصة، لتثبيت المصطلحات)،
-            ويومان على المسار المستهدف للمرحلة — المباريات إن كنت
-            تتأهب لاختبار مهني، أو المقابلات إن كنت تخرج هذا الفصل —
-            ويوم راحة أو مراجعة أخطاء فقط. هذه التوزيعات تعادل 60 إلى
-            80 سؤالاً في الأسبوع، وهي الكمية التي تثبت التقدم في الذاكرة
-            دون إرهاق؛ وأكثر منها يقلّ العائد، وأقل منها لا يبني عادة.
-            والقاعدة: المسار العام خفيف ويومياً، والمسار التخصصي ثقيل
-            ومتقطع — فالخلط بينهما يضيع تركيز المراجعة.
+            نموذج عملي لأسبوع مراجعة متوازن: يومان على مسار الكلية (المادة التي تدرسها الآن، 10 أسئلة لكل جلسة)،
+            يوم على الاختبار العام (خمس دقائق بعد كل حصة لتثبيت المصطلحات)، ويومان على المسار المستهدف للمرحلة
+            (المباريات إن كنت تتأهب لاختبار مهني، أو المقابلات إن كنت تخرج هذا الفصل)، ويوم راحة أو مراجعة أخطاء فقط.
           </p>
-          <h2>إجمالي الأسئلة</h2>
-          <p>${quizQuestions.length} سؤالاً موزّعة على المسارات الأربعة.</p>
+          <p>
+            والقاعدة: المسار العام خفيف ويومياً، والمسار التخصصي ثقيل ومتقطع، فالخلط بينهما يضيع تركيز المراجعة.
+            الانتظام في جلسات قصيرة (10 إلى 15 سؤالاً يومياً) هو ما يرسّخ المعلومة في الذاكرة طويلة الأمد.
+          </p>
+          <h2>ما المرجع الرسمي للنصوص التي تراجعها؟</h2>
+          <p>
+            المرجع الرسمي لأي نص قانوني هو الجريدة الرسمية للمملكة المغربية، ويمكن الرجوع إليها عبر
+            <a href="https://www.sgg.gov.ma/BulletinOfficiel.aspx" target="_blank" rel="noopener noreferrer">الأمانة العامة للحكومة (الجريدة الرسمية)</a>.
+            أما نص الدستور فيمكن مطابقته مع الظهير المنشور في
+            <a href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx" target="_blank" rel="noopener noreferrer">بنك المعطيات القانونية</a>.
+          </p>
+          <blockquote>
+            <p>«نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.»</p>
+            <footer>— <a href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx" target="_blank" rel="noopener noreferrer">الدستور المغربي (2011)، الفصل 1</a></footer>
+          </blockquote>
+          <h2>كم سؤالاً في بنك الاختبارات؟</h2>
+          <p>
+            يضم البنك ${quizQuestions.length} سؤالاً موزّعة على المسارات الأربعة:
+            الكلية (${quizByTier("university").length})، والثقافة العامة (${quizByTier("general").length})،
+            والمباريات (${quizByTier("concours").length})، والمقابلات (${quizByTier("interview").length}).
+          </p>
         </article>
       </main>
     `,
@@ -3409,7 +3451,46 @@ function renderNewsStaticHtml(item) {
    الواجهة تظل تعرض بطاقاتها المعتادة بعد hydration.
 ------------------------------------------------------- */
 
-function renderCrawlList(items, { heading, emptyText = "لا توجد عناصر منشورة حالياً." } = {}) {
+/* دليل الأرشيف: الأقسام الخمسة بعناوين أسئلة، ثم الأسئلة الشائعة.
+   النص من shared/seo/archive-guide.js، وهو نفسه ما تعرضه ArchivePage. */
+function renderArchiveGuide() {
+  const g = ARCHIVE_GUIDE;
+  const link = (key) =>
+    `<a href="${SOURCES[key].href}" target="_blank" rel="noopener noreferrer">${escapeHtml(SOURCES[key].name)}</a>`;
+  const legalText = g.legal.parts
+    .map((part) => (typeof part === "string" ? escapeHtml(part) : link(part.source)))
+    .join("");
+
+  return `          <h2>${escapeHtml(g.semesters.title)}</h2>
+          <p>${escapeHtml(g.semesters.intro)}</p>
+          <ul>
+${g.semesters.items
+  .map((s) => `            <li><a href="/archive?semester=${s.code}">${s.code} — ${escapeHtml(s.label)}</a></li>`)
+  .join("\n")}
+          </ul>
+
+          <h2>${escapeHtml(g.files.title)}</h2>
+          <p>${escapeHtml(g.files.text)}</p>
+${renderCrawlList(docPages, { heading: "قائمة ملفات الملخصات والامتحانات", level: 3 })}
+
+          <h2>${escapeHtml(g.search.title)}</h2>
+          <p>${escapeHtml(g.search.text)}</p>
+
+          <h2>${escapeHtml(g.legal.title)}</h2>
+          <p>${legalText}</p>
+          <blockquote>
+            <p>«${escapeHtml(g.legal.quote.text)}»</p>
+            <footer>— <a href="${SOURCES[g.legal.quote.source].href}" target="_blank" rel="noopener noreferrer">${escapeHtml(g.legal.quote.attribution)}</a></footer>
+          </blockquote>
+
+          <h2>${escapeHtml(g.faq.title)}</h2>
+${g.faq.items
+  .map((q) => `          <h3>${escapeHtml(q.question)}</h3>\n          <p>${escapeHtml(q.answer)}</p>`)
+  .join("\n")}
+`;
+}
+
+function renderCrawlList(items, { heading, level = 2, emptyText = "لا توجد عناصر منشورة حالياً." } = {}) {
   const rows = (items || [])
     .filter((item) => item && item.path && item.name)
     .map(
@@ -3423,7 +3504,7 @@ function renderCrawlList(items, { heading, emptyText = "لا توجد عناصر
     .join("\n");
 
   return `
-          <h2>${escapeHtml(heading)}</h2>
+          <h${level}>${escapeHtml(heading)}</h${level}>
 
           <p>
             القائمة الكاملة للعناصر المنشورة، للوصول المباشر من هذه الصفحة:
@@ -3810,6 +3891,83 @@ const appShellHtml = template
 
 await writeFile(join(DIST, "app.html"), appShellHtml, "utf8");
 console.log("✓ dist/app.html — هيكل التطبيق للمسارات الديناميكية (noindex، بلا canonical).");
+
+/* -------------------------------------------------------
+   تحويل المعرّفات القديمة إلى الرابط المعتمد
+-------------------------------------------------------
+
+  الواجهة تعرض الخبر أو الفعالية عند /events/<id> أو /news/<id> بالبحث
+  عن المعرّف في البيانات، لكن حالة الاستجابة تبقى 404 (dist/404.html هيكل
+  التطبيق نفسه). لا ملف ثابت لهذه الروابط، فتُكتب قواعد 301 إلى الرابط
+  المعتمد (slug ← عنوان) في dist/_redirects. القواعد مُولَّدة من البيانات
+  نفسها التي تُبنى منها الصفحات، فلا جدول يدوي يتقادم.
+------------------------------------------------------- */
+
+const LEGACY_REDIRECT_MARKER = "# 5) معرّفات داخلية قديمة";
+const LEGACY_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
+const PAGES_MAX_STATIC_REDIRECTS = 2000;
+
+function legacyIdRedirectRules() {
+  const sections = [
+    ["articles", articlePages],
+    ["news", newsPages],
+    ["events", eventPages],
+  ];
+  const canonicalPaths = new Set(
+    sections.flatMap(([, list]) => list.map((entry) => entry.path))
+  );
+  const rules = new Map();
+  for (const [section, list] of sections) {
+    for (const entry of list) {
+      const id = entry.item && entry.item.id;
+      if (id == null || !LEGACY_ID_PATTERN.test(String(id))) continue;
+      const from = `/${section}/${id}`;
+      // لا تحويل إلى الذات، ولا فوق صفحة معتمدة أخرى، ولا قاعدة مكررة.
+      if (from === entry.path || canonicalPaths.has(from) || rules.has(from)) {
+        continue;
+      }
+      rules.set(from, entry.path);
+    }
+  }
+  return rules;
+}
+
+async function appendLegacyIdRedirects() {
+  const rules = legacyIdRedirectRules();
+  const target = join(DIST, "_redirects");
+  let base = "";
+  try {
+    base = await readFile(target, "utf8");
+  } catch {
+    base = "";
+  }
+  // إعادة البناء دون مسح dist لا تُكرّر الكتلة: نقطع ما وُلّد سابقاً.
+  base = base.split(LEGACY_REDIRECT_MARKER)[0].replace(/\s*$/, "\n");
+
+  const lines = [...rules].map(
+    ([from, to]) => `${from}  ${encodeURI(to)}  301`
+  );
+  const staticRules = base
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith("#")).length;
+  const total = staticRules + lines.length;
+  if (total > PAGES_MAX_STATIC_REDIRECTS) {
+    console.warn(
+      `⚠ ${total} قاعدة إعادة توجيه تتجاوز حدّ Pages (${PAGES_MAX_STATIC_REDIRECTS}).`
+    );
+  }
+
+  const block = [
+    LEGACY_REDIRECT_MARKER + " — مُولَّدة من البيانات وقت البناء.",
+    ...lines,
+    "",
+  ].join("\n");
+  await writeFile(target, `${base}\n${block}`, "utf8");
+  console.log(`✓ dist/_redirects — ${lines.length} تحويل لمعرّفات الفعاليات والأخبار والمقالات.`);
+}
+
+await appendLegacyIdRedirects();
 
 if (shellCount) {
   console.log(

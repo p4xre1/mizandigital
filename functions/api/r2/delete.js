@@ -5,6 +5,8 @@
 import { deleteR2Object } from "../../_shared/r2sign.js"
 import { requireAdmin, jsonResponse } from "../../_shared/auth.js"
 import { checkRateLimit, tooManyRequests } from "../../_shared/guard.js"
+import { logServerError } from "../../_shared/errors.js"
+import { readBoundedJson } from "../../_shared/bodyLimit.js"
 
 /** نفس قائمة المجلدات المعتمدة في presign.js — لا يُحذف شيء خارجها. */
 const ALLOWED_FOLDERS = ["images", "documents", "pdf", "misc"]
@@ -39,7 +41,8 @@ export async function onRequestPost(context) {
   try {
     admin = await requireAdmin(request, env)
   } catch (err) {
-    return jsonResponse({ error: "Server misconfiguration", detail: String(err?.message || err) }, 500)
+    logServerError("r2.delete", err)
+    return jsonResponse({ error: "Server misconfiguration" }, 500)
   }
   if (!admin) {
     return jsonResponse({ error: "Unauthorized" }, 401)
@@ -60,10 +63,12 @@ export async function onRequestPost(context) {
     return jsonResponse({ error: "R2 is not configured on the server" }, 500)
   }
 
-  let body
-  try {
-    body = await request.json()
-  } catch {
+  const parsed = await readBoundedJson(request, 4 * 1024)
+  if (!parsed.ok) {
+    return jsonResponse({ error: "Invalid JSON body" }, parsed.status === 413 ? 413 : 400)
+  }
+  const body = parsed.data
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
     return jsonResponse({ error: "Invalid JSON body" }, 400)
   }
 
@@ -83,7 +88,8 @@ export async function onRequestPost(context) {
     })
     return jsonResponse({ ok: true })
   } catch (err) {
-    return jsonResponse({ error: "Failed to delete object", detail: String(err?.message || err) }, 500)
+    logServerError("r2.delete", err)
+    return jsonResponse({ error: "Failed to delete object" }, 500)
   }
 }
 

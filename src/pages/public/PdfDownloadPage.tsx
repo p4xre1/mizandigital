@@ -328,7 +328,7 @@ export function PdfDownloadPage() {
               هذا النص لأغراض تعليمية وبحثية ولا يغني عن الصياغة الرسمية
               النافذة — راجع الجريدة الرسمية عبر{" "}
               <a
-                href="https://www.sgg.gov.ma/arabe/JournalOfficiel.aspx"
+                href="https://www.sgg.gov.ma/BulletinOfficiel.aspx"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-bold text-primary hover:underline"

@@ -8,6 +8,11 @@
  */
 
 import { checkRateLimit, fingerprint, getClientIp } from "../../_shared/guard.js";
+import { readBoundedJson } from "../../_shared/bodyLimit.js";
+import { logServerError } from "../../_shared/errors.js";
+
+/** حجم أقصى لجسم الطلب: 100 إجابة لا تتجاوز بضعة كيلوبايتات. */
+const MAX_BODY_BYTES = 32 * 1024;
 import { assessQuizSession } from "../../../shared/quiz/anti-farming.js";
 
 const MAX_ANSWERS = 100;
@@ -40,7 +45,12 @@ export async function onRequestPost(context) {
   }
 
   try {
-    const body = await request.json();
+    const parsed = await readBoundedJson(request, MAX_BODY_BYTES);
+    if (!parsed.ok) {
+      return json({ error: "Invalid payload" }, parsed.status === 413 ? 413 : 400);
+    }
+    const body = parsed.data;
+    if (!body || typeof body !== "object") return json({ error: "Invalid payload" }, 400);
     const { mode, label, tier, answers, durationMs, userRef } = body;
 
     if (!mode || !Array.isArray(answers) || answers.length === 0 || answers.length > MAX_ANSWERS) {
@@ -83,13 +93,16 @@ export async function onRequestPost(context) {
     });
 
     if (!rpcRes.ok) {
-      const errText = await rpcRes.text();
-      return json({ error: "RPC failed", details: errText }, 500);
+      // تفصيل خطأ قاعدة البيانات للسجل المُنقّى فقط، لا للعميل.
+      const errText = await rpcRes.text().catch(() => "");
+      logServerError("quiz.submit", `rpc http=${rpcRes.status} ${errText}`);
+      return json({ error: "RPC failed" }, 500);
     }
 
     const data = await rpcRes.json();
     return json({ ok: true, recorded: true, result: Array.isArray(data) ? data[0] : data });
   } catch (e) {
-    return json({ error: e?.message || "Unknown" }, 500);
+    logServerError("quiz.submit", e);
+    return json({ error: "internal_error" }, 500);
   }
 }

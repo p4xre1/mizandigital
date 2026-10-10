@@ -287,7 +287,7 @@ export function HomePage() {
               </h1>
 
               <p className="mt-5 lg:mt-8 max-w-[560px] lg:max-w-[600px] text-[15px] md:text-[16px] lg:text-[20px] leading-7 lg:leading-9 text-[#334155] dark:text-[#cbd5e1]">
-                انطلق في رحلة من المعرفة والمهارة مع مواردنا الإلكترونية. سواء كنت تبحث عن اكتساب خبرات جديدة أو صقل مواهبك، منصتنا المتنوعة تقدم تجربة تعليمية مرنة وجذابة. تمكّن نفسك اليوم!
+                ميزان الرقمية هي منصة مغربية مجانية لطلبة كليات الحقوق، تجمع ملخصات S1-S6 والقاموس القانوني والمقالات والاختبارات في مكان واحد، بلا إعلانات تجارية.
               </p>
 
               <div className="mt-7 lg:mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-3 lg:gap-4">
@@ -315,8 +315,8 @@ export function HomePage() {
         <section ref={contentSectionRef} className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
-              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">استكشف مساراتنا المميزة</h2>
-              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">منصة متكاملة بتصميم عصري نظيف — كل ما يحتاجه طالب القانون في مكان واحد</p>
+              <h2 className="text-[24px] md:text-[28px] font-black text-[#0f172a] dark:text-white">ماذا تجد في ميزان الرقمية؟</h2>
+              <p className="mt-2 text-[13px] text-[#64748b] max-w-[600px] mx-auto">تجمع ميزان ملخصات S1-S6 والقاموس القانوني والمقالات والأخبار، وهي كل ما يحتاجه طالب القانون في مكان واحد.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

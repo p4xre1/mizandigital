@@ -123,8 +123,21 @@ export async function uploadCvFile(
 
   if (error) return { ok: false, error: describeError(error, "رفع ملف السيرة") }
 
-  const { data } = supabase.storage.from(CV_BUCKET).getPublicUrl(path)
-  return { ok: true, path, url: data.publicUrl }
+  const url = await cvSignedUrl(path)
+  if (!url) return { ok: false, error: "تم رفع الملف لكن تعذّر إنشاء رابط المعاينة." }
+  return { ok: true, path, url }
+}
+
+/**
+ * رابط موقّت لملف السيرة. الوعاء خاص (CV-01): الرابط يعمل فقط لصاحب الملف،
+ * أو لأي زائر إذا كانت السيرة منشورة (is_public)، وفق سياسات الوعاء في قاعدة البيانات.
+ * يُرجع null عند الفشل بدل رمي الخطأ، فالواجهة تعرض رسالة بدلاً من رابط مكسور.
+ */
+export async function cvSignedUrl(path: string, expiresInSeconds = 3600): Promise<string | null> {
+  if (!path) return null
+  const { data, error } = await supabase.storage.from(CV_BUCKET).createSignedUrl(path, expiresInSeconds)
+  if (error || !data?.signedUrl) return null
+  return data.signedUrl
 }
 
 /** حذف ملف السيرة القديم. */

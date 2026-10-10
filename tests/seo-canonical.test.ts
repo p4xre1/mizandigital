@@ -554,6 +554,22 @@ describe("شرطة النهاية تُحوَّل 301 إلى الصيغة الق�
       expect(rule, rule).not.toContain("mizan.page");
     }
   });
+
+  test("الروابط التي لم توجد قطّ تُحوَّل 301 إلى قسم قائم", () => {
+    const rules = read("public/_redirects")
+      .split("\n")
+      .map((line) => line.trim().split(/\s+/))
+      .filter((parts) => parts.length === 3 && parts[0].startsWith("/"));
+    const find = (from: string) => rules.find(([f]) => f === from);
+
+    expect(find("/docs/*")).toEqual(["/docs/*", "/archive", "301"]);
+    expect(find("/documents/*")).toEqual(["/documents/*", "/archive", "301"]);
+    expect(find("/library")).toEqual(["/library", "/archive", "301"]);
+    expect(find("/legal-qa")).toEqual(["/legal-qa", "/faq", "301"]);
+    expect(find("/register")).toEqual(["/register", "/signup", "301"]);
+    expect(find("/fields/*")).toEqual(["/fields/*", "/articles", "301"]);
+    expect(find("/article/*")).toEqual(["/article/*", "/articles/:splat", "301"]);
+  });
 });
 
 /* ── 10. حالة 404 والمسارات التطبيقية (لا canonical مستعار) ──────────────── */

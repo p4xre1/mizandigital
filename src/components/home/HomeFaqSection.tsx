@@ -109,6 +109,57 @@ export function HomeFaqSection({ lexiconCount, articlesCount, schoolsCount }: Ho
           })}
         </div>
 
+        {/* مصادر رسمية: روابط مسمّاة إلى الجهات الرسمية، واقتباس من نص تشريعي منسوب إلى مصدره. */}
+        <div className="mt-8 rounded-2xl border border-border bg-card p-5">
+          <h3 className="text-sm font-black text-foreground">ما المصادر الرسمية التي نرجع إليها؟</h3>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            النص الرسمي للقانون يُنشر في{" "}
+            <a
+              href="https://www.sgg.gov.ma/BulletinOfficiel.aspx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-primary underline underline-offset-2"
+            >
+              الجريدة الرسمية
+            </a>
+            ، ويمكن الاطلاع على النصوص التشريعية في{" "}
+            <a
+              href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-primary underline underline-offset-2"
+            >
+              بنك المعطيات القانونية
+            </a>
+            ، وعلى الإجراءات القضائية في{" "}
+            <a
+              href="https://adala.justice.gov.ma/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-primary underline underline-offset-2"
+            >
+              بوابة عدالة
+            </a>
+            .
+          </p>
+          <blockquote className="mt-4 border-r-2 border-primary/40 pr-4">
+            <p className="text-xs leading-relaxed text-foreground">
+              «نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.»
+            </p>
+            <footer className="mt-2 text-[11px] text-muted-foreground">
+              —{" "}
+              <a
+                href="https://bdj.mmsp.gov.ma/Ar/Document/5601-Dahir-n-1-11-91-du-27-cha%C3%A2bane-1432-29-juillet-2.aspx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-primary underline underline-offset-2"
+              >
+                الدستور المغربي (2011)، الفصل 1
+              </a>
+            </footer>
+          </blockquote>
+        </div>
+
         {/* ما سبق خلاصة؛ الباقي في صفحة الأسئلة الشائعة. الرابط نسبي
             (لا نطاق مطلق) فيعمل على المعاينة وعلى الإنتاج دون إعادة تحميل. */}
         <div className="mt-8 text-center">

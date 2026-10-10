@@ -172,7 +172,7 @@ export function HomeFeatures({ counts }: { counts: FeatureCounts }) {
             id="home-features-title"
             className="mt-3 text-[30px] md:text-[38px] font-black leading-[1.3] text-[#0f172a] dark:text-white [text-wrap:balance]"
           >
-            من النص القانوني إلى الاختبار، في مكان واحد
+            كيف تنتقل من النص القانوني إلى الاختبار؟
           </h2>
           <p className="mx-auto mt-5 max-w-[560px] text-[17px] leading-8 text-[#334155] dark:text-[#cbd5e1] [text-wrap:balance]">
             اقرأ النص، افهم المصطلح، راجع الملخص، ثم اختبر نفسك.

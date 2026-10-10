@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "purpose": "قياس قواعد التوضيح قبل الاسترجاع (shared/qa/clarify.js) على أسئلة مكتوبة يدوياً.",
+    "labelling": "التصنيفات كتبها مؤلف القواعد نفسه، وليست تصنيفاً مستقلاً من خبير. النتائج تقيس اتساق القواعد مع النية المقصودة، لا صحة الجواب القانوني.",
+    "expect": "answer = يُجاب مباشرة (قرار answer)، clarify = يُعرض توضيح قبل الاسترجاع. kind تُقارن فقط عند clarify."
+  },
+  "items": [
+    { "id": "a01", "question": "ما هو الالتزام؟", "expect": "answer", "lang": "ar" },
+    { "id": "a02", "question": "ما نص الفصل 2 من قانون الالتزامات والعقود؟", "expect": "answer", "lang": "ar" },
+    { "id": "a03", "question": "ما هي شروط صحة الالتزام؟", "expect": "answer", "lang": "ar" },
+    { "id": "a04", "question": "ما هو التقادم؟", "expect": "answer", "lang": "ar", "note": "مفهوم وحده، لا يحتاج فرعاً" },
+    { "id": "a05", "question": "التقادم المدني ما شروطه؟", "expect": "answer", "lang": "ar", "note": "الفرع مذكور" },
+    { "id": "a06", "question": "ما هو الرهن الحيازي؟", "expect": "answer", "lang": "ar", "note": "مصطلح مطابق كاملاً" },
+    { "id": "a07", "question": "ما الفرق بين الرهن الحيازي والرهن الرسمي؟", "expect": "answer", "lang": "ar", "note": "مصطلحان مطابقان" },
+    { "id": "a08", "question": "كيف أبحث في الأرشيف؟", "expect": "answer", "lang": "ar", "note": "سؤال عن الموقع، كلماته معروفة" },
+    { "id": "a09", "question": "ما هي الكليات المدرجة في الدليل؟", "expect": "answer", "lang": "ar" },
+    { "id": "a10", "question": "ما هو التقادم الجنائي؟", "expect": "answer", "lang": "ar", "note": "الفرع مذكور، وجوابه يُرفض دون نص موثّق (ليس توضيحاً)" },
+    { "id": "a11", "question": "شنو هو التقادم؟", "expect": "answer", "lang": "darija", "note": "دارجة بالحروف العربية، مفهوم وحده" },
+    { "id": "a12", "question": "ما هو الطلاق؟", "expect": "answer", "lang": "ar", "note": "مصطلح معجمي مطابق" },
+
+    { "id": "c01", "question": "ما هي شروط التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "ثلاث قراءات: مدني، جنائي، تجاري" },
+    { "id": "c02", "question": "التقادم في القانون؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "فرع غير محدد" },
+    { "id": "c03", "question": "ما حكم الرهن؟", "expect": "clarify", "kind": "ambiguous_term", "lang": "ar", "note": "الرهن الحيازي أو الرهن الرسمي" },
+    { "id": "c04", "question": "ما هو التقاد؟", "expect": "clarify", "kind": "misspelling", "lang": "ar", "note": "حرف محذوف من التقادم" },
+    { "id": "c05", "question": "ما هي حالات عدم سريان التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "النفي (عدم) يجب أن يبقى في الاقتراح" },
+    { "id": "c06", "question": "ما هي الحالات التي لا يسري فيها التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "النفي (لا) يجب أن يبقى" },
+    { "id": "c07", "question": "واش كاين التقادم فالقانون؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "darija", "note": "دارجة بالحروف العربية، فرع غير محدد" },
+    { "id": "c08", "question": "شنو هي شروط التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "darija", "note": "دارجة، شروط دون فرع" },
+    { "id": "c09", "question": "شنو؟", "expect": "clarify", "kind": "incomplete", "lang": "darija", "note": "لا موضوع" },
+    { "id": "c10", "question": "الشروط؟", "expect": "clarify", "kind": "incomplete", "lang": "ar", "note": "لا موضوع" },
+    { "id": "c11", "question": "كيف يعمل؟", "expect": "clarify", "kind": "missing_reference", "lang": "ar", "note": "إشارة بلا سياق" },
+    { "id": "c12", "question": "ما هو هذا؟", "expect": "clarify", "kind": "missing_reference", "lang": "ar", "note": "إشارة بلا سياق" },
+    { "id": "c13", "question": "ما نص هذا الفصل؟", "previousQuestion": "ما هو التقادم المدني؟", "expect": "clarify", "kind": "missing_reference", "lang": "ar", "note": "مرجع يُحل من السؤال السابق، ويُعرض للتأكيد" },
+    { "id": "c14", "question": "ما هي شروط التقادم؟", "previousQuestion": "ما هو التقادم المدني؟", "expect": "answer", "lang": "ar", "note": "الفرع يُورَث من السؤال السابق، فلا يُسأل من جديد" },
+    { "id": "c15", "question": "ما هو التقادم في القانون المغربي؟", "expect": "answer", "lang": "ar", "note": "مفهوم وحده مع ذكر البلد، لا يُسأل" }
+  ]
+}
