@@ -140,9 +140,17 @@ describe("قاعدة المعرفة", () => {
   test("كل رابط داخلي يطابق مساراً موجوداً في AppRoutes أو ملفاً عاماً", () => {
     const routesSource = readFileSync(join(ROOT, "src/routes/AppRoutes.tsx"), "utf8")
     const routePatterns = [...routesSource.matchAll(/path="([^"]+)"/g)].map((m) => m[1])
-    const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    const toRegex = (pattern: string) =>
-      new RegExp("^" + pattern.split(/:[A-Za-z]+/).map(escapeRegExp).join("[^/]+") + "$")
+    // مقارنة المقاطع مباشرةً (بلا بناء RegExp من نص المسار): كل مقطع `:اسم` يطابق مقطعاً غير فارغ.
+    const matchesRoute = (pattern: string, path: string) => {
+      const patternSegments = pattern.split("/")
+      const pathSegments = path.split("/")
+      return (
+        patternSegments.length === pathSegments.length &&
+        patternSegments.every((segment, i) =>
+          /^:[A-Za-z]+$/.test(segment) ? pathSegments[i].length > 0 : segment === pathSegments[i],
+        )
+      )
+    }
 
     const unknown: string[] = []
     for (const entry of allEntries()) {
@@ -151,7 +159,7 @@ describe("قاعدة المعرفة", () => {
         if (!existsSync(join(ROOT, "public", path))) unknown.push(path)
         continue
       }
-      const matched = routePatterns.some((pattern) => pattern.startsWith("/") && toRegex(pattern).test(path))
+      const matched = routePatterns.some((pattern) => pattern.startsWith("/") && matchesRoute(pattern, path))
       if (!matched) unknown.push(path)
     }
     expect(unknown).toEqual([])
