@@ -33,14 +33,14 @@ AS $$
   );
 $$;
 
-CREATE OR REPLACE FUNCTION public.help_terms_are_plain(values text[])
+CREATE OR REPLACE FUNCTION public.help_terms_are_plain(terms text[])
 RETURNS boolean
 LANGUAGE sql
 IMMUTABLE
 SET search_path = public
 AS $$
-  SELECT values IS NULL OR NOT EXISTS (
-    SELECT 1 FROM unnest(values) AS t WHERE NOT public.help_text_is_plain(t)
+  SELECT terms IS NULL OR NOT EXISTS (
+    SELECT 1 FROM unnest(terms) AS t WHERE NOT public.help_text_is_plain(t)
   );
 $$;
 

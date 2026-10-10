@@ -263,6 +263,9 @@ describe("ربط اللوحة بالمسارات والقاعدة", () => {
     expect(sql).toContain("CREATE TABLE IF NOT EXISTS public.help_audit")
     expect(sql).toContain("help_settings_no_delete")
     expect(sql).toContain("auth.uid()")
+    // `values` is a reserved word in PostgreSQL and breaks CREATE FUNCTION.
+    expect(sql).toContain("help_terms_are_plain(terms text[])")
+    expect(sql).not.toMatch(/help_terms_are_plain\s*\(\s*values\b/)
   })
 
   test("المسار /admin/help-assistant مسجّل في الراوتر والقائمة الجانبية", () => {
