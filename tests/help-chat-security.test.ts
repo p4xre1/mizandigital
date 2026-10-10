@@ -251,3 +251,24 @@ describe("السجل الأمني", () => {
     expect(parsed.userHash).toMatch(/^[0-9a-f]{16}$/)
   })
 })
+
+
+describe("help config diagnostics remain server-only", () => {
+  test.each([401, 403, 404, 500])("upstream HTTP %i is logged with the public request ID, not returned", async (status) => {
+    settingsStatus = status
+    const res = await call("كيف أبحث في الأرشيف؟")
+    expect(res.status).toBe(503)
+    expect(await res.json()).toEqual({ error: "guard_config_unavailable" })
+    const requestId = res.headers.get("X-Request-Id")
+    expect(requestId).toBeTruthy()
+    const events = warnSpy.mock.calls.map(([line]: [string]) => JSON.parse(line))
+    expect(events).toContainEqual(expect.objectContaining({
+      event: "guard_config_unavailable",
+      requestId,
+      code: "settings_http",
+      upstreamStatus: status,
+    }))
+    expect(JSON.stringify(events)).not.toContain(SERVICE_KEY)
+    expect(JSON.stringify(events)).not.toContain("كيف أبحث في الأرشيف؟")
+  })
+})

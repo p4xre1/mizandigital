@@ -204,7 +204,9 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
         const last = (window as unknown as Record<string, number>).__helpChatLastErrorTs ?? 0
         const now = Date.now()
         if (errKey !== (window as unknown as Record<string, string>).__helpChatLastErrKey || now - last > 1500) {
-          console.warn(`[help-chat] server error ${res.status}:`, data?.error ?? "(no JSON body)")
+          console.warn(`[help-chat] server error ${res.status}:`, data?.error ?? "(no JSON body)", {
+            requestId: res.headers.get("X-Request-Id"),
+          })
           ;(window as unknown as Record<string, unknown>).__helpChatLastErrorTs = now
           ;(window as unknown as Record<string, unknown>).__helpChatLastErrKey = errKey
         }

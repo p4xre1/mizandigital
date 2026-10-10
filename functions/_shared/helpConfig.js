@@ -18,11 +18,12 @@ const OK_TTL_MS = 60_000
 let cached = null
 
 export class GuardConfigError extends Error {
-  /** @param {string} code */
-  constructor(code, message) {
+  /** @param {string} code @param {string} message @param {number | null} [upstreamStatus] */
+  constructor(code, message, upstreamStatus = null) {
     super(message)
     this.name = "GuardConfigError"
     this.code = code
+    this.upstreamStatus = upstreamStatus
   }
 }
 
@@ -41,7 +42,10 @@ export async function loadHelpConfig(env) {
 
   const supabaseUrl = env?.SUPABASE_URL || env?.VITE_SUPABASE_URL
   const serviceKey = env?.SUPABASE_SERVICE_ROLE_KEY
-  if (!supabaseUrl || !serviceKey) {
+  if (!supabaseUrl) {
+    throw new GuardConfigError("missing_supabase_url", "SUPABASE_URL مطلوب لقراءة قواعد المساعد")
+  }
+  if (!serviceKey) {
     throw new GuardConfigError("missing_service_key", "SUPABASE_URL و SUPABASE_SERVICE_ROLE_KEY مطلوبان لقراءة قواعد المساعد")
   }
 
@@ -58,13 +62,14 @@ export async function loadHelpConfig(env) {
         { headers, signal: AbortSignal.timeout(5000) },
       ),
     ])
-    if (!settingsRes.ok) throw new GuardConfigError("settings_http", `help_settings HTTP ${settingsRes.status}`)
-    if (!qaRes.ok) throw new GuardConfigError("qa_http", `help_qa HTTP ${qaRes.status}`)
+    if (!settingsRes.ok) throw new GuardConfigError("settings_http", `help_settings HTTP ${settingsRes.status}`, settingsRes.status)
+    if (!qaRes.ok) throw new GuardConfigError("qa_http", `help_qa HTTP ${qaRes.status}`, qaRes.status)
     settingsRows = await settingsRes.json()
     qaRows = await qaRes.json()
   } catch (error) {
     if (error instanceof GuardConfigError) throw error
-    throw new GuardConfigError("fetch_failed", error?.message || "fetch failed")
+    const code = error?.name === "TimeoutError" ? "fetch_timeout" : "fetch_failed"
+    throw new GuardConfigError(code, "Help configuration request failed")
   }
 
   if (!Array.isArray(settingsRows) || settingsRows.length === 0) {

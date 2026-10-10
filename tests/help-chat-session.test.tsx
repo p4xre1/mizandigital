@@ -197,3 +197,27 @@ describe("مساعد الأسئلة: لا «انتهت جلستك» كاذبة �
     expect(el.textContent).not.toContain(SESSION_EXPIRED)
   })
 })
+
+
+it("503 logs a request ID for deployment diagnosis without refreshing the session", async () => {
+  mocks.getSession.mockResolvedValue({ data: { session: supabaseSession("tok-valid", HOUR) }, error: null })
+  const res = jsonResponse(503, { error: "guard_config_unavailable" })
+  res.headers.set("X-Request-Id", "help-request-test")
+  fetchSpy.mockResolvedValue(res)
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {})
+  try {
+    const el = await renderChat()
+    await typeAndSend(el, "فين نلقى الملخصات؟")
+    expect(warn).toHaveBeenCalledWith(
+      "[help-chat] server error 503:", "guard_config_unavailable", { requestId: "help-request-test" },
+    )
+    expect(fetchSpy).toHaveBeenCalledTimes(1)
+    expect(mocks.refreshSession).not.toHaveBeenCalled()
+    expect(el.textContent).not.toContain(SESSION_EXPIRED)
+    expect(el.textContent).not.toContain("guard_config_unavailable")
+  } finally {
+    warn.mockRestore()
+    delete (window as unknown as Record<string, unknown>).__helpChatLastErrorTs
+    delete (window as unknown as Record<string, unknown>).__helpChatLastErrKey
+  }
+})

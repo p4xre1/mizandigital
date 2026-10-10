@@ -93,7 +93,7 @@ export function ProContentCard({
                 "from-primary via-violet-600 to-indigo-700"
               }`} />
               {/* Pattern */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,white/10_1px,transparent_1px),linear-gradient(to_bottom,white/10_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/10" />
               
               {/* Center content */}
