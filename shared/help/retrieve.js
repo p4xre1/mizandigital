@@ -122,12 +122,30 @@ function fieldStems(normalizedField) {
   return stems
 }
 
+/** صيغ كل كلمة في الحقل: الكلمة كما هي، وبلا أل التعريف، وبلا السوابق الملتصقة. */
+const wordFormCache = new Map()
+function wordForms(fieldText) {
+  const cached = wordFormCache.get(fieldText)
+  if (cached) return cached
+  const forms = new Set()
+  for (const word of fieldText.split(" ")) {
+    if (!word) continue
+    forms.add(word)
+    if (word.startsWith("ال") && word.length > 4) forms.add(word.slice(2))
+    forms.add(stripAttachedPrefix(word))
+  }
+  if (wordFormCache.size > 5000) wordFormCache.clear()
+  wordFormCache.set(fieldText, forms)
+  return forms
+}
+
 /**
  * هل يطابق مرشّح واحد حقلاً: "exact" تضمين جزئي مباشر، و"stem" تطابق جذع
  * (جمع/سابقة/تاء مربوطة). التطابق الجذعي أضعف في الترتيب من المباشر.
  */
 function candidateMatches(candidate, fieldText, fieldStemSet) {
-  if (fieldText.includes(candidate)) return "exact"
+  // مطابقة حرفية لكلمة كاملة (مع أل التعريف والسوابق الملتصقة فقط): «وقت» لا تطابق «مؤقت».
+  if (wordForms(fieldText).has(candidate)) return "exact"
   for (const variant of stemVariantsOf(candidate)) {
     if (variant.length >= 3 && fieldStemSet.has(variant)) return "stem"
   }

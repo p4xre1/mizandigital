@@ -1,6 +1,6 @@
 // shared/qa/retrieve.js
 //
-// المراحل 7 و8: الاسترجاع بالعبارة الحرفية والكلمات (BM25 على الجذور المحافظة) والتطابق التقريبي،
+// المراحل 7 و8: الاسترجاع بالعبارة الحرفية والكلمات (BM25 على الجذور المحافظة)، بمطابقة حرفية فقط،
 // مع إشارات الكيانات (فصل، قانون، اسم مصطلح).
 //
 // الدلالة (semantic): غير مُنفَّذة. لا يوجد نموذج محلي ولا فهرس متجهات في المستودع، فلا تُدّعى دلالة.
@@ -8,32 +8,6 @@
 
 import { QA_CONFIG } from "./config.js"
 import { stemVariants } from "./morph.js"
-
-/** مسافة ليفنشتاين مع حد مبكر: لا نحتاج أكثر من 1 هنا. */
-function withinOneEdit(a, b) {
-  if (a === b) return true
-  if (Math.abs(a.length - b.length) > 1) return false
-  let i = 0
-  let j = 0
-  let edits = 0
-  while (i < a.length && j < b.length) {
-    if (a[i] === b[j]) {
-      i += 1
-      j += 1
-      continue
-    }
-    edits += 1
-    if (edits > 1) return false
-    if (a.length > b.length) i += 1
-    else if (b.length > a.length) j += 1
-    else {
-      i += 1
-      j += 1
-    }
-  }
-  edits += (a.length - i) + (b.length - j)
-  return edits <= 1
-}
 
 /**
  * يبني الفهرس مرة واحدة لكل مجموعة مقاطع.
@@ -88,40 +62,12 @@ function bm25Term(index, doc, variant) {
 }
 
 /**
- * يحل كلمات السؤال: إن لم توجد كلمة في الفهرس، يُقبل تصحيح واحد بمسافة 1 إن كان المرشح وحيداً.
- * @returns {Array<{ token: string, resolved: string, fuzzy: boolean }>}
+ * كلمات السؤال تُطابق حرفياً فقط. لا تصحيح إملائي ولا مطابقة تقريبية:
+ * الكلمة إما موجودة في الفهرس بصيغتها (أو بصيغها الصرفية: الواو والباء واللام والتعريف)، أو غير موجودة.
+ * @returns {Array<{ token: string, resolved: string, fuzzy: false }>}
  */
-export function resolveQueryTokens(content, index) {
-  const out = []
-  for (const token of content) {
-    const exact = index.vocabulary.has(token) || [...stemVariants(token)].some((v) => index.df.has(v))
-    if (exact || token.length < 4) {
-      out.push({ token, resolved: token, fuzzy: false })
-      continue
-    }
-    // نقارن كل صيغ الكلمة (مع وبدون ال والسوابق) بالفهرس. صيغ الكلمة الواحدة لا تُعدّ مرشحين مختلفين.
-    const forms = [...stemVariants(token)].filter((f) => f.length >= 4)
-    const found = [...index.vocabulary.keys()].filter((v) => forms.some((f) => withinOneEdit(f, v)))
-    const groups = []
-    for (const w of found) {
-      const forms2 = stemVariants(w)
-      const g = groups.find((grp) => grp.some((x) => x === w || forms2.includes(x) || stemVariants(x).includes(w)))
-      if (g) g.push(w)
-      else groups.push([w])
-    }
-    // مرشح واحد، أو مرشح مهيمن (تكراره ≥ ثلاثة أضعاف الثاني) = تصحيح مقبول. غير ذلك = غامض فيُترك كما هو.
-    const groupFreq = (g) => Math.max(...g.map((w) => index.vocabulary.get(w) ?? 0))
-    const ranked = groups.map((g) => ({ g, f: groupFreq(g) })).sort((a, b) => b.f - a.f)
-    const dominant = ranked.length === 1 || (ranked.length > 1 && ranked[0].f >= DOMINANCE_RATIO * ranked[1].f)
-    if (dominant) {
-      // داخل المجموعة نختار الصيغة الأكثر تكراراً.
-      const best = ranked[0].g.reduce((a, b) => ((index.vocabulary.get(b) ?? 0) > (index.vocabulary.get(a) ?? 0) ? b : a))
-      out.push({ token, resolved: best, fuzzy: true })
-    } else {
-      out.push({ token, resolved: token, fuzzy: false })
-    }
-  }
-  return out
+export function resolveQueryTokens(content) {
+  return content.map((token) => ({ token, resolved: token, fuzzy: false }))
 }
 
 /**
@@ -131,7 +77,6 @@ export function resolveQueryTokens(content, index) {
  * @param {typeof QA_CONFIG} [config]
  */
 /** نسبة الهيمنة لقبول تصحيح إملائي من بين عدة مرشحين. قيمة استدلالية، تُختبر في tests/qa-retrieve.test.ts. */
-const DOMINANCE_RATIO = 3
 
 /** صيغ الكلمة للمطابقة: صيغها الصرفية، ومعها الصيغة بـ"ال" (لأن العنوان قد يكون معرّفاً). */
 export function formsOf(token) {
@@ -154,17 +99,12 @@ function sequenceIn(forms, labelTokens) {
 
 export function retrieve(question, index, config = QA_CONFIG) {
   const w = config.weights
-  const resolved = resolveQueryTokens(question.content, index)
+  const resolved = resolveQueryTokens(question.content)
   const contentCount = question.content.length
   const phraseList = question.phrases
 
-  // ذكر المصطلح الكامل يعتمد على الكلمات الأصلية وصيغها الصرفية.
-  // التصحيح التقريبي لا يفتح النطاق من كلمة عابرة في سؤال طويل («بصداع» ≠ «الصداق»).
-  // يبقى التصحيح إشارة أضعف فقط إذا غطى اسم المصطلح كل كلمات محتوى السؤال.
+  // ذكر المصطلح الكامل: الكلمات الأصلية وصيغها الصرفية فقط.
   const queryForms = question.tokens.map((t) => formsOf(t))
-  const fuzzyMap = new Map(resolved.filter((r) => r.fuzzy).map((r) => [r.token, r.resolved]))
-  const correctedForms = question.tokens.map((t) => formsOf(fuzzyMap.get(t) ?? t))
-  const correctedContent = resolved.map((r) => formsOf(r.resolved))
   const contentForms = question.content.map((t) => formsOf(t))
 
   const candidates = []
@@ -184,13 +124,7 @@ export function retrieve(question, index, config = QA_CONFIG) {
       if (!label) continue
       const labelTokens = label.split(" ")
       if (sequenceIn(queryForms, labelTokens)) mention = 1
-      else if (
-        fuzzyMap.size > 0 && contentCount > 0 &&
-        sequenceIn(correctedForms, labelTokens) &&
-        correctedContent.every((forms) => labelTokens.some((token) => forms.has(token)))
-      ) {
-        mention = Math.max(mention, 0.5)
-      } else if (contentCount > 0 && labelTokens.length > contentCount && contentForms.every((vs) => labelTokens.some((lt) => vs.has(lt)))) {
+      else if (contentCount > 0 && labelTokens.length > contentCount && contentForms.every((vs) => labelTokens.some((lt) => vs.has(lt)))) {
         partial = true
       }
     }
@@ -198,20 +132,18 @@ export function retrieve(question, index, config = QA_CONFIG) {
     // BM25 على الجذور، مع وزن الكلمة الأصلية أكبر من الجذر.
     let bm = 0
     let covered = 0
-    let fuzzyHits = 0
     let coveredCount = 0
     for (const r of resolved) {
       const forms = stemVariants(r.resolved)
       let best = 0
       let matched = false
       for (const v of forms) {
-        const s = bm25Term(index, doc, v) * (v === r.resolved ? 1 : 0.6) * (r.fuzzy ? 0.5 : 1)
+        const s = bm25Term(index, doc, v) * (v === r.resolved ? 1 : 0.6)
         if (s > best) best = s
         if (doc.tf.has(v)) matched = true
       }
       bm += best
       if (matched || doc.rawSet.has(r.resolved)) { covered += 1; coveredCount += 1 }
-      if (r.fuzzy && matched) fuzzyHits += 1
     }
     const coverage = contentCount > 0 ? covered / contentCount : 0
 
@@ -232,7 +164,6 @@ export function retrieve(question, index, config = QA_CONFIG) {
       w.exactPhrase * phrase +
       w.termMention * mention +
       w.bm25 * bm +
-      w.fuzzy * fuzzyHits +
       w.articleRef * (articleRef ? 1 : 0) +
       w.lawRef * (lawRef ? 1 : 0) +
       w.authority * authority
@@ -242,7 +173,7 @@ export function retrieve(question, index, config = QA_CONFIG) {
       candidates.push({
         passage: p,
         score: Number(score.toFixed(4)),
-        features: { phrase, mention, partial, bm25: Number(bm.toFixed(4)), fuzzyHits, articleRef, lawRef, coverage: Number(coverage.toFixed(3)), covered: coveredCount, authority },
+        features: { phrase, mention, partial, bm25: Number(bm.toFixed(4)), articleRef, lawRef, coverage: Number(coverage.toFixed(3)), covered: coveredCount, authority },
       })
     }
   }

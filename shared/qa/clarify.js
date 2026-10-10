@@ -51,27 +51,6 @@ const N = (text) => normalizeArabic(text)
 /** فهارس الكلمات والمصطلحات، تُبنى مرة واحدة لكل محرك. */
 const indexCache = new WeakMap()
 
-/**
- * الكلمات المعروفة في محتوى الموقع نفسه (الأدلة والأسئلة والمعجم). الكلمة المعروفة هنا ليست خطأً إملائياً،
- * حتى لو لم تكن في فهرس المصطلحات القانونية. بدونها تُعد كلمات عادية مثل "الموقع" أخطاء.
- */
-let siteWords = null
-function siteKnownWords() {
-  if (siteWords) return siteWords
-  siteWords = new Set()
-  const collect = (value) => {
-    if (typeof value === "string") {
-      for (const tok of N(value).split(" ")) if (tok) siteWords.add(tok)
-    } else if (Array.isArray(value)) {
-      value.forEach(collect)
-    } else if (value && typeof value === "object") {
-      Object.values(value).forEach(collect)
-    }
-  }
-  collect(allEntries())
-  return siteWords
-}
-
 function indexFor(engine) {
   const cached = indexCache.get(engine)
   if (cached) return cached
@@ -123,25 +102,6 @@ function indexFor(engine) {
   const built = { labels, wordDisplay, concepts, sourced, words }
   indexCache.set(engine, built)
   return built
-}
-
-/**
- * حذف حرف، أو إضافته، أو تبديل حرفين متجاورين. لا يشمل استبدال حرف بآخر:
- * الاستبدال كثير الشيوع بين كلمات عربية حقيقية مختلفة (مثل المؤلف والمؤقت)، فيُعد إشارة ضعيفة.
- */
-function isDeleteInsertOrSwap(a, b) {
-  if (a === b) return false
-  if (Math.abs(a.length - b.length) === 1) {
-    const [short, long] = a.length < b.length ? [a, b] : [b, a]
-    for (let i = 0; i < long.length; i += 1) if (long.slice(0, i) + long.slice(i + 1) === short) return true
-    return false
-  }
-  if (a.length === b.length) {
-    for (let i = 0; i < a.length - 1; i += 1) {
-      if (a.slice(0, i) + a[i + 1] + a[i] + a.slice(i + 2) === b) return true
-    }
-  }
-  return false
 }
 
 /** أفعال الأمر التي تحاول تغيير سلوك المساعد. الجملة التي تبدأ بها تُستبعد من الاقتراح (لا من الفحص الأمني). */
@@ -267,19 +227,6 @@ function describe(analysis, idx, engine) {
   const entities = analysis.entities
   const hasEntity = entities.articles.length > 0 || entities.lawNumbers.length > 0 || entities.codes.length > 0
 
-  // أخطاء إملائية: شرط صارم. الكلمة المجهولة الوحيدة في السؤال، طولها خمسة أحرف أو أكثر،
-  // وتختلف عن مصطلح معجمي بحذف أو إضافة أو تبديل حرفين. ما عدا ذلك لا يُعد خطأً.
-  const known = (t) => engine.index.vocabulary.has(t) || siteKnownWords().has(t)
-  const unknown = content.filter((t) => ARABIC_RE.test(t) && t.length >= 3 && !/\d/.test(t) && !known(t))
-  const typos = []
-  if (exact.length === 0 && concepts.length === 0 && !hasEntity && unknown.length === 1) {
-    const t = unknown[0]
-    if (t.length >= 5) {
-      const candidates = idx.words.filter((w) => w.length >= 5 && isDeleteInsertOrSwap(t, w))
-      if (candidates.length > 0) typos.push({ token: t, candidates: candidates.slice(0, CLARIFY_LIMITS.maxTypoCandidates) })
-    }
-  }
-
   // السؤال عن المفهوم وحده (مثل: ما هو التقادم؟) لا يحتاج فرعاً. أي كلمة أخرى عربية ذات معنى تُبطل ذلك.
   const conceptWords = new Set(idx.concepts.flatMap((c) => c.triggers))
   const focusOnly = concepts.length > 0 && nonVague.filter((t) => ARABIC_RE.test(t)).every((t) => conceptWords.has(t))
@@ -289,7 +236,6 @@ function describe(analysis, idx, engine) {
     heads,
     concepts,
     focusOnly,
-    typos,
     intent: analysis.intent.type,
     deictic: tokens.some((t) => refs.has(t)),
     howItWorks: HOW_IT_WORKS_RE.test(analysis.normalized),
@@ -383,7 +329,6 @@ export function assessQuestion(raw, options = {}) {
   }
 
   // 2) خطأ إملائي محتمل: اقتراح للتأكيد، لا استبدال صامت.
-  if (q.typos.length > 0) return misspellingDecision(q.typos[0], words, text, idx, engine)
 
   // 3) مفهوم له فروع.
   if (q.concepts.length > 0) {
@@ -416,30 +361,6 @@ export function assessQuestion(raw, options = {}) {
 
   // 5) جواب مباشر.
   return answerDecision(text, { scopeNote: scopeNoteFor(text, engine, idx) })
-}
-
-function misspellingDecision(typo, words, text, idx, engine) {
-  const displayWord = words.find((w) => N(w) === typo.token) ?? typo.token
-  const variants = typo.candidates
-    .map((cand) => {
-      const replaced = replaceFirst(words, (n) => (n === typo.token ? "" : null), idx.wordDisplay.get(cand) ?? cand)
-      const question = replaced ? variant(words, replaced) : null
-      return question ? { cand, question } : null
-    })
-    .filter(Boolean)
-  if (variants.length === 0) {
-    return clarifyDecision("misspelling", `كلمة «${displayWord}» في سؤالك قد تكون مكتوبة بخطأ إملائي. أعد كتابتها بالشكل الصحيح.`)
-  }
-  const explanation = `كلمة «${displayWord}» في سؤالك قد تكون مكتوبة بخطأ إملائي. لن أستبدلها دون تأكيدك.`
-  const suggestion = { question: variants[0].question, branch: null, scopeNote: scopeNoteFor(variants[0].question, engine, idx) }
-  const options = variants.slice(1).map((v, i) => ({
-    id: `option-${i + 1}`,
-    label: clip(`أقصد ${idx.wordDisplay.get(v.cand) ?? v.cand}`, CLARIFY_LIMITS.maxLabelChars),
-    question: v.question,
-    branch: null,
-    scopeNote: null,
-  }))
-  return clarifyDecision("misspelling", explanation, suggestion, options.slice(0, CLARIFY_LIMITS.maxOptions))
 }
 
 function branchDecision(hit, words, text, idx, engine) {

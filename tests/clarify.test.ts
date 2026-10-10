@@ -88,22 +88,18 @@ describe("2. السؤال القانوني الغامض يُوضَّح قبل ا
   })
 })
 
-describe("3. الخطأ الإملائي الواضح", () => {
-  test("ما هو التقاد؟ تُقترح «ما هو التقادم؟» للتأكيد ولا تُستبدل صامتاً", () => {
+describe("3. المطابقة الحرفية: لا تصحيح إملائي ولا اقتراح كلمات متشابهة", () => {
+  test("ما هو التقاد؟ لا تُقترح عليها «ما هو التقادم؟» ولا تُستبدل", () => {
     const r = run("ما هو التقاد؟")
-    expect(r.mode).toBe("clarify")
-    expect(r.clarification.kind).toBe("misspelling")
-    expect(r.clarification.suggestion).toBe("ما هو التقادم؟")
-    expect(r.answer).toContain("لن أستبدلها دون تأكيدك")
+    expect(r.clarification?.kind).not.toBe("misspelling")
+    expect(r.clarification?.suggestion ?? null).not.toBe("ما هو التقادم؟")
+    expect(r.questionUsed ?? null).not.toBe("ما هو التقادم؟")
   })
 
-  test("بعد تأكيد الاقتراح تُجاب الصياغة الصحيحة، ويظهر السؤال المستعمل", () => {
-    const first = run("ما هو التقاد؟")
-    expect(first.clarification.choices[0]).toEqual({ id: "suggested", label: "نعم، هذا ما أقصده" })
-    const confirmed = run("ما هو التقاد؟", { clarification: { choice: "suggested" } })
-    expect(confirmed.mode).toBe("answer")
-    expect(confirmed.questionUsed).toBe("ما هو التقادم؟")
-    expect(confirmed.answer).toContain("التقادم")
+  test("الكلمة المتشابهة لا تُعامل كتطابق: وقت لا تصبح مؤقت", () => {
+    const r = run("ما هو وقت الزيارة؟")
+    expect(r.clarification?.kind ?? null).not.toBe("misspelling")
+    expect(JSON.stringify(r)).not.toContain("السراح المؤقت")
   })
 
   test("الكلمة المعروفة في الموقع لا تُعد خطأً (الموقع، الدورات)", () => {
@@ -211,13 +207,10 @@ describe("8. محاولة تجاوز التعليمات داخل السؤال", 
     expect(r.answer).not.toMatch(/التعليمات الداخلية/)
   })
 
-  test("الاقتراح لا يضيف إلى سؤال المستخدم كلمات من عنده: كل كلمة فيه من السؤال الأصلي", () => {
-    const original = "ما هو التقاد؟"
-    const c = clarifyOf(original)
-    const originalWords = new Set(original.split(/\s+/).map((w) => w.replace(/[؟?]/g, "")))
-    for (const w of (c.suggestion?.question ?? "").split(/\s+/).map((w: string) => w.replace(/[؟?]/g, ""))) {
-      if (w) expect(originalWords.has(w) || w === "التقادم").toBe(true)
-    }
+  test("لا تُولَّد أي صيغة مقترحة من كلمة متشابهة: لا توضيح ولا اقتراح للكلمة «التقاد»", () => {
+    const d: any = decide("ما هو التقاد؟")
+    expect(d.decision).toBe("answer")
+    expect(d.clarification ?? null).toBeNull()
   })
 
   test("سؤال سابق يحمل تعليمات يُتجاهل ولا يُستعمل سياقاً", () => {

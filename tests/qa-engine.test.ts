@@ -220,14 +220,14 @@ describe("retrieval", () => {
     expect(r.some((c) => c.passage.termLabels.includes("الجنحة") && c.features.mention === 1)).toBe(true)
   })
 
-  test("single-edit misspelling is resolved when the correction is unambiguous", () => {
-    const resolved = resolveQueryTokens(["التقادن"], REAL.index)
-    expect(resolved[0]).toEqual({ token: "التقادن", resolved: "تقادم", fuzzy: true })
+  test("a single-edit misspelling is NOT corrected: query words match exactly", () => {
+    const resolved = resolveQueryTokens(["التقادن"])
+    expect(resolved[0]).toEqual({ token: "التقادن", resolved: "التقادن", fuzzy: false })
   })
 
-  test("a word far from the vocabulary is not force-corrected", () => {
-    const resolved = resolveQueryTokens(["كسكسيوم"], REAL.index)
-    expect(resolved[0].fuzzy).toBe(false)
+  test("a word far from the vocabulary is kept as written", () => {
+    const resolved = resolveQueryTokens(["كسكسيوم"])
+    expect(resolved[0]).toEqual({ token: "كسكسيوم", resolved: "كسكسيوم", fuzzy: false })
   })
 
   test("no article number is invented for a question about a missing article", () => {
@@ -237,11 +237,11 @@ describe("retrieval", () => {
     expect(r.every((c) => !c.features.articleRef)).toBe(true)
   })
 
-  test("retrieval uses no semantic model: its signals are phrase, mention, bm25, fuzzy and entity only", () => {
+  test("retrieval uses no semantic model: its signals are phrase, mention, bm25 and entity only", () => {
     const q: any = analyzeQuestion("ما هو الالتزام")
     const r = retrieve(q, REAL.index)
     expect(Object.keys(r[0].features).sort()).toEqual(
-      ["articleRef", "authority", "bm25", "coverage", "covered", "fuzzyHits", "lawRef", "mention", "partial", "phrase"].sort(),
+      ["articleRef", "authority", "bm25", "coverage", "covered", "lawRef", "mention", "partial", "phrase"].sort(),
     )
   })
 })
