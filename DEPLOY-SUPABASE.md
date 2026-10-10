@@ -308,8 +308,29 @@ STRIPE_PRICE_ID
 TURNSTILE_SECRET_KEY
 IP_HASH_SALT
 SITE_URL
-RATE_LIMIT_KV                 # ربط KV namespace
 ```
+
+### Cloudflare Pages — KV bindings (ليست secrets!)
+
+`RATE_LIMIT_KV` ربط KV namespace وليس متغيّراً نصّياً، لذلك لا ينفع معه
+`wrangler pages secret put`. بدون هذا الربط يُرجع مساعد الموقع
+`/api/help/chat` خطأ 503 `service_misconfigured` لكل رسالة، فيرى الزائر
+«تعذّر الرد الآن» وكأن المساعد لا يجيب إطلاقاً. الإنشاء والربط:
+
+```bash
+npx wrangler kv namespaces create RATE_LIMIT
+# ينتج سطراً مثل: { binding = "RATE_LIMIT_KV", id = "<uuid>" }
+```
+
+ثم أضف الربط في لوحة Cloudflare:
+Pages → مشروعك → Settings → Functions → KV namespace bindings →
+Add binding باسم `RATE_LIMIT_KV` واختر الـnamespace الذي أنشأته، ثم أعد النشر.
+(بديل: ملف `wrangler.toml` بالسطر الذي طبعه الأمر أعلاه.)
+
+للاختبار المحلي أو كحلّ مؤقّت فقط: المتغيّر `HELP_ALLOW_MEMORY_LIMITER=1`
+يُشغّل المساعد بلا KV، لكنه يحدّد المعدل من ذاكرة العامل لكل عقدة على حدة
+ويعطّل القفل المؤقّت ضد الهندسة الاجتماعية — لا يُنصح به في الإنتاج
+(التفاصيل في `docs/ai-security.md`).
 
 ```bash
 npx wrangler pages secret put SUPABASE_SERVICE_ROLE_KEY --project-name mizandigital

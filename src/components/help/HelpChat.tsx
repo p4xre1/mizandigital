@@ -28,6 +28,9 @@ const STARTERS = [
 ]
 
 const GENERIC_ERROR = "تعذّر الرد الآن. حاول مرة أخرى بعد قليل."
+// خطأ خادم (5xx): المشكلة في إعدادات الخادم لا في السؤال. السبب الدقيق
+// (مثل service_misconfigured) يُطبع في وحدة تحكم المتصفح ليطّلع عليه المشرف.
+const SERVER_TROUBLE = "المساعد متوقف مؤقتاً بسبب مشكلة في الخادم. حاول لاحقاً، وإن استمرت المشكلة أخبر إدارة الموقع."
 const SESSION_EXPIRED = "انتهت جلستك. سجّل الدخول من جديد لمتابعة السؤال."
 const DAILY_LIMIT_REACHED = "استنفدت حصة اليوم من الأسئلة. حاول مرة أخرى غداً."
 const ACCOUNT_RESTRICTED = "حسابك غير مفعّل لاستعمال المساعد. راجع إدارة الموقع إن كان هذا خطأ."
@@ -182,10 +185,17 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
         if (data.mode === "answer" || data.mode === "not_found" || data.mode === "insufficient") {
           lastAnswered.current = typeof data.questionUsed === "string" ? data.questionUsed : question
         }
+      } else if (res.status >= 500) {
+        // خطأ خادم: السبب الدقيق (مثل service_misconfigured أو
+        // guard_config_unavailable) يظهر هنا في وحدة التحكم لتشخيص إعدادات النشر.
+        console.error(`[help-chat] server error ${res.status}:`, data?.error ?? "(no JSON body)")
+        addMessage({ role: "assistant", text: SERVER_TROUBLE, sources: [], mode: "error" })
       } else {
+        console.error(`[help-chat] unexpected response ${res.status}:`, data?.error ?? "(no JSON body)")
         addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
       }
-    } catch {
+    } catch (error) {
+      console.error("[help-chat] network failure:", error)
       addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
     } finally {
       setLoading(false)
