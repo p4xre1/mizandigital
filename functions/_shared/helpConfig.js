@@ -52,10 +52,10 @@ export async function loadHelpConfig(env) {
   let qaRows
   try {
     const [settingsRes, qaRes] = await Promise.all([
-      fetch(`${base}/rest/v1/help_settings?id=eq.1&select=*`, { headers, signal: AbortSignal.timeout(2000) }),
+      fetch(`${base}/rest/v1/help_settings?id=eq.1&select=*`, { headers, signal: AbortSignal.timeout(5000) }),
       fetch(
         `${base}/rest/v1/help_qa?published=eq.true&select=id,question,answer,keywords,source_url,source_title&order=updated_at.desc&limit=500`,
-        { headers, signal: AbortSignal.timeout(2000) },
+        { headers, signal: AbortSignal.timeout(5000) },
       ),
     ])
     if (!settingsRes.ok) throw new GuardConfigError("settings_http", `help_settings HTTP ${settingsRes.status}`)

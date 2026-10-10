@@ -7,7 +7,7 @@
  * - Console warning for devs
  */
 
-import { sanitizePlainText, isSafeText, INPUT_LIMITS } from "./inputGuard"
+import { sanitizePlainText, INPUT_LIMITS } from "./inputGuard"
 
 let initialized = false
 
@@ -86,7 +86,36 @@ export function initGlobalGuard() {
     // Optionally break out: but don't force, as some embeds may be legit
   }
 
-  // 5. Disable autocomplete for sensitive fields? No, we keep for UX but add protections
+  // 5. Suppress noisy errors injected by browser extensions (Enable Copy, Semalt, etc.)
+  //    These scripts run in the page context and throw even on a clean site,
+  //    polluting the console and confusing real debugging. We filter only
+  //    known extension origins so real app errors (HelpChat, etc.) still surface.
+  const EXTENSION_NOISE_RE =
+    /enable_copy|share-modal|semalt\.net|content\.js.*config|Unchecked runtime\.lastError|A listener indicated an asynchronous response/i
+  const isExtensionNoise = (message: string, source?: string) =>
+    EXTENSION_NOISE_RE.test(message) || (source ? EXTENSION_NOISE_RE.test(source) : false)
+
+  window.addEventListener(
+    "error",
+    (event) => {
+      const msg = event.message || ""
+      const src = (event.filename || "") as string
+      if (isExtensionNoise(msg, src)) {
+        event.preventDefault()
+        // collapse repeated extension noise to a single dev hint
+        if (import.meta.env.DEV) {
+          console.debug("[guard] suppressed extension error:", msg.slice(0, 120), src ? `(${src})` : "")
+        }
+      }
+    },
+    true
+  )
+  window.addEventListener("unhandledrejection", (event) => {
+    const reason = String((event as PromiseRejectionEvent).reason?.message ?? event.reason ?? "")
+    if (isExtensionNoise(reason)) event.preventDefault()
+  })
+
+  // 6. Disable autocomplete for sensitive fields? No, we keep for UX but add protections
 }
 
 // Auto-init
