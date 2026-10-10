@@ -21,6 +21,7 @@
 //   - يعمل فقط مع `vite dev` (apply: "serve") ولا يدخل البناء.
 //   - قائمة نقاط المسموح بها ثابتة ومحدودة بالمساعد.
 
+import { existsSync, readFileSync } from "node:fs"
 import path from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 import { register } from "node:module"
@@ -89,6 +90,22 @@ function decodeJwtPayload(token) {
   }
 }
 
+/**
+ * أسئلة help_qa المنشورة للمعاينة المحلية. إن وُجد ملف
+ * `scripts/dev/help-qa.fixture.json` يُقرأ منه (مصفوفة صفوف كما في الجدول)،
+ * وإلا أعيدت قائمة فارغة — تماماً كجدول جديد لم يُنشر فيه شيء بعد.
+ */
+const QA_FIXTURE_PATH = path.join(ROOT, "scripts", "dev", "help-qa.fixture.json")
+function qaRows() {
+  if (!existsSync(QA_FIXTURE_PATH)) return []
+  try {
+    const parsed = JSON.parse(readFileSync(QA_FIXTURE_PATH, "utf-8"))
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 /** صف إعدادات المساعد: مفعّل وبالرسائل الافتراضية (كما تبذره الهجرة). */
 function settingsRow() {
   return {
@@ -127,7 +144,7 @@ function handleMockSupabase(req, res, url) {
     return send(200, [settingsRow()])
   }
   if (url.pathname === `${MOCK_BASE}/rest/v1/help_qa`) {
-    return send(200, [])
+    return send(200, qaRows())
   }
   return send(404, { error: "mock route not found" })
 }
