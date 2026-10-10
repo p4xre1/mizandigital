@@ -197,11 +197,20 @@ export default function HelpChat({ compact = false }: { compact?: boolean }) {
         }
       } else if (res.status >= 500) {
         // خطأ خادم: السبب الدقيق (مثل service_misconfigured أو
-        // guard_config_unavailable) يظهر هنا في وحدة التحكم لتشخيص إعدادات النشر.
-        console.error(`[help-chat] server error ${res.status}:`, data?.error ?? "(no JSON body)")
+        // guard_config_unavailable) يظهر في وحدة التحكم لتشخيص إعدادات النشر.
+        // نخفض الضجيج: لا نطبع نفس الخطأ مرتين خلال ثانية (React StrictMode
+        // أو إعادة المحاولة السريعة قد ترسل طلبين متتاليين).
+        const errKey = `${res.status}:${data?.error ?? "no_body"}`
+        const last = (window as unknown as Record<string, number>).__helpChatLastErrorTs ?? 0
+        const now = Date.now()
+        if (errKey !== (window as unknown as Record<string, string>).__helpChatLastErrKey || now - last > 1500) {
+          console.warn(`[help-chat] server error ${res.status}:`, data?.error ?? "(no JSON body)")
+          ;(window as unknown as Record<string, unknown>).__helpChatLastErrorTs = now
+          ;(window as unknown as Record<string, unknown>).__helpChatLastErrKey = errKey
+        }
         addMessage({ role: "assistant", text: SERVER_TROUBLE, sources: [], mode: "error" })
       } else {
-        console.error(`[help-chat] unexpected response ${res.status}:`, data?.error ?? "(no JSON body)")
+        console.warn(`[help-chat] unexpected response ${res.status}:`, data?.error ?? "(no JSON body)")
         addMessage({ role: "assistant", text: GENERIC_ERROR, sources: [], mode: "error" })
       }
     } catch (error) {
