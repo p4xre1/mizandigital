@@ -22,11 +22,25 @@ const PRERENDER = readFileSync("scripts/prerender.mjs", "utf8")
 
 const renderIn = (node: React.ReactElement) => renderToStaticMarkup(<MemoryRouter>{node}</MemoryRouter>)
 
+/**
+ * يزيل الوسوم حتى يستقرّ النص (فلا يبقى وسم مُركّب مثل `<<b>b>` بعد مرور واحد)،
+ * ثم يحذف أي `<` أو `>` متبقٍّ. هذا نص اختبار من HTML مُهيَّأ داخل المستودع.
+ */
+export function stripTags(html: string): string {
+  let text = html
+  let previous: string
+  do {
+    previous = text
+    text = text.replace(/<[^<>]*>/g, "")
+  } while (text !== previous)
+  return text.replace(/[<>]/g, "")
+}
+
 /** مستويات العناوين بالترتيب من HTML مُهيَّأ، كما يقرأها المدقّق. */
 function headingLevels(html: string) {
   return [...html.matchAll(/<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/g)].map((m) => ({
     level: Number(m[1]),
-    text: m[2].replace(/<[^>]+>/g, "").trim(),
+    text: stripTags(m[2]).trim(),
   }))
 }
 
@@ -126,5 +140,14 @@ describe("الاستشهاد: روابط مسمّاة واقتباس منسوب"
     expect(PRERENDER).toContain('<a href="https://www.sgg.gov.ma/BulletinOfficiel.aspx"')
     expect(PRERENDER).toContain("<blockquote")
     expect(PRERENDER).toContain("الدستور المغربي (2011)، الفصل 1")
+  })
+})
+
+describe("إزالة الوسوم في نص الاختبار", () => {
+  test("لا تبقى وسوم مُركّبة بعد الإزالة (مثل <<b>b>)", () => {
+    expect(stripTags("<<b>b>x</b>")).toBe("x")
+    expect(stripTags("<scr<b>ipt>alert(1)</scr</b>ipt>")).toBe("alert(1)")
+    expect(stripTags("<strong>نص</strong> عادي")).toBe("نص عادي")
+    expect(/[<>]/.test(stripTags("a<b<c>d>e"))).toBe(false)
   })
 })
