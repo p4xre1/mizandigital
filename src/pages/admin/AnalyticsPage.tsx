@@ -15,6 +15,7 @@ import {
   XCircle,
   Loader2,
   ExternalLink,
+  Share2,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 import { VisitsLineChart } from "../../components/analytics/VisitsLineChart"
@@ -48,6 +49,23 @@ interface TopRow {
   url?: string
 }
 
+/** صف واحد من مصادر الزيارات (get_visits_by_referrer). */
+interface TrafficSource {
+  source: string
+  views: number
+  visitors: number
+}
+
+/**
+ * تسميات المصادر الخاصة. referrer في تطبيق صفحة واحدة يعبّر عن **مصدر الدخول
+ * للجلسة** لا عن الصفحة السابقة المباشرة (document.referrer لا يتغيّر عند
+ * التنقّل الداخلي)، فالتجميع حسب المضيف هو التمثيل الصحيح.
+ */
+const SOURCE_LABELS: Record<string, string> = {
+  direct: "مباشر / بلا مُحيل",
+  internal: "تنقّل داخلي",
+}
+
 export default function AnalyticsPage() {
   const [windowKey, setWindowKey] = useState<WindowKey>("24h")
   const [loading, setLoading] = useState(true)
@@ -56,6 +74,8 @@ export default function AnalyticsPage() {
   const [uniqueVisitors, setUniqueVisitors] = useState(0)
   const [byType, setByType] = useState<Record<string, number>>({})
   const [timeseries, setTimeseries] = useState<{ label: string; value: number }[]>([])
+  const [sources, setSources] = useState<TrafficSource[]>([])
+  const [sourcesAvailable, setSourcesAvailable] = useState(true)
   const [topContent, setTopContent] = useState<Record<ContentType, TopRow[]>>({
     article: [], news: [], term: [], pdf: [], event: [], page: [],
   })
@@ -68,11 +88,12 @@ export default function AnalyticsPage() {
     const since = new Date(Date.now() - activeWindow.hours * 60 * 60 * 1000).toISOString()
 
     try {
-      const [totalRes, uniqueRes, byTypeRes, seriesRes, ...topRes] = await Promise.all([
+      const [totalRes, uniqueRes, byTypeRes, seriesRes, sourcesRes, ...topRes] = await Promise.all([
         (supabase as any).rpc("get_total_visits", { p_since: since }),
         (supabase as any).rpc("get_unique_visitors", { p_since: since }),
         (supabase as any).rpc("get_visits_by_type", { p_since: since }),
         (supabase as any).rpc("get_visits_timeseries", { p_since: since, p_bucket_minutes: activeWindow.bucketMinutes }),
+        (supabase as any).rpc("get_visits_by_referrer", { p_since: since, p_limit: 12 }),
         ...(["article", "news", "term", "pdf", "event", "page"] as ContentType[]).map((t) =>
           (supabase as any).rpc("get_top_content", { p_content_type: t, p_since: since, p_limit: 6 })
         ),
@@ -97,6 +118,16 @@ export default function AnalyticsPage() {
         (seriesRes.data ?? []).map((row: any) => ({
           label: bucketFormatter.format(new Date(row.bucket)),
           value: Number(row.views),
+        }))
+      )
+
+      // مصادر الزيارات: غياب الدالة (ترحيل لم يُطبَّق بعد) لا يُفشل الصفحة كلها
+      setSourcesAvailable(!sourcesRes?.error)
+      setSources(
+        (sourcesRes?.data ?? []).map((row: any) => ({
+          source: String(row.source ?? "direct"),
+          views: Number(row.views ?? 0),
+          visitors: Number(row.visitors ?? 0),
         }))
       )
 
@@ -228,6 +259,47 @@ export default function AnalyticsPage() {
               <h2 className="text-sm font-bold text-foreground">تطوّر الزيارات — {activeWindow.label}</h2>
             </div>
             <VisitsLineChart points={timeseries} />
+          </div>
+
+          {/* مصادر الزيارات */}
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Share2 className="size-4 text-primary" />
+                <h2 className="text-sm font-bold text-foreground">مصادر الزيارات — {activeWindow.label}</h2>
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground">حسب مصدر دخول الجلسة</span>
+            </div>
+            {!sourcesAvailable ? (
+              <p className="py-6 text-center text-xs text-muted-foreground">
+                هذه البطاقة تحتاج ترحيل <code className="font-mono">20261012000500_page_views_traffic_sources.sql</code> —
+                طبّقه ثم أعد التحميل.
+              </p>
+            ) : sources.length === 0 ? (
+              <p className="py-6 text-center text-xs text-muted-foreground">لا توجد زيارات مسجّلة ضمن هذه الفترة</p>
+            ) : (
+              <ul className="space-y-2">
+                {sources.map((s) => {
+                  const max = Math.max(...sources.map((x) => x.views), 1)
+                  const width = Math.max(2, Math.round((s.views / max) * 100))
+                  return (
+                    <li key={s.source} className="rounded-lg px-2 py-1.5 hover:bg-muted">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="truncate text-sm font-semibold text-foreground" dir="ltr">
+                          {SOURCE_LABELS[s.source] ?? s.source}
+                        </span>
+                        <span className="shrink-0 text-xs font-bold text-muted-foreground">
+                          {s.views.toLocaleString("ar-MA")} زيارة، {s.visitors.toLocaleString("ar-MA")} زائر
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div className="h-full rounded-full bg-primary" style={{ width: `${width}%` }} />
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
           </div>
 
           {/* توزيع حسب نوع المحتوى + أكثر المحتويات قراءة */}
