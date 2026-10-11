@@ -6,6 +6,7 @@
 // وتُعاد تصديرها هنا للتوافق مع الاستيرادات القديمة.
 
 import { checkInjection } from "./guardrails.js"
+import { containsProfanity } from "./profanity.js"
 import { MAX_ANSWER_CHARS, MAX_KEYWORDS, MAX_LIST_ITEMS, MAX_MESSAGE_CHARS, MAX_QUESTION_CHARS, cleanText, isSafeInternalPath } from "./cms-constants.js"
 
 export * from "./cms-constants.js"
@@ -24,6 +25,10 @@ export function validateQaDraft(draft) {
   // لا وسوم إطلاقاً: النصوص المحفوظة نص عادي، وهذا يطابق قيد قاعدة البيانات.
   if (/[<>]/.test(question) || /[<>]/.test(answer) || checkInjection(question).block || checkInjection(answer).block) {
     return "النص يحوي وسوماً أو شيفرة غير مسموحة (مثل <script> أو javascript:)."
+  }
+  // ألفاظ الإهانة لا تُحفظ أصلاً: لو مرّ واحد منها فسيُحظر الجواب في كل ظهور.
+  if (containsProfanity(question).found || containsProfanity(answer).found) {
+    return "النص يحوي ألفاظاً مسيئة غير مسموحة. احذفها وأعد الصياغة."
   }
   if (draft.keywords && draft.keywords.length > MAX_KEYWORDS) return `أقصى عدد للكلمات المفتاحية ${MAX_KEYWORDS}.`
   if (draft.sourceUrl && draft.sourceUrl.trim() && !isSafeInternalPath(draft.sourceUrl)) {

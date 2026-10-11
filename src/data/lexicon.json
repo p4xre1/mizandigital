@@ -10871,5 +10871,2389 @@
       "service-public",
       "droits-de-lhomme"
     ]
+  },
+  {
+    "id": "monarchie-constitutionnelle",
+    "term_ar": "الملكية الدستورية",
+    "term_fr": "Monarchie constitutionnelle",
+    "definition": "نظام الحكم في المغرب: ملكية دستورية ديمقراطية برلمانية واجتماعية، يحدد الدستور سلطات الملك وقيودها.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "1",
+            "phrase": "دستور 2011، الفصل 1",
+            "article_number": "1",
+            "quotation": "نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الملكية-الدستورية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: نظام الحكم في المغرب: ملكية دستورية ديمقراطية برلمانية واجتماعية، يحدد الدستور سلطات الملك وقيودها.",
+    "simple_explanation_fr": "« Monarchie constitutionnelle » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الملكية الدستورية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الملكية الدستورية» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الملكية الدستورية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Monarchie constitutionnelle », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Monarchie constitutionnelle » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الملكية الدستورية",
+      "الملكية الدستورية في القانون المغربي",
+      "Monarchie constitutionnelle",
+      "الملكية الدستورية قانون دستوري",
+      "أمثلة عن الملكية الدستورية",
+      "الملكية الدستورية دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "souverainete",
+      "separation-pouvoirs"
+    ]
+  },
+  {
+    "id": "separation-pouvoirs-constitution",
+    "term_ar": "فصل السلط",
+    "term_fr": "Séparation des pouvoirs",
+    "definition": "الأساس الذي يقوم عليه النظام الدستوري المغربي: استقلال السلط التشريعية والتنفيذية والقضائية مع توازنها وتعاونها.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "1",
+            "phrase": "دستور 2011، الفصل 1",
+            "article_number": "1",
+            "quotation": "نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/فصل-السلط-separation-pouvoirs-constitution",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: الأساس الذي يقوم عليه النظام الدستوري المغربي: استقلال السلط التشريعية والتنفيذية والقضائية مع توازنها وتعاونها.",
+    "simple_explanation_fr": "« Séparation des pouvoirs » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «فصل السلط» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «فصل السلط» و«الملكية الدستورية» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «فصل السلط» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Séparation des pouvoirs », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Séparation des pouvoirs » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف فصل السلط",
+      "فصل السلط في القانون المغربي",
+      "Séparation des pouvoirs",
+      "فصل السلط قانون دستوري",
+      "أمثلة عن فصل السلط",
+      "فصل السلط دستور 2011"
+    ],
+    "related_terms": [
+      "monarchie-constitutionnelle",
+      "independance-judiciaire",
+      "parlement"
+    ]
+  },
+  {
+    "id": "responsabilite-rendition-comptes",
+    "term_ar": "ربط المسؤولية بالمحاسبة",
+    "term_fr": "Responsabilité et reddition de comptes",
+    "definition": "مبدأ دستوري يجعل كل سلطة وكل سلطة عمومية مسؤولة عن ممارساتها ومحاسبة عنها أمام القانون.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "1",
+            "phrase": "دستور 2011، الفصل 1",
+            "article_number": "1",
+            "quotation": "نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/ربط-المسؤولية-بالمحاسبة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: مبدأ دستوري يجعل كل سلطة وكل سلطة عمومية مسؤولة عن ممارساتها ومحاسبة عنها أمام القانون.",
+    "simple_explanation_fr": "« Responsabilité et reddition de comptes » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «ربط المسؤولية بالمحاسبة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «ربط المسؤولية بالمحاسبة» و«الملكية الدستورية» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «ربط المسؤولية بالمحاسبة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Responsabilité et reddition de comptes », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Responsabilité et reddition de comptes » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف ربط المسؤولية بالمحاسبة",
+      "ربط المسؤولية بالمحاسبة في القانون المغربي",
+      "Responsabilité et reddition de comptes",
+      "ربط المسؤولية بالمحاسبة قانون دستوري",
+      "أمثلة عن ربط المسؤولية بالمحاسبة",
+      "ربط المسؤولية بالمحاسبة دستور 2011"
+    ],
+    "related_terms": [
+      "monarchie-constitutionnelle",
+      "separation-pouvoirs-constitution"
+    ]
+  },
+  {
+    "id": "souverainete-nation",
+    "term_ar": "السيادة الشعبية",
+    "term_fr": "Souveraineté nationale",
+    "definition": "السيادة للأمة، تمارسها مباشرة بالاستفتاء وبصفة غير مباشرة بواسطة ممثليها المنتخبين بالاقتراع الحر والنزيه.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "2",
+            "phrase": "دستور 2011، الفصل 2",
+            "article_number": "2",
+            "quotation": "السيادة للأمة، تمارسها مباشرة بالاستفتاء، وبصفة غير مباشرة بواسطة ممثليها.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/السيادة-الشعبية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: السيادة للأمة، تمارسها مباشرة بالاستفتاء وبصفة غير مباشرة بواسطة ممثليها المنتخبين بالاقتراع الحر والنزيه.",
+    "simple_explanation_fr": "« Souveraineté nationale » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «السيادة الشعبية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «السيادة الشعبية» و«السيادة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «السيادة الشعبية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Souveraineté nationale », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Souveraineté nationale » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف السيادة الشعبية",
+      "السيادة الشعبية في القانون المغربي",
+      "Souveraineté nationale",
+      "السيادة الشعبية قانون دستوري",
+      "أمثلة عن السيادة الشعبية",
+      "السيادة الشعبية دستور 2011"
+    ],
+    "related_terms": [
+      "souverainete",
+      "referendum",
+      "elections-libres-nizihates"
+    ]
+  },
+  {
+    "id": "langues-officielles",
+    "term_ar": "اللغات الرسمية",
+    "term_fr": "Langues officielles",
+    "definition": "العربية تظل اللغة الرسمية للدولة، والأمازيغية أصبحت كذلك؛ وتعمل الدولة على حماية اللغتين وتطويرهما.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "5",
+            "phrase": "دستور 2011، الفصل 5",
+            "article_number": "5",
+            "quotation": "تظل العربية اللغة الرسمية للدولة.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/اللغات-الرسمية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: العربية تظل اللغة الرسمية للدولة، والأمازيغية أصبحت كذلك؛ وتعمل الدولة على حماية اللغتين وتطويرهما.",
+    "simple_explanation_fr": "« Langues officielles » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «اللغات الرسمية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «اللغات الرسمية» و«حقوق الإنسان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «اللغات الرسمية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Langues officielles », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Langues officielles » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف اللغات الرسمية",
+      "اللغات الرسمية في القانون المغربي",
+      "Langues officielles",
+      "اللغات الرسمية قانون دستوري",
+      "أمثلة عن اللغات الرسمية",
+      "اللغات الرسمية دستور 2011"
+    ],
+    "related_terms": [
+      "droits-de-lhomme",
+      "egalite-homme-femme"
+    ]
+  },
+  {
+    "id": "hierarchy-lois",
+    "term_ar": "التراتبية القانونية",
+    "term_fr": "Hiérarchie des normes",
+    "definition": "دستورية القواعد القانونية وتراتبيتها ووجوب نشرها مبادئ ملزمة؛ والقانون هو أسمى تعبير عن إرادة الأمة وليس له أثر رجعي.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "6",
+            "phrase": "دستور 2011، الفصل 6",
+            "article_number": "6",
+            "quotation": "القانون هو أسمى تعبير عن إرادة الأمة.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/التراتبية-القانونية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: دستورية القواعد القانونية وتراتبيتها ووجوب نشرها مبادئ ملزمة؛ والقانون هو أسمى تعبير عن إرادة الأمة وليس له أثر رجعي.",
+    "simple_explanation_fr": "« Hiérarchie des normes » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «التراتبية القانونية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «التراتبية القانونية» و«القانون التنظيمي» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «التراتبية القانونية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Hiérarchie des normes », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Hiérarchie des normes » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف التراتبية القانونية",
+      "التراتبية القانونية في القانون المغربي",
+      "Hiérarchie des normes",
+      "التراتبية القانونية قانون دستوري",
+      "أمثلة عن التراتبية القانونية",
+      "التراتبية القانونية دستور 2011"
+    ],
+    "related_terms": [
+      "loi-organique",
+      "abrogation"
+    ]
+  },
+  {
+    "id": "opposition-parlementaire",
+    "term_ar": "المعارضة البرلمانية",
+    "term_fr": "Opposition parlementaire",
+    "definition": "مكانة دستورية تخولها حقوقا تؤهلها للقيام بمهامها في العمل البرلماني وفق ضوابط يحددها القانون التنظيمي.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "10",
+            "phrase": "دستور 2011، الفصل 10",
+            "article_number": "10",
+            "quotation": "يضمن الدستور للمعارضة البرلمانية مكانة تخولها حقوقا، من شأنها تمكينها من النهوض بمهامها، على الوجه الأكمل، في العمل البرلماني والحياة السياسية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/المعارضة-البرلمانية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: مكانة دستورية تخولها حقوقا تؤهلها للقيام بمهامها في العمل البرلماني وفق ضوابط يحددها القانون التنظيمي.",
+    "simple_explanation_fr": "« Opposition parlementaire » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «المعارضة البرلمانية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «المعارضة البرلمانية» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «المعارضة البرلمانية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Opposition parlementaire », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Opposition parlementaire » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف المعارضة البرلمانية",
+      "المعارضة البرلمانية في القانون المغربي",
+      "Opposition parlementaire",
+      "المعارضة البرلمانية قانون دستوري",
+      "أمثلة عن المعارضة البرلمانية",
+      "المعارضة البرلمانية دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "immunite-parlementaire"
+    ]
+  },
+  {
+    "id": "elections-libres-nizihates",
+    "term_ar": "الانتخابات الحرة والنزيهة",
+    "term_fr": "Élections libres et équitables",
+    "definition": "أساس مشروعية التمثيل الديمقراطي، والسلطات العمومية ملزمة بالحياد التام إزاء المترشحين.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "11",
+            "phrase": "دستور 2011، الفصل 11",
+            "article_number": "11",
+            "quotation": "الانتخابات الحرة والنزيهة والشفافة هي أساس مشروعية التمثيل الديمقراطي.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الانتخابات-الحرة-والنزيهة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: أساس مشروعية التمثيل الديمقراطي، والسلطات العمومية ملزمة بالحياد التام إزاء المترشحين.",
+    "simple_explanation_fr": "« Élections libres et équitables » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الانتخابات الحرة والنزيهة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الانتخابات الحرة والنزيهة» و«السيادة الشعبية» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الانتخابات الحرة والنزيهة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Élections libres et équitables », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Élections libres et équitables » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الانتخابات الحرة والنزيهة",
+      "الانتخابات الحرة والنزيهة في القانون المغربي",
+      "Élections libres et équitables",
+      "الانتخابات الحرة والنزيهة قانون دستوري",
+      "أمثلة عن الانتخابات الحرة والنزيهة",
+      "الانتخابات الحرة والنزيهة دستور 2011"
+    ],
+    "related_terms": [
+      "souverainete-nation",
+      "candidat",
+      "electeur"
+    ]
+  },
+  {
+    "id": "societe-civile-dustur",
+    "term_ar": "المجتمع المدني",
+    "term_fr": "Société civile",
+    "definition": "تؤسس جمعيات المجتمع المدني والمنظمات غير الحكومية وتمارس أنشطتها بحرية في نطاق احترام الدستور والقانون.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "12",
+            "phrase": "دستور 2011، الفصل 12",
+            "article_number": "12",
+            "quotation": "تُؤسس جمعيات المجتمع المدني والمنظمات غير الحكومية وتمارس أنشطتها بحرية، في نطاق احترام الدستور والقانون.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/المجتمع-المدني",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: تؤسس جمعيات المجتمع المدني والمنظمات غير الحكومية وتمارس أنشطتها بحرية في نطاق احترام الدستور والقانون.",
+    "simple_explanation_fr": "« Société civile » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «المجتمع المدني» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «المجتمع المدني» و«الحريات العامة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «المجتمع المدني» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Société civile », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Société civile » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف المجتمع المدني",
+      "المجتمع المدني في القانون المغربي",
+      "Société civile",
+      "المجتمع المدني قانون دستوري",
+      "أمثلة عن المجتمع المدني",
+      "المجتمع المدني دستور 2011"
+    ],
+    "related_terms": [
+      "liberte-publique",
+      "liberte-reunion-greve"
+    ]
+  },
+  {
+    "id": "initiative-legislative-citoyenne",
+    "term_ar": "مبادرة المواطنين في التشريع",
+    "term_fr": "Initiative législative citoyenne",
+    "definition": "حق المواطنات والمواطنين في تقديم ملتمسات في مجال التشريع، ضمن شروط وكيفيات يحددها قانون تنظيمي.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "14",
+            "phrase": "دستور 2011، الفصل 14",
+            "article_number": "14",
+            "quotation": "للمواطنات والمواطنين، ضمن شروط وكيفيات يحددها قانون تنظيمي، الحق في تقديم ملتمسات في مجال التشريع.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/مبادرة-المواطنين-في-التشريع",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حق المواطنات والمواطنين في تقديم ملتمسات في مجال التشريع، ضمن شروط وكيفيات يحددها قانون تنظيمي.",
+    "simple_explanation_fr": "« Initiative législative citoyenne » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «مبادرة المواطنين في التشريع» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «مبادرة المواطنين في التشريع» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «مبادرة المواطنين في التشريع» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Initiative législative citoyenne », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Initiative législative citoyenne » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف مبادرة المواطنين في التشريع",
+      "مبادرة المواطنين في التشريع في القانون المغربي",
+      "Initiative législative citoyenne",
+      "مبادرة المواطنين في التشريع قانون دستوري",
+      "أمثلة عن مبادرة المواطنين في التشريع",
+      "مبادرة المواطنين في التشريع دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "initiative-legislative-parlement"
+    ]
+  },
+  {
+    "id": "marocains-residant-etranger",
+    "term_ar": "المغاربة المقيمون في الخارج",
+    "term_fr": "Marocains résidant à l'étranger",
+    "definition": "يتمتعون بحقوق المواطنة كاملة، بما فيها حق التصويت والترشيح في الانتخابات، وتعمل الدولة على حماية حقوقهم ومصالحهم.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "17",
+            "phrase": "دستور 2011، الفصل 17",
+            "article_number": "17",
+            "quotation": "يتمتع المغاربة المقيمون في الخارج بحقوق المواطنة كاملة، بما فيها حق التصويت والترشيح في الانتخابات.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/المغاربة-المقيمون-في-الخارج",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يتمتعون بحقوق المواطنة كاملة، بما فيها حق التصويت والترشيح في الانتخابات، وتعمل الدولة على حماية حقوقهم ومصالحهم.",
+    "simple_explanation_fr": "« Marocains résidant à l'étranger » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «المغاربة المقيمون في الخارج» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «المغاربة المقيمون في الخارج» و«الناخب» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «المغاربة المقيمون في الخارج» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Marocains résidant à l'étranger », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Marocains résidant à l'étranger » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف المغاربة المقيمون في الخارج",
+      "المغاربة المقيمون في الخارج في القانون المغربي",
+      "Marocains résidant à l'étranger",
+      "المغاربة المقيمون في الخارج قانون دستوري",
+      "أمثلة عن المغاربة المقيمون في الخارج",
+      "المغاربة المقيمون في الخارج دستور 2011"
+    ],
+    "related_terms": [
+      "electeur",
+      "droits-de-lhomme"
+    ]
+  },
+  {
+    "id": "egalite-homme-femme",
+    "term_ar": "المساواة بين الرجل والمرأة",
+    "term_fr": "Égalité entre l'homme et la femme",
+    "definition": "يتمتع الرجل والمرأة على قدم المساواة بالحقوق والحريات المدنية والسياسية والاقتصادية والاجتماعية والثقافية والبيئية، وتعمل الدولة على تمكين المرأة من الشروط اللازمة.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "19",
+            "phrase": "دستور 2011، الفصل 19",
+            "article_number": "19",
+            "quotation": "يتمتع الرجل والمرأة، على قدم المساواة، بالحقوق والحريات المدنية والسياسية والاقتصادية والاجتماعية والثقافية والبيئية، الواردة في هذا الباب من الدستور، وفي مقتضياته الأخرى، وكذا في الاتفاقيات والمواثيق الدولية، كما صادق…",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/المساواة-بين-الرجل-والمرأة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يتمتع الرجل والمرأة على قدم المساواة بالحقوق والحريات المدنية والسياسية والاقتصادية والاجتماعية والثقافية والبيئية، وتعمل الدولة على تمكين المرأة من الشروط اللازمة.",
+    "simple_explanation_fr": "« Égalité entre l'homme et la femme » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «المساواة بين الرجل والمرأة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «المساواة بين الرجل والمرأة» و«الزواج» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «المساواة بين الرجل والمرأة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Égalité entre l'homme et la femme », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Égalité entre l'homme et la femme » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف المساواة بين الرجل والمرأة",
+      "المساواة بين الرجل والمرأة في القانون المغربي",
+      "Égalité entre l'homme et la femme",
+      "المساواة بين الرجل والمرأة قانون دستوري",
+      "أمثلة عن المساواة بين الرجل والمرأة",
+      "المساواة بين الرجل والمرأة دستور 2011"
+    ],
+    "related_terms": [
+      "mariage",
+      "droits-de-lhomme"
+    ]
+  },
+  {
+    "id": "droit-vie",
+    "term_ar": "الحق في الحياة",
+    "term_fr": "Droit à la vie",
+    "definition": "الحق في الحياة أول الحقوق لكل إنسان، ويحمي القانون هذا الحق.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "20",
+            "phrase": "دستور 2011، الفصل 20",
+            "article_number": "20",
+            "quotation": "الحق في الحياة هو أول الحقوق لكل إنسان.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الحق-في-الحياة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: الحق في الحياة أول الحقوق لكل إنسان، ويحمي القانون هذا الحق.",
+    "simple_explanation_fr": "« Droit à la vie » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الحق في الحياة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الحق في الحياة» و«حقوق الإنسان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الحق في الحياة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Droit à la vie », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Droit à la vie » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الحق في الحياة",
+      "الحق في الحياة في القانون المغربي",
+      "Droit à la vie",
+      "الحق في الحياة قانون دستوري",
+      "أمثلة عن الحق في الحياة",
+      "الحق في الحياة دستور 2011"
+    ],
+    "related_terms": [
+      "droits-de-lhomme",
+      "integrite-physique-morale"
+    ]
+  },
+  {
+    "id": "integrite-physique-morale",
+    "term_ar": "السلامة الجسدية والمعنوية",
+    "term_fr": "Intégrité physique et morale",
+    "definition": "لا يجوز المس بالسلامة الجسدية أو المعنوية لأي شخص في أي ظرف، ولا معاملته معاملة قاسية أو لائنية أو مهينة.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "22",
+            "phrase": "دستور 2011، الفصل 22",
+            "article_number": "22",
+            "quotation": "لا يجوز المس بالسلامة الجسدية أو المعنوية لأي شخص، في أي ظرف، ومن قبل أي جهة كانت، خاصة أو عامة.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/السلامة-الجسدية-والمعنوية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: لا يجوز المس بالسلامة الجسدية أو المعنوية لأي شخص في أي ظرف، ولا معاملته معاملة قاسية أو لائنية أو مهينة.",
+    "simple_explanation_fr": "« Intégrité physique et morale » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «السلامة الجسدية والمعنوية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «السلامة الجسدية والمعنوية» و«الحق في الحياة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «السلامة الجسدية والمعنوية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Intégrité physique et morale », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Intégrité physique et morale » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف السلامة الجسدية والمعنوية",
+      "السلامة الجسدية والمعنوية في القانون المغربي",
+      "Intégrité physique et morale",
+      "السلامة الجسدية والمعنوية قانون دستوري",
+      "أمثلة عن السلامة الجسدية والمعنوية",
+      "السلامة الجسدية والمعنوية دستور 2011"
+    ],
+    "related_terms": [
+      "droit-vie",
+      "droits-de-lhomme"
+    ]
+  },
+  {
+    "id": "protection-arrestation-arbitraire",
+    "term_ar": "الحماية من الاعتقال التعسفي",
+    "term_fr": "Protection contre l'arrestation arbitraire",
+    "definition": "لا يجوز إلقاء القبض على أي شخص أو اعتقاله أو متابعته أو إدانته إلا في الحالات وطبقا للإجراءات التي ينص عليها القانون.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "23",
+            "phrase": "دستور 2011، الفصل 23",
+            "article_number": "23",
+            "quotation": "لا يجوز إلقاء القبض على أي شخص أو اعتقاله أو متابعته أو إدانته، إلا في الحالات وطبقا للإجراءات التي ينص عليها القانون.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الحماية-من-الاعتقال-التعسفي",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: لا يجوز إلقاء القبض على أي شخص أو اعتقاله أو متابعته أو إدانته إلا في الحالات وطبقا للإجراءات التي ينص عليها القانون.",
+    "simple_explanation_fr": "« Protection contre l'arrestation arbitraire » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الحماية من الاعتقال التعسفي» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الحماية من الاعتقال التعسفي» و«الاعتقال الاحتياطي» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الحماية من الاعتقال التعسفي» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Protection contre l'arrestation arbitraire », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Protection contre l'arrestation arbitraire » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الحماية من الاعتقال التعسفي",
+      "الحماية من الاعتقال التعسفي في القانون المغربي",
+      "Protection contre l'arrestation arbitraire",
+      "الحماية من الاعتقال التعسفي قانون دستوري",
+      "أمثلة عن الحماية من الاعتقال التعسفي",
+      "الحماية من الاعتقال التعسفي دستور 2011"
+    ],
+    "related_terms": [
+      "detention-preventive",
+      "proces-equitable"
+    ]
+  },
+  {
+    "id": "vie-privee-dustur",
+    "term_ar": "حماية الحياة الخاصة",
+    "term_fr": "Protection de la vie privée",
+    "definition": "لكل شخص الحق في حماية حياته الخاصة، ولا تنتهك حرمة المنزل، وتتمتع السرية والمراسلات بالحماية القانونية.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "24",
+            "phrase": "دستور 2011، الفصل 24",
+            "article_number": "24",
+            "quotation": "لكل شخص الحق في حماية حياته الخاصة.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حماية-الحياة-الخاصة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: لكل شخص الحق في حماية حياته الخاصة، ولا تنتهك حرمة المنزل، وتتمتع السرية والمراسلات بالحماية القانونية.",
+    "simple_explanation_fr": "« Protection de la vie privée » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حماية الحياة الخاصة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حماية الحياة الخاصة» و«الحريات العامة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حماية الحياة الخاصة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Protection de la vie privée », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Protection de la vie privée » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حماية الحياة الخاصة",
+      "حماية الحياة الخاصة في القانون المغربي",
+      "Protection de la vie privée",
+      "حماية الحياة الخاصة قانون دستوري",
+      "أمثلة عن حماية الحياة الخاصة",
+      "حماية الحياة الخاصة دستور 2011"
+    ],
+    "related_terms": [
+      "liberte-publique",
+      "droit-information"
+    ]
+  },
+  {
+    "id": "liberte-expression",
+    "term_ar": "حرية التعبير",
+    "term_fr": "Liberté d'expression",
+    "definition": "حرية الفكر والرأي والتعبير مكفولة بكل أشكالها، مع ضمان حرية الإبداع والنشر والعرض في الأدب والفن والبحث العلمي.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "25",
+            "phrase": "دستور 2011، الفصل 25",
+            "article_number": "25",
+            "quotation": "حرية الفكر والرأي والتعبير مكفولة بكل أشكالها.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حرية-التعبير",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حرية الفكر والرأي والتعبير مكفولة بكل أشكالها، مع ضمان حرية الإبداع والنشر والعرض في الأدب والفن والبحث العلمي.",
+    "simple_explanation_fr": "« Liberté d'expression » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حرية التعبير» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حرية التعبير» و«حرية الصحافة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حرية التعبير» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Liberté d'expression », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Liberté d'expression » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حرية التعبير",
+      "حرية التعبير في القانون المغربي",
+      "Liberté d'expression",
+      "حرية التعبير قانون دستوري",
+      "أمثلة عن حرية التعبير",
+      "حرية التعبير دستور 2011"
+    ],
+    "related_terms": [
+      "liberte-presse-dustur",
+      "liberte-publique"
+    ]
+  },
+  {
+    "id": "droit-information",
+    "term_ar": "الحق في الحصول على المعلومات",
+    "term_fr": "Droit à l'information",
+    "definition": "حق المواطنات والمواطنين في الحصول على المعلومات الموجودة في حوزة الإدارة العمومية والمؤسسات المنتخبة والهيئات المكلفة بمهام المرفق العام.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "27",
+            "phrase": "دستور 2011، الفصل 27",
+            "article_number": "27",
+            "quotation": "للمواطنات والمواطنين حق الحصول على المعلومات، الموجودة في حوزة الإدارة العمومية، والمؤسسات المنتخبة، والهيئات المكلفة بمهام المرفق العام.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الحق-في-الحصول-على-المعلومات",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حق المواطنات والمواطنين في الحصول على المعلومات الموجودة في حوزة الإدارة العمومية والمؤسسات المنتخبة والهيئات المكلفة بمهام المرفق العام.",
+    "simple_explanation_fr": "« Droit à l'information » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الحق في الحصول على المعلومات» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الحق في الحصول على المعلومات» و«المرفق العام» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الحق في الحصول على المعلومات» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Droit à l'information », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Droit à l'information » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الحق في الحصول على المعلومات",
+      "الحق في الحصول على المعلومات في القانون المغربي",
+      "Droit à l'information",
+      "الحق في الحصول على المعلومات قانون دستوري",
+      "أمثلة عن الحق في الحصول على المعلومات",
+      "الحق في الحصول على المعلومات دستور 2011"
+    ],
+    "related_terms": [
+      "service-public",
+      "liberte-expression"
+    ]
+  },
+  {
+    "id": "liberte-presse-dustur",
+    "term_ar": "حرية الصحافة",
+    "term_fr": "Liberté de la presse",
+    "definition": "مضمونة ولا يمكن تقييدها بأي شكل من أشكال الرقابة القبلية، وللجميع حق التعبير ونشر الأخبار بكل حرية.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "28",
+            "phrase": "دستور 2011، الفصل 28",
+            "article_number": "28",
+            "quotation": "حرية الصحافة مضمونة، ولا يمكن تقييدها بأي شكل من أشكال الرقابة القبلية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حرية-الصحافة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: مضمونة ولا يمكن تقييدها بأي شكل من أشكال الرقابة القبلية، وللجميع حق التعبير ونشر الأخبار بكل حرية.",
+    "simple_explanation_fr": "« Liberté de la presse » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حرية الصحافة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حرية الصحافة» و«حرية التعبير» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حرية الصحافة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Liberté de la presse », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Liberté de la presse » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حرية الصحافة",
+      "حرية الصحافة في القانون المغربي",
+      "Liberté de la presse",
+      "حرية الصحافة قانون دستوري",
+      "أمثلة عن حرية الصحافة",
+      "حرية الصحافة دستور 2011"
+    ],
+    "related_terms": [
+      "liberte-expression",
+      "droit-information"
+    ]
+  },
+  {
+    "id": "liberte-reunion-greve",
+    "term_ar": "حرية التجمع وحق الإضراب",
+    "term_fr": "Liberté de réunion et de grève",
+    "definition": "حريات الاجتماع والتجمهر والتظاهر السلمي وتأسيس الجمعيات والانتماء النقابي والسياسي مضمونة، وحق الإضراب مضمون.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "29",
+            "phrase": "دستور 2011، الفصل 29",
+            "article_number": "29",
+            "quotation": "حريات الاجتماع والتجمهر والتظاهر السلمي، وتأسيس الجمعيات، والانتماء النقابي والسياسي مضمونة.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حرية-التجمع-وحق-الإضراب",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حريات الاجتماع والتجمهر والتظاهر السلمي وتأسيس الجمعيات والانتماء النقابي والسياسي مضمونة، وحق الإضراب مضمون.",
+    "simple_explanation_fr": "« Liberté de réunion et de grève » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حرية التجمع وحق الإضراب» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حرية التجمع وحق الإضراب» و«الإضراب» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حرية التجمع وحق الإضراب» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Liberté de réunion et de grève », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Liberté de réunion et de grève » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حرية التجمع وحق الإضراب",
+      "حرية التجمع وحق الإضراب في القانون المغربي",
+      "Liberté de réunion et de grève",
+      "حرية التجمع وحق الإضراب قانون دستوري",
+      "أمثلة عن حرية التجمع وحق الإضراب",
+      "حرية التجمع وحق الإضراب دستور 2011"
+    ],
+    "related_terms": [
+      "greve",
+      "syndicat",
+      "liberte-publique"
+    ]
+  },
+  {
+    "id": "suffrage-dustur",
+    "term_ar": "حق التصويت والترشح",
+    "term_fr": "Droit de vote et de candidature",
+    "definition": "لكل مواطنة ومواطن الحق في التصويت والترشح للانتخابات عند بلوغ سن الرشد القانونية والتمتع بالحقوق المدنية والسياسية.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "30",
+            "phrase": "دستور 2011، الفصل 30",
+            "article_number": "30",
+            "quotation": "لكل مواطنة ومواطن، الحق في التصويت، وفي الترشح للانتخابات، شرط بلوغ سن الرشد القانونية، والتمتع بالحقوق المدنية والسياسية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حق-التصويت-والترشح",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: لكل مواطنة ومواطن الحق في التصويت والترشح للانتخابات عند بلوغ سن الرشد القانونية والتمتع بالحقوق المدنية والسياسية.",
+    "simple_explanation_fr": "« Droit de vote et de candidature » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حق التصويت والترشح» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حق التصويت والترشح» و«الناخب» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حق التصويت والترشح» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Droit de vote et de candidature », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Droit de vote et de candidature » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حق التصويت والترشح",
+      "حق التصويت والترشح في القانون المغربي",
+      "Droit de vote et de candidature",
+      "حق التصويت والترشح قانون دستوري",
+      "أمثلة عن حق التصويت والترشح",
+      "حق التصويت والترشح دستور 2011"
+    ],
+    "related_terms": [
+      "electeur",
+      "candidat",
+      "elections-libres-nizihates"
+    ]
+  },
+  {
+    "id": "famille-cellule-base",
+    "term_ar": "الأسرة الخلية الأساسية للمجتمع",
+    "term_fr": "Famille, cellule de base de la société",
+    "definition": "الأسرة القائمة على علاقة الزواج الشرعي هي الخلية الأساسية للمجتمع، وتعمل الدولة على ضمان حمايتها الحقوقية والاجتماعية والثقافية.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "32",
+            "phrase": "دستور 2011، الفصل 32",
+            "article_number": "32",
+            "quotation": "الأسرة القائمة على علاقة الزواج الشرعي هي الخلية الأساسية للمجتمع.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الأسرة-الخلية-الأساسية-للمجتمع",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: الأسرة القائمة على علاقة الزواج الشرعي هي الخلية الأساسية للمجتمع، وتعمل الدولة على ضمان حمايتها الحقوقية والاجتماعية والثقافية.",
+    "simple_explanation_fr": "« Famille, cellule de base de la société » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الأسرة الخلية الأساسية للمجتمع» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الأسرة الخلية الأساسية للمجتمع» و«الزواج» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الأسرة الخلية الأساسية للمجتمع» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Famille, cellule de base de la société », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Famille, cellule de base de la société » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الأسرة الخلية الأساسية للمجتمع",
+      "الأسرة الخلية الأساسية للمجتمع في القانون المغربي",
+      "Famille, cellule de base de la société",
+      "الأسرة الخلية الأساسية للمجتمع قانون دستوري",
+      "أمثلة عن الأسرة الخلية الأساسية للمجتمع",
+      "الأسرة الخلية الأساسية للمجتمع دستور 2011"
+    ],
+    "related_terms": [
+      "mariage",
+      "san-ahliyya-zawaj"
+    ]
+  },
+  {
+    "id": "droit-propriete-dustur",
+    "term_ar": "حق الملكية",
+    "term_fr": "Droit de propriété",
+    "definition": "يضمنه القانون، ويمكن الحد من نطاقه وممارسته بموجب القانون لمتطلبات التنمية، ولا نزع للملكية إلا لمقتضى المنفعة العامة مع تعويض عادل ومنصف.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "35",
+            "phrase": "دستور 2011، الفصل 35",
+            "article_number": "35",
+            "quotation": "يضمن القانون حق الملكية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حق-الملكية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يضمنه القانون، ويمكن الحد من نطاقه وممارسته بموجب القانون لمتطلبات التنمية، ولا نزع للملكية إلا لمقتضى المنفعة العامة مع تعويض عادل ومنصف.",
+    "simple_explanation_fr": "« Droit de propriété » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حق الملكية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حق الملكية» و«الحق العيني» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حق الملكية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Droit de propriété », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Droit de propriété » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حق الملكية",
+      "حق الملكية في القانون المغربي",
+      "Droit de propriété",
+      "حق الملكية قانون دستوري",
+      "أمثلة عن حق الملكية",
+      "حق الملكية دستور 2011"
+    ],
+    "related_terms": [
+      "droit-reel",
+      "expropriation"
+    ]
+  },
+  {
+    "id": "roi-chef-etat",
+    "term_ar": "الملك رئيس الدولة",
+    "term_fr": "Roi, chef de l'État",
+    "definition": "الملك رئيس الدولة وممثلها الأسمى، ورمز وحدة الأمة، وضامن دوام الدولة واستمرارها، والحكم الأسمى بين مؤسساتها.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "42",
+            "phrase": "دستور 2011، الفصل 42",
+            "article_number": "42",
+            "quotation": "الملك رئيس الدولة، وممثلها الأسمى، ورمز وحدة الأمة، وضامن دوام الدولة واستمرارها، والحكم الأسمى بين مؤسساتها، يسهر على احترام الدستور، وحسن سير المؤسسات الدستورية، وعلى صيانة الاختيار الديمقراطي، وحقوق وحريات المواطنات…",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الملك-رئيس-الدولة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: الملك رئيس الدولة وممثلها الأسمى، ورمز وحدة الأمة، وضامن دوام الدولة واستمرارها، والحكم الأسمى بين مؤسساتها.",
+    "simple_explanation_fr": "« Roi, chef de l'État » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الملك رئيس الدولة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الملك رئيس الدولة» و«الملكية الدستورية» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الملك رئيس الدولة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Roi, chef de l'État », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Roi, chef de l'État » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الملك رئيس الدولة",
+      "الملك رئيس الدولة في القانون المغربي",
+      "Roi, chef de l'État",
+      "الملك رئيس الدولة قانون دستوري",
+      "أمثلة عن الملك رئيس الدولة",
+      "الملك رئيس الدولة دستور 2011"
+    ],
+    "related_terms": [
+      "monarchie-constitutionnelle",
+      "separation-pouvoirs-constitution"
+    ]
+  },
+  {
+    "id": "nomination-chef-gouvernement",
+    "term_ar": "تعيين رئيس الحكومة",
+    "term_fr": "Nomination du chef du gouvernement",
+    "definition": "يعين الملك رئيس الحكومة من الحزب السياسي الذي تصدر انتخابات أعضاء مجلس النواب وعلى أساس نتائجها، ويعين أعضاء الحكومة باقتراح منه.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "47",
+            "phrase": "دستور 2011، الفصل 47",
+            "article_number": "47",
+            "quotation": "يعين الملك رئيس الحكومة من الحزب السياسي الذي تصدر انتخابات أعضاء مجلس النواب، وعلى أساس نتائجها.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/تعيين-رئيس-الحكومة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يعين الملك رئيس الحكومة من الحزب السياسي الذي تصدر انتخابات أعضاء مجلس النواب وعلى أساس نتائجها، ويعين أعضاء الحكومة باقتراح منه.",
+    "simple_explanation_fr": "« Nomination du chef du gouvernement » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «تعيين رئيس الحكومة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «تعيين رئيس الحكومة» و«الملك رئيس الدولة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «تعيين رئيس الحكومة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Nomination du chef du gouvernement », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Nomination du chef du gouvernement » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف تعيين رئيس الحكومة",
+      "تعيين رئيس الحكومة في القانون المغربي",
+      "Nomination du chef du gouvernement",
+      "تعيين رئيس الحكومة قانون دستوري",
+      "أمثلة عن تعيين رئيس الحكومة",
+      "تعيين رئيس الحكومة دستور 2011"
+    ],
+    "related_terms": [
+      "roi-chef-etat",
+      "vote-confiance"
+    ]
+  },
+  {
+    "id": "dissolution-parlement",
+    "term_ar": "حل البرلمان",
+    "term_fr": "Dissolution du Parlement",
+    "definition": "حق الملك في حل مجلسي البرلمان أو أحدهما بظهير، طبق الشروط والمقتضيات المحددة في فصول الدستور.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "51",
+            "phrase": "دستور 2011، الفصل 51",
+            "article_number": "51",
+            "quotation": "للملك حق حل مجلسي البرلمان أو أحدهما بظهير، طبق الشروط المبينة في الفصول 96 و97 و98.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حل-البرلمان",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حق الملك في حل مجلسي البرلمان أو أحدهما بظهير، طبق الشروط والمقتضيات المحددة في فصول الدستور.",
+    "simple_explanation_fr": "« Dissolution du Parlement » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حل البرلمان» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حل البرلمان» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حل البرلمان» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Dissolution du Parlement », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Dissolution du Parlement » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حل البرلمان",
+      "حل البرلمان في القانون المغربي",
+      "Dissolution du Parlement",
+      "حل البرلمان قانون دستوري",
+      "أمثلة عن حل البرلمان",
+      "حل البرلمان دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "roi-chef-etat"
+    ]
+  },
+  {
+    "id": "parlement-bicameral",
+    "term_ar": "البرلمان ثنائي المجلسين",
+    "term_fr": "Parlement bicaméral",
+    "definition": "يتكون البرلمان من مجلسي مجلس النواب ومجلس المستشارين، ويستمد أعضاؤه نيابتهم من الأمة، وحقهم في التصويت حق شخصي لا يمكن إقصاؤهم منه إلا بالشروط المحددة.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "60",
+            "phrase": "دستور 2011، الفصل 60",
+            "article_number": "60",
+            "quotation": "يتكون البرلمان من مجلسين، مجلس النواب ومجلس المستشارين؛",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/البرلمان-ثنائي-المجلسين",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يتكون البرلمان من مجلسي مجلس النواب ومجلس المستشارين، ويستمد أعضاؤه نيابتهم من الأمة، وحقهم في التصويت حق شخصي لا يمكن إقصاؤهم منه إلا بالشروط المحددة.",
+    "simple_explanation_fr": "« Parlement bicaméral » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «البرلمان ثنائي المجلسين» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «البرلمان ثنائي المجلسين» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «البرلمان ثنائي المجلسين» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Parlement bicaméral », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Parlement bicaméral » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف البرلمان ثنائي المجلسين",
+      "البرلمان ثنائي المجلسين في القانون المغربي",
+      "Parlement bicaméral",
+      "البرلمان ثنائي المجلسين قانون دستوري",
+      "أمثلة عن البرلمان ثنائي المجلسين",
+      "البرلمان ثنائي المجلسين دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "opposition-parlementaire"
+    ]
+  },
+  {
+    "id": "domaine-loi-dustur",
+    "term_ar": "اختصاص القانون بالتشريع",
+    "term_fr": "Domaine de la loi",
+    "definition": "يختص القانون بالتشريع في ميادين محددة، منها الحقوق والحريات الأساسية والوضعيات والحريات العامة والمواطنة والتشريع التنظيمي.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "71",
+            "phrase": "دستور 2011، الفصل 71",
+            "article_number": "71",
+            "quotation": "يختص القانون، بالإضافة إلى المواد المسندة إليه صراحة بفصول أخرى من الدستور، بالتشريع في الميادين التالية: الحقوق والحريات الأساسية المنصوص عليها في التصدير، وفي فصول أخرى من هذا الدستور؛",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/اختصاص-القانون-بالتشريع",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يختص القانون بالتشريع في ميادين محددة، منها الحقوق والحريات الأساسية والوضعيات والحريات العامة والمواطنة والتشريع التنظيمي.",
+    "simple_explanation_fr": "« Domaine de la loi » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «اختصاص القانون بالتشريع» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «اختصاص القانون بالتشريع» و«القانون التنظيمي» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «اختصاص القانون بالتشريع» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Domaine de la loi », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Domaine de la loi » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف اختصاص القانون بالتشريع",
+      "اختصاص القانون بالتشريع في القانون المغربي",
+      "Domaine de la loi",
+      "اختصاص القانون بالتشريع قانون دستوري",
+      "أمثلة عن اختصاص القانون بالتشريع",
+      "اختصاص القانون بالتشريع دستور 2011"
+    ],
+    "related_terms": [
+      "loi-organique",
+      "hierarchy-lois"
+    ]
+  },
+  {
+    "id": "loi-finances",
+    "term_ar": "قانون المالية",
+    "term_fr": "Loi de finances",
+    "definition": "قانون يودع بالأولوية لدى مجلس النواب ويصوت عليه البرلمان طبق الشروط والأجل المحددين في الدستور، ويرافقه مشروع الميزانية الفرعية للحزب.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "75",
+            "phrase": "دستور 2011، الفصل 75",
+            "article_number": "75",
+            "quotation": "يصدر قانون المالية، الذي يودع بالأسبقية لدى مجلس النواب، بالتصويت من قبل البرلمان، وذلك طبق الشروط المنصوص عليها في قانون تنظيمي؛",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/قانون-المالية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: قانون يودع بالأولوية لدى مجلس النواب ويصوت عليه البرلمان طبق الشروط والأجل المحددين في الدستور، ويرافقه مشروع الميزانية الفرعية للحزب.",
+    "simple_explanation_fr": "« Loi de finances » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «قانون المالية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «قانون المالية» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «قانون المالية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Loi de finances », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Loi de finances » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف قانون المالية",
+      "قانون المالية في القانون المغربي",
+      "Loi de finances",
+      "قانون المالية قانون دستوري",
+      "أمثلة عن قانون المالية",
+      "قانون المالية دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "loi-organique"
+    ]
+  },
+  {
+    "id": "initiative-legislative-parlement",
+    "term_ar": "حق التقدم باقتراح القوانين",
+    "term_fr": "Droit d'initiative législative",
+    "definition": "لرئيس الحكومة ولأعضاء البرلمان على السواء حق التقدم باقتراح القوانين، وتودع مشاريع القوانين بالأولوية لدى الحكومة.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "78",
+            "phrase": "دستور 2011، الفصل 78",
+            "article_number": "78",
+            "quotation": "لرئيس الحكومة ولأعضاء البرلمان على السواء حق التقدم باقتراح القوانين.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/حق-التقدم-باقتراح-القوانين",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: لرئيس الحكومة ولأعضاء البرلمان على السواء حق التقدم باقتراح القوانين، وتودع مشاريع القوانين بالأولوية لدى الحكومة.",
+    "simple_explanation_fr": "« Droit d'initiative législative » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «حق التقدم باقتراح القوانين» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «حق التقدم باقتراح القوانين» و«البرلمان» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «حق التقدم باقتراح القوانين» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Droit d'initiative législative », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Droit d'initiative législative » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف حق التقدم باقتراح القوانين",
+      "حق التقدم باقتراح القوانين في القانون المغربي",
+      "Droit d'initiative législative",
+      "حق التقدم باقتراح القوانين قانون دستوري",
+      "أمثلة عن حق التقدم باقتراح القوانين",
+      "حق التقدم باقتراح القوانين دستور 2011"
+    ],
+    "related_terms": [
+      "parlement",
+      "initiative-legislative-citoyenne"
+    ]
+  },
+  {
+    "id": "vote-confiance",
+    "term_ar": "التصويت على الثقة",
+    "term_fr": "Vote de confiance",
+    "definition": "حق رئيس الحكومة في ربط مواصلة الحكومة تحمل مسؤوليتها بتصويت يمنح الثقة لدى مجلس النواب، بشأن تصريح عن السياسة العامة أو نص معروض.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "103",
+            "phrase": "دستور 2011، الفصل 103",
+            "article_number": "103",
+            "quotation": "يمكن لرئيس الحكومة أن يربط، لدى مجلس النواب، مواصلة الحكومة تحمل مسؤوليتها بتصويت يمنح الثقة بشأن تصريح يدلي به في موضوع السياسة العامة، أو بشأن نص يطلب الموافقة عليه.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/التصويت-على-الثقة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حق رئيس الحكومة في ربط مواصلة الحكومة تحمل مسؤوليتها بتصويت يمنح الثقة لدى مجلس النواب، بشأن تصريح عن السياسة العامة أو نص معروض.",
+    "simple_explanation_fr": "« Vote de confiance » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «التصويت على الثقة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «التصويت على الثقة» و«ملتمس الرقابة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «التصويت على الثقة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Vote de confiance », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Vote de confiance » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف التصويت على الثقة",
+      "التصويت على الثقة في القانون المغربي",
+      "Vote de confiance",
+      "التصويت على الثقة قانون دستوري",
+      "أمثلة عن التصويت على الثقة",
+      "التصويت على الثقة دستور 2011"
+    ],
+    "related_terms": [
+      "motion-censure",
+      "nomination-chef-gouvernement"
+    ]
+  },
+  {
+    "id": "motion-censure-dustur",
+    "term_ar": "ملتمس الرقابة",
+    "term_fr": "Motion de censure",
+    "definition": "أداة مجلس النواب لمعارضة مواصلة الحكومة تحمل مسؤوليتها؛ لا يقبل إلا بتوقيع خُمس الأعضاء ولا يصوت إلا بعد ثلاثة أيام من إيداعه.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "105",
+            "phrase": "دستور 2011، الفصل 105",
+            "article_number": "105",
+            "quotation": "لمجلس النواب أن يعارض في مواصلة الحكومة تحمل مسؤوليتها، بالتصويت على ملتمس للرقابة؛",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/ملتمس-الرقابة-motion-censure-dustur",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: أداة مجلس النواب لمعارضة مواصلة الحكومة تحمل مسؤوليتها؛ لا يقبل إلا بتوقيع خُمس الأعضاء ولا يصوت إلا بعد ثلاثة أيام من إيداعه.",
+    "simple_explanation_fr": "« Motion de censure » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «ملتمس الرقابة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «ملتمس الرقابة» و«ملتمس الرقابة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «ملتمس الرقابة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Motion de censure », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Motion de censure » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف ملتمس الرقابة",
+      "ملتمس الرقابة في القانون المغربي",
+      "Motion de censure",
+      "ملتمس الرقابة قانون دستوري",
+      "أمثلة عن ملتمس الرقابة",
+      "ملتمس الرقابة دستور 2011"
+    ],
+    "related_terms": [
+      "motion-censure",
+      "vote-confiance"
+    ]
+  },
+  {
+    "id": "independance-judiciaire",
+    "term_ar": "استقلال السلطة القضائية",
+    "term_fr": "Indépendance du pouvoir judiciaire",
+    "definition": "السلطة القضائية مستقلة عن السلطة التشريعية وعن السلطة التنفيذية، والملك هو الضامن لاستقلالها.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "107",
+            "phrase": "دستور 2011، الفصل 107",
+            "article_number": "107",
+            "quotation": "السلطة القضائية مستقلة عن السلطة التشريعية وعن السلطة التنفيذية.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/استقلال-السلطة-القضائية",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: السلطة القضائية مستقلة عن السلطة التشريعية وعن السلطة التنفيذية، والملك هو الضامن لاستقلالها.",
+    "simple_explanation_fr": "« Indépendance du pouvoir judiciaire » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «استقلال السلطة القضائية» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «استقلال السلطة القضائية» و«فصل السلط» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «استقلال السلطة القضائية» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Indépendance du pouvoir judiciaire », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Indépendance du pouvoir judiciaire » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف استقلال السلطة القضائية",
+      "استقلال السلطة القضائية في القانون المغربي",
+      "Indépendance du pouvoir judiciaire",
+      "استقلال السلطة القضائية قانون دستوري",
+      "أمثلة عن استقلال السلطة القضائية",
+      "استقلال السلطة القضائية دستور 2011"
+    ],
+    "related_terms": [
+      "separation-pouvoirs-constitution",
+      "juridiction"
+    ]
+  },
+  {
+    "id": "presomption-innocence",
+    "term_ar": "مبدأ البراءة",
+    "term_fr": "Présomption d'innocence",
+    "definition": "يُعتبر كل مشتبه فيه أو متهم بارتكاب جريمة بريئا إلى أن تثبت إدانته بمقرر قضائي مكتسب لقوة الشيء المقضي به.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "119",
+            "phrase": "دستور 2011، الفصل 119",
+            "article_number": "119",
+            "quotation": "يعتبر كل مشتبه فيه أو متهم بارتكاب جريمة بريئا، إلى أن تثبت إدانته بمقرر قضائي مكتسب لقوة الشيء المقضي به.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/مبدأ-البراءة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يُعتبر كل مشتبه فيه أو متهم بارتكاب جريمة بريئا إلى أن تثبت إدانته بمقرر قضائي مكتسب لقوة الشيء المقضي به.",
+    "simple_explanation_fr": "« Présomption d'innocence » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «مبدأ البراءة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «مبدأ البراءة» و«المتهم» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «مبدأ البراءة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Présomption d'innocence », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Présomption d'innocence » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف مبدأ البراءة",
+      "مبدأ البراءة في القانون المغربي",
+      "Présomption d'innocence",
+      "مبدأ البراءة قانون دستوري",
+      "أمثلة عن مبدأ البراءة",
+      "مبدأ البراءة دستور 2011"
+    ],
+    "related_terms": [
+      "prevenu",
+      "proces-equitable"
+    ]
+  },
+  {
+    "id": "proces-equitable",
+    "term_ar": "الحق في المحاكمة العادلة",
+    "term_fr": "Droit à un procès équitable",
+    "definition": "لكل شخص الحق في محاكمة عادلة وفي حكم يصدر داخل أجل معقول، وحقوق الدفاع مضمونة أمام جميع المحاكم.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "120",
+            "phrase": "دستور 2011، الفصل 120",
+            "article_number": "120",
+            "quotation": "لكل شخص الحق في محاكمة عادلة، وفي حكم يصدر داخل أجل معقول.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الحق-في-المحاكمة-العادلة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: لكل شخص الحق في محاكمة عادلة وفي حكم يصدر داخل أجل معقول، وحقوق الدفاع مضمونة أمام جميع المحاكم.",
+    "simple_explanation_fr": "« Droit à un procès équitable » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الحق في المحاكمة العادلة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الحق في المحاكمة العادلة» و«مبدأ البراءة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الحق في المحاكمة العادلة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Droit à un procès équitable », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Droit à un procès équitable » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الحق في المحاكمة العادلة",
+      "الحق في المحاكمة العادلة في القانون المغربي",
+      "Droit à un procès équitable",
+      "الحق في المحاكمة العادلة قانون دستوري",
+      "أمثلة عن الحق في المحاكمة العادلة",
+      "الحق في المحاكمة العادلة دستور 2011"
+    ],
+    "related_terms": [
+      "presomption-innocence",
+      "protection-arrestation-arbitraire"
+    ]
+  },
+  {
+    "id": "controle-constitutionnalite",
+    "term_ar": "الرقابة على دستورية القوانين",
+    "term_fr": "Contrôle de constitutionnalité",
+    "definition": "اختصاص المحكمة الدستورية في مطابقة النصوص لأحكام الدستور، والبت في الدفوع المتعلقة بعدم دستورية قانون أثير أثناء النظر في قضية.",
+    "category": "قانون دستوري",
+    "legal_sources": [
+      {
+        "code_ar": "الدستور المغربي",
+        "code_short": "دستور 2011",
+        "code_fr": "Constitution du Royaume du Maroc (2011)",
+        "articles": [
+          {
+            "number": "131",
+            "phrase": "دستور 2011، الفصل 131",
+            "article_number": "131",
+            "quotation": "يحدد قانون تنظيمي قواعد تنظيم المحكمة الدستورية وسيرها والإجراءات المتبعة أمامها، ووضعية أعضائها.",
+            "quotation_type": "excerpt"
+          },
+          {
+            "number": "132",
+            "phrase": "دستور 2011، الفصل 132",
+            "article_number": "132",
+            "quotation": "تمارس المحكمة الدستورية الاختصاصات المسندة إليها بفصول الدستور، وبأحكام القوانين التنظيمية، وتبت بالإضافة إلى ذلك في صحة انتخاب أعضاء البرلمان وعمليات الاستفتاء.",
+            "quotation_type": "excerpt"
+          },
+          {
+            "number": "133",
+            "phrase": "دستور 2011، الفصل 133",
+            "article_number": "133",
+            "quotation": "تختص المحكمة الدستورية بالنظر في كل دفع متعلق بعدم دستورية قانون، أثير أثناء النظر في قضية، وذلك إذا دفع أحد الأطراف بأن القانون، الذي سيطبق في النزاع، يمس بالحقوق وبالحريات التي يضمنها الدستور.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الرقابة-على-دستورية-القوانين",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: اختصاص المحكمة الدستورية في مطابقة النصوص لأحكام الدستور، والبت في الدفوع المتعلقة بعدم دستورية قانون أثير أثناء النظر في قضية.",
+    "simple_explanation_fr": "« Contrôle de constitutionnalité » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الرقابة على دستورية القوانين» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
+      "تمرين: قارن بين «الرقابة على دستورية القوانين» و«المحكمة الدستورية» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان قانون دستوري: أعد صياغة تعريف «الرقابة على دستورية القوانين» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Contrôle de constitutionnalité », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Contrôle de constitutionnalité » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الرقابة على دستورية القوانين",
+      "الرقابة على دستورية القوانين في القانون المغربي",
+      "Contrôle de constitutionnalité",
+      "الرقابة على دستورية القوانين قانون دستوري",
+      "أمثلة عن الرقابة على دستورية القوانين",
+      "الرقابة على دستورية القوانين دستور 2011"
+    ],
+    "related_terms": [
+      "cour-constitutionnelle",
+      "hierarchy-lois",
+      "loi-organique"
+    ]
+  },
+  {
+    "id": "san-ahliyya-zawaj",
+    "term_ar": "سن الأهلية للزواج",
+    "term_fr": "Âge de capacité matrimoniale",
+    "definition": "تكتمل أهلية الزواج بإتمام الفتى والفتاة ثمان عشرة سنة شمسية كاملة، مع إمكانية الإذن بزواج من دونها بمقرر معلل يبين المصلحة والأسباب المبررة.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "19",
+            "phrase": "مدونة 70.03، المادة 19",
+            "article_number": "19",
+            "quotation": "تكتمل أهلية الزواج بإتمام الفتى والفتاة المتمتعين بقواهما العقلية ثمان عشرة سنة شمسية.",
+            "quotation_type": "excerpt"
+          },
+          {
+            "number": "20",
+            "phrase": "مدونة 70.03، المادة 20",
+            "article_number": "20",
+            "quotation": "لقاضي الأسرة المكلف بالزواج، أن يأذن بزواج الفتى والفتاة دون سن الأهلية المنصوص عليه في المادة 19 أعلاه، بمقرر معلل يبين فيه المصلحة والأسباب المبررة لذلك، بعد الاستماع لأبوي القاصر أو نائبه الشرعي والاستعانة بخبرة طبية…",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/سن-الأهلية-للزواج",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: تكتمل أهلية الزواج بإتمام الفتى والفتاة ثمان عشرة سنة شمسية كاملة، مع إمكانية الإذن بزواج من دونها بمقرر معلل يبين المصلحة والأسباب المبررة.",
+    "simple_explanation_fr": "« Âge de capacité matrimoniale » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «سن الأهلية للزواج» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «سن الأهلية للزواج» و«الزواج» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «سن الأهلية للزواج» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Âge de capacité matrimoniale », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Âge de capacité matrimoniale » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف سن الأهلية للزواج",
+      "سن الأهلية للزواج في القانون المغربي",
+      "Âge de capacité matrimoniale",
+      "سن الأهلية للزواج مدونة الأسرة",
+      "أمثلة عن سن الأهلية للزواج",
+      "سن الأهلية للزواج مدونة الأسرة"
+    ],
+    "related_terms": [
+      "mariage",
+      "wilaya"
+    ]
+  },
+  {
+    "id": "zawaj-tafwid",
+    "term_ar": "زواج التفويض",
+    "term_fr": "Mariage par délégation (tafwid)",
+    "definition": "عقد زواج يتفوض فيه الطرفان للقاضي تحديد الصداق؛ إن لم يتراضيا بعد البناء على قدره، فله أن يحدده في حدود المعقول.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "25",
+            "phrase": "مدونة 70.03، المادة 25",
+            "article_number": "25",
+            "quotation": "للراشدة أن تعقد زواجها بنفسها، أو تفوض ذلك لأبيها أو لأحد أقاربها.",
+            "quotation_type": "excerpt"
+          },
+          {
+            "number": "27",
+            "phrase": "مدونة 70.03، المادة 27",
+            "article_number": "27",
+            "quotation": "يحدد الصداق وقت إبرام العقد، وفي حالة السكوت عن تحديده، يعتبر العقد زواجا التفويض إذا لم يتراض الزوجان بعد البناء على قدر الصداق في زواج التفويض، فإن المحكمة تحدده مراعية الوسط الاجتماعي للزوجين.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/زواج-التفويض",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: عقد زواج يتفوض فيه الطرفان للقاضي تحديد الصداق؛ إن لم يتراضيا بعد البناء على قدره، فله أن يحدده في حدود المعقول.",
+    "simple_explanation_fr": "« Mariage par délégation (tafwid) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «زواج التفويض» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «زواج التفويض» و«الصداق» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «زواج التفويض» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Mariage par délégation (tafwid) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Mariage par délégation (tafwid) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف زواج التفويض",
+      "زواج التفويض في القانون المغربي",
+      "Mariage par délégation (tafwid)",
+      "زواج التفويض مدونة الأسرة",
+      "أمثلة عن زواج التفويض",
+      "زواج التفويض مدونة الأسرة"
+    ],
+    "related_terms": [
+      "sadaq",
+      "mariage"
+    ]
+  },
+  {
+    "id": "wikalaya-zawaj",
+    "term_ar": "التوكيل في عقد الزواج",
+    "term_fr": "Procuration au mariage (wikala)",
+    "definition": "يجوز التوكيل على إبرام عقد الزواج بإذن من قاضي الأسرة المكلف بالزواج وفق شروط خاصة، منها وجود ظروف لا يتأتى معها حضور الطرفين.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "17",
+            "phrase": "مدونة 70.03، المادة 17",
+            "article_number": "17",
+            "quotation": "يتم عقد الزواج بحضور أطرافه، غير أنه يمكن التوكيل على إبرامه، بإذن من قاضي الأسرة، المكلف بالزواج وفق الشروط الآتية: 1 - وجود ظروف خاصة، لا يتأتى معها للموكل أن يقوم بإبرام عقد الزواج بنفسه؛",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/التوكيل-في-عقد-الزواج",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: يجوز التوكيل على إبرام عقد الزواج بإذن من قاضي الأسرة المكلف بالزواج وفق شروط خاصة، منها وجود ظروف لا يتأتى معها حضور الطرفين.",
+    "simple_explanation_fr": "« Procuration au mariage (wikala) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «التوكيل في عقد الزواج» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «التوكيل في عقد الزواج» و«الزواج» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «التوكيل في عقد الزواج» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Procuration au mariage (wikala) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Procuration au mariage (wikala) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف التوكيل في عقد الزواج",
+      "التوكيل في عقد الزواج في القانون المغربي",
+      "Procuration au mariage (wikala)",
+      "التوكيل في عقد الزواج مدونة الأسرة",
+      "أمثلة عن التوكيل في عقد الزواج",
+      "التوكيل في عقد الزواج مدونة الأسرة"
+    ],
+    "related_terms": [
+      "mariage",
+      "san-ahliyya-zawaj"
+    ]
+  },
+  {
+    "id": "tatliq",
+    "term_ar": "التطليق",
+    "term_fr": "Tatliq (divorce judiciaire)",
+    "definition": "الطلاق القضائي بطلب أحد الزوجين، أهمه تطليق الزوجة على زوجها بسبب الشقاق أو إخلال الزوج بالتزامات الزوجية، بعد محاولة إصلاح ذات البين.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "94",
+            "phrase": "مدونة 70.03، المادة 94",
+            "article_number": "94",
+            "quotation": "إذا طلب الزوجان أو أحدهما من المحكمة حل نزاع بينهما يخاف منه الشقاق، وجب عليها أن تقوم بكل المحاولات لإصلاح ذات البين طبقا لأحكام المادة 82 أعلاه.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/التطليق",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: الطلاق القضائي بطلب أحد الزوجين، أهمه تطليق الزوجة على زوجها بسبب الشقاق أو إخلال الزوج بالتزامات الزوجية، بعد محاولة إصلاح ذات البين.",
+    "simple_explanation_fr": "« Tatliq (divorce judiciaire) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «التطليق» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «التطليق» و«الشقاق» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «التطليق» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Tatliq (divorce judiciaire) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Tatliq (divorce judiciaire) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف التطليق",
+      "التطليق في القانون المغربي",
+      "Tatliq (divorce judiciaire)",
+      "التطليق مدونة الأسرة",
+      "أمثلة عن التطليق",
+      "التطليق مدونة الأسرة"
+    ],
+    "related_terms": [
+      "chiqaq",
+      "mut-a-zawj",
+      "divorce"
+    ]
+  },
+  {
+    "id": "mut-a-zawj",
+    "term_ar": "المتعة",
+    "term_fr": "Mut'a (indemnité conjugale)",
+    "definition": "مبلغ من مستحقات الزوجة عند الطلاق، يراعى في تقديره فترة الزواج والوضعية المالية للزوج وأسباب الطلاق ومدى تعسف الزوج في توقيعه.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "84",
+            "phrase": "مدونة 70.03، المادة 84",
+            "article_number": "84",
+            "quotation": "تشمل مستحقات الزوجة: الصداق المؤخر إن وجد، ونفقة العدة، والمتعة التي يراعى في تقديرها فترة الزواج والوضعية المالية للزوج، وأسباب الطلاق، ومدى تعسف الزوج في توقيعه.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/المتعة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: مبلغ من مستحقات الزوجة عند الطلاق، يراعى في تقديره فترة الزواج والوضعية المالية للزوج وأسباب الطلاق ومدى تعسف الزوج في توقيعه.",
+    "simple_explanation_fr": "« Mut'a (indemnité conjugale) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «المتعة» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «المتعة» و«التطليق» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «المتعة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Mut'a (indemnité conjugale) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Mut'a (indemnité conjugale) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف المتعة",
+      "المتعة في القانون المغربي",
+      "Mut'a (indemnité conjugale)",
+      "المتعة مدونة الأسرة",
+      "أمثلة عن المتعة",
+      "المتعة مدونة الأسرة"
+    ],
+    "related_terms": [
+      "tatliq",
+      "sadaq",
+      "pension-alimentaire"
+    ]
+  },
+  {
+    "id": "tadabir-mu-aqqata",
+    "term_ar": "التدابير المؤقتة في نزاع الزوجين",
+    "term_fr": "Mesures provisoires (litige conjugal)",
+    "definition": "إجراءات تأمر بها المحكمة تلقائيا أو بطلب عند تعذر المساكنة بين الزوجين، منها اختيار سكن وتأمين نفقة، تنفذ فورا في انتظار الحكم.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "121",
+            "phrase": "مدونة 70.03، المادة 121",
+            "article_number": "121",
+            "quotation": "في حالة عرض النزاع بين الزوجين على القضاء، وتعذر المساكنة بينهما، للمحكمة أن تتخذ التدابير المؤقتة التي تراها مناسبة بالنسبة للزوجة والأطفال تلقائيا أو بناء على طلب، وذلك في انتظار صدور الحكم في الموضوع، بما فيها اختيار…",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/التدابير-المؤقتة-في-نزاع-الزوجين",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: إجراءات تأمر بها المحكمة تلقائيا أو بطلب عند تعذر المساكنة بين الزوجين، منها اختيار سكن وتأمين نفقة، تنفذ فورا في انتظار الحكم.",
+    "simple_explanation_fr": "« Mesures provisoires (litige conjugal) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «التدابير المؤقتة في نزاع الزوجين» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «التدابير المؤقتة في نزاع الزوجين» و«التطليق» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «التدابير المؤقتة في نزاع الزوجين» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Mesures provisoires (litige conjugal) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Mesures provisoires (litige conjugal) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف التدابير المؤقتة في نزاع الزوجين",
+      "التدابير المؤقتة في نزاع الزوجين في القانون المغربي",
+      "Mesures provisoires (litige conjugal)",
+      "التدابير المؤقتة في نزاع الزوجين مدونة الأسرة",
+      "أمثلة عن التدابير المؤقتة في نزاع الزوجين",
+      "التدابير المؤقتة في نزاع الزوجين مدونة الأسرة"
+    ],
+    "related_terms": [
+      "tatliq",
+      "pension-alimentaire"
+    ]
+  },
+  {
+    "id": "istilhaq",
+    "term_ar": "الاستلحاق",
+    "term_fr": "Istilhaq (reconnaissance)",
+    "definition": "إقرار الأب ببنوة ولد مجهول النسب بشروط محددة؛ يثبت به النسب وتترتب عنه آثار البنوة الشرعية في حدود الشروط المقررة.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "160",
+            "phrase": "مدونة 70.03، المادة 160",
+            "article_number": "160",
+            "quotation": "يثبت النسب بإقرار الأب ببنوة المقر به ولو في مرض الموت، وفق الشروط الآتية: 1 - أن يكون الأب المقر عاقلا؛",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الاستلحاق",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: إقرار الأب ببنوة ولد مجهول النسب بشروط محددة؛ يثبت به النسب وتترتب عنه آثار البنوة الشرعية في حدود الشروط المقررة.",
+    "simple_explanation_fr": "« Istilhaq (reconnaissance) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الاستلحاق» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «الاستلحاق» و«النسب» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «الاستلحاق» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Istilhaq (reconnaissance) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Istilhaq (reconnaissance) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الاستلحاق",
+      "الاستلحاق في القانون المغربي",
+      "Istilhaq (reconnaissance)",
+      "الاستلحاق مدونة الأسرة",
+      "أمثلة عن الاستلحاق",
+      "الاستلحاق مدونة الأسرة"
+    ],
+    "related_terms": [
+      "filiation",
+      "wali"
+    ]
+  },
+  {
+    "id": "wasiyya-wajiba",
+    "term_ar": "الوصية الواجبة",
+    "term_fr": "Héritage obligatoire (wasiyya wajiba)",
+    "definition": "حصة جبرية لأحفاد ابن أو بنت ماتا قبل أصلهما، بمقدار ما كان يورثه أبوهم أو أمهم، في حدود ثلث التركة.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "369",
+            "phrase": "مدونة 70.03، المادة 369",
+            "article_number": "369",
+            "quotation": "من توفي وله أولاد ابن أو أولاد بنت ومات الابن أو البنت قبله أو معه وجب لأحفاده هؤلاء في ثلث تركته وصية بالمقدار والشروط الآتية.",
+            "quotation_type": "excerpt"
+          },
+          {
+            "number": "370",
+            "phrase": "مدونة 70.03، المادة 370",
+            "article_number": "370",
+            "quotation": "الوصية الواجبة لهؤلاء الأحفاد تكون بمقدار حصتهم مما يرثه أبوهم أو أمهم عن أصله المتوفى على فرض موت موروثهم إثر وفاة أصله المذكور على أن لا يتجاوز ذلك ثلث التركة.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/الوصية-الواجبة",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: حصة جبرية لأحفاد ابن أو بنت ماتا قبل أصلهما، بمقدار ما كان يورثه أبوهم أو أمهم، في حدود ثلث التركة.",
+    "simple_explanation_fr": "« Héritage obligatoire (wasiyya wajiba) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «الوصية الواجبة» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «الوصية الواجبة» و«الإرث» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «الوصية الواجبة» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « Héritage obligatoire (wasiyya wajiba) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « Héritage obligatoire (wasiyya wajiba) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف الوصية الواجبة",
+      "الوصية الواجبة في القانون المغربي",
+      "Héritage obligatoire (wasiyya wajiba)",
+      "الوصية الواجبة مدونة الأسرة",
+      "أمثلة عن الوصية الواجبة",
+      "الوصية الواجبة مدونة الأسرة"
+    ],
+    "related_terms": [
+      "succession",
+      "testament"
+    ]
+  },
+  {
+    "id": "ta-sib",
+    "term_ar": "التعصيب",
+    "term_fr": "T'a'sib (succession aux résidus)",
+    "definition": "طريق من طرق الإرث يأخذ به الوارث جميع التركة أو ما بقي منها بعد ذوي الفروض؛ العصبة ثلاثة أنواع: بالنفس وبالغير ومع الغير.",
+    "category": "مدونة الأسرة",
+    "legal_sources": [
+      {
+        "code_ar": "مدونة الأسرة (القانون 70.03)",
+        "code_short": "مدونة 70.03",
+        "code_fr": "Code de la famille marocain (loi n° 70.03)",
+        "articles": [
+          {
+            "number": "348",
+            "phrase": "مدونة 70.03، المادة 348",
+            "article_number": "348",
+            "quotation": "العصبة ثلاثة أنواع: عصبة بالنفس.",
+            "quotation_type": "excerpt"
+          }
+        ],
+        "source_url": "https://www.sgg.gov.ma",
+        "last_verified": "2026-10-11"
+      }
+    ],
+    "canonical_url": "https://www.mizan.page/lexicon/التعصيب",
+    "last_reviewed": "2026-10-11",
+    "review_status": "internal_review",
+    "enrichment_source": "auto",
+    "simple_explanation": "بعبارة بسيطة: طريق من طرق الإرث يأخذ به الوارث جميع التركة أو ما بقي منها بعد ذوي الفروض؛ العصبة ثلاثة أنواع: بالنفس وبالغير ومع الغير.",
+    "simple_explanation_fr": "« T'a'sib (succession aux résidus) » : notion de droit marocain en droit de la famille, définie dans la fiche arabe de Mizan.",
+    "examples": [
+      "عند مراجعة «التعصيب» تُقرأ الإحالة الواردة في البيانات من مدونة الأسرة.",
+      "تمرين: قارن بين «التعصيب» و«الإرث» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
+      "في امتحان مدونة الأسرة: أعد صياغة تعريف «التعصيب» في جملة واحدة قبل حفظه."
+    ],
+    "examples_fr": [
+      "Pour « T'a'sib (succession aux résidus) », vérifier l'article cité dans la fiche.",
+      "Exercice : distinguer « T'a'sib (succession aux résidus) » et en tirer la conséquence pratique."
+    ],
+    "exam_keywords": [
+      "تعريف التعصيب",
+      "التعصيب في القانون المغربي",
+      "T'a'sib (succession aux résidus)",
+      "التعصيب مدونة الأسرة",
+      "أمثلة عن التعصيب",
+      "التعصيب مدونة الأسرة"
+    ],
+    "related_terms": [
+      "succession",
+      "wasiyya-wajiba"
+    ]
   }
 ]

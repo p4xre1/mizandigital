@@ -246,7 +246,7 @@ export default function ContentAnalyticsPage() {
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
               <h3 className="text-[13px] font-extrabold text-emerald-900 dark:text-emerald-200">🔗 الربط الداخلي</h3>
               <p className="mt-2 text-[11px] leading-6 text-muted-foreground">
-                المصطلحات القانونية (250 مصطلح) تربط تلقائياً في المقالات والأخبار. كل مصطلح يظهر مرة واحدة فقط لتجنب spam.
+                المصطلحات القانونية (295 مصطلح) تربط تلقائياً في المقالات والأخبار. كل مصطلح يظهر مرة واحدة فقط لتجنب spam.
                 <br />
                 <br />
                 ✅ يعمل في: المقالات، الأخبار، المحتوى المُصدّر مسبقاً (prerendered)

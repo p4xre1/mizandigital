@@ -29,6 +29,7 @@ import {
 import { branchNotFoundReply } from "../qa/clarify-config.js"
 import { classifySocialIntent, detectEmotion, stripEmotionCues, wantsDetail, wantsNeutralTone } from "./conversation.js"
 import { enforceLengthLimit } from "./output.js"
+import { containsProfanity } from "./profanity.js"
 import { applyLegalNotes, verifyLegalCitations } from "./legal-sources.js"
 import { isSafeInternalPath } from "./cms-constants.js"
 import {
@@ -56,6 +57,10 @@ export function sanitizeAnswerResult(result, blockedText) {
   const unsafe = UNSAFE_OUTPUT_PATTERNS.some((re) => re.test(String(result.answer || "")))
   if (unsafe) {
     return { mode: "blocked", answer: blockedText, sources: [], reason: "unsafe_output" }
+  }
+  // الألفاظ المحظورة: جواب يحملها (من أي مصدر) لا يرسَل — نفس مسار الخرج غير الآمن.
+  if (containsProfanity(result.answer).found) {
+    return { mode: "blocked", answer: blockedText, sources: [], reason: "profane_output" }
   }
   return { ...result, sources }
 }

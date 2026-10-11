@@ -263,7 +263,7 @@ export const CAREERS_HUB_COPY = {
   internalLinks: [
     { path: "/platform", label: "عن المنصة", description: "ما تقدمه ميزان الرقمية لطلبة الحقوق." },
     { path: "/schools", label: "كليات الحقوق", description: "دليل مؤسسات الحقوق بالمغرب حسب المدينة والجامعة." },
-    { path: "/lexicon", label: "القاموس القانوني", description: "250 مصطلحاً قانونياً بالعربية والفرنسية." },
+    { path: "/lexicon", label: "القاموس القانوني", description: "295 مصطلحاً قانونياً بالعربية والفرنسية." },
     { path: "/news", label: "الأخبار والمستجدات", description: "مستجدات تشريعية وقضائية وأكاديمية." },
     { path: "/guides/new-law-student-morocco", label: "دليل الطالب الجديد", description: "خطوات البداية في كلية الحقوق." },
     { path: "/guides/free-legal-resources-morocco", label: "موارد قانونية مجانية", description: "مصادر مجانية للبحث القانوني." },

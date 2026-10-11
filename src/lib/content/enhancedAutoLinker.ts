@@ -1,7 +1,7 @@
 /**
  * Enhanced AutoLinker - Server + Client compatible
  * Converts lexicon terms into internal links for articles and news
- * Optimized for 250+ terms, handles Arabic diacritics, multi-word, French
+ * Optimized for 295+ terms, handles Arabic diacritics, multi-word, French
  */
 
 export interface LinkableTerm {

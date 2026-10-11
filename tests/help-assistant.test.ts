@@ -2,7 +2,8 @@ import { readFileSync, existsSync } from "node:fs"
 import { join } from "node:path"
 import { describe, expect, test } from "vitest"
 import { answerQuestion } from "../shared/help/answer.js"
-import { allEntries, CURATED_ENTRIES, FAQ_ENTRIES, LEXICON_ENTRIES } from "../shared/help/knowledge.js"
+import { allEntries, CURATED_ENTRIES, FAQ_ENTRIES, KNOWLEDGE_GROUPS, LEXICON_ENTRIES } from "../shared/help/knowledge.js"
+import { LEGAL_CONSTITUTION_ENTRIES, LEGAL_FAMILY_CODE_ENTRIES } from "../shared/help/knowledge-legal.js"
 import { checkScope } from "../shared/help/guardrails.js"
 import { normalize, tokenize, rankEntries } from "../shared/help/retrieve.js"
 
@@ -121,11 +122,26 @@ describe("الإجابات من محتوى الموقع", () => {
 })
 
 describe("قاعدة المعرفة", () => {
-  test("تضم المدخلات المنسّقة وتعريفات المعجم كلها وأسئلة الأسئلة الشائعة", () => {
+  test("تضم المدخلات المنسّقة والمعجم والأسئلة الشائعة والمدخلات القانونية", () => {
     expect(CURATED_ENTRIES.length).toBeGreaterThanOrEqual(20)
-    expect(LEXICON_ENTRIES.length).toBe(250)
+    expect(LEXICON_ENTRIES.length).toBe(295)
     expect(FAQ_ENTRIES.length).toBeGreaterThan(0)
-    expect(allEntries().length).toBe(CURATED_ENTRIES.length + LEXICON_ENTRIES.length + FAQ_ENTRIES.length)
+    expect(LEGAL_CONSTITUTION_ENTRIES.length).toBe(180)
+    expect(LEGAL_FAMILY_CODE_ENTRIES.length).toBe(399)
+    expect(KNOWLEDGE_GROUPS.map((g) => g.name)).toEqual([
+      "curated",
+      "lexicon",
+      "faq",
+      "legal_constitution",
+      "legal_family_code",
+    ])
+    expect(allEntries().length).toBe(
+      CURATED_ENTRIES.length +
+        LEXICON_ENTRIES.length +
+        FAQ_ENTRIES.length +
+        LEGAL_CONSTITUTION_ENTRIES.length +
+        LEGAL_FAMILY_CODE_ENTRIES.length,
+    )
   })
 
   test("معرّفات المدخلات فريدة وكل مدخل له عنوان وجواب", () => {
