@@ -263,3 +263,40 @@ describe("ندوات وكليات CMS — seminars/faculties في الخريطة
     expect(schoolNode?.foundingDate).toBe("1999");
   });
 });
+
+describe("لا روابط 301 في الخريطة — لا مضافاً ولا مبنياً", () => {
+  test("سطر CMS يقع تحت تحويل لا يُبنى أصلاً (معرّف قديم/مصطلح مكرر دُمج)", () => {
+    const entries = buildCmsEntries({
+      lexicon: [
+        { id: "t1", term_ar: "فصل السلط", slug: "فصل-السلط-separation-pouvoirs-constitution" },
+        { id: "t2", term_ar: "مصطلح سليم", slug: "mustalah-salim" },
+      ],
+      schools: [{ id: "f1", name: "كلية", slug: "fsjest-tangier" }],
+    });
+    expect(entries.map((entry) => entry.path)).toEqual(["/lexicon/mustalah-salim"]);
+  });
+
+  test("mergeSitemapXml يحذف كتل التحويل من النسخة المبنية ويمنع إضافة غيرها", () => {
+    const base = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.mizan.page/schools/fsjest-tangier</loc>
+  </url>
+  <url>
+    <loc>https://www.mizan.page/articles/salim</loc>
+  </url>
+</urlset>
+`;
+    const { xml, added, skipped, stripped } = mergeSitemapXml(base, [
+      { url: "https://www.mizan.page/articles/jadid" },
+      { url: "https://www.mizan.page/library" },
+    ]);
+
+    expect(stripped).toEqual(["https://www.mizan.page/schools/fsjest-tangier"]);
+    expect(xml).not.toContain("fsjest-tangier");
+    expect(xml).toContain("articles/salim");
+    expect(added).toEqual(["https://www.mizan.page/articles/jadid"]);
+    expect(skipped).toEqual(["https://www.mizan.page/library"]);
+    expect(xml.match(/<loc>/g)).toHaveLength(2);
+  });
+});

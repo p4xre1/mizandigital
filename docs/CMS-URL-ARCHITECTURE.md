@@ -53,6 +53,11 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / fa
   `scripts/generate-sitemap.mjs` للفعاليات والمدارس المحلية.
 - لا `<loc>` مكرر (مقارنة حرفية)، ولا XML مكسور (هروب كامل للأحرف)، وعند
   تعطل القاعدة تُعاد النسخة المبنية كما هي بلا خطأ.
+- **لا روابط 301 في المُخرَج**: كل جدول يُقرأ بسقف **1000 صف** (كان 500 —
+  الأقدم كان يسقط صامتاً)، وكل مسار يقع تحت تحويل في `public/_redirects`
+  يُمنع من الإضافة ويُحذف من النسخة المبنية نفسها (معرّفات قديمة، مصطلحات
+  مكرّرة دُمجت) عبر `isRedirectingPath` — والاختبار
+  `tests/url-redirect-policy.test.ts` يضمن ألا تنحرف القائمة عن الملف.
 
 ### الطبقة 2 — بديل وقت-الطلب: `functions/[[path]].js` + `functions/_shared/contentFallback.js`
 
@@ -111,7 +116,7 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / fa
 
 ## 4. الاختبارات
 
-`tests/cms-runtime-urls.test.ts` — 15 اختباراً على الوحدات الخالصة:
+`tests/cms-runtime-urls.test.ts` — 23 اختباراً على الوحدات الخالصة:
 
 - بناء روابط CMS بنفس دوال البناء (بما فيها سجلّ بلا slug وبلا عنوان وبلا id).
 - استثناء ملف أرشيف بلا رابط تحميل وبلا نصّ، واستثناء مصطلح المعجم المحلي.
@@ -120,7 +125,7 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / fa
 - مطابقة المسارات (مقطع واحد فقط)، ومطابقة السجلّات (بما فيها ملحق `-<id>`)،
   وحقن الرأس: `noindex → index` + `canonical` + JSON-LD + عدم تكرار الوسوم.
 
-`tests/cms-runtime-route.test.ts` — 8 اختبارات تكامل (طلب → ردّ) بـ`fetch`
+`tests/cms-runtime-route.test.ts` — 11 اختبار تكامل (طلب → ردّ) بـ`fetch`
 مزيّف وردود PostgREST:
 
 - السلسلة كاملة: 404 من الأصول ← كتالوج CMS ← مطابقة السجلّ ← حقن الرأس ← 200.
@@ -130,7 +135,7 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / fa
   محلي فيه المصطلح المكرر). القياس دائماً «قاعدة + إضافات» لا أرقام مطلقة.
 - مصطلح مبني محلياً ⇒ 404 من الطبقتين معاً (لا صفحة مكررة).
 
-`tests/cms-catalog-fallback.test.ts` — 4 اختبارات على اختلاف مخطط القاعدة:
+`tests/cms-catalog-fallback.test.ts` — 6 اختبارات على اختلاف مخطط القاعدة:
 
 - `lexicon_terms` **ليس فيها عمود `slug` في الإنتاج**، فيرجع PostgREST خطأ
   `400` («Could not find the 'public.lexicon_terms.slug' column») وتفرغ نتيجة
@@ -143,3 +148,8 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / fa
   يُخفى ولا يُعاد، بل يُسجَّل في `errors` ويُكتفى بالنسخة الثابتة.
 - فشل الاستعلامين معاً ⇒ `{ ok:false, lexicon: [] }`: الخريطة ترجع
   byte-identical للخريطة المبنية ولا تكسر الفهرسة.
+
+`tests/url-redirect-policy.test.ts` — 3 اختبارات على `isRedirectingPath`:
+المسارات المنفردة (بما فيها المرمّزة مئوياً)، البادئات (مع عدم التصاق
+`/article` بـ`/articles`)، ومطابقة **حرفية** لقواعد `public/_redirects` — أي
+سطر تحويل جديد يجب أن يدخل القائمة وإلا سقط الاختبار.

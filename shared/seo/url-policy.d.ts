@@ -25,6 +25,9 @@ export declare function followsSlashPolicy(value: string): boolean;
 /** هل يُفهرَس هذا المسار؟ (لا admin ولا حسابات ولا بحث داخلي) */
 export declare function isIndexablePath(input: string): boolean;
 
+/** هل يقع هذا الرابط تحت تحويل 301 (مطابق لمصادر public/_redirects)؟ */
+export declare function isRedirectingPath(input: string): boolean;
+
 /** هل المسار مسار عنصر («/قسم/معرّف») لا مسار بوابة («/قسم»)؟ */
 export declare function isItemPath(path: string): boolean;
 

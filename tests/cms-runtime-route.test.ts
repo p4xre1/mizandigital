@@ -34,6 +34,9 @@ const CMS_ROWS = {
   lexicon_terms: [
     { id: "t1", term_ar: "مصطلح جديد", definition: "تعريف المصطلح الجديد.", slug: "mustalah-jadid", updated_at: "2026-10-06" },
     { id: "t2", term_ar: "المحكمة", definition: "تعريف المحكمة.", slug: "al-mahkama", updated_at: "2026-10-06" },
+    // معرّف قديم يقع تحت تحويل 301 في public/_redirects (مصطلح مكرر دُمج):
+    // لا يجوز أن يدخل الخريطة مهما ظلّ في القاعدة.
+    { id: "t3", term_ar: "فصل السلط", slug: "فصل-السلط-separation-pouvoirs-constitution", updated_at: "2026-10-06" },
   ],
   seminars: [
     {
@@ -270,6 +273,8 @@ describe("مسار sitemap.xml الديناميكي", () => {
     expect(xml).not.toContain("bila-milaff");
     // مصطلح موجود في المعجم المحلي لا يتكرر بمعرّف CMS.
     expect(xml).not.toContain("al-mahkama");
+    // رابط محوَّل (301) — مهما بقي سجلّه في القاعدة — لا يدخل الخريطة.
+    expect(xml).not.toContain("separation-pouvoirs-constitution");
 
     // لا <loc> مكرر، والعدد = المبنى + المضاف (7).
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);

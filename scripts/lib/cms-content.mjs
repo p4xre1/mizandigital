@@ -24,8 +24,8 @@ const SUPABASE_ANON_KEY =
   process.env.VITE_SUPABASE_ANON_KEY ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmaGptdGRibG1hcmhsZmZ0bG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTE5NzgsImV4cCI6MjA5OTc4Nzk3OH0.uI2_WCQSERz0jgYPuy1-AiWuVtDcJlFKd7hZsaQ1r5Q";
 
-/** الحد الأقصى لكل جدول — يكفي لموقع بحجم ميزان ويتفادى جذاذات لا تنتهي. */
-const LIMIT = 500;
+/** الحد الأقصى لكل جدول — كل المنشور حتى 1000 صف (نفس سقف cmsCatalog.js وقت الطلب). */
+const LIMIT = 1000;
 
 const TABLE_QUERIES = {
   // articles.status = 'published' هو criterion النشر في هذا الجدول.

@@ -19,6 +19,7 @@
  *   • لا رابط مكرر: المقارنة بالـ<loc> الحرفي قبل الإضافة.
  *   • لا رابط وهمي: نفس شرط البناء (hasPublishableIdentity/isArchivableItem)
  *     ونفس مستثنى المعجم المحلي؛ والرابط يخدمه contentFallback عند الزيارة.
+ *   • لا رابط محوَّل (301): المُضاف يُرشَّح والمبني يُنظَّف من كتل التحويل.
  *   • لا انهيار عند تعطل القاعدة: تبقى النسخة المبنية كما هي (200) وتُقصَّر
  *     مدة التخزين المؤقت.
  *
@@ -55,16 +56,18 @@ export async function onRequest(context) {
   const baseXml = await asset.text();
   const catalog = await loadPublishedCatalog(env);
   const localLexiconTerms = await loadLocalLexiconTerms(env, url.origin);
-  const { xml, added } = mergeSitemapXml(baseXml, buildCmsEntries(catalog, { localLexiconTerms }));
+  const { xml, added, stripped } = mergeSitemapXml(baseXml, buildCmsEntries(catalog, { localLexiconTerms }));
 
   const headers = {
     ...BASE_HEADERS,
     // النسخة الموسّعة تُخزَّن قصيراً فقط: الهدف أن يرى الزاحف المنشورَ الجديد
     // سريعاً، مع ذاكرة داخلية دقيقة واحدة تحمي القاعدة من كل زيارة.
-    "Cache-Control": added.length
+    "Cache-Control": added.length || stripped.length
       ? "public, max-age=300, s-maxage=300, stale-while-revalidate=3600"
       : "public, max-age=900, s-maxage=900",
     "X-Mizan-Cms-Urls": String(added.length),
+    // روابط 301 حُذفت من النسخة المبنية (معرّفات قديمة/مصطلحات مكرّرة دُمجت).
+    "X-Mizan-Dropped-301": String(stripped.length),
   };
 
   return new Response(method === "HEAD" ? null : xml, { status: 200, headers });

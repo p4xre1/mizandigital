@@ -34,7 +34,9 @@ const DEFAULT_SUPABASE_URL = "https://rfhjmtdblmarhlfftlmg.supabase.co";
 const DEFAULT_SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmaGptdGRibG1hcmhsZmZ0bG1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQyMTE5NzgsImV4cCI6MjA5OTc4Nzk3OH0.uI2_WCQSERz0jgYPuy1-AiWuVtDcJlFKd7hZsaQ1r5Q";
 
-const LIMIT = 500;
+// كل المنشور في كل جدول — بسقف 1000 صف (كان 500، فيسقط صامتاً أقدم
+// المنشورات حين يتجاوزها العدد؛ و1000 هو سقف PostgREST نفسه في Supabase).
+const LIMIT = 1000;
 
 /** استعلامات الجداول — MUST match scripts/lib/cms-content.mjs. */
 const TABLE_QUERIES = {

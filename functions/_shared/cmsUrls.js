@@ -8,7 +8,8 @@
  *   لا يُضاف إلى الخريطة إلا رابط مبني بنفس دوال المعرّفات المستعملة في
  *   الواجهة والبناء (shared/seo/url-policy.js)، وإلا اختلف ما تنشره الخريطة
  *   عمّا يخدمه الموقع — وهو أصل أعطال «13 رابطاً ميتاً» الموثّقة في
- *   generate-sitemap.mjs.
+ *   generate-sitemap.mjs. ولا يدخلها رابط محوَّل (301) أبداً: المُضاف يُرشَّح
+ *   بـisRedirectingPath، والمبني يُنظَّف من كتل التحويل عند الدمج.
  *
  * ملاحظة عن تكرار النسخ: لا نخشى التكرار الظاهر بين عنصر مبني (dist) وعنصر
  * CMS؛ الدمج يقارن الـ <loc> بحرفيته ويسقط ما هو منشور أصلاً. الفائدة تظهر
@@ -24,6 +25,7 @@ import {
   canonicalNews,
   canonicalPdf,
   canonicalSchool,
+  isRedirectingPath,
   newsSlug,
   pathOfUrl,
   schoolSlug,
@@ -93,6 +95,10 @@ export function buildCmsEntries(catalog = {}, { localLexiconTerms = new Set() } 
   const push = (url, lastmod, changefreq, priority) => {
     const path = pathOfUrl(url);
     if (!path || seen.has(path)) return;
+    // لا رابط محوَّل (301) في الخريطة: الزاحف يقرأ «Redirected» بدل صفحة،
+    // وتُعلَّم الخريطة بروابط غير صالحة. نفس قائمة public/_redirects عبر
+    // isRedirectingPath في shared/seo/url-policy.js.
+    if (isRedirectingPath(path)) return;
     seen.add(path);
     entries.push({ path, url, lastmod, changefreq, priority });
   };
@@ -168,16 +174,39 @@ export function escapeXml(value) {
 }
 
 /**
+ * يحذف كتل <url> التي يقع مسارها تحت تحويل 301 — سطور بُنيت في dist قبل
+ * إضافة التحويل (معرّف قديم، مصطلح مكرّر دُمج). الخريطة المُخدَمة تنشر
+ * روابط 200 فقط، والتنظيف هنا يشمل النسخة المبنية نفسها لا الإضافات وحدها.
+ * @returns {{xml: string, stripped: string[]}}
+ */
+function stripRedirectingBlocks(xml) {
+  const stripped = [];
+  const out = String(xml).replace(/<url>[\s\S]*?<\/url>\n?/g, (block) => {
+    const loc = /<loc>\s*([^<\s]+)\s*<\/loc>/.exec(block)?.[1] ?? "";
+    if (loc && isRedirectingPath(pathOfUrl(loc))) {
+      stripped.push(loc);
+      return "";
+    }
+    return block;
+  });
+  return { xml: out, stripped };
+}
+
+/**
  * يدمج عناصر CMS في نسخة مبنيّة من sitemap.xml قبل </urlset> مباشرة.
  * التنسيق مطابق لمُولّد البناء (سطران لكل وسم) ليبقى diff الملف مقروءاً.
+ * أي رابط محوَّل (301) يُحذف من القاعدة أو يُمنع من الإضافة.
  *
- * @returns {{xml: string, added: string[], skipped: string[]}}
+ * @returns {{xml: string, added: string[], skipped: string[], stripped: string[]}}
  */
 export function mergeSitemapXml(baseXml, entries = [], { origin = SITE_ORIGIN } = {}) {
-  const xml = String(baseXml ?? "");
-  if (!xml.includes("</urlset>")) {
-    return { xml, added: [], skipped: entries.map((entry) => entry.url).filter(Boolean) };
+  const raw = String(baseXml ?? "");
+  if (!raw.includes("</urlset>")) {
+    return { xml: raw, added: [], skipped: entries.map((entry) => entry.url).filter(Boolean), stripped: [] };
   }
+
+  const { xml: cleanedXml, stripped } = stripRedirectingBlocks(raw);
+  const xml = cleanedXml;
 
   const existing = parseSitemapLocs(xml);
   const added = [];
@@ -187,7 +216,7 @@ export function mergeSitemapXml(baseXml, entries = [], { origin = SITE_ORIGIN } 
   for (const entry of entries) {
     const url = entry.url || (entry.path ? `${origin}${entry.path}` : "");
     if (!url) continue;
-    if (existing.has(url)) {
+    if (existing.has(url) || isRedirectingPath(pathOfUrl(url))) {
       skipped.push(url);
       continue;
     }
@@ -203,10 +232,10 @@ export function mergeSitemapXml(baseXml, entries = [], { origin = SITE_ORIGIN } 
     );
   }
 
-  if (!blocks.length) return { xml, added, skipped };
+  if (!blocks.length) return { xml, added, skipped, stripped };
 
   const at = xml.lastIndexOf("</urlset>");
   const head = xml.slice(0, at).replace(/\s*$/, "");
   const tail = xml.slice(at);
-  return { xml: `${head}\n${blocks.join("\n")}\n${tail}`, added, skipped };
+  return { xml: `${head}\n${blocks.join("\n")}\n${tail}`, added, skipped, stripped };
 }

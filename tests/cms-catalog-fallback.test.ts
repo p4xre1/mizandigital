@@ -135,4 +135,31 @@ describe("cmsCatalog — استعلام بديل عند 400", () => {
     expect(calls.find((url) => url.includes("/seminars?"))).toMatch(/status=eq\.published/);
     expect(calls.find((url) => url.includes("/faculties?"))).toBeDefined();
   });
+
+  test("كل المنشور بسقف 1000 صف لكل جدول — وفلاتر النشر بلا تغيير", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+        calls.push(url.toString());
+        return jsonResponse([]);
+      }),
+    );
+
+    await loadPublishedCatalog({});
+
+    const queries = calls.filter((url) => url.includes("/rest/v1/"));
+    expect(queries.length).toBeGreaterThanOrEqual(7);
+    for (const url of queries) {
+      // سقف موحّد 1000 (كان 500 فيسقط أقدم المنشورات صامتاً) — في كل استعلام.
+      expect(url, `بلا سقف 1000: ${url}`).toMatch(/limit=1000(?:&|$)/);
+    }
+
+    // «كل المنشور» تعني المنشور فعلاً — بلا توسيع الفلاتر.
+    expect(calls.find((url) => url.includes("/articles?"))).toMatch(/status=eq\.published/);
+    expect(calls.find((url) => url.includes("/news?"))).toMatch(/is_published=eq\.true/);
+    expect(calls.find((url) => url.includes("/pdf_summaries?"))).toMatch(/status=eq\.published/);
+    expect(calls.find((url) => url.includes("/seminars?"))).toMatch(/status=eq\.published/);
+  });
 });
