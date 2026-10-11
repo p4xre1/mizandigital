@@ -1,7 +1,8 @@
 // لعبة «من الواقعة إلى الحل» على PostgreSQL حقيقي (PGlite = PostgreSQL 17 مترجَم إلى WASM).
 //
 // ما يفعله هذا الملف:
-//   1) يطبّق الترحيلين الفعليين من القرص: 20261012000300 (الجدول والعرض ودالة التصحيح)
+//   1) يطبّق الترحيلات الفعلية من القرص: 20261012000250 (تقاعد التصميم السابق —
+//      لا-عملية على قاعدة نظيفة) ثم 20261012000300 (الجدول والعرض ودالة التصحيح)
 //      ثم 20261012000400 (بذر الحالات العشر)، فوق بيئة Supabase مصغّرة.
 //   2) يتحقق بكل هوية (anon و authenticated عادي ومشرف) من أن الزوار يرون الحالات المنشورة
 //      عبر العرض العام فقط، بلا الجواب ولا الشرح ولا نصوص المواد، وأن الكشف يمر عبر
@@ -19,6 +20,7 @@ import { describe, expect, test, beforeAll, afterAll } from "vitest"
 
 const ROOT = join(__dirname, "..")
 const migration = (name: string) => readFileSync(join(ROOT, "supabase/migrations", name), "utf8")
+const RETIRE = "20261012000250_legal_cases_retire_previous_design.sql"
 const SCHEMA = "20261012000300_legal_cases_game.sql"
 const SEED = "20261012000400_legal_cases_seed.sql"
 
@@ -100,6 +102,7 @@ suite("لعبة الحالات القانونية — الجدول والعرض 
   beforeAll(async () => {
     db = new PGlite()
     await db.exec(PRE_STATE)
+    await db.exec(migration(RETIRE))
     await db.exec(migration(SCHEMA))
     await db.exec(migration(SEED))
     // مسودة غير منشورة لاختبار أنها لا تظهر للزوار
@@ -212,7 +215,8 @@ suite("لعبة الحالات القانونية — الجدول والعرض 
     expect((dup as any).error).toMatch(/مختلفة/)
   })
 
-  test("إعادة تطبيق الترحيلين آمنة (لا أخطاء ولا تكرار)", async () => {
+  test("إعادة تطبيق الترحيلات آمنة (لا أخطاء ولا تكرار)", async () => {
+    await db.exec(migration(RETIRE))
     await db.exec(migration(SCHEMA))
     await db.exec(migration(SEED))
     const r = await db.query("SELECT count(*)::int AS n FROM public.legal_cases")

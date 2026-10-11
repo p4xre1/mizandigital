@@ -11,6 +11,36 @@ import { sanitizePlainText, INPUT_LIMITS } from "./inputGuard"
 
 let initialized = false
 
+/**
+ * بصمات ضجيج الإضافات (extensions) التي تعمل في سياق الصفحة وتُرمي أخطاء على
+ * موقع سليم فيمتلئ console الزائر بأخطاء لا علاقة لها بالموقع.
+ *
+ * تُغطّى اليوم: Enable Copy (`enable_copy.js`)، إضافة مشاركة (`share-modal.js`)،
+ * Semalt SEO (`content.js` + طلبات semalt.net + رسائل "Extension title changed"
+ * و"Switched to other tab")، وAITDK SEO (`sidebar.*.js` + postMessage إلى
+ * extension.aitdk.com)، وأخطاء قناة رسائل الإضافات (`Unchecked runtime.lastError`).
+ *
+ * معيار التوسيع: بصمة تخصّ إضافة بعينها. لا تُضَف أنماط عامة — أي خطأ حقيقي من
+ * ملفاتنا يجب أن يبقى ظاهراً.
+ */
+export const EXTENSION_NOISE_RE =
+  /enable_copy|share-modal|semalt\.net|content\.js.*config|Unchecked runtime\.lastError|A listener indicated an asynchronous response|extension\.aitdk\.com|Extension title changed|Switched to other tab/i
+
+/**
+ * أسماء ملفات لا ينتجها بناؤنا أبداً (كل ملفاتنا `/assets/<Name>-<hash>.js`) لكن
+ * الإضافات تُبلِّغ بها عن أعطالها الداخلية: `chrome-extension://<id>/content.js`
+ * أو `enable_copy.js` أو `share-modal.js`. القاعدة على **اسم الملف وحده**، فلا
+ * تُسكِت أي رسالة خطأ لمجرد أنها تذكر «content.js».
+ */
+export const EXTENSION_NOISE_SOURCE_RE = /(^|\/)(content|enable_copy|share-modal)\.js$/i
+
+/** هل هذا الخطأ ضجيج إضافة معروفة؟ يعتمد على الرسالة أو اسم الملف المُبلِّغ. */
+export function isKnownExtensionNoise(message: string, source?: string): boolean {
+  if (EXTENSION_NOISE_RE.test(message)) return true
+  if (!source) return false
+  return EXTENSION_NOISE_RE.test(source) || EXTENSION_NOISE_SOURCE_RE.test(source)
+}
+
 export function initGlobalGuard() {
   if (initialized) return
   if (typeof window === "undefined") return
@@ -86,14 +116,14 @@ export function initGlobalGuard() {
     // Optionally break out: but don't force, as some embeds may be legit
   }
 
-  // 5. Suppress noisy errors injected by browser extensions (Enable Copy, Semalt, etc.)
+  // 5. Suppress noisy errors injected by browser extensions (Enable Copy, Semalt, AITDK…)
   //    These scripts run in the page context and throw even on a clean site,
   //    polluting the console and confusing real debugging. We filter only
   //    known extension origins so real app errors (HelpChat, etc.) still surface.
-  const EXTENSION_NOISE_RE =
-    /enable_copy|share-modal|semalt\.net|content\.js.*config|Unchecked runtime\.lastError|A listener indicated an asynchronous response/i
-  const isExtensionNoise = (message: string, source?: string) =>
-    EXTENSION_NOISE_RE.test(message) || (source ? EXTENSION_NOISE_RE.test(source) : false)
+  //    ملاحظة: التصنيف يعتمد على اسم الملف المُبلِّغ أيضاً، لأن نص الخطأ وحده
+  //    (مثل «Cannot read properties of null (reading 'addEventListener')») قد
+  //    يأتي من كودنا نحن — الاختبار tests/extension-noise-guard.test.ts يحمي ذلك.
+  const isExtensionNoise = isKnownExtensionNoise
 
   window.addEventListener(
     "error",

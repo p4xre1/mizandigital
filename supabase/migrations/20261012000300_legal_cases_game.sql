@@ -24,11 +24,13 @@ BEGIN
   END IF;
   -- تصميم سابق لم يُنشر (legal_cases بأعمدة facts/court + legal_case_questions):
   -- إن وُجد في قاعدة ما فلا نخلطه بهذا التصميم، بل نتوقف برسالة واضحة.
+  -- الإزالة الآمنة في 20261012000250: يؤرشف الصفوف في legacy_archive ثم يحذف
+  -- كائنات التصميم السابق وحدها. من فضّل اليدوي: أسقط الجدولين ثم أعد هذا الترحيل.
   IF to_regclass('public.legal_case_questions') IS NOT NULL
      OR (to_regclass('public.legal_cases') IS NOT NULL AND NOT EXISTS (
            SELECT 1 FROM information_schema.columns
            WHERE table_schema = 'public' AND table_name = 'legal_cases' AND column_name = 'story')) THEN
-    RAISE EXCEPTION 'public.legal_cases exists with the previous unreleased design (legal_case_questions). Drop public.legal_case_questions and public.legal_cases first.';
+    RAISE EXCEPTION 'public.legal_cases exists with the previous unreleased design (legal_case_questions). Apply supabase/migrations/20261012000250_legal_cases_retire_previous_design.sql first (it archives the old rows into legacy_archive, then drops the old objects), or drop public.legal_case_questions and public.legal_cases first.';
   END IF;
 END $$;
 

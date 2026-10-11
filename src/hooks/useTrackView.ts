@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { supabase } from "@/lib/supabase/client"
+import { recordTrackFailure } from "@/lib/analytics/trackFailure"
 
 export type TrackableContentType = "article" | "news" | "term" | "pdf" | "event" | "page"
 
@@ -90,6 +91,12 @@ export function useTrackView(
         referrer: document.referrer || null,
         user_agent: navigator.userAgent || null,
       })
+
+      // الفشل لا يُعرض للزائر، لكنه لا يُهمَل: يُحفظ أثره ويُكتب تحذير واحد في
+      // console (انظر src/lib/analytics/trackFailure.ts) — وإلا توقّفت الأرقام بصمت.
+      if (!cancelled && error) {
+        recordTrackFailure(contentType, contentId, error)
+      }
 
       if (!cancelled && !error && dedupePerSession) {
         try {

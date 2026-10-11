@@ -15,6 +15,8 @@ import {
   XCircle,
   Loader2,
   ExternalLink,
+  Share2,
+  HeartPulse,
 } from "lucide-react"
 import { supabase } from "../../lib/supabase/client"
 import { VisitsLineChart } from "../../components/analytics/VisitsLineChart"
@@ -48,6 +50,34 @@ interface TopRow {
   url?: string
 }
 
+/** صف واحد من مصادر الزيارات (get_visits_by_referrer). */
+interface TrafficSource {
+  source: string
+  views: number
+  visitors: number
+}
+
+/**
+ * تسميات المصادر الخاصة. referrer في تطبيق صفحة واحدة يعبّر عن **مصدر الدخول
+ * للجلسة** لا عن الصفحة السابقة المباشرة (document.referrer لا يتغيّر عند
+ * التنقّل الداخلي)، فالتجميع حسب المضيف هو التمثيل الصحيح.
+ */
+const SOURCE_LABELS: Record<string, string> = {
+  direct: "مباشر / بلا مُحيل",
+  internal: "تنقّل داخلي",
+}
+
+/** استجابة get_tracking_health. */
+interface TrackingHealth {
+  last_event_at: string | null
+  age_minutes: number | null
+  last_site_visit_at: string | null
+  rows_24h: number
+  rows_7d: number
+  visitors_24h: number
+  by_type_24h: { content_type: string; rows: number }[]
+}
+
 export default function AnalyticsPage() {
   const [windowKey, setWindowKey] = useState<WindowKey>("24h")
   const [loading, setLoading] = useState(true)
@@ -56,6 +86,10 @@ export default function AnalyticsPage() {
   const [uniqueVisitors, setUniqueVisitors] = useState(0)
   const [byType, setByType] = useState<Record<string, number>>({})
   const [timeseries, setTimeseries] = useState<{ label: string; value: number }[]>([])
+  const [sources, setSources] = useState<TrafficSource[]>([])
+  const [sourcesAvailable, setSourcesAvailable] = useState(true)
+  const [health, setHealth] = useState<TrackingHealth | null>(null)
+  const [healthAvailable, setHealthAvailable] = useState(true)
   const [topContent, setTopContent] = useState<Record<ContentType, TopRow[]>>({
     article: [], news: [], term: [], pdf: [], event: [], page: [],
   })
@@ -63,16 +97,28 @@ export default function AnalyticsPage() {
 
   const activeWindow = useMemo(() => WINDOWS.find((w) => w.key === windowKey)!, [windowKey])
 
+  const loadHealth = useCallback(async () => {
+    const { data, error } = await (supabase as any).rpc("get_tracking_health")
+    if (error) {
+      setHealthAvailable(false)
+      setHealth(null)
+      return
+    }
+    setHealthAvailable(true)
+    setHealth((data ?? null) as TrackingHealth | null)
+  }, [])
+
   const load = useCallback(async () => {
     setError(null)
     const since = new Date(Date.now() - activeWindow.hours * 60 * 60 * 1000).toISOString()
 
     try {
-      const [totalRes, uniqueRes, byTypeRes, seriesRes, ...topRes] = await Promise.all([
+      const [totalRes, uniqueRes, byTypeRes, seriesRes, sourcesRes, ...topRes] = await Promise.all([
         (supabase as any).rpc("get_total_visits", { p_since: since }),
         (supabase as any).rpc("get_unique_visitors", { p_since: since }),
         (supabase as any).rpc("get_visits_by_type", { p_since: since }),
         (supabase as any).rpc("get_visits_timeseries", { p_since: since, p_bucket_minutes: activeWindow.bucketMinutes }),
+        (supabase as any).rpc("get_visits_by_referrer", { p_since: since, p_limit: 12 }),
         ...(["article", "news", "term", "pdf", "event", "page"] as ContentType[]).map((t) =>
           (supabase as any).rpc("get_top_content", { p_content_type: t, p_since: since, p_limit: 6 })
         ),
@@ -97,6 +143,16 @@ export default function AnalyticsPage() {
         (seriesRes.data ?? []).map((row: any) => ({
           label: bucketFormatter.format(new Date(row.bucket)),
           value: Number(row.views),
+        }))
+      )
+
+      // مصادر الزيارات: غياب الدالة (ترحيل لم يُطبَّق بعد) لا يُفشل الصفحة كلها
+      setSourcesAvailable(!sourcesRes?.error)
+      setSources(
+        (sourcesRes?.data ?? []).map((row: any) => ({
+          source: String(row.source ?? "direct"),
+          views: Number(row.views ?? 0),
+          visitors: Number(row.visitors ?? 0),
         }))
       )
 
@@ -144,6 +200,10 @@ export default function AnalyticsPage() {
     setLoading(true)
     load()
   }, [load])
+
+  useEffect(() => {
+    loadHealth()
+  }, [loadHealth])
 
   const contentViewsTotal = Object.entries(byType)
     .filter(([k]) => k !== "page")
@@ -228,6 +288,50 @@ export default function AnalyticsPage() {
               <h2 className="text-sm font-bold text-foreground">تطوّر الزيارات — {activeWindow.label}</h2>
             </div>
             <VisitsLineChart points={timeseries} />
+          </div>
+
+          {/* صحة التتبّع: هل ما زال page_views يستقبل صفوفاً؟ */}
+          <TrackingHealthCard health={health} available={healthAvailable} />
+
+          {/* مصادر الزيارات */}
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Share2 className="size-4 text-primary" />
+                <h2 className="text-sm font-bold text-foreground">مصادر الزيارات — {activeWindow.label}</h2>
+              </div>
+              <span className="text-[11px] font-bold text-muted-foreground">حسب مصدر دخول الجلسة</span>
+            </div>
+            {!sourcesAvailable ? (
+              <p className="py-6 text-center text-xs text-muted-foreground">
+                هذه البطاقة تحتاج ترحيل <code className="font-mono">20261012000500_page_views_traffic_sources.sql</code> —
+                طبّقه ثم أعد التحميل.
+              </p>
+            ) : sources.length === 0 ? (
+              <p className="py-6 text-center text-xs text-muted-foreground">لا توجد زيارات مسجّلة ضمن هذه الفترة</p>
+            ) : (
+              <ul className="space-y-2">
+                {sources.map((s) => {
+                  const max = Math.max(...sources.map((x) => x.views), 1)
+                  const width = Math.max(2, Math.round((s.views / max) * 100))
+                  return (
+                    <li key={s.source} className="rounded-lg px-2 py-1.5 hover:bg-muted">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="truncate text-sm font-semibold text-foreground" dir="ltr">
+                          {SOURCE_LABELS[s.source] ?? s.source}
+                        </span>
+                        <span className="shrink-0 text-xs font-bold text-muted-foreground">
+                          {s.views.toLocaleString("ar-MA")} زيارة، {s.visitors.toLocaleString("ar-MA")} زائر
+                        </span>
+                      </div>
+                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                        <div className="h-full rounded-full bg-primary" style={{ width: `${width}%` }} />
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
           </div>
 
           {/* توزيع حسب نوع المحتوى + أكثر المحتويات قراءة */}
@@ -430,6 +534,128 @@ function IndexStatusPanel() {
             </li>
           ))}
         </ul>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
+// صحة التتبّع — «هل توقّف جمع البيانات؟» بسؤال واحد
+// ============================================================================
+
+/** يترجم عمر آخر حدث إلى حالة مفهومة. الحدود مقصودة: الموقع يزوره بشر يومياً. */
+function trackingState(health: TrackingHealth | null): {
+  tone: "ok" | "warn" | "bad" | "empty"
+  title: string
+  detail: string
+} {
+  if (!health || health.last_event_at === null) {
+    return {
+      tone: "empty",
+      title: "لا توجد أي زيارة مسجّلة بعد",
+      detail: "إن كان الموقع يستقبل زوّاراً فعلاً فهذا يعني أن الإدراج لا يصل إلى القاعدة.",
+    }
+  }
+  const age = health.age_minutes ?? 0
+  if (age < 120) {
+    return { tone: "ok", title: "التتبّع يعمل", detail: "وصلت زيارة خلال آخر ساعتين." }
+  }
+  if (age < 1440) {
+    return {
+      tone: "warn",
+      title: "التتبّع يعمل لكن الحركة هادئة",
+      detail: "آخر زيارة وصلت قبل أكثر من ساعتين. ليس عطلاً بالضرورة في موقع صغير.",
+    }
+  }
+  return {
+    tone: "bad",
+    title: "توقّف جمع الزيارات",
+    detail:
+      "لم يصل أي صف منذ أكثر من 24 ساعة. الأسباب الشائعة بالترتيب: " +
+      "1) مشروع Supabase موقوف أو مقيّد الحصة (الصفحات تبقى تعمل لأن الموقع مُولَّد مسبقاً)، " +
+      "2) مفتاح anon أو رابط المشروع تغيّر في متغيّرات Cloudflare، " +
+      "3) سياسة الإدراج على page_views غير موجودة، " +
+      "4) ترويسة CSP تمنع الاتصال بـ Supabase.",
+  }
+}
+
+function formatAge(minutes: number | null): string {
+  if (minutes === null) return "—"
+  if (minutes < 60) return `قبل ${minutes} دقيقة`
+  if (minutes < 1440) return `قبل ${Math.round(minutes / 60)} ساعة`
+  return `قبل ${Math.round(minutes / 1440)} يوم`
+}
+
+function TrackingHealthCard({ health, available }: { health: TrackingHealth | null; available: boolean }) {
+  if (!available) {
+    return (
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center gap-2">
+          <HeartPulse className="size-4 text-primary" />
+          <h2 className="text-sm font-bold text-foreground">صحة تتبّع الزيارات</h2>
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          هذه البطاقة تحتاج ترحيل <code className="font-mono">20261012000600_tracking_health.sql</code> — طبّقه ثم أعد التحميل.
+        </p>
+      </div>
+    )
+  }
+
+  const state = trackingState(health)
+  const toneClass =
+    state.tone === "ok"
+      ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-700 dark:text-emerald-400"
+      : state.tone === "warn"
+        ? "border-amber-500/40 bg-amber-500/5 text-amber-700 dark:text-amber-400"
+        : state.tone === "bad"
+          ? "border-destructive/40 bg-destructive/5 text-destructive"
+          : "border-border bg-muted text-muted-foreground"
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <HeartPulse className="size-4 text-primary" />
+          <h2 className="text-sm font-bold text-foreground">صحة تتبّع الزيارات</h2>
+        </div>
+        <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${toneClass}`}>{state.title}</span>
+      </div>
+
+      <p className="text-xs leading-6 text-muted-foreground">{state.detail}</p>
+
+      {health && (
+        <>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: "آخر زيارة", value: formatAge(health.age_minutes) },
+              { label: "صفوف 24 ساعة", value: health.rows_24h },
+              { label: "زوّار 24 ساعة", value: health.visitors_24h },
+              { label: "صفوف 7 أيام", value: health.rows_7d },
+            ].map((item) => (
+              <div key={item.label} className="rounded-xl border border-border bg-background p-3">
+                <p className="text-lg font-black text-foreground">
+                  {typeof item.value === "number" ? item.value.toLocaleString("ar-MA") : item.value}
+                </p>
+                <p className="mt-0.5 text-[11px] font-semibold text-muted-foreground">{item.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {health.by_type_24h.length > 0 && (
+            <p className="mt-3 text-[11px] font-semibold text-muted-foreground">
+              التوزيع في 24 ساعة:{" "}
+              {health.by_type_24h
+                .map((t) => `${TYPE_META[t.content_type as ContentType]?.label ?? t.content_type} ${t.rows.toLocaleString("ar-MA")}`)
+                .join("، ")}
+            </p>
+          )}
+
+          <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
+            آخر زيارة موقع (<code className="font-mono">page</code>): {health.last_site_visit_at ? new Date(health.last_site_visit_at).toLocaleString("ar-MA") : "لا شيء"}.
+            ملاحظة: هذا التتبّع يخصّ زوّار الموقع أنفسهم، ولا علاقة له بـ Google Search Console
+            («آخر قراءة» للخريطة في Search Console ليست تتبّع زيارات ولا تدل على عطل).
+          </p>
+        </>
       )}
     </div>
   )
