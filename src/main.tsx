@@ -6,6 +6,7 @@ import { initAnalytics } from "@/lib/analytics/gtag"
 import "./lib/security/globalGuard"
 import "./styles/fonts.css"
 import "./styles/globals.css"
+import "./styles/devices.css"
 
 const rootElement = document.getElementById("root")
 

@@ -90,9 +90,12 @@ export async function fetchGuidelines(): Promise<CommunityGuideline[]> {
   } catch {
     // fallback
     return [
-      { id: "1", slug: "respect", title: "الاحترام المتبادل", content: "ميزان الرقمية مجتمع طلابي مهني. يمنع أي خطاب كراهية، تحرش، أو إساءة شخصية.", category: "general", is_active: true, sort_order: 1 },
-      { id: "2", slug: "accuracy", title: "الدقة القانونية", content: "عند نشر معلومة قانونية، اذكر المصدر (نص قانوني، جريدة رسمية، قرار قضائي).", category: "content", is_active: true, sort_order: 2 },
-      { id: "3", slug: "no-spam", title: "منع السبام والإشهار", content: "يمنع نشر روابط إشهارية أو تكرار نفس المحتوى.", category: "content", is_active: true, sort_order: 3 },
+      { id: "1", slug: "respect", title: "الاحترام المتبادل", content: "ميزان الرقمية مجتمع طلابي مهني. يمنع أي خطاب كراهية، تحرش، أو إساءة شخصية. ناقش الفكرة لا الشخص.", category: "general", is_active: true, sort_order: 1 },
+      { id: "2", slug: "accuracy", title: "الدقة القانونية", content: "عند نشر معلومة قانونية، اذكر المصدر (نص قانوني، جريدة رسمية، قرار قضائي). المعلومات غير المسندة قد تحذف.", category: "content", is_active: true, sort_order: 2 },
+      { id: "3", slug: "no-spam", title: "منع السبام والإشهار", content: "يمنع نشر روابط إشهارية، ترويج لخدمات مدفوعة خارج المنصة، أو تكرار نفس المحتوى.", category: "content", is_active: true, sort_order: 3 },
+      { id: "4", slug: "quiz-fair", title: "نزاهة الاختبارات", content: "الاختبارات للتعلم وليس للغش. لا تشارك إجابات الاختبارات بشكل يفسد تجربة الآخرين، ولا تستعمل أدوات آلية للتلاعب بالنقاط.", category: "quiz", is_active: true, sort_order: 4 },
+      { id: "5", slug: "comments", title: "آداب التعليقات", content: "التعليقات يجب أن تكون بناءة ومحترمة. يمنع السب، القذف، أو نشر معلومات شخصية. التعليقات تخضع للمراجعة.", category: "comments", is_active: true, sort_order: 5 },
+      { id: "6", slug: "legal-disclaimer", title: "إخلاء المسؤولية القانونية", content: "محتوى المنصة تعليمي ولا يغني عن استشارة محامٍ أو مراجعة النص الرسمي في الجريدة الرسمية. الإدارة غير مسؤولة عن استعمال المعلومات.", category: "legal", is_active: true, sort_order: 6 },
     ];
   }
 }

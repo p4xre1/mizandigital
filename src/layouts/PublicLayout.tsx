@@ -18,7 +18,7 @@ export default function PublicLayout({
   onCloseMenu?: () => void
 }) {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="site-public min-h-screen bg-background text-foreground">
       <Header
         theme={theme}
         menuOpen={menuOpen}

@@ -1,0 +1,94 @@
+/*
+  طبقة الأجهزة الثلاثة للموقع العام (Phone / Tablet / PC)
+  ─────────────────────────────────────────────────────
+  الفئات متوافقة مع نقاط Tailwind: sm = 640px و lg = 1024px.
+    • phone  : أقل من 640px
+    • tablet : من 640px حتى 1023px
+    • pc     : 1024px فأكثر
+
+  تُطبَّق على غلاف الموقع العام .site-public (PublicLayout).
+  القواعد داخل @layer utilities (طبقة أصناف Tailwind نفسها): كل محدِّد يبدأ بـ
+  .site-public فيغلب أصناف Tailwind ذات الصنف الواحد (padding مثلاً) عند التعارض —
+  وهذا مقصود لضبط الهوامش — وعند التساوي يغلب لأنه يُستورد بعدها في main.tsx.
+  لا قواعد عارية خارج @layer: الكتلة الحرجة المضمّنة في الصفحات تحفظ الطبقات، وأي
+  قاعدة عارية فيها كانت ستغلب النمط الكامل كله (انظر tests/critical-css.test.ts).
+*/
+
+@layer utilities {
+
+/* ── المتغيرات حسب الجهاز ───────────────────────────────────────────── */
+.site-public {
+  --device-gutter: 16px;     /* هامش الحاوية الجانبي */
+  --device-section-y: 32px;  /* المسافة العمودية بين الأقسام */
+  --device-touch: 44px;      /* أدنى حجم لهدف اللمس */
+  --device-reading: 16px;    /* أدنى حجم لنص القراءة */
+
+  /* منع التمرير الأفقي الناتج عن عناصر زخرفية أعرض من الشاشة.
+     clip لا ينشئ حاوية تمرير، فلا يكسر position: sticky. */
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .site-public {
+    --device-gutter: 24px;
+    --device-section-y: 48px;
+    --device-touch: 40px;
+    --device-reading: 17px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-public {
+    --device-gutter: 32px;
+    --device-section-y: 72px;
+    --device-touch: 36px;
+    --device-reading: 18px;
+  }
+}
+
+/* ── الحاويات: هامش جانبي ثابت لكل جهاز ─────────────────────────────── */
+.site-public .container {
+  padding-inline: var(--device-gutter);
+}
+
+/* ── الهاتف: قراءة أوضح وأهداف لمس أكبر ─────────────────────────────── */
+@media (max-width: 639px) {
+  /* النصوص الصغيرة جداً ترفع إلى 12px على الهاتف */
+  .site-public [class~="text-[10px]"],
+  .site-public [class~="text-[11px]"] {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  /* أهداف اللمس: الأزرار والروابط المستقلة بحد أدنى 44px */
+  .site-public a.inline-flex,
+  .site-public button.inline-flex,
+  .site-public a[class*="rounded-full"],
+  .site-public button[class*="rounded-full"] {
+    min-height: var(--device-touch);
+  }
+
+  /* لا تتجاوز الصور والوسائط عرض الشاشة */
+  .site-public img,
+  .site-public video,
+  .site-public iframe {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* الأقسام تأخذ مسافة أقل بين بعضها */
+  .site-public section {
+    scroll-margin-top: 80px;
+  }
+}
+
+/* ── اللوحي: شبكة أعرض من الهاتف وأقل من الحاسوب ──────────────────── */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .site-public [class~="text-[10px]"],
+  .site-public [class~="text-[11px]"] {
+    font-size: 12px;
+  }
+}
+
+} /* @layer utilities */

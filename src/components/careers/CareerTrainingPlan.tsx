@@ -48,52 +48,52 @@ export function CareerTrainingPlan({
       className={`rounded-3xl border border-border bg-card p-5 ${className}`}
       data-career-training-plan={career.slug}
     >
-      <h2 id="career-training-plan-title" className="text-[18px] font-black text-foreground">
+      <h2 id="career-training-plan-title" className="text-[20px] font-black text-foreground">
         {SECTION_TITLES.plan}
       </h2>
-      <p className="mt-1 text-[13px] leading-6 text-muted-foreground">
+      <p className="mt-1 text-[15px] leading-6 text-muted-foreground">
         خطة مقترحة لمراجعة {career.title_ar} عبر محتوى ميزان: مصطلحات المسار، ثم المفاهيم، ثم معالجة ما أخطأت فيه.
       </p>
 
       <dl className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-2xl border border-border bg-background p-3">
-          <dt className="text-[11.5px] font-bold text-muted-foreground">جلسات تدريب مسجّلة</dt>
-          <dd className="text-[18px] font-black text-foreground">{stats.sessions}</dd>
+          <dt className="text-[14px] font-bold text-muted-foreground">جلسات تدريب مسجّلة</dt>
+          <dd className="text-[20px] font-black text-foreground">{stats.sessions}</dd>
         </div>
         <div className="rounded-2xl border border-border bg-background p-3">
-          <dt className="text-[11.5px] font-bold text-muted-foreground">أفضل نتيجة</dt>
-          <dd className="text-[18px] font-black text-foreground">
+          <dt className="text-[14px] font-bold text-muted-foreground">أفضل نتيجة</dt>
+          <dd className="text-[20px] font-black text-foreground">
             {stats.sessions ? `${stats.bestScore}%` : "—"}
           </dd>
         </div>
         <div className="rounded-2xl border border-border bg-background p-3">
-          <dt className="text-[11.5px] font-bold text-muted-foreground">تغطية تمارين المسار</dt>
-          <dd className="text-[18px] font-black text-foreground">{stats.coveragePercent}%</dd>
+          <dt className="text-[14px] font-bold text-muted-foreground">تغطية تمارين المسار</dt>
+          <dd className="text-[20px] font-black text-foreground">{stats.coveragePercent}%</dd>
         </div>
       </dl>
 
       <ol className="mt-4 space-y-3" data-career-training-weeks="ol">
         {plan.map((week) => (
           <li key={week.week} className="rounded-2xl border border-border bg-background p-4">
-            <p className="flex items-center gap-2 text-[14px] font-extrabold text-foreground">
+            <p className="flex items-center gap-2 text-[16px] font-extrabold text-foreground">
               <CalendarCheck className="size-4 text-primary" aria-hidden="true" />
               {week.title_ar}
             </p>
-            <p className="mt-1 text-[12.5px] leading-6 text-muted-foreground">{week.description_ar}</p>
+            <p className="mt-1 text-[15px] leading-6 text-muted-foreground">{week.description_ar}</p>
             {week.terms.length ? (
               <p className="mt-2 flex flex-wrap gap-2">
                 {week.terms.map((term) => (
                   <Link
                     key={`${week.week}-${term.id}`}
                     to={`/lexicon/${term.slug}`}
-                    className="rounded-full border border-border px-3 py-1 text-[12px] font-bold text-foreground hover:border-primary/50"
+                    className="rounded-full border border-border px-3 py-1 text-[14px] font-bold text-foreground hover:border-primary/50"
                   >
                     {term.term_ar}
                   </Link>
                 ))}
               </p>
             ) : null}
-            <p className="mt-2 flex flex-wrap items-center gap-3 text-[12.5px] font-bold">
+            <p className="mt-2 flex flex-wrap items-center gap-3 text-[15px] font-bold">
               <Link className="inline-flex items-center gap-1 text-primary" to={week.quizHref}>
                 <Target className="size-3.5" aria-hidden="true" />
                 ابدأ اختبار الأسبوع ({week.level === "easy" ? "سهل" : week.level === "medium" ? "متوسط" : "متقدم"})
@@ -109,7 +109,7 @@ export function CareerTrainingPlan({
         ))}
       </ol>
 
-      <p className="mt-3 text-[12.5px] leading-6 text-muted-foreground">{CAREERS_PLAN_DISCLAIMER}</p>
+      <p className="mt-3 text-[15px] leading-6 text-muted-foreground">{CAREERS_PLAN_DISCLAIMER}</p>
 
       {user ? (
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -117,12 +117,12 @@ export function CareerTrainingPlan({
             type="button"
             onClick={handleFollow}
             disabled={followState === "saving"}
-            className="inline-flex min-h-10 items-center rounded-xl border border-primary/40 px-4 py-2 text-[13px] font-extrabold text-primary transition hover:bg-primary/5 disabled:opacity-60"
+            className="inline-flex min-h-10 items-center rounded-xl border border-primary/40 px-4 py-2 text-[15px] font-extrabold text-primary transition hover:bg-primary/5 disabled:opacity-60"
           >
             تابع هذا المسار في تدريبي المهني
           </button>
           {followState !== "idle" ? (
-            <span className="text-[12.5px] font-bold text-muted-foreground" role="status">
+            <span className="text-[15px] font-bold text-muted-foreground" role="status">
               {followState === "saved"
                 ? "أُضيف المسار إلى «تدريبي المهني»."
                 : followState === "error"

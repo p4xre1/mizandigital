@@ -36,10 +36,10 @@ export function CareerLexiconTerms({
 
   return (
     <section aria-labelledby="career-lexicon-title" className={className} data-career-lexicon="list">
-      <h2 id="career-lexicon-title" className="text-[22px] font-black text-foreground">
+      <h2 id="career-lexicon-title" className="text-[26px] font-black text-foreground">
         {SECTION_TITLES.lexicon}
       </h2>
-      <p className="mt-2 text-[16px] leading-8 text-foreground">
+      <p className="mt-2 text-[18px] leading-8 text-foreground">
         مصطلحات من القاموس القانوني في ميزان الرقمية تساعدك على فهم هذا المسار.
       </p>
       <ul className="mt-5 flex flex-wrap gap-3">
@@ -47,13 +47,13 @@ export function CareerLexiconTerms({
           <li key={term.id}>
             <Link
               to={`/lexicon/${term.slug}`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-[16px] font-bold text-foreground transition hover:border-primary/50"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-[18px] font-bold text-foreground transition hover:border-primary/50"
               data-career-term={term.id}
             >
               <BookOpen className="size-4 text-primary" aria-hidden="true" />
               <span>{term.term_ar}</span>
               {term.term_fr ? (
-                <span className="text-[14px] font-semibold text-muted-foreground" dir="ltr">
+                <span className="text-[16px] font-semibold text-muted-foreground" dir="ltr">
                   {term.term_fr}
                 </span>
               ) : null}
@@ -62,7 +62,7 @@ export function CareerLexiconTerms({
         ))}
       </ul>
       {resolved.length < MIN_CHIPS ? (
-        <p className="mt-4 text-[15px] leading-7 text-muted-foreground">
+        <p className="mt-4 text-[17px] leading-7 text-muted-foreground">
           يمكنك توسيع المراجعة من <Link className="font-bold text-primary" to="/lexicon">القاموس القانوني</Link>.
         </p>
       ) : null}

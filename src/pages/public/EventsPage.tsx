@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
+import { NewsListView, NewsTimelineView, NewsViewSwitch, type NewsViewMode } from "../../components/news/NewsViews"
 import { AEOHead } from "../../components/seo/AEOHead"
 import eventsData from "../../data/events.json"
 import { containsText } from "../../lib/utils/search"
@@ -40,7 +41,34 @@ function normalizeSeminar(raw: any) {
   }
 }
 
+// تحويل الفعالية إلى شكل عرض القائمة والخط الزمني. الرابط يبقى /events/:id.
+function toViewItems(events: any[]) {
+  return events.map((event) => ({
+    id: String(event.id),
+    title: event.title || "",
+    slug: String(event.id),
+    summary: event.excerpt || event.description || event.summary || "",
+    source: event.organizer || event.category || null,
+    published_at: event.eventDate || event.date || null,
+  }))
+}
+
 export function EventsPage() {
+  // طريقة العرض في الرابط (?view=list) حتى تُشارَك وتعمل زر الرجوع في المتصفح.
+  const [params, setParams] = useSearchParams()
+  const viewParam = params.get("view")
+  const view: NewsViewMode = viewParam === "list" || viewParam === "timeline" ? viewParam : "grid"
+  const setView = (next: NewsViewMode) =>
+    setParams(
+      (prev) => {
+        const copy = new URLSearchParams(prev)
+        if (next === "grid") copy.delete("view")
+        else copy.set("view", next)
+        return copy
+      },
+      { replace: true },
+    )
+
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [statusFilter, setStatusFilter] = useState<"all" | "upcoming" | "past">("all")
@@ -114,7 +142,7 @@ export function EventsPage() {
         containsText(category, searchQuery)
       )
     })
-  }, [searchQuery, selectedCategory, statusFilter])
+  }, [allEvents, searchQuery, selectedCategory, statusFilter])
 
   // Schema.org Structured Data for Legal/Academic Events
   const eventsSchema = {
@@ -250,11 +278,19 @@ export function EventsPage() {
           )}
         </div>
 
+        <div className="mb-6">
+          <NewsViewSwitch value={view} onChange={setView} label="طريقة عرض الندوات والفعاليات" />
+        </div>
+
         {/* Events Grid */}
         {loading ? (
           <div className="flex h-40 items-center justify-center">
             <Loader2 className="size-8 animate-spin text-primary" />
           </div>
+        ) : filteredEvents.length > 0 && view === "list" ? (
+          <NewsListView items={toViewItems(filteredEvents)} basePath="/events" />
+        ) : filteredEvents.length > 0 && view === "timeline" ? (
+          <NewsTimelineView items={toViewItems(filteredEvents)} basePath="/events" countNoun="فعالية" />
         ) : filteredEvents.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredEvents.map((event: any) => {

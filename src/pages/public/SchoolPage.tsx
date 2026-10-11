@@ -9,6 +9,7 @@ import { canonicalSchool, itemPath } from "../../lib/canonical"
 import { generateBreadcrumbSchema, generateFacultySchema } from "../../lib/seo/schema"
 import { buildMetaDescription } from "../../lib/seo/description"
 import { supabase } from "../../lib/supabase/client"
+import { SchoolMark } from "../../components/schools/SchoolMark"
 // InContentAd removed
 import {
   GraduationCap,
@@ -235,9 +236,7 @@ export function SchoolPage({ slug: propSlug, id: propId }: SchoolPageProps) {
                   className="size-16 md:size-20 rounded-xl object-contain bg-muted/50 p-2 border border-border shrink-0"
                 />
               ) : (
-                <div className="size-16 md:size-20 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-xl shrink-0 border border-primary/20">
-                  {schoolName.charAt(0)}
-                </div>
+                <SchoolMark name={schoolName} city={school.city} className="size-16 md:size-20 shrink-0" />
               )}
 
               <div className="space-y-2">

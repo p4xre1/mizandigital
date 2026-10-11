@@ -19,6 +19,9 @@ import { resolveCareerLaws } from "@/lib/careers/laws";
  *      بلا سجل أرشيف: الطالب يعرف ما يبحث عنه، والقيمة القانونية لا تُختلق.
  *   4) لا رابط خارجي إلا إذا كان موثّقاً في الأرشيف نفسه (source_verified_at)،
  *      وكل ما دون ذلك يبقى نصاً بلا رابط.
+ *
+ * التصميم: الجواب المختصر أولاً (كم مرجعاً منشوراً)، ثم بطاقة لكل مرجع بتسلسل
+ * واضح. الشبكة: عمود في الهاتف، عمودان في اللوح، ثلاثة في الحاسوب.
  */
 export interface CareerLawsProps {
   career: CareerRecord;
@@ -43,103 +46,120 @@ export function CareerLaws({ career, className = "" }: CareerLawsProps) {
 
   return (
     <section
-      className={`rounded-3xl border border-primary/20 bg-primary/5 p-6 md:p-8 ${className}`}
+      className={`scroll-mt-24 ${className}`}
       aria-labelledby="career-laws-title"
       data-career-laws="section"
     >
-      <h2
-        id="career-laws-title"
-        className="inline-flex items-center gap-2 text-[22px] font-black text-foreground"
-      >
-        <Scale className="size-5 text-primary" aria-hidden="true" />
+      <h2 id="career-laws-title" className="inline-flex items-center gap-3 text-2xl font-black leading-snug text-foreground sm:text-3xl">
+        <span className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+          <Scale className="size-6" aria-hidden="true" />
+        </span>
         {SECTION_TITLES.laws}
       </h2>
 
-      <p className="mt-3 text-[16px] leading-8 text-foreground">
+      <p className="mt-4 max-w-3xl text-lg leading-relaxed text-foreground">
         هذه مراجع تنظيمية تعليمية مرتبطة بهذا المسار. تُربط بأرشيف القوانين في ميزان فقط عندما يكون النص منشوراً
         فعلاً في الأرشيف؛ وما عدا ذلك يبقى بدون رابط حتى لا نرسلك إلى صفحة غير موجودة.
       </p>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="text-[16px] font-extrabold text-foreground">المراجع المنشورة في أرشيف ميزان</span>
-          <span className="rounded-full bg-primary px-3 py-1 text-[15px] font-black text-primary-foreground">
-            {archivedCount} من {entries.length}
-          </span>
+      {/* ملخص: رقم كبير وشريط تقدّم، بدل سطر نصي صغير */}
+      <div className="mt-6 grid gap-4 rounded-2xl border border-border bg-card p-5 sm:grid-cols-[auto_1fr] sm:items-center sm:gap-8 sm:p-6">
+        <div className="flex items-baseline gap-2">
+          <span className="text-4xl font-black text-primary sm:text-5xl">{archivedCount}</span>
+          <span className="text-lg font-bold text-muted-foreground">من {entries.length} مرجعاً</span>
         </div>
-        <div
-          className="mt-4 h-3 w-full overflow-hidden rounded-full bg-muted"
-          role="progressbar"
-          aria-label="نسبة المراجع المنشورة في أرشيف ميزان"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={percent}
-        >
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${percent}%` }} />
+        <div>
+          <p className="text-lg font-bold text-foreground" role="status">
+            {archivedCount
+              ? `${archivedCount} من ${entries.length} مرجعاً موجود في أرشيف ميزان، والباقي بانتظار الإضافة.`
+              : "لا يوجد بعد نص قانوني منشور في أرشيف ميزان مطابق لهذه المراجع؛ تُعرض أسماؤها للتعريف فقط."}
+          </p>
+          <div
+            className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted"
+            role="progressbar"
+            aria-label="نسبة المراجع المنشورة في أرشيف ميزان"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={percent}
+          >
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${percent}%` }} />
+          </div>
         </div>
-        <p className="mt-3 text-[15px] leading-7 text-muted-foreground" role="status">
-          {archivedCount
-            ? `${archivedCount} من ${entries.length} مرجعاً موجود في أرشيف ميزان، والباقي بانتظار الإضافة.`
-            : "لا يوجد بعد نص قانوني منشور في أرشيف ميزان مطابق لهذه المراجع؛ تُعرض أسماؤها للتعريف فقط."}
-        </p>
       </div>
 
-      <ol className="mt-6 grid gap-4 md:grid-cols-2">
+      <ol className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {entries.map((entry, index) => {
           const Icon = RELATIONSHIP_ICONS[entry.relationship_type] ?? Scale;
           return (
             <li
               key={`${entry.relationship_type}:${entry.label_ar}`}
-              className="flex flex-col rounded-2xl border border-border bg-card p-5 md:p-6"
+              className="flex flex-col rounded-2xl border border-border bg-card p-5 sm:p-6"
               data-law-slug={entry.law_slug ?? ""}
               data-law-archived={entry.archive ? "true" : "false"}
             >
-              <div className="flex items-center gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-[16px] font-black text-primary-foreground">
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex size-10 items-center justify-center rounded-full bg-primary text-lg font-black text-primary-foreground">
                   {index + 1}
                 </span>
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <span className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon className="size-5" aria-hidden="true" />
                 </span>
               </div>
 
-              <h3 className="mt-4 text-[17px] font-extrabold leading-7 text-foreground">{entry.label_ar}</h3>
-              <p className="mt-2 text-[15px] leading-7 text-muted-foreground">{entry.relationship_ar}</p>
+              <h3 className="mt-4 text-xl font-black leading-snug text-foreground">{entry.label_ar}</h3>
+              <p className="mt-2 text-lg leading-relaxed text-muted-foreground">{entry.relationship_ar}</p>
 
               {LAW_VERIFICATION_LABELS[entry.verification_status] ? (
                 <p className="mt-4">
-                  <span
-                    className={`inline-block rounded-full px-3 py-1 text-[13px] font-extrabold ${
-                      "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
-                    }`}
-                  >
+                  <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-base font-extrabold text-emerald-800 dark:text-emerald-200">
                     {LAW_VERIFICATION_LABELS[entry.verification_status]}
                   </span>
                 </p>
               ) : null}
 
               {entry.archive ? (
-                <div className="mt-4 border-t border-border pt-4">
-                  <p className="text-[14px] leading-7 text-muted-foreground">
-                    <span className="font-bold text-foreground">{entry.archive.title}</span>
-                    {entry.archive.law_number ? <span> — رقم النص: {entry.archive.law_number}</span> : null}
-                    {entry.archive.official_gazette_number ? (
-                      <span> — الجريدة الرسمية: {entry.archive.official_gazette_number}</span>
+                <div className="mt-auto space-y-3 border-t border-border pt-4">
+                  <p className="text-lg font-bold leading-snug text-foreground">{entry.archive.title}</p>
+                  <dl className="grid gap-2 text-base">
+                    {entry.archive.law_number ? (
+                      <div className="flex flex-wrap gap-x-2">
+                        <dt className="font-bold text-muted-foreground">رقم النص:</dt>
+                        <dd className="text-foreground">{entry.archive.law_number}</dd>
+                      </div>
                     ) : null}
-                    {entry.archive.publication_date ? <span> — النشر: {entry.archive.publication_date}</span> : null}
-                  </p>
-                  {entry.archive.source_verified_at ? (
-                    <p className="mt-1 text-[14px] text-muted-foreground">
-                      تاريخ التحقق من الإسناد: {entry.archive.source_verified_at}
-                    </p>
-                  ) : null}
+                    {entry.archive.official_gazette_number ? (
+                      <div className="flex flex-wrap gap-x-2">
+                        <dt className="font-bold text-muted-foreground">الجريدة الرسمية:</dt>
+                        <dd className="text-foreground">{entry.archive.official_gazette_number}</dd>
+                      </div>
+                    ) : null}
+                    {entry.archive.publication_date ? (
+                      <div className="flex flex-wrap gap-x-2">
+                        <dt className="font-bold text-muted-foreground">النشر:</dt>
+                        <dd className="text-foreground">{entry.archive.publication_date}</dd>
+                      </div>
+                    ) : null}
+                    {entry.archive.source_verified_at ? (
+                      <div className="flex flex-wrap gap-x-2">
+                        <dt className="font-bold text-muted-foreground">تاريخ التحقق من الإسناد:</dt>
+                        <dd className="text-foreground">{entry.archive.source_verified_at}</dd>
+                      </div>
+                    ) : null}
+                  </dl>
                   {entry.href ? (
-                    <Link className="mt-3 inline-block text-[15px] font-extrabold text-primary" to={entry.href}>
+                    <Link
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-primary px-4 py-2.5 text-lg font-extrabold text-primary-foreground transition hover:opacity-90"
+                      to={entry.href}
+                    >
                       عرض النص في أرشيف ميزان
                     </Link>
                   ) : null}
                 </div>
-              ) : null}
+              ) : (
+                <p className="mt-auto border-t border-border pt-4 text-base font-bold text-muted-foreground">
+                  غير منشور في أرشيف ميزان بعد
+                </p>
+              )}
             </li>
           );
         })}

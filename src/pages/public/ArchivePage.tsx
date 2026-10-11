@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react"
+import { useState, useMemo, useEffect, useRef } from "react"
 import { useParams, useSearchParams, Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { canonicalFor } from "@/lib/canonical"
@@ -7,6 +7,7 @@ import { titledSlugById } from "../../lib/utils/generateSlug"
 import { ContentTags } from "../../components/content/ContentTags"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
+import { Pager } from "../../components/ui/Pager"
 // دليل الأرشيف ومصادره: النص نفسه يُولَّد في HTML الزاحف (scripts/prerender.mjs).
 import { ARCHIVE_GUIDE } from "../../../shared/seo/archive-guide.js"
 import { SOURCES } from "../../../shared/seo/editorial.js"
@@ -214,6 +215,11 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
   // File Explorer view mode state ('grid' or 'list')
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
+  // 10 ملفات في الصفحة. تغيير الفصل أو النوع أو البحث يعيد إلى الصفحة الأولى.
+  const ARCHIVE_PAGE_SIZE = 10
+  const [page, setPage] = useState(1)
+  const catalogTop = useRef<HTMLHeadingElement>(null)
+
   // Filter items based on Semester, Resource Type, and Search Query
   const filteredCatalog = useMemo(() => {
     return fullCatalog.filter((item) => {
@@ -239,6 +245,19 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
       )
     })
   }, [fullCatalog, selectedSemester, selectedType, searchQuery])
+
+  useEffect(() => {
+    setPage(1)
+  }, [selectedSemester, selectedType, searchQuery])
+
+  const pageCount = Math.max(1, Math.ceil(filteredCatalog.length / ARCHIVE_PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const pageItems = filteredCatalog.slice((currentPage - 1) * ARCHIVE_PAGE_SIZE, currentPage * ARCHIVE_PAGE_SIZE)
+
+  const goToPage = (next: number) => {
+    setPage(next)
+    catalogTop.current?.scrollIntoView?.({ block: "start", behavior: "smooth" })
+  }
 
   // أداة WebMCP تجريبية: تتيح لوكيل ذكاء اصطناعي البحث في أرشيف الوثائق
   // والملخصات الدراسية والنصوص القانونية مباشرة (Chrome 146+ خلف علم تجريبي)
@@ -417,7 +436,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
           </div>
 
           {/* Catalog Container (Adapts dynamically to Grid or List view) */}
-          <h2 className="sr-only">قائمة الملفات والنصوص</h2>
+          <h2 ref={catalogTop} className="sr-only">قائمة الملفات والنصوص</h2>
           {loading ? (
             <div className="flex h-40 items-center justify-center">
               <Loader2 className="size-8 animate-spin text-primary" />
@@ -430,7 +449,7 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
                   : "flex flex-col space-y-3"
               }
             >
-              {filteredCatalog.map((item) => (
+              {pageItems.map((item) => (
                 <article
                   key={item.id}
                   className={`group rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:border-primary/50 hover:shadow-md ${
@@ -551,30 +570,39 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
             </div>
           )}
 
-          {/* دليل الأرشيف: الأقسام بعناوين أسئلة، ونفس النص في HTML المُولَّد */}
-          <section className="mt-12 space-y-6 border-t border-border pt-8 text-sm leading-relaxed text-foreground">
-            <p className="text-xs text-muted-foreground">{ARCHIVE_GUIDE.byline}</p>
-            <p className="text-base font-semibold">{ARCHIVE_GUIDE.lead}</p>
+          {filteredCatalog.length > ARCHIVE_PAGE_SIZE && (
+            <div className="mt-8 space-y-3">
+              <p className="text-center text-base font-bold text-foreground/90">
+                صفحة {currentPage} من {pageCount} — {filteredCatalog.length} ملف
+              </p>
+              <Pager page={currentPage} pageCount={pageCount} onPage={goToPage} label="صفحات الأرشيف" />
+            </div>
+          )}
 
-            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.semesters.title}</h2>
+          {/* دليل الأرشيف: الأقسام بعناوين أسئلة، ونفس النص في HTML المُولَّد */}
+          <section className="archive-guide mt-14 space-y-8 rounded-3xl border border-border bg-card p-6 md:p-10 text-base md:text-lg leading-loose text-foreground shadow-sm">
+            <p className="text-sm font-semibold text-foreground/80">{ARCHIVE_GUIDE.byline}</p>
+            <p className="text-lg md:text-xl font-bold leading-relaxed text-foreground">{ARCHIVE_GUIDE.lead}</p>
+
+            <h2 className="border-b border-border pb-2 text-2xl md:text-3xl font-black text-foreground">{ARCHIVE_GUIDE.semesters.title}</h2>
             <p>{ARCHIVE_GUIDE.semesters.intro}</p>
-            <ul className="list-disc space-y-1 pr-5">
+            <ul className="grid gap-2 sm:grid-cols-2 pr-0">
               {ARCHIVE_GUIDE.semesters.items.map((semester) => (
-                <li key={semester.code}>
-                  <Link to={`/archive?semester=${semester.code}`} className="font-bold text-primary underline underline-offset-2">
+                <li key={semester.code} className="list-none">
+                  <Link to={`/archive?semester=${semester.code}`} className="flex w-full items-center gap-2 rounded-xl border border-primary/30 bg-primary/5 px-4 py-3 font-bold text-primary no-underline transition hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
                     {semester.code} — {semester.label}
                   </Link>
                 </li>
               ))}
             </ul>
 
-            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.files.title}</h2>
+            <h2 className="border-b border-border pb-2 text-2xl md:text-3xl font-black text-foreground">{ARCHIVE_GUIDE.files.title}</h2>
             <p>{ARCHIVE_GUIDE.files.text}</p>
 
-            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.search.title}</h2>
+            <h2 className="border-b border-border pb-2 text-2xl md:text-3xl font-black text-foreground">{ARCHIVE_GUIDE.search.title}</h2>
             <p>{ARCHIVE_GUIDE.search.text}</p>
 
-            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.legal.title}</h2>
+            <h2 className="border-b border-border pb-2 text-2xl md:text-3xl font-black text-foreground">{ARCHIVE_GUIDE.legal.title}</h2>
             <p>
               {ARCHIVE_GUIDE.legal.parts.map((part, index) =>
                 typeof part === "string" ? (
@@ -585,32 +613,32 @@ export function ArchivePage({ initialSemester }: ArchivePageProps) {
                     href={SOURCE_LINKS[part.source].href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-bold text-primary underline underline-offset-2"
+                    className="font-bold text-primary underline underline-offset-4 decoration-2 hover:text-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   >
                     {SOURCE_LINKS[part.source].name}
                   </a>
                 ),
               )}
             </p>
-            <blockquote className="border-r-2 border-primary/40 pr-4">
+            <blockquote className="rounded-2xl border-r-4 border-primary bg-primary/5 p-5 md:p-6 text-xl md:text-2xl font-bold leading-loose">
               <p>«{ARCHIVE_GUIDE.legal.quote.text}»</p>
-              <footer className="mt-2 text-xs text-muted-foreground">
+              <footer className="mt-3 text-base font-semibold text-foreground/80">
                 —{" "}
                 <a
                   href={SOURCE_LINKS[ARCHIVE_GUIDE.legal.quote.source].href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-bold text-primary underline underline-offset-2"
+                  className="font-bold text-primary underline underline-offset-4 decoration-2 hover:text-primary/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 >
                   {ARCHIVE_GUIDE.legal.quote.attribution}
                 </a>
               </footer>
             </blockquote>
 
-            <h2 className="text-xl font-black">{ARCHIVE_GUIDE.faq.title}</h2>
+            <h2 className="border-b border-border pb-2 text-2xl md:text-3xl font-black text-foreground">{ARCHIVE_GUIDE.faq.title}</h2>
             {ARCHIVE_GUIDE.faq.items.map((item) => (
-              <div key={item.question} className="space-y-1">
-                <h3 className="font-bold">{item.question}</h3>
+              <div key={item.question} className="space-y-2 rounded-2xl border border-border bg-background p-5">
+                <h3 className="text-lg md:text-xl font-black text-foreground">{item.question}</h3>
                 <p>{item.answer}</p>
               </div>
             ))}

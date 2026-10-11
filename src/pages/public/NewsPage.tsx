@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { containsText } from "../../lib/utils/search"
 import { generateSlug } from "../../lib/utils/generateSlug"
@@ -8,6 +8,7 @@ import { supabase } from "../../lib/supabase/client"
 import localNews from "../../data/news.json"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import { Search, Clock, Newspaper } from "lucide-react"
+import { NewsListView, NewsTimelineView, NewsViewSwitch, type NewsViewMode } from "../../components/news/NewsViews"
 
 interface NewsItem {
   id: string
@@ -25,6 +26,20 @@ export function NewsPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeSource, setActiveSource] = useState<string>("all")
+  // طريقة العرض في الرابط (?view=list) حتى تُشارَك وتعمل زر الرجوع في المتصفح.
+  const [params, setParams] = useSearchParams()
+  const viewParam = params.get("view")
+  const view: NewsViewMode = viewParam === "list" || viewParam === "timeline" ? viewParam : "grid"
+  const setView = (next: NewsViewMode) =>
+    setParams(
+      (prev) => {
+        const copy = new URLSearchParams(prev)
+        if (next === "grid") copy.delete("view")
+        else copy.set("view", next)
+        return copy
+      },
+      { replace: true },
+    )
 
   useEffect(() => {
     fetchNewsItems()
@@ -138,6 +153,10 @@ export function NewsPage() {
           </div>
         </div>
 
+        <div className="container mx-auto max-w-[1280px] px-6 pt-8">
+          <NewsViewSwitch value={view} onChange={setView} />
+        </div>
+
         <div className="container mx-auto max-w-[1280px] px-6 py-8">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -145,6 +164,10 @@ export function NewsPage() {
                 <div key={i} className="h-64 rounded-2xl bg-[#f1f5f9] dark:bg-[#1e293b] animate-pulse" />
               ))}
             </div>
+          ) : filteredItems.length > 0 && view === "list" ? (
+            <NewsListView items={filteredItems} />
+          ) : filteredItems.length > 0 && view === "timeline" ? (
+            <NewsTimelineView items={filteredItems} />
           ) : filteredItems.length > 0 ? (
             <>
               {featured && (

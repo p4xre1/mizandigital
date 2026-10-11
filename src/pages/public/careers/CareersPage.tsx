@@ -1,5 +1,6 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowLeftRight, Compass, GitBranch, ListChecks } from "lucide-react";
+import { ArrowLeft, ListChecks } from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { canonicalFor } from "@/lib/canonical";
 import { CareerDisclaimer } from "@/components/careers/CareerDisclaimer";
@@ -7,13 +8,6 @@ import { CareerFilters } from "@/components/careers/CareerFilters";
 import { NearbyLawSchools } from "@/components/careers/NearbyLawSchools";
 import { CAREERS, CAREER_CATEGORIES, CAREER_COMPETITIONS } from "@/lib/careers/data";
 import { CAREERS_HUB_COPY, CAREERS_HUB_PATH } from "../../../../shared/careers/copy.js";
-
-/** خلفية لكل بطاقة مقارنة (أزرق، أخضر، كهرماني) مع حدّ رفيع. */
-const COMPARISON_TONES = [
-  "border-blue-600/25 bg-blue-50 dark:border-blue-400/30 dark:bg-blue-950/40",
-  "border-emerald-600/25 bg-emerald-50 dark:border-emerald-400/30 dark:bg-emerald-950/40",
-  "border-amber-600/25 bg-amber-50 dark:border-amber-400/30 dark:bg-amber-950/40",
-];
 
 /**
  * /careers — دليل المسارات والمهن القانونية في المغرب.
@@ -25,9 +19,33 @@ const COMPARISON_TONES = [
  * النصّ نفسه (العناوين والجواب المباشر والأسئلة) يأتي من shared/careers/copy.js
  * — الوحدة التي يقرأها مولّد HTML الثابت أيضاً، فلا يرى الزاحف صيغة مختلفة.
  */
+/** قسم بعنوان واحد وخط فاصل خفيف؛ المسافة نفسها على كل الشاشات. */
+function Section({ id, title, className = "", children }: { id: string; title: string; className?: string; children: ReactNode }) {
+  return (
+    <section aria-labelledby={id} className={`scroll-mt-24 border-t border-border pt-10 sm:pt-12 ${className}`}>
+      <h2 id={id} className="text-2xl font-black leading-snug text-foreground sm:text-3xl">
+        {title}
+      </h2>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
+}
+
+/**
+ * /careers — دليل المسارات والمهن القانونية في المغرب.
+ *
+ * تصميم بسيط: لون واحد للتمييز، فواصل رفيعة بدل الصناديق الملونة، ونص أكبر.
+ * الشبكة تتبدل حسب الشاشة:
+ *   - الهاتف (أقل من 640px): عمود واحد، والنص 18px، وأزرار 44px على الأقل.
+ *   - اللوح (640px فما فوق): عمودان للبطاقات والروابط، والصورة بجانب النص.
+ *   - الحاسوب (1024px فما فوق): ثلاث بطاقات في الصف، وعمودان للأسئلة والشجرة.
+ *
+ * النصّ نفسه (العناوين والجواب المباشر والأسئلة) يأتي من shared/careers/copy.js
+ * — الوحدة التي يقرأها مولّد HTML الثابت أيضاً، فلا يرى الزاحف صيغة مختلفة.
+ */
 export function CareersPage() {
   return (
-    <main className="container-wide py-10" dir="rtl" data-page="careers-hub">
+    <main className="container-wide py-6 sm:py-10 lg:py-14" dir="rtl" data-page="careers-hub">
       <SEOHead
         title={CAREERS_HUB_COPY.title}
         description={CAREERS_HUB_COPY.description}
@@ -64,7 +82,7 @@ export function CareersPage() {
         ]}
       />
 
-      <nav aria-label="مسار التصفح" className="mb-5 text-[12.5px] font-bold text-muted-foreground">
+      <nav aria-label="مسار التصفح" className="text-base font-semibold text-muted-foreground">
         <Link className="hover:text-foreground" to="/">
           الرئيسية
         </Link>
@@ -72,145 +90,112 @@ export function CareersPage() {
         <span className="text-foreground">المسارات المهنية</span>
       </nav>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/15 via-card to-primary/5 p-6 md:p-8">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-              <Compass className="size-5" strokeWidth={2.2} aria-hidden="true" />
-            </span>
-            <h1 className="mt-4 text-[28px] font-black leading-[1.25] text-foreground md:text-[36px]">
-              {CAREERS_HUB_COPY.h1}
-            </h1>
-            <p className="mt-4 text-[15px] leading-8 text-foreground">
-              {CAREERS_HUB_COPY.directAnswer} {CAREERS_HUB_COPY.hubLead}
-            </p>
-            <p className="mt-4 text-[13px] font-bold text-muted-foreground">
-              معلومات توجيهية فقط، تحقق دائماً من المصدر الرسمي.{" "}
-              <a href="#careers-disclaimer" className="text-primary underline underline-offset-4">
-                النص الكامل
-              </a>
-            </p>
-            <a
-              href="#careers-filters"
-              className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[14px] font-extrabold text-primary-foreground transition hover:opacity-90"
-            >
-              ابدأ باختيار وضعك
-              <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
+      {/* الهيرو: عمود واحد في الهاتف، وعمودان من اللوح فما فوق */}
+      <header className="mt-6 grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,260px)] md:gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
+        <div>
+          <h1 className="text-3xl font-black leading-tight text-foreground sm:text-4xl lg:text-5xl">
+            {CAREERS_HUB_COPY.h1}
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-foreground sm:text-xl">
+            {CAREERS_HUB_COPY.directAnswer} {CAREERS_HUB_COPY.hubLead}
+          </p>
+          <p className="mt-4 text-base text-muted-foreground">
+            معلومات توجيهية فقط، تحقق دائماً من المصدر الرسمي.{" "}
+            <a href="#careers-disclaimer" className="font-bold text-primary underline underline-offset-4">
+              النص الكامل
             </a>
-          </div>
-          <img
-            src="/images/careers-roadmap-hero.png"
-            alt=""
-            aria-hidden="true"
-            width={1024}
-            height={683}
-            loading="eager"
-            decoding="async"
-            className="hidden w-full max-w-[360px] shrink-0 rounded-2xl border border-border/60 bg-white/60 md:block dark:bg-white/5"
-          />
+          </p>
+          <a
+            href="#careers-filters"
+            className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-xl bg-primary px-6 py-3 text-lg font-extrabold text-primary-foreground transition hover:opacity-90"
+          >
+            ابدأ باختيار وضعك
+            <ArrowLeft className="size-5 rtl:rotate-180" aria-hidden="true" />
+          </a>
         </div>
+        <img
+          src="/images/careers-roadmap-hero.png"
+          alt=""
+          aria-hidden="true"
+          width={1024}
+          height={683}
+          loading="eager"
+          decoding="async"
+          className="hidden w-full rounded-2xl border border-border bg-white/60 md:block dark:bg-white/5"
+        />
       </header>
 
-      <section id="careers-filters" className="mt-10 scroll-mt-24">
+      <section id="careers-filters" className="mt-12 scroll-mt-24 sm:mt-16">
         <CareerFilters />
       </section>
 
-      <section className="mt-10 rounded-3xl bg-slate-100 p-6 md:p-8 dark:bg-slate-900/60" aria-labelledby="careers-comparison-title">
-        <h2 id="careers-comparison-title" className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200">
-          {CAREERS_HUB_COPY.comparisonTitle}
-        </h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {CAREERS_HUB_COPY.comparison.map((block, index) => (
-            <article
-              key={block.heading}
-              className={`rounded-3xl border p-6 ${COMPARISON_TONES[index % COMPARISON_TONES.length]}`}
-            >
-              <h3 className="text-[18px] font-black leading-snug text-black dark:text-white">{block.heading}</h3>
-              <p className="mt-3 text-[16px] leading-8 text-black dark:text-white">{block.body}</p>
+      <Section id="careers-comparison-title" title={CAREERS_HUB_COPY.comparisonTitle} className="mt-12 sm:mt-16">
+        <div className="grid gap-4 md:grid-cols-3">
+          {CAREERS_HUB_COPY.comparison.map((block) => (
+            <article key={block.heading} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <h3 className="text-xl font-black leading-snug text-foreground">{block.heading}</h3>
+              <p className="mt-3 text-lg leading-relaxed text-foreground">{block.body}</p>
             </article>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section className="mt-10" aria-labelledby="careers-degree-competition-title">
-        <h2
-          id="careers-degree-competition-title"
-          className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200"
-        >
-          <ArrowLeftRight className="size-5 text-primary" aria-hidden="true" />
-          {CAREERS_HUB_COPY.degreeVsCompetitionTitle}
-        </h2>
-        <ul className="mt-5 space-y-4 rounded-xl border border-border p-5">
+      <Section id="careers-degree-competition-title" title={CAREERS_HUB_COPY.degreeVsCompetitionTitle} className="mt-12 sm:mt-16">
+        <ul className="grid gap-3 md:grid-cols-2">
           {CAREERS_HUB_COPY.degreeVsCompetition.map((line) => (
-            <li key={line} className="flex gap-3 text-[16px] font-semibold leading-8 text-black dark:text-white">
-              <ListChecks className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />
+            <li key={line} className="flex gap-3 rounded-xl border border-border bg-card p-4 text-lg font-semibold leading-relaxed text-foreground sm:p-5">
+              <ListChecks className="mt-1 size-5 shrink-0 text-primary" aria-hidden="true" />
               <span>{line}</span>
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
 
-      <section className="mt-10" aria-labelledby="careers-decision-tree-title">
-        <h2
-          id="careers-decision-tree-title"
-          className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200"
-        >
-          <GitBranch className="size-5 text-primary" aria-hidden="true" />
-          {CAREERS_HUB_COPY.decisionTreeTitle}
-        </h2>
-        <ul className="mt-5 space-y-5">
+      <Section id="careers-decision-tree-title" title={CAREERS_HUB_COPY.decisionTreeTitle} className="mt-12 sm:mt-16">
+        <ul className="grid gap-4 lg:grid-cols-2">
           {CAREERS_HUB_COPY.decisionTree.map((node) => (
-            <li key={node.question} className="rounded-2xl border border-border bg-card p-6">
-              <p className="text-[17px] font-black leading-8 text-black dark:text-white">{node.question}</p>
-              <p className="mt-3 text-[16px] font-bold leading-8 text-primary">{node.answer}</p>
+            <li key={node.question} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <p className="text-xl font-black leading-snug text-foreground">{node.question}</p>
+              <p className="mt-3 text-lg font-bold leading-relaxed text-primary">{node.answer}</p>
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
 
-      <section className="mt-10" aria-labelledby="careers-nearby-title">
-        <h2 id="careers-nearby-title" className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200">
-          {CAREERS_HUB_COPY.nearbySectionTitle}
-        </h2>
-        <NearbyLawSchools className="mt-4" legalEducation="depends" />
-      </section>
+      <Section id="careers-nearby-title" title={CAREERS_HUB_COPY.nearbySectionTitle} className="mt-12 sm:mt-16">
+        <NearbyLawSchools legalEducation="depends" />
+      </Section>
 
-      <section className="mt-10" aria-labelledby="careers-faq-title">
-        <h2 id="careers-faq-title" className="inline-flex items-center gap-2 rounded-xl border border-blue-600/25 bg-blue-50 px-4 py-3 text-[20px] font-black text-blue-800 dark:border-blue-400/30 dark:bg-blue-950/40 dark:text-blue-200">
-          {CAREERS_HUB_COPY.faqTitle}
-        </h2>
-        <div className="mt-5 space-y-4">
+      <Section id="careers-faq-title" title={CAREERS_HUB_COPY.faqTitle} className="mt-12 sm:mt-16">
+        <div className="grid gap-4 lg:grid-cols-2">
           {CAREERS_HUB_COPY.faq.map((item) => (
-            <details key={item.question} className="group rounded-2xl border border-blue-600/20 bg-card p-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[17px] font-extrabold leading-7 text-black dark:text-white">
+            <details key={item.question} className="group rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-lg font-extrabold leading-snug text-foreground">
                 {item.question}
-                <span aria-hidden="true" className="text-[20px] leading-none text-primary transition group-open:rotate-45">
+                <span aria-hidden="true" className="text-2xl leading-none text-primary transition group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="mt-4 text-[16px] leading-8 text-black dark:text-white">{item.answer}</p>
+              <p className="mt-4 text-lg leading-relaxed text-foreground">{item.answer}</p>
             </details>
           ))}
         </div>
-      </section>
+      </Section>
 
-      <section className="mt-10" aria-labelledby="careers-links-title">
-        <h2 id="careers-links-title" className="text-[20px] font-black text-foreground">
-          {CAREERS_HUB_COPY.internalLinksTitle}
-        </h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <Section id="careers-links-title" title={CAREERS_HUB_COPY.internalLinksTitle} className="mt-12 sm:mt-16">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {CAREERS_HUB_COPY.internalLinks.map((link) => (
-            <li key={link.path} className="rounded-2xl border border-border bg-card p-4">
-              <Link className="text-[14px] font-extrabold text-primary" to={link.path}>
+            <li key={link.path} className="rounded-2xl border border-border bg-card p-5">
+              <Link className="text-lg font-extrabold text-primary underline-offset-4 hover:underline" to={link.path}>
                 {link.label}
               </Link>
-              <p className="mt-1 text-[12.5px] leading-6 text-muted-foreground">{link.description}</p>
+              <p className="mt-2 text-base leading-relaxed text-muted-foreground">{link.description}</p>
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
 
-      <div id="careers-disclaimer" className="mt-10 scroll-mt-24">
+      <div id="careers-disclaimer" className="mt-12 scroll-mt-24 border-t border-border pt-10 sm:mt-16 sm:pt-12">
         <CareerDisclaimer />
       </div>
     </main>
