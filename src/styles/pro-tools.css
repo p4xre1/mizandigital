@@ -1,0 +1,159 @@
+/*
+ * واجهة أدوات ميزان القانونية (/pro-tools).
+ *
+ * الحركة هنا لتوجيه النظر لا للزينة: ظهور متدرّج للبطاقات، ورفع خفيف عند
+ * التمرير، وإضاءة تمرّ على الأيقونة. كل الحركات تُلغى تلقائياً لمن يفعّل
+ * «تقليل الحركة» في نظام التشغيل.
+ */
+
+.pt-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 1.25rem;
+  padding: 2rem;
+  background:
+    radial-gradient(60% 80% at 100% 0%, hsl(var(--primary) / 0.18), transparent 60%),
+    radial-gradient(50% 70% at 0% 100%, hsl(265 80% 60% / 0.14), transparent 60%),
+    hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+.pt-hero::after {
+  content: "";
+  position: absolute;
+  inset: -40% -20% auto auto;
+  width: 60%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, hsl(var(--primary) / 0.25), transparent 40%, hsl(265 80% 60% / 0.2), transparent 80%);
+  filter: blur(40px);
+  z-index: -1;
+  animation: pt-orbit 18s linear infinite;
+}
+
+.pt-rise {
+  animation: pt-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--pt-delay, 0ms);
+}
+
+.pt-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.pt-card:hover,
+.pt-card:focus-within {
+  transform: translateY(-4px);
+  border-color: hsl(var(--primary) / 0.35);
+  box-shadow: 0 18px 40px -18px hsl(var(--primary) / 0.35);
+}
+
+.pt-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, hsl(0 0% 100% / 0.12) 50%, transparent 60%);
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+.pt-card:hover::before {
+  transform: translateX(100%);
+  transition: transform 0.9s ease;
+}
+
+.pt-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.9rem;
+  color: #fff;
+  background: linear-gradient(135deg, var(--pt-from), var(--pt-to));
+  box-shadow: 0 8px 20px -8px var(--pt-to);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pt-card:hover .pt-icon {
+  transform: rotate(-6deg) scale(1.08);
+}
+
+.pt-arrow {
+  transition: transform 0.3s ease;
+}
+
+.pt-card:hover .pt-arrow {
+  transform: translateX(-4px);
+}
+
+.pt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: 1px solid hsl(var(--border));
+}
+
+.pt-badge--live {
+  color: #047857;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.pt-badge--live::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pt-pulse 1.8s ease-out infinite;
+}
+
+.pt-badge--soon {
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--muted));
+}
+
+.pt-entry {
+  border-inline-start: 4px solid var(--pt-accent, hsl(var(--primary)));
+}
+
+@keyframes pt-rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pt-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(16 185 129 / 0.6); }
+  100% { box-shadow: 0 0 0 8px rgb(16 185 129 / 0); }
+}
+
+@keyframes pt-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-rise,
+  .pt-hero::after,
+  .pt-badge--live::before {
+    animation: none !important;
+  }
+  .pt-card,
+  .pt-icon,
+  .pt-arrow {
+    transition: none !important;
+  }
+  .pt-card:hover,
+  .pt-card:focus-within,
+  .pt-card:hover .pt-icon {
+    transform: none !important;
+  }
+  .pt-card:hover::before {
+    transition: none !important;
+  }
+}

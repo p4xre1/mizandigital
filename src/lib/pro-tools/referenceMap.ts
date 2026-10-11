@@ -20,6 +20,7 @@
  */
 import type { Entry } from "./model";
 import curatedFile from "@/data/reference-map.json";
+import autoFile from "@/data/reference-map.auto.json";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // الأنواع
@@ -510,13 +511,23 @@ export const referenceMeta = curated.meta;
  *      الوصول إلى قاعدة البيانات.
  *   3) لوحة التحرير تضيف عليها مواد جديدة من الجدول، فلا تتعطّل إن تعذّر الاتصال.
  */
-export const curatedReferences: Reference[] = curated.references.map((item) => ({
-  ...item,
-  sourceUrl: item.sourceUrl || curated.meta.sourceUrl,
-  sourceLabel: curated.meta.sourceLabel,
-  reviewedBy: curated.meta.reviewedBy,
-  reviewedOn: curated.meta.reviewedOn,
-}));
+/**
+ * الإحالات المستخرجة آلياً من نصّي الدستور (180 فصلاً) ومدونة الأسرة (399 مادة)،
+ * بواسطة data/references/build_reference_map.py. كل جملة اقتباس حرفي من النص المصدر.
+ * المنسّقة يدوياً تأتي أولاً، والمستخرجة بعدها، وتُمنع الإحالات المكررة في السكربت.
+ */
+const autoReferences = (autoFile as unknown as { references: Reference[] }).references;
+
+export const curatedReferences: Reference[] = [
+  ...curated.references.map((item) => ({
+    ...item,
+    sourceUrl: item.sourceUrl || curated.meta.sourceUrl,
+    sourceLabel: curated.meta.sourceLabel,
+    reviewedBy: curated.meta.reviewedBy,
+    reviewedOn: curated.meta.reviewedOn,
+  })),
+  ...autoReferences,
+];
 
 /**
  * دمج الإحالات المنسّقة مع مواد لوحة التحرير.
@@ -547,4 +558,58 @@ export function safeHref(url: string | undefined): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// صفحات النصوص
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ReferenceLaw {
+  /** جزء المسار: /pro-tools/references/<slug> */
+  slug: string;
+  /** الاسم كما يرد في حقل النص المُحيل (fromText). */
+  label: string;
+  description: string;
+}
+
+/**
+ * كل نص مُحيل له صفحته. الإحالات تُنسب إلى النص الذي تَرِد فيه (fromText)،
+ * لا إلى النص المُحال إليه، فإحالة الدستور إلى مدونة الأسرة تبقى في صفحة الدستور.
+ */
+export const REFERENCE_LAWS: ReferenceLaw[] = [
+  {
+    slug: "constitution",
+    label: "الدستور المغربي (2011)",
+    description: "إحالات فصول الدستور: الفصل الذي يسمّي فصلاً آخر، أو يُخوِّل القانونَ تحديدَ الأمر.",
+  },
+  {
+    slug: "family-code",
+    label: "مدونة الأسرة (القانون 70.03)",
+    description: "إحالات مواد المدونة: المادة التي تسمّي مادة أخرى، أو تُحيل التفصيلَ إلى نص لاحق.",
+  },
+];
+
+/**
+ * صفحة لكل إحالة لا ينتمي نصها المُحيل إلى نص من النصوص المعروفة، مثل ما يضيفه
+ * المحرّر دون تحديد النص. تظهر في الدليل فقط حين تكون فيها إحالات.
+ */
+export const OTHER_REFERENCES_LAW: ReferenceLaw = {
+  slug: "other",
+  label: "نصوص أخرى",
+  description: "إحالات أضافها فريق التحرير من نصوص لم تُدرج بعد في خريطة مستقلة.",
+};
+
+export function referencesForLaw(references: Reference[], slug: string): Reference[] {
+  if (slug === OTHER_REFERENCES_LAW.slug) {
+    const known = new Set(REFERENCE_LAWS.map((item) => item.label));
+    return references.filter((reference) => !known.has(reference.fromText));
+  }
+  const law = REFERENCE_LAWS.find((item) => item.slug === slug);
+  return law ? references.filter((reference) => reference.fromText === law.label) : [];
+}
+
+/** النصوص التي لها إحالات فعلاً، بالترتيب المعروف، ثم «نصوص أخرى» إن وُجدت. */
+export function lawsWithReferences(references: Reference[]): ReferenceLaw[] {
+  const laws = [...REFERENCE_LAWS, OTHER_REFERENCES_LAW];
+  return laws.filter((law) => referencesForLaw(references, law.slug).length > 0);
 }

@@ -14,7 +14,7 @@
  *      رابط إلى إحالة بعينها والرجوع إليها، ويعمل زر الرجوع في المتصفح كما يتوقع
  *      المستخدم.
  */
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeftRight,
@@ -22,6 +22,7 @@ import {
   FileText,
   ListTree,
   Network,
+  Link2,
   RotateCcw,
   Search,
 } from "lucide-react";
@@ -37,10 +38,12 @@ import {
   filterReferences,
   layoutGraph,
   nodeKey,
+  referenceMeta,
   safeHref,
   stats,
 } from "@/lib/pro-tools/referenceMap";
 import { buttonClass, cardClass, inputClass } from "./ToolViews";
+import { ReferenceInfographicCard } from "./ReferenceInfographicCard";
 
 const TYPE_COLORS: Record<RelationType, string> = {
   explicit: "var(--color-primary, #2f6f4f)",
@@ -51,6 +54,31 @@ const TYPE_COLORS: Record<RelationType, string> = {
   interpretive: "#5a6472",
 };
 
+/** لون النبرة لكل نص قانوني على الخريطة: ثابت بحسب الاسم، ومظلّل بما يكفي للقراءة. */
+function zoneColor(text: string): string {
+  let h = 0;
+  for (const ch of text) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return `hsl(${h % 360} 62% 36%)`;
+}
+
+/** عيّنة خط المفتاح: متصل للإحالة الصريحة، ومتقطع للتخويل التشريعي. */
+function LineSample({ type }: { type: RelationType }) {
+  return (
+    <svg width="40" height="12" viewBox="0 0 40 12" aria-hidden className="shrink-0">
+      <line
+        x1="2"
+        y1="6"
+        x2="38"
+        y2="6"
+        stroke={TYPE_COLORS[type]}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray={type === "delegation" ? "7 5" : undefined}
+      />
+    </svg>
+  );
+}
+
 interface Props {
   references: Reference[];
   /** مواد أضافها المحرّرون؛ تُعرض بحسب توفرها ولا تُدمج في المجموعة المنسّقة. */
@@ -58,6 +86,10 @@ interface Props {
   signedIn?: boolean;
   onSave?: (reference: Reference) => Promise<void>;
 }
+
+/** عدد الإحالات في الصفحة الواحدة من القائمة. */
+const PAGE_SIZE = 10;
+const FILTER_KEYS = ["q", "type", "text", "topic", "dir"];
 
 export function ReferenceMap({ references, remotePending, signedIn = false, onSave }: Props) {
   const [params, setParams] = useSearchParams();
@@ -74,6 +106,8 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
 
   const update = (patch: Record<string, string | null>) => {
     const next = new URLSearchParams(params);
+    // تغيير الترشيح يغيّر ما يُعرض، فيعود إلى الصفحة الأولى. اختيار مادة أو تركيز لا يفعل ذلك.
+    if (Object.keys(patch).some((key) => FILTER_KEYS.includes(key))) next.delete("page");
     for (const [key, value] of Object.entries(patch)) {
       if (value === null || value === "" || value === "all") next.delete(key);
       else next.set(key, value);
@@ -99,6 +133,16 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
   );
 
   const selected = visible.find((r) => r.id === selectedId) ?? null;
+
+  const pageCount = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
+  const requestedPage = Number.parseInt(params.get("page") ?? "1", 10);
+  const page = Number.isFinite(requestedPage) ? Math.min(Math.max(1, requestedPage), pageCount) : 1;
+  const pageItems = visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const listHeading = useRef<HTMLHeadingElement>(null);
+  const goToPage = (next: number) => {
+    update({ page: next <= 1 ? null : String(next) });
+    listHeading.current?.scrollIntoView?.({ block: "start" });
+  };
   const focusNode = focus ? graph.byKey[focus] : undefined;
   const activeFilters = Boolean(query || type !== "all" || text !== "all" || topic !== "all" || focus);
 
@@ -125,6 +169,16 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
 
   return (
     <section className="space-y-5" dir="rtl">
+      {/* ── ملخّص بصري: يظهر حين لا يوجد ترشيح، ويُخفى أثناء البحث ─────── */}
+      {!activeFilters && (
+        <ReferenceInfographicCard
+          references={references}
+          onFocusNode={(key) => update({ focus: key, dir: null })}
+          sourceUrl={referenceMeta.sourceUrl}
+          sourceLabel={referenceMeta.sourceLabel}
+        />
+      )}
+
       {/* ── شريط البحث والترشيح ─────────────────────────────────────────── */}
       <div className={cardClass}>
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -133,7 +187,7 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
           </h2>
           {activeFilters && (
             <button
-              className="flex items-center gap-1 text-sm text-muted-foreground underline"
+              className="flex items-center gap-1 text-base text-foreground/80 underline"
               onClick={() => setParams(new URLSearchParams({ view }), { replace: true })}
             >
               <RotateCcw className="size-3" aria-hidden /> إزالة كل الترشيحات
@@ -151,7 +205,7 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
           />
         </label>
         <div className="grid gap-3 md:grid-cols-3">
-          <label className="block text-sm">
+          <label className="block text-base">
             نوع العلاقة
             <select className={inputClass} value={type} onChange={(event) => update({ type: event.target.value })}>
               <option value="all">كل الأنواع</option>
@@ -162,7 +216,7 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
               ))}
             </select>
           </label>
-          <label className="block text-sm">
+          <label className="block text-base">
             النص
             <select className={inputClass} value={text} onChange={(event) => update({ text: event.target.value })}>
               <option value="all">كل النصوص</option>
@@ -173,7 +227,7 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
               ))}
             </select>
           </label>
-          <label className="block text-sm">
+          <label className="block text-base">
             الموضوع
             <select className={inputClass} value={topic} onChange={(event) => update({ topic: event.target.value })}>
               <option value="all">كل المواضيع</option>
@@ -185,32 +239,34 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
             </select>
           </label>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-foreground/80">
           {visible.length} من {totals.references} إحالة، و{graph.nodes.length} عقدة، و{graph.edges.length} رابطاً، منها{" "}
           {totals.verifiedTargets} هدفاً مثبتاً بمصدره الرسمي
         </p>
         {remotePending && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-foreground/80">
             المواد التي يضيفها فريق التحرير من لوحة الإدارة غير متاحة في هذه اللحظة. المعروض الآن هو المجموعة
             المنسّقة المحفوظة في الموقع.
           </p>
         )}
       </div>
 
-      {/* ── مفتاح الأنواع ───────────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-2">
+      {/* ── مفتاح الأنواع: عينة الخط تُظهر شكل الرابط على الخريطة ─────── */}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
         {RELATION_ORDER.map((value) => (
           <button
             key={value}
             aria-pressed={type === value}
             title={RELATION_HINTS[value]}
-            className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm"
-            style={type === value ? { borderColor: TYPE_COLORS[value], fontWeight: 700 } : undefined}
+            className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3 text-start text-base"
+            style={type === value ? { borderColor: TYPE_COLORS[value], boxShadow: `inset 0 0 0 2px ${TYPE_COLORS[value]}` } : undefined}
             onClick={() => update({ type: type === value ? null : value })}
           >
-            <span className="size-3 rounded-full" style={{ background: TYPE_COLORS[value] }} aria-hidden />
-            {RELATION_LABELS[value]}
-            <span className="text-muted-foreground">({totals.byType[value] ?? 0})</span>
+            <span className="flex items-center gap-3 font-bold">
+              <LineSample type={value} />
+              {RELATION_LABELS[value]}
+            </span>
+            <span className="tabular-nums text-foreground/80">({totals.byType[value] ?? 0})</span>
           </button>
         ))}
       </div>
@@ -220,9 +276,9 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
         <div className={cardClass}>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm text-muted-foreground">{focusNode.text}</p>
+              <p className="text-base text-foreground/80">{focusNode.text}</p>
               <h3 className="text-lg font-bold">{focusNode.article}</h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base text-foreground/80">
                 {focusNode.outgoing.length} إحالة صادرة و{focusNode.incoming.length} إحالة واردة
               </p>
             </div>
@@ -231,13 +287,13 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
                 <button
                   key={value}
                   aria-pressed={direction === value}
-                  className="rounded-lg border border-border px-3 py-1.5 text-sm"
+                  className="rounded-lg border border-border px-3 py-1.5 text-base"
                   onClick={() => update({ dir: value === "all" ? null : value })}
                 >
                   {value === "all" ? "الكل" : value === "outgoing" ? "الصادر فقط" : "الوارد فقط"}
                 </button>
               ))}
-              <button className="text-sm text-muted-foreground underline" onClick={() => update({ focus: null })}>
+              <button className="text-base text-foreground/80 underline" onClick={() => update({ focus: null })}>
                 إلغاء التركيز
               </button>
             </div>
@@ -249,14 +305,14 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
       <div className="flex flex-wrap gap-3">
         <button
           aria-pressed={view === "map"}
-          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-bold"
+          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-base font-bold"
           onClick={() => update({ view: null })}
         >
           <Network className="size-4" aria-hidden /> الخريطة
         </button>
         <button
           aria-pressed={view === "list"}
-          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-bold"
+          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-base font-bold"
           onClick={() => update({ view: "list" })}
         >
           <ListTree className="size-4" aria-hidden /> القائمة
@@ -300,23 +356,28 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
 
       {/* ── القائمة: النص الكامل دائماً، وهي المسار المتاح لقارئ الشاشة ───── */}
       <div className="space-y-4">
-        <h2 className="flex items-center gap-2 text-lg font-bold">
-          <FileText className="size-4" aria-hidden /> الإحالات ({visible.length})
+        <h2 ref={listHeading} className="flex items-center gap-2 text-xl font-bold">
+          <FileText className="size-5" aria-hidden /> الإحالات ({visible.length})
+          {pageCount > 1 && <span className="text-base font-normal text-foreground/80">— صفحة {page} من {pageCount}</span>}
         </h2>
-        {visible.map((reference) => (
-          <article key={reference.id} className={cardClass}>
+        {pageItems.map((reference) => (
+          <article
+            key={reference.id}
+            className={cardClass}
+            style={{ borderInlineStart: `6px solid ${TYPE_COLORS[reference.type]}` }}
+          >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="font-bold">
                 {reference.fromArticle} <ArrowLeftRight className="inline size-4" aria-hidden /> {reference.toArticle}
               </p>
               <span
-                className="rounded-lg px-2 py-1 text-xs font-bold text-white"
+                className="rounded-lg px-3 py-1.5 text-base font-bold text-white"
                 style={{ background: TYPE_COLORS[reference.type] }}
               >
                 {RELATION_LABELS[reference.type]}
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-base text-foreground/80">
               {reference.fromText === reference.toText
                 ? `داخل نفس النص: ${reference.fromText}`
                 : `${reference.fromText} ← ${reference.toText}`}
@@ -325,11 +386,11 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
             </p>
             <p className="leading-8">{reference.relationship}</p>
             {reference.excerpt && (
-              <blockquote className="border-r-4 border-border pr-4 text-sm leading-8 text-muted-foreground">
+              <blockquote className="border-r-4 border-border pr-4 text-base leading-8 text-foreground/80">
                 «{reference.excerpt}»
               </blockquote>
             )}
-            <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex flex-wrap gap-4 text-base">
               <button className="font-bold text-primary underline" onClick={() => update({ ref: reference.id, focus: nodeKey(reference.fromText, reference.fromArticle) })}>
                 تفاصيل الإحالة
               </button>
@@ -339,6 +400,38 @@ export function ReferenceMap({ references, remotePending, signedIn = false, onSa
             </div>
           </article>
         ))}
+        {pageCount > 1 && (
+          <nav aria-label="صفحات قائمة الإحالات" className="flex flex-wrap items-center justify-center gap-2 pt-2">
+            <button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => goToPage(page - 1)}
+              className="rounded-lg border border-border px-4 py-2 text-base font-bold disabled:opacity-40"
+            >
+              السابق
+            </button>
+            {Array.from({ length: pageCount }, (_, index) => index + 1).map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-label={`صفحة ${n}`}
+                aria-current={n === page ? "page" : undefined}
+                onClick={() => goToPage(n)}
+                className={`min-w-11 rounded-lg border px-3 py-2 text-base font-bold ${n === page ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              type="button"
+              disabled={page >= pageCount}
+              onClick={() => goToPage(page + 1)}
+              className="rounded-lg border border-border px-4 py-2 text-base font-bold disabled:opacity-40"
+            >
+              التالي
+            </button>
+          </nav>
+        )}
       </div>
     </section>
   );
@@ -367,7 +460,7 @@ function CrowdedMapNotice({
   return (
     <div className={cardClass}>
       <h3 className="font-bold">الخريطة أوضح حين تحدد مجالاً</h3>
-      <p className="leading-8 text-muted-foreground">
+      <p className="leading-8 text-foreground/80">
         النتائج الحالية {total} عقدة: رسمها كلها في مساحة واحدة يصنع كتلة خطوط لا يتبين منها أيُّ نصٍّ أحال على أيٍّ.
         ابدأ من عقدة لترى جيرانها، أو استخدم البحث والقائمة فهما يعرضان كل النتائج بلا نقصان.
       </p>
@@ -375,15 +468,15 @@ function CrowdedMapNotice({
         {entries.map((node) => (
           <button
             key={node.key}
-            className="rounded-lg border border-border px-3 py-1.5 text-sm"
+            className="rounded-lg border border-border px-3 py-1.5 text-base"
             onClick={() => onPick(node.key)}
           >
             {node.article}
-            <span className="text-muted-foreground"> ({node.outgoing.length + node.incoming.length})</span>
+            <span className="text-foreground/80"> ({node.outgoing.length + node.incoming.length})</span>
           </button>
         ))}
       </div>
-      <p className="text-sm">
+      <p className="text-base">
         أو <button className="font-bold text-primary underline" onClick={onForce}>ارسم كل العقد على أي حال</button>
         {" "}إن أردت الصورة الكاملة ولو كانت مزدحمة.
       </p>
@@ -410,45 +503,91 @@ function MapCanvas({
 }) {
   const graph = useMemo(() => buildGraph(references), [references]);
   const positions = useMemo(() => layoutGraph(graph.nodes, { width: 920, height: 620 }), [graph]);
+  const zones = useMemo(() => Object.fromEntries(graph.nodes.map((node) => [node.key, zoneColor(node.text)])), [graph]);
+
+  /** كل نص قانوني إقليم: دائرة مظللة تضم مواده، باسمه فوقها. */
+  const regions = useMemo(() => {
+    const groups = new Map<string, { x: number; y: number }[]>();
+    for (const node of graph.nodes) {
+      const point = positions[node.key];
+      if (!point) continue;
+      groups.set(node.text, [...(groups.get(node.text) ?? []), point]);
+    }
+    return [...groups.entries()].map(([text, points]) => {
+      const cx = points.reduce((sum, p) => sum + p.x, 0) / points.length;
+      const cy = points.reduce((sum, p) => sum + p.y, 0) / points.length;
+      const spread = Math.max(60, ...points.map((p) => Math.hypot(p.x - cx, p.y - cy)));
+      return { text, cx, cy, r: Math.min(300, spread + 46), color: zoneColor(text) };
+    });
+  }, [graph, positions]);
+
   return (
-    <div className={`${cardClass} overflow-x-auto`}>
+    <div className="overflow-x-auto rounded-2xl border border-[#d6cfb8] bg-[#f6f1e2] p-2 shadow-sm">
       <svg
         viewBox="0 0 920 620"
         className="h-[620px] w-full min-w-[680px]"
         role="img"
         aria-label={`خريطة إحالات: ${graph.nodes.length} نصاً أو فصلاً، و${graph.edges.length} رابطاً بينها. النص الكامل لكل إحالة موجود في القائمة أسفل الخريطة.`}
       >
+        <defs>
+          <pattern id="rm-grid" width="46" height="46" patternUnits="userSpaceOnUse">
+            <path d="M46 0 L0 0 0 46" fill="none" stroke="#e3dbc3" strokeWidth="1" />
+          </pattern>
+          {(Object.keys(TYPE_COLORS) as RelationType[]).map((type) => (
+            <marker key={type} id={`rm-arrow-${type}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill={TYPE_COLORS[type]} />
+            </marker>
+          ))}
+        </defs>
+        <rect width="920" height="620" fill="url(#rm-grid)" aria-hidden />
+
+        {/* الأقاليم: كل نص قانوني */}
+        <g aria-hidden>
+          {regions.map((region) => (
+            <g key={region.text}>
+              <circle cx={region.cx} cy={region.cy} r={region.r} fill={region.color} fillOpacity={0.09} stroke={region.color} strokeOpacity={0.55} strokeWidth={2} strokeDasharray="2 6" />
+              <text x={region.cx} y={region.cy - region.r + 22} textAnchor="middle" fontSize="16" fontWeight="700" fill={region.color} stroke="#f6f1e2" strokeWidth="5" paintOrder="stroke">
+                {region.text}
+              </text>
+            </g>
+          ))}
+        </g>
+
+        {/* الطرق: الإحالات */}
         <g>
           {graph.edges.map((edge) => {
             const a = positions[edge.from];
             const b = positions[edge.to];
             if (!a || !b) return null;
             const active = selectedId === edge.referenceId;
+            const color = TYPE_COLORS[edge.type];
+            const d = edgePath(a, b);
             return (
-              <path
-                key={edge.id}
-                d={edgePath(a, b)}
-                fill="none"
-                stroke={TYPE_COLORS[edge.type]}
-                strokeWidth={active ? 3.5 : 1.6}
-                strokeOpacity={active ? 1 : 0.45}
-                markerEnd="url(#mizan-ref-arrow)"
-              />
+              <g key={edge.id} className="cursor-pointer" onClick={() => onSelectEdge(edge.referenceId)}>
+                <path d={d} fill="none" stroke="transparent" strokeWidth={16} />
+                <path
+                  d={d}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth={active ? 5 : 2.5}
+                  strokeOpacity={active ? 1 : 0.75}
+                  strokeDasharray={edge.type === "delegation" ? "9 6" : undefined}
+                  markerEnd={`url(#rm-arrow-${edge.type})`}
+                />
+              </g>
             );
           })}
         </g>
-        <defs>
-          <marker id="mizan-ref-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" className="text-muted-foreground" />
-          </marker>
-        </defs>
+
+        {/* المواد: الدبابيس */}
         <g>
           {graph.nodes.map((node) => {
             const point = positions[node.key];
             if (!point) return null;
             const isFocus = focus === node.key;
             const degree = node.outgoing.length + node.incoming.length;
-            const radius = Math.min(26, 8 + degree * 1.6);
+            const radius = Math.min(20, 9 + degree * 1.3);
+            const zone = zones[node.key];
             return (
               <g
                 key={node.key}
@@ -470,28 +609,35 @@ function MapCanvas({
                   cx={point.x}
                   cy={point.y}
                   r={radius}
-                  fill={isFocus ? "var(--color-primary, #2f6f4f)" : "var(--color-card, #fff)"}
-                  stroke={isFocus ? "var(--color-primary, #2f6f4f)" : "var(--color-border, #c9c9c9)"}
-                  strokeWidth={isFocus ? 3 : 1.5}
-                  className="focus:stroke-primary"
+                  fill={isFocus ? zone : "#ffffff"}
+                  stroke={isFocus ? "#111827" : zone}
+                  strokeWidth={isFocus ? 4 : 3}
                 />
+                <text x={point.x} y={point.y + 5} textAnchor="middle" fontSize="13" fontWeight="700" fill={isFocus ? "#ffffff" : zone}>
+                  {degree}
+                </text>
                 <text
                   x={point.x}
-                  y={point.y + radius + 14}
+                  y={point.y + radius + 18}
                   textAnchor="middle"
-                  className="fill-current text-[11px]"
-                  style={{ fontWeight: isFocus ? 700 : 400 }}
+                  fontSize="15"
+                  fontWeight={isFocus ? 800 : 500}
+                  fill="#111827"
+                  stroke="#f6f1e2"
+                  strokeWidth="5"
+                  paintOrder="stroke"
                 >
-                  {node.article.length > 26 ? `${node.article.slice(0, 25)}…` : node.article}
+                  {node.article.length > 24 ? `${node.article.slice(0, 23)}…` : node.article}
                 </text>
               </g>
             );
           })}
         </g>
       </svg>
-      <p className="text-sm text-muted-foreground">
-        انقر عقدة لتركيز الخريطة عليها، وانقر رابطاً لعرض الإحالة. حجم العقدة بقدر عدد إحالاتها. الألوان بحسب نوع
-        العلاقة كما في المفتاح أعلاه.
+      <p className="mt-3 px-2 pb-2 text-base leading-7 text-foreground/80">
+        الدائرة المظللة إقليم نصّ قانوني، والدبوس مادة فيه ورقمه داخله عدد إحالاتها. الطريق المتصل إحالة صريحة،
+        والمتقطع تخويل تشريعي، وسهمه يشير إلى النص المُحال إليه. انقر مادة لتركيز الخريطة عليها، وانقر طريقاً لعرض
+        الإحالة.
       </p>
     </div>
   );
@@ -537,46 +683,46 @@ function ReferenceCard({
           <h3 className="text-lg font-bold">
             {reference.fromArticle} <ArrowLeftRight className="inline size-4" aria-hidden /> {reference.toArticle}
           </h3>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-base text-foreground/80">
             {RELATION_LABELS[reference.type]} — {RELATION_HINTS[reference.type]}
           </p>
         </div>
-        <button className="text-sm text-muted-foreground underline" onClick={onClose}>
+        <button className="text-base text-foreground/80 underline" onClick={onClose}>
           إغلاق
         </button>
       </div>
       <dl className="grid gap-3 md:grid-cols-2">
         <div>
-          <dt className="text-sm text-muted-foreground">النص المُحيل</dt>
+          <dt className="text-base text-foreground/80">النص المُحيل</dt>
           <dd className="font-bold">{reference.fromText} — {reference.fromArticle}</dd>
         </div>
         <div>
-          <dt className="text-sm text-muted-foreground">النص المُحال إليه</dt>
+          <dt className="text-base text-foreground/80">النص المُحال إليه</dt>
           <dd className="font-bold">{reference.toText} — {reference.toArticle}</dd>
         </div>
       </dl>
       <p className="leading-8">{reference.relationship}</p>
       {reference.excerpt && (
-        <blockquote className="border-r-4 border-border pr-4 text-sm leading-8">
+        <blockquote className="border-r-4 border-border pr-4 text-base leading-8">
           «{reference.excerpt}»
-          <footer className="mt-1 text-muted-foreground">نصّ الإحالة كما ورد في المصدر الرسمي</footer>
+          <footer className="mt-1 text-foreground/80">نصّ الإحالة كما ورد في المصدر الرسمي</footer>
         </blockquote>
       )}
       {!reference.targetVerified && (
-        <p className="rounded-lg border border-border bg-muted p-3 text-sm leading-7">
+        <p className="rounded-lg border border-border bg-muted p-3 text-base leading-7">
           النص المُحال إليه غير مثبت في هذه المادة: المصدر اكتفى بتخويل المشرّع دون تسمية نصّ بعينه. الرابط أدناه
           يعود إلى النص المُحيل، لا إلى نصّ مُفترض.
         </p>
       )}
       {reference.also && reference.also.length > 0 && (
-        <p className="text-sm text-muted-foreground">أهداف أخرى في نفس الإحالة: {reference.also.join("، ")}</p>
+        <p className="text-base text-foreground/80">أهداف أخرى في نفس الإحالة: {reference.also.join("، ")}</p>
       )}
-      <div className="flex flex-wrap gap-4 text-sm">
+      <div className="flex flex-wrap gap-4 text-base">
         <SourceLink href={reference.sourceUrl} label="النص المُحيل (المصدر الرسمي)" />
         {targetHref && <SourceLink href={targetHref} label="النص المُحال إليه" />}
         {reference.evidenceUrl && <SourceLink href={reference.evidenceUrl} label={reference.evidenceLabel || "مصدر التأكيد"} />}
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-base text-foreground/80">
         مطابقة المصدر: {reference.reviewedBy} — {reference.reviewedOn}
       </p>
       {onSave && (
