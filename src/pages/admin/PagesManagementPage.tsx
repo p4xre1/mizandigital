@@ -23,10 +23,10 @@ export default function PagesManagementPage() {
   const [filter, setFilter] = useState<"all" | "legal" | "content" | "system">("all")
 
   const pages: StaticPage[] = [
-    { key: "home", label: "الرئيسية", path: "/", icon: FileText, status: "ok", lastUpdated: "15 شتنبر 2026", description: "Hero + إحصائيات + 6 مميزات + 325 مصطلح + 21 كلية", seo: "AEOHead + directAnswer + breadcrumbs", aeo: true, hasAdmin: true },
+    { key: "home", label: "الرئيسية", path: "/", icon: FileText, status: "ok", lastUpdated: "15 شتنبر 2026", description: "Hero + إحصائيات + 6 مميزات + 323 مصطلح + 21 كلية", seo: "AEOHead + directAnswer + breadcrumbs", aeo: true, hasAdmin: true },
     { key: "articles", label: "المقالات", path: "/articles", icon: FileText, status: "ok", lastUpdated: "15 شتنبر 2026", description: "8 مقالات + فلترة + تفاعلات + حفظ", seo: "AEO + sitemap", aeo: true, hasAdmin: true },
     { key: "news", label: "الأخبار", path: "/news", icon: FileText, status: "ok", lastUpdated: "15 شتنبر 2026", description: "13 خبر + حفظ + تفاعلات", seo: "AEO", aeo: true, hasAdmin: true },
-    { key: "lexicon", label: "القاموس", path: "/lexicon", icon: BookOpen, status: "ok", lastUpdated: "15 شتنبر 2026", description: "325 مصطلح قانوني + بحث", seo: "AEO + 325 prerendered", aeo: true, hasAdmin: true },
+    { key: "lexicon", label: "القاموس", path: "/lexicon", icon: BookOpen, status: "ok", lastUpdated: "15 شتنبر 2026", description: "323 مصطلح قانوني + بحث", seo: "AEO + 323 prerendered", aeo: true, hasAdmin: true },
     { key: "schools", label: "الكليات", path: "/schools", icon: FileText, status: "ok", lastUpdated: "15 شتنبر 2026", description: "21 كلية + دليل + خريطة", seo: "AEO + 21 prerendered", aeo: true, hasAdmin: true },
     { key: "archive", label: "الأرشيف", path: "/archive", icon: Scale, status: "ok", lastUpdated: "15 شتنبر 2026", description: "قوانين S1-S6 + تحميل", seo: "AEO", aeo: true, hasAdmin: true },
     { key: "quiz", label: "الاختبارات", path: "/quiz", icon: FileQuestion, status: "ok", lastUpdated: "15 شتنبر 2026", description: "4 مسارات + رتب D-SSS + XP", seo: "AEO + HowTo", aeo: true, hasAdmin: true },

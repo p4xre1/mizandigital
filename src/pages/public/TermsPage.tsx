@@ -3,6 +3,7 @@ import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { LegalBlocks } from "../../components/legal/LegalBlocks"
 import { Scale, ShieldAlert, BookOpen } from "lucide-react"
 import { TERMS_POLICY } from "@/content/legal/policies.js"
+import counts from "@/data/counts.json"
 
 /**
  * المحتوى من src/content/legal/policies.js — نفس المصدر الذي يبني منه
@@ -37,7 +38,7 @@ export function TermsPage() {
             <p className="mb-1.5 font-extrabold">إخلاء مسؤولية مهم — يرجى القراءة بعناية</p>
             <p>
               منصة "الميزان الرقمية" هي <strong>منصة تعليمية بحتة</strong> موجهة لطلبة وباحثي القانون،
-              وليست مكتب محاماة ولا جهة استشارات قانونية. المحتوى المنشور (ملخصات، مقالات، معجم 325
+              وليست مكتب محاماة ولا جهة استشارات قانونية. المحتوى المنشور (ملخصات، مقالات، معجم {counts.lexicon}
               مصطلح، أخبار 13، دليل 21 كلية، اختبارات 4 مسارات) معدّ لأغراض دراسية ومعرفية فقط، ولا
               يشكل استشارة قانونية أو رأياً قانونياً رسمياً، ولا ينشئ أي علاقة محامٍ-موكل. لأي حالة أو
               نزاع قانوني فعلي، يجب استشارة محامٍ مرخّص.

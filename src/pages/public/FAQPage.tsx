@@ -4,6 +4,7 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { generateFAQSchema, generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { HelpCircle, ChevronDown, Mail } from "lucide-react"
 import faqData from "../../data/faq.json"
+import counts from "../../data/counts.json"
 
 interface FaqItem {
   question: string
@@ -51,7 +52,7 @@ export function FAQPage() {
       <AEOHead
         title="الأسئلة الشائعة"
         description="إجابات وافية عن أكثر الأسئلة تكراراً حول منصة الميزان الرقمية: طبيعة المحتوى، الاستشارات القانونية، سياسة الخصوصية، وكيفية المساهمة في إثراء المنصة."
-        directAnswer="الأسئلة الشائعة حول ميزان الرقمية: المنصة تعليمية مجانية لطلبة الحقوق بالمغرب، لا تقدم استشارة قانونية، المحتوى يشمل ملخصات S1-S6، قاموس قانوني 325 مصطلح، دليل 21 كلية، واختبارات قانونية."
+        directAnswer={`الأسئلة الشائعة حول ميزان الرقمية: المنصة تعليمية مجانية لطلبة الحقوق بالمغرب، لا تقدم استشارة قانونية، المحتوى يشمل ملخصات S1-S6، قاموس قانوني ${counts.lexicon} مصطلح، دليل 21 كلية، واختبارات قانونية.`}
         faq={allFaqs}
         breadcrumbs={[{ name: "الرئيسية", url: "/" }, { name: "الأسئلة الشائعة", url: "/faq" }]}
       />

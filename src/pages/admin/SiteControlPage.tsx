@@ -60,7 +60,7 @@ export default function SiteControlPage() {
   const modules: ModuleStat[] = [
     { key: "articles", label: "Articles", labelAr: "المقالات والبحوث", count: stats["articles"] || 0, icon: FileText, path: "/admin/articles", color: "text-blue-600 bg-blue-500/10", status: (stats["articles"] || 0) > 0 ? "ok" : "empty", description: "8 مقالات منشورة + محرر" },
     { key: "news", label: "News", labelAr: "الأخبار والمستجدات", count: stats["news"] || 0, icon: Newspaper, path: "/admin/news", color: "text-emerald-600 bg-emerald-500/10", status: (stats["news"] || 0) > 0 ? "ok" : "empty", description: "13 خبراً + إدارة" },
-    { key: "lexicon_terms", label: "Lexicon", labelAr: "القاموس القانوني", count: stats["lexicon_terms"] || 0, icon: Layers, path: "/admin/lexicon", color: "text-violet-600 bg-violet-500/10", status: (stats["lexicon_terms"] || 0) >= 325 ? "ok" : (stats["lexicon_terms"] || 0) > 0 ? "warning" : "empty", description: "325 مصطلحاً قانونياً" },
+    { key: "lexicon_terms", label: "Lexicon", labelAr: "القاموس القانوني", count: stats["lexicon_terms"] || 0, icon: Layers, path: "/admin/lexicon", color: "text-violet-600 bg-violet-500/10", status: (stats["lexicon_terms"] || 0) >= 323 ? "ok" : (stats["lexicon_terms"] || 0) > 0 ? "warning" : "empty", description: "323 مصطلحاً قانونياً" },
     { key: "faculties", label: "Schools", labelAr: "الكليات والمؤسسات", count: stats["faculties"] || 0, icon: GraduationCap, path: "/admin/faculties", color: "text-amber-600 bg-amber-500/10", status: (stats["faculties"] || 0) >= 21 ? "ok" : "warning", description: "21 كلية ومؤسسة" },
     { key: "laws", label: "Archive", labelAr: "الأرشيف القانوني", count: stats["laws"] || 0, icon: Scale, path: "/admin/laws", color: "text-slate-700 bg-slate-500/10", status: (stats["laws"] || 0) > 0 ? "ok" : "empty", description: "القوانين والمدونات" },
     { key: "pdf_summaries", label: "Library", labelAr: "مكتبة الوثائق", count: stats["pdf_summaries"] || 0, icon: BookOpen, path: "/admin/library", color: "text-indigo-600 bg-indigo-500/10", status: (stats["pdf_summaries"] || 0) > 0 ? "ok" : "empty", description: "9 مستندات PDF" },
@@ -78,7 +78,7 @@ export default function SiteControlPage() {
     { label: "الرئيسية", path: "/", icon: LayoutDashboard, desc: "Hero + إحصائيات + مميزات" },
     { label: "المقالات", path: "/articles", icon: FileText, desc: "8 مقالات + تفاعلات" },
     { label: "الأخبار", path: "/news", icon: Newspaper, desc: "13 خبر + حفظ" },
-    { label: "القاموس", path: "/lexicon", icon: Layers, desc: "325 مصطلح" },
+    { label: "القاموس", path: "/lexicon", icon: Layers, desc: "323 مصطلح" },
     { label: "الكليات", path: "/schools", icon: GraduationCap, desc: "21 كلية + دليل" },
     { label: "الأرشيف", path: "/archive", icon: Scale, desc: "قوانين S1-S6" },
     { label: "الاختبارات", path: "/quiz", icon: ListChecks, desc: "4 مسارات + رتب" },
@@ -211,7 +211,7 @@ export default function SiteControlPage() {
           <h3 className="flex items-center gap-2 text-[13px] font-extrabold text-foreground"><BarChart3 className="size-4 text-emerald-600" /> إحصائيات سريعة</h3>
           <div className="mt-3 space-y-2 text-[11px]">
             <div className="flex justify-between"><span className="text-muted-foreground">المقالات المنشورة</span><span className="font-bold">{stats["articles"] || 0}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">المصطلحات</span><span className="font-bold">{stats["lexicon_terms"] || 0} / 325</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">المصطلحات</span><span className="font-bold">{stats["lexicon_terms"] || 0} / 323</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">الكليات</span><span className="font-bold">{stats["faculties"] || 0} / 21</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">المستخدمون</span><span className="font-bold">{stats["profiles"] || 0}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">السجلات التاريخية</span><span className="font-bold">{stats["payments"] || 0}</span></div>

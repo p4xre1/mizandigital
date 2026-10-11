@@ -2,10 +2,11 @@ import { Link } from "react-router-dom";
 import { AEOHead } from "@/components/seo/AEOHead";
 import { canonicalFor } from "@/lib/canonical";
 import { ArrowLeft, BookOpen, Check, GraduationCap } from "lucide-react";
+import counts from "@/data/counts.json";
 
 const freeFeatures = [
   "أرشيف الفصول S1 إلى S6",
-  "القاموس القانوني: 325 مصطلحاً",
+  `القاموس القانوني: ${counts.lexicon} مصطلحاً`,
   "كل المقالات والأخبار القانونية",
   "جميع الاختبارات والمسارات التدريبية",
   "دليل 21 كلية حقوق",

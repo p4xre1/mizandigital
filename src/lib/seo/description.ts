@@ -6,7 +6,10 @@
 
 export {
   DESC_TAIL,
+  SECTION_CONTEXT,
   UTILITY_ROUTES,
+  lexiconDisplayLabel,
+  sectionContextFor,
   utilityMeta,
   BRAND,
   BRAND_SUFFIX,
@@ -16,6 +19,7 @@ export {
   MIN_DESC,
   MIN_TITLE,
   abbreviateFaculty,
+  brandTitle,
   buildMetaDescription,
   fitTitle,
   joinClauses,

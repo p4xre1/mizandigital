@@ -1,3 +1,21 @@
+import { loadPublishedCatalog } from "./_shared/cmsCatalog.js";
+import {
+  buildContentHead,
+  findRecord,
+  injectContentHead,
+  matchContentPath,
+} from "./_shared/contentFallback.js";
+import {
+  articleSlug,
+  canonicalArticle,
+  canonicalLexicon,
+  canonicalNews,
+  canonicalPdf,
+  newsSlug,
+} from "../shared/seo/url-policy.js";
+import { archiveSlug, cmsLexiconSlug, termKey } from "./_shared/cmsUrls.js";
+import { loadLocalLexiconTerms } from "./_shared/localLexicon.js";
+
 const MARKDOWN = `# ميزان الرقمية
 
 منصة مغربية للمعرفة القانونية والأكاديمية لطلبة الحقوق والباحثين.
@@ -139,6 +157,61 @@ function referenceTitle(item) {
   return item.title || item.term_ar || item.question || item.name || item.id || "";
 }
 
+/**
+ * هل هذا مسار محتوى منشور في CMS ولم يُبنَ بعد؟ إن نعم — الخدمة بهيكل
+ * التطبيق مع وسوم head صحيحة بدل 404.
+ *
+ * ترتيب الشروط مقصود: لا نلمس إلا مسارات المحتوى ذات المقطع الواحد، ولا
+ * نخدم إلا سجلّاً موجوداً فعلاً في القاعدة (findRecord)، فلا تتحول هذه
+ * الطبقة إلى Soft 404 لكل رابط مجهول.
+ */
+async function serveUnbuiltCmsPage(context, url) {
+  const match = matchContentPath(url.pathname);
+  if (!match) return null;
+
+  const catalog = await loadPublishedCatalog(context.env);
+  const record = findRecord(catalog, match.kind, match.slug);
+  if (!record) return null;
+
+  // مصطلح مبني محلياً: له صفحة ثابتة بمعرّفه العربي، وخريطة الموقع تستثني
+  // نسخة CMS منه (contentFallback كان يخدمها 200 فتظهر صفحة مكررة قابلة
+  // للفهرسة غير مدرجة في الخريطة). نفس المجموعة ونفس الاستثناء في الطرفين.
+  if (match.kind === "lexicon") {
+    const localTerms = await loadLocalLexiconTerms(context.env, url.origin);
+    const key = termKey(record?.term_ar);
+    if (key && localTerms.has(key)) return null;
+  }
+
+  const shell = await context.env.ASSETS.fetch(
+    new Request(new URL("/app.html", url).href, { method: "GET" }),
+  );
+  if (shell.status !== 200) return null;
+
+  const requested = match.slug;
+  const canonical =
+    match.kind === "article"
+      ? canonicalArticle(articleSlug(record))
+      : match.kind === "news"
+        ? canonicalNews(newsSlug(record))
+        : match.kind === "pdf"
+          ? // رابط الأرشيف قد يحمل لاحقة تفريد المعرّف (-<id>) حين يتكرر
+            // العنوان مع ملف محلي — نحفظ ما طلبه الزائر كما هو.
+            canonicalPdf(requested)
+          : canonicalLexicon(cmsLexiconSlug(record) || requested);
+
+  const head = buildContentHead(record, match.kind, { canonical });
+  const html = injectContentHead(await shell.text(), { ...head, canonical });
+
+  return new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "public, max-age=0, must-revalidate",
+      Vary: "Accept",
+    },
+  });
+}
+
 export async function onRequest(context) {
   const request = context.request;
   const url = new URL(request.url);
@@ -239,6 +312,13 @@ export async function onRequest(context) {
   }
 
   const assetResponse = await context.env.ASSETS.fetch(request);
+
+  // نُشر بعد آخر بناء؟ للمحتوى المنشور في CMS طبقة وقت-الطلب قبل أن نعيد
+  // 404: رابط حقيقي لا يجوز أن يُقرأ «Not found» بين نشرتين.
+  if (assetResponse.status === 404) {
+    const served = await serveUnbuiltCmsPage(context, url);
+    if (served) return served;
+  }
 
   // مع dist/404.html كل مسار بلا أصل يُخدَج في 404 — مطلوب للنسيان، وخاطئ
   // للمسارات التي يولّدها العميل (بروفايل مستخدم، رابط تحميل، لوحة تحكم،
