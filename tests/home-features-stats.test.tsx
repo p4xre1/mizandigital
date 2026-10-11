@@ -105,13 +105,13 @@ describe("شريط الأرقام", () => {
   })
 
   test("الأرقام الواردة من counts.json صحيحة", () => {
-    expect(counts.lexicon).toBe(250)
-    expect(counts.lexiconTree).toBe(58)
-    expect(counts.quizQuestions).toBe(224)
-    expect(typeof counts.laws).toBe("number")
+    // بلا أرقام سحرية: تُحسب من البيانات نفسها (المعجم ينامي — 250 لم يعد هو المعيار)
+    expect(counts.lexicon).toBe(lexicon.length)
     expect(counts.lexiconTree).toBe(
       (lexicon as Array<{ legal_sources?: unknown[] }>).filter((t) => Array.isArray(t.legal_sources) && t.legal_sources.length > 0).length,
     )
+    expect(counts.quizQuestions).toBe(224)
+    expect(typeof counts.laws).toBe("number")
   })
 })
 

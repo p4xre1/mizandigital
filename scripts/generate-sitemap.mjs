@@ -250,6 +250,27 @@ const dedupedByPath = Array.from(
   ).values(),
 );
 
+// بناء معزول (بلا وصول لـ CMS): لا نسقط صفحات الأرشيف المنشورة من قاعدة البيانات
+// — نعود إليها في النسخة السابقة من الخريطة (المصدر المتاح الوحيد) ما لم تحمل
+// البيانات المحلية ما يغطيها. الروابط تحت /pdf/ الوحيدة هنا؛ باقي الأقسام
+// (مقالات/أخبار/كليات/معجم) تُبنى كلها من البيانات المحلية.
+if (!cmsOk) {
+  try {
+    const previous = await readFile(OUTPUT, "utf8");
+    const previousPaths = new Set(dedupedByPath.map((entry) => entry.path));
+    const carried = [...previous.matchAll(/<loc>([^<]+)<\/loc>/g)]
+      .map((m) => pathOfUrl(m[1]))
+      .filter((path) => path.startsWith("/pdf/") && !previousPaths.has(path) && isIndexablePath(path))
+      .map((path) => ({ path, changefreq: "yearly", priority: "0.6", url: canonicalUrl(path) }));
+    if (carried.length > 0) {
+      console.warn(`⚠️  sitemap: أُعيدت ${carried.length} صفحة أرشيف من النسخة السابقة (بلا CMS).`);
+      dedupedByPath.push(...carried);
+    }
+  } catch {
+    // لا نسخة سابقة — لا شيء يُحمَل.
+  }
+}
+
 const urls = dedupedByPath
   .map((entry) => {
     // ⚠️ ما كنحطوش <lastmod> بتاريخ اليوم كـ fallback لكل URL بلا تاريخ

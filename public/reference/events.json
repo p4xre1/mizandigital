@@ -1,7 +1,7 @@
 {
  "dataset": "events",
  "title": "الفعاليات والندوات",
- "generatedAt": "2026-10-03T15:05:42.646Z",
+ "generatedAt": "2026-10-11T01:12:29.534Z",
  "count": 3,
  "section": "https://www.mizan.page/events",
  "urlPattern": "https://www.mizan.page/events/{slug}",

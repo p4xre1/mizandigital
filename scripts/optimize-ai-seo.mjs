@@ -85,7 +85,7 @@ Allow: /
 # Primary sections:
 # - /articles — Legal articles
 # - /news — Legislative news
-# - /lexicon — Legal dictionary (250 terms)
+# - /lexicon — Legal dictionary (${lexicon.length} terms)
 # - /schools — Law faculties (21)
 # - /archive — S1-S6 summaries
 # - /quiz — 4-tier quiz system
@@ -232,7 +232,7 @@ Domain: ${DOMAIN}
 
 ### Files for AI
 - ✅ public/llms.txt — ${articles.length + news.length + lexicon.length} records, 26KB
-- ✅ public/llms-full.txt — full content (250 terms + articles)
+- ✅ public/llms-full.txt — full content (${lexicon.length} terms + articles)
 - ✅ public/ai.txt — AI guide
 - ✅ public/ai-sitemap.xml — AI discovery
 - ✅ public/.well-known/ai-plugin.json — ChatGPT plugin
@@ -323,12 +323,12 @@ Domain: ${DOMAIN}
 ## All Pages Crawl (320 routes)
 
 - / — homepage
-- /articles, /articles/:slug (8 articles)
-- /news, /news/:slug (13 news)
-- /lexicon, /lexicon/:slug (250 terms)
-- /schools, /schools/:slug (21 schools)
-- /archive, /s1-s6, /pdf/:slug (9 docs)
-- /events, /events/:slug (3 events)
+- /articles, /articles/:slug (${articles.length} articles)
+- /news, /news/:slug (${news.length} news)
+- /lexicon, /lexicon/:slug (${lexicon.length} terms)
+- /schools, /schools/:slug (${schools.length} schools)
+- /archive, /s1-s6, /pdf/:slug (${docs.length} docs)
+- /events, /events/:slug (${events.length} events)
 - /quiz, /quiz/* (6 quiz pages)
 - /faq, /about, /contact, /terms, /privacy, /cookies
 - /pricing, /payments, /saved, /profile, /search

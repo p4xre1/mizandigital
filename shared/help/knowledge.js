@@ -8,6 +8,11 @@
 import faqGroups from "../../src/data/faq.json"
 import lexiconTerms from "../../src/data/lexicon.client.json"
 import { lexiconSlugById, uniqueLexiconSlug } from "../../src/lib/utils/generateSlug.ts"
+import {
+  LEGAL_CONSTITUTION_ENTRIES,
+  LEGAL_ENTRIES,
+  LEGAL_FAMILY_CODE_ENTRIES,
+} from "./knowledge-legal.js"
 
 /**
  * @typedef {{ id: string, title: string, url: string, keywords: string[], body: string }} HelpEntry
@@ -217,7 +222,26 @@ export const FAQ_ENTRIES = faqGroups.flatMap((group, gi) =>
   })),
 )
 
+/**
+ * مجموعات قاعدة المعرفة الخمس:
+ *   curated            — المدخلات المنسّقة (أقسام المنصة وأدلتها)
+ *   lexicon            — تعريفات المعجم
+ *   faq                — أسئلة صفحة الأسئلة الشائعة
+ *   legal_constitution — نصوص دستور 2011 الفصل بفصل
+ *   legal_family_code  — نصوص مدونة الأسرة مادة بمادة
+ *
+ * المسار الرقمي (answer.js) له الأولوية عن الاسترجاع الغامض: سؤال يطلب
+ * رقماً محدداً يُجاب نصّه الكامل قبل أي ترتيب آخر.
+ */
+export const KNOWLEDGE_GROUPS = [
+  { name: "curated", label: "المدخلات المنسّقة", entries: CURATED_ENTRIES },
+  { name: "lexicon", label: "معجم", entries: LEXICON_ENTRIES },
+  { name: "faq", label: "أسئلة شائعة", entries: FAQ_ENTRIES },
+  { name: "legal_constitution", label: "دستور 2011", entries: LEGAL_CONSTITUTION_ENTRIES },
+  { name: "legal_family_code", label: "مدونة الأسرة", entries: LEGAL_FAMILY_CODE_ENTRIES },
+]
+
 /** @returns {HelpEntry[]} */
 export function allEntries() {
-  return [...CURATED_ENTRIES, ...LEXICON_ENTRIES, ...FAQ_ENTRIES]
+  return [...CURATED_ENTRIES, ...LEXICON_ENTRIES, ...FAQ_ENTRIES, ...LEGAL_ENTRIES]
 }
