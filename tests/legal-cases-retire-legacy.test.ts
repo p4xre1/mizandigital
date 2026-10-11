@@ -87,6 +87,47 @@ const LEGACY_STATE = `
     SELECT id, 1 FROM public.legal_cases;
 `
 
+/** التصميم القديم كما هو فعلاً في القاعدة الحية (من تفريغ المخطط الذي أرسله المالك). */
+const LIVE_LEGACY_STATE = `
+  CREATE TABLE public.legal_cases (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    slug text NOT NULL UNIQUE,
+    title text NOT NULL CHECK (char_length(title) >= 4 AND char_length(title) <= 200),
+    summary text NOT NULL CHECK (char_length(summary) >= 20 AND char_length(summary) <= 500),
+    facts text NOT NULL CHECK (char_length(facts) >= 40),
+    court text NOT NULL CHECK (char_length(court) >= 2 AND char_length(court) <= 150),
+    image_public_path text CHECK (image_public_path IS NULL OR char_length(image_public_path) >= 2 AND char_length(image_public_path) <= 200 AND image_public_path ~~ '/cases/%' AND image_public_path !~~ '/cases/%/%/%'),
+    reviewer_label text NOT NULL DEFAULT '' CHECK (char_length(reviewer_label) <= 120),
+    published boolean NOT NULL DEFAULT false,
+    sort_order integer NOT NULL DEFAULT 0,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    updated_by uuid,
+    CONSTRAINT legal_cases_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES auth.users(id)
+  );
+  CREATE TABLE public.legal_case_questions (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    case_slug text NOT NULL,
+    "position" integer NOT NULL CHECK ("position" >= 1 AND "position" <= 20),
+    question text NOT NULL CHECK (char_length(question) >= 4 AND char_length(question) <= 500),
+    options jsonb NOT NULL DEFAULT '[]'::jsonb,
+    answer integer NOT NULL CHECK (answer >= 0 AND answer <= 3),
+    explanation text NOT NULL CHECK (char_length(explanation) >= 4 AND char_length(explanation) <= 1500),
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    CONSTRAINT legal_case_questions_case_slug_fkey FOREIGN KEY (case_slug) REFERENCES public.legal_cases(slug)
+  );
+  ALTER TABLE public.legal_cases ENABLE ROW LEVEL SECURITY;
+  ALTER TABLE public.legal_case_questions ENABLE ROW LEVEL SECURITY;
+  INSERT INTO public.legal_cases (slug, title, summary, facts, court, image_public_path, reviewer_label, published, updated_by) VALUES
+    ('live-case-1', 'نزاع إيجاري تجريبي', 'ملخص كافٍ لاجتياز الحد الأدنى لطول الملخص في التصميم القديم.', 'وقائع مطولة بما يكفي لتجاوز الحد الأدنى لطول الوقائع في التصميم القديم.', 'المحكمة الابتدائية بالرباط', '/cases/live-1.jpg', 'مراجعة داخلية', true, '${ALICE}'),
+    ('live-case-2', 'قضية شغل تجريبية', 'ملخص ثانٍ كافٍ لاجتياز الحد الأدنى لطول الملخص في التصميم القديم.', 'وقائع ثانية مطولة بما يكفي لتجاوز الحد الأدنى المطلوب في القيد.', 'محكمة الاستئناف بطنجة', NULL, '', false, NULL);
+  INSERT INTO public.legal_case_questions (case_slug, "position", question, options, answer, explanation) VALUES
+    ('live-case-1', 1, 'ما هو الحكم في هذه الواقعة التجريبية؟', '["خيار أول","خيار ثانٍ","خيار ثالث","خيار رابع"]'::jsonb, 1, 'شرح كافٍ لاجتياز الحد الأدنى لطول الشرح في التصميم القديم.'),
+    ('live-case-1', 2, 'ما هو السؤال الثاني في هذه الواقعة؟', '["أ","ب","ج","د"]'::jsonb, 0, 'شرح ثانٍ كافٍ لاجتياز الحد الأدنى لطول الشرح المطلوب.'),
+    ('live-case-2', 1, 'سؤال الحالة الثانية التجريبية؟', '["أ","ب","ج","د"]'::jsonb, 3, 'شرح الحالة الثانية كافٍ لاجتياز الحد الأدنى للطول هنا.');
+`
+
 let PGlite: any = null
 try {
   const modName = "@electric-sql/pglite"
@@ -264,6 +305,36 @@ suite("تقاعد التصميم السابق للحالات القانونية 
     expect((await db.query("SELECT to_regclass('public.legal_cases') AS t")).rows[0].t).toBe(null)
     await db.close()
   }, 30_000)
+
+  test("الشكل الفعلي من القاعدة الحية: التصميم القديم (summary/facts/court + case_slug) يُؤرشف ويُحذف ثم يمرّ الجديد", async () => {
+    const db = new PGlite()
+    await db.exec(PRE_STATE)
+    await db.exec(LIVE_LEGACY_STATE)
+
+    expect(await run(db, migration(RETIRE))).toMatchObject({ ok: true })
+
+    // كل الصفوف محفوظة بكل أعمدتها، بأعداد صحيحة
+    expect((await db.query("SELECT count(*)::int AS n FROM legacy_archive.legal_cases")).rows[0].n).toBe(2)
+    expect((await db.query("SELECT count(*)::int AS n FROM legacy_archive.legal_case_questions")).rows[0].n).toBe(3)
+    const archived = (await db.query(
+      "SELECT title, court, image_public_path, published FROM legacy_archive.legal_cases WHERE slug = 'live-case-1'",
+    )).rows[0]
+    expect(archived).toEqual({
+      title: "نزاع إيجاري تجريبي",
+      court: "المحكمة الابتدائية بالرباط",
+      image_public_path: "/cases/live-1.jpg",
+      published: true,
+    })
+    // المفتاح الأجنبي case_slug → legal_cases.slug لم يمنع الحذف
+    expect((await db.query("SELECT to_regclass('public.legal_case_questions') AS t")).rows[0].t).toBe(null)
+    expect((await db.query("SELECT to_regclass('public.legal_cases') AS t")).rows[0].t).toBe(null)
+
+    // ثم الترحيلان الجديدان يمرّان والبذر يصل
+    expect(await run(db, migration(SCHEMA))).toMatchObject({ ok: true })
+    expect(await run(db, migration(SEED))).toMatchObject({ ok: true })
+    expect((await db.query("SELECT count(*)::int AS n FROM public.legal_cases_public")).rows[0].n).toBe(seedData.cases.length)
+    await db.close()
+  }, 60_000)
 
   test("ترتيب آمن في نص الترحيل: الأرشفة قبل أي حذف، ولا حذف خارج public", () => {
     // بلا تعليقات: نفحص الجمل الفعلية وحدها (التعليق يشرح الحذف اليدوي للمخطط)
