@@ -19,7 +19,8 @@
 //     CF_DEPLOY_HOOK_URL  = رابط Deploy Hook (Settings → Builds & deployments
 //                           → Deploy hooks → Add)
 //   Supabase → Database → Webhooks → Create:
-//     Table: articles / news / pdf_summaries / laws (واحد لكل جدول)
+//     Table: articles / news / pdf_summaries / laws / lexicon_terms / seminars
+//            / faculties (واحد لكل جدول)
 //     Events: Insert, Update
 //     Type: HTTP Request → POST
 //     URL: https://www.mizan.page/api/revalidate?secret=<REVALIDATE_SECRET>

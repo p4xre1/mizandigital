@@ -110,4 +110,56 @@ describe("cmsCatalog — استعلام بديل عند 400", () => {
     expect(catalog.lexicon).toEqual([]);
     expect(calls.filter((url) => url.includes("/lexicon_terms?"))).toHaveLength(1);
   });
+
+  test("seminars وfaculties يدخلان الكتالوج — الندوات مفلترة بالنشر", async () => {
+    const SEMINAR_ROWS = [{ id: "e1", title: "ندوة", created_at: "2026-10-01" }];
+    const FACULTY_ROWS = [{ id: "f1", name: "كلية", slug: "fsjes-tetouan", created_at: "2026-09-01" }];
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+        const table = url.pathname.split("/").pop() ?? "";
+        calls.push(url.toString());
+        if (table === "seminars") return jsonResponse(SEMINAR_ROWS);
+        if (table === "faculties") return jsonResponse(FACULTY_ROWS);
+        return jsonResponse([]);
+      }),
+    );
+
+    const catalog = await loadPublishedCatalog({});
+    expect(catalog.events).toEqual(SEMINAR_ROWS);
+    expect(catalog.schools).toEqual(FACULTY_ROWS);
+
+    // الندوات: منشورة فقط — نفس فلتر EventsPage، وإلا دخلت ندوة مسودّة الخريطة.
+    expect(calls.find((url) => url.includes("/seminars?"))).toMatch(/status=eq\.published/);
+    expect(calls.find((url) => url.includes("/faculties?"))).toBeDefined();
+  });
+
+  test("كل المنشور بسقف 1000 صف لكل جدول — وفلاتر النشر بلا تغيير", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+        calls.push(url.toString());
+        return jsonResponse([]);
+      }),
+    );
+
+    await loadPublishedCatalog({});
+
+    const queries = calls.filter((url) => url.includes("/rest/v1/"));
+    expect(queries.length).toBeGreaterThanOrEqual(7);
+    for (const url of queries) {
+      // سقف موحّد 1000 (كان 500 فيسقط أقدم المنشورات صامتاً) — في كل استعلام.
+      expect(url, `بلا سقف 1000: ${url}`).toMatch(/limit=1000(?:&|$)/);
+    }
+
+    // «كل المنشور» تعني المنشور فعلاً — بلا توسيع الفلاتر.
+    expect(calls.find((url) => url.includes("/articles?"))).toMatch(/status=eq\.published/);
+    expect(calls.find((url) => url.includes("/news?"))).toMatch(/is_published=eq\.true/);
+    expect(calls.find((url) => url.includes("/pdf_summaries?"))).toMatch(/status=eq\.published/);
+    expect(calls.find((url) => url.includes("/seminars?"))).toMatch(/status=eq\.published/);
+  });
 });

@@ -143,6 +143,55 @@ export function isIndexablePath(input) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+   مسارات التحويل 301 — لا تدخل خريطة الموقع أبداً
+   ───────────────────────────────────────────────────────────────────────── */
+
+/**
+ * مصادر التحويل المنفردة في public/_redirects (بصيغتها المفكوكة من
+ * الترميز المئوي). أي رابط يقع **على** أحد هذه المسارات يُردّ 301 إلى
+ * وجهته، فنشره في sitemap.xml يُعلَّم الخريطة بروابط «Redirected» في Search
+ * Console — وهي أعراض موثّقة في ملفات audites/ السابقة. اختبار
+ * tests/url-redirect-policy.test.ts يمنع انحراف هذه القائمة عن الملف نفسه.
+ */
+const REDIRECT_EXACT_PATHS = new Set([
+  // مسارات تاريخية خرجت من المعجم الحالي للمعرّفات.
+  "/schools/fsjest-tangier",
+  // مصطلحان مكرّران دُمجا في مدخلة واحدة.
+  "/lexicon/فصل-السلط-separation-pouvoirs-constitution",
+  "/lexicon/ملتمس-الرقابة-motion-censure-dustur",
+  // مسارات قديمة لم توجد قطّ على المنصة.
+  "/library",
+  "/legal-qa",
+  "/register",
+]);
+
+/**
+ * بادئات _redirects بصيغة /x/* — تشمل /x/... وكلمة /x العارية، لأن
+ * الزاحف يقرأ المدخلة الواحدة تحت التحويل ذاته.
+ */
+const REDIRECT_PREFIXES = ["/en", "/fr", "/es", "/ar", "/docs", "/documents", "/fields", "/article"];
+
+function safeDecodePath(path) {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+}
+
+/**
+ * هل يقع هذا الرابط تحت تحويل 301؟ (شريط النهاية يُطبَّع قبل المقارنة،
+ * والترميز المئوي يُفكّ — مصادر _redirects مرمّزة في الملف.)
+ * @param {string} input مسار أو رابط كامل
+ * @returns {boolean}
+ */
+export function isRedirectingPath(input) {
+  const path = safeDecodePath(normalizePath(input));
+  if (REDIRECT_EXACT_PATHS.has(path)) return true;
+  return REDIRECT_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
    بناء الروابط القانونية لكل نوع محتوى
    الأسماء مطابقة لما تتوقعه الواجهة ولما تستعمله السكربتات.
    ───────────────────────────────────────────────────────────────────────── */

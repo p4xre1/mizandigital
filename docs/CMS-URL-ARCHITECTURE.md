@@ -23,7 +23,7 @@
 ## 2. المعمارية بعد التغيير
 
 ```
-Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
+Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / faculties)
         │
         ├── وقت البناء (كما كان) ─────────────────────────────► صفحة ثابتة + سطر في sitemap
         │   scripts/lib/cms-content.mjs → prerender.mjs / generate-sitemap.mjs
@@ -47,18 +47,29 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
 - الروابط تُبنى بنفس دوال المعرّفات المستعملة في البناء والواجهة
   (`shared/seo/url-policy.js`): `slug ← عنوان ← id`، والأرشيف بنفس شرط
   `isArchivableItem` (رابط تحميل أو نصّ)، ومصطلح المعجم المكرر محلياً يُستثنى.
+- الندوات (`seminars`) تدخل بصيغة الواجهة الحرفية `seminar-<id>` (لا عمود
+  slug في الجدول، و`EventPage` تحلّ المعرّف وحده)، والكليات (`faculties`)
+  بـ`/schools/<slug>` من عمود `slug` — وكلاهما بأولوية `0.7/monthly` كما في
+  `scripts/generate-sitemap.mjs` للفعاليات والمدارس المحلية.
 - لا `<loc>` مكرر (مقارنة حرفية)، ولا XML مكسور (هروب كامل للأحرف)، وعند
   تعطل القاعدة تُعاد النسخة المبنية كما هي بلا خطأ.
+- **لا روابط 301 في المُخرَج**: كل جدول يُقرأ بسقف **1000 صف** (كان 500 —
+  الأقدم كان يسقط صامتاً)، وكل مسار يقع تحت تحويل في `public/_redirects`
+  يُمنع من الإضافة ويُحذف من النسخة المبنية نفسها (معرّفات قديمة، مصطلحات
+  مكرّرة دُمجت) عبر `isRedirectingPath` — والاختبار
+  `tests/url-redirect-policy.test.ts` يضمن ألا تنحرف القائمة عن الملف.
 
 ### الطبقة 2 — بديل وقت-الطلب: `functions/[[path]].js` + `functions/_shared/contentFallback.js`
 
 - يعمل فقط على مسارات المحتوى ذات المقطع الواحد: `/articles/<slug>`،
-  `/news/<slug>`، `/pdf/<slug>`، `/lexicon/<slug>`، وفقط عند **404** من الأصول.
+  `/news/<slug>`، `/pdf/<slug>`، `/lexicon/<slug>`، `/events/seminar-<id>`،
+  `/schools/<slug>`، وفقط عند **404** من الأصول.
 - يتحقق من القاعدة: إن لم يكن السجلّ موجوداً فعلاً يبقى **404 حقيقياً** (لا
   Soft 404 ولا فهرسة لصفحة وهمية).
 - إن وُجد: يخدم هيكل التطبيق 200 بعد حقن وسوم الرأس — `title` (بـ`brandTitle`)،
   `description` (بـ`buildMetaDescription`)، `canonical`، `og:*`، وJSON-LD
-  (`WebPage` + `Article`/`DefinedTerm`) — و`robots: index, follow` بدل
+  (`WebPage` + `Article`/`DefinedTerm`/`EducationEvent`/`EducationalOrganization`)
+  — و`robots: index, follow` بدل
   `noindex` الخاص بالهيكل. والواجهة تجلب المحتوى بنفسها بعد التحميل.
 - بعد أول بناء تالٍ يصبح للرابط ملف ثابت، فلا يُستدعى هذا المسار أصلاً.
 - **استثناء المعجم المحلي مشترك مع الطبقة 1** (`functions/_shared/localLexicon.js`):
@@ -78,7 +89,8 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
    - `CF_DEPLOY_HOOK_URL` = رابط Deploy Hook (Settings → Builds & deployments →
      Deploy hooks → Add).
 2. **Supabase → Database → Webhooks → Create** لكل جدول من
-   `articles`, `news`, `pdf_summaries`, `laws`, `lexicon_terms`:
+   `articles`, `news`, `pdf_summaries`, `laws`, `lexicon_terms`, `seminars`,
+   `faculties`:
    - Events: `Insert`, `Update` — Method: `POST`
    - URL: `https://www.mizan.page/api/revalidate?secret=<REVALIDATE_SECRET>`
    - (أو ترويسة `Authorization: Bearer <REVALIDATE_SECRET>`)
@@ -104,7 +116,7 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
 
 ## 4. الاختبارات
 
-`tests/cms-runtime-urls.test.ts` — 15 اختباراً على الوحدات الخالصة:
+`tests/cms-runtime-urls.test.ts` — 23 اختباراً على الوحدات الخالصة:
 
 - بناء روابط CMS بنفس دوال البناء (بما فيها سجلّ بلا slug وبلا عنوان وبلا id).
 - استثناء ملف أرشيف بلا رابط تحميل وبلا نصّ، واستثناء مصطلح المعجم المحلي.
@@ -113,7 +125,7 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
 - مطابقة المسارات (مقطع واحد فقط)، ومطابقة السجلّات (بما فيها ملحق `-<id>`)،
   وحقن الرأس: `noindex → index` + `canonical` + JSON-LD + عدم تكرار الوسوم.
 
-`tests/cms-runtime-route.test.ts` — 8 اختبارات تكامل (طلب → ردّ) بـ`fetch`
+`tests/cms-runtime-route.test.ts` — 11 اختبار تكامل (طلب → ردّ) بـ`fetch`
 مزيّف وردود PostgREST:
 
 - السلسلة كاملة: 404 من الأصول ← كتالوج CMS ← مطابقة السجلّ ← حقن الرأس ← 200.
@@ -123,7 +135,7 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
   محلي فيه المصطلح المكرر). القياس دائماً «قاعدة + إضافات» لا أرقام مطلقة.
 - مصطلح مبني محلياً ⇒ 404 من الطبقتين معاً (لا صفحة مكررة).
 
-`tests/cms-catalog-fallback.test.ts` — 4 اختبارات على اختلاف مخطط القاعدة:
+`tests/cms-catalog-fallback.test.ts` — 6 اختبارات على اختلاف مخطط القاعدة:
 
 - `lexicon_terms` **ليس فيها عمود `slug` في الإنتاج**، فيرجع PostgREST خطأ
   `400` («Could not find the 'public.lexicon_terms.slug' column») وتفرغ نتيجة
@@ -136,3 +148,8 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
   يُخفى ولا يُعاد، بل يُسجَّل في `errors` ويُكتفى بالنسخة الثابتة.
 - فشل الاستعلامين معاً ⇒ `{ ok:false, lexicon: [] }`: الخريطة ترجع
   byte-identical للخريطة المبنية ولا تكسر الفهرسة.
+
+`tests/url-redirect-policy.test.ts` — 3 اختبارات على `isRedirectingPath`:
+المسارات المنفردة (بما فيها المرمّزة مئوياً)، البادئات (مع عدم التصاق
+`/article` بـ`/articles`)، ومطابقة **حرفية** لقواعد `public/_redirects` — أي
+سطر تحويل جديد يجب أن يدخل القائمة وإلا سقط الاختبار.

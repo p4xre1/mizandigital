@@ -15,6 +15,7 @@ import { HomeStatsBand } from "../../components/home/HomeStatsBand"
 import { pickTreeTerms, type TreeTerm } from "../../lib/lexicon/treeTerms"
 import { HeroPreview } from "../../components/home/HeroPreview"
 import { HomeFreeResources } from "../../components/home/HomeFreeResources"
+import { HomeCollabBanner } from "../../components/home/HomeCollabBanner"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
 
 interface FeedCard {
@@ -411,6 +412,9 @@ export function HomePage() {
 
             {/* القاموس القانوني — مصطلحات لها شجرة قانونية فقط */}
             <HomeLexiconShowcase terms={treeTerms} total={counts.lexicon} />
+
+            {/* لافتة الشراكة مع وظيفة بابليك — تحت قسم القاموس */}
+            <HomeCollabBanner />
           </div>
         </section>
 

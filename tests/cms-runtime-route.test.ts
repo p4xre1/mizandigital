@@ -34,6 +34,25 @@ const CMS_ROWS = {
   lexicon_terms: [
     { id: "t1", term_ar: "مصطلح جديد", definition: "تعريف المصطلح الجديد.", slug: "mustalah-jadid", updated_at: "2026-10-06" },
     { id: "t2", term_ar: "المحكمة", definition: "تعريف المحكمة.", slug: "al-mahkama", updated_at: "2026-10-06" },
+    // معرّف قديم يقع تحت تحويل 301 في public/_redirects (مصطلح مكرر دُمج):
+    // لا يجوز أن يدخل الخريطة مهما ظلّ في القاعدة.
+    { id: "t3", term_ar: "فصل السلط", slug: "فصل-السلط-separation-pouvoirs-constitution", updated_at: "2026-10-06" },
+  ],
+  seminars: [
+    {
+      id: "e1",
+      title: "ندوة المنافسة",
+      speaker: "أ. باحث",
+      speaker_title: "كلية الحقوق",
+      video_url: "https://cdn.example/v.mp4",
+      event_date: "2026-05-16",
+      event_time: "09:30",
+      agenda: "برنامج الندوة العلمية.",
+      created_at: "2026-10-05",
+    },
+  ],
+  faculties: [
+    { id: "f1", name: "كلية تطوان", city: "تطوان", slug: "fsjes-tetouan", founded_year: 1999, description: "كلية الحقوق بتطوان.", created_at: "2026-09-01" },
   ],
 };
 
@@ -195,6 +214,33 @@ describe("مسار [[path]] — محتوى CMS منشور بعد آخر بناء
     expect(duplicate.status).toBe(404);
   });
 
+  test("ندوة منشورة (seminar-<id>): 200 مع EducationEvent وcanonical نفسه", async () => {
+    const response = await fileOnRequest(makeContext("/events/seminar-e1"));
+    expect(response.status).toBe(200);
+    const html = await response.text();
+    expect(html).toContain("<title>ندوة المنافسة - الندوات والأيام الدراسية | ميزان الرقمية</title>");
+    expect(html).toContain('<link rel="canonical" href="https://www.mizan.page/events/seminar-e1">');
+    expect(html).toContain('"@type":"EducationEvent"');
+  });
+
+  test("كلية من لوحة التحكم: 200 بـ/schools/<slug>، وبالمعرّف canonical يشير إلى slug", async () => {
+    const bySlug = await fileOnRequest(makeContext("/schools/fsjes-tetouan"));
+    expect(bySlug.status).toBe(200);
+    const html = await bySlug.text();
+    expect(html).toContain("<title>كلية تطوان - دليل كليات الحقوق بالمغرب | ميزان الرقمية</title>");
+    expect(html).toContain('"@type":"EducationalOrganization"');
+
+    // SchoolPage تقبل id أيضاً؛ canonical يبقى على slug (نفس تصرّف الواجهة).
+    const byId = await fileOnRequest(makeContext("/schools/f1"));
+    expect(byId.status).toBe(200);
+    expect(await byId.text()).toContain('<link rel="canonical" href="https://www.mizan.page/schools/fsjes-tetouan">');
+  });
+
+  test("ندوة بمعرّف عارٍ لا تُخدَم: الواجهة لا تحلّ /events/<id> أصلاً", async () => {
+    expect((await fileOnRequest(makeContext("/events/e1"))).status).toBe(404);
+    expect((await fileOnRequest(makeContext("/events/seminar-missing"))).status).toBe(404);
+  });
+
   test("رابط غير موجود في القاعدة يبقى 404 — لا Soft 404", async () => {
     const response = await fileOnRequest(makeContext("/articles/غير-موجود"));
     expect(response.status).toBe(404);
@@ -214,23 +260,27 @@ describe("مسار sitemap.xml الديناميكي", () => {
     expect(response.status).toBe(200);
     const xml = await response.text();
 
-    // المنشور الجديد (مقال/خبر/ملف برابط/نصّ/مصطلح): يدخل الخريطة.
+    // المنشور الجديد (مقال/خبر/ملف برابط/نصّ/مصطلح/ندوة/كلية): يدخل الخريطة.
     expect(xml).toContain("https://www.mizan.page/articles/maqal-jadid");
     expect(xml).toContain("https://www.mizan.page/news/khabar-jadid");
     expect(xml).toContain("https://www.mizan.page/pdf/mulakhkhas-jadid");
     expect(xml).toContain("https://www.mizan.page/pdf/nas-qanuni");
     expect(xml).toContain("https://www.mizan.page/lexicon/mustalah-jadid");
+    expect(xml).toContain("https://www.mizan.page/events/seminar-e1");
+    expect(xml).toContain("https://www.mizan.page/schools/fsjes-tetouan");
 
     // غير المنشور وغير المؤهل لا يدخل.
     expect(xml).not.toContain("bila-milaff");
     // مصطلح موجود في المعجم المحلي لا يتكرر بمعرّف CMS.
     expect(xml).not.toContain("al-mahkama");
+    // رابط محوَّل (301) — مهما بقي سجلّه في القاعدة — لا يدخل الخريطة.
+    expect(xml).not.toContain("separation-pouvoirs-constitution");
 
-    // لا <loc> مكرر، والعدد = المبنى + المضاف (5).
+    // لا <loc> مكرر، والعدد = المبنى + المضاف (7).
     const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
     expect(new Set(locs).size).toBe(locs.length);
-    expect(locs).toHaveLength(base + 5);
-    expect(response.headers.get("X-Mizan-Cms-Urls")).toBe("5");
+    expect(locs).toHaveLength(base + 7);
+    expect(response.headers.get("X-Mizan-Cms-Urls")).toBe("7");
   });
 
   test("بلا CMS متاح (شبكة معطلة) تعود النسخة المبنية كما هي", async () => {

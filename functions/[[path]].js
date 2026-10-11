@@ -8,12 +8,15 @@ import {
 import {
   articleSlug,
   canonicalArticle,
+  canonicalEvent,
   canonicalLexicon,
   canonicalNews,
   canonicalPdf,
+  canonicalSchool,
   newsSlug,
+  schoolSlug,
 } from "../shared/seo/url-policy.js";
-import { archiveSlug, cmsLexiconSlug, termKey } from "./_shared/cmsUrls.js";
+import { archiveSlug, cmsEventSlug, cmsLexiconSlug, termKey } from "./_shared/cmsUrls.js";
 import { loadLocalLexiconTerms } from "./_shared/localLexicon.js";
 
 const MARKDOWN = `# ميزان الرقمية
@@ -197,7 +200,13 @@ async function serveUnbuiltCmsPage(context, url) {
           ? // رابط الأرشيف قد يحمل لاحقة تفريد المعرّف (-<id>) حين يتكرر
             // العنوان مع ملف محلي — نحفظ ما طلبه الزائر كما هو.
             canonicalPdf(requested)
-          : canonicalLexicon(cmsLexiconSlug(record) || requested);
+          : match.kind === "event"
+            ? canonicalEvent(cmsEventSlug(record) || requested)
+            : match.kind === "school"
+              ? // SchoolPage تُركّز canonical على slug الكلية ولو دخل الزائر
+                // بالمعرّف — نفعل الشيء نفسه.
+                canonicalSchool(schoolSlug(record) || requested)
+              : canonicalLexicon(cmsLexiconSlug(record) || requested);
 
   const head = buildContentHead(record, match.kind, { canonical });
   const html = injectContentHead(await shell.text(), { ...head, canonical });
