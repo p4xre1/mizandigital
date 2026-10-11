@@ -313,8 +313,6 @@ export function HomePage() {
           </div>
         </section>
 
-        <HomeCollabBanner />
-
         <section ref={contentSectionRef} className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
             <div className="text-center mb-8">
@@ -414,6 +412,9 @@ export function HomePage() {
 
             {/* القاموس القانوني — مصطلحات لها شجرة قانونية فقط */}
             <HomeLexiconShowcase terms={treeTerms} total={counts.lexicon} />
+
+            {/* لافتة الشراكة مع وظيفة بابليك — تحت قسم القاموس */}
+            <HomeCollabBanner />
           </div>
         </section>
 

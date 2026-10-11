@@ -3,8 +3,8 @@
  *
  * ماذا تحمي؟
  * -----------
- * 1) أن اللافتة تبقى مركّبة في الصفحة الرئيسية (لا تُحذف بصمت عند تحرير
- *    HomePage.tsx) وينتقل رابطها إلى وظيفة بابليك بالحرف.
+ * 1) أن اللافتة تبقى مركّبة في الصفحة الرئيسية تحت قسم القاموس (لا تُحذف
+ *    بصمت عند تحرير HomePage.tsx) وينتقل رابطها إلى وظيفة بابليك بالحرف.
  * 2) أن الرابط يفتح في تبويب جديد بأمان (noopener noreferrer) ومعه وسم
  *    `sponsored` — رابط شراكة ترويجي يجب ألا يمرّر وزناً للـSEO.
  * 3) أن الشريط كله يبقى رابطاً واحداً (لا أزرار متداخلة داخل <a>) وأن اللافتة
@@ -19,12 +19,12 @@ const HOME = read("src/pages/public/HomePage.tsx");
 const BANNER = read("src/components/home/HomeCollabBanner.tsx");
 
 describe("لافتة الشراكة مع وظيفة بابليك", () => {
-  it("مركّبة في الصفحة الرئيسية بعد قسم البطل مباشرة", () => {
+  it("مركّبة في الصفحة الرئيسية تحت قسم «كيف يساعدك القاموس القانوني؟»", () => {
     expect(HOME).toContain('import { HomeCollabBanner } from "../../components/home/HomeCollabBanner"');
     expect(HOME).toContain("<HomeCollabBanner />");
-    // بعد البطل (المقطع الذي ينتهي قبل contentSectionRef) — لا أسفل الصفحة.
-    expect(HOME.indexOf("<HomeCollabBanner />")).toBeLessThan(HOME.indexOf('ref={contentSectionRef}'));
-    expect(HOME.indexOf("<HomeCollabBanner />")).toBeGreaterThan(HOME.indexOf("<HeroPreview />"));
+    // تحت القاموس مباشرة (HomeLexiconShowcase) وقبل قسم الموارد المجانية.
+    expect(HOME.indexOf("<HomeCollabBanner />")).toBeGreaterThan(HOME.indexOf("<HomeLexiconShowcase"));
+    expect(HOME.indexOf("<HomeCollabBanner />")).toBeLessThan(HOME.indexOf("<HomeFreeResources />"));
   });
 
   it("ينتقل إلى https://www.wadifapublic.ma/ar في تبويب جديد وبـ sponsored", () => {
