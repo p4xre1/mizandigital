@@ -509,3 +509,81 @@ select count(*) from auth.users u
 راجع [دليل إعداد أدوات Pro](PRO-TOOLS.md) قبل النشر: يتضمن صلاحيات الاشتراك،
 إدارة المحتوى من `/admin/pro-tools`، وضوابط نشر المصادر وقواعد حساب الآجال.
 هذا الترحيل لم يُطبّق تلقائياً على قاعدة البيانات الحية.
+
+---
+
+## لعبة الحالات القانونية — إن ظهر `P0001: public.legal_cases exists with the previous unreleased design`
+
+الرسالة الكاملة:
+
+```
+ERROR: public.legal_cases exists with the previous unreleased design (legal_case_questions).
+Drop public.legal_case_questions and public.legal_cases first. (SQLSTATE P0001)
+At statement: 1
+```
+
+**السبب.** تصميم سابق للعبة «من الواقعة إلى الحل» لم يُنشر قط (جدول
+`legal_cases` بأعمدة `facts`/`court` + جدول `legal_case_questions`) لا يزال
+موجوداً في القاعدة. الترحيل `20261012000300_legal_cases_game.sql` يرفض
+`CREATE TABLE IF NOT EXISTS` فوق جدول قائم بشكل مختلف — لأن `IF NOT EXISTS`
+كان سيتجاهل الفرق بصمت — فيتوقف بهذه الرسالة بدل أن يخلط تصميمين.
+
+**الحل.** ترحيل تقاعد مخصّص: `20261012000250_legal_cases_retire_previous_design.sql`
+
+1. يؤرشف كل صف من كل جدول قديم في مخطط `legacy_archive` **قبل** أي حذف
+   (ويسجّل تعريفات العروض والدوال المحذوفة في `legacy_archive.retired_objects`).
+2. يحذف كائنات المساحة القديمة في `public` وحدها (جداول/عروض/دوال يبدأ اسمها
+   بـ `legal_case`)، ويُلغي `FORCE ROW LEVEL SECURITY` على الجداول التي تُحذف
+   في نفس المعاملة ليكون الأرشيف نسخة كاملة لا ما سمح به سياسة.
+3. لا يفعل شيئاً على قاعدة نظيفة أو فيها التصميم الجديد (لا-عملية)، ولا حذف بلا نسخة.
+
+**الترتيب على قاعدة فيها التصميم القديم:**
+
+```
+20261012000250  ← تقاعد التصميم السابق (أرشفة ثم حذف)
+20261012000300  ← الجدول والعرض العام ودالة التصحيح
+20261012000400  ← بذر الحالات العشر
+```
+
+بالـ CLI:
+
+```bash
+npx supabase migration list          # تحقّق مما وصل إلى القاعدة الحية
+npx supabase db push                 # يطبّق المعلَّق بالترتيب
+# إن كان سجل القاعدة الحية متقدّماً على 20261012000250 (ترحيل لاحق طُبّق يدوياً):
+npx supabase db push --include-all
+```
+
+أو يدوياً: افتح **SQL Editor** والصق ملف `20261012000250_…sql` **ثم**
+`20261012000300_…sql` ثم `20261012000400_…sql` (كل ملف في لصقة واحدة،
+بالترتيب). الترحيل معاملة واحدة: إما ينجح كاملاً أو لا يغيّر شيئاً.
+
+**تحقّق بعد التطبيق:**
+
+```sql
+select count(*) from legacy_archive.legal_cases;             -- الصفوف القديمة (إن وُجدت)
+select object_kind, object_name, note from legacy_archive.retired_objects;
+select count(*) from public.legal_cases where published;      -- الحالات الجديدة المنشورة (10 بعد البذر)
+select count(*) from public.legal_cases_public;               -- ما يراه الزائر
+```
+
+`legacy_archive` غير مكشوف عبر PostgREST ولا صلاحية لـ `anon` أو `authenticated`
+عليه: رفّ محفوظات لا واجهة. بعد التأكد من أن لا شيء يحتاج المراجعة:
+
+```sql
+drop schema legacy_archive cascade;   -- نهائي، بعد التأكد فقط
+```
+
+**إن فضّلت الحذف اليدوي بلا أرشيف** (على مسؤوليتك — تحقّق من العدّ أولاً):
+
+```sql
+select count(*) from public.legal_cases;             -- سجّلها
+select count(*) from public.legal_case_questions;     -- سجّلها
+drop table if exists public.legal_case_questions cascade;
+drop table if exists public.legal_cases cascade;
+-- ثم أعد 20261012000300 ثم 20261012000400
+```
+
+الاختبارات: `tests/legal-cases-retire-legacy.test.ts` (7 اختبارات على PostgreSQL
+حقيقي: أرشفة كاملة، أرشيف غير مقروء للزوار، قاعدة نظيفة = لا-عملية، بقية
+`legal_case_questions` وحدها، وFORCE RLS).
