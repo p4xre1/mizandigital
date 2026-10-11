@@ -160,6 +160,46 @@ export async function submitAttemptSecure(payload: SecureSubmitPayload): Promise
 }
 
 // التحقق من إجابة واحدة عبر الخادم (للمسار الآمن)
+/**
+ * كشف إجابة سؤال مخفي على الخادم (quiz_reveal_answer).
+ *
+ * يُستدعى بعد اختيار المستخدم فقط — لا قبله. يعيد الخادم الفهرس الصحيح
+ * والشرح والسند، أو `revealed: false` إن لم ينجح الكشف (سؤال غير منشور،
+ * اختيار خارج النطاق، أو فشل الشبكة). عند الفشل يحتسب المحرّك الإجابة
+ * خاطئة ولا يعرض الإجابة الصحيحة.
+ */
+export async function revealQuizAnswer(
+  questionId: string,
+  chosen: number
+): Promise<{ revealed: boolean; answer: number | null; explanation: string | null; reference: string | null }> {
+  if (!Number.isInteger(chosen) || chosen < 0 || chosen > 3) {
+    return { revealed: false, answer: null, explanation: null, reference: null };
+  }
+  try {
+    const { supabase } = await import("@/lib/supabase/client");
+    const { data, error } = await supabase.rpc("quiz_reveal_answer", {
+      p_slug: questionId,
+      p_chosen: chosen,
+    });
+    if (error || !Array.isArray(data) || data.length === 0) {
+      return { revealed: false, answer: null, explanation: null, reference: null };
+    }
+    const row = data[0] as { revealed?: boolean; answer?: number | null; explanation?: string | null; reference?: string | null };
+    const answer = row.answer;
+    if (!row.revealed || typeof answer !== "number" || !Number.isInteger(answer)) {
+      return { revealed: false, answer: null, explanation: null, reference: null };
+    }
+    return {
+      revealed: true,
+      answer,
+      explanation: row.explanation ?? null,
+      reference: row.reference ?? null,
+    };
+  } catch {
+    return { revealed: false, answer: null, explanation: null, reference: null };
+  }
+}
+
 export async function checkAnswerSecure(questionId: string, chosen: number | null): Promise<{ correct: boolean | null; explanation: string | null; reference: string | null }> {
   if (chosen === null || chosen < 0 || chosen > 3) {
     return { correct: false, explanation: null, reference: null };

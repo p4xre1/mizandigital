@@ -243,7 +243,10 @@ export function QuizResultPanel({
                 <div className="mt-3 rounded-xl border border-border bg-background p-3">
                   <p className="text-[12.5px] leading-6 text-muted-foreground">
                     <span className="font-extrabold text-foreground">الشرح: </span>
-                    {question.explanation}
+                    {question.explanation ||
+                      (question.answer < 0
+                        ? "تعذر التحقق من الإجابة على الخادم، فاحتُسبت خاطئة دون كشف الإجابة الصحيحة."
+                        : "")}
                   </p>
                   {question.reference && (
                     <p className="mt-1.5 text-[11.5px] font-bold text-primary">السند: {question.reference}</p>

@@ -23,7 +23,7 @@ import {
 import { useQuizProgress } from "@/hooks/useQuizProgress"
 import { getRankForXp } from "@/lib/quiz/ranks"
 import { QuizResultPanel } from "./QuizResultPanel"
-import { submitAttemptSecure } from "@/lib/quiz/attemptService"
+import { revealQuizAnswer, submitAttemptSecure } from "@/lib/quiz/attemptService"
 import { recordReview } from "@/lib/learning/reviewStore"
 import {
   ADAPTIVE_MAX_ITEMS,
@@ -102,6 +102,8 @@ export function QuizRunner({
   const [answers, setAnswers] = useState<GradedAnswer[]>([])
   const [selected, setSelected] = useState<number | null>(null)
   const [revealed, setRevealed] = useState(false)
+  /** قيد التحقق على الخادم (أسئلة الإجابات المخفية) — يُقفل الأزرار طيلة المدة. */
+  const [revealing, setRevealing] = useState(false)
   const [streak, setStreak] = useState(0)
   const [startedAt, setStartedAt] = useState(() => Date.now())
   const [questionStartedAt, setQuestionStartedAt] = useState(() => Date.now())
@@ -156,27 +158,54 @@ export function QuizRunner({
   // العدّاد التنازلي الخاص بكل سؤال (أسلوب المباريات): عند انتهاء الوقت
   // يُعتبر السؤال مُجاباً عنه خطأ (chosen = null) ويظهر الشرح مباشرة.
   useEffect(() => {
-    if (timeLeft === null || revealed || finished) return
+    if (timeLeft === null || revealed || revealing || finished) return
     if (timeLeft <= 0) {
-      handleAnswer(null)
+      void handleAnswer(null)
       return
     }
     const timer = window.setTimeout(() => setTimeLeft((value) => (value === null ? null : value - 1)), 1000)
     return () => window.clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, revealed, finished])
+  }, [timeLeft, revealing, revealed, finished])
 
+  /**
+   * الإجابة عن السؤال الحالي.
+   *
+   * للأسئلة المحلية (source: "seed") التصحيح فوري محليّاً.
+   * للأسئلة المخفية (answerHidden) يُكشف الجواب حصراً على الخادم
+   * بعد اختيار صريح عبر quiz_reveal_answer؛ عند فشل الكشف تحتسب
+   * الإجابة خاطئة ولا تُعرض الإجابة الصحيحة.
+   */
   const handleAnswer = useCallback(
-    (choice: number | null) => {
-      if (revealed || !current) return
+    async (choice: number | null) => {
+      if (revealed || revealing || !current) return
+      let question = current
+
+      if (choice !== null && current.answerHidden) {
+        setRevealing(true)
+        const reveal = await revealQuizAnswer(current.id, choice)
+        setRevealing(false)
+        if (reveal.revealed && reveal.answer !== null) {
+          question = {
+            ...current,
+            answer: reveal.answer,
+            explanation: reveal.explanation ?? current.explanation,
+            reference: reveal.reference ?? current.reference,
+          }
+          // حدّث الجلسة حتى تستخدم شاشة النتيجة الإجابة المكشوفة
+          setSession((previous) => previous.map((q, i) => (i === index ? question : q)))
+        }
+      }
+
       const elapsedMs = Date.now() - questionStartedAt
-      const graded = gradeAnswer({ question: current, chosen: choice, elapsedMs }, streak)
+      // إن لم يُكشف الجواب يبقى answer = -1 فيفشل المطابق تلقائياً (خاطئ)
+      const graded = gradeAnswer({ question, chosen: choice, elapsedMs }, streak)
       setSelected(choice)
       setRevealed(true)
       setStreak(graded.streak)
       setAnswers((previous) => [...previous, graded])
 
-      // كل إجابة تدخل جدول المراجعة المتباعدة (shared/learning/spaced-repetition.js)
+      // كل إجابة يدخل جدول المراجعة المتباعدة (shared/learning/spaced-repetition.js)
       recordReview(current.id, { correct: graded.correct, elapsedMs })
 
       if (adaptive) {
@@ -187,7 +216,7 @@ export function QuizRunner({
         setAdaptiveNext(step.question)
       }
     },
-    [adaptive, answers, current, questionStartedAt, questions, revealed, streak]
+    [adaptive, answers, current, index, questionStartedAt, questions, revealed, revealing, streak]
   )
 
   const goNext = useCallback(() => {
@@ -214,8 +243,8 @@ export function QuizRunner({
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (finished) return
-      if (!revealed && ["1", "2", "3", "4"].includes(event.key)) {
-        handleAnswer(Number(event.key) - 1)
+      if (!revealed && !revealing && ["1", "2", "3", "4"].includes(event.key)) {
+        void handleAnswer(Number(event.key) - 1)
         return
       }
       if (revealed && (event.key === "Enter" || event.key === " ")) {
@@ -225,7 +254,7 @@ export function QuizRunner({
     }
     window.addEventListener("keydown", onKeyDown)
     return () => window.removeEventListener("keydown", onKeyDown)
-  }, [finished, goNext, handleAnswer, revealed])
+  }, [finished, goNext, handleAnswer, revealed, revealing])
 
   // حساب النتيجة وتسجيلها في المخزن مرة واحدة فقط
   // الآن مع التحقق الآمن على الخادم (attemptService) — localStorage يبقى cache
@@ -464,8 +493,8 @@ export function QuizRunner({
               <button
                 key={option}
                 type="button"
-                disabled={revealed}
-                onClick={() => handleAnswer(optionIndex)}
+                disabled={revealed || revealing}
+                onClick={() => void handleAnswer(optionIndex)}
                 className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3.5 text-right transition ${stateClass}`}
               >
                 <span
@@ -493,7 +522,15 @@ export function QuizRunner({
               <Lightbulb className="size-4" aria-hidden="true" />
               {mode === "general" ? "هل تعلم؟" : "الشرح"}
             </p>
-            <p className="text-[13px] leading-7 text-muted-foreground">{current.explanation}</p>
+            {current.explanation ? (
+              <p className="text-[13px] leading-7 text-muted-foreground">{current.explanation}</p>
+            ) : (
+              <p className="text-[13px] leading-7 text-muted-foreground">
+                {current.answer < 0
+                  ? "تعذر التحقق من إجابتك على الخادم، فاحتُسبت خاطئة دون كشف الإجابة الصحيحة."
+                  : ""}
+              </p>
+            )}
             {current.reference && (
               <p className="mt-2 text-[11.5px] font-bold text-primary">السند: {current.reference}</p>
             )}
@@ -502,7 +539,9 @@ export function QuizRunner({
                 +{answers[index].xp} نقطة خبرة
               </p>
             ) : (
-              !answers[index]?.correct && (
+              !answers[index]?.correct &&
+              current.answer >= 0 &&
+              current.answer < current.options.length && (
                 <p className="mt-2 text-[11.5px] font-extrabold text-rose-600 dark:text-rose-400">
                   الإجابة الصحيحة: {current.options[current.answer]}
                 </p>
@@ -528,11 +567,21 @@ export function QuizRunner({
           ) : (
             <button
               type="button"
-              onClick={() => handleAnswer(null)}
-              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-[12.5px] font-extrabold text-muted-foreground transition hover:text-foreground"
+              disabled={revealing}
+              onClick={() => void handleAnswer(null)}
+              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-[12.5px] font-extrabold text-muted-foreground transition hover:text-foreground disabled:opacity-50"
             >
-              <SkipForward className="size-4" aria-hidden="true" />
-              تخطي
+              {revealing ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                  جارٍ التحقق...
+                </>
+              ) : (
+                <>
+                  <SkipForward className="size-4" aria-hidden="true" />
+                  تخطي
+                </>
+              )}
             </button>
           )}
         </div>

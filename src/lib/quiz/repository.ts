@@ -106,6 +106,11 @@ function writeCmsCache(questions: QuizQuestion[]): void {
   }
 }
 
+/**
+ * صف القراءة العامة — يأتي من عرض `quiz_questions_public` الذي لا يحمل
+ * أعمدة answer/explanation/reference (إجابات الاختبارات على الخادم فقط).
+ * تبقى الحقول اختياريّاً لدعم النسخ المخزّنة من قبل الترقية.
+ */
 type CmsRow = {
   slug: string
   tier: string
@@ -116,10 +121,15 @@ type CmsRow = {
   difficulty: string
   question: string
   options: unknown
-  answer: number
-  explanation: string
-  reference: string | null
+  answer?: number | null
+  explanation?: string | null
+  reference?: string | null
   created_at?: string | null
+}
+
+/** الإجابة الصالحة من قاعدة البيانات: فهرس صحيح داخل 0..3. */
+function isCmsAnswer(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 3
 }
 
 /** يحوّل صف قاعدة البيانات إلى كائن السؤال المستخدم في الواجهة. */
@@ -135,9 +145,12 @@ export function mapCmsRow(row: CmsRow): QuizQuestion {
     difficulty: row.difficulty as QuizQuestion["difficulty"],
     question: row.question,
     options,
-    answer: row.answer,
-    explanation: row.explanation,
+    // لا تصل الإجابة من العرض العام: -1 يمثل الإجابة المخفية على الخادم،
+    // ويُكشف الجواب بعد اختيار المستخدم عبر quiz_reveal_answer.
+    answer: isCmsAnswer(row.answer) ? row.answer : -1,
+    explanation: row.explanation ?? "",
     reference: row.reference ?? null,
+    answerHidden: !isCmsAnswer(row.answer),
     source: "cms",
     created_at: row.created_at ?? null,
   }
@@ -154,12 +167,13 @@ export async function loadCmsQuestions(options: { force?: boolean } = {}): Promi
   cmsPromise = (async () => {
     try {
       const { supabase } = await import("@/lib/supabase/client")
+      // القراءة حصراً من العرض العام — لا يشمل إجابات ولا شروحات.
+      // الجدول الأساس بلا سياسة قراءة عامة منذ ترقية 20261012000000.
       const { data, error } = await supabase
-        .from("quiz_questions")
+        .from("quiz_questions_public")
         .select(
-          "slug, tier, semester, module, body, track, difficulty, question, options, answer, explanation, reference, created_at"
+          "slug, tier, semester, module, body, track, difficulty, question, options, created_at"
         )
-        .eq("is_published", true)
         .order("created_at", { ascending: true })
         .limit(500)
 
@@ -171,8 +185,13 @@ export async function loadCmsQuestions(options: { force?: boolean } = {}): Promi
 
       const questions = (data as unknown as CmsRow[])
         .map(mapCmsRow)
-        // سؤال بلا خيارات صالحة أو بفهرس جواب خارج النطاق لا يُعرض أبداً
-        .filter((question) => question.options.length === 4 && question.answer >= 0 && question.answer < 4)
+        // سؤال بلا خيارات صالحة لا يُعرض أبداً.
+        // الإجابة المخفية (answerHidden) مقبولة: -1 مقصود ويُكشف على الخادم.
+        .filter(
+          (question) =>
+            question.options.length === 4 &&
+            (question.answerHidden || (question.answer >= 0 && question.answer < 4))
+        )
 
       writeCmsCache(questions)
       cmsCache = questions

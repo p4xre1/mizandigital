@@ -651,11 +651,31 @@ export interface Database {
         Relationships: []
       }
     }
-    Views: { [_ in never]: never }
+    Views: {
+      /** عرض القراءة العامة لأسئلة الاختبارات — بدون answer/explanation/reference. */
+      quiz_questions_public: {
+        Row: {
+          slug: string
+          tier: string
+          semester: string | null
+          module: string | null
+          body: string | null
+          track: string | null
+          difficulty: string
+          question: string
+          options: Json
+          is_published: boolean
+          created_at: string
+          updated_at: string
+        }
+        Relationships: []
+      }
+    }
 
     Functions: {
       submit_quiz_attempt: { Args: { p_mode: string; p_label: string; p_tier: string; p_answers: Json; p_duration_ms: number; p_user_ref?: string | null }; Returns: { id: string; correct: number; total: number; score: number; xp_earned: number; credits_earned: number; best_streak: number }[] }
       check_quiz_answer: { Args: { p_question_id: string; p_chosen: number }; Returns: { correct: boolean; explanation: string; reference: string | null }[] }
+      quiz_reveal_answer: { Args: { p_slug: string; p_chosen: number }; Returns: { revealed: boolean; answer: number | null; explanation: string | null; reference: string | null }[] }
       toggle_reaction: { Args: { p_user_ref: string; p_target_type: string; p_target_id: string; p_reaction_type: string; p_clerk_user_id?: string | null }; Returns: { action: string; count: number }[] }
       get_reaction_summary: { Args: { p_target_type: string; p_target_id: string }; Returns: { reaction_type: string; count: number }[] }
       create_report: { Args: { p_reporter_ref: string; p_target_type: string; p_target_id: string; p_reason: string; p_details?: string | null; p_reporter_clerk_id?: string | null }; Returns: string }
