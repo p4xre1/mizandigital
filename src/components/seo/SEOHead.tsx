@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { DEFAULT_KEYWORDS } from "../../lib/seo/keywords"
 import { BASE_URL, canonicalFromLocation, canonicalUrl as toCanonicalUrl, isIndexablePath } from "../../lib/canonical"
-import { BRAND, fitTitle } from "../../lib/seo/description"
+import { BRAND, brandTitle } from "../../lib/seo/description"
 import { SchemaOrg, generateOrganizationSchema, generateWebsiteSchema } from "./SchemaOrg"
 
 /**
@@ -66,7 +66,10 @@ export function SEOHead({
   // scripts/prerender.mjs. كانت نسخة مصغّرة هنا بعلامة مختلفة
   // (« | الميزان الرقمية») وسقف واحد، فكل صفحة تُفتح من الداخل كانت تُبدّل
   // عنوان الملف الثابت بنصّ آخر — والفرق بين النسختين يُقرأ عنواناً مكرراً.
-  const fullTitle = fitTitle(title)
+  // brandTitle لا fitTitle وحدها: الملف الثابت يحمل «| ميزان الرقمية» نصاً
+  // صريحاً في كل صفحة، فلو مرّت العناوين هنا بلا إلحاق لصار عنوان DOM
+  // المرسوم مختلفاً عن عنوان HTML (وقياس الجولة: 304 صفحات).
+  const fullTitle = brandTitle(title)
 
   // الصفحات التي لا تُفهرس تُعرَّف في سياسة الروابط وحدها، فلا تُنسى وسمها:
   // /search و/login و/profile و/pricing و/admin تُعلَّم noindex here حتى لو

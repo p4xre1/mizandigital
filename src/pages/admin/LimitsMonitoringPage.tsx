@@ -67,7 +67,7 @@ export default function LimitsMonitoringPage() {
           <h2 className="text-[13px] font-extrabold text-emerald-900 dark:text-emerald-200">حالة الموارد</h2>
           <div className="mt-3 space-y-2 text-[11px]">
             <div className="flex justify-between"><span>320 route prerendered</span><span className="font-bold text-emerald-700">✅</span></div>
-            <div className="flex justify-between"><span>21 school + 325 lexicon</span><span className="font-bold text-emerald-700">✅</span></div>
+            <div className="flex justify-between"><span>21 school + 323 lexicon</span><span className="font-bold text-emerald-700">✅</span></div>
             <div className="flex justify-between"><span>بلا Adsterra</span><span className="font-bold text-emerald-700">✅ منذ 15 شتنبر</span></div>
             <div className="flex justify-between"><span>موارد المنصة</span><span className="font-bold text-emerald-700">✅ متاحة مجاناً</span></div>
             <div className="flex justify-between"><span>كوكيز محدثة</span><span className="font-bold text-emerald-700">sb-mizan-auth, mizan:*</span></div>

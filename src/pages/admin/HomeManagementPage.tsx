@@ -30,9 +30,9 @@ export default function HomeManagementPage() {
   }, [])
 
   const sections = [
-    { key: "hero", label: "قسم البطل (Hero)", desc: "العنوان الرئيسي + وصف + CTA + إحصائيات 325 مصطلح / 21 كلية / 8 مقالات", status: "ok", path: "src/pages/public/HomePage.tsx" },
+    { key: "hero", label: "قسم البطل (Hero)", desc: "العنوان الرئيسي + وصف + CTA + إحصائيات 323 مصطلح / 21 كلية / 8 مقالات", status: "ok", path: "src/pages/public/HomePage.tsx" },
     { key: "features", label: "المميزات (6)", desc: "قاموس، كليات، أرشيف، اختبارات، أخبار، مجتمع", status: "ok", path: "HomePage.tsx features array" },
-    { key: "stats", label: "الإحصائيات الحية", desc: `مقالات ${stats["articles"] || 8}، مصطلحات ${stats["lexicon_terms"] || 325}، كليات ${stats["faculties"] || 21}، مستخدمون ${stats["profiles"] || 0}`, status: "ok", path: "Supabase counts" },
+    { key: "stats", label: "الإحصائيات الحية", desc: `مقالات ${stats["articles"] || 8}، مصطلحات ${stats["lexicon_terms"] || 323}، كليات ${stats["faculties"] || 21}، مستخدمون ${stats["profiles"] || 0}`, status: "ok", path: "Supabase counts" },
     { key: "latest", label: "أحدث المحتوى", desc: "أحدث 3 مقالات + 3 أخبار + 3 مصطلحات", status: "ok", path: "HomePage queries" },
     { key: "quiz", label: "قسم الاختبارات", desc: "4 مسارات + رتب D-SSS + CTA", status: "ok", path: "HomePage quiz section" },
     { key: "pricing", label: "معلومات المجانية", desc: "كل الموارد والأدوات متاحة للجميع بلا إعلانات تجارية", status: "updated", path: "PricingPage + HomePage" },
@@ -68,7 +68,7 @@ export default function HomeManagementPage() {
           <div className="grid gap-3 sm:grid-cols-4">
             {[
               { label: "المقالات", value: stats["articles"] || 8, icon: FileText },
-              { label: "المصطلحات", value: stats["lexicon_terms"] || 325, icon: Layers },
+              { label: "المصطلحات", value: stats["lexicon_terms"] || 323, icon: Layers },
               { label: "الكليات", value: stats["faculties"] || 21, icon: GraduationCap },
               { label: "المستخدمون", value: stats["profiles"] || 0, icon: Users },
             ].map(s => {
@@ -127,7 +127,7 @@ export default function HomeManagementPage() {
               <ul className="mt-3 list-disc pr-5 text-[11px] leading-6 text-muted-foreground">
                 <li>✅ جميع الموارد متاحة للجميع، بلا إعلانات تجارية</li>
                 <li>✅ AEOHead + directAnswer + breadcrumbs + FAQ + speakable</li>
-                <li>✅ 320 route prerendered + 21 school + 325 lexicon</li>
+                <li>✅ 320 route prerendered + 21 school + 323 lexicon</li>
                 <li>✅ جميع الموارد والأدوات متاحة مجاناً</li>
                 <li>✅ كوكيز محدثة: sb-mizan-auth (Supabase Auth), mizan:saved:content:v1, mizan:quiz:progress:v1/v2, mizan:visitor_id, mizan:analytics:queue</li>
                 <li>⚠️ لوحة تحرير مرئية للرئيسية مستقبلاً (حالياً عبر الكود)</li>
@@ -139,7 +139,7 @@ export default function HomeManagementPage() {
             <h3 className="text-[13px] font-extrabold text-foreground">روابط سريعة لإدارة المحتوى الظاهر في الرئيسية</h3>
             <div className="mt-3 grid gap-2 sm:grid-cols-3">
               <Link to="/admin/articles" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><FileText className="size-3.5" /> إدارة المقالات (تظهر في الرئيسية)</Link>
-              <Link to="/admin/lexicon" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><Layers className="size-3.5" /> إدارة المصطلحات (325)</Link>
+              <Link to="/admin/lexicon" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><Layers className="size-3.5" /> إدارة المصطلحات (323)</Link>
               <Link to="/admin/faculties" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><GraduationCap className="size-3.5" /> إدارة الكليات (21)</Link>
               <Link to="/admin/news" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><FileText className="size-3.5" /> إدارة الأخبار (13)</Link>
               <Link to="/admin/seminars" className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-[11px] font-bold text-foreground hover:bg-muted"><BarChart3 className="size-3.5" /> إدارة الندوات (3)</Link>

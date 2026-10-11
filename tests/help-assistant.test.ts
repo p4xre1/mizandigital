@@ -14,6 +14,7 @@ import {
   SCHOOL_ENTRIES,
 } from "../shared/help/knowledge.js"
 import { LEGAL_CONSTITUTION_ENTRIES, LEGAL_FAMILY_CODE_ENTRIES } from "../shared/help/knowledge-legal.js"
+import lexiconClientTerms from "../src/data/lexicon.client.json"
 import { checkScope } from "../shared/help/guardrails.js"
 import { normalize, tokenize, rankEntries } from "../shared/help/retrieve.js"
 
@@ -134,7 +135,11 @@ describe("الإجابات من محتوى الموقع", () => {
 describe("قاعدة المعرفة", () => {
   test("تضم المدخلات المنسّقة والمعجم والأسئلة الشائعة والمدخلات القانونية", () => {
     expect(CURATED_ENTRIES.length).toBeGreaterThanOrEqual(20)
-    expect(LEXICON_ENTRIES.length).toBe(325)
+    // العدد يُقرأ من البيانات نفسها لا من رقم مكتوب هنا: رقم 325 بقي بعد دمج
+    // مصطلحين مكرّرين (صار المعجم 323 و«المساعد» يبني مدخلاته منه)، فسقط
+    // الفحص بلا سبب حقيقي. نفس شرط knowledge.js: مصطلح له عربية وتعريف.
+    const searchableLexiconTerms = lexiconClientTerms.filter((term) => term.term_ar && term.definition)
+    expect(LEXICON_ENTRIES.length).toBe(searchableLexiconTerms.length)
     expect(FAQ_ENTRIES.length).toBeGreaterThan(0)
     expect(LEGAL_CONSTITUTION_ENTRIES.length).toBe(180)
     expect(LEGAL_FAMILY_CODE_ENTRIES.length).toBe(399)

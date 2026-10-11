@@ -28,6 +28,16 @@
 # 2) مسارات تاريخية خرجت من المعجم الحالي للمعرّفات.
 /schools/fsjest-tangier   /schools/fsjes-tangier   301
 
+# 2.أ) مصطلحان أُضيفا مرّتين بالخطأ (نفس العربية ونفس الفرنسية) فصار لكل
+#      واحد صفحتان بعنوان واحد ومحتوى متقارب، وكلتاهما في sitemap — وهي
+#      حالة «Duplicate, Google chose different canonical» في Search Console.
+#      دُمج تعريف السجلّين في السجلّ القائم وأُزيل المكرّر
+#      (scripts/add-law-lexicon-terms.mjs صار يمنع التكرار)، وهذان تحويلان
+#      للمسارَين المنشورَين سابقاً فلا يُقرأ أحدهما 404 بعد إزالة ملفه.
+#      المصطلح المكرّر في «separation-pouvoirs-constitution» و«motion-censure-dustur».
+/lexicon/%D9%81%D8%B5%D9%84-%D8%A7%D9%84%D8%B3%D9%84%D8%B7-separation-pouvoirs-constitution   /lexicon/%D9%81%D8%B5%D9%84-%D8%A7%D9%84%D8%B3%D9%84%D8%B7   301
+/lexicon/%D9%85%D9%84%D8%AA%D9%85%D8%B3-%D8%A7%D9%84%D8%B1%D9%82%D8%A7%D8%A8%D8%A9-motion-censure-dustur   /lexicon/%D9%85%D9%84%D8%AA%D9%85%D8%B3-%D8%A7%D9%84%D8%B1%D9%82%D8%A7%D8%A8%D8%A9   301
+
 # 3) توحيد شرطة النهاية (/x/ → /x) لا يُكتب هنا إطلاقاً.
 #    مصدره الوحيد: onRequest في functions/[[path]].js، لأنه وحده يقدر أن
 #    يحذف الشرطة مع الحفاظ على المعاملات (؟utm=…). قاعدة _redirects ثابتة

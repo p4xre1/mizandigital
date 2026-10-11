@@ -1,8 +1,8 @@
 {
  "dataset": "lexicon",
  "title": "المعجم القانوني",
- "generatedAt": "2026-10-11T03:11:51.680Z",
- "count": 325,
+ "generatedAt": "2026-10-11T18:55:59.035Z",
+ "count": 323,
  "section": "https://www.mizan.page/lexicon",
  "urlPattern": "https://www.mizan.page/lexicon/{slug}",
  "items": [
@@ -9982,7 +9982,7 @@
    "id": "separation-pouvoirs",
    "term_ar": "فصل السلط",
    "term_fr": "Séparation des pouvoirs",
-   "definition": "مبدأ دستوري يقضي بتوزيع السلطة بين هيئات تشريعية وتنفيذية وقضائية مستقلة.",
+   "definition": "مبدأ دستوري يقضي بتوزيع السلطة بين هيئات تشريعية وتنفيذية وقضائية مستقلة، وهو الأساس الذي يقوم عليه النظام الدستوري المغربي: استقلال السلط التشريعية والتنفيذية والقضائية مع توازنها وتعاونها.",
    "category": "قانون دستوري",
    "legal_sources": [
     {
@@ -10039,7 +10039,7 @@
    "id": "motion-censure",
    "term_ar": "ملتمس الرقابة",
    "term_fr": "Motion de censure",
-   "definition": "إجراء برلماني يهدف لإسقاط الحكومة عبر سحب الثقة منها.",
+   "definition": "إجراء برلماني يهدف لإسقاط الحكومة عبر سحب الثقة منها؛ لا يُقبل إلا إذا وقّعه خُمس الأعضاء على الأقل، وتؤدي الموافقة عليه إلى استقالة الحكومة استقالة جماعية.",
    "category": "قانون دستوري",
    "legal_sources": [
     {
@@ -11435,61 +11435,6 @@
    "url": "/lexicon/الملكية-الدستورية"
   },
   {
-   "id": "separation-pouvoirs-constitution",
-   "term_ar": "فصل السلط",
-   "term_fr": "Séparation des pouvoirs",
-   "definition": "الأساس الذي يقوم عليه النظام الدستوري المغربي: استقلال السلط التشريعية والتنفيذية والقضائية مع توازنها وتعاونها.",
-   "category": "قانون دستوري",
-   "legal_sources": [
-    {
-     "code_ar": "الدستور المغربي",
-     "code_short": "دستور 2011",
-     "code_fr": "Constitution du Royaume du Maroc (2011)",
-     "articles": [
-      {
-       "number": "1",
-       "phrase": "دستور 2011، الفصل 1",
-       "article_number": "1",
-       "quotation": "نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.",
-       "quotation_type": "excerpt"
-      }
-     ],
-     "source_url": "https://www.sgg.gov.ma",
-     "last_verified": "2026-10-11"
-    }
-   ],
-   "canonical_url": "https://www.mizan.page/lexicon/فصل-السلط-separation-pouvoirs-constitution",
-   "last_reviewed": "2026-10-11",
-   "review_status": "internal_review",
-   "enrichment_source": "auto",
-   "simple_explanation": "بعبارة بسيطة: الأساس الذي يقوم عليه النظام الدستوري المغربي: استقلال السلط التشريعية والتنفيذية والقضائية مع توازنها وتعاونها.",
-   "simple_explanation_fr": "« Séparation des pouvoirs » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
-   "examples": [
-    "عند مراجعة «فصل السلط» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
-    "تمرين: قارن بين «فصل السلط» و«الملكية الدستورية» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
-    "في امتحان قانون دستوري: أعد صياغة تعريف «فصل السلط» في جملة واحدة قبل حفظه."
-   ],
-   "examples_fr": [
-    "Pour « Séparation des pouvoirs », vérifier l'article cité dans la fiche.",
-    "Exercice : distinguer « Séparation des pouvoirs » et en tirer la conséquence pratique."
-   ],
-   "exam_keywords": [
-    "تعريف فصل السلط",
-    "فصل السلط في القانون المغربي",
-    "Séparation des pouvoirs",
-    "فصل السلط قانون دستوري",
-    "أمثلة عن فصل السلط",
-    "فصل السلط دستور 2011"
-   ],
-   "related_terms": [
-    "monarchie-constitutionnelle",
-    "independance-judiciaire",
-    "parlement"
-   ],
-   "slug": "فصل-السلط-separation-pouvoirs-constitution",
-   "url": "/lexicon/فصل-السلط-separation-pouvoirs-constitution"
-  },
-  {
    "id": "responsabilite-rendition-comptes",
    "term_ar": "ربط المسؤولية بالمحاسبة",
    "term_fr": "Responsabilité et reddition de comptes",
@@ -11538,7 +11483,7 @@
    ],
    "related_terms": [
     "monarchie-constitutionnelle",
-    "separation-pouvoirs-constitution"
+    "separation-pouvoirs"
    ],
    "slug": "ربط-المسؤولية-بالمحاسبة",
    "url": "/lexicon/ربط-المسؤولية-بالمحاسبة"
@@ -12678,7 +12623,7 @@
    ],
    "related_terms": [
     "monarchie-constitutionnelle",
-    "separation-pouvoirs-constitution"
+    "separation-pouvoirs"
    ],
    "slug": "الملك-رئيس-الدولة",
    "url": "/lexicon/الملك-رئيس-الدولة"
@@ -13064,60 +13009,6 @@
    "url": "/lexicon/التصويت-على-الثقة"
   },
   {
-   "id": "motion-censure-dustur",
-   "term_ar": "ملتمس الرقابة",
-   "term_fr": "Motion de censure",
-   "definition": "أداة مجلس النواب لمعارضة مواصلة الحكومة تحمل مسؤوليتها؛ لا يقبل إلا بتوقيع خُمس الأعضاء ولا يصوت إلا بعد ثلاثة أيام من إيداعه.",
-   "category": "قانون دستوري",
-   "legal_sources": [
-    {
-     "code_ar": "الدستور المغربي",
-     "code_short": "دستور 2011",
-     "code_fr": "Constitution du Royaume du Maroc (2011)",
-     "articles": [
-      {
-       "number": "105",
-       "phrase": "دستور 2011، الفصل 105",
-       "article_number": "105",
-       "quotation": "لمجلس النواب أن يعارض في مواصلة الحكومة تحمل مسؤوليتها، بالتصويت على ملتمس للرقابة؛",
-       "quotation_type": "excerpt"
-      }
-     ],
-     "source_url": "https://www.sgg.gov.ma",
-     "last_verified": "2026-10-11"
-    }
-   ],
-   "canonical_url": "https://www.mizan.page/lexicon/ملتمس-الرقابة-motion-censure-dustur",
-   "last_reviewed": "2026-10-11",
-   "review_status": "internal_review",
-   "enrichment_source": "auto",
-   "simple_explanation": "بعبارة بسيطة: أداة مجلس النواب لمعارضة مواصلة الحكومة تحمل مسؤوليتها؛ لا يقبل إلا بتوقيع خُمس الأعضاء ولا يصوت إلا بعد ثلاثة أيام من إيداعه.",
-   "simple_explanation_fr": "« Motion de censure » : notion de droit marocain en droit constitutionnel, définie dans la fiche arabe de Mizan.",
-   "examples": [
-    "عند مراجعة «ملتمس الرقابة» تُقرأ الإحالة الواردة في البيانات من دستور 2011.",
-    "تمرين: قارن بين «ملتمس الرقابة» و«ملتمس الرقابة» مع بيان الأثر العملي لكل منهما في فرضية واقعية.",
-    "في امتحان قانون دستوري: أعد صياغة تعريف «ملتمس الرقابة» في جملة واحدة قبل حفظه."
-   ],
-   "examples_fr": [
-    "Pour « Motion de censure », vérifier l'article cité dans la fiche.",
-    "Exercice : distinguer « Motion de censure » et en tirer la conséquence pratique."
-   ],
-   "exam_keywords": [
-    "تعريف ملتمس الرقابة",
-    "ملتمس الرقابة في القانون المغربي",
-    "Motion de censure",
-    "ملتمس الرقابة قانون دستوري",
-    "أمثلة عن ملتمس الرقابة",
-    "ملتمس الرقابة دستور 2011"
-   ],
-   "related_terms": [
-    "motion-censure",
-    "vote-confiance"
-   ],
-   "slug": "ملتمس-الرقابة-motion-censure-dustur",
-   "url": "/lexicon/ملتمس-الرقابة-motion-censure-dustur"
-  },
-  {
    "id": "independance-judiciaire",
    "term_ar": "استقلال السلطة القضائية",
    "term_fr": "Indépendance du pouvoir judiciaire",
@@ -13165,7 +13056,7 @@
     "استقلال السلطة القضائية دستور 2011"
    ],
    "related_terms": [
-    "separation-pouvoirs-constitution",
+    "separation-pouvoirs",
     "juridiction",
     "csm"
    ],

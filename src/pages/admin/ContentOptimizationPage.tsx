@@ -303,7 +303,7 @@ export default function ContentOptimizationPage() {
         <div className="rounded-2xl border border-border bg-card p-5">
           <h3 className="text-[13px] font-extrabold text-foreground">كيف يعمل الربط التلقائي؟</h3>
           <ul className="mt-3 list-disc pr-5 text-[11px] leading-7 text-muted-foreground">
-            <li><code>enhancedAutoLinker.ts</code> — يبني فهرس 325 مصطلح مرتب حسب الطول (الأطول أولاً)</li>
+            <li><code>enhancedAutoLinker.ts</code> — يبني فهرس 323 مصطلح مرتب حسب الطول (الأطول أولاً)</li>
             <li>يطبق regex آمن مع escape — يتجنب الربط داخل كود، عناوين، روابط موجودة</li>
             <li>كل مصطلح يربط مرة واحدة فقط في المقال كامل (Set مشترك) — يمنع spam</li>
             <li>الحد الأقصى 12-15 رابط/مقال — قابل للتخصيص maxLinks</li>
@@ -319,7 +319,7 @@ export default function ContentOptimizationPage() {
             <li>يبقي القارئ في الموقع — من مقال إلى تعريف مصطلح إلى مقال آخر</li>
             <li>يظهر في HTML المُصدّر مسبقاً (prerendered) — مفهرس فوراً</li>
             <li>AEOHead + directAnswer + breadcrumbs + FAQ تكمل التحسين</li>
-            <li>320 route prerendered + 325 term + 21 school — كلها مترابطة</li>
+            <li>320 route prerendered + 323 term + 21 school — كلها مترابطة</li>
           </ul>
         </div>
       </div>

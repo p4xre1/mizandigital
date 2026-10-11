@@ -17,7 +17,11 @@ import type { LegalSource } from "../../types/cms"
 import { LegalTermTree, legalSourceAnchorId } from "../../components/lexicon/LegalTermTree"
 import { supabase } from "../../lib/supabase/client"
 import { rankRelatedItems } from "../../lib/utils/recommend"
-import { buildMetaDescription } from "../../lib/seo/description"
+import { 
+  buildMetaDescription,
+  lexiconDisplayLabel,
+  sectionContextFor,
+} from "../../lib/seo/description"
 import { useTrackView } from "@/hooks/useTrackView"
 
 interface TermPageProps {
@@ -57,6 +61,10 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   const [loading, setLoading] = useState(() => findLocalTermSync(targetQuery) === null)
   const [highlighted, setHighlighted] = useState<string | null>(null)
   const [relatedTerms, setRelatedTerms] = useState<any[]>([])
+  // القائمة الكاملة التي جاء منها المصطلح: يحتاجها lexiconDisplayLabel ليعرف
+  // أن العربية مكرّرة بين سجلّين فيضيف المقابل الفرنسي — نفس ما يفعله الملف
+  // الثابت، فلا يُبدَّل العنوان بعد hydration.
+  const [termPool, setTermPool] = useState<any[]>(() => lexiconData as any[])
 
   // تتبّع قراءة حقيقية لهذا المصطلح (مرة واحدة لكل جلسة متصفح)
   useTrackView("term", term ? targetQuery : null)
@@ -184,6 +192,7 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
         candidates.filter((candidate) => candidate.id !== current.id && !curatedIds.includes(candidate.id)),
         Math.max(0, 6 - curated.length)
       )
+      setTermPool(pool)
       setRelatedTerms([...curated, ...ranked])
     }
 
@@ -244,11 +253,16 @@ export function TermPage({ slug: propSlug, id: propId }: TermPageProps) {
   return (
     <>
       <AEOHead
-        title={`${term.term_ar} في القانون المغربي`}
-        description={buildMetaDescription(term.definition, [
-          term.term_fr ? `Terme juridique: ${term.term_fr}` : null,
-          `تعريف مصطلح "${term.term_ar}" ضمن المعجم القانوني المغربي على منصة الميزان الرقمية، مع الشجرة القانونية الرابطة بالقوانين والفصول ذات الصلة.`,
-        ])}
+        // الوسم والوصف من نفس المصدر الذي يبنيه prerender:
+        //   title  = lexiconDisplayLabel (المقابل الفرنسي يفصل بين المكرّرات)
+        //   الوصف  = «تعريف … في القانون المغربي: …» + عبارة سياق القسم
+        // وإلا استبدلhydration عنوان الملف الثابت بعنوان آخر — وبالمصطلحات
+        // المكرّرة (الرهن الحيازي، الصلح، الكفالة…) يصير السجلّان بعنوان واحد.
+        title={`${lexiconDisplayLabel(term, termPool)} في القانون المغربي`}
+        description={buildMetaDescription(
+          `تعريف ${term.term_ar} في القانون المغربي: ${term.definition || ""}`,
+          [sectionContextFor("/lexicon")]
+        )}
         ogType="article"
         canonicalUrl={canonical}
         keywords={[

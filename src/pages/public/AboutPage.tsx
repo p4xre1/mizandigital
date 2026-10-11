@@ -2,6 +2,7 @@ import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { LegalSection as Section } from "../../components/legal/LegalSection"
 import { GraduationCap, Linkedin, Target, ShieldAlert } from "lucide-react"
+import counts from "../../data/counts.json"
 
 const LINKEDIN_URL = "https://www.linkedin.com/in/mohamed-reda-yassin-05069533b"
 const CONTACT_EMAIL = "contact@mizan.page"
@@ -31,7 +32,7 @@ export function AboutPage() {
       <AEOHead
         title="حول ميزان الرقمية"
         description="تعرّف على القائم على منصة الميزان الرقمية، طالب قانون خاص بكلية العلوم القانونية والاقتصادية والاجتماعية بطنجة، جامعة عبد المالك السعدي."
-        directAnswer="ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تأسست لتوفير ملخصات، مقالات، قاموس قانوني 325 مصطلح، دليل 21 كلية، واختبارات قانونية، بإشراف فريق تعليمي."
+        directAnswer={`ميزان الرقمية منصة مغربية مجانية لطلبة كليات الحقوق، تأسست لتوفير ملخصات، مقالات، قاموس قانوني ${counts.lexicon} مصطلح، دليل 21 كلية، واختبارات قانونية، بإشراف فريق تعليمي.`}
         schema={[breadcrumbSchema, personSchema]}
       />
 
@@ -58,7 +59,7 @@ export function AboutPage() {
           <Section title="ماذا ستجد على المنصة؟">
             <ul className="list-disc pr-5 space-y-1.5 text-sm leading-relaxed">
               <li>أرشيف دراسي مصنّف حسب الفصول S1 إلى S6: ملخصات ومحاضرات ونماذج امتحانات.</li>
-              <li>قاموس قانوني من 325 مصطلحاً عربياً-فرنسياً مع الشرح والإحالات التشريعية.</li>
+              <li>قاموس قانوني من {counts.lexicon} مصطلحاً عربياً-فرنسياً مع الشرح والإحالات التشريعية.</li>
               <li>دليل كليات الحقوق والجامعات المغربية (21 كلية FSJES) مع الروابط الرسمية.</li>
               <li>مقالات قانونية ومنهجية، وأخبار تشريعية بمتابعة لمستجدات القانون المغربي.</li>
               <li>نصوص قانونية كاملة مع الموجز، واختبارات QCM بمسارات متعددة (الكلية، المباريات، المقابلات).</li>

@@ -253,7 +253,7 @@ export function HomePage() {
     <>
       <AEOHead
         title="ميزان الرقمية – منصة طلبة الحقوق في المغرب"
-        description="ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة القانون: ملخصات S1-S6، قاموس قانوني 250 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM، بلا إعلانات تجارية."
+        description={`ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة القانون: ملخصات S1-S6، قاموس قانوني ${counts.lexicon} مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM، بلا إعلانات تجارية.`}
         directAnswer="ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة كليات الحقوق، تضم ملخصات S1-S6، قاموساً قانونياً، دليلاً للكليات، مقالات وأخباراً واختبارات وأدوات قانونية، بلا إعلانات تجارية."
         keywords={[
           "ملخصات القانون S1 S2 S3 S4 S5 S6",
@@ -321,7 +321,7 @@ export function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { title: "القاموس القانوني", desc: "250 مصطلح عربي-فرنسي", icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
+                { title: "القاموس القانوني", desc: `${counts.lexicon} مصطلح عربي-فرنسي`, icon: Scale, count: `${counts.lexicon}`, color: "from-[#2563eb] to-[#3b82f6]", href: "/lexicon" },
                 { title: "الأرشيف الدراسي", desc: "ملخصات S1 إلى S6", icon: Library, count: "S1-S6", color: "from-[#f59e0b] to-[#fbbf24]", href: "/archive" },
                 { title: "المقالات القانونية", desc: `${articlesCount} مقال تحليلي`, icon: FileText, count: `${articlesCount}`, color: "from-[#10b981] to-[#34d399]", href: "/articles" },
                 { title: "الأخبار", desc: "مستجدات تشريعية", icon: Video, count: "مباشر", color: "from-[#ef4444] to-[#f87171]", href: "/news" },

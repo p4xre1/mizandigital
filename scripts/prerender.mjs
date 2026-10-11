@@ -32,8 +32,11 @@ import {
   MAX_TITLE,
   UTILITY_ROUTES,
   abbreviateFaculty,
+  brandTitle,
   buildMetaDescription,
   fitTitle,
+  lexiconDisplayLabel,
+  sectionContextFor,
 } from "./lib/meta-description.mjs";
 import { buildCareerPages } from "./lib/career-pages.mjs";
 import { renderHomeServerRenderedContent } from "./lib/home-static-content.mjs";
@@ -286,23 +289,18 @@ const usedLexiconSlugs = new Set();
 // عنواناً واحداً لصفحتين — يقرأه الزاحف تكراراً فيُرجّح نسخة ويرفع الأخرى
 // من الفهرس («Duplicate, Google chose different canonical»). المقابلة
 // الفرنسية تفصل بينهما، ولا تُذكر إلا حين يلزم.
-const termArCount = new Map();
-for (const item of lexicon) {
-  const key = String(item.term_ar || "").trim();
-  if (key) termArCount.set(key, (termArCount.get(key) || 0) + 1);
-}
-
+//
+// الوسم يُبنى في shared/seo/meta-copy.js (lexiconDisplayLabel) — نفس الدالة
+// التي تستدعيها TermPage.tsx بعد hydration، فلا يُبدَّل عنوان الملف الثابت
+// عند تشغيل JS. وكان هذا هو العطل: الفصل كان هنا فقط، وTermPage يكتب
+// «الرهن الحيازي في القانون المغربي» فيصير السجلّان بعنوان واحد بعد التحميل.
 const lexiconWithSlugs = lexicon.map((item) => {
   const slug = lexiconSlug(item, usedLexiconSlugs);
-  const term = String(item.term_ar || "").trim();
-  const duplicated = (termArCount.get(term) || 0) > 1;
-  const titleLabel =
-    duplicated && item.term_fr ? `${term} (${String(item.term_fr).trim()})` : term;
 
   return {
     ...item,
     slug,
-    titleLabel,
+    titleLabel: lexiconDisplayLabel(item, lexicon),
   };
 });
 
@@ -709,7 +707,7 @@ const pages = [
     title: "ميزان الرقمية – منصة طلبة الحقوق في المغرب",
 
     description:
-      "ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة القانون، دون إعلانات تجارية: ملخصات S1-S6، قاموس قانوني 325 مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.",
+      `ميزان الرقمية منصة مغربية مجانية بالكامل لطلبة القانون، دون إعلانات تجارية: ملخصات S1-S6، قاموس قانوني ${lexicon.length} مصطلح عربي-فرنسي، دليل 21 كلية حقوق FSJES، مقالات، أخبار تشريعية واختبارات QCM.`,
 
     schema: {
       "@context": "https://schema.org",
@@ -718,7 +716,7 @@ const pages = [
       url: DOMAIN,
       name: "ميزان الرقمية | ملخصات S1-S6، قاموس قانوني ودليل كليات الحقوق بالمغرب",
       description:
-        "منصة مغربية مجانية بالكامل لطلبة القانون دون إعلانات تجارية: ملخصات S1-S6، قاموس 325 مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.",
+        `منصة مغربية مجانية بالكامل لطلبة القانون دون إعلانات تجارية: ملخصات S1-S6، قاموس ${lexicon.length} مصطلح، دليل 21 كلية حقوق، مقالات، أخبار واختبارات QCM.`,
       inLanguage: "ar-MA",
       isPartOf: {
         "@id": `${DOMAIN}/#website`,
@@ -2488,7 +2486,7 @@ pages.push(
 
           <ul>
             <li>أرشيف دراسي مصنّف حسب الفصول S1 إلى S6: ملخصات ومحاضرات ونماذج امتحانات.</li>
-            <li>قاموس قانوني من 325 مصطلحاً عربياً-فرنسياً مع الشرح والإحالات التشريعية.</li>
+            <li>قاموس قانوني من ${lexicon.length} مصطلحاً عربياً-فرنسياً مع الشرح والإحالات التشريعية.</li>
             <li>دليل كليات الحقوق والجامعات المغربية (21 كلية FSJES) مع الروابط الرسمية.</li>
             <li>مقالات قانونية ومنهجية، وأخبار تشريعية بمتابعة لمستجدات القانون المغربي.</li>
             <li>نصوص قانونية كاملة مع الموجز، واختبارات QCM بمسارات متعددة (الكلية، المباريات، المقابلات).</li>
@@ -3541,22 +3539,9 @@ for (const page of pages) {
  * زائد عبارة سياقية للقطاع تُكمّل النص القصير. بلا هذا يختلف ما تراه الزاحفة
  * التي لا تشغّل JS عمّا يراه المتصفح بعد hydration، فتُقتبس صفحة بضع كلمات.
  */
-const SECTION_CONTEXT = {
-  "/": "ميزان الرقمية — منصة المعرفة القانونية لطلبة الحقوق بالمغرب.",
-  "/lexicon": "قاموس المصطلحات القانونية بالعربية والفرنسية في القانون المغربي.",
-  "/news": "متابعة مستجدات التشريع والقضاء المغربي لطلبة الحقوق والباحثين.",
-  "/articles": "مقالات ودراسات قانونية مبسّطة لطلبة الحقوق في كليات القانون.",
-  "/events": "ندوات وأيام دراسية قانونية في كليات الحقوق المغربية.",
-  "/schools": "معلومات كليات الحقوق والجامعات المغربية ضمن دليل ميزان.",
-  "/archive": "ملخصات ومحاضرات ونماذج امتحانات مع تصحيحاتها من أرشيف كليات الحقوق، مرتّبة حسب الفصل والمادة وجاهزة للتحميل المجاني.",
-  "/pdf": "وثائق وملخصات دراسية بصيغة PDF من أرشيف ميزان الرقمية.",
-  "/guides": "أدلة وموارد دراسية لطلبة الحقوق في المغرب.",
-};
-
-const sectionContextFor = (path) => {
-  const first = String(path || "").split("/").filter(Boolean)[0];
-  return SECTION_CONTEXT[first ? `/${first}` : "/"] || SECTION_CONTEXT["/"];
-};
+// SECTION_CONTEXT/sectionContextFor انتقلا إلى shared/seo/meta-copy.js
+// (استيراد أعلاه): نفس العبارة السياقية يقرأها الملف الثابت والمتصفح، فلا
+// يختلف وصف الصفحة بين ما تبنيه JS وما سلّمته الحافة.
 
 /*
  * طول العنوان ونطاقاه (هدف 60، سقف 65) وسقوف الوصف (140-160) كلُّها في
@@ -3568,7 +3553,10 @@ const sectionContextFor = (path) => {
 function renderPage(template, page) {
   const canonical = absoluteUrl(page.path);
   const metaDescription = buildMetaDescription(page.description, page.metaContext || [sectionContextFor(page.path)]);
-  const title = fitTitle(page.title);
+  // brandTitle لا fitTitle وحدها: بعض الصفحات تمرّر عنواناً بلا علامة (المقالات،
+  // الأخبار، svg…)، وبعضها يمرّرها داخل النص. القاعدة واحدة هنا وفي SEOHead
+  // (shared/seo/meta-copy.js)، فلا ينتهي DOM المرسوم إلى عنوان يخالف HTML.
+  const title = brandTitle(page.title);
 
   const swap = (html, regex, replacement) => {
     if (!regex.test(html)) {
@@ -3598,6 +3586,17 @@ function renderPage(template, page) {
     html,
     /<link\b[^>]*\brel=["']canonical["'][^>]*>/i,
     `<link rel="canonical" href="${canonical}">`
+  );
+
+  // hreflang="ar-MA" كان يُترك على قيمة القالب (الجذر) في كل صفحة: يصل
+  // الزاحف إلى /lexicon/… فيرى `ar` و`x-default` يشيران إلى الصفحة نفسها،
+  // و`ar-MA` يشير إلى الرئيسية. إشارة متناقضة تُضعف تجميع البدائل، وقد
+  // تُقرأ الصفحة بديلاً للرئيسية. الوسوم الثلاثة الآن تُشير إلى الرابط
+  // القانوني للصفحة نفسها — كما يفعل القالب في الصفحة الرئيسية.
+  html = swap(
+    html,
+    /<link\b[^>]*\brel=["']alternate["'][^>]*\bhreflang=["']ar-MA["'][^>]*>/i,
+    `<link rel="alternate" hreflang="ar-MA" href="${canonical}">`
   );
 
   html = swap(
@@ -3672,6 +3671,36 @@ function renderPage(template, page) {
   </head>`
       );
     }
+  }
+
+  // عقدة WebPage للصفحة: كانت في القالب عقدة واحدة تصف الرئيسية وتُنسخ في كل
+  // صفحة (url = الرئيسية) وتتكرّر بنفس @id مع عقدة الرئيسية المحقونة. أُزيلت
+  // من القالب وتبنى هنا لكل صفحة لا تُصدر عقدتها الخاصة: @id بالرابط القانوني
+  // للصفحة نفسها، فلا تكرار ولا عقدة تصف رابطاً آخر.
+  const declaredNodes = [page.schema, ...(Array.isArray(page.extraSchema) ? page.extraSchema : [])]
+    .flat()
+    .filter(Boolean);
+  const hasWebPageNode = declaredNodes.some((node) => {
+    const type = node["@type"];
+    return Array.isArray(type) ? type.includes("WebPage") : type === "WebPage";
+  });
+
+  if (!hasWebPageNode) {
+    html = html.replace(
+      "</head>",
+      `    <script type="application/ld+json">${escapeJsonForHtml({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "@id": `${canonical}#webpage`,
+        url: canonical,
+        name: title,
+        description: metaDescription,
+        inLanguage: "ar-MA",
+        isPartOf: { "@id": `${DOMAIN}/#website` },
+        publisher: { "@id": `${DOMAIN}/#organization` },
+      })}</script>
+  </head>`
+    );
   }
 
   if (page.noindex) {

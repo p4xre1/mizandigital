@@ -6,6 +6,7 @@ import { containsText } from "../../lib/utils/search"
 import { generateSlug, lexiconSlugById, uniqueLexiconSlug, type LexiconSlugItem } from "../../lib/utils/generateSlug"
 import { canonicalLexicon, canonicalLexiconHub } from "../../lib/canonical"
 import localLexicon from "../../data/lexicon.client.json"
+import counts from "../../data/counts.json"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
@@ -176,7 +177,7 @@ export function LexiconPage() {
       <AEOHead
         title="القاموس القانوني المغربي"
         description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
-        directAnswer="القاموس القانوني في ميزان الرقمية يضم 325 مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب."
+        directAnswer={`القاموس القانوني في ميزان الرقمية يضم ${counts.lexicon} مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب.`}
         canonicalUrl={lexiconHubCanonical}
         keywords={[
           "المعجم القانوني المغربي",

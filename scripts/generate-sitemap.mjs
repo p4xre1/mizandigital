@@ -217,8 +217,13 @@ const dynamicEntries = [
     changefreq: "monthly",
     priority: "0.7",
   })),
+  // صفحات المعجم تحمل في متنها تاريخ «آخر مراجعة تحريرية» (last_reviewed)،
+  // فنُصدِر نفس التاريخ lastmod هنا: إشارة recrawl صادقة تطابق ما يراه
+  // الزائر في الصفحة، بدل التاريخ الفارغ الذي كان يترك 323 صفحة بلا أي
+  // تسريع للزحف عند الاستعمال الجماعي لـ «request indexing».
   ...lexicon.map((item) => ({
     path: pathOfUrl(canonicalLexicon(lexiconSlug(item, lexiconTaken))),
+    lastmod: dateOf(item, ["last_reviewed", "lastReviewed", "updatedAt", "updated_at"]),
     changefreq: "monthly",
     priority: "0.7",
   })),

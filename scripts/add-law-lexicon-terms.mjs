@@ -1,12 +1,18 @@
 /*
  * scripts/add-law-lexicon-terms.mjs
  *
- * يضيف 45 مصطلحا قانونيا (36 قانون دستوري + 9 مدونة أسرة) إلى
+ * يضيف 43 مصطلحا قانونيا (34 قانون دستوري + 9 مدونة أسرة) إلى
  * src/data/lexicon.json، بإحالات حرفية إلى نصوص data/laws/*.articles.json —
  * نفس المصدر الذي تُبنى منه بنوك الأسئلة والمدخلات القانونية للمساعد.
  *
- * sكتيب idempotent: إن وُجد أي من المعرّفات في الملف لا يُعاد إضافته.
+ * السكربت idempotent: إن وُجد أي من المعرّفات في الملف لا يُعاد إضافته.
  * بعد التشغيل: pnpm lexicon:client (أو node scripts/generate-lexicon-client-data.mjs)
+ *
+ * ⚠️ لا تُضف مصطلحاً عربيته ومقابله الفرنسي موجودان في الملف بمعرّف آخر
+ * (وقد حدث: «فصل السلط» و«ملتمس الرقابة» أُضيفا مرّتين فصار لكل منهما
+ * صفحتان بعنوان واحد ومحتوى متقارب — تُقرأ في Search Console تكراراً:
+ * «Duplicate, Google chose different canonical»). الفحص `assertNoTermCollision`
+ * يوقف السكربت برسالة صريحة بدل إنشاء الصفحة المكرّرة بصمت.
  */
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -60,16 +66,13 @@ const FAMILY_CODE = {
  * law: "const" | "fam" — articles: أرقام الفصول/المواد المُقتبسة منها حرفيا.
  */
 const TERMS = [
-  // ===================== 36 مصطلحا: قانون دستوري =====================
+  // ===================== 34 مصطلحا: قانون دستوري =====================
   { id: "monarchie-constitutionnelle", term_ar: "الملكية الدستورية", term_fr: "Monarchie constitutionnelle", category: "قانون دستوري", law: "const", articles: [1],
     definition: "نظام الحكم في المغرب: ملكية دستورية ديمقراطية برلمانية واجتماعية، يحدد الدستور سلطات الملك وقيودها.",
     related: ["parlement", "souverainete", "separation-pouvoirs"] },
-  { id: "separation-pouvoirs-constitution", term_ar: "فصل السلط", term_fr: "Séparation des pouvoirs", category: "قانون دستوري", law: "const", articles: [1],
-    definition: "الأساس الذي يقوم عليه النظام الدستوري المغربي: استقلال السلط التشريعية والتنفيذية والقضائية مع توازنها وتعاونها.",
-    related: ["monarchie-constitutionnelle", "independance-judiciaire", "parlement"] },
   { id: "responsabilite-rendition-comptes", term_ar: "ربط المسؤولية بالمحاسبة", term_fr: "Responsabilité et reddition de comptes", category: "قانون دستوري", law: "const", articles: [1],
     definition: "مبدأ دستوري يجعل كل سلطة وكل سلطة عمومية مسؤولة عن ممارساتها ومحاسبة عنها أمام القانون.",
-    related: ["monarchie-constitutionnelle", "separation-pouvoirs-constitution"] },
+    related: ["monarchie-constitutionnelle", "separation-pouvoirs"] },
   { id: "souverainete-nation", term_ar: "السيادة الشعبية", term_fr: "Souveraineté nationale", category: "قانون دستوري", law: "const", articles: [2],
     definition: "السيادة للأمة، تمارسها مباشرة بالاستفتاء وبصفة غير مباشرة بواسطة ممثليها المنتخبين بالاقتراع الحر والنزيه.",
     related: ["souverainete", "referendum", "elections-libres-nizihates"] },
@@ -132,7 +135,7 @@ const TERMS = [
     related: ["droit-reel", "expropriation"] },
   { id: "roi-chef-etat", term_ar: "الملك رئيس الدولة", term_fr: "Roi, chef de l'État", category: "قانون دستوري", law: "const", articles: [42],
     definition: "الملك رئيس الدولة وممثلها الأسمى، ورمز وحدة الأمة، وضامن دوام الدولة واستمرارها، والحكم الأسمى بين مؤسساتها.",
-    related: ["monarchie-constitutionnelle", "separation-pouvoirs-constitution"] },
+    related: ["monarchie-constitutionnelle", "separation-pouvoirs"] },
   { id: "nomination-chef-gouvernement", term_ar: "تعيين رئيس الحكومة", term_fr: "Nomination du chef du gouvernement", category: "قانون دستوري", law: "const", articles: [47],
     definition: "يعين الملك رئيس الحكومة من الحزب السياسي الذي تصدر انتخابات أعضاء مجلس النواب وعلى أساس نتائجها، ويعين أعضاء الحكومة باقتراح منه.",
     related: ["roi-chef-etat", "vote-confiance"] },
@@ -154,12 +157,9 @@ const TERMS = [
   { id: "vote-confiance", term_ar: "التصويت على الثقة", term_fr: "Vote de confiance", category: "قانون دستوري", law: "const", articles: [103],
     definition: "حق رئيس الحكومة في ربط مواصلة الحكومة تحمل مسؤوليتها بتصويت يمنح الثقة لدى مجلس النواب، بشأن تصريح عن السياسة العامة أو نص معروض.",
     related: ["motion-censure", "nomination-chef-gouvernement"] },
-  { id: "motion-censure-dustur", term_ar: "ملتمس الرقابة", term_fr: "Motion de censure", category: "قانون دستوري", law: "const", articles: [105],
-    definition: "أداة مجلس النواب لمعارضة مواصلة الحكومة تحمل مسؤوليتها؛ لا يقبل إلا بتوقيع خُمس الأعضاء ولا يصوت إلا بعد ثلاثة أيام من إيداعه.",
-    related: ["motion-censure", "vote-confiance"] },
   { id: "independance-judiciaire", term_ar: "استقلال السلطة القضائية", term_fr: "Indépendance du pouvoir judiciaire", category: "قانون دستوري", law: "const", articles: [107],
     definition: "السلطة القضائية مستقلة عن السلطة التشريعية وعن السلطة التنفيذية، والملك هو الضامن لاستقلالها.",
-    related: ["separation-pouvoirs-constitution", "juridiction"] },
+    related: ["separation-pouvoirs", "juridiction"] },
   { id: "presomption-innocence", term_ar: "مبدأ البراءة", term_fr: "Présomption d'innocence", category: "قانون دستوري", law: "const", articles: [119],
     definition: "يُعتبر كل مشتبه فيه أو متهم بارتكاب جريمة بريئا إلى أن تثبت إدانته بمقرر قضائي مكتسب لقوة الشيء المقضي به.",
     related: ["prevenu", "proces-equitable"] },
@@ -204,6 +204,44 @@ const terms = JSON.parse(await readFile(LEX, "utf8"));
 const existingIds = new Set(terms.map((t) => t.id));
 const termArById = new Map(terms.map((t) => [t.id, t.term_ar]));
 
+/** مفتاح المصطلح كما يراه الزاحف: العربي + الفرنسي معاً (تطبيع مسافات وحالة). */
+const termKey = (termAr, termFr) =>
+  `${String(termAr ?? "").replace(/\s+/g, " ").trim().toLowerCase()}||${String(termFr ?? "").replace(/\s+/g, " ").trim().toLowerCase()}`;
+
+/**
+ * يمنع ظهور صفحتين لنفس المصطلح (نفس العربية ونفس الفرنسية).
+ *
+ * كانت المواصفتان `separation-pouvoirs-constitution` و`motion-censure-dustur`
+ * تعيدان إنشاء مصطلحين موجودين أصلاً، فصار لكل مصطلح ملفان بعنوان واحد
+ * ومحتوى متقارب ورابطين في sitemap — وهي الحالة التي تُسمّيها Search Console
+ * «Duplicate, Google chose different canonical». المعرّف وحده لم يكن كافياً
+ * للكشف: المصطلح المكرّر يحمل معرّفاً جديداً دائماً.
+ */
+function assertNoTermCollision(existing, additions) {
+  const owner = new Map(); // termKey → id
+  for (const t of existing) owner.set(termKey(t.term_ar, t.term_fr), t.id);
+
+  const seenInBatch = new Map();
+  for (const s of additions) {
+    const key = termKey(s.term_ar, s.term_fr);
+    const existingOwner = owner.get(key);
+    if (existingOwner && !existingIds.has(s.id)) {
+      throw new Error(
+        `مصطلح مكرّر: «${s.term_ar}» (${s.term_fr}) موجود بمعرّف «${existingOwner}»، ` +
+          `فلا يُضاف بمعرّف «${s.id}» — أضف حقلاً في السجلّ القائم أو غيّر المصطلح.`
+      );
+    }
+    const batchOwner = seenInBatch.get(key);
+    if (batchOwner && batchOwner !== s.id) {
+      throw new Error(`مصطلح مكرّر داخل الدفعة: «${s.term_ar}» (${s.id} و${batchOwner}).`);
+    }
+    seenInBatch.set(key, s.id);
+    if (!existingOwner) owner.set(key, s.id);
+  }
+}
+
+assertNoTermCollision(terms, TERMS);
+
 // تحقق: معرّفات المصطلحات المرتبطة يجب أن توجد (موجودة أصلا أو ضمن هذه الدفعة)
 const allAfter = new Set([...existingIds, ...TERMS.map((t) => t.id)]);
 for (const s of TERMS) {
@@ -238,8 +276,16 @@ function buildSource(lawKey, articleNumbers) {
 for (const s of TERMS) termArById.set(s.id, s.term_ar);
 
 const newEntries = TERMS.map((s) => {
-  const compareId = s.related.find((r) => r !== s.id);
-  const compareTerm = compareId ? (termArById.get(compareId) ?? compareId) : s.term_ar;
+  // «قارن بين X وX»: كان الاختيار الأول في `related` يكفي، وهذا ما أنتج —
+  // في السجلّات المكرّرة — تمريناً يقارن المصطلح بنفسه. الآن نبحث عن مرشّح
+  // عربيته مختلفة، وإن لم يوجد نكتب تمريناً بلا مقارنة.
+  const compareId = s.related.find(
+    (r) => r !== s.id && (termArById.get(r) ?? r) !== s.term_ar
+  );
+  const compareTerm = compareId ? (termArById.get(compareId) ?? compareId) : null;
+  const compareExercise = compareTerm
+    ? `تمرين: قارن بين «${s.term_ar}» و«${compareTerm}» مع بيان الأثر العملي لكل منهما في فرضية واقعية.`
+    : `تمرين: اشرح «${s.term_ar}» في فرضية واقعية وبيّن الأثر العملي له.`;
   const frDef = `« ${s.term_fr} » : notion de droit marocain en ${s.category === "قانون دستوري" ? "droit constitutionnel" : "droit de la famille"}, définie dans la fiche arabe de Mizan.`;
   return {
     id: s.id,
@@ -256,7 +302,7 @@ const newEntries = TERMS.map((s) => {
     simple_explanation_fr: frDef,
     examples: [
       `عند مراجعة «${s.term_ar}» تُقرأ الإحالة الواردة في البيانات من ${s.law === "const" ? "دستور 2011" : "مدونة الأسرة"}.`,
-      `تمرين: قارن بين «${s.term_ar}» و«${compareTerm}» مع بيان الأثر العملي لكل منهما في فرضية واقعية.`,
+      compareExercise,
       `في امتحان ${s.category}: أعد صياغة تعريف «${s.term_ar}» في جملة واحدة قبل حفظه.`,
     ],
     examples_fr: [
@@ -275,11 +321,26 @@ const newEntries = TERMS.map((s) => {
   };
 });
 
-// حساب slugs للقائمة الكاملة (250 + الجديدة) بنفس خوارزمية prerender
+// حساب slugs للقائمة الكاملة بنفس خوارزمية prerender
 const builtById = new Map(newEntries.map((e) => [e.id, e]));
 // السكربت idempotent: المواصفات الموجودة تُعاد بنائها في مكانها (بنفس الترتيب)،
 // والمواصفات الجديدة تُضاف في النهاية.
-const out = terms.map((t) => builtById.get(t.id) ?? t);
+//
+// ولا يدهس ما حُرِّر بعد أول تشغيل: `related_terms` و`category` و`review_status`
+// و`last_reviewed` تُحفظ من الملف القائم. كان التشغيل الثاني يُسقط روابط تحريرية
+// أُضيفت لاحقاً (primaute-loi، parite، chef-gouvernement…) ويقلب التصنيف
+// («الأحوال الشخصية» ← «مدونة الأسرة»)، وهو فقدان بيانات صامت في ملف متتبَّع.
+const out = terms.map((t) => {
+  const fresh = builtById.get(t.id);
+  if (!fresh) return t;
+  return {
+    ...fresh,
+    ...(t.related_terms ? { related_terms: t.related_terms } : {}),
+    ...(t.category ? { category: t.category } : {}),
+    ...(t.review_status ? { review_status: t.review_status } : {}),
+    ...(t.last_reviewed ? { last_reviewed: t.last_reviewed } : {}),
+  };
+});
 for (const s of TERMS) {
   if (!existingIds.has(s.id)) out.push(builtById.get(s.id));
 }
@@ -291,5 +352,7 @@ for (const e of out) {
 
 await writeFile(LEX, `${JSON.stringify(out, null, 2)}\n`, "utf8");
 const added = TERMS.length - newEntries.filter((e) => existingIds.has(e.id)).length;
-console.log(`✓ ${added > 0 ? `أُضيف ${added} مصطلحا جديدا` : "عُادت بناء المواصفات الأربع والخمسين"} إلى lexicon.json — المجموع: ${out.length}.`);
+console.log(
+  `✓ ${added > 0 ? `أُضيف ${added} مصطلحا جديدا` : `عُودت بناء ${TERMS.length} مواصفة قائمة`} إلى lexicon.json — المجموع: ${out.length}.`
+);
 console.log("  شغّل: node scripts/generate-lexicon-client-data.mjs");
