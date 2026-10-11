@@ -24,17 +24,17 @@ export function HomeCollabBanner() {
           href={WADIFA_PUBLIC_URL}
           target="_blank"
           rel="noopener noreferrer sponsored"
-          className="group relative flex flex-col gap-6 overflow-hidden rounded-[28px] bg-gradient-to-l from-[#0f172a] via-[#1e3a8a] to-[#2563eb] p-6 text-white shadow-[0_24px_60px_-24px_rgba(37,99,235,0.45)] transition-shadow hover:shadow-[0_28px_70px_-20px_rgba(37,99,235,0.55)] md:flex-row md:items-center md:justify-between md:gap-10 md:p-9"
+          className="group relative flex flex-col gap-6 overflow-hidden rounded-[28px] bg-gradient-to-l from-[#2563eb] via-[#4338ca] to-[#7c3aed] p-6 text-white shadow-[0_24px_60px_-24px_rgba(99,60,235,0.45)] transition-shadow hover:shadow-[0_28px_70px_-20px_rgba(99,60,235,0.55)] md:flex-row md:items-center md:justify-between md:gap-10 md:p-9"
         >
           <div className="pointer-events-none absolute -top-20 -right-16 size-[280px] rounded-full bg-[#fbbf24]/20 blur-[70px]" aria-hidden="true" />
           <div className="pointer-events-none absolute -bottom-24 -left-20 size-[320px] rounded-full bg-[#60a5fa]/25 blur-[80px]" aria-hidden="true" />
 
           <div className="relative flex items-start gap-4">
-            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-white/10 ring-1 ring-white/15 md:size-14" aria-hidden="true">
-              <Handshake className="size-6 text-[#fbbf24] md:size-7" />
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#fbbf24] to-[#f59e0b] shadow-[0_8px_20px_rgba(245,158,11,0.35)] md:size-14" aria-hidden="true">
+              <Handshake className="size-6 text-[#1e3a8a] md:size-7" />
             </span>
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#fbbf24]/15 px-3 py-1 text-[12px] font-black text-[#fbbf24] ring-1 ring-[#fbbf24]/30">
+              <span className="block text-[13px] font-black text-[#fbbf24]">
                 شراكة وتعاون
               </span>
               <p className="mt-2.5 text-[19px] font-black leading-8 md:text-[23px]">
