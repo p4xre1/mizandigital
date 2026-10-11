@@ -3,8 +3,8 @@
 > Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.
 
 - **النطاق:** https://www.mizan.page
-- **تاريخ التوليد:** 2026-10-11T01:12:29.534Z
-- **إجمالي السجلات:** 598
+- **تاريخ التوليد:** 2026-10-11T02:58:00.525Z
+- **إجمالي السجلات:** 628
 - **الصادر:** بيانات محلية فقط (CMS غير متاح وقت البناء)
 
 ## مجموعات البيانات
@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | المقالات القانونية (articles) | 8 | [/reference/articles.json](https://www.mizan.page/reference/articles.json) | [/reference/articles.md](https://www.mizan.page/reference/articles.md) | [/articles](https://www.mizan.page/articles) |
 | المستجدات التشريعية والقضائية (news) | 13 | [/reference/news.json](https://www.mizan.page/reference/news.json) | [/reference/news.md](https://www.mizan.page/reference/news.md) | [/news](https://www.mizan.page/news) |
-| المعجم القانوني (lexicon) | 295 | [/reference/lexicon.json](https://www.mizan.page/reference/lexicon.json) | [/reference/lexicon.md](https://www.mizan.page/reference/lexicon.md) | [/lexicon](https://www.mizan.page/lexicon) |
+| المعجم القانوني (lexicon) | 325 | [/reference/lexicon.json](https://www.mizan.page/reference/lexicon.json) | [/reference/lexicon.md](https://www.mizan.page/reference/lexicon.md) | [/lexicon](https://www.mizan.page/lexicon) |
 | دليل كليات الحقوق (schools) | 21 | [/reference/schools.json](https://www.mizan.page/reference/schools.json) | [/reference/schools.md](https://www.mizan.page/reference/schools.md) | [/schools](https://www.mizan.page/schools) |
 | الفعاليات والندوات (events) | 3 | [/reference/events.json](https://www.mizan.page/reference/events.json) | [/reference/events.md](https://www.mizan.page/reference/events.md) | [/events](https://www.mizan.page/events) |
 | الأرشيف الدراسي (ملفات وملخصات) (docs) | 0 | [/reference/docs.json](https://www.mizan.page/reference/docs.json) | [/reference/docs.md](https://www.mizan.page/reference/docs.md) | [/archive](https://www.mizan.page/archive) |

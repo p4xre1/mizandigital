@@ -1,88 +1,99 @@
-#!/usr/bin/env python3
-"""يولّد بذرة بنك القضايا القانونية من data/cases/cases.json.
+"""يولّد هجرة البذر لحالات «من الواقعة إلى الحل» من data/cases/cases.json.
 
-ينشئ supabase/migrations/20261012000400_legal_cases_seed.sql:
-  * INSERT ... ON CONFLICT (slug) DO NOTHING لكل قضية
-  * حذف أسئلة البذرة السابقة ثم INSERT لكل أسئلة القضايا (idempotent)
-
-الفرضيات:
-- جدول legal_cases و legal_case_questions موجودان (20261012000300).
-- reviewer_label placeholder من حقل reviewerPlaceholder في cases.json.
+- يتحقق من: الـ slug الفريد وصيغته، الخيارات الأربعة المختلفة، فهرس الجواب،
+  وجود المواد في ملفات القوانين، وملف الصورة.
+- يملأ نص كل مادة مرجعية من ملف القانون حرفياً (لا يكتبه يدوياً).
 """
-import io
-import json
-import sys
-from pathlib import Path
+import json, os, re, sys
 
-ROOT = Path(__file__).resolve().parents[2]
-SRC = ROOT / "data/cases/cases.json"
-OUT_SQL = ROOT / "supabase/migrations/20261012000400_legal_cases_seed.sql"
+ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.abspath(os.path.join(ROOT, "..", ".."))
+SRC = os.path.join(ROOT, "cases.json")
+OUT = os.path.join(REPO, "supabase", "migrations", "20261012000400_legal_cases_seed.sql")
+LAW_FILES = {
+    "mudawana-70-03": os.path.join(REPO, "data", "laws", "mudawana-70-03.articles.json"),
+    "constitution-2011": os.path.join(REPO, "data", "laws", "constitution-2011.articles.json"),
+}
+SLUG_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+DIFFS = {"easy", "medium", "hard"}
 
+laws = {}
+for code, path in LAW_FILES.items():
+    arts = json.load(open(path, encoding="utf-8"))["articles"]
+    # ملفات المستودع تستعمل "number"، والتصديرات الأقدم "article"
+    laws[code] = {int(a["number"] if "number" in a else a["article"]): a["text"] for a in arts}
 
-def q(s: str) -> str:
-    return s.replace("'", "''")
+data = json.load(open(SRC, encoding="utf-8"))
+cases = data["cases"]
+errors = []
+seen = set()
 
+def sql(s):
+    assert "$q$" not in s
+    return "$q$" + s + "$q$"
 
-def main():
-    data = json.loads(SRC.read_text(encoding="utf-8"))
-    cases = data["cases"]
-    reviewer = data.get("reviewerPlaceholder", "")
+rows = []
+for c in cases:
+    slug = c["slug"]
+    where = slug
+    if not SLUG_RE.match(slug) or not (3 <= len(slug) <= 120):
+        errors.append(f"{where}: slug غير صالح")
+    if slug in seen:
+        errors.append(f"{where}: slug مكرر")
+    seen.add(slug)
+    if c["law_code"] not in laws:
+        errors.append(f"{where}: قانون غير معروف")
+    if c["difficulty"] not in DIFFS:
+        errors.append(f"{where}: صعوبة غير معروفة")
+    opts = [o.strip() for o in c["options"]]
+    if len(opts) != 4 or len(set(opts)) != 4 or any(len(o) < 2 for o in opts):
+        errors.append(f"{where}: يجب أن تكون أربعة خيارات مختلفة")
+    if not (0 <= c["answer_index"] <= 3):
+        errors.append(f"{where}: فهرس الجواب خارج النطاق")
+    if not c["articles"]:
+        errors.append(f"{where}: لا توجد مواد مرجعية")
+    refs = []
+    for ref in c["articles"]:
+        law = laws.get(ref["law"])
+        if law is None or ref["article"] not in law:
+            errors.append(f"{where}: المادة {ref['article']} غير موجودة في {ref['law']}")
+            continue
+        refs.append({"law": ref["law"], "article": ref["article"], "text": law[ref["article"]]})
+    image_url = ""
+    if c.get("image"):
+        image_url = "/cases/" + c["image"]
+        if not os.path.exists(os.path.join(REPO, "public", "cases", c["image"])):
+            errors.append(f"{where}: ملف الصورة غير موجود")
+    rows.append((c, opts, refs, image_url))
 
-    case_values = []
-    question_values = []
-    for i, c in enumerate(cases):
-        assert len(c["slug"]) >= 4 and c["slug"].isascii() and c["slug"].islower() or True
-        assert 4 <= len(c["title"]) <= 200, c["slug"]
-        assert 20 <= len(c["summary"]) <= 500, c["slug"]
-        assert len(c["facts"]) >= 40, c["slug"]
-        img = f"/cases/{c['slug']}.jpg"
-        case_values.append(
-            f"  ('{q(c['slug'])}', '{q(c['title'])}', '{q(c['summary'])}', '{q(c['facts'])}', "
-            f"'{q(c['court'])}', '{q(img)}', '{q(reviewer)}', true, {i + 1})"
-        )
-        for pos, qs in enumerate(c["questions"], start=1):
-            assert 4 <= len(qs["question"]) <= 500, f"{c['slug']} q{pos}"
-            assert len(qs["options"]) == 4, f"{c['slug']} q{pos}"
-            assert 0 <= qs["answer"] <= 3, f"{c['slug']} q{pos}"
-            assert 4 <= len(qs["explanation"]) <= 1500, f"{c['slug']} q{pos} explanation"
-            assert "<" not in qs["explanation"] and ">" not in qs["explanation"]
-            options = json.dumps(qs["options"], ensure_ascii=False)
-            assert "<" not in options and ">" not in options
-            question_values.append(
-                f"  ('{q(c['slug'])}', {pos}, '{q(qs['question'])}', '{q(options)}'::jsonb, "
-                f"{qs['answer']}, '{q(qs['explanation'])}')"
-            )
+if errors:
+    print("\n".join(errors))
+    sys.exit(1)
 
-    case_block = ",\n".join(case_values)
-    q_block = ",\n".join(question_values)
-    slugs = ", ".join(f"'{q(c['slug'])}'" for c in cases)
+values = []
+for c, opts, refs, image_url in rows:
+    values.append(
+        "  (" + ", ".join([
+            sql(c["slug"]), sql(c["title"]), sql(c["law_code"]), sql(c["difficulty"]),
+            sql(c["story"]), sql(c["question"]),
+            sql(json.dumps(opts, ensure_ascii=False)) + "::jsonb",
+            str(c["answer_index"]), sql(c["hint"]), sql(c["explanation"]),
+            sql(json.dumps(refs, ensure_ascii=False)) + "::jsonb",
+            sql(image_url), sql(c.get("image_alt", "")),
+            "true", sql(data["reviewed_by"]), f"DATE {sql(data['reviewed_on'])}",
+        ]) + ")"
+    )
 
-    sql = f"""-- =====================================================================
--- بذرة بنك القضايا القانونية: {len(cases)} قضية، {len(question_values)} سؤال.
--- مولّدة آليا من data/cases/cases.json عبر data/cases/build_cases_seed.py.
--- idempotent: ON CONFLICT (slug) DO NOTHING + حذف أسئلة البذرة السابقة.
--- =====================================================================
-BEGIN;
-
-INSERT INTO public.legal_cases
-  (slug, title, summary, facts, court, image_public_path, reviewer_label, published, sort_order)
-VALUES
-{case_block}
-ON CONFLICT (slug) DO NOTHING;
-
-DELETE FROM public.legal_case_questions WHERE case_slug IN ({slugs});
-
-INSERT INTO public.legal_case_questions
-  (case_slug, position, question, options, answer, explanation)
-VALUES
-{q_block};
-
-COMMIT;
-"""
-    OUT_SQL.write_text(sql, encoding="utf-8")
-    print(f"cases: {len(cases)}  questions: {len(question_values)}")
-    print(f"wrote {OUT_SQL.relative_to(ROOT)}")
-
-
-if __name__ == "__main__":
-    sys.exit(main())
+out = [
+    "-- بذر حالات «من الواقعة إلى الحل». مولّدة من data/cases/cases.json",
+    "-- بواسطة data/cases/build_cases_seed.py. نصوص المواد مأخوذة من ملفات القوانين حرفياً.",
+    "-- إدراج آمن عند الإعادة: ON CONFLICT (slug) يترك الحالات الموجودة كما هي.",
+    "",
+    "INSERT INTO public.legal_cases (slug, title, law_code, difficulty, story, question, options, answer_index, hint, explanation, articles, image_url, image_alt, published, reviewed_by, reviewed_on)",
+    "VALUES",
+    ",\n".join(values),
+    "ON CONFLICT (slug) DO NOTHING;",
+    "",
+]
+open(OUT, "w", encoding="utf-8").write("\n".join(out))
+print("cases", len(rows), "->", os.path.relpath(OUT, REPO))

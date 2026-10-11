@@ -1,8 +1,8 @@
 {
  "dataset": "lexicon",
  "title": "المعجم القانوني",
- "generatedAt": "2026-10-11T01:12:29.534Z",
- "count": 295,
+ "generatedAt": "2026-10-11T03:11:51.680Z",
+ "count": 325,
  "section": "https://www.mizan.page/lexicon",
  "urlPattern": "https://www.mizan.page/lexicon/{slug}",
  "items": [
@@ -970,7 +970,7 @@
    "term_ar": "الزواج",
    "term_fr": "Mariage",
    "definition": "ميثاق تراض وترابط شرعي بين رجل وامرأة غايته الإحصان وتكوين أسرة.",
-   "category": "مدونة الأسرة",
+   "category": "الأحوال الشخصية",
    "legal_sources": [
     {
      "code_ar": "مدونة الأسرة",
@@ -1027,7 +1027,7 @@
    "term_ar": "الطلاق",
    "term_fr": "Divorce",
    "definition": "حل ميثاق الزوجية يمارسه الزوج أو الزوجة برعاية القضاء.",
-   "category": "مدونة الأسرة",
+   "category": "الأحوال الشخصية",
    "legal_sources": [
     {
      "code_ar": "مدونة الأسرة",
@@ -11701,7 +11701,8 @@
    ],
    "related_terms": [
     "loi-organique",
-    "abrogation"
+    "abrogation",
+    "primaute-loi"
    ],
    "slug": "التراتبية-القانونية",
    "url": "/lexicon/التراتبية-القانونية"
@@ -12026,7 +12027,8 @@
    ],
    "related_terms": [
     "mariage",
-    "droits-de-lhomme"
+    "droits-de-lhomme",
+    "parite"
    ],
    "slug": "المساواة-بين-الرجل-والمرأة",
    "url": "/lexicon/المساواة-بين-الرجل-والمرأة"
@@ -12730,7 +12732,8 @@
    ],
    "related_terms": [
     "roi-chef-etat",
-    "vote-confiance"
+    "vote-confiance",
+    "chef-gouvernement"
    ],
    "slug": "تعيين-رئيس-الحكومة",
    "url": "/lexicon/تعيين-رئيس-الحكومة"
@@ -13054,7 +13057,8 @@
    ],
    "related_terms": [
     "motion-censure",
-    "nomination-chef-gouvernement"
+    "nomination-chef-gouvernement",
+    "investiture-gouvernement"
    ],
    "slug": "التصويت-على-الثقة",
    "url": "/lexicon/التصويت-على-الثقة"
@@ -13162,7 +13166,8 @@
    ],
    "related_terms": [
     "separation-pouvoirs-constitution",
-    "juridiction"
+    "juridiction",
+    "csm"
    ],
    "slug": "استقلال-السلطة-القضائية",
    "url": "/lexicon/استقلال-السلطة-القضائية"
@@ -13339,7 +13344,8 @@
    "related_terms": [
     "cour-constitutionnelle",
     "hierarchy-lois",
-    "loi-organique"
+    "loi-organique",
+    "exception-inconstitutionnalite"
    ],
    "slug": "الرقابة-على-دستورية-القوانين",
    "url": "/lexicon/الرقابة-على-دستورية-القوانين"
@@ -13400,7 +13406,8 @@
    ],
    "related_terms": [
     "mariage",
-    "wilaya"
+    "wilaya",
+    "ijbar-zawaj"
    ],
    "slug": "سن-الأهلية-للزواج",
    "url": "/lexicon/سن-الأهلية-للزواج"
@@ -13580,7 +13587,7 @@
    "term_ar": "المتعة",
    "term_fr": "Mut'a (indemnité conjugale)",
    "definition": "مبلغ من مستحقات الزوجة عند الطلاق، يراعى في تقديره فترة الزواج والوضعية المالية للزوج وأسباب الطلاق ومدى تعسف الزوج في توقيعه.",
-   "category": "مدونة الأسرة",
+   "category": "الأحوال الشخصية",
    "legal_sources": [
     {
      "code_ar": "مدونة الأسرة (القانون 70.03)",
@@ -13804,7 +13811,7 @@
    "term_ar": "التعصيب",
    "term_fr": "T'a'sib (succession aux résidus)",
    "definition": "طريق من طرق الإرث يأخذ به الوارث جميع التركة أو ما بقي منها بعد ذوي الفروض؛ العصبة ثلاثة أنواع: بالنفس وبالغير ومع الغير.",
-   "category": "مدونة الأسرة",
+   "category": "الأحوال الشخصية",
    "legal_sources": [
     {
      "code_ar": "مدونة الأسرة (القانون 70.03)",
@@ -13848,10 +13855,1612 @@
    ],
    "related_terms": [
     "succession",
-    "wasiyya-wajiba"
+    "wasiyya-wajiba",
+    "fard"
    ],
    "slug": "التعصيب",
    "url": "/lexicon/التعصيب"
+  },
+  {
+   "id": "primaute-loi",
+   "term_ar": "سمو القانون",
+   "term_fr": "Primauté de la loi",
+   "definition": "القانون أسمى تعبير عن إرادة الأمة، والجميع متساوون أمامه وملزمون بالامتثال له.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "6",
+       "phrase": "دستور 2011، الفصل 6",
+       "article_number": "6",
+       "quotation": "القانون هو أسمى تعبير عن إرادة الأمة.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/سمو-القانون",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: القانون فوق الجميع: الدولة والأفراد سواء أمامه.",
+   "simple_explanation_fr": "« Primauté de la loi » : la loi s'impose à tous, y compris aux autorités publiques.",
+   "examples": [
+    "تمرين: هل يحق لمسؤول عمومي تجاهل قاعدة قانونية نافذة؟ استند إلى الفصل 6.",
+    "تمرين: اشرح «سمو القانون» بعبارتك مستندا إلى الفصل 6 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : un responsable public peut-il ignorer une règle en vigueur ? Fondez-vous sur l'article 6.",
+    "Exercice : expliquez « Primauté de la loi » dans vos mots en vous appuyant sur l'article 6."
+   ],
+   "exam_keywords": [
+    "سمو القانون",
+    "مبدأ المساواة أمام القانون",
+    "الفصل 6 من الدستور"
+   ],
+   "related_terms": [
+    "abrogation",
+    "liberte-publique",
+    "hierarchy-lois"
+   ],
+   "slug": "سمو-القانون",
+   "url": "/lexicon/سمو-القانون"
+  },
+  {
+   "id": "non-retroactivite",
+   "term_ar": "عدم رجعية القانون",
+   "term_fr": "Non-rétroactivité de la loi",
+   "definition": "القاعدة التي تقضي بأن القانون لا يسري على الماضي، بل على الوقائع اللاحقة لنفاذه.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "6",
+       "phrase": "دستور 2011، الفصل 6",
+       "article_number": "6",
+       "quotation": "القانون هو أسمى تعبير عن إرادة الأمة.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/عدم-رجعية-القانون",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: القانون الجديد لا يطبق على ما وقع قبل صدوره.",
+   "simple_explanation_fr": "« Non-rétroactivité » : la loi nouvelle ne s'applique qu'aux faits postérieurs à son entrée en vigueur.",
+   "examples": [
+    "مثال: تعديل قانون في سنة معينة لا يغير الآثار القانونية لعقد أبرم قبله.",
+    "تمرين: اشرح «عدم رجعية القانون» بعبارتك مستندا إلى الفصل 6 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : une loi modifiée une année ne change pas les effets juridiques d'un contrat conclu avant.",
+    "Exercice : expliquez « Non-rétroactivité de la loi » dans vos mots en vous appuyant sur l'article 6."
+   ],
+   "exam_keywords": [
+    "عدم رجعية القانون",
+    "أثر القانون الزمني",
+    "الفصل 6 من الدستور"
+   ],
+   "related_terms": [
+    "primaute-loi",
+    "abrogation"
+   ],
+   "slug": "عدم-رجعية-القانون",
+   "url": "/lexicon/عدم-رجعية-القانون"
+  },
+  {
+   "id": "csm",
+   "term_ar": "المجلس الأعلى للسلطة القضائية",
+   "term_fr": "Conseil supérieur du pouvoir judiciaire",
+   "definition": "الهيئة الدستورية التي تسهر على ضمانات القضاة، وترأسها الملك، وتتألف من أعضاء يمثلون القضاة وشخصيات أخرى.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "113",
+       "phrase": "دستور 2011، الفصل 113",
+       "article_number": "113",
+       "quotation": "يسهر المجلس الأعلى للسلطة القضائية على تطبيق الضمانات الممنوحة للقضاة، ولا سيما فيما يخص استقلالهم وتعيينهم وترقيتهم وتقاعدهم وتأديبهم.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "115",
+       "phrase": "دستور 2011، الفصل 115",
+       "article_number": "115",
+       "quotation": "يرأس الملك المجلس الأعلى للسلطة القضائية، ويتألف هذا المجلس من: الرئيس الأول لمحكمة النقض، رئيسا منتدبا؛",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المجلس-الأعلى-للسلطة-القضائية",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: هيئة تسهر على ضمانات القضاة وتعيينهم وترقيتهم وتأديبهم.",
+   "simple_explanation_fr": "« CSPJ » : organe constitutionnel qui veille aux garanties des magistrats (nomination, promotion, discipline).",
+   "examples": [
+    "مثال: الرجوع إلى المجلس عند تعيين القضاة وترقيتهم، وفق الفصل 113.",
+    "تمرين: اشرح «المجلس الأعلى للسلطة القضائية» بعبارتك مستندا إلى الفصل 113 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : le recours au Conseil pour la nomination et la promotion des magistrats (article 113).",
+    "Exercice : expliquez « Conseil supérieur du pouvoir judiciaire » dans vos mots en vous appuyant sur l'article 113."
+   ],
+   "exam_keywords": [
+    "المجلس الأعلى للسلطة القضائية",
+    "ضمانات القضاة",
+    "الفصل 113"
+   ],
+   "related_terms": [
+    "independance-judiciaire",
+    "abrogation"
+   ],
+   "slug": "المجلس-الأعلى-للسلطة-القضائية",
+   "url": "/lexicon/المجلس-الأعلى-للسلطة-القضائية"
+  },
+  {
+   "id": "exception-inconstitutionnalite",
+   "term_ar": "الدفع بعدم دستورية قانون",
+   "term_fr": "Exception d'inconstitutionnalité",
+   "definition": "دفع يثيره أحد أطراف النزاع أثناء النظر في قضية، يدعي فيه أن القانون الواجب التطبيق يمس بالحقوق والحريات التي يضمنها الدستور، فتبت فيه المحكمة الدستورية.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "133",
+       "phrase": "دستور 2011، الفصل 133",
+       "article_number": "133",
+       "quotation": "تختص المحكمة الدستورية بالنظر في كل دفع متعلق بعدم دستورية قانون، أثير أثناء النظر في قضية، وذلك إذا دفع أحد الأطراف بأن القانون، الذي سيطبق في النزاع، يمس بالحقوق وبالحريات التي يضمنها الدستور.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/الدفع-بعدم-دستورية-قانون",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: طرف في دعوى يطعن في دستورية قانون سيُطبق عليه، فتفصل المحكمة الدستورية.",
+   "simple_explanation_fr": "« Exception d'inconstitutionnalité » : moyen soulevé par une partie, renvoyé à la Cour constitutionnelle.",
+   "examples": [
+    "تمرين: من يمكنه إثارة هذا الدفع، وأمام أي جهة يُبت فيه؟ (الفصل 133)",
+    "تمرين: اشرح «الدفع بعدم دستورية قانون» بعبارتك مستندا إلى الفصل 133 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : qui peut soulever cette exception et devant quelle instance est-elle tranchée ? (article 133)",
+    "Exercice : expliquez « Exception d'inconstitutionnalité » dans vos mots en vous appuyant sur l'article 133."
+   ],
+   "exam_keywords": [
+    "الدفع بعدم الدستورية",
+    "المحكمة الدستورية",
+    "الفصل 133"
+   ],
+   "related_terms": [
+    "cour-constitutionnelle",
+    "abrogation",
+    "controle-constitutionnalite"
+   ],
+   "slug": "الدفع-بعدم-دستورية-قانون",
+   "url": "/lexicon/الدفع-بعدم-دستورية-قانون"
+  },
+  {
+   "id": "dahir",
+   "term_ar": "الظهير الشريف",
+   "term_fr": "Dahir",
+   "definition": "النص الذي يصدره الملك بصيغة ظهير شريف لممارسة مهامه، وتوقعه الحكومة بالعطف في الحالات التي لا يستثنيها الدستور.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "42",
+       "phrase": "دستور 2011، الفصل 42",
+       "article_number": "42",
+       "quotation": "الملك رئيس الدولة، وممثلها الأسمى، ورمز وحدة الأمة، وضامن دوام الدولة واستمرارها، والحكم الأسمى بين مؤسساتها، يسهر على احترام الدستور، وحسن سير المؤسسات الدستورية، وعلى صيانة الاختيار الديمقراطي، وحقوق وحريات المواطنات…",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/الظهير-الشريف",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: الصيغة التي يصدر بها الملك قراراته الرسمية، وتحتاج في الغالب توقيع رئيس الحكومة بالعطف.",
+   "simple_explanation_fr": "« Dahir » : acte royal pris sous forme de dahir, contresigné par le chef du gouvernement sauf exceptions.",
+   "examples": [
+    "مثال: إصدار قانون تنظيمي أو ظهير بتعيين، والاستثناءات المذكورة في الفصل 42.",
+    "تمرين: اشرح «الظهير الشريف» بعبارتك مستندا إلى الفصل 42 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : promulgation d'une loi organique ou d'un dahir de nomination, et les exceptions listées à l'article 42.",
+    "Exercice : expliquez « Dahir » dans vos mots en vous appuyant sur l'article 42."
+   ],
+   "exam_keywords": [
+    "الظهير الشريف",
+    "التوقيع بالعطف",
+    "الفصل 42"
+   ],
+   "related_terms": [
+    "contreseing",
+    "abrogation"
+   ],
+   "slug": "الظهير-الشريف",
+   "url": "/lexicon/الظهير-الشريف"
+  },
+  {
+   "id": "contreseing",
+   "term_ar": "التوقيع بالعطف",
+   "term_fr": "Contreseing",
+   "definition": "توقيع رئيس الحكومة أو الوزراء المكلفين بالتنفيذ على الظهائر والمقررات التنظيمية ليصبح لها أثر.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "42",
+       "phrase": "دستور 2011، الفصل 42",
+       "article_number": "42",
+       "quotation": "الملك رئيس الدولة، وممثلها الأسمى، ورمز وحدة الأمة، وضامن دوام الدولة واستمرارها، والحكم الأسمى بين مؤسساتها، يسهر على احترام الدستور، وحسن سير المؤسسات الدستورية، وعلى صيانة الاختيار الديمقراطي، وحقوق وحريات المواطنات…",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "90",
+       "phrase": "دستور 2011، الفصل 90",
+       "article_number": "90",
+       "quotation": "يمارس رئيس الحكومة السلطة التنظيمية، ويمكن أن يفوض بعض سلطه إلى الوزراء.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/التوقيع-بالعطف",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: توقيع يضيفه رئيس الحكومة أو الوزير المعني حتى يصبح القرار نافذا.",
+   "simple_explanation_fr": "« Contreseing » : signature du chef du gouvernement ou du ministre qui rend l'acte exécutoire.",
+   "examples": [
+    "مثال: المقرر التنظيمي لرئيس الحكومة يحمل توقيع الوزراء المكلفين بتنفيذه.",
+    "تمرين: اشرح «التوقيع بالعطف» بعبارتك مستندا إلى الفصل 42 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : le texte réglementaire du chef du gouvernement porte la signature des ministres chargés de son exécution.",
+    "Exercice : expliquez « Contreseing » dans vos mots en vous appuyant sur l'article 42."
+   ],
+   "exam_keywords": [
+    "التوقيع بالعطف",
+    "الظهير",
+    "المقررات التنظيمية"
+   ],
+   "related_terms": [
+    "dahir",
+    "abrogation"
+   ],
+   "slug": "التوقيع-بالعطف",
+   "url": "/lexicon/التوقيع-بالعطف"
+  },
+  {
+   "id": "domaine-reglementaire",
+   "term_ar": "المجال التنظيمي",
+   "term_fr": "Domaine réglementaire",
+   "definition": "المواد التي لا يشملها اختصاص القانون، وتدخل ضمن اختصاص السلطة التنظيمية.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "72",
+       "phrase": "دستور 2011، الفصل 72",
+       "article_number": "72",
+       "quotation": "يختص المجال التنظيمي بالمواد التي لا يشملها اختصاص القانون.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "73",
+       "phrase": "دستور 2011، الفصل 73",
+       "article_number": "73",
+       "quotation": "يمكن تغيير النصوص التشريعية من حيث الشكل بمرسوم، بعد موافقة المحكمة الدستورية، إذا كان مضمونها يدخل في مجال من المجالات التي تمارس فيها السلطة التنظيمية اختصاصها.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المجال-التنظيمي",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: المواد التي تنظمها الحكومة بمراسيم لا بقانون.",
+   "simple_explanation_fr": "« Domaine réglementaire » : matières qui ne relèvent pas de la loi et sont réglées par voie réglementaire.",
+   "examples": [
+    "مثال: تنظيم الإدارة بمرسوم، وفق الفصل 72.",
+    "تمرين: اشرح «المجال التنظيمي» بعبارتك مستندا إلى الفصل 72 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : l'organisation de l'administration par décret, selon l'article 72.",
+    "Exercice : expliquez « Domaine réglementaire » dans vos mots en vous appuyant sur l'article 72."
+   ],
+   "exam_keywords": [
+    "المجال التنظيمي",
+    "السلطة التنظيمية",
+    "الفصل 72"
+   ],
+   "related_terms": [
+    "decret",
+    "domaine-loi-dustur"
+   ],
+   "slug": "المجال-التنظيمي",
+   "url": "/lexicon/المجال-التنظيمي"
+  },
+  {
+   "id": "decret-loi",
+   "term_ar": "مرسوم بقانون",
+   "term_fr": "Décret-loi",
+   "definition": "نص تصدره الحكومة بين دورات البرلمان باتفاق مع اللجان المعنية، ويجب عرضه على البرلمان للمصادقة عليه في دورته العادية الموالية.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "81",
+       "phrase": "دستور 2011، الفصل 81",
+       "article_number": "81",
+       "quotation": "يمكن للحكومة أن تصدر، خلال الفترة الفاصلة بين الدورات، وباتفاق مع اللجان التي يعنيها الأمر في كلا المجلسين، مراسيم قوانين، يجب عرضها بقصد المصادقة عليها من طرف البرلمان، خلال دورته العادية الموالية.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/مرسوم-بقانون",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: نص تصدره الحكومة في غياب البرلمان، ويعرض عليه لاحقا ليصادق عليه.",
+   "simple_explanation_fr": "« Décret-loi » : texte pris par le gouvernement entre deux sessions, soumis ensuite à la ratification du Parlement.",
+   "examples": [
+    "تمرين: متى يجب عرض مرسوم بقانون على البرلمان؟ (الفصل 81)",
+    "تمرين: اشرح «مرسوم بقانون» بعبارتك مستندا إلى الفصل 81 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : quand un décret-loi doit-il être soumis au Parlement ? (article 81)",
+    "Exercice : expliquez « Décret-loi » dans vos mots en vous appuyant sur l'article 81."
+   ],
+   "exam_keywords": [
+    "مرسوم بقانون",
+    "المصادقة البرلمانية",
+    "الفصل 81"
+   ],
+   "related_terms": [
+    "loi-habilitation",
+    "loi-organique",
+    "decret"
+   ],
+   "slug": "مرسوم-بقانون",
+   "url": "/lexicon/مرسوم-بقانون"
+  },
+  {
+   "id": "loi-habilitation",
+   "term_ar": "قانون الإذن",
+   "term_fr": "Loi d'habilitation",
+   "definition": "قانون يأذن للحكومة باتخاذ مراسيم في مدة محددة ولغاية معينة في مجال يختص القانون عادة بتنظيمه.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "70",
+       "phrase": "دستور 2011، الفصل 70",
+       "article_number": "70",
+       "quotation": "يمارس البرلمان السلطة التشريعية.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/قانون-الإذن",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: قانون يمنح الحكومة إذنا مؤقتا لإصدار مراسيم في موضوع محدد.",
+   "simple_explanation_fr": "« Loi d'habilitation » : loi autorisant le gouvernement à prendre des décrets pour une durée et un objet limités.",
+   "examples": [
+    "مثال: إذن برلماني لتنظيم موضوع معين بمراسيم خلال سنة.",
+    "تمرين: اشرح «قانون الإذن» بعبارتك مستندا إلى الفصل 70 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : une habilitation parlementaire pour régler un sujet précis par décrets pendant un an.",
+    "Exercice : expliquez « Loi d'habilitation » dans vos mots en vous appuyant sur l'article 70."
+   ],
+   "exam_keywords": [
+    "قانون الإذن",
+    "المراسيم المؤقتة",
+    "الفصل 70"
+   ],
+   "related_terms": [
+    "decret-loi",
+    "abrogation"
+   ],
+   "slug": "قانون-الإذن",
+   "url": "/lexicon/قانون-الإذن"
+  },
+  {
+   "id": "conseil-ministres",
+   "term_ar": "المجلس الوزاري",
+   "term_fr": "Conseil des ministres",
+   "definition": "الهيئة التي يرأسها الملك، وتتألف من رئيس الحكومة والوزراء، وتتداول في القضايا الاستراتيجية ومشاريع القوانين التنظيمية وغيرها المحددة في الفصل 49.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "48",
+       "phrase": "دستور 2011، الفصل 48",
+       "article_number": "48",
+       "quotation": "يرأس الملك المجلس الوزاري، الذي يتألف من رئيس الحكومة والوزراء.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "49",
+       "phrase": "دستور 2011، الفصل 49",
+       "article_number": "49",
+       "quotation": "يتداول المجلس الوزاري في القضايا والنصوص التالية: التوجهات الاستراتيجية لسياسة الدولة؛",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المجلس-الوزاري",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: مجلس يرأسه الملك ويضم رئيس الحكومة والوزراء، ويبت في القضايا الكبرى للدولة.",
+   "simple_explanation_fr": "« Conseil des ministres » : présidé par le Roi, il délibère sur les questions stratégiques listées à l'article 49.",
+   "examples": [
+    "تمرين: ما القضايا التي يتداول فيها المجلس الوزاري؟ (الفصل 49)",
+    "تمرين: اشرح «المجلس الوزاري» بعبارتك مستندا إلى الفصل 48 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : quelles questions le Conseil des ministres examine-t-il ? (article 49)",
+    "Exercice : expliquez « Conseil des ministres » dans vos mots en vous appuyant sur l'article 48."
+   ],
+   "exam_keywords": [
+    "المجلس الوزاري",
+    "رئاسة الملك",
+    "الفصل 49"
+   ],
+   "related_terms": [
+    "conseil-gouvernement",
+    "chef-gouvernement"
+   ],
+   "slug": "المجلس-الوزاري",
+   "url": "/lexicon/المجلس-الوزاري"
+  },
+  {
+   "id": "conseil-gouvernement",
+   "term_ar": "مجلس الحكومة",
+   "term_fr": "Conseil du gouvernement",
+   "definition": "الهيئة التي يرأسها رئيس الحكومة وتتداول في السياسات العمومية ومشاريع القوانين والمراسيم وغيرها المحددة في الفصل 92.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "92",
+       "phrase": "دستور 2011، الفصل 92",
+       "article_number": "92",
+       "quotation": "يتداول مجلس الحكومة، تحت رئاسة رئيس الحكومة، في القضايا والنصوص التالية: السياسة العامة للدولة قبل عرضها على المجلس الوزاري؛",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/مجلس-الحكومة",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: مجلس يرأسه رئيس الحكومة لدراسة السياسات العامة ومشاريع القوانين قبل إيداعها.",
+   "simple_explanation_fr": "« Conseil du gouvernement » : présidé par le chef du gouvernement, il examine les politiques publiques et les projets de loi.",
+   "examples": [
+    "مثال: مشروع قانون يناقش في مجلس الحكومة قبل إيداعه لدى مكتب مجلس النواب.",
+    "تمرين: اشرح «مجلس الحكومة» بعبارتك مستندا إلى الفصل 92 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : un projet de loi examiné en Conseil du gouvernement avant son dépôt à la Chambre des représentants.",
+    "Exercice : expliquez « Conseil du gouvernement » dans vos mots en vous appuyant sur l'article 92."
+   ],
+   "exam_keywords": [
+    "مجلس الحكومة",
+    "السياسات العمومية",
+    "الفصل 92"
+   ],
+   "related_terms": [
+    "conseil-ministres",
+    "chef-gouvernement"
+   ],
+   "slug": "مجلس-الحكومة",
+   "url": "/lexicon/مجلس-الحكومة"
+  },
+  {
+   "id": "chef-gouvernement",
+   "term_ar": "رئيس الحكومة",
+   "term_fr": "Chef du gouvernement",
+   "definition": "الشخص الذي يعينه الملك من الحزب الذي تصدر انتخابات مجلس النواب، ويمارس السلطة التنظيمية ويقود الحكومة.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "47",
+       "phrase": "دستور 2011، الفصل 47",
+       "article_number": "47",
+       "quotation": "يعين الملك رئيس الحكومة من الحزب السياسي الذي تصدر انتخابات أعضاء مجلس النواب، وعلى أساس نتائجها.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "88",
+       "phrase": "دستور 2011، الفصل 88",
+       "article_number": "88",
+       "quotation": "بعد تعيين الملك لأعضاء الحكومة، يتقدم رئيس الحكومة أمام مجلسي البرلمان مجتمعين، ويعرض البرنامج الذي يعتزم تطبيقه.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "90",
+       "phrase": "دستور 2011، الفصل 90",
+       "article_number": "90",
+       "quotation": "يمارس رئيس الحكومة السلطة التنظيمية، ويمكن أن يفوض بعض سلطه إلى الوزراء.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/رئيس-الحكومة",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: رئيس الحكومة يُعين من الحزب الفائز في انتخابات مجلس النواب، ويقود العمل الحكومي.",
+   "simple_explanation_fr": "« Chef du gouvernement » : nommé par le Roi parmi le parti arrivé en tête des élections législatives.",
+   "examples": [
+    "مثال: تعيين رئيس الحكومة يتم على أساس نتائج انتخابات مجلس النواب (الفصل 47).",
+    "تمرين: اشرح «رئيس الحكومة» بعبارتك مستندا إلى الفصل 47 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : la nomination du chef du gouvernement se fait sur la base des élections législatives (article 47).",
+    "Exercice : expliquez « Chef du gouvernement » dans vos mots en vous appuyant sur l'article 47."
+   ],
+   "exam_keywords": [
+    "رئيس الحكومة",
+    "تعيين الحكومة",
+    "الفصل 47"
+   ],
+   "related_terms": [
+    "conseil-gouvernement",
+    "investiture-gouvernement",
+    "nomination-chef-gouvernement"
+   ],
+   "slug": "رئيس-الحكومة",
+   "url": "/lexicon/رئيس-الحكومة"
+  },
+  {
+   "id": "investiture-gouvernement",
+   "term_ar": "تنصيب الحكومة",
+   "term_fr": "Investiture du gouvernement",
+   "definition": "حصول الحكومة على ثقة مجلس النواب بتصويت الأغلبية المطلقة لأعضائه على برنامجها الحكومي.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "88",
+       "phrase": "دستور 2011، الفصل 88",
+       "article_number": "88",
+       "quotation": "بعد تعيين الملك لأعضاء الحكومة، يتقدم رئيس الحكومة أمام مجلسي البرلمان مجتمعين، ويعرض البرنامج الذي يعتزم تطبيقه.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/تنصيب-الحكومة",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: الحكومة لا تبدأ عملها الرسمي إلا بعد أن يمنحها مجلس النواب الثقة بأغلبية مطلقة.",
+   "simple_explanation_fr": "« Investiture » : vote de confiance de la Chambre des représentants à la majorité absolue sur le programme gouvernemental.",
+   "examples": [
+    "تمرين: كم يجب أن تكون نسبة التصويت لمنح الثقة للحكومة؟ (الفصل 88)",
+    "تمرين: اشرح «تنصيب الحكومة» بعبارتك مستندا إلى الفصل 88 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : quelle majorité est requise pour l'investiture ? (article 88)",
+    "Exercice : expliquez « Investiture du gouvernement » dans vos mots en vous appuyant sur l'article 88."
+   ],
+   "exam_keywords": [
+    "تنصيب الحكومة",
+    "البرنامج الحكومي",
+    "الفصل 88"
+   ],
+   "related_terms": [
+    "chef-gouvernement",
+    "motion-censure",
+    "vote-confiance"
+   ],
+   "slug": "تنصيب-الحكومة",
+   "url": "/lexicon/تنصيب-الحكومة"
+  },
+  {
+   "id": "grace-royale",
+   "term_ar": "حق العفو",
+   "term_fr": "Droit de grâce",
+   "definition": "الصلاحية التي يمارسها الملك في إسقاط العقوبة أو تخفيفها عن المحكوم عليهم.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "58",
+       "phrase": "دستور 2011، الفصل 58",
+       "article_number": "58",
+       "quotation": "يمارس الملك حق العفو.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/حق-العفو",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: حق الملك في العفو عن المحكوم عليهم كليا أو جزئيا.",
+   "simple_explanation_fr": "« Grâce » : prérogative royale de remise ou de commutation de peine.",
+   "examples": [
+    "مثال: العفو يمارسه الملك، وليس القضاء.",
+    "تمرين: اشرح «حق العفو» بعبارتك مستندا إلى الفصل 58 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : la grâce relève du Roi, non du juge.",
+    "Exercice : expliquez « Droit de grâce » dans vos mots en vous appuyant sur l'article 58."
+   ],
+   "exam_keywords": [
+    "حق العفو",
+    "الملك",
+    "الفصل 58"
+   ],
+   "related_terms": [
+    "presomption-innocence",
+    "abrogation",
+    "amnistie"
+   ],
+   "slug": "حق-العفو",
+   "url": "/lexicon/حق-العفو"
+  },
+  {
+   "id": "etat-siege",
+   "term_ar": "حالة الحصار",
+   "term_fr": "État de siège",
+   "definition": "إعلان لمدة ثلاثين يوما بظهير يوقعه بالعطف رئيس الحكومة، ولا يمكن تمديده إلا بالقانون.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "74",
+       "phrase": "دستور 2011، الفصل 74",
+       "article_number": "74",
+       "quotation": "يمكن الإعلان لمدة ثلاثين يوما عن حالة الحصار، بمقتضى ظهير يوقعه بالعطف رئيس الحكومة، ولا يمكن تمديد هذا الأجل إلا بالقانون.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "49",
+       "phrase": "دستور 2011، الفصل 49",
+       "article_number": "49",
+       "quotation": "يتداول المجلس الوزاري في القضايا والنصوص التالية: التوجهات الاستراتيجية لسياسة الدولة؛",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/حالة-الحصار",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: إجراء استثنائي محدود في الزمن، لا يمدد إلا بقانون.",
+   "simple_explanation_fr": "« État de siège » : déclaré pour trente jours par dahir, prolongé uniquement par la loi.",
+   "examples": [
+    "تمرين: ما المدة الأولى لحالة الحصار، ومن يمكنه تمديدها؟ (الفصل 74)",
+    "تمرين: اشرح «حالة الحصار» بعبارتك مستندا إلى الفصل 74 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : quelle est la durée initiale de l'état de siège et qui peut la prolonger ? (article 74)",
+    "Exercice : expliquez « État de siège » dans vos mots en vous appuyant sur l'article 74."
+   ],
+   "exam_keywords": [
+    "حالة الحصار",
+    "الإعلان",
+    "الفصل 74"
+   ],
+   "related_terms": [
+    "etat-urgence",
+    "abrogation"
+   ],
+   "slug": "حالة-الحصار",
+   "url": "/lexicon/حالة-الحصار"
+  },
+  {
+   "id": "petition",
+   "term_ar": "العرائض",
+   "term_fr": "Pétition",
+   "definition": "حق المواطنات والمواطنين في تقديم عرائض إلى السلطات العمومية، وإلى مجالس الجهات والجماعات لطلب إدراج نقطة في جدول أعمالها.",
+   "category": "حقوق الإنسان",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "15",
+       "phrase": "دستور 2011، الفصل 15",
+       "article_number": "15",
+       "quotation": "للمواطنات والمواطنين الحق في تقديم عرائض إلى السلطات العمومية.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "139",
+       "phrase": "دستور 2011، الفصل 139",
+       "article_number": "139",
+       "quotation": "تضع مجالس الجهات، والجماعات الترابية الأخرى، آليات تشاركية للحوار والتشاور، لتيسير مساهمة المواطنات والمواطنين والجمعيات في إعداد برامج التنمية وتتبعها.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/العرائض",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: للمواطن حق تقديم عريضة للسلطات العامة أو للمجالس المحلية.",
+   "simple_explanation_fr": "« Pétition » : droit d'adresser des pétitions aux autorités publiques.",
+   "examples": [
+    "مثال: عريضة تطلب من مجلس جماعي إدراج نقطة في جدول الأعمال (الفصل 139).",
+    "تمرين: اشرح «العرائض» بعبارتك مستندا إلى الفصل 15 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : une pétition demandant d'inscrire un point à l'ordre du jour du conseil communal (article 139).",
+    "Exercice : expliquez « Pétition » dans vos mots en vous appuyant sur l'article 15."
+   ],
+   "exam_keywords": [
+    "العرائض",
+    "حق التقديم",
+    "الفصل 15"
+   ],
+   "related_terms": [
+    "initiative-legislative-citoyenne",
+    "droits-de-lhomme"
+   ],
+   "slug": "العرائض",
+   "url": "/lexicon/العرائض"
+  },
+  {
+   "id": "parite",
+   "term_ar": "المناصفة",
+   "term_fr": "Parité",
+   "definition": "تسعى الدولة إلى تحقيق مبدأ المناصفة بين الرجال والنساء، وتحدث لذلك هيئة للمناصفة ومكافحة كل أشكال التمييز.",
+   "category": "حقوق الإنسان",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "19",
+       "phrase": "دستور 2011، الفصل 19",
+       "article_number": "19",
+       "quotation": "يتمتع الرجل والمرأة، على قدم المساواة، بالحقوق والحريات المدنية والسياسية والاقتصادية والاجتماعية والثقافية والبيئية، الواردة في هذا الباب من الدستور، وفي مقتضياته الأخرى، وكذا في الاتفاقيات والمواثيق الدولية، كما صادق…",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المناصفة",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: الدولة تسعى إلى المساواة بين الرجل والمرأة في الحقوق والحريات.",
+   "simple_explanation_fr": "« Parité » : objectif constitutionnel de l'égalité entre hommes et femmes.",
+   "examples": [
+    "مثال: إحداث هيئة للمناصفة ومكافحة التمييز وفق الفصل 19.",
+    "تمرين: اشرح «المناصفة» بعبارتك مستندا إلى الفصل 19 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : création d'une instance de parité et de lutte contre les discriminations (article 19).",
+    "Exercice : expliquez « Parité » dans vos mots en vous appuyant sur l'article 19."
+   ],
+   "exam_keywords": [
+    "المناصفة",
+    "المساواة بين الرجال والنساء",
+    "الفصل 19"
+   ],
+   "related_terms": [
+    "liberte-publique",
+    "droits-de-lhomme",
+    "egalite-homme-femme"
+   ],
+   "slug": "المناصفة",
+   "url": "/lexicon/المناصفة"
+  },
+  {
+   "id": "regionalisation-avancee",
+   "term_ar": "الجهوية المتقدمة",
+   "term_fr": "Régionalisation avancée",
+   "definition": "التنظيم الترابي للمملكة لا مركزي ويقوم على الجهوية المتقدمة، والجماعات الترابية أشخاص اعتبارية خاضعة للقانون العام.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "1",
+       "phrase": "دستور 2011، الفصل 1",
+       "article_number": "1",
+       "quotation": "نظام الحكم بالمغرب نظام ملكية دستورية، ديمقراطية برلمانية واجتماعية.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "135",
+       "phrase": "دستور 2011، الفصل 135",
+       "article_number": "135",
+       "quotation": "الجماعات الترابية للمملكة هي الجهات والعمالات والأقاليم والجماعات.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "136",
+       "phrase": "دستور 2011، الفصل 136",
+       "article_number": "136",
+       "quotation": "يرتكز التنظيم الجهوي والترابي على مبادئ التدبير الحر، وعلى التعاون والتضامن؛",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/الجهوية-المتقدمة",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: المغرب يُدار ترابيا بنظام لا مركزي يقوم على الجهوية المتقدمة.",
+   "simple_explanation_fr": "« Régionalisation avancée » : organisation territoriale décentralisée du Royaume.",
+   "examples": [
+    "مثال: الجماعات الترابية هي الجهات والعمالات والأقاليم والجماعات (الفصل 135).",
+    "تمرين: اشرح «الجهوية المتقدمة» بعبارتك مستندا إلى الفصل 1 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : les collectivités territoriales sont les régions, préfectures, provinces et communes (article 135).",
+    "Exercice : expliquez « Régionalisation avancée » dans vos mots en vous appuyant sur l'article 1."
+   ],
+   "exam_keywords": [
+    "الجهوية المتقدمة",
+    "التنظيم الترابي",
+    "الفصل 1"
+   ],
+   "related_terms": [
+    "collectivite-territoriale",
+    "abrogation"
+   ],
+   "slug": "الجهوية-المتقدمة",
+   "url": "/lexicon/الجهوية-المتقدمة"
+  },
+  {
+   "id": "cour-comptes",
+   "term_ar": "المجلس الأعلى للحسابات",
+   "term_fr": "Cour des comptes",
+   "definition": "الهيئة العليا لمراقبة المالية العمومية بالمملكة، ويضمن الدستور استقلالها، وتنشر أعمالها وتقدم تقريرا سنويا للملك.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "147",
+       "phrase": "دستور 2011، الفصل 147",
+       "article_number": "147",
+       "quotation": "المجلس الأعلى للحسابات هو الهيأة العليا لمراقبة المالية العمومية بالمملكة، ويضمن الدستور استقلاله.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "148",
+       "phrase": "دستور 2011، الفصل 148",
+       "article_number": "148",
+       "quotation": "يقدم المجلس الأعلى للحسابات مساعدته للبرلمان في المجالات المتعلقة بمراقبة المالية العامة؛",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المجلس-الأعلى-للحسابات",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: الهيئة العليا التي تراقب مالية الدولة والأجهزة العمومية.",
+   "simple_explanation_fr": "« Cour des comptes » : institution supérieure de contrôle des finances publiques.",
+   "examples": [
+    "مثال: تقرير سنوي يرفعه المجلس للملك وينشر بالجريدة الرسمية (الفصل 148).",
+    "تمرين: اشرح «المجلس الأعلى للحسابات» بعبارتك مستندا إلى الفصل 147 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : rapport annuel adressé au Roi et publié au Bulletin officiel (article 148).",
+    "Exercice : expliquez « Cour des comptes » dans vos mots en vous appuyant sur l'article 147."
+   ],
+   "exam_keywords": [
+    "المجلس الأعلى للحسابات",
+    "مراقبة المالية العامة",
+    "الفصل 147"
+   ],
+   "related_terms": [
+    "declaration-patrimoine",
+    "abrogation"
+   ],
+   "slug": "المجلس-الأعلى-للحسابات",
+   "url": "/lexicon/المجلس-الأعلى-للحسابات"
+  },
+  {
+   "id": "declaration-patrimoine",
+   "term_ar": "التصريح بالممتلكات",
+   "term_fr": "Déclaration de patrimoine",
+   "definition": "التزام كل شخص يمارس مسؤولية عمومية، منتخبا كان أو معينا، بتقديم تصريح كتابي بممتلكاته عند التسلم وأثناء المهام وعند الانتهاء.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "158",
+       "phrase": "دستور 2011، الفصل 158",
+       "article_number": "158",
+       "quotation": "يجب على كل شخص، منتخبا كان أو معينا، يمارس مسؤولية عمومية، أن يقدم، طبقا للكيفيات المحددة في القانون، تصريحا كتابيا بالممتلكات والأصول التي في حيازته، بصفة مباشرة أو غير مباشرة، بمجرد تسلمه لمهامه، وخلال ممارستها، وعند…",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "147",
+       "phrase": "دستور 2011، الفصل 147",
+       "article_number": "147",
+       "quotation": "المجلس الأعلى للحسابات هو الهيأة العليا لمراقبة المالية العمومية بالمملكة، ويضمن الدستور استقلاله.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/التصريح-بالممتلكات",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: المسؤول العمومي ملزم بتقديم تصريح مكتوب بممتلكاته في بداية مهامه وأثنائها وعند نهايتها.",
+   "simple_explanation_fr": "« Déclaration de patrimoine » : obligation écrite pour les responsables publics, à l'entrée, pendant et à la fin de leurs fonctions.",
+   "examples": [
+    "تمرين: متى يجب على المسؤول العمومي تقديم تصريح بالممتلكات؟ (الفصل 158)",
+    "تمرين: اشرح «التصريح بالممتلكات» بعبارتك مستندا إلى الفصل 158 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : à quels moments le responsable public doit-il déclarer son patrimoine ? (article 158)",
+    "Exercice : expliquez « Déclaration de patrimoine » dans vos mots en vous appuyant sur l'article 158."
+   ],
+   "exam_keywords": [
+    "التصريح بالممتلكات",
+    "المسؤولية العمومية",
+    "الفصل 158"
+   ],
+   "related_terms": [
+    "cour-comptes",
+    "abrogation"
+   ],
+   "slug": "التصريح-بالممتلكات",
+   "url": "/lexicon/التصريح-بالممتلكات"
+  },
+  {
+   "id": "mediateur",
+   "term_ar": "الوسيط",
+   "term_fr": "Médiateur du Royaume",
+   "definition": "مؤسسة وطنية مستقلة ومتخصصة، مهمتها الدفاع عن الحقوق في العلاقات بين الإدارة والمرتفقين.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "162",
+       "phrase": "دستور 2011، الفصل 162",
+       "article_number": "162",
+       "quotation": "الوسيط مؤسسة وطنية مستقلة ومتخصصة، مهمتها الدفاع عن الحقوق في نطاق العلاقات بين الإدارة والمرتفقين، والإسهام في ترسيخ سيادة القانون، وإشاعة مبادئ العدل والإنصاف، وقيم التخليق والشفافية في تدبير الإدارات والمؤسسات…",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/الوسيط",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: مؤسسة مستقلة تدافع عن حقوق المواطنين أمام الإدارة.",
+   "simple_explanation_fr": "« Médiateur du Royaume » : institution indépendante qui défend les droits dans les relations avec l'administration.",
+   "examples": [
+    "مثال: تقديم شكوى ضد إدارة عمومية لدى الوسيط.",
+    "تمرين: اشرح «الوسيط» بعبارتك مستندا إلى الفصل 162 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : déposer une plainte contre une administration publique auprès du Médiateur.",
+    "Exercice : expliquez « Médiateur du Royaume » dans vos mots en vous appuyant sur l'article 162."
+   ],
+   "exam_keywords": [
+    "الوسيط",
+    "العلاقة بين الإدارة والمرتفق",
+    "الفصل 162"
+   ],
+   "related_terms": [
+    "cndh",
+    "abrogation"
+   ],
+   "slug": "الوسيط",
+   "url": "/lexicon/الوسيط"
+  },
+  {
+   "id": "cndh",
+   "term_ar": "المجلس الوطني لحقوق الإنسان",
+   "term_fr": "Conseil national des droits de l'Homme",
+   "definition": "مؤسسة وطنية تعددية ومستقلة تتولى النظر في القضايا المتعلقة بالدفاع عن حقوق الإنسان والحريات وحمايتها والنهوض بها.",
+   "category": "حقوق الإنسان",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "161",
+       "phrase": "دستور 2011، الفصل 161",
+       "article_number": "161",
+       "quotation": "المجلس الوطني لحقوق الإنسان مؤسسة وطنية تعددية ومستقلة، تتولى النظر في جميع القضايا المتعلقة بالدفاع عن حقوق الإنسان والحريات وحمايتها، وبضمان ممارستها الكاملة، والنهوض بها وبصيانة كرامة وحقوق وحريات المواطنات…",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المجلس-الوطني-لحقوق-الإنسان",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: مؤسسة مستقلة مكلفة بحماية حقوق الإنسان والحريات والنهوض بها.",
+   "simple_explanation_fr": "« CNDH » : institution nationale pluraliste et indépendante chargée de la protection des droits de l'Homme.",
+   "examples": [
+    "تمرين: ما المهام الأساسية للمجلس الوطني لحقوق الإنسان؟ (الفصل 161)",
+    "تمرين: اشرح «المجلس الوطني لحقوق الإنسان» بعبارتك مستندا إلى الفصل 161 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : quelles sont les missions du CNDH ? (article 161)",
+    "Exercice : expliquez « Conseil national des droits de l'Homme » dans vos mots en vous appuyant sur l'article 161."
+   ],
+   "exam_keywords": [
+    "المجلس الوطني لحقوق الإنسان",
+    "حماية الحقوق والحريات",
+    "الفصل 161"
+   ],
+   "related_terms": [
+    "mediateur",
+    "droits-de-lhomme"
+   ],
+   "slug": "المجلس-الوطني-لحقوق-الإنسان",
+   "url": "/lexicon/المجلس-الوطني-لحقوق-الإنسان"
+  },
+  {
+   "id": "traites-internationaux",
+   "term_ar": "المعاهدات والاتفاقيات الدولية",
+   "term_fr": "Traités internationaux",
+   "definition": "الملك يوقع المعاهدات ويصادق عليها، ولا يصادق على بعض المعاهدات (السلم، الحدود، التجارة، ما يكلف المالية، أو يمس الحقوق والحريات) إلا بعد الموافقة عليها بقانون.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "55",
+       "phrase": "دستور 2011، الفصل 55",
+       "article_number": "55",
+       "quotation": "يعتمد الملك السفراء لدى الدول الأجنبية والمنظمات الدولية، ولديه يُعتمد السفراء وممثلو المنظمات الدولية.",
+       "quotation_type": "excerpt"
+      },
+      {
+       "number": "6",
+       "phrase": "دستور 2011، الفصل 6",
+       "article_number": "6",
+       "quotation": "القانون هو أسمى تعبير عن إرادة الأمة.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/المعاهدات-والاتفاقيات-الدولية",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: المعاهدات الدولية لا تُصادق عليها الدولة بالنسبة لبعض المواضيع إلا بعد موافقة البرلمان بقانون.",
+   "simple_explanation_fr": "« Traités internationaux » : signés et ratifiés par le Roi ; certains exigent une approbation par la loi.",
+   "examples": [
+    "مثال: معاهدة حدود لا تصادق عليها المملكة إلا بعد موافقة البرلمان بقانون (الفصل 55).",
+    "تمرين: اشرح «المعاهدات والاتفاقيات الدولية» بعبارتك مستندا إلى الفصل 55 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : un traité de frontière ne peut être ratifié qu'après approbation par la loi (article 55).",
+    "Exercice : expliquez « Traités internationaux » dans vos mots en vous appuyant sur l'article 55."
+   ],
+   "exam_keywords": [
+    "المعاهدات الدولية",
+    "المصادقة",
+    "الفصل 55"
+   ],
+   "related_terms": [
+    "primaute-loi",
+    "abrogation"
+   ],
+   "slug": "المعاهدات-والاتفاقيات-الدولية",
+   "url": "/lexicon/المعاهدات-والاتفاقيات-الدولية"
+  },
+  {
+   "id": "commission-enquete",
+   "term_ar": "لجان تقصي الحقائق",
+   "term_fr": "Commissions d'enquête parlementaires",
+   "definition": "لجان نيابية يشكلها الملك أو ثلث أعضاء أحد المجلسين لجمع المعلومات حول وقائع معينة، ولا تشكل في وقائع تكون موضوع متابعات قضائية جارية.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "67",
+       "phrase": "دستور 2011، الفصل 67",
+       "article_number": "67",
+       "quotation": "للوزراء أن يحضروا جلسات كلا المجلسين واجتماعات لجانهما، ويمكنهم أن يستعينوا بمندوبين يعينونهم لهذا الغرض.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/لجان-تقصي-الحقائق",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: لجنة برلمانية تجمع المعلومات حول موضوع محدد، ولا تعمل إذا كانت القضية أمام القضاء.",
+   "simple_explanation_fr": "« Commissions d'enquête » : créées par le Parlement sur un fait précis ; impossibles si des poursuites judiciaires sont en cours.",
+   "examples": [
+    "مثال: لا يمكن تشكيل لجنة تقصي حقائق إذا كانت الوقائع موضوع متابعة قضائية جارية (الفصل 67).",
+    "تمرين: اشرح «لجان تقصي الحقائق» بعبارتك مستندا إلى الفصل 67 من الدستور."
+   ],
+   "examples_fr": [
+    "Exemple : pas de commission d'enquête si des poursuites judiciaires sont en cours (article 67).",
+    "Exercice : expliquez « Commissions d'enquête parlementaires » dans vos mots en vous appuyant sur l'article 67."
+   ],
+   "exam_keywords": [
+    "لجان تقصي الحقائق",
+    "الرقابة البرلمانية",
+    "الفصل 67"
+   ],
+   "related_terms": [
+    "motion-censure",
+    "parlement"
+   ],
+   "slug": "لجان-تقصي-الحقائق",
+   "url": "/lexicon/لجان-تقصي-الحقائق"
+  },
+  {
+   "id": "conseil-regence",
+   "term_ar": "مجلس الوصاية",
+   "term_fr": "Conseil de régence",
+   "definition": "المجلس الذي يمارس اختصاصات العرش وحقوقه الدستورية إلى أن يبلغ الملك سن الرشد، باستثناء ما يتعلق بمراجعة الدستور.",
+   "category": "قانون دستوري",
+   "legal_sources": [
+    {
+     "code_ar": "الدستور المغربي",
+     "code_short": "دستور 2011",
+     "code_fr": "Constitution du Royaume du Maroc (2011)",
+     "articles": [
+      {
+       "number": "44",
+       "phrase": "دستور 2011، الفصل 44",
+       "article_number": "44",
+       "quotation": "يعتبر الملك غير بالغ سن الرشد قبل نهاية السنة الثامنة عشرة من عمره.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/مجلس-الوصاية",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: مجلس يتولى صلاحيات العرش إذا كان الملك قاصرا، باستثناء مراجعة الدستور.",
+   "simple_explanation_fr": "« Conseil de régence » : exerce les prérogatives royales pendant la minorité du Roi, sauf la révision de la Constitution.",
+   "examples": [
+    "تمرين: من يرأس مجلس الوصاية؟ (الفصل 44)",
+    "تمرين: اشرح «مجلس الوصاية» بعبارتك مستندا إلى الفصل 44 من الدستور."
+   ],
+   "examples_fr": [
+    "Exercice : qui préside le Conseil de régence ? (article 44)",
+    "Exercice : expliquez « Conseil de régence » dans vos mots en vous appuyant sur l'article 44."
+   ],
+   "exam_keywords": [
+    "مجلس الوصاية",
+    "سن الرشد",
+    "الفصل 44"
+   ],
+   "related_terms": [
+    "chef-gouvernement",
+    "abrogation"
+   ],
+   "slug": "مجلس-الوصاية",
+   "url": "/lexicon/مجلس-الوصاية"
+  },
+  {
+   "id": "taadud-zawjat",
+   "term_ar": "التعدد",
+   "term_fr": "Polygamie (ta'addud)",
+   "definition": "يُمنع التعدد إذا خيف عدم العدل بين الزوجات، ويُمنع كذلك إذا وُجد شرط من الزوجة بعدم التزوج عليها.",
+   "category": "الأحوال الشخصية",
+   "legal_sources": [
+    {
+     "code_ar": "مدونة الأسرة (القانون 70.03)",
+     "code_short": "مدونة 70.03",
+     "code_fr": "Code de la famille marocain (loi n° 70.03)",
+     "articles": [
+      {
+       "number": "40",
+       "phrase": "مدونة 70.03، المادة 40",
+       "article_number": "40",
+       "quotation": "يمنع التعدد إذا خيف عدم العدل بين الزوجات، كما يمنع في حالة وجود شرط من الزوجة بعدم التزوج عليها.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/التعدد",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: التعدد يعني أن يتزوج الرجل بأكثر من امرأة، لكن القانون يمنعه إذا كان هناك خوف من الظلم بين الزوجات أو شرط يمنعه.",
+   "simple_explanation_fr": "La polygamie est interdite s'il existe une crainte d'injustice entre les épouses, ou si l'épouse a stipulé qu'il ne prendrait pas d'autre épouse.",
+   "examples": [
+    "متى يمنع التعدد في مدونة الأسرة؟",
+    "هل يمنع شرط الزوجة عدم التزوج عليها التعدد؟"
+   ],
+   "examples_fr": [
+    "Quand la polygamie est-elle interdite ?",
+    "Une clause de l'épouse interdisant une autre union empêche-t-elle la polygamie ?"
+   ],
+   "exam_keywords": [
+    "التعدد",
+    "العدل بين الزوجات",
+    "مدونة الأسرة"
+   ],
+   "related_terms": [
+    "divorce",
+    "pension-alimentaire",
+    "mariage"
+   ],
+   "slug": "التعدد",
+   "url": "/lexicon/التعدد"
+  },
+  {
+   "id": "bunuwwa-shariya",
+   "term_ar": "البنوة الشرعية",
+   "term_fr": "Filiation légitime",
+   "definition": "تعتبر البنوة بالنسبة للأب والأم شرعية إلى أن يثبت العكس.",
+   "category": "الأحوال الشخصية",
+   "legal_sources": [
+    {
+     "code_ar": "مدونة الأسرة (القانون 70.03)",
+     "code_short": "مدونة 70.03",
+     "code_fr": "Code de la famille marocain (loi n° 70.03)",
+     "articles": [
+      {
+       "number": "143",
+       "phrase": "مدونة 70.03، المادة 143",
+       "article_number": "143",
+       "quotation": "تعتبر البنوة بالنسبة للأب والأم شرعية إلى أن يثبت العكس.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/البنوة-الشرعية",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: يُعتبر الطفل ابنا شرعيا لأبيه وأمه، إلا إذا ثبت العكس بدليل.",
+   "simple_explanation_fr": "La filiation est présumée légitime à l'égard du père et de la mère, jusqu'à preuve du contraire.",
+   "examples": [
+    "ما الأصل في البنوة بالنسبة للأب والأم؟",
+    "متى تنتفي صفة البنوة الشرعية؟"
+   ],
+   "examples_fr": [
+    "Quel est le principe de la filiation légitime ?",
+    "Quand la filiation légitime peut-elle être écartée ?"
+   ],
+   "exam_keywords": [
+    "البنوة",
+    "النسب",
+    "مدونة الأسرة"
+   ],
+   "related_terms": [
+    "garde",
+    "hijr",
+    "filiation"
+   ],
+   "slug": "البنوة-الشرعية",
+   "url": "/lexicon/البنوة-الشرعية"
+  },
+  {
+   "id": "hijr",
+   "term_ar": "الحجر",
+   "term_fr": "Interdiction et incapacité (hijr)",
+   "definition": "أسباب الحجر نوعان: الأول ينقص الأهلية والثاني يعدمها.",
+   "category": "الأحوال الشخصية",
+   "legal_sources": [
+    {
+     "code_ar": "مدونة الأسرة (القانون 70.03)",
+     "code_short": "مدونة 70.03",
+     "code_fr": "Code de la famille marocain (loi n° 70.03)",
+     "articles": [
+      {
+       "number": "212",
+       "phrase": "مدونة 70.03، المادة 212",
+       "article_number": "212",
+       "quotation": "أسباب الحجر نوعان: الأول ينقص الأهلية والثاني يعدمها.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/الحجر",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: الحجر يقيد أهلية الشخص لأسباب يحددها القانون، وقد يكون تقييدا جزئيا أو منعا كاملا.",
+   "simple_explanation_fr": "L'interdiction (hijr) restreint la capacité d'une personne pour des motifs fixés par la loi ; elle peut être partielle ou totale.",
+   "examples": [
+    "ما نوعا أسباب الحجر؟",
+    "ما الفرق بين ما ينقص الأهلية وما يعدمها؟"
+   ],
+   "examples_fr": [
+    "Quels sont les deux types de causes d'interdiction ?",
+    "Quelle différence entre réduire la capacité et la supprimer ?"
+   ],
+   "exam_keywords": [
+    "الحجر",
+    "الأهلية",
+    "مدونة الأسرة"
+   ],
+   "related_terms": [
+    "garde",
+    "bunuwwa-shariya"
+   ],
+   "slug": "الحجر",
+   "url": "/lexicon/الحجر"
+  },
+  {
+   "id": "fard",
+   "term_ar": "الفرض",
+   "term_fr": "Part fixe (fard)",
+   "definition": "الفرض سهم مقدر للوارث في التركة، ويبدأ في التوريث بأصحاب الفروض.",
+   "category": "الأحوال الشخصية",
+   "legal_sources": [
+    {
+     "code_ar": "مدونة الأسرة (القانون 70.03)",
+     "code_short": "مدونة 70.03",
+     "code_fr": "Code de la famille marocain (loi n° 70.03)",
+     "articles": [
+      {
+       "number": "335",
+       "phrase": "مدونة 70.03، المادة 335",
+       "article_number": "335",
+       "quotation": "الفرض سهم مقدر للوارث في التركة ويبدأ في التوريث بأصحاب الفروض.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/الفرض",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: الفرض هو النصيب المحدد الذي يأخذه الوارث من التركة بنص الشرع.",
+   "simple_explanation_fr": "Le fard est la part déterminée d'un héritier dans la succession ; la répartition commence par les bénéficiaires de parts fixes.",
+   "examples": [
+    "ما المقصود بالفرض في الإرث؟",
+    "على من يبدأ توزيع التركة في الإرث أولا؟"
+   ],
+   "examples_fr": [
+    "Qu'est-ce que le fard en succession ?",
+    "Par qui commence la répartition ?"
+   ],
+   "exam_keywords": [
+    "الفرض",
+    "الإرث",
+    "مدونة الأسرة"
+   ],
+   "related_terms": [
+    "ta-sib",
+    "succession"
+   ],
+   "slug": "الفرض",
+   "url": "/lexicon/الفرض"
+  },
+  {
+   "id": "ijbar-zawaj",
+   "term_ar": "زواج القاصر",
+   "term_fr": "Mariage du mineur",
+   "definition": "زواج القاصر متوقف على موافقة نائبه الشرعي، وإذا امتنع النائب عن الموافقة بت قاضي الأسرة المكلف بالزواج في الموضوع.",
+   "category": "الأحوال الشخصية",
+   "legal_sources": [
+    {
+     "code_ar": "مدونة الأسرة (القانون 70.03)",
+     "code_short": "مدونة 70.03",
+     "code_fr": "Code de la famille marocain (loi n° 70.03)",
+     "articles": [
+      {
+       "number": "21",
+       "phrase": "مدونة 70.03، المادة 21",
+       "article_number": "21",
+       "quotation": "زواج القاصر متوقف على موافقة نائبه الشرعي.",
+       "quotation_type": "excerpt"
+      }
+     ],
+     "source_url": "https://www.sgg.gov.ma",
+     "last_verified": "2026-10-11"
+    }
+   ],
+   "canonical_url": "https://www.mizan.page/lexicon/زواج-القاصر",
+   "last_reviewed": "2026-10-10",
+   "review_status": "internal_review",
+   "enrichment_source": "editorial",
+   "simple_explanation": "بعبارة بسيطة: لا يصح زواج القاصر إلا بموافقة وليه الشرعي، وإن رفض الولي أمر القاضي بالبت في الطلب.",
+   "simple_explanation_fr": "Le mariage du mineur est subordonné à l'accord de son représentant légal ; si celui-ci refuse, le juge de la famille statue sur le fond.",
+   "examples": [
+    "هل يحتاج زواج القاصر إلى موافقة النائب الشرعي؟",
+    "ماذا يحدث إذا امتنع النائب عن الموافقة؟"
+   ],
+   "examples_fr": [
+    "Le mariage du mineur nécessite-t-il l'accord du représentant légal ?",
+    "Que se passe-t-il si le représentant refuse ?"
+   ],
+   "exam_keywords": [
+    "زواج القاصر",
+    "النائب الشرعي",
+    "مدونة الأسرة"
+   ],
+   "related_terms": [
+    "mariage",
+    "hijr",
+    "san-ahliyya-zawaj"
+   ],
+   "slug": "زواج-القاصر",
+   "url": "/lexicon/زواج-القاصر"
   }
  ]
 }

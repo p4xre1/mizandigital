@@ -19,7 +19,7 @@ import { findLegalArticle } from "./knowledge-legal.js"
 import { rankEntries } from "./retrieve.js"
 import { checkBlockedPhrases, checkInjection, checkObfuscation, checkOffTopic, checkScope, checkSocialEngineering, REFUSAL_LEGAL_ADVICE } from "./guardrails.js"
 import { DEFAULT_MESSAGES, DEFAULT_SETTINGS } from "./cms.js"
-import { containsProfanity } from "./profanity.js"
+import { containsProfanity, PROFANITY_REPLY } from "./profanity.js"
 
 /**
  * القائمة المُرتَّبة بلا مدخلات محمَّلة بألفاظ محظورة في العنوان أو الكلمات أو
@@ -74,6 +74,11 @@ export function screenQuestionScope(question, options = {}) {
   }
   if (checkBlockedPhrases(analysed, settings.blockedPhrases).block) {
     return { mode: "blocked", answer: messages.blocked, sources: [], reason: "blocked_phrase" }
+  }
+  // لفظ مسيء في السؤال نفسه: يُرفض قبل أي بحث، ونص السؤال لا يُحفظ أصلاً. يُفحص السؤال
+  // الأصلي وحده (النص المحوّل قد يحمل مصطلحاً تقنياً)، واستثناء «نصاب المجلس» سياقي.
+  if (containsProfanity(question).found) {
+    return { mode: "blocked", answer: PROFANITY_REPLY, sources: [], reason: "profanity" }
   }
 
   if (isMedicalAdviceRequest(analysed)) {

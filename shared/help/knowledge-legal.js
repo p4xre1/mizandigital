@@ -17,16 +17,17 @@ import familyCode from "../../data/laws/mudawana-70-03.articles.json"
 export const CONSTITUTION_LAW_TITLE = "دستور المملكة المغربية (2011)"
 export const FAMILY_CODE_LAW_TITLE = "مدونة الأسرة (القانون 70.03)"
 
-/** رابط عرض القوانين في أدوات المحترف — موجود في AppRoutes. */
-const LEGAL_URL = "/pro-tools/references"
+/** صفحة كل نص في خريطة الإحالات (‎/pro-tools/references/:lawSlug‎ في AppRoutes). */
+export const CONSTITUTION_URL = "/pro-tools/references/constitution"
+export const FAMILY_CODE_URL = "/pro-tools/references/family-code"
 
-function entryFor(lawId, lawTitle, labelPrefix, article) {
+function entryFor(lawId, lawTitle, labelPrefix, article, url) {
   const number = article.number
   const title = `${labelPrefix} ${number} من ${lawTitle.split(" (")[0]}`
   return {
     id: `legal-${lawId}-${number}`,
     title,
-    url: LEGAL_URL,
+    url,
     sourceTitle: lawTitle,
     keywords: [
       title,
@@ -41,12 +42,12 @@ function entryFor(lawId, lawTitle, labelPrefix, article) {
 
 /** 180 مدخلاً — واحد لكل فصل من دستور 2011. */
 export const LEGAL_CONSTITUTION_ENTRIES = constitution.articles.map((article) =>
-  entryFor("const", CONSTITUTION_LAW_TITLE, "الفصل", article),
+  entryFor("const", CONSTITUTION_LAW_TITLE, "الفصل", article, CONSTITUTION_URL),
 )
 
 /** 399 مدخلاً — واحد لكل مادة من مدونة الأسرة (383 فارغة في المصدر). */
 export const LEGAL_FAMILY_CODE_ENTRIES = familyCode.articles.map((article) =>
-  entryFor("fam", FAMILY_CODE_LAW_TITLE, "المادة", article),
+  entryFor("fam", FAMILY_CODE_LAW_TITLE, "المادة", article, FAMILY_CODE_URL),
 )
 
 /** كل المدخلات القانونية (579). تُسجَّل في allEntries() للمساعدة على الاسترجاع. */

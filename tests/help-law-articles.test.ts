@@ -11,7 +11,9 @@ import familyCode from "../data/laws/mudawana-70-03.articles.json"
 import { answerQuestion } from "../shared/help/answer.js"
 import {
   CONSTITUTION_LAW_TITLE,
+  CONSTITUTION_URL,
   FAMILY_CODE_LAW_TITLE,
+  FAMILY_CODE_URL,
   findLegalArticle,
   LEGAL_CONSTITUTION_ENTRIES,
   LEGAL_ENTRIES,
@@ -38,13 +40,17 @@ describe("بنية المدخلات القانونية", () => {
     }
   })
 
-  test("المجموعة القانونية مسجلة في allEntries ومجموعات المعرفة (5 مجموعات)", () => {
+  test("المجموعة القانونية مسجلة في allEntries ومجموعات المعرفة (9 مجموعات)", () => {
     expect(KNOWLEDGE_GROUPS.map((g) => g.name)).toEqual([
       "curated",
       "lexicon",
       "faq",
       "legal_constitution",
       "legal_family_code",
+      "law_overview",
+      "careers",
+      "schools",
+      "events",
     ])
     const all = allEntries()
     const isLegal = (e: { id: string }) => e.id.startsWith("legal-const-") || e.id.startsWith("legal-fam-")
@@ -98,8 +104,9 @@ describe("إجابات المسار الرقمي — 10 فحوص منتقاة م
       expect(result!.mode).toBe("answer")
       // النص الكامل حرفياً (أو على الأقل مفتحه الحرفي) في الجواب
       expect(result!.answer).toContain(head(check.text))
-      // المصدر: اسم القانون، ورابط صفحة القوانين
-      expect(result!.sources[0]).toMatchObject({ url: "/pro-tools/references" })
+      // المصدر: اسم القانون، ورابط صفحة ذلك النص في خريطة الإحالات
+      const lawUrl = check.lawTitle === CONSTITUTION_LAW_TITLE ? CONSTITUTION_URL : FAMILY_CODE_URL
+      expect(result!.sources[0]).toMatchObject({ url: lawUrl })
       expect(result!.sources[0].title).toBe(check.lawTitle)
       // المسار القانوني أو استرجاع المدخل القانوني — لا "لا يوجد"
       expect(["legal_article", "site_content"]).toContain(result!.reason)

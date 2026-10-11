@@ -30,16 +30,41 @@ describe("الترقية: إسقاط التعرّض العام للإجابات"
 
   test("العرض العام لا يحمل أعمدة answer أو explanation أو reference", () => {
     const sql = migrationSql()
-    // قسم تعريف العرض: من CREATE OR REPLACE VIEW حتى الـ GRANT التالي
-    const viewStart = sql.indexOf("CREATE OR REPLACE VIEW")
+    // قسم تعريف العرض: من CREATE VIEW حتى الـ REVOKE التالي
+    const viewStart = sql.search(/CREATE (?:OR REPLACE )?VIEW\s+"?public"?\."?quiz_questions_public"?(?!\w)/)
     expect(viewStart).toBeGreaterThan(-1)
     const viewEnd = sql.indexOf("REVOKE ALL", viewStart)
     const viewDef = sql.slice(viewStart, viewEnd)
-    expect(viewDef).toContain("quiz_questions_public")
     // لا أعمدة حساسة في قائمة SELECT
     expect(viewDef).not.toMatch(/\banswer\b/)
     expect(viewDef).not.toMatch(/\bexplanation\b/)
     expect(viewDef).not.toMatch(/\breference\b/)
+    // يبقى security_invoker (docs/security-architecture.md) ويقرأ من دالة المصدر لا من الجدول
+    expect(viewDef).toMatch(/security_invoker\s*=\s*true/i)
+    expect(viewDef).toMatch(/FROM\s+"?public"?\."?quiz_questions_public_rows"?\(\)/)
+
+    // دالة المصدر: الأسئلة المنشورة والأعمدة الآمنة فقط، بمسار بحث مثبّت
+    const fnStart = sql.search(/CREATE OR REPLACE FUNCTION\s+"?public"?\."?quiz_questions_public_rows"?\(\)/)
+    expect(fnStart).toBeGreaterThan(-1)
+    const fnDef = sql.slice(fnStart, sql.indexOf("$$;", fnStart))
+    expect(fnDef).not.toMatch(/\banswer\b/)
+    expect(fnDef).not.toMatch(/\bexplanation\b/)
+    expect(fnDef).not.toMatch(/\breference\b/)
+    expect(fnDef).toMatch(/is_published = true/)
+    expect(fnDef).toMatch(/SECURITY DEFINER/)
+    expect(fnDef).toMatch(/SET search_path = ''/)
+  })
+
+  test("يُسقط العرض قبل إنشائه — OR REPLACE لا يحذف أعمدة (SQLSTATE 42P16)", () => {
+    const sql = migrationSql()
+    // عرض 20260920000000 يحمل explanation و reference؛ OR REPLACE يفشل بـ cannot drop columns from view
+    expect(sql).not.toMatch(/CREATE OR REPLACE VIEW\s+"?public"?\."?quiz_questions_public"?(?!\w)/)
+    const dropAt = sql.search(/DROP VIEW IF EXISTS\s+"?public"?\."?quiz_questions_public"?\s*;/)
+    const createAt = sql.search(/CREATE VIEW\s+"?public"?\."?quiz_questions_public"?(?!\w)/)
+    expect(dropAt).toBeGreaterThan(-1)
+    expect(createAt).toBeGreaterThan(dropAt)
+    // بلا CASCADE: اعتماد غير متوقع يوقف الترحيل بدل حذفه بصمت
+    expect(sql).not.toMatch(/DROP VIEW[^;]*quiz_questions_public[^;]*CASCADE/i)
   })
 
   test("دالة الكشف تتطلب اختياراً ضمن 0..3 وتكشف الإجابة فقط عند وجوده", () => {

@@ -254,12 +254,25 @@ const dedupedByPath = Array.from(
 // — نعود إليها في النسخة السابقة من الخريطة (المصدر المتاح الوحيد) ما لم تحمل
 // البيانات المحلية ما يغطيها. الروابط تحت /pdf/ الوحيدة هنا؛ باقي الأقسام
 // (مقالات/أخبار/كليات/معجم) تُبنى كلها من البيانات المحلية.
+// قيم <loc> في الخريطة السابقة مُهرَّبة XML (‎&apos; ‎&amp;…)؛ تُفكّ قبل أن تُهرَّب من جديد
+// عند الكتابة، وإلا تتضاعف ‎&amp;‎ في كل بناء معزول. الفكّ حتى الثبات يصلح أيضاً ما تضاعف
+// سابقاً (‎&amp;apos;‎ → ').
+function unescapeXml(value) {
+  const entities = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+  let out = value;
+  for (let prev = ""; out !== prev; ) {
+    prev = out;
+    out = out.replace(/&(amp|lt|gt|quot|apos);/g, (_, name) => entities[name]);
+  }
+  return out;
+}
+
 if (!cmsOk) {
   try {
     const previous = await readFile(OUTPUT, "utf8");
     const previousPaths = new Set(dedupedByPath.map((entry) => entry.path));
     const carried = [...previous.matchAll(/<loc>([^<]+)<\/loc>/g)]
-      .map((m) => pathOfUrl(m[1]))
+      .map((m) => pathOfUrl(unescapeXml(m[1])))
       .filter((path) => path.startsWith("/pdf/") && !previousPaths.has(path) && isIndexablePath(path))
       .map((path) => ({ path, changefreq: "yearly", priority: "0.6", url: canonicalUrl(path) }));
     if (carried.length > 0) {

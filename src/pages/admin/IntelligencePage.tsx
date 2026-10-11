@@ -60,7 +60,7 @@ export default function IntelligencePage() {
         if ((profiles.count || 0) > 0 && (mizanProfiles.count || 0) / (profiles.count || 1) < 0.5) ins.push(`⚠️ فقط ${Math.round(((mizanProfiles.count || 0) / (profiles.count || 1)) * 100)}% من المستخدمين أكملوا ملف ميزان — حسّن onboarding`)
         if ((payments.data?.length || 0) > 0) ins.push(`سجلات تاريخية محفوظة للمدة التي يفرضها القانون: ${payments.data?.length || 0}`)
         if ((reports.count || 0) > 5) ins.push(`🚩 ${reports.count} بلاغ — راجع الحوكمة`)
-        ins.push(`📚 ${lexicon.count || 0}/295 مصطلح + ${faculties.count || 0}/21 كلية — اكتمال المحتوى الأساسي`)
+        ins.push(`📚 ${lexicon.count || 0}/325 مصطلح + ${faculties.count || 0}/21 كلية — اكتمال المحتوى الأساسي`)
         ins.push(`🎯 متوسط نتيجة الاختبارات ${avgScore}% — XP إجمالي ${totalXP}`)
         ins.push(`✅ الموارد والأدوات متاحة للجميع بلا إعلانات تجارية`)
         setInsights(ins)
@@ -76,7 +76,7 @@ export default function IntelligencePage() {
     { label: "ملفات ميزان", value: stats.mizanUsers, icon: BookOpen, label2: `${stats.totalXP || 0} XP`, icon2: Zap, color: "text-violet-600 bg-violet-500/10", path: "/admin/users" },
     { label: "محاولات الاختبارات", value: stats.attempts, icon: ListChecks, label2: `متوسط ${stats.avgScore || 0}%`, color: "text-cyan-600 bg-cyan-500/10", path: "/admin/quizzes" },
     { label: "المقالات", value: stats.articles, icon: FileText, color: "text-emerald-600 bg-emerald-500/10", path: "/admin/articles" },
-    { label: "المصطلحات", value: stats.lexicon, icon: Layers, sub: "/ 295", color: "text-indigo-600 bg-indigo-500/10", path: "/admin/lexicon" },
+    { label: "المصطلحات", value: stats.lexicon, icon: Layers, sub: "/ 325", color: "text-indigo-600 bg-indigo-500/10", path: "/admin/lexicon" },
     { label: "الكليات", value: stats.faculties, icon: GraduationCap, sub: "/ 21", color: "text-amber-600 bg-amber-500/10", path: "/admin/faculties" },
     { label: "الأخبار", value: stats.news, icon: FileText, color: "text-green-600 bg-green-500/10", path: "/admin/news" },
     { label: "المكتبة", value: stats.library, icon: BookOpen, color: "text-slate-600 bg-slate-500/10", path: "/admin/library" },
@@ -130,7 +130,7 @@ export default function IntelligencePage() {
               <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
                 {[
                   { l: "الرئيسية", p: "/" }, { l: "المقالات", p: "/articles" }, { l: "الأخبار", p: "/news" },
-                  { l: "القاموس 295", p: "/lexicon" }, { l: "الكليات 21", p: "/schools" }, { l: "الأرشيف", p: "/archive" },
+                  { l: "القاموس 325", p: "/lexicon" }, { l: "الكليات 21", p: "/schools" }, { l: "الأرشيف", p: "/archive" },
                   { l: "الاختبارات 4", p: "/quiz" }, { l: "الموارد التعليمية", p: "/pricing" }, { l: "الشروط", p: "/terms" },
                   { l: "الخصوصية", p: "/privacy" }, { l: "الكوكيز", p: "/cookies" }, { l: "FAQ", p: "/faq" },
                 ].map(item => (

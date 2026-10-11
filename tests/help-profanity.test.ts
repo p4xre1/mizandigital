@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest"
 import {
   containsProfanity,
   maskProfanity,
+  PROFANITY_REPLY,
   profanityTerms,
 } from "../shared/help/profanity.js"
 import { allEntries } from "../shared/help/knowledge.js"
@@ -68,7 +69,7 @@ describe("فلتر الألفاظ المسيئة: المطابقة", () => {
 })
 
 describe("فلتر الألفاظ المسيئة: الكوربوس النظيف", () => {
-  test("مئات المدخلات (معجم 295 + مدونان + أسئلة شائعة + مختارات) بلا أي راية", () => {
+  test("مئات المدخلات (معجم 325 + مدونان + أسئلة شائعة + مختارات) بلا أي راية", () => {
     const entries = allEntries()
     expect(entries.length).toBeGreaterThanOrEqual(800)
     const flagged: string[] = []
@@ -110,6 +111,20 @@ describe("فلتر الألفاظ المسيئة: التفعيل في الخطو
     // المداخلة المسيئة لا تُجاب — ولا بديل في الموقع فـ not_found
     expect(result?.mode).toBe("not_found")
     expect(result?.answer).not.toContain("دج")
+  })
+
+  test("سؤال يحمل لفظاً مسيئاً يُرفض قبل البحث، والسياق التقني لـ«نصاب» يمر", () => {
+    for (const question of ["أنت نصاب، ما هو الطلاق؟", "ما هو الصداق يا دج"]) {
+      const result = answerQuestion(question)
+      expect(result?.mode, question).toBe("blocked")
+      expect(result?.reason, question).toBe("profanity")
+      expect(result?.answer).toBe(PROFANITY_REPLY)
+      expect(result?.sources).toEqual([])
+      expect(runPipeline(question).mode, question).toBe("blocked")
+    }
+    // «نصاب المجلس» مصطلح، لا شتيمة: لا يُرفض السؤال بسببه
+    expect(answerQuestion("ما هو نصاب المجلس الدستوري؟")?.reason).not.toBe("profanity")
+    expect(answerQuestion("ما هو الطلاق؟")?.mode).toBe("answer")
   })
 
   test("runPipeline: سؤال يطابق مدخلاً محمّلاً لا يوصل لفظاً للزائر", () => {

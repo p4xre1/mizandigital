@@ -24,12 +24,12 @@ let container: HTMLDivElement;
 
 const referenceTool = { slug: 'references', title: 'خريطة الإحالات القانونية', description: 'ابحث عن الروابط بين النصوص ومصادرها.', enabled: true };
 
-async function render(path = '/pro-tools/references') {
+async function render(path = '/pro-tools/references/constitution') {
   await act(async () => {
     root.render(
       <MemoryRouter initialEntries={[path]}>
         <Routes>
-          <Route path="/pro-tools/:slug" element={<ProToolsPage />} />
+          <Route path="/pro-tools/references/:lawSlug" element={<ProToolsPage />} /><Route path="/pro-tools/:slug" element={<ProToolsPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -98,8 +98,8 @@ describe('واجهة خريطة الإحالات', () => {
   it('تعرض المجموعة المنسّقة للزائر بلا حساب', async () => {
     await render();
     expect(container.textContent).toContain('خريطة الإحالات');
-    expect(container.textContent).toContain('الفصل 29');
-    expect(container.textContent).toContain('الإضراب');
+    expect(container.textContent).toContain('الإحالات (100)');
+    expect(container.textContent).toContain('صفحة 1 من 10');
     expect(container.textContent).not.toContain('قيد الإعداد');
   });
 
@@ -107,7 +107,7 @@ describe('واجهة خريطة الإحالات', () => {
     service.catalog.mockRejectedValue(new Error('offline'));
     service.entries.mockRejectedValue(new Error('offline'));
     await render();
-    expect(container.textContent).toContain('الفصل 29');
+    expect(container.textContent).toContain('الإحالات (100)');
     expect(container.textContent).toContain('غير متاحة في هذه اللحظة');
   });
 
@@ -130,7 +130,7 @@ describe('واجهة خريطة الإحالات', () => {
   });
 
   it('تفتح رابطاً عميقاً إلى عقدة مركَّز عليها', async () => {
-    await render('/pro-tools/references?focus=' + encodeURIComponent('الدستور المغربي (2011)::الفصل 71'));
+    await render('/pro-tools/references/constitution?focus=' + encodeURIComponent('الدستور المغربي (2011)::الفصل 71'));
     expect(container.textContent).toContain('إحالة صادرة');
     expect(container.textContent).toContain('الفصل 71');
   });
@@ -194,9 +194,8 @@ describe('واجهة خريطة الإحالات', () => {
       },
       updated_at: '2026-09-01T00:00:00Z',
     }]);
-    await render();
+    await render('/pro-tools/references/other');
     expect(container.textContent).toContain('إحالة أضافها المحرّر للاختبار');
-    expect(container.textContent).toContain('الفصل 29');
   });
 
   it('لا ترسم كتلة خطوط غير مقروءة: تعرض نقاط بداية بدل الخريطة المزدحمة', async () => {
@@ -211,7 +210,7 @@ describe('واجهة خريطة الإحالات', () => {
   });
 
   it('ترسم الخريطة حين يطلبها المستخدم صراحةً ولو كانت مزدحمة', async () => {
-    await render('/pro-tools/references?map=1');
+    await render('/pro-tools/references/constitution?map=1');
     expect(container.querySelectorAll('svg[role="img"]')).toHaveLength(1);
   });
 
@@ -243,7 +242,7 @@ describe('واجهة خريطة الإحالات', () => {
       },
       updated_at: '2026-09-01T00:00:00Z',
     })));
-    await render();
+    await render('/pro-tools/references/other');
     const hrefs = Array.from(container.querySelectorAll('a')).map(a => a.getAttribute('href') ?? '');
     // قائمة المنع تنمو بالأخطاء وقائمة السماح تنقص بها: المسموح رابط https أو
     // مسار داخلي نسبي، وما عداه مرفوض ولو لم نكن سمعنا بمخططه.
@@ -252,5 +251,17 @@ describe('واجهة خريطة الإحالات', () => {
     expect(container.textContent).toContain('علاقة اختبارية للتحقق من الأمان');
     expect(container.innerHTML).not.toContain('javascript:');
     expect(container.innerHTML).not.toContain('vbscript:');
+  });
+
+  it('تعرض عشر إحالات في الصفحة، وتنتقل بين الصفحات بالرقم', async () => {
+    await render();
+    const cards = () => Array.from(container.querySelectorAll('article')).map(a => a.textContent ?? '');
+    expect(cards()).toHaveLength(10);
+    const first = cards()[0];
+    const pageTwo = Array.from(container.querySelectorAll('button')).find(b => b.getAttribute('aria-label') === 'صفحة 2') as HTMLButtonElement;
+    await act(async () => { pageTwo.click(); });
+    expect(cards()).toHaveLength(10);
+    expect(cards()[0]).not.toBe(first);
+    expect(container.textContent).toContain('صفحة 2 من 10');
   });
 });

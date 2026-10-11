@@ -1,5 +1,20 @@
+import type { ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { BadgeCheck, BookOpen, Briefcase, Building2, Compass, ExternalLink, HelpCircle, Landmark, ShieldCheck } from "lucide-react";
+import {
+  BadgeCheck,
+  BookOpen,
+  Briefcase,
+  Building2,
+  CalendarDays,
+  DoorOpen,
+  ExternalLink,
+  GraduationCap,
+  HelpCircle,
+  Hourglass,
+  Landmark,
+  ShieldCheck,
+  Store,
+} from "lucide-react";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { canonicalFor } from "@/lib/canonical";
 import { CareerDisclaimer } from "@/components/careers/CareerDisclaimer";
@@ -52,6 +67,19 @@ function requirementBadges(requirement: CareerRequirement): string[] {
   return [...new Set(badges)];
 }
 
+/** قسم بعنوان واحد وخط فاصل؛ المسافة نفسها على كل الشاشات. */
+function Section({ id, title, icon, className = "", children }: { id: string; title: string; icon?: ReactNode; className?: string; children: ReactNode }) {
+  return (
+    <section aria-labelledby={id} className={`scroll-mt-24 border-t border-border pt-10 sm:pt-12 ${className}`}>
+      <h2 id={id} className="inline-flex items-center gap-2 text-2xl font-black leading-snug text-foreground sm:text-3xl">
+        {icon}
+        {title}
+      </h2>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
+}
+
 export function CareerDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const career = getCareerBySlug(slug ? decodeURIComponent(slug) : undefined);
@@ -85,8 +113,29 @@ export function CareerDetailPage() {
     ["حالة التحقق", REVIEW_STATUS_LABELS[career.review_status] ?? career.review_status],
   ];
 
+  const factMap = Object.fromEntries(facts) as Record<string, string>;
+  const KEY_ANSWERS = [
+    { key: "work", label: "طبيعة العمل", icon: Briefcase },
+    { key: "degree", label: "الشهادة المعتادة", icon: GraduationCap },
+    { key: "entry", label: "طريقة الولوج", icon: DoorOpen },
+  ] as const;
+  const DETAIL_FACTS: Array<{ label: string; icon: typeof Store; tone?: "ok" | "warn" }> = [
+    { label: "هل يمكن العمل الحر؟", icon: Store },
+    { label: "أين يمكن العمل؟", icon: Building2 },
+    // الشارات مشتقّة من بيانات المسار نفسه: لا تُعلن «موثّق» إلا عند التحقق من النص الرسمي.
+    ...(career.age_requirement.has_requirement
+      ? [{ label: "شرط السن", icon: Hourglass, tone: "warn" as const }]
+      : [{ label: "شرط السن", icon: Hourglass }]),
+    { label: "آخر مراجعة", icon: CalendarDays },
+    {
+      label: "حالة التحقق",
+      icon: ShieldCheck,
+      tone: career.review_status === "official_text_verified" || career.review_status === "verified" ? ("ok" as const) : ("warn" as const),
+    },
+  ];
+
   return (
-    <main className="container-wide py-10" dir="rtl" data-page="career-detail" data-career={career.slug}>
+    <main className="container-wide py-6 sm:py-10 lg:py-14" dir="rtl" data-page="career-detail" data-career={career.slug}>
       <SEOHead
         title={buildCareerPageTitle(career.title_ar)}
         description={description}
@@ -114,7 +163,7 @@ export function CareerDetailPage() {
         ]}
       />
 
-      <nav aria-label="مسار التصفح" className="mb-5 text-[12.5px] font-bold text-muted-foreground">
+      <nav aria-label="مسار التصفح" className="text-base font-semibold text-muted-foreground">
         <Link className="hover:text-foreground" to="/">
           الرئيسية
         </Link>
@@ -126,306 +175,297 @@ export function CareerDetailPage() {
         <span className="text-foreground">{career.title_ar}</span>
       </nav>
 
-      <header className="rounded-3xl border border-border bg-gradient-to-l from-primary/15 via-card to-primary/5 p-6">
-        <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Compass className="size-5" strokeWidth={2.2} aria-hidden="true" />
-        </span>
-        <h1 className="mt-4 text-[26px] font-black leading-[1.3] text-foreground md:text-[32px]">
-          كيف تصبح {career.title_ar} في المغرب؟
-        </h1>
-        <p className="mt-2 text-[13px] font-bold text-muted-foreground" dir="ltr">
-          {career.title_fr}
-        </p>
-        <p className="mt-3 max-w-3xl text-[14px] leading-8 text-foreground">{buildCareerAnswerFirst(career)}</p>
-        <p className="mt-3 flex flex-wrap gap-2 text-[12px] font-bold">
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-primary">{career.work_model_ar}</span>
-          {career.requirements.some((requirement) => requirement.requirement_type === "annual_notice") ? (
-            <span className="rounded-full bg-amber-500/10 px-3 py-1 text-amber-700 dark:text-amber-500">
-              {CAREERS_ANNUAL_NOTICE_BADGE}
-            </span>
-          ) : null}
-        </p>
-        <CareerDisclaimer className="mt-5 max-w-3xl" />
+      {/* الهيرو: بطاقة واحدة بعرض الصفحة؛ الحقائق تأتي في القسم التالي */}
+      <header className="mt-6">
+        <div className="rounded-2xl border border-border bg-card p-5 sm:p-8 lg:p-10">
+          <h1 className="text-3xl font-black leading-tight text-foreground sm:text-4xl lg:text-5xl">
+            كيف تصبح {career.title_ar} في المغرب؟
+          </h1>
+          <p className="mt-3 text-lg font-bold text-muted-foreground" dir="ltr">
+            {career.title_fr}
+          </p>
+          <p className="mt-5 text-lg leading-relaxed text-foreground sm:text-xl">{buildCareerAnswerFirst(career)}</p>
+          <div className="mt-6 flex flex-wrap gap-2 text-base font-bold">
+            <span className="rounded-full bg-primary/10 px-4 py-1.5 text-primary">{career.work_model_ar}</span>
+            {career.requirements.some((requirement) => requirement.requirement_type === "annual_notice") ? (
+              <span className="rounded-full bg-amber-500/10 px-4 py-1.5 text-amber-700 dark:text-amber-500">
+                {CAREERS_ANNUAL_NOTICE_BADGE}
+              </span>
+            ) : null}
+          </div>
+          <CareerDisclaimer className="mt-6" />
+        </div>
+
       </header>
 
-      <section className="mt-10" aria-labelledby="career-facts-title">
-        <h2 id="career-facts-title" className="text-[18px] font-black text-foreground">
-          {SECTION_TITLES.keyFacts}
-        </h2>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[520px] border-collapse text-right text-[13px]">
-            <caption className="sr-only">بطاقة معلومات {career.title_ar}</caption>
-            <thead>
-              <tr className="bg-muted/40">
-                <th scope="col" className="border border-border p-3 font-extrabold">
-                  المعلومة
-                </th>
-                <th scope="col" className="border border-border p-3 font-extrabold">
-                  التفاصيل
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {facts.map(([label, value]) => (
-                <tr key={label}>
-                  <th scope="row" className="w-[30%] border border-border p-3 text-right font-bold align-top">
-                    {label}
-                  </th>
-                  <td className="border border-border p-3 leading-7 text-muted-foreground">{value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {/* قفزات سريعة: تظهر القوانين أولاً، والبقية بنقرة واحدة على الهاتف واللوح والحاسوب */}
+      <nav aria-label="أقسام الصفحة" className="mt-6 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <ul className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+          {[
+            ["#career-laws-title", "القوانين والمراجع"],
+            ["#career-facts-title", "بطاقة المسار باختصار"],
+            ["#career-requirements-title", "الشروط والمصادر"],
+            ["#career-quiz-title", "الاختبار"],
+          ].map(([href, label]) => (
+            <li key={href}>
+              <a
+                href={href}
+                className="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-4 py-2 text-base font-bold text-foreground transition hover:border-primary/50 hover:text-primary"
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <CareerRoadmapTimeline steps={career.entry_path} className="mt-10" />
+      <CareerLaws career={career} className="mt-10 sm:mt-12" />
 
-      <section className="mt-10" aria-labelledby="career-skills-title">
-        <h2 id="career-skills-title" className="text-[18px] font-black text-foreground">
-          {SECTION_TITLES.skills}
-        </h2>
-        <ul className="mt-3 flex flex-wrap gap-2">
+      <Section id="career-facts-title" title={SECTION_TITLES.keyFacts} className="mt-12 sm:mt-16">
+        {/* الأجوبة الثلاثة الأهم في الأعلى، ثم التفاصيل مع شارات حالة سريعة */}
+        {/* الأجوبة الثلاثة: كل واحد في سطر كامل، الأيقونة بجانب العنوان والقيمة */}
+        <ul className="grid grid-cols-1 gap-4">
+          {KEY_ANSWERS.map(({ label, icon: Icon, key }) => (
+            <li
+              key={key}
+              className="relative flex items-center gap-4 overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:gap-6 sm:p-6"
+            >
+              <span className="absolute inset-y-0 start-0 w-1 bg-primary" aria-hidden="true" />
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <Icon className="size-7" aria-hidden="true" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-base font-bold text-muted-foreground">{label}</p>
+                <p className="mt-1 text-xl font-black leading-snug text-foreground sm:text-2xl">{factMap[label]}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {/* كل تفصيلة في سطر كامل، بالشكل نفسه لبطاقة «طريقة الولوج» */}
+        <ul className="mt-4 grid grid-cols-1 gap-4">
+          {DETAIL_FACTS.map(({ label, icon: Icon, tone }) => (
+            <li key={label} className="relative overflow-hidden rounded-2xl border border-primary/25 bg-primary/5 p-5 sm:p-6">
+              <span className="absolute inset-x-0 top-0 h-1 bg-primary" aria-hidden="true" />
+              <span className="flex size-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                <Icon className="size-6" aria-hidden="true" />
+              </span>
+              <p className="mt-4 text-base font-bold text-muted-foreground">{label}</p>
+              <p className="mt-1 text-xl font-black leading-snug text-foreground sm:text-2xl">{factMap[label]}</p>
+              {tone ? (
+                <span
+                  className={`mt-3 inline-block rounded-full px-3 py-1 text-base font-extrabold ${
+                    tone === "warn"
+                      ? "bg-amber-500/15 text-amber-800 dark:text-amber-300"
+                      : "bg-emerald-500/15 text-emerald-800 dark:text-emerald-200"
+                  }`}
+                >
+                  {tone === "warn" ? "يحتاج إلى تحقق" : "موثّق"}
+                </span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <CareerRoadmapTimeline steps={career.entry_path} className="mt-12 sm:mt-16" />
+
+      <Section id="career-skills-title" title={SECTION_TITLES.skills} className="mt-12 sm:mt-16">
+        <ul className="flex flex-wrap gap-2 sm:gap-3">
           {career.skills.map((skill) => (
-            <li key={skill} className="rounded-full border border-border bg-card px-3.5 py-1.5 text-[12.5px] font-bold text-foreground">
+            <li key={skill} className="rounded-full border border-border bg-card px-4 py-2 text-base font-bold text-foreground">
               {skill}
             </li>
           ))}
         </ul>
-      </section>
+      </Section>
 
-      <section className="mt-10 rounded-3xl border border-primary/20 bg-primary/5 p-6 md:p-8" aria-labelledby="career-fit-title">
-        <h2 id="career-fit-title" className="inline-flex items-center gap-2 text-[22px] font-black text-foreground">
-          <HelpCircle className="size-5 text-primary" aria-hidden="true" />
-          {SECTION_TITLES.fit}
-        </h2>
-        <ul className="mt-4 space-y-4">
-          {career.best_for.map((line) => (
-            <li key={line} className="flex gap-3 text-[17px] leading-8 text-foreground">
-              <BadgeCheck className="mt-1.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-              <span>{line}</span>
+      <Section id="career-fit-title" title={SECTION_TITLES.fit} icon={<HelpCircle className="size-6 text-primary" aria-hidden="true" />} className="mt-12 sm:mt-16">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:p-8">
+          <ul className="grid gap-4 md:grid-cols-2">
+            {career.best_for.map((line) => (
+              <li key={line} className="flex gap-3 text-lg leading-relaxed text-foreground">
+                <BadgeCheck className="mt-1 size-6 shrink-0 text-primary" aria-hidden="true" />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-6 text-lg font-bold leading-relaxed text-emerald-800 dark:text-emerald-200">
+            هذا وصف تعليمي لطبيعة المسار، وليس تقييماً لأهليتك أو ترجيحاً لقبولك.
+          </p>
+        </div>
+      </Section>
+
+      <CareerLexiconTerms career={career} className="mt-12 sm:mt-16" />
+
+      {career.requires_legal_education !== "not_required" ? (
+        <NearbyLawSchools career={career} className="mt-12 sm:mt-16" />
+      ) : null}
+
+      <Section id="career-quiz-title" title={SECTION_TITLES.quiz} className="mt-12 sm:mt-16">
+        <div className="rounded-2xl border border-border bg-card p-5 sm:p-8">
+          <p className="text-lg leading-relaxed text-muted-foreground">
+            تمارين تعليمية أعدتها ميزان حول مفاهيم هذا المسار. لا تمثل اختباراً رسمياً ولا تضمن القبول في أي مباراة أو
+            تولي أي مهام.
+          </p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Link
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-lg font-extrabold text-primary-foreground transition hover:opacity-90"
+              to={`/quiz/careers/${career.quiz_config.career_quiz_slug}`}
+            >
+              <BookOpen className="size-5" aria-hidden="true" />
+              اختبر معلوماتك عن مهنة {career.title_ar}
+            </Link>
+            <Link
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-border px-6 py-3 text-lg font-extrabold text-foreground transition hover:border-primary/50"
+              to={CAREERS_HUB_PATH}
+            >
+              كل المسارات المهنية
+            </Link>
+          </div>
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground">
+            {verifiedCompetition
+              ? "توجد مباراة موثقة بمصدر رسمي في قاعدة ميزان لهذا المسار؛ يمكنك فتح صفحة التمارين المرتبطة بها."
+              : CAREERS_NO_VERIFIED_COMPETITION}
+          </p>
+          {verifiedCompetition ? (
+            <Link
+              className="mt-3 inline-flex min-h-11 items-center text-lg font-extrabold text-primary underline underline-offset-4"
+              to={`/quiz/careers/${career.slug}/practice/${verifiedCompetition.id}`}
+            >
+              فتح تمارين المباراة الموثقة
+            </Link>
+          ) : null}
+        </div>
+      </Section>
+
+
+      <Section
+        id="career-requirements-title"
+        title={SECTION_TITLES.requirements}
+        icon={<ShieldCheck className="size-6 text-primary" aria-hidden="true" />}
+        className="mt-12 sm:mt-16"
+      >
+        <ul className="grid gap-4 md:grid-cols-2">
+          {career.requirements.map((requirement) => (
+            <li key={requirement.id} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
+              <div className="flex flex-wrap gap-2">
+                {requirementBadges(requirement).map((badge) => (
+                  <span key={badge} className="rounded-full bg-muted px-3 py-1 text-base font-bold text-foreground">
+                    {badge}
+                  </span>
+                ))}
+              </div>
+              <h3 className="text-xl font-black leading-snug text-foreground">{requirement.label_ar}</h3>
+              {REQUIREMENT_TYPE_LABELS[requirement.requirement_type] ? (
+                <p className="text-base font-bold text-muted-foreground">{REQUIREMENT_TYPE_LABELS[requirement.requirement_type]}</p>
+              ) : null}
+              <p className="text-lg leading-relaxed text-foreground">{requirement.value_ar}</p>
+              <div className="mt-auto border-t border-border pt-4 text-base">
+                {requirement.source_url ? (
+                  <a
+                    className="inline-flex min-h-11 items-center font-extrabold text-primary underline underline-offset-4"
+                    href={requirement.source_url}
+                    target="_blank"
+                    rel="nofollow noopener"
+                  >
+                    المصدر الرسمي
+                  </a>
+                ) : requirement.source_ref_ar ? (
+                  <span className="font-bold leading-relaxed text-foreground">{requirement.source_ref_ar}</span>
+                ) : (
+                  <span className="font-bold leading-relaxed text-emerald-800 dark:text-emerald-200">{CAREERS_NO_SOURCE_NOTE}</span>
+                )}
+                {requirement.last_verified ? (
+                  <span className="mt-1 block text-base text-muted-foreground">آخر تحقق: {requirement.last_verified}</span>
+                ) : null}
+              </div>
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-[15px] font-bold leading-7 text-emerald-800 dark:text-emerald-200">
-          هذا وصف تعليمي لطبيعة المسار، وليس تقييماً لأهليتك أو ترجيحاً لقبولك.
-        </p>
-      </section>
 
-      <CareerLexiconTerms career={career} className="mt-10" />
-
-      {career.requires_legal_education !== "not_required" ? (
-        <NearbyLawSchools career={career} className="mt-10" />
-      ) : null}
-
-      <section className="mt-10 rounded-3xl border border-border bg-card p-5" aria-labelledby="career-quiz-title">
-        <h2 id="career-quiz-title" className="text-[18px] font-black text-foreground">
-          {SECTION_TITLES.quiz}
-        </h2>
-        <p className="mt-2 text-[13.5px] leading-7 text-muted-foreground">
-          تمارين تعليمية أعدتها ميزان حول مفاهيم هذا المسار. لا تمثل اختباراً رسمياً ولا تضمن القبول في أي مباراة أو
-          تولي أي مهام.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Link
-            className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-[13.5px] font-extrabold text-primary-foreground transition hover:opacity-90"
-            to={`/quiz/careers/${career.quiz_config.career_quiz_slug}`}
-          >
-            <BookOpen className="size-4" aria-hidden="true" />
-            اختبر معلوماتك عن مهنة {career.title_ar}
-          </Link>
-          <Link
-            className="inline-flex min-h-10 items-center rounded-xl border border-border px-5 py-2.5 text-[13.5px] font-extrabold text-foreground transition hover:border-primary/50"
-            to={CAREERS_HUB_PATH}
-          >
-            كل المسارات المهنية
-          </Link>
-        </div>
-        <p className="mt-3 text-[12.5px] text-muted-foreground">
-          {verifiedCompetition
-            ? "توجد مباراة موثقة بمصدر رسمي في قاعدة ميزان لهذا المسار؛ يمكنك فتح صفحة التمارين المرتبطة بها."
-            : CAREERS_NO_VERIFIED_COMPETITION}
-        </p>
-        {verifiedCompetition ? (
-          <Link className="mt-2 inline-block text-[13px] font-extrabold text-primary" to={`/quiz/careers/${career.slug}/practice/${verifiedCompetition.id}`}>
-            فتح تمارين المباراة الموثقة
-          </Link>
-        ) : null}
-      </section>
-
-      <CareerLaws career={career} className="mt-10" />
-
-      <section className="mt-10" aria-labelledby="career-requirements-title">
-        <h2
-          id="career-requirements-title"
-          className="inline-flex items-center gap-2 text-[18px] font-black text-foreground"
-        >
-          <ShieldCheck className="size-4 text-primary" aria-hidden="true" />
-          {SECTION_TITLES.requirements}
-        </h2>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[560px] border-collapse text-right text-[13px]">
-            <caption className="sr-only">الشروط والمصادر لمهنة {career.title_ar}</caption>
-            <thead>
-              <tr className="bg-muted/40">
-                <th scope="col" className="border border-border p-3 font-extrabold">
-                  الشرط
-                </th>
-                <th scope="col" className="border border-border p-3 font-extrabold">
-                  النوع
-                </th>
-                <th scope="col" className="border border-border p-3 font-extrabold">
-                  التفصيل
-                </th>
-                <th scope="col" className="border border-border p-3 font-extrabold">
-                  المصدر
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {career.requirements.map((requirement) => (
-                <tr key={requirement.id}>
-                  <th scope="row" className="border border-border p-3 text-right font-bold align-top">
-                    {requirement.label_ar}
-                  </th>
-                  <td className="border border-border p-3 align-top">
-                    <span className="flex flex-wrap gap-1.5">
-                      {requirementBadges(requirement).map((badge) => (
-                        <span
-                          key={badge}
-                          className="rounded-full bg-muted px-2.5 py-1 text-[11.5px] font-bold text-foreground"
-                        >
-                          {badge}
-                        </span>
-                      ))}
-                    </span>
-                    <span className="mt-1 block text-[11.5px] text-muted-foreground">
-                      {REQUIREMENT_TYPE_LABELS[requirement.requirement_type] ?? ""}
-                    </span>
-                  </td>
-                  <td className="border border-border p-3 leading-7 text-muted-foreground align-top">
-                    {requirement.value_ar}
-                  </td>
-                  <td className="border border-border p-3 align-top text-[12.5px]">
-                    {requirement.source_url ? (
-                      <a className="font-bold text-primary" href={requirement.source_url} target="_blank" rel="nofollow noopener">
-                        المصدر الرسمي
-                      </a>
-                    ) : requirement.source_ref_ar ? (
-                      <span className="font-bold leading-7 text-foreground">{requirement.source_ref_ar}</span>
-                    ) : (
-                      <span className="font-bold leading-7 text-emerald-800 dark:text-emerald-200">{CAREERS_NO_SOURCE_NOTE}</span>
-                    )}
-                    {requirement.last_verified ? (
-                      <span className="mt-1 block text-[11.5px] text-muted-foreground">
-                        آخر تحقق: {requirement.last_verified}
-                      </span>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mt-8 rounded-3xl border border-border bg-muted/30 p-6 md:p-8">
-          <h3 className="inline-flex items-center gap-2 text-[20px] font-black text-foreground">
-            <Landmark className="size-5 text-primary" aria-hidden="true" />
+        <div className="mt-8 rounded-2xl border border-border bg-muted/30 p-5 sm:p-8">
+          <h3 className="inline-flex items-center gap-2 text-2xl font-black text-foreground">
+            <Landmark className="size-6 text-primary" aria-hidden="true" />
             المصادر والإطارات المرجعية
           </h3>
-          <ul className="mt-6 grid gap-6 md:grid-cols-2">
+          <ul className="mt-6 grid gap-4 md:grid-cols-2">
             {career.sources.map((source) => {
               const SourceIcon = source.source_type === "professional_body" ? Building2 : Landmark;
               const kindLabel = source.source_type === "professional_body" ? "هيئة مهنية" : "نص رسمي";
               const verified = source.status === "verified";
               return (
-                <li
-                  key={source.title_ar}
-                  className="flex flex-col gap-5 rounded-2xl border border-border bg-card p-6"
-                >
+                <li key={source.title_ar} className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:p-6">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <SourceIcon className="size-5" aria-hidden="true" />
+                    <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <SourceIcon className="size-6" aria-hidden="true" />
                     </span>
-                    <span className="rounded-full bg-muted px-3 py-1 text-[13px] font-bold text-foreground">
-                      {kindLabel}
-                    </span>
+                    <span className="rounded-full bg-muted px-3 py-1 text-base font-bold text-foreground">{kindLabel}</span>
                   </div>
 
-                  <h4 className="text-[17px] font-extrabold leading-8 text-foreground">{source.title_ar}</h4>
+                  <h4 className="text-xl font-extrabold leading-snug text-foreground">{source.title_ar}</h4>
 
-                  <dl className="grid gap-4 border-t border-border pt-5 text-[15px]">
-                    <div className="flex flex-col gap-1.5">
-                      <dt className="text-[13px] font-bold text-muted-foreground">الحالة</dt>
-                      <dd>
-                        {verified ? (
-                          <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
-                            مؤكد رسمياً
-                          </span>
-                        ) : (
-                          <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 text-[13px] font-extrabold text-emerald-800 dark:text-emerald-200">
-                            {source.verification_note_ar ?? CAREERS_NO_SOURCE_NOTE}
-                          </span>
-                        )}
+                  <dl className="grid gap-3 border-t border-border pt-4 text-base">
+                    <div>
+                      <dt className="font-bold text-muted-foreground">الحالة</dt>
+                      <dd className="mt-1">
+                        <span className="inline-block rounded-full bg-emerald-500/15 px-3 py-1 font-extrabold text-emerald-800 dark:text-emerald-200">
+                          {verified ? "مؤكد رسمياً" : (source.verification_note_ar ?? CAREERS_NO_SOURCE_NOTE)}
+                        </span>
                       </dd>
                     </div>
 
                     {source.last_verified ? (
-                      <div className="flex flex-col gap-1.5">
-                        <dt className="text-[13px] font-bold text-muted-foreground">آخر تحقق</dt>
-                        <dd className="font-bold text-foreground">{source.last_verified}</dd>
-                      </div>
-                    ) : null}
-
-                    {source.url ? (
-                      <div className="flex flex-col gap-2">
-                        <dt className="sr-only">الرابط</dt>
-                        <dd>
-                          <a
-                            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-[15px] font-extrabold text-primary-foreground hover:opacity-90"
-                            href={source.url}
-                            target="_blank"
-                            rel="nofollow noopener"
-                          >
-                            فتح المصدر الرسمي
-                            <ExternalLink className="size-4" aria-hidden="true" />
-                            <span className="sr-only">: {source.title_ar}</span>
-                          </a>
-                        </dd>
+                      <div>
+                        <dt className="font-bold text-muted-foreground">آخر تحقق</dt>
+                        <dd className="mt-1 font-bold text-foreground">{source.last_verified}</dd>
                       </div>
                     ) : null}
                   </dl>
+
+                  {source.url ? (
+                    <a
+                      className="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-lg font-extrabold text-primary-foreground hover:opacity-90"
+                      href={source.url}
+                      target="_blank"
+                      rel="nofollow noopener"
+                    >
+                      فتح المصدر الرسمي
+                      <ExternalLink className="size-5" aria-hidden="true" />
+                      <span className="sr-only">: {source.title_ar}</span>
+                    </a>
+                  ) : null}
                 </li>
               );
             })}
           </ul>
-          <p className="mt-6 rounded-2xl bg-card p-5 text-[15px] leading-8 text-foreground">
+          <p className="mt-6 rounded-2xl bg-card p-5 text-lg leading-relaxed text-foreground">
             {career.status_note_ar ??
-              "الشرط الرقمي (سن أو شهادة أو عدد مناصب) لا يُعرض هنا ما لم يكن منشوراً في مصدر رسمي متحقق منه؛ لذلك تبقى القيم الرقمية فارغة عن قصد."}
+              "الشرط الرقمي (سن أو شهادة أو عدد مناصب) لا يُعرض هنا ما لم يكن منشوراً في مصدر رسمي متحقق منه؛ لذلك تبقى القيم الرق"}
           </p>
         </div>
-      </section>
+      </Section>
 
-      <CareerTrainingPlan career={career} className="mt-10" />
+      <CareerTrainingPlan career={career} className="mt-12 sm:mt-16" />
 
       {related.length ? (
-        <section className="mt-10" aria-labelledby="career-related-title">
-          <h2
-            id="career-related-title"
-            className="inline-flex items-center gap-2 text-[18px] font-black text-foreground"
-          >
-            <Briefcase className="size-4 text-primary" aria-hidden="true" />
-            {SECTION_TITLES.related}
-          </h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <Section
+          id="career-related-title"
+          title={SECTION_TITLES.related}
+          icon={<Briefcase className="size-6 text-primary" aria-hidden="true" />}
+          className="mt-12 sm:mt-16"
+        >
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
             {related.map((item) => (
               <CareerCard key={item.slug} career={item} />
             ))}
           </div>
-        </section>
+        </Section>
       ) : null}
 
-      <CareerDisclaimer className="mt-10" />
+      <div className="mt-12 border-t border-border pt-10 sm:mt-16 sm:pt-12">
+        <CareerDisclaimer />
+      </div>
     </main>
   );
 }

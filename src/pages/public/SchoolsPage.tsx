@@ -8,6 +8,8 @@ import { supabase } from "../../lib/supabase/client"
 import { Search, MapPin, GraduationCap, Building2 } from "lucide-react"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
 import { Link } from "react-router-dom"
+import { SchoolMark } from "../../components/schools/SchoolMark"
+import { cityTheme } from "../../lib/schools/cityTheme"
 
 function normalizeFaculty(raw: any) {
   return {
@@ -134,12 +136,11 @@ export function SchoolsPage() {
                 const schoolName = school.name || school.name_ar || ""
                 const schoolSlug = school.slug || generateSlug(schoolName) || school.id
                 return (
-                  <Link key={school.id} to={`/schools/${schoolSlug}`} className="group bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                  <Link key={school.id} to={`/schools/${schoolSlug}`} className="group relative overflow-hidden bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-2xl p-5 hover:border-[#2563eb]/20 hover:shadow-[0_8px_24px_rgba(37,99,235,0.08)] hover:-translate-y-1 transition-all">
+                    <span aria-hidden className="absolute inset-x-0 top-0 h-1" style={{ background: `linear-gradient(to left, ${cityTheme(school.city).from}, ${cityTheme(school.city).to})` }} />
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex gap-3">
-                        <div className="size-11 grid place-items-center rounded-xl bg-[#2563eb] text-white font-black text-[14px] shrink-0 shadow-sm">
-                          {schoolName.charAt(0)}
-                        </div>
+                        <SchoolMark name={schoolName} city={school.city} logoUrl={school.logoUrl || school.logo_url || null} />
                         <div>
                           <div className="flex items-center gap-1.5 text-[10px] text-[#64748b] dark:text-[#94a3b8]">
                             <MapPin className="size-3" />

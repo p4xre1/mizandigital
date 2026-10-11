@@ -4,8 +4,8 @@ import { useAuth } from '@/lib/auth/AuthProvider';
 import { calculateCalendarDeadline, exportResearch, safeSource, type Entry, type Note } from '@/lib/pro-tools/model';
 import { createResearchPdf } from '@/lib/pro-tools/pdfExport';
 import { toolsService } from '@/lib/pro-tools/service';
-export const inputClass = 'w-full rounded-lg border border-border bg-background p-3 text-sm';
-export const buttonClass = 'rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground disabled:opacity-50';
+export const inputClass = 'w-full rounded-lg border border-border bg-background p-3 text-base';
+export const buttonClass = 'rounded-lg bg-primary px-4 py-2 text-base font-bold text-primary-foreground disabled:opacity-50';
 export const cardClass = 'rounded-xl border border-border bg-card p-5 space-y-4';
 export function Source({ url, children }: { url: string; children: React.ReactNode }) {
   const href = safeSource(url);
@@ -57,12 +57,12 @@ export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases'
   }
   if (!user) return <section className={cardClass} dir="rtl">
     <h2 className="text-xl font-bold">{mode === 'cases' ? 'دفتر إجاباتي وتقدمي' : 'ملف البحث الخاص بي'}</h2>
-    <p className="text-sm text-muted-foreground">الأداة مجانية. سجّل الدخول مجاناً لحفظ ملاحظاتك الخاصة.</p>
+    <p className="text-base text-foreground/80">الأداة مجانية. سجّل الدخول مجاناً لحفظ ملاحظاتك الخاصة.</p>
     <Link className="font-bold text-primary underline" to={`/login?next=${encodeURIComponent(mode === 'cases' ? '/pro-tools/cases' : '/pro-tools/workspace')}`}>تسجيل الدخول أو إنشاء حساب</Link>
   </section>;
   return <section className="space-y-5">
     <h2 className="text-xl font-bold">{mode === 'cases' ? 'دفتر إجاباتي وتقدمي' : 'ملف البحث الخاص بي'}</h2>
-    <p className="text-sm text-muted-foreground">ملاحظات خاصة بحسابك. تجنب إدخال بيانات حساسة تخص أطراف القضايا.</p>
+    <p className="text-base text-foreground/80">ملاحظات خاصة بحسابك. تجنب إدخال بيانات حساسة تخص أطراف القضايا.</p>
     <form className={cardClass} onSubmit={save}>
       <label className="block">عنوان الملف أو التمرين<input className={inputClass} required maxLength={200} value={draft.title} onChange={e => setDraft({ ...draft, title: e.target.value })} /></label>
       <label className="block">الملاحظات أو الإجابة<textarea className={inputClass} rows={6} maxLength={30000} value={draft.body} onChange={e => setDraft({ ...draft, body: e.target.value })} /></label>
@@ -77,7 +77,7 @@ export function Workspace({ mode = 'workspace' }: { mode?: 'workspace' | 'cases'
       </div>
       {!notes.length && <p>لا توجد ملاحظات محفوظة بعد.</p>}
       {notes.map(note => <article className={cardClass} key={note.id}>
-        <h3 className="font-bold">{note.title}</h3><p className="whitespace-pre-wrap">{note.body}</p><p className="whitespace-pre-wrap text-sm text-muted-foreground">{note.citation}</p>
+        <h3 className="font-bold">{note.title}</h3><p className="whitespace-pre-wrap">{note.body}</p><p className="whitespace-pre-wrap text-base text-foreground/80">{note.citation}</p>
         <div className="flex gap-4"><button disabled={busy} onClick={() => setDraft({ id: note.id, title: note.title, body: note.body, citation: note.citation })}>تعديل</button><button disabled={busy} onClick={() => remove(note.id)}>حذف</button></div>
       </article>)}
     </>}
@@ -120,7 +120,7 @@ function Deadline({ entry }: { entry: Entry }) {
   }}>
     <p className="whitespace-pre-wrap">{entry.payload.assumptions}</p>
     <p>مدة القاعدة: {entry.payload.days} يوماً. صلاحية تاريخ الحدث: {entry.payload.valid_from} إلى {entry.payload.valid_until}.</p>
-    <p className="rounded-lg border border-border bg-muted p-3 text-sm leading-7">حساب أيام تقويمية يستبعد يوم الحدث. لا يحتسب تمديد العطل أو آجال التبليغ أو الاستثناءات. النتيجة إرشادية ويجب التحقق منها لدى مختص قبل الاعتماد عليها.</p>
+    <p className="rounded-lg border border-border bg-muted p-3 text-base leading-7">حساب أيام تقويمية يستبعد يوم الحدث. لا يحتسب تمديد العطل أو آجال التبليغ أو الاستثناءات. النتيجة إرشادية ويجب التحقق منها لدى مختص قبل الاعتماد عليها.</p>
     <label className="block">تاريخ الحدث<input className={inputClass} type="date" required min={entry.payload.valid_from} max={entry.payload.valid_until} value={date} onChange={e => { setDate(e.target.value); setResult(''); }} /></label>
     <label className="flex gap-2"><input type="checkbox" required checked={accepted} onChange={e => setAccepted(e.target.checked)} />قرأت شروط تطبيق القاعدة وحدود الحساب.</label>
     <button className={buttonClass} disabled={!accepted}>حساب أولي</button><p role="status" className="font-bold">{result}</p>
@@ -129,16 +129,16 @@ function Deadline({ entry }: { entry: Entry }) {
 export function EntryView({ entry, signedIn = false }: { entry: Entry; signedIn?: boolean }) {
   const p = entry.payload;
   return <article className={cardClass}>
-    <div><p className="text-sm text-muted-foreground">{entry.topic}</p><h3 className="mt-1 text-lg font-bold">{entry.title}</h3></div>
+    <div><p className="text-base text-foreground/80">{entry.topic}</p><h3 className="mt-1 text-lg font-bold">{entry.title}</h3></div>
     {entry.tool_slug === 'versions' && <div className="grid gap-4 md:grid-cols-2">
       <section className="rounded-lg border border-border p-4"><h4 className="font-bold">النسخة السابقة - {p.before_date}</h4><p className="my-3 whitespace-pre-wrap leading-8">{p.before}</p><Source url={p.before_source_url}>مصدر النسخة السابقة</Source></section>
       <section className="rounded-lg border border-border p-4"><h4 className="font-bold">النسخة الجديدة - {p.after_date}</h4><p className="my-3 whitespace-pre-wrap leading-8">{p.after}</p><Source url={entry.source_url}>مصدر النسخة الجديدة</Source></section>
     </div>}
     {entry.tool_slug === 'cases' && <CasePractice entry={entry} signedIn={signedIn} />}
     {entry.tool_slug === 'references' && <div className="space-y-3"><p className="font-bold">{p.from_article} ← {p.to_article}</p><p className="whitespace-pre-wrap">{p.relationship}</p><Source url={p.target_url}>فتح النص المرتبط</Source></div>}
-    {entry.tool_slug === 'alerts' && <div><p className="whitespace-pre-wrap leading-8">{p.summary}</p><p className="mt-3 text-sm">تاريخ النفاذ: {p.effective_date}</p><p className="text-sm">آخر تحديث في المنصة: {new Date(entry.updated_at).toLocaleDateString('ar-MA')}</p></div>}
+    {entry.tool_slug === 'alerts' && <div><p className="whitespace-pre-wrap leading-8">{p.summary}</p><p className="mt-3 text-base">تاريخ النفاذ: {p.effective_date}</p><p className="text-base">آخر تحديث في المنصة: {new Date(entry.updated_at).toLocaleDateString('ar-MA')}</p></div>}
     {entry.tool_slug === 'deadlines' && <Deadline entry={entry} />}
-    <footer className="border-t border-border pt-3 text-sm text-muted-foreground space-y-2">
+    <footer className="border-t border-border pt-3 text-base text-foreground/80 space-y-2">
       <Source url={entry.source_url}>{entry.source_reference}</Source>
       <p>مراجعة: {entry.reviewed_by} - {entry.reviewed_on}</p>
     </footer>

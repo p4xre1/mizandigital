@@ -30,7 +30,7 @@ import type {
 
 /** شريحة مدينة: مستطيلة مدوّرة، تتلوّن بالأزرق حين تُختار. */
 const cityChip = (active: boolean) =>
-  `min-h-11 rounded-full border px-4 py-2 text-[15px] font-extrabold transition ${
+  `min-h-11 rounded-full border px-4 py-2 text-[17px] font-extrabold transition ${
     active
       ? "border-blue-700 bg-blue-700 text-white"
       : "border-blue-600/30 bg-white text-blue-800 hover:bg-blue-50 dark:bg-transparent dark:text-blue-200 dark:hover:bg-blue-950/40"
@@ -124,13 +124,13 @@ export function NearbyLawSchools({
       className={`rounded-3xl border border-blue-600/20 bg-card p-6 ${className}`}
       data-career-nearby="section"
     >
-      <h2 id="career-nearby-schools-title" className="text-[22px] font-black text-blue-800 dark:text-blue-200">
+      <h2 id="career-nearby-schools-title" className="text-[26px] font-black text-blue-800 dark:text-blue-200">
         {SECTION_TITLES.schools}
       </h2>
-      <p className="mt-3 max-w-3xl text-[16px] leading-8 text-foreground">{message}</p>
+      <p className="mt-3 max-w-3xl text-[18px] leading-8 text-foreground">{message}</p>
 
       <div className="mt-6">
-        <label htmlFor={`${listId}-city`} className="block text-[16px] font-extrabold text-foreground">
+        <label htmlFor={`${listId}-city`} className="block text-[18px] font-extrabold text-foreground">
           اختر مدينتك — اختياري
         </label>
         <div className="mt-3 flex items-center gap-2 rounded-xl border-2 border-blue-600/30 bg-blue-50 px-4 dark:bg-blue-950/40">
@@ -145,7 +145,7 @@ export function NearbyLawSchools({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             aria-controls={listId}
-            className="min-h-12 w-full bg-transparent py-2 text-[16px] font-bold text-foreground outline-none placeholder:text-muted-foreground"
+            className="min-h-12 w-full bg-transparent py-2 text-[18px] font-bold text-foreground outline-none placeholder:text-muted-foreground"
           />
         </div>
         <ul id={listId} className="mt-4 flex flex-wrap gap-2.5" aria-label="المدن">
@@ -176,7 +176,7 @@ export function NearbyLawSchools({
             </li>
           ))}
           {options.length === 0 ? (
-            <li className="w-full rounded-xl bg-muted/40 px-4 py-3 text-[15px] text-foreground">
+            <li className="w-full rounded-xl bg-muted/40 px-4 py-3 text-[17px] text-foreground">
               لا مدينة مطابقة. يمكنك المتابعة من <Link className="font-bold text-primary" to="/schools">دليل الكليات</Link>.
             </li>
           ) : null}
@@ -184,7 +184,7 @@ export function NearbyLawSchools({
       </div>
 
       {!selectedCity ? (
-        <p className="mt-6 rounded-2xl border border-emerald-600/25 bg-emerald-50 p-5 text-[16px] leading-8 text-emerald-900 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-100">
+        <p className="mt-6 rounded-2xl border border-emerald-600/25 bg-emerald-50 p-5 text-[18px] leading-8 text-emerald-900 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-100">
           اختر مدينتك (اختياري) لعرض أقرب ثلاث كليات للحقوق بمسافة تقريبية بخط مستقيم. لا نطلب أي عنوان دقيق ولا
           بيانات موقع، واختيارك يبقى في متصفحك ما لم تضغط زر الحفظ صراحةً.
           {savedCity ? (
@@ -196,7 +196,7 @@ export function NearbyLawSchools({
       ) : (
         <>
           {loadError ? (
-            <p className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-[13px] font-bold text-foreground">
+            <p className="mt-4 rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-[15px] font-bold text-foreground">
               تعذر تحميل دليل الكليات في متصفحك الآن. يمكنك المتابعة من{" "}
               <Link className="text-primary" to="/schools">صفحة الكليات</Link>.
             </p>
@@ -204,12 +204,12 @@ export function NearbyLawSchools({
             <ul className="mt-6 grid gap-4 md:grid-cols-3" data-career-nearby="results">
               {ranked.map(({ school, distanceKm }) => (
                 <li key={school.slug || school.id} className="rounded-2xl border border-blue-600/20 bg-blue-50 p-5 dark:bg-blue-950/40">
-                  <p className="text-[17px] font-extrabold leading-7 text-foreground">
+                  <p className="text-[19px] font-extrabold leading-7 text-foreground">
                     <Link className="hover:text-primary" to={`/schools/${school.slug || school.id}`}>
                       {school.short_name || school.name}
                     </Link>
                   </p>
-                  <p className="mt-2 flex flex-wrap items-center gap-3 text-[15px] text-foreground">
+                  <p className="mt-2 flex flex-wrap items-center gap-3 text-[17px] text-foreground">
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="size-3.5" aria-hidden="true" />
                       {school.city || school.location?.city_ar || "المغرب"}
@@ -232,7 +232,7 @@ export function NearbyLawSchools({
                 </li>
               ))}
               {ranked.length === 0 ? (
-                <li className="rounded-2xl border border-dashed border-border p-4 text-[13px] text-muted-foreground">
+                <li className="rounded-2xl border border-dashed border-border p-4 text-[15px] text-muted-foreground">
                   لا تتوفر إحداثيات صالحة لكلية من هذه المدينة في بيانات ميزان. استعمل{" "}
                   <Link className="font-bold text-primary" to="/schools">دليل الكليات</Link> لتصفح كل المؤسسات.
                 </li>
@@ -240,7 +240,7 @@ export function NearbyLawSchools({
             </ul>
           )}
 
-          <p className="mt-3 text-[12.5px] leading-6 text-muted-foreground">
+          <p className="mt-3 text-[15px] leading-6 text-muted-foreground">
             المسافات تقريبية بخط مستقيم وليست مسافات طريق أو وقت سفر. تحقق من التخصصات وشروط التسجيل من الموقع
             الرسمي للكلية.
           </p>
@@ -251,20 +251,20 @@ export function NearbyLawSchools({
                 type="button"
                 onClick={handleSaveCity}
                 disabled={saveState === "saving"}
-                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/40 px-4 py-2 text-[13px] font-extrabold text-primary transition hover:bg-primary/5 disabled:opacity-60"
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-primary/40 px-4 py-2 text-[15px] font-extrabold text-primary transition hover:bg-primary/5 disabled:opacity-60"
               >
                 <CheckCircle2 className="size-4" aria-hidden="true" />
                 حفظ مدينتي في ملفي
               </button>
               {savingWouldReplace ? (
-                <p className="text-[12px] font-bold text-muted-foreground" role="status">
+                <p className="text-[14px] font-bold text-muted-foreground" role="status">
                   مدينتك المحفوظة حالياً: <span className="text-foreground">{savedCity}</span> — الحفظ هنا يحدّثها
                   بالمدينة المختارة، ولا يشاركها مع أي طرف.
                 </p>
               ) : null}
               {saveMessage ? (
                 <p
-                  className={`inline-flex items-center gap-1.5 text-[12.5px] font-bold ${
+                  className={`inline-flex items-center gap-1.5 text-[15px] font-bold ${
                     saveState === "saved" ? "text-emerald-600" : "text-amber-600"
                   }`}
                   role="status"

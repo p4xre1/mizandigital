@@ -99,6 +99,7 @@ const CATEGORY_FR = {
   "قانون تجاري": "droit commercial",
   "قانون الشغل": "droit du travail",
   "مدونة الأسرة": "droit de la famille",
+  "الأحوال الشخصية": "statut personnel",
   "قانون الأسرة": "droit de la famille",
   "العقار": "droit foncier",
   "قانون عقاري": "droit immobilier",

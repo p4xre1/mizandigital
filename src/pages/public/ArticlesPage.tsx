@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
-import { Link } from "react-router-dom"
+import { Link, useSearchParams } from "react-router-dom"
+import { NewsListView, NewsTimelineView, NewsViewSwitch, type NewsViewMode } from "../../components/news/NewsViews"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
 import { canonicalArticlesHub } from "../../lib/canonical"
@@ -50,6 +51,18 @@ function normalizeLocalArticle(raw: any): ArticleItem {
   }
 }
 
+/** تحويل المقال إلى الشكل المشترك لعروض القائمة والخط الزمني: التصنيف يقوم مقام المصدر، والتاريخ مقام تاريخ النشر. */
+function toViewItems(items: ArticleItem[]) {
+  return items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    slug: item.slug,
+    summary: item.summary ? truncateCleanText(item.summary, 160) : "",
+    source: item.category || "عام",
+    published_at: item.date || null,
+  }))
+}
+
 export function ArticlesPage() {
   const [items, setItems] = useState<ArticleItem[]>(
     (articlesData as any[]).map(normalizeLocalArticle)
@@ -57,6 +70,20 @@ export function ArticlesPage() {
   const [loading, setLoading] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [activeCategory, setActiveCategory] = useState<string>("all")
+  // طريقة العرض في الرابط (?view=list) حتى تُشارَك وتعمل زر الرجوع في المتصفح.
+  const [params, setParams] = useSearchParams()
+  const viewParam = params.get("view")
+  const view: NewsViewMode = viewParam === "list" || viewParam === "timeline" ? viewParam : "grid"
+  const setView = (next: NewsViewMode) =>
+    setParams(
+      (prev) => {
+        const copy = new URLSearchParams(prev)
+        if (next === "grid") copy.delete("view")
+        else copy.set("view", next)
+        return copy
+      },
+      { replace: true },
+    )
 
   useEffect(() => {
     fetchArticles()
@@ -154,6 +181,10 @@ export function ArticlesPage() {
           </div>
         </div>
 
+        <div className="container mx-auto max-w-[1280px] px-6 pt-8">
+          <NewsViewSwitch value={view} onChange={setView} />
+        </div>
+
         <div className="container mx-auto max-w-[1280px] px-6 py-8">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -161,6 +192,10 @@ export function ArticlesPage() {
                 <div key={i} className="h-64 rounded-2xl bg-[#f1f5f9] dark:bg-[#1e293b] animate-pulse" />
               ))}
             </div>
+          ) : filteredItems.length > 0 && view === "list" ? (
+            <NewsListView items={toViewItems(filteredItems)} basePath="/articles" />
+          ) : filteredItems.length > 0 && view === "timeline" ? (
+            <NewsTimelineView items={toViewItems(filteredItems)} basePath="/articles" countNoun="مقال" />
           ) : filteredItems.length > 0 ? (
             <>
               {/* Featured article */}

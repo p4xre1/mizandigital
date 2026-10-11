@@ -70,11 +70,11 @@ function FilterGroup({
   idPrefix: string;
 }) {
   return (
-    <div role="group" aria-labelledby={`${idPrefix}-label`} className="mt-3">
-      <p id={`${idPrefix}-label`} className="text-[12.5px] font-extrabold text-foreground">
+    <div role="group" aria-labelledby={`${idPrefix}-label`}>
+      <p id={`${idPrefix}-label`} className="text-lg font-extrabold text-foreground">
         {title}
       </p>
-      <div className="mt-1.5 flex flex-wrap gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         {values.map((value) => {
           const isActive = active === value;
           return (
@@ -83,7 +83,7 @@ function FilterGroup({
               type="button"
               aria-pressed={isActive}
               onClick={() => onSelect(isActive ? null : value)}
-              className={`min-h-9 rounded-full border px-3.5 py-1.5 text-[12.5px] font-bold transition ${
+              className={`min-h-11 rounded-full border px-4 py-2 text-base font-bold transition ${
                 isActive
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background text-muted-foreground hover:border-primary/40"
@@ -135,8 +135,8 @@ export function CareerFilters() {
   return (
     <section aria-labelledby="career-filters-title" data-career-filters="section">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="career-filters-title" className="inline-flex items-center gap-2 text-[22px] font-black leading-snug text-foreground md:text-[24px]">
-          <SlidersHorizontal className="size-4 text-primary" aria-hidden="true" />
+        <h2 id="career-filters-title" className="inline-flex items-center gap-2 text-2xl font-black leading-snug text-foreground sm:text-3xl">
+          <SlidersHorizontal className="size-5 text-primary" aria-hidden="true" />
           {CAREERS_HUB_COPY.filtersTitle}
         </h2>
         {hasFilter ? (
@@ -148,20 +148,20 @@ export function CareerFilters() {
               setWork(null);
               setInterest(null);
             }}
-            className="text-[12.5px] font-extrabold text-primary underline"
+            className="min-h-11 text-base font-extrabold text-primary underline underline-offset-4"
           >
             مسح الاختيارات
           </button>
         ) : null}
       </div>
 
-      <p className="mt-4 text-[15px] leading-8 text-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
-      <p className="mb-6 mt-4 flex items-start gap-3 rounded-xl border border-emerald-600/25 bg-emerald-50 px-4 py-3 text-[15px] font-bold leading-8 text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
+      <p className="mt-4 text-lg leading-relaxed text-foreground">{CAREERS_HUB_COPY.filtersHint}</p>
+      <p className="mt-4 flex items-start gap-3 rounded-xl border border-emerald-600/25 bg-emerald-50 px-4 py-3 text-lg font-bold leading-relaxed text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
         <Info className="mt-1.5 size-5 shrink-0" aria-hidden="true" />
         <span>{FILTER_ADVISORY.join("، ")}</span>
       </p>
 
-      <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="mt-6 grid gap-6 rounded-2xl border border-border bg-card p-5 sm:p-6 md:grid-cols-2 xl:grid-cols-4">
         <FilterGroup
           idPrefix="filter-education"
           title="المستوى الدراسي"
@@ -192,23 +192,23 @@ export function CareerFilters() {
         />
 
         {age ? (
-          <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-3 text-[12.5px] leading-6 text-foreground">
+          <p className="rounded-xl border border-amber-500/30 bg-amber-500/[0.06] p-4 text-base leading-relaxed text-foreground md:col-span-2 xl:col-span-4">
             شرط السن لا يُقارَن برقم في هذه الصفحة: البيانات لا تحمل أي حدّ سنّي متحقق منه، والحدود تُنشر في النص
             التنظيمي أو الإعلان الرسمي. المسارات التي قد تتضمن شرط سن مُرتَّبة أولاً، وراجع مصدرها الرسمي.
           </p>
         ) : null}
       </div>
 
-      <p className="mt-3 text-[16px] font-extrabold leading-8 text-foreground" role="status">
+      <p className="mt-6 text-xl font-black leading-relaxed text-foreground" role="status">
         {hasFilter ? `${filtered.length} مساراً تطابق اختياراتك — قد يناسب اهتمامك.` : `${CAREERS.length} مساراً في الدليل.`}
       </p>
 
       {filtered.length === 0 ? (
-        <p className="mt-3 rounded-2xl border border-dashed border-border p-4 text-[13px] leading-7 text-muted-foreground">
+        <p className="mt-4 rounded-2xl border border-dashed border-border p-5 text-lg leading-relaxed text-muted-foreground">
           {CAREERS_HUB_COPY.emptyFilterResult}
         </p>
       ) : (
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-career-cards="grid">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5" data-career-cards="grid">
           {filtered.map((career) => (
             <CareerCard key={career.slug} career={career} />
           ))}

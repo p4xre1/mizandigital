@@ -64,10 +64,20 @@ export function GuidelinesPage() {
           </div>
         )}
 
+        <div className="mt-10 rounded-2xl border border-border bg-card p-5">
+          <h3 className="text-[13px] font-extrabold text-foreground">قواعد استعمال مساعد الموقع</h3>
+          <ul className="mt-2 list-disc space-y-1 pr-5 text-[12.5px] leading-7 text-muted-foreground">
+            <li>يجيب المساعد من محتوى ميزان فقط، ولا يقدم استشارة قانونية أو طبية.</li>
+            <li>الأسئلة بالعربية فقط، وبحد 20 سؤالاً يومياً لكل حساب مسجَّل.</li>
+            <li>لا تكتب بياناتك الشخصية أو بيانات غيرك في المحادثة.</li>
+            <li>الأسئلة المسيئة ومحاولات تغيير تعليمات المساعد تُرفض.</li>
+          </ul>
+        </div>
+
         <div className="mt-10 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
           <h3 className="text-[13px] font-extrabold text-foreground">الإبلاغ عن مخالفة</h3>
           <p className="mt-1 text-[12px] leading-6 text-muted-foreground">
-            إذا صادفت محتوى يخالف هذه الإرشادات، استعمل زر “إبلاغ” الموجود في كل مقال، تعليق، أو مصطلح. تتم مراجعة البلاغات من طرف الإدارة خلال 24-48 ساعة.
+            إذا صادفت محتوى يخالف هذه الإرشادات، استعمل زر “إبلاغ” الموجود في صفحة كل مقال. يراجع فريق الإدارة البلاغات.
           </p>
         </div>
       </div>

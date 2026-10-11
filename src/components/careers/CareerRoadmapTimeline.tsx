@@ -22,7 +22,7 @@ export function CareerRoadmapTimeline({
 
   return (
     <section aria-labelledby="career-roadmap-title" className={className}>
-      <h2 id="career-roadmap-title" className="text-[18px] font-black text-foreground">
+      <h2 id="career-roadmap-title" className="text-[20px] font-black text-foreground">
         {SECTION_TITLES.roadmap}
       </h2>
       <ol className="mt-4 space-y-4" data-career-roadmap="ol">
@@ -30,16 +30,16 @@ export function CareerRoadmapTimeline({
           <li key={`${step.step}-${step.title_ar}`} className="flex gap-3">
             <span
               aria-hidden="true"
-              className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-primary text-[12px] font-black text-primary-foreground"
+              className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-primary text-[14px] font-black text-primary-foreground"
             >
               {step.step}
             </span>
             <div className="min-w-0 flex-1 border-s border-primary/20 ps-4">
-              <p className="text-[15px] font-extrabold text-foreground">
+              <p className="text-[17px] font-extrabold text-foreground">
                 <span className="sr-only">{`الخطوة ${step.step}: `}</span>
                 {step.title_ar}
               </p>
-              <p className="mt-1 text-[13.5px] leading-7 text-muted-foreground">{step.description_ar}</p>
+              <p className="mt-1 text-[16px] leading-7 text-muted-foreground">{step.description_ar}</p>
             </div>
           </li>
         ))}

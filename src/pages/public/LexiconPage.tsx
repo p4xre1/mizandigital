@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { Link } from "react-router-dom"
 import { AEOHead } from "../../components/seo/AEOHead"
 import { generateBreadcrumbSchema } from "../../lib/seo/schema"
@@ -9,6 +9,7 @@ import localLexicon from "../../data/lexicon.client.json"
 import { supabase } from "../../lib/supabase/client"
 import { useWebMCPTool } from "../../lib/webmcp/useWebMCPTool"
 import { FilterDropdown } from "../../components/ui/FilterDropdown"
+import { Pager, PageSizeControl, type PageSize } from "../../components/ui/Pager"
 import {
   BookOpen,
   Search,
@@ -37,6 +38,9 @@ export function LexiconPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("all")
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [pageSize, setPageSize] = useState<PageSize>(10)
+  const [page, setPage] = useState(1)
+  const resultsTop = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchPublicTerms()
@@ -105,6 +109,20 @@ export function LexiconPage() {
     })
   }, [terms, searchQuery, selectedCategory])
 
+  // تغيير البحث أو الفرع يغيّر ما يُعرض، فيعود إلى الصفحة الأولى.
+  useEffect(() => {
+    setPage(1)
+  }, [searchQuery, selectedCategory, pageSize])
+
+  const pageCount = Math.max(1, Math.ceil(filteredTerms.length / pageSize))
+  const currentPage = Math.min(page, pageCount)
+  const pageItems = filteredTerms.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+
+  const goToPage = (next: number) => {
+    setPage(next)
+    resultsTop.current?.scrollIntoView?.({ block: "start", behavior: "smooth" })
+  }
+
   // أداة WebMCP تجريبية: تتيح لوكيل ذكاء اصطناعي البحث في المعجم القانوني
   // مباشرة (Chrome 146+ فقط، خلف علم تجريبي — لا تأثير على المتصفحات الأخرى)
   useWebMCPTool({
@@ -158,7 +176,7 @@ export function LexiconPage() {
       <AEOHead
         title="القاموس القانوني المغربي"
         description="قاموس ومصطلحات قانونية في مختلف الفروع (الإداري، المدني، الجنائي، التجاري) بالمغرب، مع الشرح باللغتين العربية والفرنسية والربط بالقوانين والفصول ذات الصلة."
-        directAnswer="القاموس القانوني في ميزان الرقمية يضم 295 مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب."
+        directAnswer="القاموس القانوني في ميزان الرقمية يضم 325 مصطلحاً قانونياً عربي-فرنسي مع تعريفات مبسطة لطلبة الحقوق بالمغرب."
         canonicalUrl={lexiconHubCanonical}
         keywords={[
           "المعجم القانوني المغربي",
@@ -214,18 +232,21 @@ export function LexiconPage() {
         </div>
 
         {/* Results Count */}
-        <div className="mb-6 flex items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md">
-          <span className="text-xs font-bold text-muted-foreground">
+        <div ref={resultsTop} className="mb-6 flex flex-wrap items-center justify-between gap-4 bg-card/60 border border-border p-3.5 rounded-2xl backdrop-blur-md scroll-mt-24">
+          <span className="text-base font-bold text-foreground/90">
             {selectedCategory === "all" && !searchQuery
               ? <>إجمالي عدد المصطلحات: <span className="text-primary">{terms.length} مصطلح</span></>
               : <>نتائج معروضة: <span className="text-primary">{filteredTerms.length}</span> من أصل {terms.length} مصطلح</>}
+            {filteredTerms.length > 0 && <span className="text-foreground/80"> — صفحة {currentPage} من {pageCount}</span>}
           </span>
+          <PageSizeControl value={pageSize} onChange={setPageSize} />
         </div>
+
 
         {/* Lexicon Grid */}
         {filteredTerms.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-            {filteredTerms.map((term) => {
+            {pageItems.map((term) => {
               const termId = term.id
               const termAr = term.term_ar
               const termFr = term.term_fr
@@ -328,6 +349,11 @@ export function LexiconPage() {
             >
               إعادة ضبط البحث
             </button>
+          </div>
+        )}
+        {filteredTerms.length > pageSize && (
+          <div className="mt-8">
+            <Pager page={currentPage} pageCount={pageCount} onPage={goToPage} label="صفحات المعجم (أسفل الصفحة)" />
           </div>
         )}
       </main>
