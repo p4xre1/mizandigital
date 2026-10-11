@@ -2,7 +2,17 @@ import { readFileSync, existsSync } from "node:fs"
 import { join } from "node:path"
 import { describe, expect, test } from "vitest"
 import { answerQuestion } from "../shared/help/answer.js"
-import { allEntries, CURATED_ENTRIES, FAQ_ENTRIES, KNOWLEDGE_GROUPS, LEXICON_ENTRIES } from "../shared/help/knowledge.js"
+import {
+  allEntries,
+  CAREER_ENTRIES,
+  CURATED_ENTRIES,
+  EVENT_ENTRIES,
+  FAQ_ENTRIES,
+  KNOWLEDGE_GROUPS,
+  LAW_OVERVIEW_ENTRIES,
+  LEXICON_ENTRIES,
+  SCHOOL_ENTRIES,
+} from "../shared/help/knowledge.js"
 import { LEGAL_CONSTITUTION_ENTRIES, LEGAL_FAMILY_CODE_ENTRIES } from "../shared/help/knowledge-legal.js"
 import { checkScope } from "../shared/help/guardrails.js"
 import { normalize, tokenize, rankEntries } from "../shared/help/retrieve.js"
@@ -134,13 +144,25 @@ describe("قاعدة المعرفة", () => {
       "faq",
       "legal_constitution",
       "legal_family_code",
+      "law_overview",
+      "careers",
+      "schools",
+      "events",
     ])
+    expect(LAW_OVERVIEW_ENTRIES.length).toBe(2)
+    expect(CAREER_ENTRIES.length).toBe(14)
+    expect(SCHOOL_ENTRIES.length).toBe(21)
+    expect(EVENT_ENTRIES.length).toBeGreaterThan(0)
     expect(allEntries().length).toBe(
       CURATED_ENTRIES.length +
         LEXICON_ENTRIES.length +
         FAQ_ENTRIES.length +
         LEGAL_CONSTITUTION_ENTRIES.length +
-        LEGAL_FAMILY_CODE_ENTRIES.length,
+        LEGAL_FAMILY_CODE_ENTRIES.length +
+        LAW_OVERVIEW_ENTRIES.length +
+        CAREER_ENTRIES.length +
+        SCHOOL_ENTRIES.length +
+        EVENT_ENTRIES.length,
     )
   })
 

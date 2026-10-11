@@ -13,6 +13,9 @@ import {
   LEGAL_ENTRIES,
   LEGAL_FAMILY_CODE_ENTRIES,
 } from "./knowledge-legal.js"
+import { CAREER_ENTRIES, EVENT_ENTRIES, LAW_OVERVIEW_ENTRIES, SCHOOL_ENTRIES, SITE_ENTRIES } from "./knowledge-site.js"
+
+export { CAREER_ENTRIES, EVENT_ENTRIES, LAW_OVERVIEW_ENTRIES, SCHOOL_ENTRIES }
 
 /**
  * @typedef {{ id: string, title: string, url: string, keywords: string[], body: string }} HelpEntry
@@ -239,9 +242,13 @@ export const KNOWLEDGE_GROUPS = [
   { name: "faq", label: "أسئلة شائعة", entries: FAQ_ENTRIES },
   { name: "legal_constitution", label: "دستور 2011", entries: LEGAL_CONSTITUTION_ENTRIES },
   { name: "legal_family_code", label: "مدونة الأسرة", entries: LEGAL_FAMILY_CODE_ENTRIES },
+  { name: "law_overview", label: "النصوص القانونية", entries: LAW_OVERVIEW_ENTRIES },
+  { name: "careers", label: "المسارات المهنية", entries: CAREER_ENTRIES },
+  { name: "schools", label: "الكليات", entries: SCHOOL_ENTRIES },
+  { name: "events", label: "الفعاليات", entries: EVENT_ENTRIES },
 ]
 
 /** @returns {HelpEntry[]} */
 export function allEntries() {
-  return [...CURATED_ENTRIES, ...LEXICON_ENTRIES, ...FAQ_ENTRIES, ...LEGAL_ENTRIES]
+  return [...CURATED_ENTRIES, ...LEXICON_ENTRIES, ...FAQ_ENTRIES, ...LEGAL_ENTRIES, ...SITE_ENTRIES]
 }
