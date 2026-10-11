@@ -47,6 +47,9 @@ describe("categoryTone", () => {
     expect(categoryTone("قانون تجاري")).toBe("amber")
     expect(categoryTone("تنظيم قضائي")).toBe("purple")
     expect(categoryTone("قانون جنائي")).toBe("red")
+    // الأحوال الشخصية فرع شقيق لمدونة الأسرة: اللون نفسه لا الرمادي الافتراضي.
+    expect(categoryTone("مدونة الأسرة")).toBe("emerald")
+    expect(categoryTone("الأحوال الشخصية")).toBe("emerald")
     expect(categoryTone("فئة غير معروفة")).toBe("slate")
   })
 })

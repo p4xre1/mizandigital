@@ -1,11 +1,11 @@
 {
  "name": "Mizan Digital AI Reference",
  "version": "1.0.0",
- "generatedAt": "2026-10-11T01:12:29.534Z",
+ "generatedAt": "2026-10-11T02:58:00.525Z",
  "domain": "https://www.mizan.page",
  "description": "Machine-readable reference of all Mizan Digital content for AI agents and language models: structured JSON (full fields) and readable Markdown (with links) per dataset, every record carrying its canonical URL.",
  "disclaimer": "Educational and research content for Moroccan law students. Verify legal claims against official sources: sgg.gov.ma (Official Gazette) and adala.justice.gov.ma (Adala portal).",
- "totalRecords": 598,
+ "totalRecords": 628,
  "sources": {
   "local": "src/data JSON datasets",
   "cms": "unavailable at build time — local data only"
@@ -41,12 +41,12 @@
   {
    "name": "lexicon",
    "title": "المعجم القانوني",
-   "count": 295,
+   "count": 325,
    "json": "/reference/lexicon.json",
    "markdown": "/reference/lexicon.md",
    "section": "/lexicon",
    "urlPattern": "/lexicon/{slug}",
-   "description": "295 مصطلحاً قانونياً عربياً-فرنسياً: التعريف، التفسير المبسط، الأمثلة، المصادر القانونية والكلمات المفتاحية للامتحانات."
+   "description": "325 مصطلحاً قانونياً عربياً-فرنسياً: التعريف، التفسير المبسط، الأمثلة، المصادر القانونية والكلمات المفتاحية للامتحانات."
   },
   {
    "name": "schools",

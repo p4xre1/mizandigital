@@ -124,7 +124,7 @@ describe("الإجابات من محتوى الموقع", () => {
 describe("قاعدة المعرفة", () => {
   test("تضم المدخلات المنسّقة والمعجم والأسئلة الشائعة والمدخلات القانونية", () => {
     expect(CURATED_ENTRIES.length).toBeGreaterThanOrEqual(20)
-    expect(LEXICON_ENTRIES.length).toBe(295)
+    expect(LEXICON_ENTRIES.length).toBe(325)
     expect(FAQ_ENTRIES.length).toBeGreaterThan(0)
     expect(LEGAL_CONSTITUTION_ENTRIES.length).toBe(180)
     expect(LEGAL_FAMILY_CODE_ENTRIES.length).toBe(399)

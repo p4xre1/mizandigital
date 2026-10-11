@@ -34,7 +34,7 @@ export default function SeoManagementPage() {
   const pages = [
     { path: "/", label: "الرئيسية", aeo: "AEOHead + directAnswer + breadcrumbs + FAQ + speakable", status: "ok" },
     { path: "/articles", label: "المقالات", aeo: "AEOHead + CollectionPage", status: "ok" },
-    { path: "/lexicon", label: "القاموس", aeo: "AEOHead + 295 terms prerendered", status: "ok" },
+    { path: "/lexicon", label: "القاموس", aeo: "AEOHead + 325 terms prerendered", status: "ok" },
     { path: "/schools", label: "الكليات", aeo: "AEOHead + 21 schools prerendered", status: "ok" },
     { path: "/quiz", label: "الاختبارات", aeo: "AEOHead + HowTo + FAQ", status: "ok" },
     { path: "/pricing", label: "الموارد التعليمية", aeo: "AEOHead + WebPage", status: "ok" },
@@ -184,7 +184,7 @@ export default function SeoManagementPage() {
             <li><code>speakable</code> — للمساعدات الصوتية</li>
             <li><code>generate-llms-enhanced.mjs</code> يولد llms.txt من Supabase (articles, news, lexicon, faculties, etc)</li>
             <li><code>optimize-ai-seo.mjs</code> يولد ai.txt, ai-sitemap.xml, ai-plugin.json, openapi.json</li>
-            <li>320 route prerendered + 21 school + 295 lexicon + sitemap.xml</li>
+            <li>320 route prerendered + 21 school + 325 lexicon + sitemap.xml</li>
           </ul>
         </div>
 
