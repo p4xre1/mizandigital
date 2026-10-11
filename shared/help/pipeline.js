@@ -6,6 +6,7 @@
 //   2) بوابة اللغة: العربية والدارجة والمختلط مقبولة، غير ذلك يُرفض  (analyzeLanguage)
 //   3) رد اجتماعي جاهز (تحية، شكر، وداع، تعريف)                       (classifySocialIntent)
 //   4) إشارة خطر فوري ⇒ رد السلامة بدل الجواب                          (detectEmotion)
+//   4ب) رفض الطلبات خارج الاختصاص قبل أي تصحيح أو استرجاع          (screenQuestionScope)
 //   5) توضيح السؤال الغامض قبل الاسترجاع، أو تأكيد صياغة المستخدم      (assessQuestion)
 //   6) الجواب من المحتوى أو من أسئلة المشرف                            (answerQuestion)
 //   7) التحقق من الاستشهادات القانونية وإضافة تنبيه عدم اليقين         (verifyLegalCitations)
@@ -15,7 +16,7 @@
 import { DEFAULT_MESSAGES } from "./cms.js"
 import { screenMessage } from "./guardrails.js"
 import { analyzeLanguage, toArabicRetrievalText, UNSUPPORTED_LANGUAGE_ANSWER } from "./language.js"
-import { answerQuestion } from "./answer.js"
+import { answerQuestion, screenQuestionScope } from "./answer.js"
 import { answerLegalQuestion } from "../qa/engine.js"
 import {
   assessQuestion,
@@ -123,6 +124,10 @@ export function runPipeline(text, config = {}, options = {}) {
   // نص الاسترجاع بلا عبارات الإحباط أو الارتباك، فلا تجذب مدخلات عامة. الفحوص الأمنية أعلاه تعمل على النص الأصلي.
   const retrievalText = stripEmotionCues(toArabicRetrievalText(text))
 
+  // النطاق يُفحص قبل التصحيح والتوضيح حتى لا يتحول طلب طبي إلى مصطلح قانوني.
+  const scoped = screenQuestionScope(text, { ...config, retrievalText })
+  if (scoped) return sanitizeAnswerResult(scoped, messages.blocked)
+
   // 5) طبقة التوضيح قبل الاسترجاع: السؤال الغامض يُوضَّح أولاً، ولا يُجاب عن تخمين.
   // الاختيار من العميل معرّف فقط، ويُعاد حساب التوضيح من السؤال الأصلي في الخادم.
   const ctx = { retrievalText, previousQuestion: options.previousQuestion }
@@ -144,6 +149,11 @@ export function runPipeline(text, config = {}, options = {}) {
   const withNote = (answer) => (decision.note ? `${decision.note}\n\n${answer}` : answer)
 
   const base = answerQuestion(qText, { ...config, retrievalText: qRetrieval })
+
+  // قد تختلف الصياغة المؤكدة عن الأصل: لا تتجاوز بوابة النطاق في أي فرع قانوني.
+  if (["refused", "blocked", "disabled", "unsupported_language", "out_of_topic"].includes(base.mode)) {
+    return sanitizeAnswerResult({ ...base, ...used }, messages.blocked)
+  }
 
   // فرع محدد (مثل: التقادم الجنائي): لا يُجاب إلا من نص موثّق لذلك الفرع، وإلا فجملة عدم اليقين.
   if (decision.branch && base.reason !== "custom_qa") {
@@ -171,7 +181,7 @@ export function runPipeline(text, config = {}, options = {}) {
 
   // محرك الأسئلة القانونية: يتقدم على المحتوى العام فقط حين يجد أدلة قانونية في المصادر المعتمدة.
   // لا يتجاوز: الأسئلة المخصصة من المشرف (custom_qa)، والرفض، والحظر، والتعطيل.
-  const engineEligible = base.reason !== "custom_qa" && !["refused", "blocked", "disabled", "unsupported_language"].includes(base.mode)
+  const engineEligible = base.reason !== "custom_qa"
   if (engineEligible) {
     const legal = answerLegalQuestion(qText, { retrievalText: qRetrieval })
     if (legal.handled) {

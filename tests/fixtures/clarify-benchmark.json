@@ -21,7 +21,7 @@
     { "id": "c01", "question": "ما هي شروط التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "ثلاث قراءات: مدني، جنائي، تجاري" },
     { "id": "c02", "question": "التقادم في القانون؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "فرع غير محدد" },
     { "id": "c03", "question": "ما حكم الرهن؟", "expect": "clarify", "kind": "ambiguous_term", "lang": "ar", "note": "الرهن الحيازي أو الرهن الرسمي" },
-    { "id": "c04", "question": "ما هو التقاد؟", "expect": "clarify", "kind": "misspelling", "lang": "ar", "note": "حرف محذوف من التقادم" },
+    { "id": "c04", "question": "ما هو التقاد؟", "expect": "answer", "lang": "ar", "note": "مطابقة حرفية فقط: لا اقتراح لكلمة متشابهة (التقادم)" },
     { "id": "c05", "question": "ما هي حالات عدم سريان التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "النفي (عدم) يجب أن يبقى في الاقتراح" },
     { "id": "c06", "question": "ما هي الحالات التي لا يسري فيها التقادم؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "ar", "note": "النفي (لا) يجب أن يبقى" },
     { "id": "c07", "question": "واش كاين التقادم فالقانون؟", "expect": "clarify", "kind": "ambiguous_branch", "lang": "darija", "note": "دارجة بالحروف العربية، فرع غير محدد" },

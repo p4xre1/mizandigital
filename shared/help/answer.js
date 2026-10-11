@@ -7,12 +7,13 @@
 //   1) المساعد متوقف من الإعدادات؟
 //   2) حقن شيفرة أو تعليمات، أو حمولة مموّهة، أو هندسة اجتماعية (ثابت في الكود)
 //   3) عبارات محظورة يضعها المشرف
-//   4) استشارة قانونية في حالة فردية
+//   4) طلب علاج أو دواء، أو استشارة قانونية في حالة فردية
 //   5) كلمات خارج الموضوع يضعها المشرف
 //   6) البحث: أسئلة المشرف أولاً، ثم محتوى الموقع المدمج
 //
 // كل نتيجة تحمل "reason" داخلياً للتسجيل الأمني. الـendpoint يحذفه قبل الرد للزائر.
 
+import { isMedicalAdviceRequest, MEDICAL_SCOPE_REPLY } from "./medical-scope.js"
 import { allEntries } from "./knowledge.js"
 import { rankEntries } from "./retrieve.js"
 import { checkBlockedPhrases, checkInjection, checkObfuscation, checkOffTopic, checkScope, checkSocialEngineering, REFUSAL_LEGAL_ADVICE } from "./guardrails.js"
@@ -34,13 +35,11 @@ const FALLBACK_SOURCES = [
  *   settings?: typeof DEFAULT_SETTINGS,
  *   retrievalText?: string      // نص عربي مساعد (دارجة محوّلة) للاسترجاع فقط، لا للفحوص الأمنية
  * }} [options]
- * @returns {{ mode: "disabled" | "blocked" | "refused" | "out_of_topic" | "answer" | "not_found", answer: string, sources: Array<{title: string, url: string}>, reason?: string }}
+ * @returns {{ mode: "disabled" | "blocked" | "refused" | "out_of_topic" | "answer" | "not_found", answer: string, sources: Array<{title: string, url: string}>, reason?: string } | null}
  */
-export function answerQuestion(question, options = {}) {
+export function screenQuestionScope(question, options = {}) {
   const settings = options.settings ?? DEFAULT_SETTINGS
   const messages = settings.messages ?? DEFAULT_MESSAGES
-  const staticEntries = options.entries ?? allEntries()
-  const customEntries = options.customEntries ?? []
   // الفحوص الأمنية (حقن، تمويه، هندسة اجتماعية) تعمل على السؤال الأصلي وحده.
   // الاسترجاع والعبارات المحظورة وخارج الموضوع تعمل على السؤال مع النص المحوّل.
   const analysed = options.retrievalText ? `${question} ${options.retrievalText}` : question
@@ -63,6 +62,10 @@ export function answerQuestion(question, options = {}) {
     return { mode: "blocked", answer: messages.blocked, sources: [], reason: "blocked_phrase" }
   }
 
+  if (isMedicalAdviceRequest(analysed)) {
+    return { mode: "out_of_topic", answer: MEDICAL_SCOPE_REPLY, sources: [], reason: "medical_advice" }
+  }
+
   if (checkScope(analysed).refuse) {
     return {
       mode: "refused",
@@ -75,6 +78,21 @@ export function answerQuestion(question, options = {}) {
   if (checkOffTopic(analysed, settings.offTopicTerms).offTopic) {
     return { mode: "out_of_topic", answer: messages.offTopic, sources: FALLBACK_SOURCES, reason: "off_topic" }
   }
+
+  return null
+}
+
+/**
+ * البحث لا يبدأ إلا بعد بوابة النطاق، المشتركة مع خط المعالجة قبل التوضيح.
+ * @param {string} question
+ * @param {Parameters<typeof screenQuestionScope>[1]} [options]
+ */
+export function answerQuestion(question, options = {}) {
+  const screened = screenQuestionScope(question, options)
+  if (screened) return screened
+  const messages = options.settings?.messages ?? DEFAULT_MESSAGES
+  const staticEntries = options.entries ?? allEntries()
+  const customEntries = options.customEntries ?? []
 
   // أسئلة المشرف أولاً: إن طابقت فهي الجواب المعتمد، وإلا نرجع إلى محتوى الموقع.
   // الاسترجاع يعمل على نص البحث فقط (بلا عبارات الإحباط)، أما الفحوص أعلاه فتبقى على النص الكامل.
