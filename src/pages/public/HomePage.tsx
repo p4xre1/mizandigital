@@ -15,6 +15,7 @@ import { HomeStatsBand } from "../../components/home/HomeStatsBand"
 import { pickTreeTerms, type TreeTerm } from "../../lib/lexicon/treeTerms"
 import { HeroPreview } from "../../components/home/HeroPreview"
 import { HomeFreeResources } from "../../components/home/HomeFreeResources"
+import { HomeCollabBanner } from "../../components/home/HomeCollabBanner"
 const HomeFaqSection = lazy(() => import("../../components/home/HomeFaqSection").then((m) => ({ default: m.HomeFaqSection })))
 
 interface FeedCard {
@@ -311,6 +312,8 @@ export function HomePage() {
             </div>
           </div>
         </section>
+
+        <HomeCollabBanner />
 
         <section ref={contentSectionRef} className="py-14 bg-[#f8fafc] dark:bg-[#0f172a] [content-visibility:auto] [contain-intrinsic-size:800px]">
           <div className="container mx-auto max-w-[1280px] px-6">
