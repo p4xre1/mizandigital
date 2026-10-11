@@ -22,9 +22,9 @@
  */
 
 import { buildMetaDescription, brandTitle, sectionContextFor } from "../../shared/seo/meta-copy.js";
-import { SITE_ORIGIN, articleSlug, newsSlug } from "../../shared/seo/url-policy.js";
+import { SITE_ORIGIN, articleSlug, newsSlug, schoolSlug } from "../../shared/seo/url-policy.js";
 import { isArchivableItem } from "../../shared/archive/links.js";
-import { archiveSlug, cmsLexiconSlug, termKey } from "./cmsUrls.js";
+import { archiveSlug, cmsEventSlug, cmsLexiconSlug, termKey } from "./cmsUrls.js";
 
 /** أقسام المحتوى التي قد تحمل رابط CMS غير مبني: البادئة → النوع. */
 const CONTENT_PREFIXES = {
@@ -32,6 +32,8 @@ const CONTENT_PREFIXES = {
   "/news/": "news",
   "/pdf/": "pdf",
   "/lexicon/": "lexicon",
+  "/events/": "event",
+  "/schools/": "school",
 };
 
 /**
@@ -94,6 +96,19 @@ export function findRecord(catalog = {}, kind, slug) {
     );
   }
 
+  if (kind === "event") {
+    // الواجهة تجلب الندوة بـ seminar-<id> حصراً (EventPage)؛ أي مطابقة أخرى
+    // (بالعنوان مثلاً) تخدم 200 على رابط ترسمه الواجهة «غير موجودة».
+    const rows = catalog.events ?? [];
+    return rows.find((row) => cmsEventSlug(row) === slug) ?? null;
+  }
+
+  if (kind === "school") {
+    // SchoolPage يقبل slug أو id — نفعل الشيء نفسه حرفياً.
+    const rows = catalog.schools ?? [];
+    return rows.find((row) => schoolSlug(row) === slug || String(row?.id ?? "") === slug) ?? null;
+  }
+
   return null;
 }
 
@@ -106,18 +121,36 @@ function truncate(value, max) {
  * وسوم الرأس لسجلّ CMS: عنوان، وصف، ونوع og، وعقد JSON-LD.
  *
  * @param {any} record سجلّ CMS (عنوان/وصف/تاريخ حسب النوع)
- * @param {"article"|"news"|"pdf"|"lexicon"} kind
+ * @param {"article"|"news"|"pdf"|"lexicon"|"event"|"school"} kind
  * @param {{ origin?: string, canonical?: string }} [options]
  * @returns {{title: string, description: string, ogType: string, jsonLd: any[]}}
  */
 export function buildContentHead(record, kind, { origin = SITE_ORIGIN, canonical } = {}) {
-  const rawTitle = record?.meta_title || record?.title || record?.term_ar || "";
+  // عنوان الصفحة يمرّ عبر brandTitle — نفس ما يفعله SEOHead بعد hydration.
+  // للفعاليات والكليات نركّب نفس النصّ الذي تمرّره EventPage/SchoolPage
+  // (لاحقة القسم) قبل brandTitle، وإلا رأى الزاحف عنواناً وتبادله الصفحة.
+  const rawTitle =
+    kind === "event"
+      ? `${record?.title || ""} - الندوات والأيام الدراسية`
+      : kind === "school"
+        ? `${record?.name || ""} - دليل كليات الحقوق بالمغرب`
+        : record?.meta_title || record?.title || record?.term_ar || "";
   const title = brandTitle(rawTitle);
 
   const contextPath =
-    kind === "article" ? "/articles" : kind === "news" ? "/news" : kind === "pdf" ? "/pdf" : "/lexicon";
+    kind === "article"
+      ? "/articles"
+      : kind === "news"
+        ? "/news"
+        : kind === "pdf"
+          ? "/pdf"
+          : kind === "event"
+            ? "/events"
+            : kind === "school"
+              ? "/schools"
+              : "/lexicon";
   const description = buildMetaDescription(
-    record?.meta_description || record?.excerpt || record?.summary || record?.description || record?.definition,
+    record?.meta_description || record?.excerpt || record?.summary || record?.description || record?.agenda || record?.definition,
     [sectionContextFor(contextPath)],
   );
 
@@ -162,6 +195,37 @@ export function buildContentHead(record, kind, { origin = SITE_ORIGIN, canonical
       description,
       inDefinedTermSet: { "@id": `${origin}/lexicon` },
       ...(record?.term_fr ? { alternateName: truncate(record.term_fr, 80) } : {}),
+    });
+  } else if (kind === "event") {
+    // EducationEvent — نفس نوع مخطط EventPage، بالحقول المتوفّرة في السجلّ؛
+    // الواجهة تستكمل التفاصيل (organizer/location) بعد hydration.
+    const startDate = record?.event_date
+      ? `${String(record.event_date).slice(0, 10)}T${record.event_time || "09:00"}:00`
+      : "";
+    jsonLd.push({
+      "@context": "https://schema.org",
+      "@type": "EducationEvent",
+      name: truncate(record?.title, 110),
+      description,
+      ...(startDate ? { startDate } : {}),
+      url,
+    });
+  } else if (kind === "school") {
+    // EducationalOrganization — نفس @id وحقول generateFacultySchema في الواجهة.
+    jsonLd.push({
+      "@context": "https://schema.org",
+      "@type": "EducationalOrganization",
+      "@id": `${url}#organization`,
+      name: truncate(record?.name, 110),
+      description,
+      url,
+      ...(record?.founded_year ? { foundingDate: String(record.founded_year) } : {}),
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: record?.city || "المغرب",
+        addressCountry: "MA",
+      },
+      inLanguage: "ar-MA",
     });
   }
 

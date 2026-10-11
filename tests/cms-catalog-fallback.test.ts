@@ -110,4 +110,29 @@ describe("cmsCatalog — استعلام بديل عند 400", () => {
     expect(catalog.lexicon).toEqual([]);
     expect(calls.filter((url) => url.includes("/lexicon_terms?"))).toHaveLength(1);
   });
+
+  test("seminars وfaculties يدخلان الكتالوج — الندوات مفلترة بالنشر", async () => {
+    const SEMINAR_ROWS = [{ id: "e1", title: "ندوة", created_at: "2026-10-01" }];
+    const FACULTY_ROWS = [{ id: "f1", name: "كلية", slug: "fsjes-tetouan", created_at: "2026-09-01" }];
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+        const table = url.pathname.split("/").pop() ?? "";
+        calls.push(url.toString());
+        if (table === "seminars") return jsonResponse(SEMINAR_ROWS);
+        if (table === "faculties") return jsonResponse(FACULTY_ROWS);
+        return jsonResponse([]);
+      }),
+    );
+
+    const catalog = await loadPublishedCatalog({});
+    expect(catalog.events).toEqual(SEMINAR_ROWS);
+    expect(catalog.schools).toEqual(FACULTY_ROWS);
+
+    // الندوات: منشورة فقط — نفس فلتر EventsPage، وإلا دخلت ندوة مسودّة الخريطة.
+    expect(calls.find((url) => url.includes("/seminars?"))).toMatch(/status=eq\.published/);
+    expect(calls.find((url) => url.includes("/faculties?"))).toBeDefined();
+  });
 });

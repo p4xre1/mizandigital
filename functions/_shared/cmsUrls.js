@@ -19,11 +19,14 @@ import {
   SITE_ORIGIN,
   articleSlug,
   canonicalArticle,
+  canonicalEvent,
   canonicalLexicon,
   canonicalNews,
   canonicalPdf,
+  canonicalSchool,
   newsSlug,
   pathOfUrl,
+  schoolSlug,
   slugify,
 } from "../../shared/seo/url-policy.js";
 import { isArchivableItem } from "../../shared/archive/links.js";
@@ -64,9 +67,20 @@ export function cmsLexiconSlug(row) {
 }
 
 /**
+ * معرّف ندوة من CMS (جدول seminars): الواجهة لا تعرف صيغة أخرى —
+ * EventPage تجلب السجلّ بالمعرّف فقط حين تبدأ البادئة بـ seminar-، وبنفس
+ * الصيغة تبني EventsPage وHomePage وSearchPage الرابط. أي معرّف مشتق من
+ * العنوان هنا يُنتج رابطاً تنشره الخريطة ثم يردّ عليه الموقع «غير موجود».
+ */
+export function cmsEventSlug(row) {
+  const id = row?.id == null ? "" : String(row.id).trim();
+  return id ? `seminar-${id}` : "";
+}
+
+/**
  * يحوّل كتالوج CMS إلى عناصر خريطة موقع.
  *
- * @param {{articles?: any[], news?: any[], pdfs?: any[], laws?: any[], lexicon?: any[]}} catalog
+ * @param {{articles?: any[], news?: any[], pdfs?: any[], laws?: any[], lexicon?: any[], events?: any[], schools?: any[]}} catalog
  * @param {{localLexiconTerms?: Set<string>}} [options] مصطلحات المعجم المبنية
  *        محلياً (تُقرأ من /reference/lexicon.json) — تُستثنى حتى لا يظهر
  *        المصطلح نفسه بمعرّف CMS مختلف عن صفحته الثابتة (محتوى مكرر).
@@ -114,6 +128,22 @@ export function buildCmsEntries(catalog = {}, { localLexiconTerms = new Set() } 
     const slug = cmsLexiconSlug(row);
     if (!slug) continue;
     push(canonicalLexicon(slug), lastmodOf(row), "monthly", "0.7");
+  }
+
+  // الندوات (seminars) والكليات (faculties): نفس أولويات البناء في
+  // scripts/generate-sitemap.mjs (0.7/monthly) حتى لا يختلف وزن صفحة CMS عن
+  // شقيقتها المبنية من events.json وschools.json.
+  for (const row of catalog.events ?? []) {
+    const slug = cmsEventSlug(row);
+    if (!slug) continue;
+    push(canonicalEvent(slug), lastmodOf(row, ["updated_at", "created_at"]), "monthly", "0.7");
+  }
+
+  for (const row of catalog.schools ?? []) {
+    // نفس دالة المعرّف المستعملة في البناء والواجهة: slug ← الاسم ← id.
+    const slug = schoolSlug(row);
+    if (!slug) continue;
+    push(canonicalSchool(slug), lastmodOf(row, ["updated_at", "created_at"]), "monthly", "0.7");
   }
 
   return entries;

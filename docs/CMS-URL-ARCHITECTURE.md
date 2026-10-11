@@ -23,7 +23,7 @@
 ## 2. المعمارية بعد التغيير
 
 ```
-Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
+Supabase (articles / news / pdf_summaries / laws / lexicon_terms / seminars / faculties)
         │
         ├── وقت البناء (كما كان) ─────────────────────────────► صفحة ثابتة + سطر في sitemap
         │   scripts/lib/cms-content.mjs → prerender.mjs / generate-sitemap.mjs
@@ -47,18 +47,24 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
 - الروابط تُبنى بنفس دوال المعرّفات المستعملة في البناء والواجهة
   (`shared/seo/url-policy.js`): `slug ← عنوان ← id`، والأرشيف بنفس شرط
   `isArchivableItem` (رابط تحميل أو نصّ)، ومصطلح المعجم المكرر محلياً يُستثنى.
+- الندوات (`seminars`) تدخل بصيغة الواجهة الحرفية `seminar-<id>` (لا عمود
+  slug في الجدول، و`EventPage` تحلّ المعرّف وحده)، والكليات (`faculties`)
+  بـ`/schools/<slug>` من عمود `slug` — وكلاهما بأولوية `0.7/monthly` كما في
+  `scripts/generate-sitemap.mjs` للفعاليات والمدارس المحلية.
 - لا `<loc>` مكرر (مقارنة حرفية)، ولا XML مكسور (هروب كامل للأحرف)، وعند
   تعطل القاعدة تُعاد النسخة المبنية كما هي بلا خطأ.
 
 ### الطبقة 2 — بديل وقت-الطلب: `functions/[[path]].js` + `functions/_shared/contentFallback.js`
 
 - يعمل فقط على مسارات المحتوى ذات المقطع الواحد: `/articles/<slug>`،
-  `/news/<slug>`، `/pdf/<slug>`، `/lexicon/<slug>`، وفقط عند **404** من الأصول.
+  `/news/<slug>`، `/pdf/<slug>`، `/lexicon/<slug>`، `/events/seminar-<id>`،
+  `/schools/<slug>`، وفقط عند **404** من الأصول.
 - يتحقق من القاعدة: إن لم يكن السجلّ موجوداً فعلاً يبقى **404 حقيقياً** (لا
   Soft 404 ولا فهرسة لصفحة وهمية).
 - إن وُجد: يخدم هيكل التطبيق 200 بعد حقن وسوم الرأس — `title` (بـ`brandTitle`)،
   `description` (بـ`buildMetaDescription`)، `canonical`، `og:*`، وJSON-LD
-  (`WebPage` + `Article`/`DefinedTerm`) — و`robots: index, follow` بدل
+  (`WebPage` + `Article`/`DefinedTerm`/`EducationEvent`/`EducationalOrganization`)
+  — و`robots: index, follow` بدل
   `noindex` الخاص بالهيكل. والواجهة تجلب المحتوى بنفسها بعد التحميل.
 - بعد أول بناء تالٍ يصبح للرابط ملف ثابت، فلا يُستدعى هذا المسار أصلاً.
 - **استثناء المعجم المحلي مشترك مع الطبقة 1** (`functions/_shared/localLexicon.js`):
@@ -78,7 +84,8 @@ Supabase (articles / news / pdf_summaries / laws / lexicon_terms)
    - `CF_DEPLOY_HOOK_URL` = رابط Deploy Hook (Settings → Builds & deployments →
      Deploy hooks → Add).
 2. **Supabase → Database → Webhooks → Create** لكل جدول من
-   `articles`, `news`, `pdf_summaries`, `laws`, `lexicon_terms`:
+   `articles`, `news`, `pdf_summaries`, `laws`, `lexicon_terms`, `seminars`,
+   `faculties`:
    - Events: `Insert`, `Update` — Method: `POST`
    - URL: `https://www.mizan.page/api/revalidate?secret=<REVALIDATE_SECRET>`
    - (أو ترويسة `Authorization: Bearer <REVALIDATE_SECRET>`)

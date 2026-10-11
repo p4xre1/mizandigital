@@ -188,3 +188,78 @@ describe("contentFallback — رابط منشور غير مبني", () => {
     expect(head.jsonLd.some((node) => node["@type"] === "Article")).toBe(true);
   });
 });
+
+describe("ندوات وكليات CMS — seminars/faculties في الخريطة وصفحات حقيقية", () => {
+  test("ندوة تدخل بمعرّف seminar-<id> — نفس الرابط الذي تبنيه الواجهة", () => {
+    const entries = buildCmsEntries({
+      events: [
+        { id: "e1", title: "ندوة القانون المقارن", event_date: "2026-05-16", created_at: "2026-10-02T08:00:00Z" },
+      ],
+    });
+    expect(entries).toHaveLength(1);
+    expect(entries[0].path).toBe("/events/seminar-e1");
+    expect(entries[0].url).toBe("https://www.mizan.page/events/seminar-e1");
+    expect(entries[0].lastmod).toBe("2026-10-02");
+    // نفس أولوية generate-sitemap.mjs للفعاليات.
+    expect(entries[0].priority).toBe("0.7");
+    expect(entries[0].changefreq).toBe("monthly");
+  });
+
+  test("ندوة بلا معرّف تُسقط — لا رابط seminar-undefined", () => {
+    expect(buildCmsEntries({ events: [{ title: "ندوة بلا معرّف" }] })).toHaveLength(0);
+  });
+
+  test("كلية من لوحة التحكم تدخل بـ /schools/<slug> من عمود slug", () => {
+    const entries = buildCmsEntries({
+      schools: [{ id: "f1", name: "كلية العلوم القانونية", slug: "fsjes-tetouan", created_at: "2026-09-01" }],
+    });
+    expect(entries).toHaveLength(1);
+    expect(entries[0].path).toBe("/schools/fsjes-tetouan");
+    expect(entries[0].priority).toBe("0.7");
+    expect(entries[0].lastmod).toBe("2026-09-01");
+  });
+
+  test("matchContentPath وfindRecord يقبلان القسمين الجديدين ويطابقان صيغة الواجهة", () => {
+    expect(matchContentPath("/events/seminar-e1")).toEqual({ kind: "event", slug: "seminar-e1" });
+    expect(matchContentPath("/schools/fsjes-tetouan")).toEqual({ kind: "school", slug: "fsjes-tetouan" });
+
+    const catalog = {
+      events: [{ id: "e1", title: "ندوة" }],
+      schools: [{ id: "f1", name: "كلية", slug: "fsjes-tetouan" }],
+    };
+    expect(findRecord(catalog, "event", "seminar-e1")?.id).toBe("e1");
+    // الواجهة تقبل slug أو id للكليات — نفعل الشيء نفسه.
+    expect(findRecord(catalog, "school", "fsjes-tetouan")?.id).toBe("f1");
+    expect(findRecord(catalog, "school", "f1")?.id).toBe("f1");
+    // الندوة بمعرّف عارٍ (بلا seminar-) لا توجد: EventPage لا تحلّها أصلاً.
+    expect(findRecord(catalog, "event", "e1")).toBeNull();
+    expect(findRecord(catalog, "event", "seminar-missing")).toBeNull();
+  });
+
+  test("buildContentHead لندوة: EducationEvent وعنوان بلاحقة القسم كما في EventPage", () => {
+    const head = buildContentHead(
+      { id: "e1", title: "ندوة المنافسة", agenda: "برنامج الندوة العلمية الدولية.", event_date: "2026-05-16", event_time: "09:30" },
+      "event",
+      { canonical: "https://www.mizan.page/events/seminar-e1" },
+    );
+    // نفس نصّ EventPage ثم brandTitle (SEOHead) — لا يرى الزاحف عنواناً آخر بعد hydration.
+    expect(head.title).toBe("ندوة المنافسة - الندوات والأيام الدراسية | ميزان الرقمية");
+    expect(head.ogType).toBe("website");
+    const eventNode = head.jsonLd.find((node) => node["@type"] === "EducationEvent");
+    expect(eventNode?.startDate).toBe("2026-05-16T09:30:00");
+    expect(eventNode?.url).toBe("https://www.mizan.page/events/seminar-e1");
+  });
+
+  test("buildContentHead لكلية: EducationalOrganization بنفس @id الذي تبنيه generateFacultySchema", () => {
+    const head = buildContentHead(
+      { id: "f1", name: "كلية تطوان", slug: "fsjes-tetouan", city: "تطوان", founded_year: 1999, description: "كلية الحقوق بتطوان." },
+      "school",
+      { canonical: "https://www.mizan.page/schools/fsjes-tetouan" },
+    );
+    expect(head.title).toBe("كلية تطوان - دليل كليات الحقوق بالمغرب | ميزان الرقمية");
+    const schoolNode = head.jsonLd.find((node) => node["@type"] === "EducationalOrganization");
+    expect(schoolNode?.["@id"]).toBe("https://www.mizan.page/schools/fsjes-tetouan#organization");
+    expect(schoolNode?.address?.addressLocality).toBe("تطوان");
+    expect(schoolNode?.foundingDate).toBe("1999");
+  });
+});

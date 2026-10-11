@@ -46,6 +46,13 @@ const TABLE_QUERIES = {
   // (رابط تحميل أو نصّ قانوني كامل) — نفس شرط البناء.
   laws: `select=id,title,slug,law_number,official_gazette_number,publication_date,pdf_url,description,content,created_at,updated_at&order=created_at.desc&limit=${LIMIT}`,
   lexicon_terms: `select=id,term_ar,term_fr,definition,category,slug,updated_at,created_at&order=created_at.desc&limit=${LIMIT}`,
+  // seminars: الندوات المنشورة فقط (status=published) — نفس فلتر EventsPage.
+  // لا عمود slug ولا updated_at؛ هوية الرابط seminar-<id> تُبنى من المعرّف
+  // في cmsUrls.js (نفس الصيغة التي تبنيها الواجهة في EventPage/SearchPage).
+  seminars: `select=id,title,speaker,speaker_title,video_url,event_date,event_time,agenda,attachment_url,created_at&status=eq.published&order=created_at.desc&limit=${LIMIT}`,
+  // faculties: كليات أُضيفت من لوحة التحكم — بلا عمود نشر (كل الصفوف عامة)
+  // مثل laws، والرابط /schools/<slug> بالعمود slug (NOT NULL في القاعدة).
+  faculties: `select=id,name,city,slug,founded_year,logo_url,description,created_at&order=created_at.desc&limit=${LIMIT}`,
 };
 
 /**
@@ -141,6 +148,8 @@ export async function loadPublishedCatalog(env, { timeoutMs = 8000, force = fals
       pdfs: results.find((r) => r.name === "pdf_summaries")?.rows ?? [],
       laws: results.find((r) => r.name === "laws")?.rows ?? [],
       lexicon: results.find((r) => r.name === "lexicon_terms")?.rows ?? [],
+      events: results.find((r) => r.name === "seminars")?.rows ?? [],
+      schools: results.find((r) => r.name === "faculties")?.rows ?? [],
       at: new Date().toISOString(),
     };
 
@@ -161,6 +170,8 @@ export async function loadPublishedCatalog(env, { timeoutMs = 8000, force = fals
       pdfs: [],
       laws: [],
       lexicon: [],
+      events: [],
+      schools: [],
       at: new Date().toISOString(),
     };
   }
