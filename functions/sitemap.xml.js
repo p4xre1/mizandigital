@@ -28,40 +28,13 @@
  */
 
 import { loadPublishedCatalog } from "./_shared/cmsCatalog.js";
-import { buildCmsEntries, mergeSitemapXml, termKey } from "./_shared/cmsUrls.js";
+import { buildCmsEntries, mergeSitemapXml } from "./_shared/cmsUrls.js";
+import { loadLocalLexiconTerms } from "./_shared/localLexicon.js";
 
 const BASE_HEADERS = {
   "Content-Type": "application/xml; charset=utf-8",
   "X-Content-Type-Options": "nosniff",
 };
-
-/** مصطلحات المعجم المبنية محلياً — للاستثناء من النسخة الديناميكية. */
-let localTermsCache = { at: 0, value: null };
-const LOCAL_TERMS_TTL_MS = 300_000;
-
-async function loadLocalLexiconTerms(env, origin) {
-  if (localTermsCache.value && Date.now() - localTermsCache.at < LOCAL_TERMS_TTL_MS) {
-    return localTermsCache.value;
-  }
-
-  const keys = new Set();
-  try {
-    const response = await env.ASSETS.fetch(new Request(`${origin}/reference/lexicon.json`, { method: "GET" }));
-    if (response.ok) {
-      const data = await response.json();
-      for (const item of data?.items ?? []) {
-        const key = termKey(item?.term_ar);
-        if (key) keys.add(key);
-      }
-    }
-  } catch {
-    // بلا ملف المرجعية نُكمل بلا استثناء — الأسوأ ظهور مصطلح مكرر بمعرّف
-    // CMS، وهو أفضل من إسقاط كل مصطلحات CMS من الخريطة.
-  }
-
-  localTermsCache = { at: Date.now(), value: keys };
-  return keys;
-}
 
 export async function onRequest(context) {
   const { request, env } = context;

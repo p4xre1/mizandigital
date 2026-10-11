@@ -13,7 +13,8 @@ import {
   canonicalPdf,
   newsSlug,
 } from "../shared/seo/url-policy.js";
-import { archiveSlug, cmsLexiconSlug } from "./_shared/cmsUrls.js";
+import { archiveSlug, cmsLexiconSlug, termKey } from "./_shared/cmsUrls.js";
+import { loadLocalLexiconTerms } from "./_shared/localLexicon.js";
 
 const MARKDOWN = `# ميزان الرقمية
 
@@ -171,6 +172,15 @@ async function serveUnbuiltCmsPage(context, url) {
   const catalog = await loadPublishedCatalog(context.env);
   const record = findRecord(catalog, match.kind, match.slug);
   if (!record) return null;
+
+  // مصطلح مبني محلياً: له صفحة ثابتة بمعرّفه العربي، وخريطة الموقع تستثني
+  // نسخة CMS منه (contentFallback كان يخدمها 200 فتظهر صفحة مكررة قابلة
+  // للفهرسة غير مدرجة في الخريطة). نفس المجموعة ونفس الاستثناء في الطرفين.
+  if (match.kind === "lexicon") {
+    const localTerms = await loadLocalLexiconTerms(context.env, url.origin);
+    const key = termKey(record?.term_ar);
+    if (key && localTerms.has(key)) return null;
+  }
 
   const shell = await context.env.ASSETS.fetch(
     new Request(new URL("/app.html", url).href, { method: "GET" }),
