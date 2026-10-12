@@ -249,7 +249,7 @@ describe("تسلسل العناوين في الصفحة الرئيسية", () =>
 
 describe("تقسيم حزم البناء", () => {
   test("vite/preload-helper معزول في مجموعة مستقلة بأعلى أولوية", () => {
-    expect(viteConfig).toContain("advancedChunks");
+    expect(viteConfig).toContain("codeSplitting");
     expect(viteConfig).toMatch(/name:\s*"preload-helper",\s*test:\s*\/vite\\\/preload-helper\/,\s*priority:\s*100/);
   });
 
