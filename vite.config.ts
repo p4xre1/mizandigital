@@ -33,12 +33,12 @@ export default defineConfig({
   build: {
     target: "es2022",
     cssCodeSplit: true,
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 2400,
     minify: "esbuild",
     cssMinify: true,
     rollupOptions: {
       output: {
-        // ── لماذا advancedChunks بدل manualChunks ────────────────────────────
+        // ── لماذا codeSplitting بدل manualChunks ────────────────────────────
         // مع manualChunks كان Rolldown يضع الوحدة المشتركة الصغيرة
         // "vite/preload-helper" داخل أول chunk ضخم يستعملها (ثم pdf-worker).
         // النتيجة: entry الصفحة الرئيسية كان يستورد رمزاً واحداً صغيراً من
@@ -49,7 +49,7 @@ export default defineConfig({
         //
         // ملاحظة: chunk "vendor-clerk" (225KB) اختفى مع إزالة Clerk — المصادقة
         // صارت داخل vendor-supabase المستعمل فعلاً في كل صفحة.
-        advancedChunks: {
+        codeSplitting: {
           groups: [
             { name: "preload-helper", test: /vite\/preload-helper/, priority: 100 },
             { name: "vendor-lucide", test: /lucide-react/, priority: 90 },

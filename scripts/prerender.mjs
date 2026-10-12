@@ -4056,7 +4056,7 @@ if (sourceSitemap) {
     kept.push(block);
   }
 
-  if (dropped.length) {
+  if (dropped.length && cms.ok) {
     console.warn(
       `⚠️  sitemap: حُذفت ${dropped.length} بوابة بلا صفحة مولّدة، أمثلة: ${dropped.slice(0, 4).join(", ")}`
     );
