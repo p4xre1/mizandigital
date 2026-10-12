@@ -1,0 +1,34 @@
+Bug Scan Report - 2026-10-12
+Repository: p4xre1/mizandigital
+
+1) Lockfile mismatch blocks clean installs
+- Command: npm ci
+- Problem: Installation fails because package-lock.json is out of sync with package.json.
+- Evidence: Missing dependencies reported from lock file (for example @fontsource/*, jspdf, html2canvas-pro, and related transitive packages).
+- Impact: CI or local environments using npm ci cannot perform deterministic clean installs.
+
+2) Test environment emits repeated Canvas API warnings
+- Command: npm test
+- Problem: Repeated warning: "Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package".
+- Evidence: Warning appeared multiple times during Vitest execution.
+- Impact: Noisy test logs and potential hidden rendering/test-environment gaps for canvas-related code.
+
+3) Deprecated Vite build option in use
+- Command: npm run build
+- Problem: Warning: "advancedChunks option is deprecated, please use codeSplitting instead.".
+- Impact: Future compatibility risk with newer Vite/Rolldown versions.
+
+4) Oversized production chunks
+- Command: npm run build
+- Problem: Vite warning indicates some chunks exceed 600 kB after minification.
+- Impact: Potential performance issues (slower first load / poorer caching granularity).
+
+5) Prerender cannot fetch CMS tables during build
+- Command: npm run build
+- Problem: Prerender step logs fetch failures for CMS tables: articles, news, pdf_summaries, laws.
+- Impact: Build falls back to local-only page generation; CMS-dependent pages/content may be incomplete.
+
+6) Sitemap excludes non-generated gateways
+- Command: npm run build
+- Problem: Build reports 52 gateways removed from sitemap because pages were not generated.
+- Impact: Discoverability/SEO coverage reduced for those removed routes.
